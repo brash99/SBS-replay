@@ -1,41 +1,12 @@
-# SBS-offline
-Reconstruction and analysis code for SuperBigBite (SBS) experiments
+# SBS-replay
 
-This code is presently independent of TreeSearch library
+Database files, replay scripts, and analysis/calibration scripts for SBS data analysis.
 
-https://github.com/JeffersonLab/TreeSearch/
+This repository will be the "official" version control/management for the SBS replay database going forward.
 
-This code also requires a modification to the present analyzer
-to handle the data sizes in bank decoding
+Broadly speaking, database files go under "DB/", replay scripts (configuring and running the analyzer) go under "replay/" and calibration/analysis scripts that do further post-processing
+on the analyzer's ROOT output files should be kept under "scripts"
 
-Contains:
-    MPDModule
-    Decoder for MPD/APV25 used for GEMs
+There are no cmake files, and there is no "build" process.
 
-    replay.C
-    Example driver script for analysis of GEM data
-
-    SBSBigBite
-    Roughing out the BigBite spectrometer for the
-    SBS suite of experiments
-
-    db_*
-    Example databases for classes
-
-Build prerequisites:
-
-ROOT version 6
-cmake version 3.9 or higher
-Podd version 1.6 and above
-
-How to build:
-
-Assuming working ROOT build and environment setup, and that environment variable ANALYZER points to top-level installation directory for Podd:
-
-```shell
-mkdir build
-cd build
-cmake -DCMAKE_INSTALL_PREFIX=/path/to/desired/installation/directory ../SBS-offline
-make install
-```
 
