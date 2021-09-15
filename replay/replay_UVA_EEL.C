@@ -57,6 +57,7 @@ void replay_UVA_EEL( int runnum=2811, int firstsegment=0, int maxsegments=1, lon
   
   TClonesArray *filelist = new TClonesArray("THaRun",10);
 
+  TDatime now = TDatime();
   
   int segcounter=0;
   //This loop adds all file segments found to the list of THaRuns to process:
@@ -73,14 +74,18 @@ void replay_UVA_EEL( int runnum=2811, int firstsegment=0, int maxsegments=1, lon
       new( (*filelist)[segcounter] ) THaRun( codafilename.Data() );
       cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
 
-      ( (THaRun*) (*filelist)[segcounter] )->SetDate(TDatime());
-      ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+      //TDatime now = TDatime();
       
+      ( (THaRun*) (*filelist)[segcounter] )->SetDate(now);
+      ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+      //( (THaRun*) (*filelist)[segcounter] )->Init();
       
     } else {
       THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
       new( (*filelist)[segcounter] ) THaRun( *rtemp );
       ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
+      ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+      ( (THaRun*) (*filelist)[segcounter] )->SetDate(now);
       cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
     }
     if( segmentexists ){
