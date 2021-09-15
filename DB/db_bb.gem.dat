@@ -43,10 +43,16 @@ bb.gem.m10.apvmap = 1 # UVA X/Y
 bb.gem.m11.apvmap = 1 # UVA X/Y
 
 # basic flags controlling decoding:
-bb.gem.pedestalmode = 1
-bb.gem.commonmode_flag = 1
+bb.gem.pedestalmode = 0
+bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
 bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
+bb.gem.commonmode_nstriplo = 20
+bb.gem.commonmode_nstriphi = 20
+bb.gem.commonmode_niter = 3
+bb.gem.plot_common_mode = 0
+
 bb.gem.dump_geometry_info = 1
+
 
 
 # to start with, let's not worry about the misalignments, let's put everything at its nominal/ideal position:
@@ -244,7 +250,7 @@ bb.gem.sigmahitshape = 0.0004
 bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
 bb.gem.trackchi2cut = 10000.0
 bb.gem.onlinezerosuppression = 0
-bb.gem.zerosuppress_nsigma = 4.5
+bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.minhitsontrack = 3
 bb.gem.maxhitcombos = 20000
 bb.gem.gridbinwidthx = 0.1
