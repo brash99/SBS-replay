@@ -24,6 +24,24 @@ bb.gem.m9.layer = 4
 bb.gem.m10.layer = 4
 bb.gem.m11.layer = 4
 
+# APV mapping configurations: 0 = INFN, 1 = UVA X/Y, 2 = UVA U/V
+bb.gem.m0.apvmap = 2 # UVA U/V
+
+bb.bem.m1.apvmap = 0 # INFN
+bb.gem.m2.apvmap = 0
+bb.gem.m3.apvmap = 0
+
+bb.gem.m4.apvmap = 2 # U/V
+
+bb.bem.m5.apvmap = 0 # INFN
+bb.gem.m6.apvmap = 0
+bb.gem.m7.apvmap = 0
+
+bb.gem.m8.apvmap = 1 # UVA X/Y
+bb.gem.m9.apvmap = 1 # UVA X/Y
+bb.gem.m10.apvmap = 1 # UVA X/Y
+bb.gem.m11.apvmap = 1 # UVA X/Y
+
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 1

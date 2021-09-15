@@ -14,6 +14,8 @@ sbs.uvagem.modules =
   m12 m13 m14 m15
   m16 m17 m18 m19
 
+sbs.uvagem.apvmap = 1
+
 sbs.uvagem.pedestalmode = 0 
 sbs.uvagem.commonmode_flag = 0
 sbs.uvagem.commonmode_nstriplo = 20
