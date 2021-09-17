@@ -3,6 +3,7 @@ R__ADD_LIBRARY_PATH($SBS/lib64)
 R__ADD_LIBRARY_PATH($SBS/lib)
 R__LOAD_LIBRARY(libsbs.so)
 
+#if !defined(__CLING__) || defined(__ROOTCLING__)
 #include <cstdlib>
 #include <iostream>
 #include <string> 
@@ -12,6 +13,7 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "TCanvas.h"
 #include "TH1F.h"
 #include "TH2F.h"
+#include "TSystem.h"
 
 #include "THaRun.h"
 #include "THaEvent.h"
@@ -23,38 +25,48 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "THaDecData.h"
 
 #include "SBSRasteredBeam.h"
+#endif 
 
-void replay_beam_test(const char *filebase,unsigned int nev=-1,const char *experiment="gmn"); 
+void replay_beam_test(const char *filebase,int runNum,unsigned int nev=-1,const char *experiment="gmn"); 
 
 int main(int argc,char *argv[]){
 
    new THaInterface( "The Hall A analyzer", &argc, argv, 0, 0, 1 );
 
-   std::string filebase; 
-
+   std::string dataDir;
+   int run=-1; 
    unsigned int nev = -1;
-   if(argc<2 || argc>3){
-     cout << "Usage: replay_beam filebase(char*) nev(uint)" << endl;
+   if(argc<2 || argc>4){
+     cout << "Usage: replay_beam datadir(char*) run(int) nev(uint)" << endl;
      return -1;
    }
 
-   filebase = argv[1]; 
-   if(argc==3) nev = std::atoi(argv[2]); 
+   dataDir = argv[1]; 
+   if(argc>2){
+      run = std::atoi(argv[2]);
+      nev = std::atoi(argv[3]); 
+   }
+
+   char path[200],filePrefix[200];
+   sprintf(filePrefix,"lhrs_trigtest");  
+   sprintf(path,"%s/%s_%d.evio.0",dataDir.c_str(),filePrefix,run); 
 
    if(nev>0){
-      replay_beam_test(filebase.c_str(),nev);
+      replay_beam_test(path,run,nev);
    }else{
-      replay_beam_test(filebase.c_str());
+      replay_beam_test(path,run);
    }
 
    return 0;
 }
 //______________________________________________________________________________
-void replay_beam_test(const char *filebase,unsigned int nev){
+void replay_beam_test(const char *filebase,int runNum,unsigned int nev){
 
    // output and cut definition files 
    std::string odef_path = "./def/output_rastersize.def"; 
    std::string cdef_path = "./def/cuts_rastersize.def"; 
+
+   // TString rootFileName = Form("replayed_beam_%d.root",run);
 
    THaEvent* event = new THaEvent;
 
@@ -84,13 +96,13 @@ void replay_beam_test(const char *filebase,unsigned int nev){
   // gHaEvtHandlers->Add(lScaler);
 
   analyzer->SetEvent( event );
-  analyzer->SetOutFile( rootfname );
+  // analyzer->SetOutFile( rootFileName );
 
   analyzer->SetCompressionLevel(1);
   analyzer->SetOdefFile(odef_path.c_str());
   analyzer->SetCutFile(cdef_path.c_str());
 
-  THaRun* run = new THaRun( codafname );
+  THaRun* run = new THaRun( filebase );
   // run->SetFirstEvent(1);
   run->SetLastEvent(nev);
 
