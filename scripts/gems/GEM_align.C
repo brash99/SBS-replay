@@ -445,24 +445,44 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 
   C->Draw(">>elist",globalcut);
 
+  cout << "Number of events passing global cut = " << elist->GetN() << endl;
+  
   //declare variables to hold tree branch addresses:
   double ntracks;
   double besttrack;
-  double *tracknhits;
-  double *trackX,*trackY, *trackXp, *trackYp, *trackChi2NDF;
+  double tracknhits[100000];
+  double trackX[100000],trackY[100000], trackXp[100000], trackYp[100000], trackChi2NDF[100000];
 
   //Needed "hit" variables (others can be ignored for now:
   //The data types for all the branches are "double". Hope that doesn't cause problems: 
   double ngoodhits;
-  double *hit_trackindex;
-  double *hit_module;
-  double *hit_ulocal;
-  double *hit_vlocal;
+  double hit_trackindex[100000];
+  double hit_module[100000];
+  double hit_ulocal[100000];
+  double hit_vlocal[100000];
 
   TString branchname;
 
+  C->SetBranchStatus("*",0);
+
+  C->SetBranchStatus( branchname.Format( "%s.track.ntrack", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.track.besttrack", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.track.nhits", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.hit.ngoodhits", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.hit.trackindex", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.track.x", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.track.y", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.track.xp", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.track.yp", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.track.chi2ndf", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.hit.module", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.hit.u", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.hit.v", prefix.Data() ), 1 );
+  //C->SetBranchStatus( branchname.Format( "%s.track.ntrack", prefix.Data() ), 1 );
+  
   //This SHOULD give us everything we need from the ROOT tree:
   C->SetBranchAddress( branchname.Format( "%s.track.ntrack", prefix.Data() ), &ntracks );
+  C->SetBranchAddress( branchname.Format( "%s.track.besttrack", prefix.Data() ), &besttrack );
   C->SetBranchAddress( branchname.Format( "%s.track.nhits", prefix.Data() ), tracknhits );
   C->SetBranchAddress( branchname.Format( "%s.hit.ngoodhits", prefix.Data() ), &ngoodhits );
   C->SetBranchAddress( branchname.Format( "%s.hit.trackindex", prefix.Data() ), hit_trackindex );
@@ -471,7 +491,6 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
   C->SetBranchAddress( branchname.Format( "%s.track.xp", prefix.Data() ), trackXp );
   C->SetBranchAddress( branchname.Format( "%s.track.yp", prefix.Data() ), trackYp );
   C->SetBranchAddress( branchname.Format( "%s.track.chi2ndf", prefix.Data() ), trackChi2NDF );
-  C->SetBranchAddress( branchname.Format( "%s.hit.trackindex", prefix.Data() ), hit_trackindex );
   C->SetBranchAddress( branchname.Format( "%s.hit.module", prefix.Data() ), hit_module );
   C->SetBranchAddress( branchname.Format( "%s.hit.u", prefix.Data() ), hit_ulocal );
   C->SetBranchAddress( branchname.Format( "%s.hit.v", prefix.Data() ), hit_vlocal );
@@ -644,17 +663,24 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
     
     while( C->GetEntry(elist->GetEntry(nevent++))){
       
-      if( nevent % 100000 == 0 ){
+      if( nevent % 10000 == 0 ){
 	cout << "Linearized alignment, nevent = " << nevent << endl;
       }
 
       double trackchi2 = 0.0;
 
       int itrack=int(besttrack);
+ 
+      //cout << itrack << endl;
       
       int NHITS = int(ngoodhits);
       int nhitsonbesttrack=int( tracknhits[itrack] );
 
+      // cout << "N hits total = " << NHITS << ", hits on best track = " << nhitsonbesttrack << endl;
+      // cout << "best track x, y, x', y' = " << trackX[itrack] << ", " << trackY[itrack]
+      // 	   << ", " << trackXp[itrack] << ", " << trackYp[itrack] << endl;
+      // cout << "track chi2/ndf = " << trackChi2NDF[itrack] << endl;
+      
       double xptrack,yptrack,xtrack,ytrack;
       if( iter < 0 ){ //on first iteration use track from ROOT tree:
 	// xptrack = T->TrackXp;
@@ -679,11 +705,16 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 	    
 	    double ulocal = hit_ulocal[ihit]; //"U" local: generalized "X"
 	    double vlocal = hit_vlocal[ihit]; //"V" local: generalized "Y"
+
+	    
 	    
 	    double det = mod_Pxu[module]*mod_Pyv[module] - mod_Pyu[module]*mod_Pxv[module]; //cos( alphau) * sin(alphav) - sin(alphau)*cos(alphav) = 1 for alphau = 0, alphav = 90
 	    
 	    double xlocal = (mod_Pyv[module]*ulocal - mod_Pyu[module]*vlocal)/det; //(sin(alphav)*U - sin(alphau)*V)/det = U = X for alphau = 0, alphav = 90
 	    double ylocal = (mod_Pxu[module]*vlocal - mod_Pxv[module]*ulocal)/det; //(cos(alphau)*V - cos(alphav)*U)/det = V = Y for alphau = 0, alphav = 90
+
+	    // cout << "module, (uhit,vhit) = " << module << ", (" << ulocal << ", " << vlocal << "), (xhit, yhit) = ("
+	    // 	 << xlocal << ", " << ylocal << ")" << endl;
 	    
 	    TVector3 hitpos_local(xlocal,ylocal,0);
 	    TRotation R;
@@ -693,8 +724,11 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 	    
 	    TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
 	    TVector3 hitpos_global = modcenter_global + R*hitpos_local;
+
+	    // cout << "Global hit position = ";
+	    // hitpos_global.Print();
 	    
-	    double sigma = 0.1;
+	    double sigma = 0.1e-3;
 	    double weight = pow(sigma_hitpos,-2);
 	    
 	    weight = 1.0;
@@ -744,7 +778,7 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 	  TVector3 hitpos_global = modcenter_global + R*hitpos_local;
 
 	  trackchi2 += ( pow( hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z()), 2 ) +
-			 pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(0.1,-2);
+			 pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(0.1e-3,-2);
 	}
 		      
       }
@@ -810,7 +844,7 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 	    TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
 	    TVector3 hitpos_global = modcenter_global + R*hitpos_local;
 	    
-	    double sigma = 0.1;
+	    double sigma = 0.1e-3;
 	    double weight = pow(sigma_hitpos,-2);
 	    
 	    // int ipar_fix[3] = {3*module,3*module+1,3*module+2};

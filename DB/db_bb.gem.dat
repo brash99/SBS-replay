@@ -59,39 +59,67 @@ bb.gem.dump_geometry_info = 1
 
 bb.gem.m0.position = 0 0 0
 
+# initial guesses:
 # in the INFN X/Y layers, the "GEMPOS" index that defines the global module number runs from bottom to top
-bb.gem.m1.position = 0.535 0 0.1288
-bb.gem.m2.position =      0 0 0.1288
-bb.gem.m3.position = -0.535  0 0.1288
+#bb.gem.m1.position = 0.535 0 0.1288
+#bb.gem.m2.position =      0 0 0.1288
+#bb.gem.m3.position = -0.535  0 0.1288
 
-bb.gem.m4.position = 0 0 0.2781
+#bb.gem.m4.position = 0 0 0.2781
 
-bb.gem.m5.position =  0.535 0 0.4112
-bb.gem.m6.position =      0 0 0.4112
-bb.gem.m7.position = -0.535 0 0.4112
+#bb.gem.m5.position =  0.535 0 0.4112
+#bb.gem.m6.position =      0 0 0.4112
+#bb.gem.m7.position = -0.535 0 0.4112
 
 # in the UVA X/Y layer, the "GEMPOS" index that defines the global module number runs from top to bottom
-bb.gem.m8.position = -0.768 0 1.570
-bb.gem.m9.position = -0.256 0 1.534
-bb.gem.m10.position = 0.256 0 1.570
-bb.gem.m11.position = 0.768 0 1.534
+#bb.gem.m8.position = -0.768 0 1.570
+#bb.gem.m9.position = -0.256 0 1.534
+#bb.gem.m10.position = 0.256 0 1.570
+#bb.gem.m11.position = 0.768 0 1.534
 
-bb.gem.m0.angle = 0 0 0
+#bb.gem.m0.angle = 0 0 0
 
-bb.gem.m1.angle = 0 0 0
-bb.gem.m2.angle = 0 0 0
-bb.gem.m3.angle = 0 0 0
+#bb.gem.m1.angle = 0 0 0
+#bb.gem.m2.angle = 0 0 0
+#bb.gem.m3.angle = 0 0 0
 
-bb.gem.m4.angle = 0 0 0
+#bb.gem.m4.angle = 0 0 0
 
-bb.gem.m5.angle = 0 0 0
-bb.gem.m6.angle = 0 0 0
-bb.gem.m7.angle = 0 0 0
+#bb.gem.m5.angle = 0 0 0
+#bb.gem.m6.angle = 0 0 0
+#bb.gem.m7.angle = 0 0 0
 
-bb.gem.m8.angle = 0 0 0
-bb.gem.m9.angle = 0 0 0
-bb.gem.m10.angle = 0 0 0
-bb.gem.m11.angle = 0 0 0
+#bb.gem.m8.angle = 0 0 0
+#bb.gem.m9.angle = 0 0 0
+#bb.gem.m10.angle = 0 0 0
+#bb.gem.m11.angle = 0 0 0
+
+# First alignment results (UVA layers only):
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =           0.535               0          0.1288
+bb.gem.m1.angle =               0               0               0
+bb.gem.m2.position =               0               0          0.1288
+bb.gem.m2.angle =               0               0               0
+bb.gem.m3.position =          -0.535               0          0.1288
+bb.gem.m3.angle =               0               0               0
+bb.gem.m4.position =     -0.00821202      0.00406697        0.278831
+bb.gem.m4.angle =       0.0421632     -0.00770176       -0.256661
+bb.gem.m5.position =           0.535               0          0.4112
+bb.gem.m5.angle =               0               0               0
+bb.gem.m6.position =               0               0          0.4112
+bb.gem.m6.angle =               0               0               0
+bb.gem.m7.position =          -0.535               0          0.4112
+bb.gem.m7.angle =               0               0               0
+bb.gem.m8.position =       -0.768602      0.00189088         1.57228
+bb.gem.m8.angle =        0.287157       0.0497893      -0.0167777
+bb.gem.m9.position =       -0.253387     -0.00198992         1.53365
+bb.gem.m9.angle =       0.0660782       -0.151838        -0.12117
+bb.gem.m10.position =         0.25814     -0.00556479         1.57406
+bb.gem.m10.angle =        0.178343       -0.107656       -0.119409
+bb.gem.m11.position =        0.768809      -0.0121981         1.53247
+bb.gem.m11.angle =       -0.612792       -0.380139        0.182686
+
 
 
 # we MAY need to adjust the size on the U/V layers, but for now let's just use a nominal 40x150 cm^2:
