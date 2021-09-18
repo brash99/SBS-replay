@@ -27,46 +27,25 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSRasteredBeam.h"
 #endif 
 
-void replay_beam_test(const char *filebase,int runNum,unsigned int nev=-1,const char *experiment="gmn"); 
+const std::string SCRIPT = "[replay_beam]: "; 
 
-int main(int argc,char *argv[]){
-
-   new THaInterface( "The Hall A analyzer", &argc, argv, 0, 0, 1 );
-
-   std::string dataDir;
-   int run=-1; 
-   unsigned int nev = -1;
-   if(argc<2 || argc>4){
-     cout << "Usage: replay_beam datadir(char*) run(int) nev(uint)" << endl;
-     return -1;
-   }
-
-   dataDir = argv[1]; 
-   if(argc>2){
-      run = std::atoi(argv[2]);
-      nev = std::atoi(argv[3]); 
-   }
-
-   char path[200],filePrefix[200];
-   sprintf(filePrefix,"lhrs_trigtest");  
-   sprintf(path,"%s/%s_%d.evio.0",dataDir.c_str(),filePrefix,run); 
-
-   if(nev>0){
-      replay_beam_test(path,run,nev);
-   }else{
-      replay_beam_test(path,run);
-   }
-
-   return 0;
-}
 //______________________________________________________________________________
-void replay_beam_test(const char *filebase,int runNum,unsigned int nev){
+void replay_beam(const char *filePath,int runNum,unsigned int nev){
 
    // output and cut definition files 
    std::string odef_path = "./def/output_rastersize.def"; 
    std::string cdef_path = "./def/cuts_rastersize.def"; 
 
    // TString rootFileName = Form("replayed_beam_%d.root",run);
+
+   // input file path 
+   TString filePrefix = Form("lhrs_trigtest");
+   TString fullPath   = Form("%s/%s_%d.evio.0",filePath,filePrefix.Data(),runNum);
+
+   // output ROOT file destination and name 
+   TString out_dir = gSystem->Getenv("OUT_DIR");
+   if( out_dir.IsNull() ) out_dir = ".";
+   TString out_file = out_dir + "/" + Form("replayed_%s_%d.root", filePrefix.Data(),runNum);
 
    THaEvent* event = new THaEvent;
 
@@ -95,23 +74,20 @@ void replay_beam_test(const char *filebase,int runNum,unsigned int nev){
   // THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
   // gHaEvtHandlers->Add(lScaler);
 
-  analyzer->SetEvent( event );
-  // analyzer->SetOutFile( rootFileName );
+  analyzer->SetEvent(event);
 
   analyzer->SetCompressionLevel(1);
   analyzer->SetOdefFile(odef_path.c_str());
   analyzer->SetCutFile(cdef_path.c_str());
 
-  THaRun* run = new THaRun( filebase );
+  std::cout << SCRIPT << "Opening file: " << fullPath << std::endl;
+  THaRun* run = new THaRun(fullPath);
   // run->SetFirstEvent(1);
-  run->SetLastEvent(nev);
-
-  TString out_dir = gSystem->Getenv("OUT_DIR");
-  if( out_dir.IsNull() ) out_dir = ".";
-  TString out_file = out_dir + "/" + Form("replayed_%s.root", filebase);
+  if(nev>0) run->SetLastEvent(nev);
   
   analyzer->SetOutFile( out_file.Data() );
-  cout << "output file " << out_file.Data() << " set up " << endl; 
+  std::cout << SCRIPT << "Output file " << out_file.Data() << " set up " << std::endl; 
+
   // File to record cuts accounting information
   analyzer->SetSummaryFile("sbs_beam_test.log"); // optional
  

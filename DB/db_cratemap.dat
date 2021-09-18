@@ -36,8 +36,6 @@
   19     250     3
   20     250     3
 
-
-
 ==== Crate 7 type vme
 ## TDCs for GRINCH (VETROC) - still stuck with something that is not VETROC
 ## slot model clear header mask     nchan ndata
@@ -46,7 +44,10 @@
  3    3201  5
  4    3201  5
 
-
+## LHRS crate (includes beam line signals) 
+==== Crate 10 type vme
+## slot model bank 
+    14  250   3     
 
 ## Proposed crates (16-17) for SBS side (HCal + CDet + Hadron arm GEMs, etc...)
 # Date/Time = Fri Sep  14 09:33:00 2018
