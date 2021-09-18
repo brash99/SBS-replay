@@ -95,6 +95,31 @@ bb.gem.m0.position = 0 0 0
 #bb.gem.m11.angle = 0 0 0
 
 # First alignment results (UVA layers only):
+#bb.gem.m0.position =               0               0               0
+#bb.gem.m0.angle =               0               0               0
+#bb.gem.m1.position =           0.535               0          0.1288
+#bb.gem.m1.angle =               0               0               0
+#bb.gem.m2.position =               0               0          0.1288
+#bb.gem.m2.angle =               0               0               0
+#bb.gem.m3.position =          -0.535               0          0.1288
+#bb.gem.m3.angle =               0               0               0
+#bb.gem.m4.position =     -0.00821202      0.00406697        0.278831
+#bb.gem.m4.angle =       0.0421632     -0.00770176       -0.256661
+#bb.gem.m5.position =           0.535               0          0.4112
+#bb.gem.m5.angle =               0               0               0
+#bb.gem.m6.position =               0               0          0.4112
+#bb.gem.m6.angle =               0               0               0
+#bb.gem.m7.position =          -0.535               0          0.4112
+#bb.gem.m7.angle =               0               0               0
+#bb.gem.m8.position =       -0.768602      0.00189088         1.57228
+#bb.gem.m8.angle =        0.287157       0.0497893      -0.0167777
+#bb.gem.m9.position =       -0.253387     -0.00198992         1.53365
+#bb.gem.m9.angle =       0.0660782       -0.151838        -0.12117
+#bb.gem.m10.position =         0.25814     -0.00556479         1.57406
+#bb.gem.m10.angle =        0.178343       -0.107656       -0.119409
+#bb.gem.m11.position =        0.768809      -0.0121981         1.53247
+#bb.gem.m11.angle =       -0.612792       -0.380139        0.182686
+# Alignment 2nd iteration (UVA layers only):
 bb.gem.m0.position =               0               0               0
 bb.gem.m0.angle =               0               0               0
 bb.gem.m1.position =           0.535               0          0.1288
@@ -103,22 +128,22 @@ bb.gem.m2.position =               0               0          0.1288
 bb.gem.m2.angle =               0               0               0
 bb.gem.m3.position =          -0.535               0          0.1288
 bb.gem.m3.angle =               0               0               0
-bb.gem.m4.position =     -0.00821202      0.00406697        0.278831
-bb.gem.m4.angle =       0.0421632     -0.00770176       -0.256661
+bb.gem.m4.position =     -0.00902501      0.00449594        0.278757
+bb.gem.m4.angle =     -0.00602692      -0.0323214       -0.295959
 bb.gem.m5.position =           0.535               0          0.4112
 bb.gem.m5.angle =               0               0               0
 bb.gem.m6.position =               0               0          0.4112
 bb.gem.m6.angle =               0               0               0
 bb.gem.m7.position =          -0.535               0          0.4112
 bb.gem.m7.angle =               0               0               0
-bb.gem.m8.position =       -0.768602      0.00189088         1.57228
-bb.gem.m8.angle =        0.287157       0.0497893      -0.0167777
-bb.gem.m9.position =       -0.253387     -0.00198992         1.53365
-bb.gem.m9.angle =       0.0660782       -0.151838        -0.12117
-bb.gem.m10.position =         0.25814     -0.00556479         1.57406
-bb.gem.m10.angle =        0.178343       -0.107656       -0.119409
-bb.gem.m11.position =        0.768809      -0.0121981         1.53247
-bb.gem.m11.angle =       -0.612792       -0.380139        0.182686
+bb.gem.m8.position =       -0.767349      0.00181506         1.57119
+bb.gem.m8.angle =        0.138463       -0.233331       -0.158902
+bb.gem.m9.position =       -0.253518     -0.00201252         1.53283
+bb.gem.m9.angle =       -0.121823       -0.209282       -0.221751
+bb.gem.m10.position =         0.25784     -0.00698227         1.57467
+bb.gem.m10.angle =       0.0577716       -0.086862       -0.188649
+bb.gem.m11.position =        0.769169      -0.0117417         1.53331
+bb.gem.m11.angle =       -0.733937       -0.554105      -0.0143921
 
 
 
