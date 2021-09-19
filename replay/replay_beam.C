@@ -29,24 +29,20 @@ R__LOAD_LIBRARY(libsbs.so)
 
 const std::string SCRIPT = "[replay_beam]: "; 
 
-//______________________________________________________________________________
-void replay_beam(const char *filePath,int runNum,unsigned int nev){
+void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
+
+   // set up file paths
 
    // output and cut definition files 
-   std::string odef_path = "./def/output_rastersize.def"; 
-   std::string cdef_path = "./def/cuts_rastersize.def"; 
-
-   // TString rootFileName = Form("replayed_beam_%d.root",run);
-
-   // input file path 
-   TString filePrefix = Form("lhrs_trigtest");
-   TString fullPath   = Form("%s/%s_%d.evio.0",filePath,filePrefix.Data(),runNum);
-
-   // output ROOT file destination and name 
-   TString out_dir = gSystem->Getenv("OUT_DIR");
-   if( out_dir.IsNull() ) out_dir = ".";
-   TString out_file = out_dir + "/" + Form("replayed_%s_%d.root", filePrefix.Data(),runNum);
-
+   std::string odef_path = "output_beam_raster.def"; 
+   std::string cdef_path = "cuts_beam_raster.def"; 
+  
+   // output ROOT file destination and name
+   // TString out_dir = gSystem->Getenv("OUT_DIR");
+   // if( out_dir.IsNull() ) out_dir = ".";
+   // TString out_file = out_dir + "/" + Form("replayed_%s_%d.root", filePrefix.Data(),runNum);
+   TString out_file = Form("%s",outfileName);
+ 
    THaEvent* event = new THaEvent;
 
    // Set up the analyzer
@@ -80,10 +76,10 @@ void replay_beam(const char *filePath,int runNum,unsigned int nev){
   analyzer->SetOdefFile(odef_path.c_str());
   analyzer->SetCutFile(cdef_path.c_str());
 
-  std::cout << SCRIPT << "Opening file: " << fullPath << std::endl;
-  THaRun* run = new THaRun(fullPath);
-  // run->SetFirstEvent(1);
-  if(nev>0) run->SetLastEvent(nev);
+  std::cout << SCRIPT << "Opening file: " << codaFilePath << std::endl;
+  THaRun* run = new THaRun(codaFilePath);
+  if(firstEv>0) run->SetFirstEvent(firstEv);
+  if(lastEv>0)  run->SetLastEvent(lastEv);
   
   analyzer->SetOutFile( out_file.Data() );
   std::cout << SCRIPT << "Output file " << out_file.Data() << " set up " << std::endl; 
@@ -94,6 +90,8 @@ void replay_beam(const char *filePath,int runNum,unsigned int nev){
   // run analysis 
   analyzer->SetVerbosity(10);   
   analyzer->Process(*run);
+
+  std::cout << SCRIPT << "Replay of run " << runNum << " COMPLETE!" << std::endl;
  
   // clean up  
   delete analyzer;
