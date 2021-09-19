@@ -31,7 +31,7 @@ using namespace std;
 
 const std::string SCRIPT = "[plot_raster]: "; 
 
-void plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TString rootfname){
+int plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TString rootfname){
 
   gStyle->SetOptStat(0);
   string exp = getenv("EXPERIMENT");
@@ -73,8 +73,18 @@ void plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TStr
   gStyle->SetLabelSize(0.06,"y");
   gROOT->ForceStyle();
 
+  std::cout << SCRIPT << Form("Trying file '%s'...",rootfname.Data()) << std::endl;
   TFile *spotFile = TFile::Open(rootfname);
-  if ( spotFile->IsOpen() ) std::cout << SCRIPT << Form("File '%s' opened successfully",rootfname.Data()) << std::endl;
+  if(spotFile==NULL){
+     std::cout << SCRIPT << Form("ERROR! Cannot open file '%s'.  Exiting.",rootfname.Data()) << std::endl;
+     return 1;
+  }
+  if( spotFile->IsOpen() ){
+     std::cout << SCRIPT << Form("File '%s' opened successfully",rootfname.Data()) << std::endl;
+  }else{
+     std::cout << SCRIPT << Form("ERROR! Cannot open file '%s'.  Exiting.",rootfname.Data()) << std::endl;
+     return 1;
+  }
 
 //  TH1F *bpma_x; spotFile->GetObject("bpma_x", bpma_x);
 //  TH1F *bpma_y; spotFile->GetObject("bpma_y", bpma_y);
@@ -447,5 +457,5 @@ void plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TStr
   fc6->SaveAs(name5);
   fc2B->SaveAs(name6);
 
-  return 1;
+  return 0;
 }

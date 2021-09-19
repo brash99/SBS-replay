@@ -61,7 +61,7 @@ function check_file(){
     # assign to CFILE if exists and is not empty 
     if [ -s $fn ]
     then
-        echo "opening $fn"
+        echo "Found $fn"
         CFILE=$fn
     else
         echo "ERROR: $fn does not exist or is empty"
@@ -105,41 +105,14 @@ function define_paths(){
    # point to correct DB location 
    export DB_DIR=${SBS_REPLAY}/DB
    # location to execute beam replay & plot data   
-   # RASTER_PATH=$HOME/halla_online_beam_check/raster
    RASTER_PATH=~/sbs/beam/raster
+   PLOT_PATH=${SBS_REPLAY}/scripts/beam
    echo "SBS         = ${SBS}" 
    echo "SBS_REPLAY  = ${SBS_REPLAY}"
    echo "DB_DIR      = $DB_DIR"
    echo "RASTER_PATH = ${RASTER_PATH}"
+   echo "PLOT_PATH   = ${PLOT_PATH}"
    echo "--> Done!"
-   # export DB_DIR=../DB
-   # export DB_DIR=/adaqfs/home/a-onl/halla_online_beam_check/DB
-   # ANALYZER_PATH=$HOME/dflay/ANALYZER/install
-   # # udpate LD_LIBRARY_PATH 
-   # export LD_LIBRARY_PATH=/adaqfs/coda/2.2/Linux/lib 
-   # export LD_LIBRARY_PATH=/adaqfs/home/a-onl/evio-4.3/Linux-x86_64/lib:$LD_LIBRARY_PATH
-   # export LD_LIBRARY_PATH=/adaqfs/home/a-onl/happexsp/TreeSearch:$LD_LIBRARY_PATH
-   # export LD_LIBRARY_PATH=/adaqfs/apps/ROOT/pro/lib64:$LD_LIBRARY_PATH
-   # export LD_LIBRARY_PATH=$ANALYZER_PATH/lib64:$LD_LIBRARY_PATH
-   # # update path 
-   # export PATH=/adaqfs/home/a-onl/bin
-   # export PATH=/usr/local/bin:$PATH
-   # export PATH=/adaqfs/apps/bin:$PATH
-   # export PATH=/usr/bin:$PATH
-   # export PATH=/usr/local/sbin:$PATH
-   # export PATH=/usr/sbin:$PATH
-   # export PATH=/adaqfs/home/a-onl/bin/Linux:$PATH
-   # export PATH=/bin:$PATH
-   # export PATH=/usr/X11R6/bin:$PATH
-   # export PATH=/apps/bin:$PATH
-   # export PATH=/site/bin:$PATH
-   # export PATH=.:$PATH
-   # export PATH=/adaqfs/apps/contrib/bin:$PATH
-   # export PATH=/adaqfs/apps/ROOT/pro/bin:$PATH
-   # export PATH=$ANALYZER_PATH/bin:$PATH
-   # check paths
-   # echo "PATH = $PATH" 
-   # echo "LD_LIBRARY_PATH = $LD_LIBRARY_PATH"
 }
 #_______________________________________________________________________________
 # main 
@@ -181,11 +154,11 @@ echo "Moved to $PWD"
 # replay data 
 analyzer -b -q 'replay_beam.C("'$CFILE'",'$runnum','$FIRST','$LAST',"rastersize.root")'
 # plot the data 
-analyzer -b -q 'plot_beam.C("'$CFILE'",'$runnum','$FIRST','$LAST',"rastersize.root")'
+analyzer -b -q ${PLOT_PATH}/'plot_raster.C("'$CFILE'",'$runnum','$FIRST','$LAST',"rastersize.root")'
 
 RootFILE=L${runnum}".root"
 echo "spot_dir = ${spot_dir}"
-echo "pwd = $PWD"
+echo "pwd      = $PWD"
 ls -la rastersize.root
 ls -la FADC_${exp}_$runnum.pdf 
 
@@ -193,9 +166,9 @@ mv rastersize.root ${spot_dir}/$RootFILE
 mv FADC_${exp}_$runnum.pdf ${spot_dir}/.
 
 echo =================
-echo DONE. PDFs and ROOTFILE are stored at ${spot_dir}
-echo =================
+echo "DONE. PDFs and ROOTFILE are stored at ${spot_dir}"
 echo "RUN : ${runnum}"
+echo =================
 cd $currentdir
 
 # evince ${spot_dir}/FADC_${exp}_$runnum.pdf &
