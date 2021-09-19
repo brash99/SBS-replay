@@ -24,19 +24,19 @@ LAST=50000
 #_______________________________________________________________________________
 function print_help(){
     echo "---------------------- Usage --------------------------"
-    echo "spot_SBS++ "
+    echo "spot_SBS "
     echo "->   standard plots from the last coda run"
-    echo "spot_SBS++ help "
+    echo "spot_SBS help "
     echo "->   prints this message"
-    echo "spot_SBS++ #### "
+    echo "spot_SBS #### "
     echo "->   standard plots from run ####"
-    echo "spot_SBS++ last #1 #2 "
+    echo "spot_SBS last #1 #2 "
     echo "->   plots from last coda run, using events from #1 to #2"
-    echo "spot_SBS++ #### #1 #2 "
+    echo "spot_SBS #### #1 #2 "
     echo "->   plots from coda run ####, using events from #1 to #2"
     echo "in all cases a new root file is generated, overwriting "
     echo "the previous one."
-    echo "please communicate comments to flay@jlab.org"
+    echo "please send comments to flay@jlab.org"
     echo "-------------------------------------------------------"
 }
 #_______________________________________________________________________________
@@ -99,14 +99,19 @@ function yes_or_no(){
 }
 #_______________________________________________________________________________
 function define_paths(){
-   # set up SBS environment 
-   source ~/sbs/sbs_devel/install/bin/setenv.sh
+   # set up SBS environment
+   echo "Setting up SBS environment..." 
+   source /adaqfs/home/a-onl/sbs/sbs_devel/install/bin/sbsenv.sh
    # point to correct DB location 
    export DB_DIR=${SBS_REPLAY}/DB
-   echo "DB_DIR = $DB_DIR"
    # location to execute beam replay & plot data   
    # RASTER_PATH=$HOME/halla_online_beam_check/raster
    RASTER_PATH=~/sbs/beam/raster
+   echo "SBS         = ${SBS}" 
+   echo "SBS_REPLAY  = ${SBS_REPLAY}"
+   echo "DB_DIR      = $DB_DIR"
+   echo "RASTER_PATH = ${RASTER_PATH}"
+   echo "--> Done!"
    # export DB_DIR=../DB
    # export DB_DIR=/adaqfs/home/a-onl/halla_online_beam_check/DB
    # ANALYZER_PATH=$HOME/dflay/ANALYZER/install
@@ -164,6 +169,7 @@ define_paths
 
 # move to the raster directory
 cd ${RASTER_PATH} 
+echo "Moved to $PWD"
 
 # print_vars
 # exit 
@@ -173,9 +179,9 @@ cd ${RASTER_PATH}
 # run spot++ 
 # $ANALYZER_PATH/bin/analyzer -b -q 'get_rastersize_L.C("'$CFILE'","'$runnum'",'$FIRST','$LAST',"rastersize.root")'
 # replay data 
-analyzer -b -q 'replay_beam.C("'$CFILE'","'$runnum'",'$FIRST','$LAST',"rastersize.root")'
+analyzer -b -q 'replay_beam.C("'$CFILE'",'$runnum','$FIRST','$LAST',"rastersize.root")'
 # plot the data 
-analyzer -b -q 'plot_beam.C("'$CFILE'","'$runnum'",'$FIRST','$LAST',"rastersize.root")'
+analyzer -b -q 'plot_beam.C("'$CFILE'",'$runnum','$FIRST','$LAST',"rastersize.root")'
 
 RootFILE=L${runnum}".root"
 echo "spot_dir = ${spot_dir}"

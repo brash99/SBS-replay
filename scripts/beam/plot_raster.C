@@ -31,7 +31,7 @@ using namespace std;
 
 const std::string SCRIPT = "[plot_raster]: "; 
 
-void plot_raster(TString codafname,TString runNo,Int_t firsteve,Int_t lasteve,TString rootfname){
+void plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TString rootfname){
 
   gStyle->SetOptStat(0);
   string exp = getenv("EXPERIMENT");
@@ -415,16 +415,18 @@ void plot_raster(TString codafname,TString runNo,Int_t firsteve,Int_t lasteve,TS
   std::cout << SCRIPT << "++++++++++++++++++++++++++++++++" << std::endl;
   std::cout << SCRIPT << "Type .q when you are done"        << std::endl;
 
+  TString RUN = Form("%d",runNo); 
+
   TString name4=Form("FADC_%s_",exp.c_str());
-  name4.Append(runNo);
+  name4.Append(RUN);
   name4.Append(".pdf[");
 
   TString name5=Form("FADC_%s_",exp.c_str());
-  name5.Append(runNo);
+  name5.Append(RUN);
   name5.Append(".pdf");
 
   TString name6=Form("FADC_%s_",exp.c_str());
-  name6.Append(runNo);
+  name6.Append(RUN);
   name6.Append(".pdf]");
 
   //c5 countains c1
