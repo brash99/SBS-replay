@@ -69,6 +69,7 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
 
     TString codafilename;
     codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
+    //codafilename.Form("%s/e1209019_trigtest_%d.evio.%d", prefix.Data(), runnum, segment );
 
     segmentexists = true;
     

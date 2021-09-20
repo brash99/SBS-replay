@@ -33,9 +33,12 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
 
    // set up file paths
 
-   // output and cut definition files 
-   std::string odef_path = "output_beam_raster.def"; 
-   std::string cdef_path = "cuts_beam_raster.def"; 
+   // output and cut definition files
+   // TString replayDir = gSystem->Getenv("SBS-replay");
+   // TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data());  
+   // TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data());  
+   std::string odef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/output_beam_raster.def"; 
+   std::string cdef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/cuts_beam_raster.def"; 
   
    // output ROOT file destination and name
    // TString out_dir = gSystem->Getenv("OUT_DIR");
@@ -73,11 +76,17 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   analyzer->SetEvent(event);
 
   analyzer->SetCompressionLevel(1);
-  analyzer->SetOdefFile(odef_path.c_str());
-  analyzer->SetCutFile(cdef_path.c_str());
+  analyzer->SetOdefFile(odef_path.Data());
+  analyzer->SetCutFile(cdef_path.Data());
 
   std::cout << SCRIPT << "Opening file: " << codaFilePath << std::endl;
   THaRun* run = new THaRun(codaFilePath);
+
+  // FIXME: to address prescale factor issue (temporary) 
+  TDatime now; 
+  run->SetDate(now); 
+  run->SetDataRequired(0); 
+
   if(firstEv>0) run->SetFirstEvent(firstEv);
   if(lastEv>0)  run->SetLastEvent(lastEv);
   

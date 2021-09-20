@@ -43,7 +43,7 @@ bb.gem.m10.apvmap = 1 # UVA X/Y
 bb.gem.m11.apvmap = 1 # UVA X/Y
 
 # basic flags controlling decoding:
-bb.gem.pedestalmode = 0
+bb.gem.pedestalmode = 1
 bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
 bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 0
@@ -313,7 +313,7 @@ bb.gem.vpitch = 0.0004
 # tracking parameters:
 bb.gem.threshold_sample = 50.0
 bb.gem.threshold_stripsum = 200.0
-bb.gem.threshold_clustersum = 300.0
+bb.gem.threshold_clustersum = 500.0
 
 bb.gem.peakprominence_minsigma = 5.0
 bb.gem.peakprominence_minfraction = 0.2
@@ -326,7 +326,7 @@ bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004 
 bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
-bb.gem.trackchi2cut = 100.0
+bb.gem.trackchi2cut = 10000.0
 bb.gem.onlinezerosuppression = 0
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.minhitsontrack = 3
