@@ -18,6 +18,8 @@ void plotfitgaus(TString histname, double fracmax=0.5){
     // gStyle->SetStatW(0.2);
     // gStyle->SetStatH(0.5);
   
+    gStyle->SetOptFit();
+
     htemp->Fit("gaus","","",htemp->GetBinCenter(binlow),htemp->GetBinCenter(binhigh));
   }
 }

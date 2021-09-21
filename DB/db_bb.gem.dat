@@ -43,17 +43,18 @@ bb.gem.m10.apvmap = 1 # UVA X/Y
 bb.gem.m11.apvmap = 1 # UVA X/Y
 
 # basic flags controlling decoding:
-bb.gem.pedestalmode = 1
+bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
 bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
 bb.gem.commonmode_minstrips = 20
-bb.gem.plot_common_mode = 1
+bb.gem.plot_common_mode = 0
 bb.gem.pedsub_online = 0
 bb.gem.dump_geometry_info = 1
-
+bb.gem.efficiency_bin_width_1D = 0.01
+bb.gem.efficiency_bin_width_2D = 0.01
 
 
 # to start with, let's not worry about the misalignments, let's put everything at its nominal/ideal position:
@@ -492,7 +493,7 @@ bb.gem.m4.chanmap =
      20      11      12     104       0       3      11       1       1 
      20      11      12     104       1       2      10       1       1 
      20      11      12     104       2       1       9       1       1 
-     20      11      12     104       3       0       8       1       1 
+# bad APV commented out for run 887    20      11      12     104       3       0       8       1       1 
      20      11      12     104       4       7       7       1       1 
      20      11      12     104       5       6       6       1       1 
      20      11      12     104       6       5       5       1       1 
@@ -859,9 +860,9 @@ bb.gem.m2.commonmode_meanU =
 bb.gem.m2.commonmode_rmsU = 
             16.87            16.765            15.383            14.432            16.282            14.535            16.811            13.576            21.498            15.444 
 bb.gem.m2.commonmode_meanV = 
-                0            606.53            577.18            555.64            473.69            619.71            498.61            534.18 
+                485.74            606.53            577.18            555.64            473.69            619.71            498.61            534.18 
 bb.gem.m2.commonmode_rmsV = 
-                0            17.351            16.589            14.983            16.137            14.676            19.816            19.284 
+                14.482            17.351            16.589            14.983            16.137            14.676            19.816            19.284 
 
 
 bb.gem.m3.commonmode_meanU = 
