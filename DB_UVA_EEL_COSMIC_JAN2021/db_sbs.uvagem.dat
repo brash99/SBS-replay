@@ -17,12 +17,13 @@ sbs.uvagem.modules =
 sbs.uvagem.apvmap = 1
 
 sbs.uvagem.pedestalmode = 0 
-sbs.uvagem.commonmode_flag = 0
+sbs.uvagem.commonmode_flag = 1
 sbs.uvagem.commonmode_nstriplo = 20
 sbs.uvagem.commonmode_nstriphi = 20
 sbs.uvagem.commonmode_niter = 3
 sbs.uvagem.commonmode_minstrips = 20
-sbs.uvagem.plot_common_mode = 1
+sbs.uvagem.plot_common_mode = 0
+sbs.uvagem.pedsub_online = 0
 
 sbs.uvagem.dump_geometry_info = 1
 
@@ -242,7 +243,7 @@ sbs.uvagem.m19.nstripsv = 1280
 
 sbs.uvagem.threshold_sample = 50.0
 sbs.uvagem.threshold_stripsum = 200.0
-sbs.uvagem.th reshold_clustersum = 400.0
+sbs.uvagem.threshold_clustersum = 500.0
 
 #
 sbs.uvagem.ADCasym_cut = 0.3
@@ -273,6 +274,8 @@ sbs.uvagem.gridbinwidthy = 0.01
 sbs.uvagem.gridedgetolerancex = 0.003
 sbs.uvagem.gridedgetolerancey = 0.003
 sbs.uvagem.useconstraint = 0
+sbs.uvagem.efficiency_bin_width_1D = 0.005
+sbs.uvagem.efficiency_bin_width_2D = 0.02
 
 
 # strip pitch along u (mm):
