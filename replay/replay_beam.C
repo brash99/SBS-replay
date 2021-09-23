@@ -37,8 +37,8 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
    // TString replayDir = gSystem->Getenv("SBS-replay");
    // TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data());  
    // TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data());  
-   std::string odef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/output_beam_raster.def"; 
-   std::string cdef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/cuts_beam_raster.def"; 
+   TString odef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/output_beam_raster.def"; 
+   TString cdef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/cuts_beam_raster.def"; 
   
    // output ROOT file destination and name
    // TString out_dir = gSystem->Getenv("OUT_DIR");
@@ -69,9 +69,9 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
 
-  // FIXME: add scalers (BCMs...). Need a db_LeftScalevt.dat file!  
-  // THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
-  // gHaEvtHandlers->Add(lScaler);
+  // FIXME: add scalers (BCMs...). Check db_LeftScalevt.dat file!  
+  THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
+  gHaEvtHandlers->Add(lScaler);
 
   analyzer->SetEvent(event);
 
