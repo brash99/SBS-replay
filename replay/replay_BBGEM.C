@@ -12,7 +12,7 @@
 //#include "SBSGEMStand.h"
 //#include "SBSBigBite.h"
 
-void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long firstevent=0, long nevents=-1 ){
+void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019_trigtest", long firstevent=0, long nevents=-1 ){
 
   //  gSystem->Load("libsbs.so");
 
@@ -69,7 +69,7 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
 
     TString codafilename;
     //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
-    codafilename.Form("%s/e1209019_trigtest_%d.evio.%d", prefix.Data(), runnum, segment );
+    codafilename.Form("%s/%s_%d.evio.%d", prefix.Data(), fname_prefix, runnum, segment );
 
     segmentexists = true;
     
@@ -124,7 +124,14 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
   // File to record cuts accounting information
   analyzer->SetSummaryFile("replay_BBGEM.log"); // optional
 
-  analyzer->SetOdefFile( "replay_BBGEM.odef" );
+  prefix = gSystem->Getenv("SBS_REPLAY");
+  prefix += "/replay/";
+
+  TString odef_filename = "replay_BBGEM.odef";
+  
+  odef_filename.Prepend( prefix );
+
+  analyzer->SetOdefFile( odef_filename );
   
   //analyzer->SetCompressionLevel(0); // turn off compression
 
