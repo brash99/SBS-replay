@@ -317,6 +317,12 @@ bb.gem.threshold_sample = 50.0
 bb.gem.threshold_stripsum = 200.0
 bb.gem.threshold_clustersum = 500.0
 
+bb.gem.ADCasym_cut = 1.1
+bb.gem.deltat_cut = 30.0
+bb.gem.corrcoeff_cut = 0.5
+bb.gem.filterflag1D = 0
+bb.gem.filterflag2D = 0
+
 bb.gem.peakprominence_minsigma = 5.0
 bb.gem.peakprominence_minfraction = 0.2
 
@@ -332,11 +338,14 @@ bb.gem.trackchi2cut = 10000.0
 bb.gem.onlinezerosuppression = 0
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.minhitsontrack = 3
-bb.gem.maxhitcombos = 20000
-bb.gem.gridbinwidthx = 0.1
-bb.gem.gridbinwidthy = 0.1
-bb.gem.gridedgetolerancex = 0.03
-bb.gem.gridedgetolerancey = 0.03
+bb.gem.maxhitcombos = 10000
+bb.gem.maxhitcombos_inner = 10000
+bb.gem.maxhitcombos_total = 1000000000
+bb.gem.tryfasttrack = true
+bb.gem.gridbinwidthx = 0.05
+bb.gem.gridbinwidthy = 0.05
+bb.gem.gridedgetolerancex = 0.02
+bb.gem.gridedgetolerancey = 0.02
 bb.gem.useconstraint = 0
 
 ################### DECODE INFO ########################################################################

@@ -114,7 +114,7 @@ void replay_UVA_EEL( int runnum=2811, int firstsegment=0, int maxsegments=1, lon
   
 
   analyzer->SetVerbosity(2);
-  analyzer->SetMarkInterval(10);
+  analyzer->SetMarkInterval(100);
 
   analyzer->EnableBenchmarks();
   
