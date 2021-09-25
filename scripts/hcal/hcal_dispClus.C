@@ -1,4 +1,3 @@
-
 #include <TH2F.h>
 #include <TChain.h>
 #include <TCanvas.h>
@@ -10,20 +9,19 @@
 const Int_t kNrows = 24;
 const Int_t kNcols = 12;
 
-const Int_t kNumModules = kNrows*kNcols;
+Int_t Nrows;
+Int_t Ncols;
+
 const Int_t DISP_MIN_SAMPLE = 0;
 const Int_t DISP_MAX_SAMPLE = 50;
-//const Int_t DISP_MAX_SAMPLE = 30;
-//const Int_t DISP_FADC_SAMPLES = 200;
+
 const Int_t DISP_FADC_SAMPLES = (DISP_MAX_SAMPLE-DISP_MIN_SAMPLE);
-const Int_t numSamples = 50;
 
 const Int_t minADC = 0;
 const Int_t maxADC = 4000;
 const Int_t kCanvSize = 100;
 
 std::string user_input;
-
 
 Int_t gCurrentEntry = -1;
 
@@ -35,6 +33,7 @@ TCanvas *subCanv[4];
 
 void clicked_displayEntryButton();
 void clicked_displayNextButton();
+
 namespace hcalgui {
   TGMainFrame *main = 0;
   TGHorizontalFrame *frame1 = 0;
@@ -56,18 +55,13 @@ namespace hcalgui {
     TGLayoutHints *fL4 = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX |
         kLHintsExpandY, 5, 5, 5, 5);
     TRootEmbeddedCanvas *fEc1 = new TRootEmbeddedCanvas(Form("hcalSubCanv%d",sub), fF5, 6*kCanvSize,8*kCanvSize);
-    //TRootEmbeddedCanvas *fEc1 = new TRootEmbeddedCanvas(0, fF5, 600, 600);
-    //Int_t wid = fEc1->GetCanvasWindowId();
-    //subCanv[sub] = new TCanvas(Form("subCanv%d",sub),10,10,wid);
-    //subCanv[sub]->Divide(12,6);
-    //fEc1->AdoptCanvas(subCanv[sub]);
     canv[sub] = fEc1;
     fF5->AddFrame(fEc1,fL4);
     tf->AddFrame(fF5,fL4);
     return tf;
   }
 
-  void SetupGUI() {
+  void SetupHMGUI() {
     if(!main) {
       main = new TGMainFrame(gClient->GetRoot(), 1000, 900);
       frame1 = new TGHorizontalFrame(main, 150, 20, kFixedWidth);
@@ -92,7 +86,7 @@ namespace hcalgui {
       fL3 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 5, 5, 5, 5);
 
       // Create Tab1 (HCAL Sub1)
-      for(Int_t i = 0; i < 4; i++) {
+      for(Int_t i = 0; i < 1; i++) {
         tf = AddTabSub(i);
       }
       main->AddFrame(fTab, new TGLayoutHints(kLHintsBottom | kLHintsExpandX |
@@ -101,23 +95,19 @@ namespace hcalgui {
       main->Resize();   // resize to default size
       main->MapWindow();
 
-      for(Int_t i = 0; i < 4; i++) {
-        subCanv[i] = canv[i]->GetCanvas();
-	if( kNrows<12 || kNcols<12) {
-	  //subCanv[i]->Divide(kNrows,kNcols,0.001,0.001);
-	  subCanv[i]->Divide(kNcols,kNrows,0.001,0.001);
-        } else {
-	  subCanv[i]->Divide(12,6,0.001,0.001);
-        }
-      }
+      subCanv[0] = canv[0]->GetCanvas();
+      subCanv[0]->Divide(2,0,0.001,0.001);
+
     }
   }
 };
 
 
 Double_t nhit = 0;
-TH1F *histos[kNrows][kNcols];
+TH2D *heatMapHisto;
+TH2D *clustHisto;
 Bool_t gSaturated[kNrows][kNcols];
+
 
 TH1F* MakeHisto(Int_t row, Int_t col, Int_t bins)
 {
@@ -128,7 +118,6 @@ TH1F* MakeHisto(Int_t row, Int_t col, Int_t bins)
   return h;
 }
 
-
 bool is_number(const std::string& mystring)
 {
   std::string::const_iterator it = mystring.begin();
@@ -138,97 +127,94 @@ bool is_number(const std::string& mystring)
 
 void displayEvent(Int_t entry = -1)
 {
-  if(entry == -1) {
-    gCurrentEntry++;
-  } else {
-    gCurrentEntry = entry;
-  }
-
-  if(gCurrentEntry<0) {
-    gCurrentEntry = 0;
-  }
-
-  T->GetEntry(gCurrentEntry);
-  std::cout << "Displaying event " << gCurrentEntry << std::endl;
-  hcalgui::ledLabel->SetText(TString::Format("LED Bit: %02d, Count: %5d",Int_t(hcalt::ledbit),Int_t(hcalt::ledcount)));
-
-  Int_t r,c,idx,n,sub;
-  // Clear old histograms, just in case modules are not in the tree
-  for(r = 0; r < kNrows; r++) {
-    for(c = 0; c < kNcols; c++) {
-      histos[r][c]->Reset("ICES M");
-      gSaturated[r][c] = false;
+    
+    // Check event increment and increment
+    if( entry == -1 ) {
+      gCurrentEntry++;
+    } else {
+      gCurrentEntry = entry;
     }
-  }
 
-  Float_t peak[kNrows][kNcols];
-  Double_t adc[kNrows][kNcols];
-  Double_t tdc[kNrows][kNcols];
-  for(r  = 0; r < kNrows; r++) {
-    for(c  = 0; c < kNcols; c++) {
-      peak[r][c] = 0.0;
-      adc[r][c] = 0.0;
-      tdc[r][c] = 0.0;
+    if( gCurrentEntry < 0 ) {
+      gCurrentEntry = 0;
     }
-  }
-  for(Int_t m = 0; m < hcalt::ndata; m++) {
-    r = hcalt::row[m];
-    c = hcalt::col[m];
-    if(r < 0 || c < 0) {
-      std::cerr << "Why is row negative? Or col?" << std::endl;
-      continue;
-    }
-    if(r>= kNrows || c >= kNcols)
-      continue;
-    idx = hcalt::samps_idx[m];
-    n = hcalt::nsamps[m];
-    adc[r][c] = hcalt::a[m];
-    tdc[r][c] = hcalt::tdc[m];
-    //std::cout << "n=" << hcalt::nsamps[m] << std::endl;
-    bool displayed = false;
-    for(Int_t s = DISP_MIN_SAMPLE; s < DISP_MAX_SAMPLE && s < n; s++) {
-      displayed = true;
-      histos[r][c]->SetBinContent(s+1-DISP_MIN_SAMPLE,hcalt::samps[idx+s]);
-      if(peak[r][c]<hcalt::samps[idx+s])
-        peak[r][c]=hcalt::samps[idx+s];
-      if(peak[r][c]>4095) {
-        gSaturated[r][c] = true;
+
+    // Get the event from the TTree
+    T->GetEntry( gCurrentEntry );
+    std::cout << "Displaying event " << gCurrentEntry << std::endl;
+    hcalgui::ledLabel->SetText(TString::Format("LED Bit: %02d, Count: %5d",Int_t(hcalt::ledbit),Int_t(hcalt::ledcount)));
+  
+    int r,c;
+    int nblk = hcalt::nblk[0];
+    int cblkid[nblk];
+    int cid = hcalt::cid[0];
+
+    // Clear old histogram
+    heatMapHisto->Reset("ICES");
+    clustHisto->Reset("ICES");
+
+    // Declare signal amplitude, adc, and tdc arrays for this event
+    double adc_p[kNrows][kNcols] = {0.0};
+    //double blk_clus[kNrows][kNcols] = {0.0};
+
+    // Check the cluster and set array values to 1 for hits
+    for( int el = 0; el < kNrows*kNcols; el++ ){
+      r = el/kNcols;
+      c = el%kNcols;
+      
+      clustHisto->SetBinContent( c+1, r+1, 0.1 );
+      
+      for( int b = 0; b < nblk; b++ ){
+	int cblkid = hcalt::cblkid[b];
+	//if( el = hcalt::cblkid[b] ) blk_clus[r][c]=1.0;
+	if( el == cblkid-1 ) 
+	  clustHisto->SetBinContent( c+1, r+1, 1.0 );
+	  
+	if( el == cid-1 )
+	  clustHisto->SetBinContent( c+1, r+1, 0.5 );
       }
-      //std::cout << "setting bin content: [" << r+1 << ", " << c+1 << ", " << s << "] = " << hcalt::samps[idx+s] << std::endl;
+	
     }
-    if(!displayed) {
-      std::cerr << "Skipping empty module: " << m << std::endl;
-      for(Int_t s = 0;  s < DISP_FADC_SAMPLES; s++) {
-        histos[r][c]->SetBinContent(s+1,-404);
+      
+    // Process event with m data
+      for( int m = 0; m < hcalt::ndata; m++ ) {
+      // Define row and column
+      r = hcalt::row[m];
+      c = hcalt::col[m];
+      if( r < 0 || c < 0 ) {
+	cerr << "Error: row or col negative." << endl;
+	continue;
       }
+    
+      if( r >= kNrows || c >= kNcols ) continue;
+
+      // Fill adc array
+      adc_p[r][c] = hcalt::a_p[m];
+
+      heatMapHisto->SetBinContent( c+1, r+1, adc_p[r][c] );
+      
+
     }
-  }
 
-  for(r = 0; r < kNrows; r++) {
-    for(c = 0; c < kNcols; c++) {
-      sub = r/6;
-      //subCanv[sub]->cd(c*kNrows + r + 1);
-      subCanv[sub]->cd((r%6)*kNcols + c + 1);
-      histos[r][c]->SetTitle(TString::Format("%d-%d (ADC=%g,TDC=%g)",r+1,c+1,adc[r][c],tdc[r][c]));
-      if(gSaturated[r][c])
-        histos[r][c]->SetLineColor(kRed+1);
-      else
-        histos[r][c]->SetLineColor(kBlue+1);
-      if(tdc[r][c]!=0)
-        histos[r][c]->SetLineColor(kGreen+1);
+    subCanv[0]->cd(1); //Heatmap 2d histogram
+    subCanv[0]->SetGrid();
+    gStyle->SetOptStat(0);
+    gStyle->SetPalette(53);
+    heatMapHisto->SetTitle("HCal Pedestal Subtracted ADC (sRAU)");
+    heatMapHisto->Draw("colz");
+    gPad->Update();
 
-      histos[r][c]->Draw();
-      gPad->Update();
-      std::cout << " [" << r << ", " << c << "]=" << peak[r][c];
-    }
-  }
-  std::cout << std::endl;
-  //gSystem->mkdir("images/",kTRUE);
-  //std::cerr << "Saving canvas!" << std::endl;
-  //canvas->SaveAs("images/display_hcal.png");
-  //  canvVector[i]->SaveAs(TString::Format("images/canvas_%d.png",int(i)));
-
+    subCanv[0]->cd(2); //Cluster 2d histogram
+    subCanv[0]->SetGrid();
+    gStyle->SetOptStat(0);
+    clustHisto->SetTitle("HCal Cluster Elements");
+    clustHisto->Draw("colz");
+    gPad->Update();
+    
 }
+
+
+
 
 void clicked_displayNextButton()
 {
@@ -243,21 +229,35 @@ void clicked_displayEntryButton()
   displayEvent(gCurrentEntry);
 }
 
-
-Int_t hcal_display(Int_t run = 1198, Int_t event = -1)
+Int_t hcal_dispClus(Int_t run = 1198, Int_t event = -1)
 {
-  hcalgui::SetupGUI();
+
+  // Initialize function with user commands
+
+  cout << "Enter run number for analysis." << endl;
+  cin >> run;
+
+  Nrows=1;
+  Ncols=1;
+  heatMapHisto = new TH2D( "Hits by Module", "", kNcols, 0., kNcols, kNrows, 0., kNrows );
+  clustHisto = new TH2D( "Cluster Elements", "", kNcols, 0., kNcols, kNrows, 0., kNrows );
+
+
+  hcalgui::SetupHMGUI();
   gStyle->SetLabelSize(0.05,"XY");
-  gStyle->SetTitleFontSize(0.08);
+  gStyle->SetTitleFontSize(0.08);  
 
   if(!T) { 
     T = new TChain("T");
     T->Add(TString::Format("/volatile/halla/sbs/seeds/rootfiles/hcal_%d*.root",run));
-    //T->Add(TString::Format("rootFiles/LED/fadc_f1tdc_%d.root",run));
     T->SetBranchStatus("*",0);
     T->SetBranchStatus("sbs.hcal.*",1);
     T->SetBranchAddress("sbs.hcal.nsamps",hcalt::nsamps);
     T->SetBranchAddress("sbs.hcal.a",hcalt::a);
+    T->SetBranchAddress("sbs.hcal.a_p",hcalt::a_p);
+    T->SetBranchAddress("sbs.hcal.a_amp",hcalt::a_amp);
+    T->SetBranchAddress("sbs.hcal.a_amp_p",hcalt::a_amp_p);
+    T->SetBranchAddress("sbs.hcal.ped",hcalt::ped);
     T->SetBranchAddress("sbs.hcal.tdc",hcalt::tdc);
     T->SetBranchAddress("sbs.hcal.ledbit",&hcalt::ledbit);
     T->SetBranchAddress("sbs.hcal.ledcount",&hcalt::ledcount);
@@ -265,19 +265,31 @@ Int_t hcal_display(Int_t run = 1198, Int_t event = -1)
     T->SetBranchAddress("sbs.hcal.samps_idx",hcalt::samps_idx);
     T->SetBranchAddress("sbs.hcal.adcrow",hcalt::row);
     T->SetBranchAddress("sbs.hcal.adccol",hcalt::col);
+
+    // Add clustering branches
+    T->SetBranchAddress("sbs.hcal.clus.id",hcalt::cid);
+    T->SetBranchAddress("sbs.hcal.clus.row",hcalt::crow);
+    T->SetBranchAddress("sbs.hcal.clus.col",hcalt::ccol);
+    T->SetBranchAddress("sbs.hcal.clus.e",hcalt::ce);
+    T->SetBranchAddress("sbs.hcal.clus.eblk",hcalt::ceblk);
+    T->SetBranchAddress("sbs.hcal.clus.nblk",hcalt::cnblk);
+    T->SetBranchAddress("sbs.hcal.nclus",hcalt::nclus);
+    T->SetBranchAddress("sbs.hcal.nblk",hcalt::nblk);
+    T->SetBranchAddress("sbs.hcal.clus_blk.id",hcalt::cblkid);
+    T->SetBranchAddress("sbs.hcal.clus.eblk",hcalt::ceblk);
+
+    
     T->SetBranchStatus("Ndata.sbs.hcal.adcrow",1);
     T->SetBranchAddress("Ndata.sbs.hcal.adcrow",&hcalt::ndata);
     std::cerr << "Opened up tree with nentries=" << T->GetEntries() << std::endl;
-    for(Int_t r = 0; r < kNrows; r++) {
-      for(Int_t c = 0; c < kNcols; c++) {
-        histos[r][c] = MakeHisto(r,c,DISP_FADC_SAMPLES);
-        gSaturated[r][c] = false;
-      }
-    }
-    //canvas = new TCanvas("canvas","canvas",kCanvSize*kNcols,kCanvSize*kNrows);
-    //canvas->Divide(kNcols,kNrows);
+
   }
-  //return 0;
+
+  if(T->GetEntries()<=0){
+    cout << "Error: no data for this run available." << endl;
+    return 0;
+  }
+  
   gCurrentEntry = event;
   while( user_input != "q" ) {
     if(is_number(user_input)) {
@@ -285,12 +297,11 @@ Int_t hcal_display(Int_t run = 1198, Int_t event = -1)
     } else {
       gCurrentEntry++;
     }
-    //dis1(event);
     displayEvent(gCurrentEntry);
     std::cout << "Display options: <enter> == next event, or q to stop." << std::endl;
-    //std::cin >> user_input;
     getline(std::cin,user_input);
   }
+
   return 0;
 }
 

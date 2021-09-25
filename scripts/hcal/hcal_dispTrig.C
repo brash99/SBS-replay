@@ -1,4 +1,3 @@
-
 #include <TH2F.h>
 #include <TChain.h>
 #include <TCanvas.h>
@@ -7,14 +6,13 @@
 #include <TSystem.h>
 #include "hcal.h"
 
-const Int_t kNrows = 24;
-const Int_t kNcols = 12;
+const Int_t kNcols = 16;
 
-const Int_t kNumModules = kNrows*kNcols;
+const Int_t kNumModules = kNcols;
+
 const Int_t DISP_MIN_SAMPLE = 0;
 const Int_t DISP_MAX_SAMPLE = 50;
-//const Int_t DISP_MAX_SAMPLE = 30;
-//const Int_t DISP_FADC_SAMPLES = 200;
+
 const Int_t DISP_FADC_SAMPLES = (DISP_MAX_SAMPLE-DISP_MIN_SAMPLE);
 const Int_t numSamples = 50;
 
@@ -23,7 +21,6 @@ const Int_t maxADC = 4000;
 const Int_t kCanvSize = 100;
 
 std::string user_input;
-
 
 Int_t gCurrentEntry = -1;
 
@@ -35,6 +32,7 @@ TCanvas *subCanv[4];
 
 void clicked_displayEntryButton();
 void clicked_displayNextButton();
+
 namespace hcalgui {
   TGMainFrame *main = 0;
   TGHorizontalFrame *frame1 = 0;
@@ -50,24 +48,19 @@ namespace hcalgui {
   TRootEmbeddedCanvas *canv[4];
 
   TGCompositeFrame* AddTabSub(Int_t sub) {
-    tf = fTab->AddTab(Form("HCAL Sub%d",sub+1));
+    tf = fTab->AddTab(Form("HCAL Trigger fADC Sub%d",sub+1));
 
     TGCompositeFrame *fF5 = new TGCompositeFrame(tf, (12+1)*kCanvSize,(6+1)*kCanvSize , kHorizontalFrame);
     TGLayoutHints *fL4 = new TGLayoutHints(kLHintsTop | kLHintsLeft | kLHintsExpandX |
         kLHintsExpandY, 5, 5, 5, 5);
     TRootEmbeddedCanvas *fEc1 = new TRootEmbeddedCanvas(Form("hcalSubCanv%d",sub), fF5, 6*kCanvSize,8*kCanvSize);
-    //TRootEmbeddedCanvas *fEc1 = new TRootEmbeddedCanvas(0, fF5, 600, 600);
-    //Int_t wid = fEc1->GetCanvasWindowId();
-    //subCanv[sub] = new TCanvas(Form("subCanv%d",sub),10,10,wid);
-    //subCanv[sub]->Divide(12,6);
-    //fEc1->AdoptCanvas(subCanv[sub]);
     canv[sub] = fEc1;
     fF5->AddFrame(fEc1,fL4);
     tf->AddFrame(fF5,fL4);
     return tf;
   }
 
-  void SetupGUI() {
+  void SetupTGUI() {
     if(!main) {
       main = new TGMainFrame(gClient->GetRoot(), 1000, 900);
       frame1 = new TGHorizontalFrame(main, 150, 20, kFixedWidth);
@@ -92,42 +85,34 @@ namespace hcalgui {
       fL3 = new TGLayoutHints(kLHintsTop | kLHintsLeft, 5, 5, 5, 5);
 
       // Create Tab1 (HCAL Sub1)
-      for(Int_t i = 0; i < 4; i++) {
-        tf = AddTabSub(i);
-      }
+      tf = AddTabSub(0);
+      
       main->AddFrame(fTab, new TGLayoutHints(kLHintsBottom | kLHintsExpandX |
                                           kLHintsExpandY, 2, 2, 5, 1));
       main->MapSubwindows();
       main->Resize();   // resize to default size
       main->MapWindow();
 
-      for(Int_t i = 0; i < 4; i++) {
-        subCanv[i] = canv[i]->GetCanvas();
-	if( kNrows<12 || kNcols<12) {
-	  //subCanv[i]->Divide(kNrows,kNcols,0.001,0.001);
-	  subCanv[i]->Divide(kNcols,kNrows,0.001,0.001);
-        } else {
-	  subCanv[i]->Divide(12,6,0.001,0.001);
-        }
-      }
+      subCanv[0] = canv[0]->GetCanvas();
+      subCanv[0]->Divide(4,4,0.001,0.001);
     }
   }
 };
 
 
 Double_t nhit = 0;
-TH1F *histos[kNrows][kNcols];
-Bool_t gSaturated[kNrows][kNcols];
+TH1F *histos[kNcols];
+Bool_t gSaturated[kNcols];
 
-TH1F* MakeHisto(Int_t row, Int_t col, Int_t bins)
+
+TH1F* MakeHisto(Int_t col, Int_t bins)
 {
-  TH1F *h = new TH1F(TString::Format("h%02d%02d",row,col),
-      TString::Format("%d-%d",row+1,col+1),bins,DISP_MIN_SAMPLE,DISP_MAX_SAMPLE);
+  TH1F *h = new TH1F(TString::Format("h%02d",col),
+      TString::Format("%d",col+1),bins,DISP_MIN_SAMPLE,DISP_MAX_SAMPLE);
   h->SetStats(0);
   h->SetLineWidth(2);
   return h;
 }
-
 
 bool is_number(const std::string& mystring)
 {
@@ -143,96 +128,80 @@ void displayEvent(Int_t entry = -1)
   } else {
     gCurrentEntry = entry;
   }
-
+  
   if(gCurrentEntry<0) {
     gCurrentEntry = 0;
   }
-
+  
   T->GetEntry(gCurrentEntry);
   std::cout << "Displaying event " << gCurrentEntry << std::endl;
   hcalgui::ledLabel->SetText(TString::Format("LED Bit: %02d, Count: %5d",Int_t(hcalt::ledbit),Int_t(hcalt::ledcount)));
-
-  Int_t r,c,idx,n,sub;
+  
+  Int_t c,Tidx,Tn;
   // Clear old histograms, just in case modules are not in the tree
-  for(r = 0; r < kNrows; r++) {
-    for(c = 0; c < kNcols; c++) {
-      histos[r][c]->Reset("ICES M");
-      gSaturated[r][c] = false;
-    }
+  
+  for(c = 0; c < kNcols; c++) {
+    histos[c]->Reset("ICES M");
+    gSaturated[c] = false;
   }
-
-  Float_t peak[kNrows][kNcols];
-  Double_t adc[kNrows][kNcols];
-  Double_t tdc[kNrows][kNcols];
-  for(r  = 0; r < kNrows; r++) {
-    for(c  = 0; c < kNcols; c++) {
-      peak[r][c] = 0.0;
-      adc[r][c] = 0.0;
-      tdc[r][c] = 0.0;
-    }
+  
+  Double_t peak[kNcols];
+  Double_t Tadc[kNcols];
+  
+  for(c  = 0; c < kNcols; c++) {
+    peak[c] = 0.0;
+    Tadc[c] = 0.0;
   }
-  for(Int_t m = 0; m < hcalt::ndata; m++) {
-    r = hcalt::row[m];
-    c = hcalt::col[m];
-    if(r < 0 || c < 0) {
-      std::cerr << "Why is row negative? Or col?" << std::endl;
+  
+  for(Int_t m = 0; m < hcalt::Tndata; m++) {
+    c = hcalt::Tcol[m];
+    peak[c] = hcalt::Ta_amp[m];
+    if(c < 0) {
+      std::cerr << "Error: column negative." << std::endl;
       continue;
     }
-    if(r>= kNrows || c >= kNcols)
+    
+    if(c >= kNcols)
       continue;
-    idx = hcalt::samps_idx[m];
-    n = hcalt::nsamps[m];
-    adc[r][c] = hcalt::a[m];
-    tdc[r][c] = hcalt::tdc[m];
-    //std::cout << "n=" << hcalt::nsamps[m] << std::endl;
+    
+    // Fill adc, tdc, and cluster arrays
+    Tidx = hcalt::Tsamps_idx[m];
+    Tn = hcalt::Tnsamps[m];
+    Tadc[c] = hcalt::Ta_p[m];
     bool displayed = false;
-    for(Int_t s = DISP_MIN_SAMPLE; s < DISP_MAX_SAMPLE && s < n; s++) {
+    for(Int_t s = DISP_MIN_SAMPLE; s < DISP_MAX_SAMPLE && s < Tn; s++) {
       displayed = true;
-      histos[r][c]->SetBinContent(s+1-DISP_MIN_SAMPLE,hcalt::samps[idx+s]);
-      if(peak[r][c]<hcalt::samps[idx+s])
-        peak[r][c]=hcalt::samps[idx+s];
-      if(peak[r][c]>4095) {
-        gSaturated[r][c] = true;
+      histos[c]->SetBinContent(s+1-DISP_MIN_SAMPLE,hcalt::Tsamps[Tidx+s]); //Prepared for trigger samples to be added to the root tree
+      if(peak[c]<hcalt::Tsamps[Tidx+s])
+	peak[c]=hcalt::Tsamps[Tidx+s];
+      if(peak[c]>4095) {
+	gSaturated[c] = true;
       }
-      //std::cout << "setting bin content: [" << r+1 << ", " << c+1 << ", " << s << "] = " << hcalt::samps[idx+s] << std::endl;
     }
     if(!displayed) {
       std::cerr << "Skipping empty module: " << m << std::endl;
       for(Int_t s = 0;  s < DISP_FADC_SAMPLES; s++) {
-        histos[r][c]->SetBinContent(s+1,-404);
+	histos[c]->SetBinContent(s+1,-404);
       }
     }
   }
-
-  for(r = 0; r < kNrows; r++) {
-    for(c = 0; c < kNcols; c++) {
-      sub = r/6;
-      //subCanv[sub]->cd(c*kNrows + r + 1);
-      subCanv[sub]->cd((r%6)*kNcols + c + 1);
-      histos[r][c]->SetTitle(TString::Format("%d-%d (ADC=%g,TDC=%g)",r+1,c+1,adc[r][c],tdc[r][c]));
-      if(gSaturated[r][c])
-        histos[r][c]->SetLineColor(kRed+1);
-      else
-        histos[r][c]->SetLineColor(kBlue+1);
-      if(tdc[r][c]!=0)
-        histos[r][c]->SetLineColor(kGreen+1);
-
-      histos[r][c]->Draw();
-      gPad->Update();
-      std::cout << " [" << r << ", " << c << "]=" << peak[r][c];
-    }
+  
+  for(c = 0; c < kNcols; c++) {
+    subCanv[0]->cd( c + 1 );
+    histos[c]->SetTitle(TString::Format("%d (ADC=%g)",c+1,Tadc[c]));
+    histos[c]->SetMaximum(60);
+    if(gSaturated[c])
+      histos[c]->SetLineColor(kRed+1);
+    else
+      histos[c]->SetLineColor(kBlue+1);
+    histos[c]->Draw();
+    gPad->Update();
+    std::cout << " [" << c << "]=" << peak[c];
   }
-  std::cout << std::endl;
-  //gSystem->mkdir("images/",kTRUE);
-  //std::cerr << "Saving canvas!" << std::endl;
-  //canvas->SaveAs("images/display_hcal.png");
-  //  canvVector[i]->SaveAs(TString::Format("images/canvas_%d.png",int(i)));
-
 }
 
 void clicked_displayNextButton()
 {
-  //if(gCurrentEntry>gMaxEntries);
   hcalgui::entryInput->SetIntNumber(++gCurrentEntry);
   displayEvent(gCurrentEntry);
 }
@@ -243,21 +212,30 @@ void clicked_displayEntryButton()
   displayEvent(gCurrentEntry);
 }
 
-
-Int_t hcal_display(Int_t run = 1198, Int_t event = -1)
+Int_t hcal_dispTrig(Int_t run = 1198, Int_t event = -1)
 {
-  hcalgui::SetupGUI();
+
+  // Initialize function with user commands
+
+  cout << "Enter run number for analysis." << endl;
+  cin >> run;
+
+  hcalgui::SetupTGUI();
   gStyle->SetLabelSize(0.05,"XY");
-  gStyle->SetTitleFontSize(0.08);
+  gStyle->SetTitleFontSize(0.08);  
 
   if(!T) { 
     T = new TChain("T");
     T->Add(TString::Format("/volatile/halla/sbs/seeds/rootfiles/hcal_%d*.root",run));
-    //T->Add(TString::Format("rootFiles/LED/fadc_f1tdc_%d.root",run));
     T->SetBranchStatus("*",0);
     T->SetBranchStatus("sbs.hcal.*",1);
+    T->SetBranchStatus("sbs.trig.*",2);
     T->SetBranchAddress("sbs.hcal.nsamps",hcalt::nsamps);
     T->SetBranchAddress("sbs.hcal.a",hcalt::a);
+    T->SetBranchAddress("sbs.hcal.a_p",hcalt::a_p);
+    T->SetBranchAddress("sbs.hcal.a_amp",hcalt::a_amp);
+    T->SetBranchAddress("sbs.hcal.a_amp_p",hcalt::a_amp_p);
+    T->SetBranchAddress("sbs.hcal.ped",hcalt::ped);
     T->SetBranchAddress("sbs.hcal.tdc",hcalt::tdc);
     T->SetBranchAddress("sbs.hcal.ledbit",&hcalt::ledbit);
     T->SetBranchAddress("sbs.hcal.ledcount",&hcalt::ledcount);
@@ -265,19 +243,42 @@ Int_t hcal_display(Int_t run = 1198, Int_t event = -1)
     T->SetBranchAddress("sbs.hcal.samps_idx",hcalt::samps_idx);
     T->SetBranchAddress("sbs.hcal.adcrow",hcalt::row);
     T->SetBranchAddress("sbs.hcal.adccol",hcalt::col);
+    
+    // Add trigger generic detector branches
+    T->SetBranchAddress("sbs.trig.a_p",hcalt::Ta_p);
+    T->SetBranchAddress("sbs.trig.adcelemID",hcalt::TelemID);
+    T->SetBranchAddress("sbs.trig.nsamps",hcalt::Tnsamps);
+    T->SetBranchAddress("sbs.trig.samps",hcalt::Tsamps);
+    T->SetBranchAddress("sbs.trig.samps_idx",hcalt::Tsamps_idx);
+    T->SetBranchAddress("sbs.trig.adccol",hcalt::Tcol);
+    T->SetBranchAddress("sbs.trig.a_amp_p",hcalt::Ta_amp_p);
+    T->SetBranchAddress("sbs.trig.a_amp",hcalt::Ta_amp);
+    
+    // Add clustering branches
+    T->SetBranchAddress("sbs.hcal.clus.id",hcalt::cid);
+    T->SetBranchAddress("sbs.hcal.clus.row",hcalt::crow);
+    T->SetBranchAddress("sbs.hcal.clus.col",hcalt::ccol);
+    T->SetBranchAddress("sbs.hcal.clus.e",hcalt::ce);
+    T->SetBranchAddress("sbs.hcal.clus.eblk",hcalt::ceblk);
+
     T->SetBranchStatus("Ndata.sbs.hcal.adcrow",1);
     T->SetBranchAddress("Ndata.sbs.hcal.adcrow",&hcalt::ndata);
+
+    T->SetBranchStatus("Ndata.sbs.trig.adccol",2);
+    T->SetBranchAddress("Ndata.sbs.trig.adccol",&hcalt::Tndata);
+
     std::cerr << "Opened up tree with nentries=" << T->GetEntries() << std::endl;
-    for(Int_t r = 0; r < kNrows; r++) {
-      for(Int_t c = 0; c < kNcols; c++) {
-        histos[r][c] = MakeHisto(r,c,DISP_FADC_SAMPLES);
-        gSaturated[r][c] = false;
-      }
+    for(Int_t c = 0; c < kNcols; c++) {
+      histos[c] = MakeHisto(c,DISP_FADC_SAMPLES);
+      gSaturated[c] = false;
     }
-    //canvas = new TCanvas("canvas","canvas",kCanvSize*kNcols,kCanvSize*kNrows);
-    //canvas->Divide(kNcols,kNrows);
   }
-  //return 0;
+
+  if( T->GetEntries()<=0 ){
+    cout << "Error: no data." << endl;
+    return 0;
+  }
+
   gCurrentEntry = event;
   while( user_input != "q" ) {
     if(is_number(user_input)) {
@@ -285,12 +286,11 @@ Int_t hcal_display(Int_t run = 1198, Int_t event = -1)
     } else {
       gCurrentEntry++;
     }
-    //dis1(event);
     displayEvent(gCurrentEntry);
     std::cout << "Display options: <enter> == next event, or q to stop." << std::endl;
-    //std::cin >> user_input;
     getline(std::cin,user_input);
   }
+
   return 0;
 }
 
