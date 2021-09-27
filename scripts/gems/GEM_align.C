@@ -124,7 +124,7 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
 
 
 
-void GEM_align( const char *inputfilename, const char *configfilename, const char *outputfilename="newGEMalignment.txt" ){
+void GEM_align( const char *configfilename, const char *outputfilename="newGEMalignment.txt" ){
   
   ifstream configfile(configfilename);
   
@@ -151,11 +151,19 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
   double minanglechange = 5e-5; // 50 urad
 
   TString prefix = "sbs.uvagem";
+
+  TChain *C = new TChain("T");
   
   //Copied from GEM_reconstruct: For this routine we are only interested in the number of layers and the number of modules, and the geometrical information:
   if( configfile ){
     TString currentline;
     
+    while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endlist") ){
+      if( !currentline.BeginsWith("#") ){
+	C->Add(currentline.Data());
+      }
+    }
+
     while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endconfig")){
       if( !currentline.BeginsWith("#") ){
 	TObjArray *tokens = currentline.Tokenize(" ");
@@ -439,8 +447,7 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
     return;   
   }
 
-  TChain *C = new TChain("T");
-  C->Add(inputfilename);
+  
 
   TEventList *elist = new TEventList("elist");
 
@@ -578,7 +585,7 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
     //if this is not the first iteration, cut short if chi2 stops improving:
     if( iter > 0 && fabs( 1. - meanchi2/oldmeanchi2 ) <= minchi2change ) niter = iter;
     if( fabs(maxposchange) < minposchange && fabs(maxanglechange) < minanglechange ) niter = iter;
-    if( fabs(maxposchange) > oldmaxposchange && fabs(maxanglechange) > oldmaxanglechange ) niter = iter;
+    //if( fabs(maxposchange) > oldmaxposchange && fabs(maxanglechange) > oldmaxanglechange ) niter = iter;
 
     if( meanchi2/oldmeanchi2 > 1.0 ) niter = iter;
     
