@@ -1,7 +1,7 @@
 block bb.gem.track.*
 block bb.gem.hit.*
-block bb.gem.*.strip.*
-block bb.gem.*.clust.*
+#block bb.gem.*.strip.*
+#block bb.gem.*.clust.*
 
 #block bb.gem.*
 

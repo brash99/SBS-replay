@@ -1,7 +1,12 @@
+#include "TDirectory.h"
+#include "TH1D.h"
+#include "TStyle.h"
+
 void plotfitgaus(TString histname, double fracmax=0.5){
   TH1D *htemp;
   gDirectory->GetObject(histname,htemp);
-
+  //htemp = (TH1D*) (gDirectory->Get(histname));
+  
   if( htemp ){
   
     htemp->Draw();
