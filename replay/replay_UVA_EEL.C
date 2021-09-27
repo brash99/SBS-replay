@@ -124,7 +124,16 @@ void replay_UVA_EEL( int runnum=2811, int firstsegment=0, int maxsegments=1, lon
   // File to record cuts accounting information
   analyzer->SetSummaryFile("summary_example.log"); // optional
 
-  analyzer->SetOdefFile( "replay_UVA_EEL.odef" );
+  prefix = gSystem->Getenv("SBS_REPLAY");
+  prefix += "/replay/";
+
+  TString odef_filename = "replay_UVA_EEL.odef";
+  
+  odef_filename.Prepend( prefix );
+
+  analyzer->SetOdefFile( odef_filename );
+  
+  analyzer->SetOdefFile( odef_filename );
   
   //analyzer->SetCompressionLevel(0); // turn off compression
 
