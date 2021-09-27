@@ -27,9 +27,9 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSRasteredBeam.h"
 #endif 
 
-const std::string SCRIPT = "[replay_beam]: "; 
+const std::string SCRIPT = "[replay_spot]: "; 
 
-void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
+void replay_spot(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
 
    // set up file paths
 
@@ -41,9 +41,6 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
    std::string cdef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/cuts_beam_raster.def"; 
   
    // output ROOT file destination and name
-   // TString out_dir = gSystem->Getenv("OUT_DIR");
-   // if( out_dir.IsNull() ) out_dir = ".";
-   // TString out_file = out_dir + "/" + Form("replayed_%s_%d.root", filePrefix.Data(),runNum);
    TString out_file = Form("%s",outfileName);
  
    THaEvent* event = new THaEvent;
@@ -68,10 +65,6 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   // add *rastered* beam
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
-
-  // FIXME: add scalers (BCMs...). Need a db_LeftScalevt.dat file!  
-  // THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
-  // gHaEvtHandlers->Add(lScaler);
 
   analyzer->SetEvent(event);
 

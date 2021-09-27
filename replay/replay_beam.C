@@ -69,9 +69,9 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
 
-  // FIXME: add scalers (BCMs...). Need a db_LeftScalevt.dat file!  
-  // THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
-  // gHaEvtHandlers->Add(lScaler);
+  // FIXME: Check db_LeftScalevt.dat file!  
+  THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
+  gHaEvtHandlers->Add(lScaler);
 
   analyzer->SetEvent(event);
 
