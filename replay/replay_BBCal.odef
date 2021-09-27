@@ -1,0 +1,35 @@
+# Sample outout definition file
+
+#ADC from calorimeter
+#block *
+block bb.trig.*
+block bb.ps.n*
+block bb.sh.n*
+block bb.ps.ngoodADChits
+block bb.sh.ngoodADChits
+block bb.ps.a*col
+block bb.ps.a*row
+block bb.ps.ped
+block bb.ps.a*
+block bb.sh.a*col
+block bb.sh.a*row
+block bb.sh.ped
+block bb.sh.cl*
+block bb.sh.a*
+#block bb.ps.*samp*
+#block bb.sh.*samp*
+block bb.sh.*
+block bb.ps.*
+
+# cut
+#cut shtime bb.sh.a_time>0
+#cut pstime bb.ps.a_time>0
+
+# SH
+th2f hADCint_vs_elem_sh 'ADC integral vs element ID : SH' bb.sh.adcelemID bb.sh.a_p 189 0 188 60 0 60 
+th2f hADCtime_vs_elem_sh 'ADC time vs element ID : SH' bb.sh.adcelemID bb.sh.a_time 189 0 188 200 0 200 
+
+# PS
+th2f hADCint_vs_elem_ps 'ADC integral vs element ID : PS' bb.ps.adcelemID bb.ps.a_p 52 0 51 40 0 40 
+th2f hADCtime_vs_elem_ps 'ADC time vs element ID : PS' bb.ps.adcelemID bb.ps.a_time 52 0 51 200 0 200 
+

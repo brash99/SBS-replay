@@ -124,7 +124,8 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
 
 
 
-void GEM_align( const char *inputfilename, const char *configfilename, const char *outputfilename="newGEMalignment.txt" ){
+void GEM_align( const char *configfilename, const char *outputfilename="newGEMalignment.txt" ){
+  
   ifstream configfile(configfilename);
   
   int niter=1; //number of alignment iterations:
@@ -150,11 +151,19 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
   double minanglechange = 5e-5; // 50 urad
 
   TString prefix = "sbs.uvagem";
+
+  TChain *C = new TChain("T");
   
   //Copied from GEM_reconstruct: For this routine we are only interested in the number of layers and the number of modules, and the geometrical information:
   if( configfile ){
     TString currentline;
     
+    while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endlist") ){
+      if( !currentline.BeginsWith("#") ){
+	C->Add(currentline.Data());
+      }
+    }
+
     while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endconfig")){
       if( !currentline.BeginsWith("#") ){
 	TObjArray *tokens = currentline.Tokenize(" ");
@@ -438,8 +447,7 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
     return;   
   }
 
-  TChain *C = new TChain("T");
-  C->Add(inputfilename);
+  
 
   TEventList *elist = new TEventList("elist");
 
@@ -500,6 +508,41 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
   //GEM_cosmic_tracks *T = new GEM_cosmic_tracks(C);
 
   //Declare branch addresses:
+
+  TString outrootfilename;
+  TString rootprefix = prefix;
+  rootprefix.ReplaceAll(".","_");
+  
+  outrootfilename.Form("GEM_align_results_%s.root",rootprefix.Data() );
+
+  TFile *fout = new TFile( outrootfilename.Data(), "RECREATE" );
+
+  double Txtrack, Tytrack, Txptrack, Typtrack, Tchi2ndf;
+  int Tnhits;
+  double Tuhit[nlayers], Tvhit[nlayers], Txhit[nlayers], Tyhit[nlayers], Tzhit[nlayers];
+  double Turesid[nlayers], Tvresid[nlayers];
+  double Txresid[nlayers], Tyresid[nlayers];
+  int Thitlayer[nlayers], Thitmodule[nlayers];
+
+  TTree *Tout = new TTree("Tout", "GEM alignment results");
+
+  Tout->Branch( "xtrack", &Txtrack, "xtrack/D" );
+  Tout->Branch( "ytrack", &Tytrack, "ytrack/D" );
+  Tout->Branch( "xptrack", &Txptrack, "xptrack/D" );
+  Tout->Branch( "yptrack", &Typtrack, "yptrack/D" );
+  Tout->Branch( "chi2ndf", &Tchi2ndf, "chi2ndf/D" );
+  Tout->Branch( "nhits", &Tnhits, "nhits/I" );
+  Tout->Branch( "uhit", Tuhit, "uhit[nhits]/D" );
+  Tout->Branch( "vhit", Tvhit, "vhit[nhits]/D" );
+  Tout->Branch( "xhit", Txhit, "xhit[nhits]/D" );
+  Tout->Branch( "yhit", Tyhit, "yhit[nhits]/D" );
+  Tout->Branch( "zhit", Tzhit, "zhit[nhits]/D" );
+  Tout->Branch( "uresid", Turesid, "uresid[nhits]/D" );
+  Tout->Branch( "vresid", Tvresid, "vresid[nhits]/D" );
+  Tout->Branch( "xresid", Txresid, "xresid[nhits]/D" );
+  Tout->Branch( "yresid", Tyresid, "yresid[nhits]/D" );
+  Tout->Branch( "hitlayer", Thitlayer, "hitlayer[nhits]/I" );
+  Tout->Branch( "hitmodule", Thitmodule, "hitmodule[nhits]/I" );
   
   
   long nevent=0;
@@ -542,7 +585,7 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
     //if this is not the first iteration, cut short if chi2 stops improving:
     if( iter > 0 && fabs( 1. - meanchi2/oldmeanchi2 ) <= minchi2change ) niter = iter;
     if( fabs(maxposchange) < minposchange && fabs(maxanglechange) < minanglechange ) niter = iter;
-    if( fabs(maxposchange) > oldmaxposchange && fabs(maxanglechange) > oldmaxanglechange ) niter = iter;
+    //if( fabs(maxposchange) > oldmaxposchange && fabs(maxanglechange) > oldmaxanglechange ) niter = iter;
 
     if( meanchi2/oldmeanchi2 > 1.0 ) niter = iter;
     
@@ -754,6 +797,14 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 
       }
 
+      Txtrack = xtrack;
+      Tytrack = ytrack;
+      Txptrack = xptrack;
+      Typtrack = yptrack;
+
+      Tnhits = nhitsonbesttrack;
+      
+      
       for( int ihit=0; ihit<NHITS; ihit++ ){
 	int tridx = int( hit_trackindex[ihit] );
 	if( tridx == itrack ){
@@ -773,12 +824,39 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 	  R.RotateX( mod_ax[module] );
 	  R.RotateY( mod_ay[module] );
 	  R.RotateZ( mod_az[module] );
+
+	  TRotation Rinv = R;
+	  Rinv.Invert();
 	  
 	  TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
 	  TVector3 hitpos_global = modcenter_global + R*hitpos_local;
 
-	  trackchi2 += ( pow( hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z()), 2 ) +
-			 pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(0.1e-3,-2);
+	  // trackchi2 += ( pow( hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z()), 2 ) +
+	  // 		 pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(sigma_hitpos,-2);
+
+	  //for consistency with how we calculate residuals, should we change the chi2 calculation to be in terms of the u and v residuals instead of X and Y? 
+	  
+	  TVector3 trackpos_global( xtrack + xptrack * hitpos_global.Z(), ytrack + yptrack * hitpos_global.Z(), hitpos_global.Z() );
+	  
+	  TVector3 trackpos_local = Rinv * ( trackpos_global - modcenter_global );
+
+	  double utrack = trackpos_local.X()*mod_Pxu[module] + trackpos_local.Y()*mod_Pyu[module];
+	  double vtrack = trackpos_local.X()*mod_Pxv[module] + trackpos_local.Y()*mod_Pyv[module];
+
+	  trackchi2 += ( pow( ulocal - utrack, 2 ) + pow( vlocal - vtrack, 2 ) ) * pow(sigma_hitpos, -2);
+	  
+	  Tuhit[ihit] = ulocal;
+	  Tvhit[ihit] = vlocal;
+	  Txhit[ihit] = hitpos_global.X();
+	  Tyhit[ihit] = hitpos_global.Y();
+	  Tzhit[ihit] = hitpos_global.Z();
+	  Txresid[ihit] = hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z() );
+	  Tyresid[ihit] = hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z() );
+	  Turesid[ihit] = ulocal - utrack;
+	  Tvresid[ihit] = vlocal - vtrack;
+	  Thitlayer[ihit] = mod_layer[module];
+	  Thitmodule[ihit] = module;
+	  
 	}
 		      
       }
@@ -788,6 +866,9 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
       double dof = double( 2*tracknhits[itrack] - 4 );
       trackchi2 /= dof;
 
+      Tchi2ndf = trackchi2;
+      
+      
       if( trackchi2 <= trackchi2_cut ){
 	if( nevent < NMAX && iter == niter ){ //fill TRACK arrays 
 	  NTRACKS++;
@@ -797,7 +878,11 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
 	  YPTRACK.push_back( yptrack );
 	  TRACKNHITS.push_back( nhitsonbesttrack );
 	}
-    
+
+	if( iter == niter ){
+	  Tout->Fill();
+	}
+	
 	//we want to modify this to compute the CHANGE in module parameters required to minimize chi^2;
 	// so the starting parameters are taken as given.
 	// x_0 --> x_0 + dx0
@@ -1309,7 +1394,10 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
   ofstream outfile(outputfilename);
 
   //Also write the alignment stuff in the format that the SBS-offline database wants:
-  ofstream outfile_DB("dbtemp_example.dat");
+  TString dbfilename;
+  dbfilename.Form( "db_align_%s.dat", prefix.Data() );
+  
+  ofstream outfile_DB( dbfilename.Data() );
   
   //outfile << "mod_x0 ";
   TString x0line = "mod_x0 ", y0line="mod_y0 ", z0line = "mod_z0 ";
@@ -1351,4 +1439,7 @@ void GEM_align( const char *inputfilename, const char *configfilename, const cha
   
   elist->Delete();
 
+  fout->Write();
+  fout->Close();
+  
 }

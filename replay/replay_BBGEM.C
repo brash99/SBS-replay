@@ -12,7 +12,7 @@
 //#include "SBSGEMStand.h"
 //#include "SBSBigBite.h"
 
-void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long firstevent=0, long nevents=-1 ){
+void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019_trigtest", long firstevent=0, long nevents=-1, int pedestalmode=0 ){
 
   //  gSystem->Load("libsbs.so");
 
@@ -22,6 +22,9 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
     
   bb->AddDetector(bbgem);
 
+  bool pm =  ( pedestalmode != 0 );
+  //this will override the database setting:
+  ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetPedestalMode( pm );
   //
   //  Steering script for Hall A analyzer demo
   //
@@ -69,7 +72,7 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
 
     TString codafilename;
     //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
-    codafilename.Form("%s/e1209019_trigtest_%d.evio.%d", prefix.Data(), runnum, segment );
+    codafilename.Form("%s/%s_%d.evio.%d", prefix.Data(), fname_prefix, runnum, segment );
 
     segmentexists = true;
     
@@ -78,7 +81,8 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
     } else if( segcounter == 0 ){
       new( (*filelist)[segcounter] ) THaRun( codafilename.Data() );
       cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
-      ( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
+      //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
+      ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(1);
       ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
       ( (THaRun*) (*filelist)[segcounter] )->Init();
     } else {
@@ -124,7 +128,14 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
   // File to record cuts accounting information
   analyzer->SetSummaryFile("replay_BBGEM.log"); // optional
 
-  analyzer->SetOdefFile( "replay_BBGEM.odef" );
+  prefix = gSystem->Getenv("SBS_REPLAY");
+  prefix += "/replay/";
+
+  TString odef_filename = "replay_BBGEM.odef";
+  
+  odef_filename.Prepend( prefix );
+
+  analyzer->SetOdefFile( odef_filename );
   
   //analyzer->SetCompressionLevel(0); // turn off compression
 
@@ -136,7 +147,7 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, long f
 
     run->SetFirstEvent( firstevent );
     
-    run->SetDataRequired(0);
+    run->SetDataRequired(1);
     
 
     analyzer->Process(run);     // start the actual analysis

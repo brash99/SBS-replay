@@ -1,9 +1,3 @@
-R__ADD_INCLUDE_PATH($SBS/include)
-R__ADD_LIBRARY_PATH($SBS/lib64)
-R__ADD_LIBRARY_PATH($SBS/lib)
-R__LOAD_LIBRARY(libsbs.so)
-
-#if !defined(__CLING__) || defined(__ROOTCLING__)
 #include <iostream>
 
 #include "TSystem.h"
@@ -11,22 +5,23 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "TFile.h"
 
 #include "THaShower.h"
+#include "THaEvent.h"
 #include "THaEvData.h"
 #include "THaRun.h"
 #include "THaAnalyzer.h"
 #include "THaVarList.h"
 
 #include "SBSBigBite.h"
+#include "SBSBBTotalShower.h"
 #include "SBSBBShower.h"
-#endif
 
 // Simple example replay script
 //
 // Ole Hansen, 11 April 2016
-void replay_bbcosmics(int run_number = 124, uint nev = -1)
+void replay_bbcosmics(int run_number = 124, uint nev = -1, TString start_name = "e1209019_trigtest", uint nseg = 0)
 {
   //load SBS-offline
-  gSystem->Load("libsbs.so");
+  // gSystem->Load("libsbs.so");
   //--- Define the experimental configuration, i.e. spectrometers, detectors ---
 
   //THaHRS* bb = new THaHRS("R", "Right HRS" );
@@ -35,8 +30,14 @@ void replay_bbcosmics(int run_number = 124, uint nev = -1)
   
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
-  bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
-  bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
+  SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
+  ts->SetDataOutputLevel(0);
+  bigbite->AddDetector( ts );
+  SBSGenericDetector* trig= new SBSGenericDetector("trig","BigBite shower trig");
+  trig->SetModeADC(SBSModeADC::kWaveform);
+  bigbite->AddDetector( trig );
+  //  bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
+  // bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
   gHaApps->Add(bigbite);
   
   // Ideal beam (perfect normal incidence and centering)
@@ -47,71 +48,68 @@ void replay_bbcosmics(int run_number = 124, uint nev = -1)
 
   // This often requires a bit of coding to search directories, test
   // for non-existent files, etc.
+  TString exp = "bbshower";
+  // Create file name patterns.
+  string firstname = "ts_bbshower_%d";
+  string endname = Form(".evio.%d",nseg);
+  //string endname = Form(".evio");
+  string combined(string(firstname)+endname);
+  const char* RunFileNamePattern = combined.c_str();
+  vector<TString> pathList;
+  pathList.push_back(".");
+  pathList.push_back(Form("%s/data","/adaqfs/home/a-onl/sbs"));
 
-  TString experiment = "bbcal";
-
-  // Get the run number
-  TString data_dir = gSystem->Getenv("DATA_DIR");
-  if( data_dir.IsNull() ) 
-    data_dir = ".";
-  TString run_file = data_dir + "/test_" + experiment + Form("_%d.dat",run_number);
-  if( gSystem->AccessPathName(run_file) ) {
-   Error("replay.C", "Input file does not exist: %s", run_file.Data() );
-   exit(-1);
-  }
-
-  THaRun* run = new THaRun( run_file, "BB cosmics" );
-  run->SetDataRequired(7);//for the time being
-  
-  cout << "Number of events to replay (-1=all)? ";
-  if( nev > 0 )
-    run->SetLastEvent(nev);
-  
-  //--- Set up any physics calculations we want to do ---
-
-  // Extract the reconstructed target quantities of the golden track
-  // Not really a physics calculation, but a convenience function.
-  // It effectively converts the L.tr.* variables, which are arrays, 
-  // to scalers L.gold.*
-
-  //gHaPhysics->Add( new THaGoldenTrack( "R.gold", "RHRS golden track", "R" ));
-
-  // Single-arm electron kinematics for the one spectrometer we have set up.
-  // We assume a carbon-12 target (12 AMU)
-  //gHaPhysics->Add( new THaPrimaryKine( "R.ekine", "RHRS electron kinematics",
-  //"R", 0.511e-3, 12*0.9315 ));
-
-  // Vertex position calculated from RHRS golden track and ideal beam
-  // (will poor resolution if raster is on)
-  //gHaPhysics->Add( new THaReactionPoint( "R.vx", "Vertex R", "R", "IB" ));
-
-  //--- Define what we want the analyzer to do ---
-  // The only mandatory items are the output definition and output file names
-  
   THaAnalyzer* analyzer = new THaAnalyzer;
+  THaEvent* event = new THaEvent;
+  THaRun* run = 0;
+  int seg = 0;
+  bool seg_ok = true;
+  while(seg_ok) {
+    TString data_fname;
+    //data_fname = TString::Format("%s/ts_bbshower_%d.evio.%d",getenv("DATA_DIR"),run_number,seg);
+    data_fname = TString::Format("%s/%s_%d.evio.%d","../data",start_name.Data(),run_number,seg);
+    //new THaRun( pathList, Form(RunFileNamePattern, run_number) );
+    std::cout << "Looking for segment " << seg << " file " << data_fname.Data() << std::endl;
+    if( gSystem->AccessPathName(data_fname)) {
+      seg_ok = false;
+      std::cout << "Segment " << seg << " not found. Exiting" << std::endl;
+      continue;
+    }
+    run = new THaRun(data_fname);
+    run->SetLastEvent(nev);
 
-  TString out_dir = gSystem->Getenv("OUT_DIR");
-  if( out_dir.IsNull() )
-    out_dir = ".";
-  TString out_file = out_dir + "/" + experiment + Form("_%d.root", run_number);
-
-  analyzer->SetOutFile( out_file );
+    run->SetDataRequired(0);//for the time being
+    run->SetDate(TDatime());
   
-  analyzer->SetCutFile( "replay.cdef" );
-  analyzer->SetOdefFile( "replay.odef" );
-
-  analyzer->SetVerbosity(2);  // write cut summary to stdout
-  analyzer->EnableBenchmarks();
-
-  //--- Analyze the run ---
-  // Here, one could replay more than one run with
-  // a succession of Process calls. The results would all go into the
-  // same ROOT output file
-
-  run->Print();
   
 
-  analyzer->Process(run);
+    analyzer->SetEvent( event );
+    TString out_dir = gSystem->Getenv("OUT_DIR");
+    if( out_dir.IsNull() )  out_dir = ".";
+    TString out_file = out_dir + "/" + exp + Form("_%d_%d.root", run_number,nev);
+
+    analyzer->SetOutFile( out_file );
+  
+    analyzer->SetCutFile( "replay_BBCal.cdef" );
+    analyzer->SetOdefFile( "replay_BBCal.odef" );
+
+    analyzer->SetVerbosity(2);  // write cut summary to stdout
+    analyzer->EnableBenchmarks();
+
+    //--- Analyze the run ---
+    // Here, one could replay more than one run with
+    // a succession of Process calls. The results would all go into the
+    // same ROOT output file
+
+    run->Print();
+  
+
+    analyzer->Process(run);
+    // Cleanup this run segment
+    delete run;
+    
+    seg++; // Increment for next search
+  }
 
   // Clean up
 
