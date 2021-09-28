@@ -34,11 +34,10 @@ void replay_spot(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
    // set up file paths
 
    // output and cut definition files
-   // TString replayDir = gSystem->Getenv("SBS-replay");
-   // TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data());  
-   // TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data());  
-   std::string odef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/output_beam_raster.def"; 
-   std::string cdef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/cuts_beam_raster.def"; 
+   TString replayDir = gSystem->Getenv("SBS_REPLAY");
+   // std::cout << SCRIPT << "REPLAY DIR = " << replayDir << std::endl;
+   TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data()); 
+   TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data()); 
   
    // output ROOT file destination and name
    TString out_file = Form("%s",outfileName);
