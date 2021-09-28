@@ -67,7 +67,7 @@ void replay_bbcosmics(int run_number = 124, uint nev = -1, TString start_name = 
   while(seg_ok) {
     TString data_fname;
     //data_fname = TString::Format("%s/ts_bbshower_%d.evio.%d",getenv("DATA_DIR"),run_number,seg);
-    data_fname = TString::Format("%s/%s_%d.evio.%d","../data",start_name.Data(),run_number,seg);
+    data_fname = TString::Format("%s/%s_%d.evio.%d",getenv("DATA_DIR"),start_name.Data(),run_number,seg);
     //new THaRun( pathList, Form(RunFileNamePattern, run_number) );
     std::cout << "Looking for segment " << seg << " file " << data_fname.Data() << std::endl;
     if( gSystem->AccessPathName(data_fname)) {
