@@ -20,7 +20,7 @@ bb.ps.adc.conv = 0.4882
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 bb.ps.adc.NPedBin = 4
 # Threshold for pulse finding in waveform (mV)
-bb.ps.adc.thres = 5.
+bb.ps.adc.thres = 3.
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
 bb.ps.adc.NSB = 3
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
@@ -30,22 +30,77 @@ bb.ps.adc.FixThresBin = 14
 #Convert adc integral in pC to GeV
 bb.ps.adc.gain = 1.0
 
-
 ## Positions in [m] where +z is roated by bb.theta
-bb.ps.position = 0 0 2.5319 ## Need to re-check this number
+## BB PS front: 1.71745 m + most probable preshower depth 0.033 cm 
+bb.ps.position = 0 0 1.75045 ## Need to re-check this number
+
+bb.ps.xpos = 
+1.106 1.106 
+1.0155 1.0155 
+0.925 0.925 
+0.8345 0.8345 
+0.744 0.744 
+0.6535 0.6535 
+0.563 0.563 
+0.4725 0.4725 
+0.382 0.382 
+0.2915 0.2915 
+0.201 0.201 
+0.1105 0.1105 
+0.02 0.02 
+-0.0705 -0.0705 
+-0.161 -0.161 
+-0.2515 -0.2515 
+-0.342 -0.342 
+-0.4325 -0.4325 
+-0.523 -0.523 
+-0.6135 -0.6135 
+-0.704 -0.704 
+-0.7945 -0.7945 
+-0.885 -0.885 
+-0.9755 -0.9755 
+-1.066 -1.066 
+-1.1565 -1.1565
+ 
+bb.ps.ypos = 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
+-0.18525 0.18525 
 
 bb.ps.emin = 0.1 #
 
 
 ## Size
-bb.ps.size   =  0.740  2.295  0.085 # in meters
+bb.ps.size   =  0.740  2.34  0.09 # in meters
 
 ## Number of rows and columns
 bb.ps.ncols =  2
 bb.ps.nrows = 26
 
 ## Position of first module
-bb.ps.xyz    = -1.105  0.185  0.000
+bb.ps.xyz    =  1.125  0.185  0.000
 ## Space between modules
-bb.ps.dxdydz =  10.000  30.000  0.000
-
+bb.ps.dxdydz =  0.09   0.370  0.000
