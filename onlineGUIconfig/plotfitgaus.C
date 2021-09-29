@@ -4,8 +4,10 @@
 
 void plotfitgaus(TString histname, double fracmax=0.5){
   TH1D *htemp;
-  gDirectory->GetObject(histname,htemp);
-  //htemp = (TH1D*) (gDirectory->Get(histname));
+  //gDirectory->GetObject(histname,htemp);
+  htemp = (TH1D*) (gDirectory->Get(histname));
+
+  //htemp->Print();
   
   if( htemp ){
   
