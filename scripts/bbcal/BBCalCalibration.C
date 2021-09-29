@@ -105,8 +105,11 @@ void BBCalCalibration(const char* filename = "replayed_simdigtest_2.root")
   TMatrixD M_jk_inv = M_jk.Invert();
   TMatrixD C_j = M_jk_inv*B_j;
   
+  cout << endl;
   int k = 0;
   //C_j.Print();
+  cout << " *** add the following lines in your bigbite shower database *** " << endl;
+  cout << endl;
   cout << "bb.sh.adc.gain = " << endl;
   for(int i = 0; i<27; i++){
     for(int j = 0; j<7; j++){
@@ -115,7 +118,10 @@ void BBCalCalibration(const char* filename = "replayed_simdigtest_2.root")
     }
     cout << endl;
   }
+  cout << endl;
   
+  cout << " *** add the following lines in your bigbite preshower database *** " << endl;
+  cout << endl;
   cout << "bb.ps.adc.gain = " << endl;
   for(int i = 0; i<26; i++){
     for(int j = 0; j<2; j++){
@@ -124,6 +130,7 @@ void BBCalCalibration(const char* filename = "replayed_simdigtest_2.root")
     }
     cout << endl;
   }
+  cout << endl;
   
   /*
   TCanvas* C0 = new TCanvas();
