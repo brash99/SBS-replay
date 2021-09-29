@@ -127,7 +127,8 @@ void replay_UVA_EEL( int runnum=2811, int firstsegment=0, int maxsegments=1, lon
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_UVA_EEL.odef";
+  //TString odef_filename = "replay_UVA_EEL.odef";
+  TString odef_filename = "replay_sbs_uvagem.odef";
   
   odef_filename.Prepend( prefix );
 
