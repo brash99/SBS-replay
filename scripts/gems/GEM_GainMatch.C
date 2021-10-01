@@ -1,7 +1,7 @@
 #include "TFile.h"
 #include "TTree.h"
 #include "TChain.h"
-#include "GEM_cosmic_tracks.C"
+//#include "GEM_cosmic_tracks.C"
 #include "TString.h"
 #include "TH2D.h"
 #include "TH1D.h"
@@ -11,6 +11,8 @@
 #include <fstream> 
 #include "TROOT.h"
 #include "TClonesArray.h"
+#include "TCanvas.h"
+#include "TPad.h"
 #include "TVectorD.h"
 #include "TMatrixD.h"
 //#include "Math/Functor.h"
@@ -83,14 +85,89 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 }
 
 
-void GainRatios( const char *infilename, int nmodules, double chi2cut=100.0, double ADCcut = 1500.0, int nstripxmax=1536, int nstripymax=1280 ){
+void GainRatios( const char *infilename, int nmodules, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, int nstripxmax=3840, int nstripymax=3840 ){
   gROOT->ProcessLine(".x ~/rootlogon.C");
 
+  int MAXNHITS=100000;
+  
   TString fname(infilename);
 
   TChain *C = new TChain("T");
 
   C->Add( infilename );
+
+  TString branchname;
+  double ngoodhits;
+  double ntracks;
+  double besttrack;
+  double tracknhits[MAXNHITS];
+  double trackChi2NDF[MAXNHITS];
+  double hit_trackindex[MAXNHITS];
+  double hit_module[MAXNHITS];
+  double hit_layer[MAXNHITS];
+  double hit_nstripu[MAXNHITS];
+  double hit_nstripv[MAXNHITS];
+  double hit_ustripmax[MAXNHITS];
+  double hit_ustriplo[MAXNHITS];
+  double hit_ustriphi[MAXNHITS];
+  double hit_vstripmax[MAXNHITS];
+  double hit_vstriplo[MAXNHITS];
+  double hit_vstriphi[MAXNHITS];
+  double hit_ADCU[MAXNHITS];
+  double hit_ADCV[MAXNHITS];
+  double hit_ADCavg[MAXNHITS];
+  double hit_ADCasym[MAXNHITS];
+
+  map<TString,TString> branchnames;
+  vector<TString> varnames;
+  varnames.push_back("track.ntrack");
+  varnames.push_back("track.nhits");
+  varnames.push_back("track.besttrack");
+  varnames.push_back("track.chi2ndf");
+  varnames.push_back("hit.ngoodhits");
+  varnames.push_back("hit.trackindex");
+  varnames.push_back("hit.module");
+  varnames.push_back("hit.layer");
+  varnames.push_back("hit.nstripu");
+  varnames.push_back("hit.nstripv");
+  varnames.push_back("hit.ustripmax");
+  varnames.push_back("hit.ustriplo");
+  varnames.push_back("hit.ustriphi");
+  varnames.push_back("hit.vstripmax");
+  varnames.push_back("hit.vstriplo");
+  varnames.push_back("hit.vstriphi");
+  varnames.push_back("hit.ADCU");
+  varnames.push_back("hit.ADCV");
+  varnames.push_back("hit.ADCavg");
+  varnames.push_back("hit.ADCasym");
+  
+  C->SetBranchStatus("*",0);
+
+  for( int i=0; i<varnames.size(); i++ ){
+    branchnames[varnames[i]] = branchname.Format("%s.%s",detname,varnames[i].Data());
+    C->SetBranchStatus( branchnames[varnames[i]].Data(), 1 );
+  }
+    
+  C->SetBranchAddress( branchnames["track.ntrack"].Data(), &ntracks );
+  C->SetBranchAddress( branchnames["track.besttrack"].Data(), &besttrack );
+  C->SetBranchAddress( branchnames["track.nhits"].Data(), &tracknhits );
+  C->SetBranchAddress( branchnames["track.chi2ndf"].Data(), trackChi2NDF );
+  C->SetBranchAddress( branchnames["hit.ngoodhits"].Data(), &ngoodhits );
+  C->SetBranchAddress( branchnames["hit.trackindex"].Data(), hit_trackindex );
+  C->SetBranchAddress( branchnames["hit.module"].Data(), hit_module );
+  C->SetBranchAddress( branchnames["hit.layer"].Data(), hit_layer );
+  C->SetBranchAddress( branchnames["hit.nstripu"].Data(), hit_nstripu );
+  C->SetBranchAddress( branchnames["hit.nstripv"].Data(), hit_nstripv );
+  C->SetBranchAddress( branchnames["hit.ustripmax"].Data(), hit_ustripmax );
+  C->SetBranchAddress( branchnames["hit.ustriplo"].Data(), hit_ustriplo );
+  C->SetBranchAddress( branchnames["hit.ustriphi"].Data(), hit_ustriphi );
+  C->SetBranchAddress( branchnames["hit.vstripmax"].Data(), hit_vstripmax );
+  C->SetBranchAddress( branchnames["hit.vstriplo"].Data(), hit_vstriplo );
+  C->SetBranchAddress( branchnames["hit.vstriphi"].Data(), hit_vstriphi );
+  C->SetBranchAddress( branchnames["hit.ADCU"].Data(), hit_ADCU );
+  C->SetBranchAddress( branchnames["hit.ADCV"].Data(), hit_ADCV );
+  C->SetBranchAddress( branchnames["hit.ADCavg"].Data(), hit_ADCavg );
+  C->SetBranchAddress( branchnames["hit.ADCasym"].Data(), hit_ADCasym );
   
   TString outfilename = fname;
 
@@ -142,24 +219,32 @@ void GainRatios( const char *infilename, int nmodules, double chi2cut=100.0, dou
   TH2D *hNstripX_module = new TH2D("hNstripX_module","",nmodules,-0.5,nmodules-0.5,12,0.5,12.5);
   TH2D *hNstripY_module = new TH2D("hNstripY_module","",nmodules,-0.5,nmodules-0.5,12,0.5,12.5);
 
+  TH2D *hADCavg_module = new TH2D("hADCavg_module","",nmodules,-0.5,nmodules-0.5,1500,0,30000);
+  
   //int nAPVmax = 
   
   while( C->GetEntry( nevent++ ) ){
     //loop over hits:
-    if( T->TrackChi2NDF < chi2cut ){
-      for( int ihit=0; ihit<T->TrackNhits; ihit++ ){
-	if( sqrt(T->HitADCX[ihit]*T->HitADCY[ihit]) >= ADCcut ){
-	  hADCasym_module->Fill( T->HitModule[ihit], T->HitADCasym[ihit] );
-	  hNstripX_module->Fill( T->HitModule[ihit], T->HitNstripX[ihit] );
-	  hNstripY_module->Fill( T->HitModule[ihit], T->HitNstripY[ihit] );
+    int itrack = int(besttrack);
+    
+    if( trackChi2NDF[itrack] < chi2cut ){
+      int nhits = int(ngoodhits);
+      for( int ihit=0; ihit<nhits; ihit++ ){
+	int tridx = int( hit_trackindex[ihit] );
+	
+	if( hit_ADCavg[ihit] >= ADCcut && tridx == itrack ){
+	  hADCavg_module->Fill( hit_module[ihit], hit_ADCavg[ihit] );
+	  hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
+	  hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
+	  hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
 
-	  int ixlo = T->HitXstripLo[ihit];
-	  int ixhi = T->HitXstripHi[ihit];
-	  int ixmax = T->HitXstripMax[ihit];
+	  int ixlo = hit_ustriplo[ihit];
+	  int ixhi = hit_ustriphi[ihit];
+	  int ixmax = hit_ustripmax[ihit];
 
-	  int iylo = T->HitYstripLo[ihit];
-	  int iyhi = T->HitYstripHi[ihit];
-	  int iymax = T->HitYstripMax[ihit];
+	  int iylo = hit_vstriplo[ihit];
+	  int iyhi = hit_vstriphi[ihit];
+	  int iymax = hit_vstripmax[ihit];
 
 	  int xAPVmax = ixmax/128;
 	  int yAPVmax = iymax/128;
@@ -169,14 +254,16 @@ void GainRatios( const char *infilename, int nmodules, double chi2cut=100.0, dou
 	  int xAPVhi = ixhi/128;
 	  int yAPVhi = iyhi/128;
 
+	  int module = int(hit_module[ihit]);
+	  
 	  if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
 	      yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
-	      T->HitNstripX[ihit] >= 2 && T->HitNstripY[ihit] >= 2 ){
+	      hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 ){
 
-	    ( (TH1D*) (*hADCasym_vs_APVXY)[yAPVmax + nAPVmaxY*xAPVmax+nAPVmaxX*nAPVmaxY*T->HitModule[ihit]] )->Fill( T->HitADCasym[ihit] );
+	    ( (TH1D*) (*hADCasym_vs_APVXY)[yAPVmax + nAPVmaxY*xAPVmax+nAPVmaxX*nAPVmaxY*module] )->Fill( hit_ADCasym[ihit] );
 
-	    ( (TH1D*) (*hADCasym_vs_APVX)[xAPVmax + nAPVmaxX*T->HitModule[ihit]] )->Fill( T->HitADCasym[ihit] );
-	    ( (TH1D*) (*hADCasym_vs_APVY)[yAPVmax + nAPVmaxY*T->HitModule[ihit]] )->Fill( T->HitADCasym[ihit] );
+	    ( (TH1D*) (*hADCasym_vs_APVX)[xAPVmax + nAPVmaxX*module] )->Fill( hit_ADCasym[ihit] );
+	    ( (TH1D*) (*hADCasym_vs_APVY)[yAPVmax + nAPVmaxY*module] )->Fill( hit_ADCasym[ihit] );
 	    
 	  }
 	}
