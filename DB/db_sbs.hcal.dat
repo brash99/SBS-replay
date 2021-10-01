@@ -100,7 +100,9 @@ sbs.hcal.ncols = 12
 ## Position of first module
 sbs.hcal.xyz    =  0.92835  0.47305 0.0
 ## Space between modules
-sbs.hcal.dxdydz  =  0.00254  0.00254 0.0
+#sbs.hcal.dxdydz  =  0.00254  0.00254 0.0
+# Add 0.15m to space between of 0.00254m
+sbs.hcal.dxdydz  =  0.15254  0.15254 0.0 
 
 ## Mininum energy  for a cluster center (not really used right now)
 sbs.hcal.emin  = 0.0
