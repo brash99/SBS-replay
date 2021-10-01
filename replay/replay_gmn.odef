@@ -65,8 +65,8 @@ th2f hADCint_vs_elem_sh 'ADC integral vs element ID : SH' bb.sh.adcelemID[I] bb.
 th2f hADCamp_vs_elem_sh 'ADC amplitude vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
 
 ########################## Hodoscope ##########################
-# !!! placeholder !!! we might not want to do that
-block bb.hodo.*
+block bb.hodoadc.*
+block bb.hodotdc.*
 
 ########################## GRINCH ##########################
 variable bb.grinch.nhits
