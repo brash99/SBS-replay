@@ -223,6 +223,8 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
       odefline.Form( "variable %s.%s", detname.Data(), treevarnames[i].Data() );
     }
 
+    if( odefline.Contains("*.time") ) odefline.Prepend("#");
+    
     odef_file << odefline << endl;
   }
 
@@ -295,17 +297,17 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   odef_file << histdef.Format( "th2d h%s_clust_deltat_vs_tavg 't_{diff} vs t_{avg} (ns)' %s.hit.Tavg %s.hit.deltat 150 0 150 200 -50 50 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
   
-  odef_file << histdef.Format( "th1d h%s_iSampMaxU 'peak time sample, cluster-summed U/X strips' %s.hit.isampmaxUclust 6 -0.5 5.5",
+  odef_file << histdef.Format( "th1d h%s_iSampMaxU 'Peak time sample, U/X strips' %s.hit.isampmaxUclust 6 -0.5 5.5",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_iSampMaxV 'peak time sample, cluster-summed V/Y strips' %s.hit.isampmaxVclust 6 -0.5 5.5",
+  odef_file << histdef.Format( "th1d h%s_iSampMaxV 'Peak time sample, V/Y strips' %s.hit.isampmaxVclust 6 -0.5 5.5",
 			       detname_nodots.Data(), detname.Data() ) << endl;
   
-  odef_file << histdef.Format( "th1d h%s_CorrCoeff_clust 'U/V (X/Y) correlation coeff., cluster-summed ADC samples' %s.hit.ccor_clust 202 -1.01 1.01 singletrack",
+  odef_file << histdef.Format( "th1d h%s_CorrCoeff_clust 'Corr. Coeff., cluster sums' %s.hit.ccor_clust 202 -1.01 1.01 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_CorrCoeff_maxstrip 'U/V (X/Y) correlation coeff., max strips in cluster' %s.hit.ccor_strip 202 -1.01 1.01 singletrack",
+  odef_file << histdef.Format( "th1d h%s_CorrCoeff_maxstrip 'Corr. Coeff., max strips' %s.hit.ccor_strip 202 -1.01 1.01 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_ADCasym 'ADC asymmetry (ADCU-ADCV)/(ADCU+ADCV), hits on tracks' %s.hit.ADCasym 202 -1.01 1.01 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCasym '(ADCU-ADCV)/(ADCU+ADCV)' %s.hit.ADCasym 202 -1.01 1.01 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl << endl;
 
   odef_file << histdef.Format( "th1d h%s_ADCavg '(ADCU+ADCV)/2, hits on tracks' %s.hit.ADCavg 1500 0 30000 singletrack",
@@ -332,19 +334,19 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
 
 
-  odef_file << histdef.Format( "th1d h%s_ADCU_maxsample 'Max ADC sample in max strip (U/X strips)' %s.hit.ADCmaxsampU 500 0 4000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCU_maxsample 'U/X max strip max sample' %s.hit.ADCmaxsampU 500 0 4000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_ADCV_maxsample 'Max ADC sample in max strip (V/Y strips)' %s.hit.ADCmaxsampV 500 0 4000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCV_maxsample 'V/Y max strip max sample' %s.hit.ADCmaxsampV 500 0 4000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxsample 'Max ADC sample in max strip, V/Y vs U/X' %s.hit.ADCmaxsampU %s.hit.ADCmaxsampV 200 0 4000 200 0 4000 singletrack",
+  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxsample 'Max strip max sample, V/Y vs U/X' %s.hit.ADCmaxsampU %s.hit.ADCmaxsampV 200 0 4000 200 0 4000 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
 
 
-  odef_file << histdef.Format( "th1d h%s_ADCU_maxclustsample 'Max cluster-summed time sample (U/X strips)' %s.hit.ADCmaxsampUclust 500 0 8000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCU_maxclustsample 'Max cluster-summed U/X sample' %s.hit.ADCmaxsampUclust 500 0 8000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_ADCV_maxclustsample 'Max cluster-summed time sample (V/Y strips)' %s.hit.ADCmaxsampVclust 500 0 8000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCV_maxclustsample 'Max cluster-summed V/Y sample' %s.hit.ADCmaxsampVclust 500 0 8000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxclustsample 'Max cluster-summed time sample, V/Y vs U/X' %s.hit.ADCmaxsampUclust %s.hit.ADCmaxsampVclust 200 0 8000 200 0 8000 singletrack",
+  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxclustsample 'Max cluster-summed sample, V/Y vs U/X' %s.hit.ADCmaxsampUclust %s.hit.ADCmaxsampVclust 200 0 8000 200 0 8000 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl << endl;
   
   
@@ -376,14 +378,14 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
 
   //what is next: tracking residuals inclusive and exclusive, all hits:
-  odef_file << histdef.Format( "th1d h%s_residu_allhits 'Track u/x incl. residuals, all hits in all layers' %s.hit.residu 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_residu_allhits 'Track u/x incl. residuals, all hits' %s.hit.residu 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_residv_allhits 'Track v/y incl. residuals, all hits in all layers' %s.hit.residv 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_residv_allhits 'Track v/y incl. residuals, all hits' %s.hit.residv 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_eresidu_allhits 'Track u/x excl. residuals, all hits in all layers' %s.hit.eresidu 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_eresidu_allhits 'Track u/x excl. residuals, all hits' %s.hit.eresidu 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_eresidv_allhits 'Track v/y excl. residuals, all hits in all layers' %s.hit.eresidv 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_eresidv_allhits 'Track v/y excl. residuals, all hits' %s.hit.eresidv 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
 
   //inclusive tracking residuals by layer and module:
@@ -540,30 +542,30 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   cfg_file << "title Layers with hits" << endl;
   TString histcfg;
 
-  cfg_file << histcfg.Format( "h%s_Nlayers_hit", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_Nlayers_hitu", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_Nlayers_hitv", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_Nlayers_hituv", detname_nodots.Data() ) << endl << endl;
+  cfg_file << histcfg.Format( "h%s_Nlayers_hit -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_Nlayers_hitu -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_Nlayers_hitv -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_Nlayers_hituv -nostat", detname_nodots.Data() ) << endl << endl;
 
   cfg_file << "newpage 2 2" << endl;
   cfg_file << "title Strip and cluster multiplicities" << endl;
-  cfg_file << histcfg.Format( "h%s_NstripsU_layer -drawopt colz", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_NstripsV_layer -drawopt colz", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_NclustU_layer -drawopt colz", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_NclustV_layer -drawopt colz", detname_nodots.Data() ) << endl << endl;
+  cfg_file << histcfg.Format( "h%s_NstripsU_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_NstripsV_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_NclustU_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_NclustV_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl << endl;
 
   cfg_file << "newpage 4 3" << endl;
   cfg_file << "title Cluster size, timing, ADC correlations" << endl;
-  cfg_file << histcfg.Format( "h%s_clustwidthU", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_clustwidthV", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_clustwidthVvsU -drawopt colz", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "macro overlay.C(\"h%s_clust_Utime\",\"h%s_clust_Vtime\")", detname_nodots.Data(), detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_clustwidthU -title \"U/X cluster size\"", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_clustwidthV -title \"V/Y cluster size\"", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_clustwidthVvsU -drawopt colz -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "macro overlay.C(\"h%s_clust_Utime\",\"h%s_clust_Vtime\",\"U time (ns)\",\"V time (ns)\")", detname_nodots.Data(), detname_nodots.Data() ) << endl;
   //cfg_file << histcfg.Format( "h%s_ADCavg -drawopt colz", detname_nodots.Data() ) << endl;
   
-  cfg_file << histcfg.Format( "h%s_clust_UVtime -drawopt colz", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_clust_UVtime -drawopt colz -nostat", detname_nodots.Data() ) << endl;
   cfg_file << histcfg.Format( "macro plotfitgaus.C(\"h%s_clust_deltat\",0.5)", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_iSampMaxU", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_iSampMaxV", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_iSampMaxU  -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_iSampMaxV  -nostat", detname_nodots.Data() ) << endl;
 
   cfg_file << histcfg.Format( "h%s_CorrCoeff_clust", detname_nodots.Data() ) << endl;
   cfg_file << histcfg.Format( "h%s_CorrCoeff_maxstrip", detname_nodots.Data() ) << endl;

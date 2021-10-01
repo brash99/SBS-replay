@@ -62,7 +62,7 @@ void overlay(TString hist1name, TString hist2name, TString legentry1="", TString
   if( legentry2 == "" ) legentry2 = H2->GetName();
   
   //Now add a small legend in the upper right corner:
-  TLegend *leg_thisplot = new TLegend( 0.6,0.65,0.9,0.9, "", "brNDC" );
+  TLegend *leg_thisplot = new TLegend( 0.6,0.55,0.9,0.88, "", "brNDC" );
 
   leg_thisplot->SetFillStyle(0);
   leg_thisplot->SetBorderSize(0);
