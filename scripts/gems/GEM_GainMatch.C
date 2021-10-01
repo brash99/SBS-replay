@@ -190,7 +190,10 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
   ofstream outfile(outfilename.Data());
 
-  ofstream outfile_db("dbtempGainRatios.dat");
+  TString dbfilename;
+  dbfilename.Form( "GEM_GainMatchResults_%s.dat",detname );
+  
+  ofstream outfile_db(dbfilename.Data());
   
   nAPVmaxX = nstripxmax/128;
   if( nstripxmax % 128 > 0 ) nAPVmaxX++;
@@ -399,6 +402,9 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     
     RelativeGainByModule[i] = MPV_mod/MPV_all;
   }
+
+
+  outfile_db << endl << "#Module internal relative gains by APV card: " << endl;
 
   for( int i=0; i<nmodules; i++ ){
     int xAPV_ref = nAPVmaxX/2;
@@ -665,7 +671,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     outfile << "mod_Ygain  " << i << "   " << nAPVmaxY << "     ";
 
     TString varname;
-    varname.Form("sbs.uvagem.m%d.vgain = ",i);
+    varname.Form("%s.m%d.vgain = ",detname,i);
 
     outfile_db << varname;
     
@@ -677,8 +683,8 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
       double Gy, dGy;
       gainfit->GetParameter( iy, Gy, dGy );
-      Ygain.push_back( Gy*Gmod );
-      dYgain.push_back( dGy*Gmod );
+      Ygain.push_back( Gy );
+      dYgain.push_back( dGy );
       
       cout << "module " << i << ", Y APV " << iy << ", Relative gain = " << Ygain.back() << " +/- " << dYgain.back() << endl;
 
@@ -689,7 +695,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     outfile_db << endl;
     
     outfile << "mod_Xgain  " << i << "   " << nAPVmaxX << "     ";
-    varname.Form("sbs.uvagem.m%d.ugain = ",i);
+    varname.Form("%s.m%d.ugain = ",detname,i);
 
     outfile_db << varname;
     
@@ -697,8 +703,8 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
       double Gx, dGx;
       gainfit->GetParameter( ix + nAPVmaxY, Gx, dGx );
-      Xgain.push_back( Gx*Gmod );
-      dXgain.push_back( dGx*Gmod );
+      Xgain.push_back( Gx );
+      dXgain.push_back( dGx );
       // if( ix != xAPV_ref ){
       // 	double sum_xgain = 0.0;
       // 	double sum_weights = 0.0;
@@ -737,6 +743,18 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     }
     outfile << endl;
     outfile_db << endl;
+
+    //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
+  }
+
+  outfile_db << endl << "# Module average gains relative to target ADC peak position of " << target_ADC << endl;
+  
+  for( int i=0; i<nmodules; i++ ){
+    double Gmod = RelativeGainByModule[i];
+    //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
+    TString dbentry;
+    dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
+    outfile_db << dbentry << endl;
   }
 
   outfile << endl;
