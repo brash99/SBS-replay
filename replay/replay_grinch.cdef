@@ -1,4 +1,4 @@
-## example cut file for gmn replay.
+# Sample cut definition file
 Block: RawDecode
 
 RawDecode_master        1
@@ -12,15 +12,7 @@ Decode_master   1
 
 Block: CoarseReconstruct
 
-HitsPreShower          bb.ps.nhits>5
-HitsShower             bb.sh.nhits>5
-GoodPreShower          bb.ps.ngoodADChits>5
-GoodShower             bb.sh.ngoodADChits>5
-GoodEvent              GoodPreShower||GoodShower
-
 HitsGrinch          bb.grinch_tdc.nhits>0
 
-CoarseReconstruct_master 1
-#CoarseReconstruct_master HitsGrinch #?
-
+CoarseReconstruct_master HitsGrinch
 

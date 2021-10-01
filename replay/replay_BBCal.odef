@@ -26,12 +26,14 @@ block bb.ps.*
 #cut pstime bb.ps.a_time>0
 
 # PS
-th2f hADCtime_vs_elem_ps 'ADC time vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_time[I] 52 0 52 100 0 100 bb.ps.a_time[I]>0 
+th2f hped_vs_elem_ps 'Pedestal vs element ID : PS' bb.ps.adcelemID[I] bb.ps.ped[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 
+th2f hADCtime_vs_elem_ps 'ADC time vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_time[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 
 th2f hADCint_vs_elem_ps 'ADC integral vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_p[I] 52 0 52 80 0 80 bb.ps.a_time[I]>0 
 th2f hADCamp_vs_elem_ps 'ADC amplitude vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_amp_p[I] 52 0 52 100 0 100 bb.ps.a_time[I]>0 
 
 # SH
-th2f hADCtime_vs_elem_sh 'ADC time vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_time[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
+th2f hped_vs_elem_sh 'Pedestal vs element ID : SH' bb.sh.adcelemID[I] bb.sh.ped[I] 189 0 189 200 0 200 bb.sh.a_time[I]>0 
+th2f hADCtime_vs_elem_sh 'ADC time vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_time[I] 189 0 189 200 0 200 bb.sh.a_time[I]>0 
 th2f hADCint_vs_elem_sh 'ADC integral vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_p[I] 189 0 189 60 0 60 bb.sh.a_time[I]>0 
 th2f hADCamp_vs_elem_sh 'ADC amplitude vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
 

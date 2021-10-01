@@ -12,10 +12,14 @@
 ==== Crate 5 type vme
 # slot model clear header mask       nchan ndata
 # TDCs for BBTH (+ADCs for )
-  1    1190  8
-  2    1190  8
-  3     792  4
-  4     792  4
+  2    1190  1190
+  3    1190  1190
+ 14 250 250 
+15 250 250 
+16 250 250
+17 250 250
+#  4     792  792
+#  5     792  792
 
 ==== Crate 6 type vme Bank Decoding
 # slot  model   bank
@@ -36,13 +40,35 @@
   19     250     3
   20     250     3
 
-==== Crate 7 type vme
+==== Crate 7 type vme Bank Decoding
+# TDCs for GRINCH - VETROCModule (id 526) now in analyzer
+# slot model clear header mask     nchan ndata
+#  3    526  1 0x00000000 0x00000000 128 12800
+#  4    526  1 0x00000000 0x00000000 128 12800
+#  5    526  1 0x00000000 0x00000000 128 12800
+#  6    526  1 0x00000000 0x00000000 128 12800
+# slot model bank
+  3    526   526
+  4    526   526
+  5    526   526
+  6    526   526
+# v792 QDC for GRINCH
+#  3    792  1 0x000 0xffffffff 32  2048
+#  4    792  1 0x000 0xffffffff 32  2048
+#  17    792  792
+#  18    792  792
+  13    250     250  # GRINCH FADC
+  14    250     250  # GRINCH FADC
+  15    250     250  # GRINCH FADC
+  16    250     250  # GRINCH FADC
+
+#==== Crate 7 type vme
 ## TDCs for GRINCH (VETROC) - still stuck with something that is not VETROC
 ## slot model clear header mask     nchan ndata
- 1    3201  5
- 2    3201  5
- 3    3201  5
- 4    3201  5
+# 1    3201  5
+# 2    3201  5
+# 3    3201  5
+# 4    3201  5
 
 ## LHRS crate (includes beam line signals) 
 ==== Crate 10 type vme

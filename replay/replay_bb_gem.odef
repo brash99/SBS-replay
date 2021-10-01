@@ -18,8 +18,8 @@ block bb.gem.*.time.EventCount_by_APV
 block bb.gem.*.time.T_ns_by_APV
 
 #Cuts: 
-cut singletrack bb.gem.track.ntrack == 1
-cut anytrack bb.gem.track.ntrack > 0
+cut singletrack bb.gem.track.ntrack==1
+cut anytrack bb.gem.track.ntrack>0
 
 # Histogram definitions: 
 # layers fired, strip and cluster multiplicities
@@ -93,9 +93,12 @@ th2d hbb_gem_hit_yglobal_vs_layer 'Hit y global (m) by layer' bb.gem.hit.layer b
 
 # Module-specific histograms: 
 # Module 0 strip histograms, all strips: 
-th1d hbb_gem_m0_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 0' bb.gem.m0.strip.nstripsfired 3840 -0.5 3839.5 bb.gem.m0.ontrack
-th1d hbb_gem_m0_nclustU 'num. U clusters, Module 0' bb.gem.m0.clust.nclustu 251 -0.5 250.5 bb.gem.m0.ontrack
-th1d hbb_gem_m0_nclustV 'num. V clusters, Module 0' bb.gem.m0.clust.nclustv 251 -0.5 250.5 bb.gem.m0.ontrack
+th1d hbb_gem_m0_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 0' bb.gem.m0.strip.nstripsfired 3840 -0.5 3839.5 bb.gem.m0.ontrack
+th1d hbb_gem_m0_nclustU_good 'num. U clusters, Module 0' bb.gem.m0.clust.nclustu 251 -0.5 250.5 bb.gem.m0.ontrack
+th1d hbb_gem_m0_nclustV_good 'num. V clusters, Module 0' bb.gem.m0.clust.nclustv 251 -0.5 250.5 bb.gem.m0.ontrack
+th1d hbb_gem_m0_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 0' bb.gem.m0.strip.nstripsfired 3840 -0.5 3839.5
+th1d hbb_gem_m0_nclustU_all 'num. U clusters, Module 0' bb.gem.m0.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m0_nclustV_all 'num. V clusters, Module 0' bb.gem.m0.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m0_stripU_all 'U/X strip index, Module 0 (all strips)' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.IsU[I]
 th1d hbb_gem_m0_stripV_all 'V/Y strip index, Module 0 (all strips)' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.IsV[I]
 th1d hbb_gem_m0_ADCsumU_all 'Strip ADC sum, U/X strips, Module 0' bb.gem.m0.strip.ADCsum[I] 1000 0 15000 bb.gem.m0.strip.IsU[I]
@@ -106,6 +109,10 @@ th1d hbb_gem_m0_TimeU_all 'Strip Time, U/X strips, Module 0' bb.gem.m0.strip.Tme
 th1d hbb_gem_m0_TimeV_all 'Strip Time, V/Y strips, Module 0' bb.gem.m0.strip.Tmean[I] 150 0 150 bb.gem.m0.strip.IsV[I]
 th1d hbb_gem_m0_iSampMaxU_all 'Peak time sample, U/X strips, Module 0' bb.gem.m0.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m0.strip.IsU[I]
 th1d hbb_gem_m0_iSampMaxV_all 'Peak time sample, V/Y strips, Module 0' bb.gem.m0.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m0.strip.IsV[I]
+th2d hbb_gem_m0_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 0' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCsum[I] 3840 -0.5 3839.5 250 0 12000 bb.gem.m0.strip.IsU[I]
+th2d hbb_gem_m0_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 0' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCsum[I] 3840 -0.5 3839.5 250 0 12000 bb.gem.m0.strip.IsV[I]
+th2d hbb_gem_m0_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 0' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m0.strip.IsU[I]
+th2d hbb_gem_m0_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 0' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m0.strip.IsV[I]
 
 # Module 0 strip histograms, strips on tracks: 
 th1d hbb_gem_m0_stripU_good 'U/X strip index, Module 0 (strips on tracks)' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.ontrackU[I]
@@ -129,9 +136,12 @@ th1d hbb_gem_m0_hit_ylocal 'Hit local Y position (m), Module 0' bb.gem.m0.hit.hi
 th2d hbb_gem_m0_hit_xylocal 'Hit local X vs Y (m), Module 0' bb.gem.m0.hit.hity[I] bb.gem.m0.hit.hitx[I] 200 -0.2 0.2 200 -0.75 0.75 bb.gem.m0.hit.ontrack[I]
 
 # Module 1 strip histograms, all strips: 
-th1d hbb_gem_m1_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 1' bb.gem.m1.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m1.ontrack
-th1d hbb_gem_m1_nclustU 'num. U clusters, Module 1' bb.gem.m1.clust.nclustu 251 -0.5 250.5 bb.gem.m1.ontrack
-th1d hbb_gem_m1_nclustV 'num. V clusters, Module 1' bb.gem.m1.clust.nclustv 251 -0.5 250.5 bb.gem.m1.ontrack
+th1d hbb_gem_m1_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 1' bb.gem.m1.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m1.ontrack
+th1d hbb_gem_m1_nclustU_good 'num. U clusters, Module 1' bb.gem.m1.clust.nclustu 251 -0.5 250.5 bb.gem.m1.ontrack
+th1d hbb_gem_m1_nclustV_good 'num. V clusters, Module 1' bb.gem.m1.clust.nclustv 251 -0.5 250.5 bb.gem.m1.ontrack
+th1d hbb_gem_m1_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 1' bb.gem.m1.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m1_nclustU_all 'num. U clusters, Module 1' bb.gem.m1.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m1_nclustV_all 'num. V clusters, Module 1' bb.gem.m1.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m1_stripU_all 'U/X strip index, Module 1 (all strips)' bb.gem.m1.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m1.strip.IsU[I]
 th1d hbb_gem_m1_stripV_all 'V/Y strip index, Module 1 (all strips)' bb.gem.m1.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m1.strip.IsV[I]
 th1d hbb_gem_m1_ADCsumU_all 'Strip ADC sum, U/X strips, Module 1' bb.gem.m1.strip.ADCsum[I] 1000 0 15000 bb.gem.m1.strip.IsU[I]
@@ -142,6 +152,10 @@ th1d hbb_gem_m1_TimeU_all 'Strip Time, U/X strips, Module 1' bb.gem.m1.strip.Tme
 th1d hbb_gem_m1_TimeV_all 'Strip Time, V/Y strips, Module 1' bb.gem.m1.strip.Tmean[I] 150 0 150 bb.gem.m1.strip.IsV[I]
 th1d hbb_gem_m1_iSampMaxU_all 'Peak time sample, U/X strips, Module 1' bb.gem.m1.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m1.strip.IsU[I]
 th1d hbb_gem_m1_iSampMaxV_all 'Peak time sample, V/Y strips, Module 1' bb.gem.m1.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m1.strip.IsV[I]
+th2d hbb_gem_m1_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 1' bb.gem.m1.strip.istrip[I] bb.gem.m1.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m1.strip.IsU[I]
+th2d hbb_gem_m1_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 1' bb.gem.m1.strip.istrip[I] bb.gem.m1.strip.ADCsum[I] 1024 -0.5 1023.5 250 0 12000 bb.gem.m1.strip.IsV[I]
+th2d hbb_gem_m1_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 1' bb.gem.m1.strip.istrip[I] bb.gem.m1.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m1.strip.IsU[I]
+th2d hbb_gem_m1_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 1' bb.gem.m1.strip.istrip[I] bb.gem.m1.strip.ADCmax[I] 1024 -0.5 1023.5 250 0 4000 bb.gem.m1.strip.IsV[I]
 
 # Module 1 strip histograms, strips on tracks: 
 th1d hbb_gem_m1_stripU_good 'U/X strip index, Module 1 (strips on tracks)' bb.gem.m1.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m1.strip.ontrackU[I]
@@ -165,9 +179,12 @@ th1d hbb_gem_m1_hit_ylocal 'Hit local Y position (m), Module 1' bb.gem.m1.hit.hi
 th2d hbb_gem_m1_hit_xylocal 'Hit local X vs Y (m), Module 1' bb.gem.m1.hit.hity[I] bb.gem.m1.hit.hitx[I] 200 -0.2048 0.2048 200 -0.256 0.256 bb.gem.m1.hit.ontrack[I]
 
 # Module 2 strip histograms, all strips: 
-th1d hbb_gem_m2_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 2' bb.gem.m2.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m2.ontrack
-th1d hbb_gem_m2_nclustU 'num. U clusters, Module 2' bb.gem.m2.clust.nclustu 251 -0.5 250.5 bb.gem.m2.ontrack
-th1d hbb_gem_m2_nclustV 'num. V clusters, Module 2' bb.gem.m2.clust.nclustv 251 -0.5 250.5 bb.gem.m2.ontrack
+th1d hbb_gem_m2_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 2' bb.gem.m2.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m2.ontrack
+th1d hbb_gem_m2_nclustU_good 'num. U clusters, Module 2' bb.gem.m2.clust.nclustu 251 -0.5 250.5 bb.gem.m2.ontrack
+th1d hbb_gem_m2_nclustV_good 'num. V clusters, Module 2' bb.gem.m2.clust.nclustv 251 -0.5 250.5 bb.gem.m2.ontrack
+th1d hbb_gem_m2_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 2' bb.gem.m2.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m2_nclustU_all 'num. U clusters, Module 2' bb.gem.m2.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m2_nclustV_all 'num. V clusters, Module 2' bb.gem.m2.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m2_stripU_all 'U/X strip index, Module 2 (all strips)' bb.gem.m2.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m2.strip.IsU[I]
 th1d hbb_gem_m2_stripV_all 'V/Y strip index, Module 2 (all strips)' bb.gem.m2.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m2.strip.IsV[I]
 th1d hbb_gem_m2_ADCsumU_all 'Strip ADC sum, U/X strips, Module 2' bb.gem.m2.strip.ADCsum[I] 1000 0 15000 bb.gem.m2.strip.IsU[I]
@@ -178,6 +195,10 @@ th1d hbb_gem_m2_TimeU_all 'Strip Time, U/X strips, Module 2' bb.gem.m2.strip.Tme
 th1d hbb_gem_m2_TimeV_all 'Strip Time, V/Y strips, Module 2' bb.gem.m2.strip.Tmean[I] 150 0 150 bb.gem.m2.strip.IsV[I]
 th1d hbb_gem_m2_iSampMaxU_all 'Peak time sample, U/X strips, Module 2' bb.gem.m2.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m2.strip.IsU[I]
 th1d hbb_gem_m2_iSampMaxV_all 'Peak time sample, V/Y strips, Module 2' bb.gem.m2.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m2.strip.IsV[I]
+th2d hbb_gem_m2_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 2' bb.gem.m2.strip.istrip[I] bb.gem.m2.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m2.strip.IsU[I]
+th2d hbb_gem_m2_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 2' bb.gem.m2.strip.istrip[I] bb.gem.m2.strip.ADCsum[I] 1024 -0.5 1023.5 250 0 12000 bb.gem.m2.strip.IsV[I]
+th2d hbb_gem_m2_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 2' bb.gem.m2.strip.istrip[I] bb.gem.m2.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m2.strip.IsU[I]
+th2d hbb_gem_m2_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 2' bb.gem.m2.strip.istrip[I] bb.gem.m2.strip.ADCmax[I] 1024 -0.5 1023.5 250 0 4000 bb.gem.m2.strip.IsV[I]
 
 # Module 2 strip histograms, strips on tracks: 
 th1d hbb_gem_m2_stripU_good 'U/X strip index, Module 2 (strips on tracks)' bb.gem.m2.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m2.strip.ontrackU[I]
@@ -201,9 +222,12 @@ th1d hbb_gem_m2_hit_ylocal 'Hit local Y position (m), Module 2' bb.gem.m2.hit.hi
 th2d hbb_gem_m2_hit_xylocal 'Hit local X vs Y (m), Module 2' bb.gem.m2.hit.hity[I] bb.gem.m2.hit.hitx[I] 200 -0.2048 0.2048 200 -0.256 0.256 bb.gem.m2.hit.ontrack[I]
 
 # Module 3 strip histograms, all strips: 
-th1d hbb_gem_m3_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 3' bb.gem.m3.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m3.ontrack
-th1d hbb_gem_m3_nclustU 'num. U clusters, Module 3' bb.gem.m3.clust.nclustu 251 -0.5 250.5 bb.gem.m3.ontrack
-th1d hbb_gem_m3_nclustV 'num. V clusters, Module 3' bb.gem.m3.clust.nclustv 251 -0.5 250.5 bb.gem.m3.ontrack
+th1d hbb_gem_m3_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 3' bb.gem.m3.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m3.ontrack
+th1d hbb_gem_m3_nclustU_good 'num. U clusters, Module 3' bb.gem.m3.clust.nclustu 251 -0.5 250.5 bb.gem.m3.ontrack
+th1d hbb_gem_m3_nclustV_good 'num. V clusters, Module 3' bb.gem.m3.clust.nclustv 251 -0.5 250.5 bb.gem.m3.ontrack
+th1d hbb_gem_m3_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 3' bb.gem.m3.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m3_nclustU_all 'num. U clusters, Module 3' bb.gem.m3.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m3_nclustV_all 'num. V clusters, Module 3' bb.gem.m3.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m3_stripU_all 'U/X strip index, Module 3 (all strips)' bb.gem.m3.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m3.strip.IsU[I]
 th1d hbb_gem_m3_stripV_all 'V/Y strip index, Module 3 (all strips)' bb.gem.m3.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m3.strip.IsV[I]
 th1d hbb_gem_m3_ADCsumU_all 'Strip ADC sum, U/X strips, Module 3' bb.gem.m3.strip.ADCsum[I] 1000 0 15000 bb.gem.m3.strip.IsU[I]
@@ -214,6 +238,10 @@ th1d hbb_gem_m3_TimeU_all 'Strip Time, U/X strips, Module 3' bb.gem.m3.strip.Tme
 th1d hbb_gem_m3_TimeV_all 'Strip Time, V/Y strips, Module 3' bb.gem.m3.strip.Tmean[I] 150 0 150 bb.gem.m3.strip.IsV[I]
 th1d hbb_gem_m3_iSampMaxU_all 'Peak time sample, U/X strips, Module 3' bb.gem.m3.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m3.strip.IsU[I]
 th1d hbb_gem_m3_iSampMaxV_all 'Peak time sample, V/Y strips, Module 3' bb.gem.m3.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m3.strip.IsV[I]
+th2d hbb_gem_m3_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 3' bb.gem.m3.strip.istrip[I] bb.gem.m3.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m3.strip.IsU[I]
+th2d hbb_gem_m3_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 3' bb.gem.m3.strip.istrip[I] bb.gem.m3.strip.ADCsum[I] 1024 -0.5 1023.5 250 0 12000 bb.gem.m3.strip.IsV[I]
+th2d hbb_gem_m3_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 3' bb.gem.m3.strip.istrip[I] bb.gem.m3.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m3.strip.IsU[I]
+th2d hbb_gem_m3_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 3' bb.gem.m3.strip.istrip[I] bb.gem.m3.strip.ADCmax[I] 1024 -0.5 1023.5 250 0 4000 bb.gem.m3.strip.IsV[I]
 
 # Module 3 strip histograms, strips on tracks: 
 th1d hbb_gem_m3_stripU_good 'U/X strip index, Module 3 (strips on tracks)' bb.gem.m3.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m3.strip.ontrackU[I]
@@ -237,9 +265,12 @@ th1d hbb_gem_m3_hit_ylocal 'Hit local Y position (m), Module 3' bb.gem.m3.hit.hi
 th2d hbb_gem_m3_hit_xylocal 'Hit local X vs Y (m), Module 3' bb.gem.m3.hit.hity[I] bb.gem.m3.hit.hitx[I] 200 -0.2048 0.2048 200 -0.256 0.256 bb.gem.m3.hit.ontrack[I]
 
 # Module 4 strip histograms, all strips: 
-th1d hbb_gem_m4_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 4' bb.gem.m4.strip.nstripsfired 3840 -0.5 3839.5 bb.gem.m4.ontrack
-th1d hbb_gem_m4_nclustU 'num. U clusters, Module 4' bb.gem.m4.clust.nclustu 251 -0.5 250.5 bb.gem.m4.ontrack
-th1d hbb_gem_m4_nclustV 'num. V clusters, Module 4' bb.gem.m4.clust.nclustv 251 -0.5 250.5 bb.gem.m4.ontrack
+th1d hbb_gem_m4_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 4' bb.gem.m4.strip.nstripsfired 3840 -0.5 3839.5 bb.gem.m4.ontrack
+th1d hbb_gem_m4_nclustU_good 'num. U clusters, Module 4' bb.gem.m4.clust.nclustu 251 -0.5 250.5 bb.gem.m4.ontrack
+th1d hbb_gem_m4_nclustV_good 'num. V clusters, Module 4' bb.gem.m4.clust.nclustv 251 -0.5 250.5 bb.gem.m4.ontrack
+th1d hbb_gem_m4_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 4' bb.gem.m4.strip.nstripsfired 3840 -0.5 3839.5
+th1d hbb_gem_m4_nclustU_all 'num. U clusters, Module 4' bb.gem.m4.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m4_nclustV_all 'num. V clusters, Module 4' bb.gem.m4.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m4_stripU_all 'U/X strip index, Module 4 (all strips)' bb.gem.m4.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m4.strip.IsU[I]
 th1d hbb_gem_m4_stripV_all 'V/Y strip index, Module 4 (all strips)' bb.gem.m4.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m4.strip.IsV[I]
 th1d hbb_gem_m4_ADCsumU_all 'Strip ADC sum, U/X strips, Module 4' bb.gem.m4.strip.ADCsum[I] 1000 0 15000 bb.gem.m4.strip.IsU[I]
@@ -250,6 +281,10 @@ th1d hbb_gem_m4_TimeU_all 'Strip Time, U/X strips, Module 4' bb.gem.m4.strip.Tme
 th1d hbb_gem_m4_TimeV_all 'Strip Time, V/Y strips, Module 4' bb.gem.m4.strip.Tmean[I] 150 0 150 bb.gem.m4.strip.IsV[I]
 th1d hbb_gem_m4_iSampMaxU_all 'Peak time sample, U/X strips, Module 4' bb.gem.m4.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m4.strip.IsU[I]
 th1d hbb_gem_m4_iSampMaxV_all 'Peak time sample, V/Y strips, Module 4' bb.gem.m4.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m4.strip.IsV[I]
+th2d hbb_gem_m4_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 4' bb.gem.m4.strip.istrip[I] bb.gem.m4.strip.ADCsum[I] 3840 -0.5 3839.5 250 0 12000 bb.gem.m4.strip.IsU[I]
+th2d hbb_gem_m4_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 4' bb.gem.m4.strip.istrip[I] bb.gem.m4.strip.ADCsum[I] 3840 -0.5 3839.5 250 0 12000 bb.gem.m4.strip.IsV[I]
+th2d hbb_gem_m4_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 4' bb.gem.m4.strip.istrip[I] bb.gem.m4.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m4.strip.IsU[I]
+th2d hbb_gem_m4_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 4' bb.gem.m4.strip.istrip[I] bb.gem.m4.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m4.strip.IsV[I]
 
 # Module 4 strip histograms, strips on tracks: 
 th1d hbb_gem_m4_stripU_good 'U/X strip index, Module 4 (strips on tracks)' bb.gem.m4.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m4.strip.ontrackU[I]
@@ -273,9 +308,12 @@ th1d hbb_gem_m4_hit_ylocal 'Hit local Y position (m), Module 4' bb.gem.m4.hit.hi
 th2d hbb_gem_m4_hit_xylocal 'Hit local X vs Y (m), Module 4' bb.gem.m4.hit.hity[I] bb.gem.m4.hit.hitx[I] 200 -0.2 0.2 200 -0.75 0.75 bb.gem.m4.hit.ontrack[I]
 
 # Module 5 strip histograms, all strips: 
-th1d hbb_gem_m5_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 5' bb.gem.m5.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m5.ontrack
-th1d hbb_gem_m5_nclustU 'num. U clusters, Module 5' bb.gem.m5.clust.nclustu 251 -0.5 250.5 bb.gem.m5.ontrack
-th1d hbb_gem_m5_nclustV 'num. V clusters, Module 5' bb.gem.m5.clust.nclustv 251 -0.5 250.5 bb.gem.m5.ontrack
+th1d hbb_gem_m5_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 5' bb.gem.m5.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m5.ontrack
+th1d hbb_gem_m5_nclustU_good 'num. U clusters, Module 5' bb.gem.m5.clust.nclustu 251 -0.5 250.5 bb.gem.m5.ontrack
+th1d hbb_gem_m5_nclustV_good 'num. V clusters, Module 5' bb.gem.m5.clust.nclustv 251 -0.5 250.5 bb.gem.m5.ontrack
+th1d hbb_gem_m5_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 5' bb.gem.m5.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m5_nclustU_all 'num. U clusters, Module 5' bb.gem.m5.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m5_nclustV_all 'num. V clusters, Module 5' bb.gem.m5.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m5_stripU_all 'U/X strip index, Module 5 (all strips)' bb.gem.m5.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m5.strip.IsU[I]
 th1d hbb_gem_m5_stripV_all 'V/Y strip index, Module 5 (all strips)' bb.gem.m5.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m5.strip.IsV[I]
 th1d hbb_gem_m5_ADCsumU_all 'Strip ADC sum, U/X strips, Module 5' bb.gem.m5.strip.ADCsum[I] 1000 0 15000 bb.gem.m5.strip.IsU[I]
@@ -286,6 +324,10 @@ th1d hbb_gem_m5_TimeU_all 'Strip Time, U/X strips, Module 5' bb.gem.m5.strip.Tme
 th1d hbb_gem_m5_TimeV_all 'Strip Time, V/Y strips, Module 5' bb.gem.m5.strip.Tmean[I] 150 0 150 bb.gem.m5.strip.IsV[I]
 th1d hbb_gem_m5_iSampMaxU_all 'Peak time sample, U/X strips, Module 5' bb.gem.m5.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m5.strip.IsU[I]
 th1d hbb_gem_m5_iSampMaxV_all 'Peak time sample, V/Y strips, Module 5' bb.gem.m5.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m5.strip.IsV[I]
+th2d hbb_gem_m5_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 5' bb.gem.m5.strip.istrip[I] bb.gem.m5.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m5.strip.IsU[I]
+th2d hbb_gem_m5_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 5' bb.gem.m5.strip.istrip[I] bb.gem.m5.strip.ADCsum[I] 1024 -0.5 1023.5 250 0 12000 bb.gem.m5.strip.IsV[I]
+th2d hbb_gem_m5_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 5' bb.gem.m5.strip.istrip[I] bb.gem.m5.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m5.strip.IsU[I]
+th2d hbb_gem_m5_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 5' bb.gem.m5.strip.istrip[I] bb.gem.m5.strip.ADCmax[I] 1024 -0.5 1023.5 250 0 4000 bb.gem.m5.strip.IsV[I]
 
 # Module 5 strip histograms, strips on tracks: 
 th1d hbb_gem_m5_stripU_good 'U/X strip index, Module 5 (strips on tracks)' bb.gem.m5.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m5.strip.ontrackU[I]
@@ -309,9 +351,12 @@ th1d hbb_gem_m5_hit_ylocal 'Hit local Y position (m), Module 5' bb.gem.m5.hit.hi
 th2d hbb_gem_m5_hit_xylocal 'Hit local X vs Y (m), Module 5' bb.gem.m5.hit.hity[I] bb.gem.m5.hit.hitx[I] 200 -0.2048 0.2048 200 -0.256 0.256 bb.gem.m5.hit.ontrack[I]
 
 # Module 6 strip histograms, all strips: 
-th1d hbb_gem_m6_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 6' bb.gem.m6.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m6.ontrack
-th1d hbb_gem_m6_nclustU 'num. U clusters, Module 6' bb.gem.m6.clust.nclustu 251 -0.5 250.5 bb.gem.m6.ontrack
-th1d hbb_gem_m6_nclustV 'num. V clusters, Module 6' bb.gem.m6.clust.nclustv 251 -0.5 250.5 bb.gem.m6.ontrack
+th1d hbb_gem_m6_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 6' bb.gem.m6.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m6.ontrack
+th1d hbb_gem_m6_nclustU_good 'num. U clusters, Module 6' bb.gem.m6.clust.nclustu 251 -0.5 250.5 bb.gem.m6.ontrack
+th1d hbb_gem_m6_nclustV_good 'num. V clusters, Module 6' bb.gem.m6.clust.nclustv 251 -0.5 250.5 bb.gem.m6.ontrack
+th1d hbb_gem_m6_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 6' bb.gem.m6.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m6_nclustU_all 'num. U clusters, Module 6' bb.gem.m6.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m6_nclustV_all 'num. V clusters, Module 6' bb.gem.m6.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m6_stripU_all 'U/X strip index, Module 6 (all strips)' bb.gem.m6.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m6.strip.IsU[I]
 th1d hbb_gem_m6_stripV_all 'V/Y strip index, Module 6 (all strips)' bb.gem.m6.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m6.strip.IsV[I]
 th1d hbb_gem_m6_ADCsumU_all 'Strip ADC sum, U/X strips, Module 6' bb.gem.m6.strip.ADCsum[I] 1000 0 15000 bb.gem.m6.strip.IsU[I]
@@ -322,6 +367,10 @@ th1d hbb_gem_m6_TimeU_all 'Strip Time, U/X strips, Module 6' bb.gem.m6.strip.Tme
 th1d hbb_gem_m6_TimeV_all 'Strip Time, V/Y strips, Module 6' bb.gem.m6.strip.Tmean[I] 150 0 150 bb.gem.m6.strip.IsV[I]
 th1d hbb_gem_m6_iSampMaxU_all 'Peak time sample, U/X strips, Module 6' bb.gem.m6.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m6.strip.IsU[I]
 th1d hbb_gem_m6_iSampMaxV_all 'Peak time sample, V/Y strips, Module 6' bb.gem.m6.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m6.strip.IsV[I]
+th2d hbb_gem_m6_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 6' bb.gem.m6.strip.istrip[I] bb.gem.m6.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m6.strip.IsU[I]
+th2d hbb_gem_m6_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 6' bb.gem.m6.strip.istrip[I] bb.gem.m6.strip.ADCsum[I] 1024 -0.5 1023.5 250 0 12000 bb.gem.m6.strip.IsV[I]
+th2d hbb_gem_m6_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 6' bb.gem.m6.strip.istrip[I] bb.gem.m6.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m6.strip.IsU[I]
+th2d hbb_gem_m6_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 6' bb.gem.m6.strip.istrip[I] bb.gem.m6.strip.ADCmax[I] 1024 -0.5 1023.5 250 0 4000 bb.gem.m6.strip.IsV[I]
 
 # Module 6 strip histograms, strips on tracks: 
 th1d hbb_gem_m6_stripU_good 'U/X strip index, Module 6 (strips on tracks)' bb.gem.m6.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m6.strip.ontrackU[I]
@@ -345,9 +394,12 @@ th1d hbb_gem_m6_hit_ylocal 'Hit local Y position (m), Module 6' bb.gem.m6.hit.hi
 th2d hbb_gem_m6_hit_xylocal 'Hit local X vs Y (m), Module 6' bb.gem.m6.hit.hity[I] bb.gem.m6.hit.hitx[I] 200 -0.2048 0.2048 200 -0.256 0.256 bb.gem.m6.hit.ontrack[I]
 
 # Module 7 strip histograms, all strips: 
-th1d hbb_gem_m7_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 7' bb.gem.m7.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m7.ontrack
-th1d hbb_gem_m7_nclustU 'num. U clusters, Module 7' bb.gem.m7.clust.nclustu 251 -0.5 250.5 bb.gem.m7.ontrack
-th1d hbb_gem_m7_nclustV 'num. V clusters, Module 7' bb.gem.m7.clust.nclustv 251 -0.5 250.5 bb.gem.m7.ontrack
+th1d hbb_gem_m7_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 7' bb.gem.m7.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m7.ontrack
+th1d hbb_gem_m7_nclustU_good 'num. U clusters, Module 7' bb.gem.m7.clust.nclustu 251 -0.5 250.5 bb.gem.m7.ontrack
+th1d hbb_gem_m7_nclustV_good 'num. V clusters, Module 7' bb.gem.m7.clust.nclustv 251 -0.5 250.5 bb.gem.m7.ontrack
+th1d hbb_gem_m7_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 7' bb.gem.m7.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m7_nclustU_all 'num. U clusters, Module 7' bb.gem.m7.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m7_nclustV_all 'num. V clusters, Module 7' bb.gem.m7.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m7_stripU_all 'U/X strip index, Module 7 (all strips)' bb.gem.m7.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m7.strip.IsU[I]
 th1d hbb_gem_m7_stripV_all 'V/Y strip index, Module 7 (all strips)' bb.gem.m7.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m7.strip.IsV[I]
 th1d hbb_gem_m7_ADCsumU_all 'Strip ADC sum, U/X strips, Module 7' bb.gem.m7.strip.ADCsum[I] 1000 0 15000 bb.gem.m7.strip.IsU[I]
@@ -358,6 +410,10 @@ th1d hbb_gem_m7_TimeU_all 'Strip Time, U/X strips, Module 7' bb.gem.m7.strip.Tme
 th1d hbb_gem_m7_TimeV_all 'Strip Time, V/Y strips, Module 7' bb.gem.m7.strip.Tmean[I] 150 0 150 bb.gem.m7.strip.IsV[I]
 th1d hbb_gem_m7_iSampMaxU_all 'Peak time sample, U/X strips, Module 7' bb.gem.m7.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m7.strip.IsU[I]
 th1d hbb_gem_m7_iSampMaxV_all 'Peak time sample, V/Y strips, Module 7' bb.gem.m7.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m7.strip.IsV[I]
+th2d hbb_gem_m7_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 7' bb.gem.m7.strip.istrip[I] bb.gem.m7.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m7.strip.IsU[I]
+th2d hbb_gem_m7_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 7' bb.gem.m7.strip.istrip[I] bb.gem.m7.strip.ADCsum[I] 1024 -0.5 1023.5 250 0 12000 bb.gem.m7.strip.IsV[I]
+th2d hbb_gem_m7_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 7' bb.gem.m7.strip.istrip[I] bb.gem.m7.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m7.strip.IsU[I]
+th2d hbb_gem_m7_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 7' bb.gem.m7.strip.istrip[I] bb.gem.m7.strip.ADCmax[I] 1024 -0.5 1023.5 250 0 4000 bb.gem.m7.strip.IsV[I]
 
 # Module 7 strip histograms, strips on tracks: 
 th1d hbb_gem_m7_stripU_good 'U/X strip index, Module 7 (strips on tracks)' bb.gem.m7.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m7.strip.ontrackU[I]
@@ -381,9 +437,12 @@ th1d hbb_gem_m7_hit_ylocal 'Hit local Y position (m), Module 7' bb.gem.m7.hit.hi
 th2d hbb_gem_m7_hit_xylocal 'Hit local X vs Y (m), Module 7' bb.gem.m7.hit.hity[I] bb.gem.m7.hit.hitx[I] 200 -0.2048 0.2048 200 -0.256 0.256 bb.gem.m7.hit.ontrack[I]
 
 # Module 8 strip histograms, all strips: 
-th1d hbb_gem_m8_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 8' bb.gem.m8.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m8.ontrack
-th1d hbb_gem_m8_nclustU 'num. U clusters, Module 8' bb.gem.m8.clust.nclustu 251 -0.5 250.5 bb.gem.m8.ontrack
-th1d hbb_gem_m8_nclustV 'num. V clusters, Module 8' bb.gem.m8.clust.nclustv 251 -0.5 250.5 bb.gem.m8.ontrack
+th1d hbb_gem_m8_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 8' bb.gem.m8.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m8.ontrack
+th1d hbb_gem_m8_nclustU_good 'num. U clusters, Module 8' bb.gem.m8.clust.nclustu 251 -0.5 250.5 bb.gem.m8.ontrack
+th1d hbb_gem_m8_nclustV_good 'num. V clusters, Module 8' bb.gem.m8.clust.nclustv 251 -0.5 250.5 bb.gem.m8.ontrack
+th1d hbb_gem_m8_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 8' bb.gem.m8.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m8_nclustU_all 'num. U clusters, Module 8' bb.gem.m8.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m8_nclustV_all 'num. V clusters, Module 8' bb.gem.m8.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m8_stripU_all 'U/X strip index, Module 8 (all strips)' bb.gem.m8.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m8.strip.IsU[I]
 th1d hbb_gem_m8_stripV_all 'V/Y strip index, Module 8 (all strips)' bb.gem.m8.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m8.strip.IsV[I]
 th1d hbb_gem_m8_ADCsumU_all 'Strip ADC sum, U/X strips, Module 8' bb.gem.m8.strip.ADCsum[I] 1000 0 15000 bb.gem.m8.strip.IsU[I]
@@ -394,6 +453,10 @@ th1d hbb_gem_m8_TimeU_all 'Strip Time, U/X strips, Module 8' bb.gem.m8.strip.Tme
 th1d hbb_gem_m8_TimeV_all 'Strip Time, V/Y strips, Module 8' bb.gem.m8.strip.Tmean[I] 150 0 150 bb.gem.m8.strip.IsV[I]
 th1d hbb_gem_m8_iSampMaxU_all 'Peak time sample, U/X strips, Module 8' bb.gem.m8.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m8.strip.IsU[I]
 th1d hbb_gem_m8_iSampMaxV_all 'Peak time sample, V/Y strips, Module 8' bb.gem.m8.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m8.strip.IsV[I]
+th2d hbb_gem_m8_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 8' bb.gem.m8.strip.istrip[I] bb.gem.m8.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m8.strip.IsU[I]
+th2d hbb_gem_m8_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 8' bb.gem.m8.strip.istrip[I] bb.gem.m8.strip.ADCsum[I] 1536 -0.5 1535.5 250 0 12000 bb.gem.m8.strip.IsV[I]
+th2d hbb_gem_m8_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 8' bb.gem.m8.strip.istrip[I] bb.gem.m8.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m8.strip.IsU[I]
+th2d hbb_gem_m8_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 8' bb.gem.m8.strip.istrip[I] bb.gem.m8.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 bb.gem.m8.strip.IsV[I]
 
 # Module 8 strip histograms, strips on tracks: 
 th1d hbb_gem_m8_stripU_good 'U/X strip index, Module 8 (strips on tracks)' bb.gem.m8.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m8.strip.ontrackU[I]
@@ -417,9 +480,12 @@ th1d hbb_gem_m8_hit_ylocal 'Hit local Y position (m), Module 8' bb.gem.m8.hit.hi
 th2d hbb_gem_m8_hit_xylocal 'Hit local X vs Y (m), Module 8' bb.gem.m8.hit.hity[I] bb.gem.m8.hit.hitx[I] 200 -0.3072 0.3072 200 -0.256 0.256 bb.gem.m8.hit.ontrack[I]
 
 # Module 9 strip histograms, all strips: 
-th1d hbb_gem_m9_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 9' bb.gem.m9.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m9.ontrack
-th1d hbb_gem_m9_nclustU 'num. U clusters, Module 9' bb.gem.m9.clust.nclustu 251 -0.5 250.5 bb.gem.m9.ontrack
-th1d hbb_gem_m9_nclustV 'num. V clusters, Module 9' bb.gem.m9.clust.nclustv 251 -0.5 250.5 bb.gem.m9.ontrack
+th1d hbb_gem_m9_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 9' bb.gem.m9.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m9.ontrack
+th1d hbb_gem_m9_nclustU_good 'num. U clusters, Module 9' bb.gem.m9.clust.nclustu 251 -0.5 250.5 bb.gem.m9.ontrack
+th1d hbb_gem_m9_nclustV_good 'num. V clusters, Module 9' bb.gem.m9.clust.nclustv 251 -0.5 250.5 bb.gem.m9.ontrack
+th1d hbb_gem_m9_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 9' bb.gem.m9.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m9_nclustU_all 'num. U clusters, Module 9' bb.gem.m9.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m9_nclustV_all 'num. V clusters, Module 9' bb.gem.m9.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m9_stripU_all 'U/X strip index, Module 9 (all strips)' bb.gem.m9.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m9.strip.IsU[I]
 th1d hbb_gem_m9_stripV_all 'V/Y strip index, Module 9 (all strips)' bb.gem.m9.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m9.strip.IsV[I]
 th1d hbb_gem_m9_ADCsumU_all 'Strip ADC sum, U/X strips, Module 9' bb.gem.m9.strip.ADCsum[I] 1000 0 15000 bb.gem.m9.strip.IsU[I]
@@ -430,6 +496,10 @@ th1d hbb_gem_m9_TimeU_all 'Strip Time, U/X strips, Module 9' bb.gem.m9.strip.Tme
 th1d hbb_gem_m9_TimeV_all 'Strip Time, V/Y strips, Module 9' bb.gem.m9.strip.Tmean[I] 150 0 150 bb.gem.m9.strip.IsV[I]
 th1d hbb_gem_m9_iSampMaxU_all 'Peak time sample, U/X strips, Module 9' bb.gem.m9.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m9.strip.IsU[I]
 th1d hbb_gem_m9_iSampMaxV_all 'Peak time sample, V/Y strips, Module 9' bb.gem.m9.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m9.strip.IsV[I]
+th2d hbb_gem_m9_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 9' bb.gem.m9.strip.istrip[I] bb.gem.m9.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m9.strip.IsU[I]
+th2d hbb_gem_m9_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 9' bb.gem.m9.strip.istrip[I] bb.gem.m9.strip.ADCsum[I] 1536 -0.5 1535.5 250 0 12000 bb.gem.m9.strip.IsV[I]
+th2d hbb_gem_m9_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 9' bb.gem.m9.strip.istrip[I] bb.gem.m9.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m9.strip.IsU[I]
+th2d hbb_gem_m9_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 9' bb.gem.m9.strip.istrip[I] bb.gem.m9.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 bb.gem.m9.strip.IsV[I]
 
 # Module 9 strip histograms, strips on tracks: 
 th1d hbb_gem_m9_stripU_good 'U/X strip index, Module 9 (strips on tracks)' bb.gem.m9.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m9.strip.ontrackU[I]
@@ -453,9 +523,12 @@ th1d hbb_gem_m9_hit_ylocal 'Hit local Y position (m), Module 9' bb.gem.m9.hit.hi
 th2d hbb_gem_m9_hit_xylocal 'Hit local X vs Y (m), Module 9' bb.gem.m9.hit.hity[I] bb.gem.m9.hit.hitx[I] 200 -0.3072 0.3072 200 -0.256 0.256 bb.gem.m9.hit.ontrack[I]
 
 # Module 10 strip histograms, all strips: 
-th1d hbb_gem_m10_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 10' bb.gem.m10.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m10.ontrack
-th1d hbb_gem_m10_nclustU 'num. U clusters, Module 10' bb.gem.m10.clust.nclustu 251 -0.5 250.5 bb.gem.m10.ontrack
-th1d hbb_gem_m10_nclustV 'num. V clusters, Module 10' bb.gem.m10.clust.nclustv 251 -0.5 250.5 bb.gem.m10.ontrack
+th1d hbb_gem_m10_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 10' bb.gem.m10.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m10.ontrack
+th1d hbb_gem_m10_nclustU_good 'num. U clusters, Module 10' bb.gem.m10.clust.nclustu 251 -0.5 250.5 bb.gem.m10.ontrack
+th1d hbb_gem_m10_nclustV_good 'num. V clusters, Module 10' bb.gem.m10.clust.nclustv 251 -0.5 250.5 bb.gem.m10.ontrack
+th1d hbb_gem_m10_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 10' bb.gem.m10.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m10_nclustU_all 'num. U clusters, Module 10' bb.gem.m10.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m10_nclustV_all 'num. V clusters, Module 10' bb.gem.m10.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m10_stripU_all 'U/X strip index, Module 10 (all strips)' bb.gem.m10.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m10.strip.IsU[I]
 th1d hbb_gem_m10_stripV_all 'V/Y strip index, Module 10 (all strips)' bb.gem.m10.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m10.strip.IsV[I]
 th1d hbb_gem_m10_ADCsumU_all 'Strip ADC sum, U/X strips, Module 10' bb.gem.m10.strip.ADCsum[I] 1000 0 15000 bb.gem.m10.strip.IsU[I]
@@ -466,6 +539,10 @@ th1d hbb_gem_m10_TimeU_all 'Strip Time, U/X strips, Module 10' bb.gem.m10.strip.
 th1d hbb_gem_m10_TimeV_all 'Strip Time, V/Y strips, Module 10' bb.gem.m10.strip.Tmean[I] 150 0 150 bb.gem.m10.strip.IsV[I]
 th1d hbb_gem_m10_iSampMaxU_all 'Peak time sample, U/X strips, Module 10' bb.gem.m10.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m10.strip.IsU[I]
 th1d hbb_gem_m10_iSampMaxV_all 'Peak time sample, V/Y strips, Module 10' bb.gem.m10.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m10.strip.IsV[I]
+th2d hbb_gem_m10_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 10' bb.gem.m10.strip.istrip[I] bb.gem.m10.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m10.strip.IsU[I]
+th2d hbb_gem_m10_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 10' bb.gem.m10.strip.istrip[I] bb.gem.m10.strip.ADCsum[I] 1536 -0.5 1535.5 250 0 12000 bb.gem.m10.strip.IsV[I]
+th2d hbb_gem_m10_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 10' bb.gem.m10.strip.istrip[I] bb.gem.m10.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m10.strip.IsU[I]
+th2d hbb_gem_m10_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 10' bb.gem.m10.strip.istrip[I] bb.gem.m10.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 bb.gem.m10.strip.IsV[I]
 
 # Module 10 strip histograms, strips on tracks: 
 th1d hbb_gem_m10_stripU_good 'U/X strip index, Module 10 (strips on tracks)' bb.gem.m10.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m10.strip.ontrackU[I]
@@ -489,9 +566,12 @@ th1d hbb_gem_m10_hit_ylocal 'Hit local Y position (m), Module 10' bb.gem.m10.hit
 th2d hbb_gem_m10_hit_xylocal 'Hit local X vs Y (m), Module 10' bb.gem.m10.hit.hity[I] bb.gem.m10.hit.hitx[I] 200 -0.3072 0.3072 200 -0.256 0.256 bb.gem.m10.hit.ontrack[I]
 
 # Module 11 strip histograms, all strips: 
-th1d hbb_gem_m11_nstripstot 'Num. fired strips (U/X) + (V/Y), Module 11' bb.gem.m11.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m11.ontrack
-th1d hbb_gem_m11_nclustU 'num. U clusters, Module 11' bb.gem.m11.clust.nclustu 251 -0.5 250.5 bb.gem.m11.ontrack
-th1d hbb_gem_m11_nclustV 'num. V clusters, Module 11' bb.gem.m11.clust.nclustv 251 -0.5 250.5 bb.gem.m11.ontrack
+th1d hbb_gem_m11_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module 11' bb.gem.m11.strip.nstripsfired 1280 -0.5 1279.5 bb.gem.m11.ontrack
+th1d hbb_gem_m11_nclustU_good 'num. U clusters, Module 11' bb.gem.m11.clust.nclustu 251 -0.5 250.5 bb.gem.m11.ontrack
+th1d hbb_gem_m11_nclustV_good 'num. V clusters, Module 11' bb.gem.m11.clust.nclustv 251 -0.5 250.5 bb.gem.m11.ontrack
+th1d hbb_gem_m11_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module 11' bb.gem.m11.strip.nstripsfired 1280 -0.5 1279.5
+th1d hbb_gem_m11_nclustU_all 'num. U clusters, Module 11' bb.gem.m11.clust.nclustu 251 -0.5 250.5
+th1d hbb_gem_m11_nclustV_all 'num. V clusters, Module 11' bb.gem.m11.clust.nclustv 251 -0.5 250.5
 th1d hbb_gem_m11_stripU_all 'U/X strip index, Module 11 (all strips)' bb.gem.m11.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m11.strip.IsU[I]
 th1d hbb_gem_m11_stripV_all 'V/Y strip index, Module 11 (all strips)' bb.gem.m11.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m11.strip.IsV[I]
 th1d hbb_gem_m11_ADCsumU_all 'Strip ADC sum, U/X strips, Module 11' bb.gem.m11.strip.ADCsum[I] 1000 0 15000 bb.gem.m11.strip.IsU[I]
@@ -502,6 +582,10 @@ th1d hbb_gem_m11_TimeU_all 'Strip Time, U/X strips, Module 11' bb.gem.m11.strip.
 th1d hbb_gem_m11_TimeV_all 'Strip Time, V/Y strips, Module 11' bb.gem.m11.strip.Tmean[I] 150 0 150 bb.gem.m11.strip.IsV[I]
 th1d hbb_gem_m11_iSampMaxU_all 'Peak time sample, U/X strips, Module 11' bb.gem.m11.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m11.strip.IsU[I]
 th1d hbb_gem_m11_iSampMaxV_all 'Peak time sample, V/Y strips, Module 11' bb.gem.m11.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m11.strip.IsV[I]
+th2d hbb_gem_m11_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module 11' bb.gem.m11.strip.istrip[I] bb.gem.m11.strip.ADCsum[I] 1280 -0.5 1279.5 250 0 12000 bb.gem.m11.strip.IsU[I]
+th2d hbb_gem_m11_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module 11' bb.gem.m11.strip.istrip[I] bb.gem.m11.strip.ADCsum[I] 1536 -0.5 1535.5 250 0 12000 bb.gem.m11.strip.IsV[I]
+th2d hbb_gem_m11_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module 11' bb.gem.m11.strip.istrip[I] bb.gem.m11.strip.ADCmax[I] 1280 -0.5 1279.5 250 0 4000 bb.gem.m11.strip.IsU[I]
+th2d hbb_gem_m11_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module 11' bb.gem.m11.strip.istrip[I] bb.gem.m11.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 bb.gem.m11.strip.IsV[I]
 
 # Module 11 strip histograms, strips on tracks: 
 th1d hbb_gem_m11_stripU_good 'U/X strip index, Module 11 (strips on tracks)' bb.gem.m11.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m11.strip.ontrackU[I]

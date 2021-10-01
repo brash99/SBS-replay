@@ -1,0 +1,6 @@
+# Sample outout definition file
+
+#block *
+block bb.hodoadc.*
+block bb.hodotdc.*
+
