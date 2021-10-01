@@ -1,36 +1,81 @@
 ## output variable definition for analysis of all detectors replay_gmn.C
 
-#HCal
-# !!! placeholder !!! we might not want to do that
-block sbs.hcal.*
-#variable sbs.hcal.row
-#variable sbs.hcal.col
-#variable sbs.hcal.a
-#variable sbs.hcal.tdc
-#variable sbs.hcal.a_p
-#variable sbs.hcal.a_c
-#block sbs.hcal.samps*
-#variable sbs.hcal.nsamps
+########################## HCal ##########################
+#HCal Branches to root file
+block sbs.hcal.a*
+block sbs.hcal.ped
+block sbs.hcal.t*
+block sbs.hcal.ped
+block sbs.hcal.*samps*
+block sbs.hcal.ledbit
+block sbs.hcal.ledcount
+block sbs.hcal.*Ref*
+block sbs.*trig*
+block sbs.*clus*
+#block sbs.hcal.*
+block sbs.*
 
-#Shower/Preshower
-# !!! placeholder !!! we might not want to do that
-block bb.ts.*
-block bb.ps.*
+#Histograms
+
+#cut vert 
+
+th2f hADCtime_vs_elem_hcal 'ADC time vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_time[I] 288 0 288 200 -50 150 sbs.hcal.a_time[I]>0 
+th2f hADCint_vs_elem_hcal 'ADC integral vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_p[I] 288 0 288 100 0 100 sbs.hcal.a_p[I]>0 
+th2f hADCamp_vs_elem_hcal 'ADC amplitude vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_amp_p[I] 288 0 288 150 0 150 sbs.hcal.a_amp_p[I]>0 
+th1f hADCint 'ADC integral' sbs.hcal.a_p[50] 60 0 30 sbs.hcal.a_p[50]>0
+
+th3f hADC_heatmap 'ADC integral heatmap' sbs.hcal.adcrow[I] sbs.hcal.adccol[I] sbs.hcal.a_p[I] 12 0 12 24 0 24 100 0 100
+
+########################## Shower/Preshower ##########################
+#ADC from calorimeter
+#block *
+block bb.trig.*
+block bb.ps.n*
+block bb.sh.n*
+block bb.ps.ngoodADChits
+block bb.sh.ngoodADChits
+block bb.ps.a*col
+block bb.ps.a*row
+block bb.ps.ped
+block bb.ps.a*
+block bb.sh.a*col
+block bb.sh.a*row
+block bb.sh.ped
+block bb.sh.cl*
+block bb.sh.a*
+#block bb.ps.*samp*
+#block bb.sh.*samp*
 block bb.sh.*
+block bb.ps.*
 
-#Hodoscope
+# cut
+#cut shtime bb.sh.a_time>0
+#cut pstime bb.ps.a_time>0
+
+# PS
+th2f hped_vs_elem_ps 'Pedestal vs element ID : PS' bb.ps.adcelemID[I] bb.ps.ped[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 
+th2f hADCtime_vs_elem_ps 'ADC time vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_time[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 
+th2f hADCint_vs_elem_ps 'ADC integral vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_p[I] 52 0 52 80 0 80 bb.ps.a_time[I]>0 
+th2f hADCamp_vs_elem_ps 'ADC amplitude vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_amp_p[I] 52 0 52 100 0 100 bb.ps.a_time[I]>0 
+
+# SH
+th2f hped_vs_elem_sh 'Pedestal vs element ID : SH' bb.sh.adcelemID[I] bb.sh.ped[I] 189 0 189 200 0 200 bb.sh.a_time[I]>0 
+th2f hADCtime_vs_elem_sh 'ADC time vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_time[I] 189 0 189 200 0 200 bb.sh.a_time[I]>0 
+th2f hADCint_vs_elem_sh 'ADC integral vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_p[I] 189 0 189 60 0 60 bb.sh.a_time[I]>0 
+th2f hADCamp_vs_elem_sh 'ADC amplitude vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
+
+########################## Hodoscope ##########################
 # !!! placeholder !!! we might not want to do that
 block bb.hodo.*
 
-#GRINCH
-# !!! placeholder !!! we might not want to do that
+########################## GRINCH ##########################
 variable bb.grinch.nhits
 block bb.grinch.hit.*
 
 variable bb.grinch.nclus
 block bb.grinch.clus.*
 
-## GEMs
+########################## GEMs ##########################
 block bb.gem.track.*
 block bb.gem.hit.*
 #block bb.gem.*.strip.*
