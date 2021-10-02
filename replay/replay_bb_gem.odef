@@ -10,12 +10,12 @@ variable bb.gem.nstripsv_layer
 variable bb.gem.nclustu_layer
 variable bb.gem.nclustv_layer
 variable bb.gem.n2Dhit_layer
-block bb.gem.*.time.T0_by_APV
-block bb.gem.*.time.Tref_coarse
-block bb.gem.*.time.Tcoarse_by_APV
-block bb.gem.*.time.Tfine_by_APV
-block bb.gem.*.time.EventCount_by_APV
-block bb.gem.*.time.T_ns_by_APV
+#block bb.gem.*.time.T0_by_APV
+#block bb.gem.*.time.Tref_coarse
+#block bb.gem.*.time.Tcoarse_by_APV
+#block bb.gem.*.time.Tfine_by_APV
+#block bb.gem.*.time.EventCount_by_APV
+#block bb.gem.*.time.T_ns_by_APV
 
 #Cuts: 
 cut singletrack bb.gem.track.ntrack==1
@@ -44,11 +44,11 @@ th1d hbb_gem_clust_Vtime 'V/Y cluster time (ns)' bb.gem.hit.Vtime 150 0 150 sing
 th2d hbb_gem_clust_UVtime 'V/Y vs U/X cluster time (ns)' bb.gem.hit.Utime bb.gem.hit.Vtime 150 0 150 150 0 150 singletrack
 th1d hbb_gem_clust_deltat 't_{U/X} - t_{V/Y} (ns)' bb.gem.hit.deltat 200 -50 50 singletrack
 th2d hbb_gem_clust_deltat_vs_tavg 't_{diff} vs t_{avg} (ns)' bb.gem.hit.Tavg bb.gem.hit.deltat 150 0 150 200 -50 50 singletrack
-th1d hbb_gem_iSampMaxU 'peak time sample, cluster-summed U/X strips' bb.gem.hit.isampmaxUclust 6 -0.5 5.5
-th1d hbb_gem_iSampMaxV 'peak time sample, cluster-summed V/Y strips' bb.gem.hit.isampmaxVclust 6 -0.5 5.5
-th1d hbb_gem_CorrCoeff_clust 'U/V (X/Y) correlation coeff., cluster-summed ADC samples' bb.gem.hit.ccor_clust 202 -1.01 1.01 singletrack
-th1d hbb_gem_CorrCoeff_maxstrip 'U/V (X/Y) correlation coeff., max strips in cluster' bb.gem.hit.ccor_strip 202 -1.01 1.01 singletrack
-th1d hbb_gem_ADCasym 'ADC asymmetry (ADCU-ADCV)/(ADCU+ADCV), hits on tracks' bb.gem.hit.ADCasym 202 -1.01 1.01 singletrack
+th1d hbb_gem_iSampMaxU 'Peak time sample, U/X strips' bb.gem.hit.isampmaxUclust 6 -0.5 5.5
+th1d hbb_gem_iSampMaxV 'Peak time sample, V/Y strips' bb.gem.hit.isampmaxVclust 6 -0.5 5.5
+th1d hbb_gem_CorrCoeff_clust 'Corr. Coeff., cluster sums' bb.gem.hit.ccor_clust 202 -1.01 1.01 singletrack
+th1d hbb_gem_CorrCoeff_maxstrip 'Corr. Coeff., max strips' bb.gem.hit.ccor_strip 202 -1.01 1.01 singletrack
+th1d hbb_gem_ADCasym '(ADCU-ADCV)/(ADCU+ADCV)' bb.gem.hit.ADCasym 202 -1.01 1.01 singletrack
 
 th1d hbb_gem_ADCavg '(ADCU+ADCV)/2, hits on tracks' bb.gem.hit.ADCavg 1500 0 30000 singletrack
 th2d hbb_gem_ADCasym_vs_ADCavg 'ADC asym. vs ADC avg' bb.gem.hit.ADCavg bb.gem.hit.ADCasym 250 0 25000 250 -1.01 1.01
@@ -59,12 +59,12 @@ th2d hbb_gem_ADCavg_vs_module 'Cluster ADC avg vs module' bb.gem.hit.module bb.g
 th1d hbb_gem_ADCU_maxstrip 'Max strip ADC sum (U/X strips)' bb.gem.hit.ADCmaxstripU 1500 0 15000 singletrack
 th1d hbb_gem_ADCV_maxstrip 'Max strip ADC sum (V/Y strips)' bb.gem.hit.ADCmaxstripV 1500 0 15000 singletrack
 th2d hbb_gem_ADCVvsU_maxstrip 'Max strip ADC sum, V/Y vs U/X' bb.gem.hit.ADCmaxstripU bb.gem.hit.ADCmaxstripV 200 0 12000 200 0 12000 singletrack
-th1d hbb_gem_ADCU_maxsample 'Max ADC sample in max strip (U/X strips)' bb.gem.hit.ADCmaxsampU 500 0 4000 singletrack
-th1d hbb_gem_ADCV_maxsample 'Max ADC sample in max strip (V/Y strips)' bb.gem.hit.ADCmaxsampV 500 0 4000 singletrack
-th2d hbb_gem_ADCVvsU_maxsample 'Max ADC sample in max strip, V/Y vs U/X' bb.gem.hit.ADCmaxsampU bb.gem.hit.ADCmaxsampV 200 0 4000 200 0 4000 singletrack
-th1d hbb_gem_ADCU_maxclustsample 'Max cluster-summed time sample (U/X strips)' bb.gem.hit.ADCmaxsampUclust 500 0 8000 singletrack
-th1d hbb_gem_ADCV_maxclustsample 'Max cluster-summed time sample (V/Y strips)' bb.gem.hit.ADCmaxsampVclust 500 0 8000 singletrack
-th2d hbb_gem_ADCVvsU_maxclustsample 'Max cluster-summed time sample, V/Y vs U/X' bb.gem.hit.ADCmaxsampUclust bb.gem.hit.ADCmaxsampVclust 200 0 8000 200 0 8000 singletrack
+th1d hbb_gem_ADCU_maxsample 'U/X max strip max sample' bb.gem.hit.ADCmaxsampU 500 0 4000 singletrack
+th1d hbb_gem_ADCV_maxsample 'V/Y max strip max sample' bb.gem.hit.ADCmaxsampV 500 0 4000 singletrack
+th2d hbb_gem_ADCVvsU_maxsample 'Max strip max sample, V/Y vs U/X' bb.gem.hit.ADCmaxsampU bb.gem.hit.ADCmaxsampV 200 0 4000 200 0 4000 singletrack
+th1d hbb_gem_ADCU_maxclustsample 'Max cluster-summed U/X sample' bb.gem.hit.ADCmaxsampUclust 500 0 8000 singletrack
+th1d hbb_gem_ADCV_maxclustsample 'Max cluster-summed V/Y sample' bb.gem.hit.ADCmaxsampVclust 500 0 8000 singletrack
+th2d hbb_gem_ADCVvsU_maxclustsample 'Max cluster-summed sample, V/Y vs U/X' bb.gem.hit.ADCmaxsampUclust bb.gem.hit.ADCmaxsampVclust 200 0 8000 200 0 8000 singletrack
 
 th1d hbb_gem_Ntracks 'Number of tracks found' bb.gem.track.ntrack 11 -0.5 10.5
 th1d hbb_gem_TrackNhits 'Number of hits on first/best track' bb.gem.track.nhits[I] 6 -0.5 5.5 singletrack
@@ -76,10 +76,10 @@ th2d hbb_gem_TrackXY 'Best track x vs y, m' bb.gem.track.y[I] bb.gem.track.x[I] 
 th2d hbb_gem_TrackXpYp 'Best track dx/dz vs dy/dz' bb.gem.track.yp[I] bb.gem.track.xp[I] 150 -0.4 0.4 150 -1.2 1.2 singletrack
 th1d hbb_gem_TrackChi2NDF 'Best track chi2/ndf' bb.gem.track.chi2ndf[I] 200 0 200 singletrack
 
-th1d hbb_gem_residu_allhits 'Track u/x incl. residuals, all hits in all layers' bb.gem.hit.residu 500 -0.0025 0.0025 singletrack
-th1d hbb_gem_residv_allhits 'Track v/y incl. residuals, all hits in all layers' bb.gem.hit.residv 500 -0.0025 0.0025 singletrack
-th1d hbb_gem_eresidu_allhits 'Track u/x excl. residuals, all hits in all layers' bb.gem.hit.eresidu 500 -0.0025 0.0025 singletrack
-th1d hbb_gem_eresidv_allhits 'Track v/y excl. residuals, all hits in all layers' bb.gem.hit.eresidv 500 -0.0025 0.0025 singletrack
+th1d hbb_gem_residu_allhits 'Track u/x incl. residuals, all hits' bb.gem.hit.residu 500 -0.0025 0.0025 singletrack
+th1d hbb_gem_residv_allhits 'Track v/y incl. residuals, all hits' bb.gem.hit.residv 500 -0.0025 0.0025 singletrack
+th1d hbb_gem_eresidu_allhits 'Track u/x excl. residuals, all hits' bb.gem.hit.eresidu 500 -0.0025 0.0025 singletrack
+th1d hbb_gem_eresidv_allhits 'Track v/y excl. residuals, all hits' bb.gem.hit.eresidv 500 -0.0025 0.0025 singletrack
 th2d hbb_gem_residu_vs_layer 'Track u/x incl. residuals vs layer' bb.gem.hit.layer bb.gem.hit.residu 5 -0.5 4.5 250 -0.0025 0.0025 singletrack
 th2d hbb_gem_residv_vs_layer 'Track v/y incl. residuals vs layer' bb.gem.hit.layer bb.gem.hit.residv 5 -0.5 4.5 250 -0.0025 0.0025 singletrack
 th2d hbb_gem_residu_vs_module 'Track u/x incl. residuals vs module' bb.gem.hit.module bb.gem.hit.residu 12 -0.5 11.5 250 -0.0025 0.0025 singletrack
