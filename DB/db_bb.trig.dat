@@ -1,9 +1,9 @@
 bb.trig.detmap = 
-  17     18     0     15  0 #      0
+  6     20     1     15  0 #      0
 bb.trig.chanmap =  0 1  2  3  4  5  6  7  
-                 8  9 10 11 12 13 14 15 
+                 8  9 10 11 12 13 14  
 ## Number of rows and columns
-bb.trig.ncols =  16
+bb.trig.ncols =  15
 bb.trig.nrows = 1
 ## Position of first module
 bb.trig.xyz    = -1.105  0.255  0.000
