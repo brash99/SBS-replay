@@ -1,11 +1,11 @@
-#include "TDirectory.h"
+#include "TFile.h"
 #include "TH1D.h"
 #include "TStyle.h"
 
 void plotfitgaus(TString histname, double fracmax=0.5){
   TH1D *htemp;
   //gDirectory->GetObject(histname,htemp);
-  htemp = (TH1D*) (gDirectory->Get(histname));
+  htemp = (TH1D*) (gFile->Get(histname));
 
   //htemp->Print();
   
