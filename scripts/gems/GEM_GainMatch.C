@@ -19,6 +19,8 @@
 #include "TMinuit.h"
 #include "TFitResultPtr.h"
 #include "TFitResult.h"
+#include "TObjArray.h"
+#include "TObjString.h"
 
 vector<double> AsymALL, dAsymALL;
 vector<int> APVX_asymALL, APVY_asymALL;
@@ -47,7 +49,7 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
       Gy = par[iy];
 
       useasym = true;
-    } else if( iy >= 0 && iy < nAPVmaxY ){ //using weighted average over all X APVs for Gx:
+    } else if( iy >= 0 && iy < nAPVmaxY ){ //this is a module-average asymmetry for Y: using weighted average over all X APVs for Gx:
       double sum_Gx = 0.0;
       double sum_Wx = 0.0;
       for( int j = 0; j<nAPVmaxX; j++ ){
@@ -58,9 +60,14 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
       Gx = sum_Gx/sum_Wx;
       Gy = par[iy];
 
+      //only use the module-average asymmetry in the fit if there were no X APVs with at least 100 events on this Y APV:
+      // 
+      // if( countX[iy] == 0 )
+
+      //Let's see what happens if we use the module-average asymmetry here:
       if( countX[iy] == 0 ) useasym = true;
       
-    } else if( ix >= 0 && ix < nAPVmaxX ){ //using weighted average over all Y APVs for Gy:
+    } else if( ix >= 0 && ix < nAPVmaxX ){ //this is a module-average asymmetry for X: using weighted average over all Y APVs for Gy:
       double sum_Gy = 0.0;
       double sum_Wy = 0.0;
       for( int j=0; j<nAPVmaxY; j++ ){
@@ -87,7 +94,53 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 }
 
 
-void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, int nstripxmax=3840, int nstripymax=3840, double target_ADC=4000.0 ){
+void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4000.0, const char *fname_stripconfig="stripconfig_bb_gem.txt" ){
+
+  ifstream stripconfigfile(fname_stripconfig);
+
+  TString currentline;
+
+  bool gotxconfig = false;
+  bool gotyconfig = false;
+  
+  vector<int> nstripx_mod(nmodules);
+  vector<int> nstripy_mod(nmodules);
+
+  while( currentline.ReadLine(stripconfigfile) ){
+    if( currentline.BeginsWith("mod_nstripu") ){
+      TObjArray *tokens = currentline.Tokenize(" ");
+      if( tokens->GetEntries() >= nmodules+1 ){
+	for( int i=1; i<=nmodules; i++ ){
+	  nstripx_mod[i-1] = ( (TObjString*) (*tokens)[i] )->GetString().Atoi();
+	}
+	gotxconfig = true;
+      }
+    }
+
+    if( currentline.BeginsWith( "mod_nstripv" ) ){
+      TObjArray *tokens = currentline.Tokenize( " " );
+      if( tokens->GetEntries() >= nmodules+1 ){
+	for( int i=1; i<=nmodules; i++ ){
+	  nstripy_mod[i-1] = ( (TObjString*) (*tokens)[i] )->GetString().Atoi();
+	  
+	}
+	gotyconfig = true;
+      }
+    }
+  }
+
+  if( !( gotxconfig && gotyconfig ) ){
+    cout << "module strip config not properly defined, quitting..." << endl;
+    return;
+  }
+
+  int nstripxmax = 0, nstripymax=0; 
+  for( int i=0; i<nmodules; i++ ){
+    nstripxmax = nstripx_mod[i] > nstripxmax ? nstripx_mod[i] : nstripxmax;
+    nstripymax = nstripy_mod[i] > nstripymax ? nstripy_mod[i] : nstripymax; 
+  }
+  
+
   gROOT->ProcessLine(".x ~/rootlogon.C");
 
   UInt_t MAXNHITS=10000;
@@ -209,18 +262,25 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     TString hname;
     for( int iAPVx = 0; iAPVx < nAPVmaxX; iAPVx++ ){
       hname.Form( "hADCasym_vs_APVX%d_mod%d", iAPVx, imodule );
-      new( (*hADCasym_vs_APVX)[iAPVx+nAPVmaxX*imodule] ) TH1D( hname.Data(), "", 250, -1.01, 1.01 );
+
+      if( iAPVx*128 < nstripx_mod[imodule] ){
       
+	new( (*hADCasym_vs_APVX)[iAPVx+nAPVmaxX*imodule] ) TH1D( hname.Data(), "", 250, -1.01, 1.01 );
+
+      }
       
       for( int iAPVy = 0; iAPVy < nAPVmaxY; iAPVy++ ){
-	if( iAPVx==0 ){
-	  hname.Form( "hADCasym_vs_APVY%d_mod%d", iAPVy, imodule );
-	  new( (*hADCasym_vs_APVY)[iAPVy+nAPVmaxY*imodule] ) TH1D( hname.Data(), "", 250, -1.01, 1.01 );
+
+	if( iAPVy*128 < nstripy_mod[imodule] ){
+	  if( iAPVx==0 ){
+	    hname.Form( "hADCasym_vs_APVY%d_mod%d", iAPVy, imodule );
+	    new( (*hADCasym_vs_APVY)[iAPVy+nAPVmaxY*imodule] ) TH1D( hname.Data(), "", 250, -1.01, 1.01 );
+	  }
+	
+	  hname.Form("hADCasym_vs_APV_mod%d_x%d_y%d",imodule,iAPVx,iAPVy);
+	  
+	  new( (*hADCasym_vs_APVXY)[iAPVy+nAPVmaxY*iAPVx+nAPVmaxX*nAPVmaxY*imodule] ) TH1D( hname.Data(), "", 250,-1.01,1.01);
 	}
-	
-	hname.Form("hADCasym_vs_APV_mod%d_x%d_y%d",imodule,iAPVx,iAPVy);
-	
-	new( (*hADCasym_vs_APVXY)[iAPVy+nAPVmaxY*iAPVx+nAPVmaxX*nAPVmaxY*imodule] ) TH1D( hname.Data(), "", 250,-1.01,1.01);
       }
     }
   }
@@ -241,6 +301,9 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   //cout << "starting event loop:" << endl;
   while( C->GetEntry( nevent++ ) ){
 
+    if( ngoodhits > MAXNHITS ) continue;
+    if( ntracks > MAXNHITS ) continue;
+    
     if( nevent % 1000 == 0 ) cout << "event " << nevent << endl;
     //loop over hits:
     int itrack = int(besttrack);
@@ -294,7 +357,8 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 	  
 	    if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
 		yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
-		hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 ){
+		hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 &&
+		xAPVmax*128 < nstripx_mod[module] && yAPVmax*128<nstripy_mod[module] ){
 
 	      // cout << "filling histograms " << endl;
 
@@ -317,7 +381,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     //cout << "Event " << nevent << " done" << endl;
   }
 
-  TFitResultPtr fitadcall = hADCavg_allhits->Fit("landau","S0","",ADCcut,25000.);
+  TFitResultPtr fitadcall = hADCavg_allhits->Fit("landau","S","",ADCcut,25000.);
 
   double MPV_all = ( (TF1*) hADCavg_allhits->GetListOfFunctions()->FindObject("landau") )->GetParameter("MPV");
 
@@ -394,7 +458,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
     htemp = hADCavg_module->ProjectionY( hnametemp.Data(), i+1, i+1 );
 
-    TFitResultPtr ADCfit_module = htemp->Fit("landau","S0","",ADCcut,25000.0);
+    TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",ADCcut,25000.0);
     double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
 
     cout << "module " << i << " MPV = " << MPV_mod << endl;
@@ -482,53 +546,59 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
       weightY[ix].resize(nAPVmaxY);
 
       countY[ix] = 0;
+
+
+      if( ix*128 < nstripx_mod[i] ){
       
-      TH1D *htemp = ( (TH1D*) (*hADCasym_vs_APVX)[ix+nAPVmaxX*i] );
-      if( htemp->GetEntries() >= 100 ){
-
-	if( xAPV_ref < 0 || htemp->GetEntries() > maxnevent ){
-	  xAPV_ref = ix;
-	  maxnevent = htemp->GetEntries();
+	TH1D *htemp = ( (TH1D*) (*hADCasym_vs_APVX)[ix+nAPVmaxX*i] );
+	if( htemp->GetEntries() >= 100 ){
+	  
+	  if( xAPV_ref < 0 || htemp->GetEntries() > maxnevent ){
+	    xAPV_ref = ix;
+	    maxnevent = htemp->GetEntries();
+	  }
+	  
+	  double Amean = htemp->GetMean();
+	  double dAmean = htemp->GetMeanError();
+	  
+	  double Arms = htemp->GetRMS();
+	  double dArms = htemp->GetRMSError();
+	  
+	  htemp->Fit("gaus","SQ","",Amean-Arms, Amean+Arms);
+	  
+	  double Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
+	  double dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
+	  
+	  double Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
+	  double dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
+	  
+	  //re-run the fit with a tighter range set by the result of the first fit:
+	  
+	  htemp->Fit( "gaus", "SQ", "", Amean_fit - 2.0*Arms_fit, Amean_fit + 2.0*Arms_fit );
+	  
+	  Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
+	  dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
+	  
+	  Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
+	  dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
+	  
+	  double Ryxtemp = (1.0-Amean_fit)/(1.0+Amean_fit);
+	  
+	  double Aup = Amean_fit + dAmean_fit;
+	  double Adown = Amean_fit - dAmean_fit;
+	  
+	  double Ryx_Aup = (1.0 - Aup)/(1.0 + Aup );
+	  double Ryx_Adown = (1.0 - Adown)/(1.0 + Adown);
+	  
+	  AsymALL.push_back( Amean_fit );
+	  dAsymALL.push_back( dAmean_fit );
+	  
+	  APVX_asymALL.push_back( ix );
+	  APVY_asymALL.push_back( -1 );
+	} else { //If less than 100 entries for this entire APV, fix the gain to 1:
+	  gainfit->FixParameter( ix + nAPVmaxY );
 	}
-	
-	double Amean = htemp->GetMean();
-	double dAmean = htemp->GetMeanError();
-
-	double Arms = htemp->GetRMS();
-	double dArms = htemp->GetRMSError();
-
-	htemp->Fit("gaus","SQ","",Amean-Arms, Amean+Arms);
-	 
-	double Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
-	double dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
-
-	double Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
-	double dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
-
-	//re-run the fit with a tighter range set by the result of the first fit:
-
-	htemp->Fit( "gaus", "SQ", "", Amean_fit - 2.0*Arms_fit, Amean_fit + 2.0*Arms_fit );
-
-	Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
-	dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
-	  
-	Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
-	dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
-
-	double Ryxtemp = (1.0-Amean_fit)/(1.0+Amean_fit);
-
-	double Aup = Amean_fit + dAmean_fit;
-	double Adown = Amean_fit - dAmean_fit;
-	  
-	double Ryx_Aup = (1.0 - Aup)/(1.0 + Aup );
-	double Ryx_Adown = (1.0 - Adown)/(1.0 + Adown);
-
-	AsymALL.push_back( Amean_fit );
-	dAsymALL.push_back( dAmean_fit );
-
-	APVX_asymALL.push_back( ix );
-	APVY_asymALL.push_back( -1 );
-      } else { //If less than 100 entries for this entire APV, fix the gain to 1:
+      } else {
 	gainfit->FixParameter( ix + nAPVmaxY );
       }
     }
@@ -540,66 +610,11 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
       weightX[iy].resize( nAPVmaxX );
 
       countX[iy] = 0;
-      
-      TH1D *htemp = ( (TH1D*) (*hADCasym_vs_APVY)[iy+nAPVmaxY*i] );
-      if( htemp->GetEntries() >= 100 ){
-	double Amean = htemp->GetMean();
-	double dAmean = htemp->GetMeanError();
 
-	double Arms = htemp->GetRMS();
-	double dArms = htemp->GetRMSError();
-
-	htemp->Fit("gaus","SQ","",Amean-Arms, Amean+Arms);
-	 
-	double Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
-	double dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
-
-	double Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
-	double dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
-
-	//re-run the fit with a tighter range set by the result of the first fit:
-
-	htemp->Fit( "gaus", "SQ", "", Amean_fit - 2.0*Arms_fit, Amean_fit + 2.0*Arms_fit );
-
-	Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
-	dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
-	  
-	Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
-	dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
-
-	double Ryxtemp = (1.0-Amean_fit)/(1.0+Amean_fit);
-
-	double Aup = Amean_fit + dAmean_fit;
-	double Adown = Amean_fit - dAmean_fit;
-	  
-	double Ryx_Aup = (1.0 - Aup)/(1.0 + Aup );
-	double Ryx_Adown = (1.0 - Adown)/(1.0 + Adown);
-
-	AsymALL.push_back( Amean_fit );
-	dAsymALL.push_back( dAmean_fit );
-
-	APVX_asymALL.push_back( -1 );
-	APVY_asymALL.push_back( iy );
-      } else {
-	gainfit->FixParameter( iy );
-      }
-    }
-    
-    for( int ix = 0; ix<nAPVmaxX; ix++ ){
-      
-      for( int iy = 0; iy<nAPVmaxY; iy++ ){
-	TH1D *htemp = ( (TH1D*) (*hADCasym_vs_APVXY)[iy + nAPVmaxY*ix + nAPVmaxY*nAPVmaxX*i] );
-
+      if( iy * 128 < nstripy_mod[i] ){
 	
-	
-	weightX[iy][ix] = htemp->GetEntries();
-	weightY[ix][iy] = htemp->GetEntries();
-	
+	TH1D *htemp = ( (TH1D*) (*hADCasym_vs_APVY)[iy+nAPVmaxY*i] );
 	if( htemp->GetEntries() >= 100 ){
-
-	  countY[ix]++;
-	  countX[iy]++;
-	  
 	  double Amean = htemp->GetMean();
 	  double dAmean = htemp->GetMeanError();
 
@@ -632,30 +647,97 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 	  double Ryx_Aup = (1.0 - Aup)/(1.0 + Aup );
 	  double Ryx_Adown = (1.0 - Adown)/(1.0 + Adown);
 
-	  
-	  
-	  Asym.push_back( Amean_fit );
-	  dAsym.push_back( dAmean_fit );
-	  Ryx.push_back( Ryxtemp );
-	  dRyx.push_back( 0.5*fabs(Ryx_Aup - Ryx_Adown) );
-
-	  //ONLY populate the list of asymmetries IF we had a successful fit:
 	  AsymALL.push_back( Amean_fit );
 	  dAsymALL.push_back( dAmean_fit );
 
-	  APVX_asymALL.push_back( ix );
+	  APVX_asymALL.push_back( -1 );
 	  APVY_asymALL.push_back( iy );
+	} else {
+	  gainfit->FixParameter( iy );
+	}
+      } else {
+	gainfit->FixParameter( iy );
+      }
+    }
+    
+    for( int ix = 0; ix<nAPVmaxX; ix++ ){
+      
+      for( int iy = 0; iy<nAPVmaxY; iy++ ){
+
+	if( ix * 128 < nstripx_mod[i] && iy*128 < nstripy_mod[i] ){
+	
+	  TH1D *htemp = ( (TH1D*) (*hADCasym_vs_APVXY)[iy + nAPVmaxY*ix + nAPVmaxY*nAPVmaxX*i] );
+
+	
+	
+	  weightX[iy][ix] = htemp->GetEntries();
+	  weightY[ix][iy] = htemp->GetEntries();
+	
+	  if( htemp->GetEntries() >= 100 ){
+
+	    countY[ix]++;
+	    countX[iy]++;
 	  
-	  if( count == 0 || dAmean_fit < minAsymerr ){
-	    minAsymerr = dAmean_fit;
-	    xAPV_ref = ix;
-	    count++;
+	    double Amean = htemp->GetMean();
+	    double dAmean = htemp->GetMeanError();
+
+	    double Arms = htemp->GetRMS();
+	    double dArms = htemp->GetRMSError();
+
+	    htemp->Fit("gaus","SQ","",Amean-Arms, Amean+Arms);
+	 
+	    double Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
+	    double dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
+
+	    double Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
+	    double dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
+
+	    //re-run the fit with a tighter range set by the result of the first fit:
+
+	    htemp->Fit( "gaus", "SQ", "", Amean_fit - 2.0*Arms_fit, Amean_fit + 2.0*Arms_fit );
+
+	    Amean_fit = htemp->GetFunction("gaus")->GetParameter("Mean");
+	    dAmean_fit = htemp->GetFunction("gaus")->GetParError(1);
+	  
+	    Arms_fit = htemp->GetFunction("gaus")->GetParameter("Sigma");
+	    dArms_fit = htemp->GetFunction("gaus")->GetParError(2);
+
+	    double Ryxtemp = (1.0-Amean_fit)/(1.0+Amean_fit);
+
+	    double Aup = Amean_fit + dAmean_fit;
+	    double Adown = Amean_fit - dAmean_fit;
+	  
+	    double Ryx_Aup = (1.0 - Aup)/(1.0 + Aup );
+	    double Ryx_Adown = (1.0 - Adown)/(1.0 + Adown);
+
+	  
+	  
+	    Asym.push_back( Amean_fit );
+	    dAsym.push_back( dAmean_fit );
+	    Ryx.push_back( Ryxtemp );
+	    dRyx.push_back( 0.5*fabs(Ryx_Aup - Ryx_Adown) );
+
+	    //ONLY populate the list of asymmetries IF we had a successful fit:
+	    AsymALL.push_back( Amean_fit );
+	    dAsymALL.push_back( dAmean_fit );
+
+	    APVX_asymALL.push_back( ix );
+	    APVY_asymALL.push_back( iy );
+	  
+	    if( count == 0 || dAmean_fit < minAsymerr ){
+	      minAsymerr = dAmean_fit;
+	      xAPV_ref = ix;
+	      count++;
+	    }
+	  } else {
+	    Asym.push_back( -10.0 );
+	    dAsym.push_back( 1.0 );
+	    Ryx.push_back( 1.0 );
+	    dRyx.push_back( 1.0 );
 	  }
 	} else {
-	  Asym.push_back( -10.0 );
-	  dAsym.push_back( 1.0 );
-	  Ryx.push_back( 1.0 );
-	  dRyx.push_back( 1.0 );
+	  weightX[iy][ix] = 0.0;
+	  weightY[ix][iy] = 0.0;
 	}
       }
     }
@@ -750,11 +832,12 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   outfile_db << endl << "# Module average gains relative to target ADC peak position of " << target_ADC << endl;
   
   for( int i=0; i<nmodules; i++ ){
-    double Gmod = RelativeGainByModule[i];
+    double Gmod = RelativeGainByModule[i]*MPV_all/target_ADC;
     //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
     TString dbentry;
     dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
     outfile_db << dbentry << endl;
+    cout << dbentry << endl;
   }
 
   outfile << endl;
