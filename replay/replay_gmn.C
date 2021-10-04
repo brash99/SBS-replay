@@ -34,7 +34,13 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
   //bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
-  bigbite->AddDetector( new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower") );
+  SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
+  ts->SetDataOutputLevel(0);
+  bigbite->AddDetector( ts );
+  SBSGenericDetector* bbtrig= new SBSGenericDetector("trig","BigBite shower trig");
+  bbtrig->SetModeADC(SBSModeADC::kWaveform);
+  bigbite->AddDetector( bbtrig );
+  
   bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
   bigbite->AddDetector( new SBSTimingHodoscope("hodo", "timing hodo") );
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
@@ -46,9 +52,17 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   gHaApps->Add(bigbite);
     
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
-  harm->AddDetector( new SBSHCal("hcal","HCAL") );
-  gHaApps->Add(harm);
+  SBSHCal* hcal =  new SBSHCal("hcal","HCAL");
+  hcal->SetStoreRawHits(kTRUE);
+  harm->AddDetector(hcal);
+
+  SBSGenericDetector* sbstrig= new SBSGenericDetector("trig","HCal trigs");
+  sbstrig->SetModeADC(SBSModeADC::kWaveform);
+  sbstrig->SetStoreRawHits(kTRUE);
+  harm->AddDetector( trig );  
   
+  gHaApps->Add(harm);
+
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
