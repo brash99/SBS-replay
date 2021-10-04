@@ -377,7 +377,33 @@ sbs.uvagem.m17.ugain = 0.508682  0.632972  0.781171  0.89081  0.964737  0.976657
 sbs.uvagem.m18.vgain = 0.801484  0.774072  0.837162  0.740183  0.775243  0.508334  0.455128  0.489878  0.505387  0.494171  
 sbs.uvagem.m18.ugain = 0.136293  1.0557  1.05199  1.0344  1  0.980483  0.974567  0.922123  1.00714  0.909039  0.785882  0.612983  
 sbs.uvagem.m19.vgain = 0.626405  0.606266  0.627196  0.590842  0.603806  0.501668  0.536411  0.509981  0.550126  0.570728  
-sbs.uvagem.m19.ugain = 1.00279  1.09937  1.08615  1  1.02314  1.06173  1.03447  1.0635  0.93411  0.978972  0.838197  0.78698  
+sbs.uvagem.m19.ugain = 1.00279  1.09937  1.08615  1  1.02314  1.06173  1.03447  1.0635  0.93411  0.978972  0.838197  0.78698
+
+# Module average gains relative to target ADC peak position of 4000
+sbs.uvagem.m0.modulegain = 1.33663
+sbs.uvagem.m1.modulegain = 0.559002
+sbs.uvagem.m2.modulegain = 1.40356
+sbs.uvagem.m3.modulegain = 0.724373
+sbs.uvagem.m4.modulegain = 0.484744
+sbs.uvagem.m5.modulegain = 1.59029
+sbs.uvagem.m6.modulegain = 1.17677
+sbs.uvagem.m7.modulegain = 0.766759
+sbs.uvagem.m8.modulegain = 0.899921
+sbs.uvagem.m9.modulegain = 1.16924
+sbs.uvagem.m10.modulegain = 1.21193
+sbs.uvagem.m11.modulegain = 1.69707
+sbs.uvagem.m12.modulegain = 0.523743
+sbs.uvagem.m13.modulegain = 2.17928
+sbs.uvagem.m14.modulegain = 0.938256
+sbs.uvagem.m15.modulegain = 0.548284
+sbs.uvagem.m16.modulegain = 0.796485
+sbs.uvagem.m17.modulegain = 0.884161
+sbs.uvagem.m18.modulegain = 0.771596
+sbs.uvagem.m19.modulegain = 0.861157
+
+
+
+
 
 ################### DECODE INFO #################################################################
 ## Channel maps for decoding:                                                                  ## 
