@@ -20,7 +20,7 @@ bb.ps.adc.conv = 0.4882
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 bb.ps.adc.NPedBin = 4
 # Threshold for pulse finding in waveform (mV)
-bb.ps.adc.thres = 3.
+bb.ps.adc.thres = 4.
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
 bb.ps.adc.NSB = 3
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
@@ -104,3 +104,65 @@ bb.ps.nrows = 26
 bb.ps.xyz    =  1.125  0.185  0.000
 ## Space between modules
 bb.ps.dxdydz =  0.09   0.370  0.000
+
+## Ratio of the signal amplitude at the input of Discriminator to the signal amplitude at FADC 
+bb.ps.trigtoFADCratio = 1.00 0.94 0.99 1.06 0.92 0.86 0.93 0.90 0.82 0.85 0.81 0.86 0.88 0.87 0.95 0.90
+		        0.93 0.86 0.89 0.93 0.93 0.96 0.94 0.97 0.97 0.92
+			0.99 1.00 0.94 0.88 0.93 0.91 0.84 0.88 0.84 0.90 0.89 0.84 0.89 0.89 0.85 0.89
+			0.90 0.90 0.92 0.91 0.87 0.97 0.97 0.96 0.95 0.93
+
+## Gain factor for energy calibration using cosmic: GeV/pC 
+## Asuming trigger amplitudes are aligned to 10mV
+bb.ps.adc.gain =
+0.0185741
+0.0181504
+0.0174429
+0.0187659
+0.0171806
+0.0179773
+0.0185098
+0.0176125
+0.0178349
+0.0177627
+0.017723
+0.0170905
+0.0187011
+0.0173286
+0.0173558
+0.0177659
+0.018089
+0.0180408
+0.0175949
+0.0184952
+0.0173136
+0.0181675
+0.0174296
+0.0182834
+0.0171931
+0.0183977
+0.0169784
+0.0176695
+0.0184654
+0.0180574
+0.0179636
+0.0170881
+0.0183461
+0.018147
+0.0183226
+0.0182321
+0.018757
+0.0179987
+0.0187276
+0.0175662
+0.017987
+0.0172704
+0.0184999
+0.0174999
+0.0182121
+0.0177807
+0.0169853
+0.0181132
+0.0180731
+0.0170998
+0.017839
+0.017123
