@@ -1405,25 +1405,25 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   for( map<int,double>::iterator imod=mod_x0.begin(); imod!=mod_x0.end(); ++imod ){
     int module = imod->first;
     TString stemp;
-    stemp.Form( " %15.6g", mod_x0[module] );
+    stemp.Form( " %15.7g", mod_x0[module] );
     x0line += stemp;
-    stemp.Form( " %15.6g", mod_y0[module] );
+    stemp.Form( " %15.7g", mod_y0[module] );
     y0line += stemp;
-    stemp.Form( " %15.6g", mod_z0[module] );
+    stemp.Form( " %15.7g", mod_z0[module] );
     z0line += stemp;
-    stemp.Form( " %15.6g", mod_ax[module] );
+    stemp.Form( " %15.7g", mod_ax[module] );
     axline += stemp;
-    stemp.Form( " %15.6g", mod_ay[module] );
+    stemp.Form( " %15.7g", mod_ay[module] );
     ayline += stemp;
-    stemp.Form( " %15.6g", mod_az[module] );
+    stemp.Form( " %15.7g", mod_az[module] );
     azline += stemp;
 
-    stemp.Form( "%s.m%d.position = %15.6g %15.6g %15.6g", prefix.Data(), module,
+    stemp.Form( "%s.m%d.position = %15.7g %15.7g %15.7g", prefix.Data(), module,
 		mod_x0[module], mod_y0[module], mod_z0[module] );
 
     outfile_DB << stemp << endl;
 
-    stemp.Form( "%s.m%d.angle = %15.6g %15.6g %15.6g", prefix.Data(), module,
+    stemp.Form( "%s.m%d.angle = %15.7g %15.7g %15.7g", prefix.Data(), module,
 		mod_ax[module]*180.0/PI, mod_ay[module]*180.0/PI, mod_az[module]*180.0/PI );
 
     outfile_DB << stemp << endl;
