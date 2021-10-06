@@ -1,4 +1,6 @@
 # Date/Time = Fri Jan 1 11:00:00 2021 
+# start database from the beginning of time 
+-------[ 2021-01-01 00:00:00 ] 
 # database format: the tracker consists of a collection of modules: 
 # database properties will be organized by module, not by "plane" as in old SBS-offline
 
@@ -51,7 +53,7 @@ bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
 bb.gem.commonmode_minstrips = 20
 bb.gem.plot_common_mode = 1
-bb.gem.pedsub_online = 1
+bb.gem.pedsub_online = 1 # normally this should always be set to 1
 bb.gem.dump_geometry_info = 1
 bb.gem.efficiency_bin_width_1D = 0.01
 bb.gem.efficiency_bin_width_2D = 0.01
@@ -943,6 +945,10 @@ bb.gem.pedfile = gemped/daq_ped_bb_gem_run1053.dat
 # Copy the contents of this file into $DB_DIR/db_bb.gem.dat to use these pedestals for analysis
 # format = detname.commonmode_mean(U,V) and detname.commonmode_rms(U,V) = common-mode mean and RMS for U, V strips by APV card in order of position
 
+#Tue Aug 24 11:00:51 2021
+# Copy the contents of this file into $DB_DIR/db_bb.gem.dat to use these pedestals for analysis
+# format = detname.commonmode_mean(U,V) and detname.commonmode_rms(U,V) = common-mode mean and RMS for U, V strips by APV card in order of position
+----------[ 2021-01-01 00:00:00 ]
 bb.gem.m0.commonmode_meanU = 
            490.99            406.03            547.52            360.42            273.57            504.36            335.14            544.19            304.93            470.43             343.2            367.04            506.57            405.28            473.48             518.4 
            546.14            494.38            517.94             346.5            449.82            551.09            542.17            477.48            485.24            508.49            465.76            392.41            595.47            414.46 
@@ -1069,6 +1075,8 @@ bb.gem.m11.commonmode_meanV =
            602.57            673.62            553.17            605.13            537.91            618.25            501.74            391.66            397.54            373.32            443.34            464.75 
 bb.gem.m11.commonmode_rmsV = 
             10.27            7.4577             8.261            8.7531            8.6486            9.1007            8.6674            8.3121            8.4997            9.3674            7.7888            18.332 
+
+
 
 
 ------[ 2021-09-19 00:00:00 ]
