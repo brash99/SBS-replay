@@ -42,7 +42,7 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   bigbite->AddDetector( bbtrig );
   
   bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
-  bigbite->AddDetector( new SBSTimingHodoscope("hodo", "timing hodo") );
+  bigbite->AddDetector( new SBSTimingHodoscope("hodotdc", "timing hodo") );
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   SBSGEMSpectrometerTracker *bbgem = new SBSGEMSpectrometerTracker("gem", "BigBite Hall A GEM data");
   bool pm =  ( pedestalmode != 0 );
@@ -59,7 +59,7 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   SBSGenericDetector* sbstrig= new SBSGenericDetector("trig","HCal trigs");
   sbstrig->SetModeADC(SBSModeADC::kWaveform);
   sbstrig->SetStoreRawHits(kTRUE);
-  harm->AddDetector( trig );  
+  harm->AddDetector( sbstrig );  
   
   gHaApps->Add(harm);
 
@@ -121,7 +121,7 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  outfilename.Form( "%s/bbgem_replayed_%d_seg%d_%d.root", prefix.Data(), runnum,
+  outfilename.Form( "%s/gmn_replayed_%d_seg%d_%d.root", prefix.Data(), runnum,
 		    firstsegment, lastsegment );
 
   // Define the run(s) that we want to analyze.
@@ -143,12 +143,12 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   analyzer->SetEvent( event );
   analyzer->SetOutFile( outfilename.Data() );
   // File to record cuts accounting information
-  analyzer->SetSummaryFile("replay_BBGEM.log"); // optional
+  analyzer->SetSummaryFile("replay_gmn.log"); // optional
 
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_BBGEM.odef";
+  TString odef_filename = "replay_gmn.odef";
   
   odef_filename.Prepend( prefix );
 

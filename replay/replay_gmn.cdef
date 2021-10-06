@@ -1,26 +1,9 @@
 ## example cut file for gmn replay.
-Block: RawDecode
+#include "replay_BBGEM.cdef"
+#include "replay_BBCal.cdef"
+#include "replay_grinch.cdef"
+#include "replay_hcal.cdef"
+#include "replay_hodo.cdef"
 
-RawDecode_master        1
-
-Block: Decode
-#GoodGoldenTrack                1
-#GoodPhi                        abs(R.gold.ph)<0.05
-#GoodTheta              abs(R.gold.th)<0.1
-#InAcceptance           GoodPhi&&GoodTheta
-Decode_master   1
-
-Block: CoarseReconstruct
-
-HitsPreShower          bb.ps.nhits>5
-HitsShower             bb.sh.nhits>5
-GoodPreShower          bb.ps.ngoodADChits>5
-GoodShower             bb.sh.ngoodADChits>5
-GoodEvent              GoodPreShower||GoodShower
-
-HitsGrinch          bb.grinch_tdc.nhits>0
-
-CoarseReconstruct_master 1
-#CoarseReconstruct_master HitsGrinch #?
 
 

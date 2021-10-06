@@ -1,9 +1,0 @@
-## example cut file for gmn replay.
-#include "replay_BBGEM.cdef"
-#include "replay_BBCal.cdef"
-#include "replay_grinch.cdef"
-#include "replay_hcal.cdef"
-#include "replay_hodo.cdef"
-
-
-
