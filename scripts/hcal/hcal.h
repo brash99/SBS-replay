@@ -9,7 +9,7 @@ const Int_t MAX_HCAL_TDC_MODULES = 288;
 
 namespace hcalt {
   //HCAL core vars
-  Double_t samps[MAX_HCAL_MODULES*MAX_FADC_SAMPLES+1000];
+  Double_t samps[MAX_HCAL_MODULES*MAX_FADC_SAMPLES+1000] = {0};
   Double_t nsamps[MAX_HCAL_MODULES+1000] = {0};
   Double_t row[MAX_HCAL_MODULES+1000] = {0};
   Double_t col[MAX_HCAL_MODULES+1000] = {0};
@@ -22,9 +22,10 @@ namespace hcalt {
   Int_t ndata = 0;
   Double_t ledbit = -1;
   Double_t ledcount = 0;
-  Double_t tdc[MAX_HCAL_TDC_MODULES+100];
-  //Cluster vars
-  Double_t nclus[MAX_HCAL_MODULES+1000] = {0};
+  Double_t tdc[MAX_HCAL_TDC_MODULES+100] = {0};
+  Double_t a_time[MAX_HCAL_MODULES+1000] = {0};
+  //Cluster vars - TODO, check memory allocation for these 
+  Double_t nclus[MAX_HCAL_MODULES+1000] = {0}; 
   Double_t nblk[MAX_HCAL_MODULES+1000] = {0};
   Double_t cid[MAX_HCAL_MODULES+1000] = {0};
   Double_t cblkid[MAX_HCAL_MODULES+1000] = {0};
@@ -44,6 +45,10 @@ namespace hcalt {
   Double_t TelemID[MAX_TRIGGER_MODULES+1000] = {0};
   Double_t Tcol[MAX_TRIGGER_MODULES+1000] = {0};
   Int_t Tndata = 0;
+  //BB track vars
+  Double_t BBtr_px[1000] = {0};
+  Double_t BBtr_py[1000] = {0};
+  Double_t BBtr_pz[1000] = {0};
 }
 
 void fixStats()
