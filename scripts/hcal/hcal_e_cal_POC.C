@@ -23,6 +23,8 @@
 #include <TSystem.h>
 #include <TStopwatch.h>
 #include <iomanip>
+#include "TLorentzVector.h"
+#include "TVector3.h"
 
 TChain *T = 0;
 
@@ -30,32 +32,46 @@ const int ncell = 288;
 const int kNrows = 24;
 const int kNcols = 12;
 
-void hcal_e_cal_POC( int run = -1 ){
+const double PI = TMath::Pi();
+const double M_e = 0.00051;
+const double M_p = 0.938272;
+const double M_n = 0.939565;
+const double c_light = 299792458.0;
 
+//Kinematic information
+const double E_e = 11;  //GeV - will need updated regularly. Can pass from command line LATER
+
+void hcal_e_cal_POC( int run = -1 ){
+  
   //User input .root file for sample analysis
   cout << "Enter run number for toy analysis." << endl;
   cin >> run;
+  
+  //initialize vectors
+  vector<int> hitlist;
+  vector<double> energy;
 
   //Empirical limits
   double min_const=0.1, max_const=10.0;
-
+  
   //Add generic detector specs
   int nrows = 24, ncols = 12;
-
+  
   //Add output file
   TFile *fout = new TFile( Form("hcalECal_%d.root",run), "RECREATE" );
-     
+  
   //Hard code this with arbitrary cut for now, just to check the integrity of the algorithm
-  TCut global_cut = ""; 
-
+  //TCut global_cut = ""; 
+  
   //Create event list to loop over
   TEventList *elist = new TEventList("elist");
-
+  
   // Read in data produced by analyzer in root format
   cout << "Reading replayed root file.." << endl;
   if( !T ) { 
     T = new TChain( "T" );
-    T->Add( Form( "/volatile/halla/sbs/seeds/rootfiles/hcal_%d*.root", run ) );
+    //T->Add( Form( "/volatile/halla/sbs/seeds/rootfiles/hcal_%d*.root", run ) );
+    T->Add( "/volatile/halla/sbs/seeds/rootfiles/replayed_simdigtest_2_20210930.root" );
     T->SetBranchStatus( "*", 0 );
     T->SetBranchStatus( "sbs.hcal.*", 1 );
     T->SetBranchAddress( "sbs.hcal.a", hcalt::a );
@@ -80,23 +96,83 @@ void hcal_e_cal_POC( int run = -1 ){
     T->SetBranchAddress("sbs.hcal.nblk",hcalt::nblk);
     T->SetBranchAddress("sbs.hcal.clus_blk.id",hcalt::cblkid);
     T->SetBranchAddress("sbs.hcal.clus.eblk",hcalt::ceblk);
+
+    // Add BB cal vars
+    T->SetBranchAddress("bb.tr.px",hcalt::BBtr_px);
+    T->SetBranchAddress("bb.tr.py",hcalt::BBtr_py);
+    T->SetBranchAddress("bb.tr.pz",hcalt::BBtr_pz);
     
     cout << "Opened up tree with nentries=" << T->GetEntries() << endl;
   }
 
+  //Need to get electron energy and W for cuts
+  long mevent=0;
+
+  cout << "Looping over all events to get physics quantities." << endl;
+
+  while( T->GetEntry( mevent++ ) ){ 
+    
+    if( mevent%1000 == 0 ) cout << mevent << endl;
+
+
+    //Get electron energy
+    //Initialize vectors
+    TVector3 p_tVec_ep(hcalt::BBtr_px[0],hcalt::BBtr_py[0],hcalt::BBtr_pz[0]); //3Vector of scattered electron in electron frame
+    
+    //cout << 
+    
+    cout << "p_tVec_ep.Mag() = " << p_tVec_ep.Mag() << endl;
+    
+    TLorentzVector p_lVec_ep(p_tVec_ep,M_e); //Lorentz vector of track scattered electron in electron frame
+    TVector3 l_tVec(0.0,0.0,0.0); //3Vector of lab frame
+    TLorentzVector l_lVec_ep; //Lorentz vector of electron in lab frame
+    
+    //Boost back to lab frame
+    //l_lVec_ep = p_lVec_ep.Boost(l_tVec);
+    
+    p_lVec_ep.Boost(l_tVec); //Doesn't seem to be working
+    
+    //Take scattered electron energy from energy component
+    double E_ep = p_lVec_ep.E();
+    
+    cout << "E_ep = " << E_ep << endl;
+    
+    //Get magnitude of scattered electron momentum
+    double p_ep = p_tVec_ep.Mag();
+    
+    cout << "p_ep = " << p_ep << endl;
+    
+    //Get Q2 from beam energy, outgoing electron energy, and momenta
+    double Q2_ep = 4*E_e*E_ep*(1-(p_tVec_ep.Z()/p_ep));
+    
+    //Get W2 from Q2 - not sure about this
+    double W2_ep = pow(M_p,2)+2*M_p*(E_e-E_ep)-Q2_ep;
+    
+    //Definitely not correct. testing this for functionality
+    if(W2_ep < pow(M_p,2)*1.1 && W2_ep > pow(M_p,2)*1.1){
+      hitlist.pushback(mevent);
+      energy.pushback(E_ep);
+    }
+  }
+
+  
+  //Solve for condition on p_tVec_ep such that W2_ep = pow(M_p,2)
+  TCut global_cut = "bb.tr.pz>1.0"; //Working on it, initialize to 1 to see if this works.
+  
+  
   //Parse the tree with events passing the cut
   T->Draw( ">>elist", global_cut );
   
   cout << "Number of events passing global cut = " << elist->GetN() << endl;
-
+  
   //Initialize matrix M and vector b to set up the linear system:
   //ncell here is the total number of channels to be calibrated:
   TMatrixD M(ncell,ncell);
   TVectorD b(ncell);
-
+  
   //Array to count the number of good events in each cell:
   int nevents[ncell];
-
+  
   for(int i=0; i<ncell; i++){
     for(int j=0; j<ncell; j++){
       M(i,j) = 0.0; //Initialize sums for matrix M to zero.
@@ -104,11 +180,11 @@ void hcal_e_cal_POC( int run = -1 ){
     b(i) = 0.0; //Initialize sums for vector b to zero
     nevents[i] = 0; //Initialize event counters to zero.
   }
-
+  
   int min_events_per_cell=100; //require at least 100 events to calculate a new calibration constant for the cell:
-
+  
   long nevent=0;
-
+  
   //Initialize old constants (for updating) to zero
   double oldconstants_nevent[ncell];
   double oldconstants_sum[ncell];
@@ -118,7 +194,9 @@ void hcal_e_cal_POC( int run = -1 ){
     oldconstants_nevent[i] = 0.0;
     oldconstants_sum2[i] = 0.0;
   }
-
+  
+  /*
+  //Histogram limits will need to be updated empirically
   TH1D *hdpel_hms = new TH1D("hdpel_hms","",200,-0.04,0.04);
   TH1D *hdx = new TH1D("hdx","",200,-30.0,30.0);
   TH1D *hdy = new TH1D("hdy","",200,-60.0,60.0);
@@ -134,26 +212,26 @@ void hcal_e_cal_POC( int run = -1 ){
   TH1D *hymom = new TH1D("hymom", "y moment", 200, -5.0,5.0 );
   TH1D *hxdiff = new TH1D("hxdiff","x_{clust} - x_{cell}", 100, -5.0, 5.0 );
   TH1D *hydiff = new TH1D("hydiff","y_{clust} - y_{cell}", 100, -5.0, 5.0 );
-
+  
   TH2D *hxdiff_ixcell_prot = new TH2D("hxdiff_ixcell_prot","",32,0.5,32.5,100,-5.,5.);
   TH2D *hydiff_iycell_prot = new TH2D("hydiff_iycell_prot","",32,0.5,32.5,100,-5.,5.);
   
   hxdiff->GetXaxis()->SetTitle("x_{clust}-x_{cell} (cm)");
   hydiff->GetXaxis()->SetTitle("y_{clust}-y_{cell} (cm)");
-
+  */
   //////////////////////////////
   //Main loop over the events://
   //////////////////////////////
-
+  
   //Loop over only elastic events as passed by BB
   //Assume that a clean sample of elastic events has already been selected by global_cut:
   //In this case, we are trying to minimize chi^2 = sum_i=1,nevent (E_i - sum_j c_j A^i_j)^2/sig_E^2, where sig_E_i^2 ~ E_i; in this case, dchi^2/dc_k = 2 * sum_i=1,nevent 1/E_i * (E_i - sum_j c_j A_j) * A_k 
   // This is a system of linear equations for c_k, with RHS = sum_i A_k and LHS = sum_i sum_j A_j c_j A_k/E_i 
-
+  
   while( T->GetEntry( elist->GetEntry(nevent++)) ){ 
-
+    
     if( nevent%1000 == 0 ) cout << nevent << endl;
-
+    
     int r,c;
     double adc_p[kNrows][kNcols] = {0.0};
     double e[kNrows][kNcols] = {0.0};
@@ -174,9 +252,9 @@ void hcal_e_cal_POC( int run = -1 ){
       if( r >= kNrows || c >= kNcols ) continue;
       
       // Fill adc and energy arrays
-      adc_p[r][c] = hcalt::a_p[m];
+      adc_p[r][c] = hcalt::a_p[m]; 
       amp[r][c] = hcalt::a_amp[m];
-      e[r][c] = hcalt::cblke[m];
+      e[r][c] = hcalt::cblke[m];  //Don't know how this is obtained
       
       // Mark saturated array when amplitude meets max RAU
       if( amp[r][c] > 3900 ) {
@@ -193,7 +271,7 @@ void hcal_e_cal_POC( int run = -1 ){
 
     if( best >= 0 && ncellclust >= 1 && saturated == 0 ){ // require at least 2 hits in this cluster to use as a "good" event for calibration purposes:
 
-      float E_e = 14; //Predicted energy of elastic electron from BB. Here using avg energy deposition from cosmics (in MeV) as a stand-in. Will need to look at energy ratio between electron and proton for current kinematic and project for more accurate results
+      double E_e = E_ep; //Predicted energy of elastic electron from BB. Here using avg energy deposition from cosmics (in MeV) as a stand-in. Will need to look at energy ratio between electron and proton for current kinematic and project for more accurate results
 
       //Check whether this cluster has its maximum at the edge of the calorimeter - very unrealistic test assumptions made where "best" is max energy:
       int rowmax = best/kNcols;
@@ -226,6 +304,8 @@ void hcal_e_cal_POC( int run = -1 ){
 	  float Ahit_i = adc_p[row_i][col_i]; //Ahit_i is the ADC value for this hit (ped-subtracted)
 	  float Ehit_i = e[row_i][col_i]; //Ehit_i is the reconstructed energy for this hit (using previous calibration constants)
 
+	  //cout >> "Ahit_i = " << Ahit_i << "; Ehit_i = " << Ehit_i << endl;
+
 	  //updated for HCal
 	  //int cell_i;
 	  //cell_i = col_i + kNcols*row_i;
@@ -257,7 +337,7 @@ void hcal_e_cal_POC( int run = -1 ){
 	    //updated for HCal
 	    //int cell_j;
 	    //cell_j = col_j + kNcols*row_j;
-
+	    
 	    //increment Matrix element M_{i,j} with Ai * Aj / E_e, where, recall A_i and A_j are ADC values of hit i and hit j, and E_e is the predicted energy
 	    // of the elastically scattered electron:
 	    M(cell_i,cell_j) += Ahit_i * Ahit_j / E_e;
@@ -266,9 +346,9 @@ void hcal_e_cal_POC( int run = -1 ){
 	      cout << "Error: Cell number greater than expected geometry." << endl;
 	      return 0;
 	    }
-
+	    
 	    //cout << "Matrix element i:j " << cell_i << ":" << cell_j << " = " << M(cell_i,cell_j) << endl;
-
+	    
 	  }
 	  b(cell_i) += Ahit_i; //increment vector element i with ADC value of hit i. 
 	  nevents[cell_i] += 1; //increment event counter for cell i:
@@ -277,10 +357,10 @@ void hcal_e_cal_POC( int run = -1 ){
     }
   }
 
-  cout << "Matrix populated.." << endl;
+cout << "Matrix populated.." << endl;
 
 
-  //IF the number of events in a cell exceeds the minimum, then we can calibrate 
+//IF the number of events in a cell exceeds the minimum, then we can calibrate 
 
   int smalld[ncell];
 
@@ -320,9 +400,9 @@ void hcal_e_cal_POC( int run = -1 ){
     }
   }
 
-  cout << "Solving for calibration constants..." << endl;
+cout << "Solving for calibration constants..." << endl;
 
-  //Invert the matrix and multiply M^{-1} by the "RHS" vector b: 
+//Invert the matrix and multiply M^{-1} by the "RHS" vector b: 
   TVectorD solution = M.Invert() * b;
 
   cout << "done." << endl;
@@ -331,10 +411,9 @@ void hcal_e_cal_POC( int run = -1 ){
 
   ofstream constants_file;
 
-  constants_file.open( Form( "outFiles/hcalECalParams_%d.txt", run ) );
+constants_file.open( Form( "/work/halla/sbs/seeds/outFiles/hcalECalParams_%d.txt", run ) );
 
-  //No idea where these constants come from - SS
-  
+
   TH1D *hconstants_chan = new TH1D("hconstants_chan","",ncell,0.5,ncell+0.5);
   TH1D *hconstants = new TH1D("hconstants","",200,0.0,2.0);
   TH2D *hconstants_rowcol = new TH2D("hconstants_rowcol","",32,0.5,32.5,56,0.5,56.5);
@@ -419,7 +498,7 @@ void hcal_e_cal_POC( int run = -1 ){
 
     constants_file << cconst;
     if( i+1 != nrows*ncols && i+1 != ncell ) constants_file << ",";
-    if( (i+1)%8 == 0 ) constants_file << endl;
+    if( (i+1)%kNcols == 0 ) constants_file << endl;
     if( (i+1) == nrows*ncols ) constants_file << "Error: ncell > nrows * ncols" << endl;
   }
   
@@ -433,7 +512,7 @@ void hcal_e_cal_POC( int run = -1 ){
 
     constants_file << cconst;
     if( i+1 != nrows*ncols && i+1 != ncell ) constants_file << ",";
-    if( (i+1)%8 == 0 ) constants_file << endl;
+    if( (i+1)%kNcols == 0 ) constants_file << endl;
     if( i+1 == nrows*ncols ) constants_file << "Error: ncell > nrows * ncols" << endl;
   }
 
