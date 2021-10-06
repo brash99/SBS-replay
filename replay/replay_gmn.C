@@ -1,9 +1,4 @@
-R__ADD_INCLUDE_PATH($SBS/include)
-R__ADD_LIBRARY_PATH($SBS/lib64)
-R__ADD_LIBRARY_PATH($SBS/lib)
-R__LOAD_LIBRARY(libsbs.so)
-
-#if !defined(__CLING__) || defined(__ROOTCLING__)
+//#if !defined(__CLING__) || defined(__ROOTCLING__)
 #include <iostream>
 
 #include "TSystem.h"
@@ -14,6 +9,7 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "TObject.h"
 
 #include "THaEvData.h"
+#include "THaEvent.h"
 #include "THaRun.h"
 #include "THaAnalyzer.h"
 #include "THaVarList.h"
@@ -27,9 +23,11 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSHCal.h"
 #include "SBSGEMStand.h"
 #include "SBSTimingHodoscope.h"
-#endif
+#include "SBSGEMSpectrometerTracker.h"
+#include "SBSGEMTrackerBase.h"
+//#endif
 
-void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019_trigtest", long firstevent=0, long nevents=-1, int pedestalmode=0)
+void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019_trigtest", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
 {
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
@@ -84,6 +82,9 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   
   //EPAF: copied the following from replay_BBGEM.C, as this script seems to be thought to handle splits properly.
   int segcounter=0;
+
+  if( maxsegments <= 0 ) maxsegments = 1000000; 
+
   //This loop adds all file segments found to the list of THaRuns to process:
   while( segcounter < maxsegments && segment - firstsegment < maxsegments ){
 
@@ -121,8 +122,10 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  outfilename.Form( "%s/gmn_replayed_%d_seg%d_%d.root", prefix.Data(), runnum,
-		    firstsegment, lastsegment );
+  //outfilename.Form( "%s/gmn_replayed_%d_seg%d_%d.root", prefix.Data(), runnum,
+  //		    firstsegment, lastsegment );
+
+  outfilename.Form("%s/gmn_replayed_%d_nev%d.root", prefix.Data(), runnum, nevents );
 
   // Define the run(s) that we want to analyze.
   // We just set up one, but this could be many.
@@ -240,14 +243,14 @@ int main(int argc, char *argv[])
   uint firstsegment = 0;
   uint maxsegments = 0;
   string name_prefix = "e1209019_trigtest";
-  ulong firstevent=0;
-  ulong nevents=-1; 
+  long firstevent=0;
+  long nevents=-1; 
   int pedestalmode=0;
   uint nev = -1;
   if(argc<2 || argc>8){
-    cout << "Usage: replay_gmn runnum(uint) firstsegment(uint) maxsegments(uint)" 
+    cout << "Usage: replay_gmn runnum(uint) nevents(ulong) firstevent(ulong)" 
 	 << endl 
-	 << "                  name_prefix(string) firstevent(ulong) nevents(ulong)"
+	 << "                  name_prefix(string) firstsegment(uint) maxsegments(uint) "
 	 << endl 
 	 << "                  pedestalmode(int)"
 	 << endl;
@@ -261,8 +264,8 @@ int main(int argc, char *argv[])
   if(argc>=7) nevents = atoi(argv[6]);
   if(argc>=8) pedestalmode = atoi(argv[7]);
 
-  replay_gmn(runnum, firstsegment, maxsegments, 
-	     name_prefix.c_str(), firstevent, nevents, 
+  replay_gmn(runnum, nevents, firstevent, 
+	     name_prefix.c_str(), firstsegment, maxsegments, 
 	     pedestalmode);
   return 0;
 }
