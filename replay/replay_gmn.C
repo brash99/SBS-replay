@@ -27,7 +27,7 @@
 #include "SBSGEMTrackerBase.h"
 //#endif
 
-void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019_trigtest", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
+void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
 {
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
@@ -39,8 +39,10 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   bbtrig->SetModeADC(SBSModeADC::kWaveform);
   bigbite->AddDetector( bbtrig );
   
-  bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
-  bigbite->AddDetector( new SBSTimingHodoscope("hodotdc", "timing hodo") );
+  SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
+  SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
+  bigbite->AddDetector( new SBSTimingHodoscope("hodotdc", "timing hodo tdc") );
+  bigbite->AddDetector( new SBSTimingHodoscope("hodoadc", "timing hodo adc") );
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   SBSGEMSpectrometerTracker *bbgem = new SBSGEMSpectrometerTracker("gem", "BigBite Hall A GEM data");
   bool pm =  ( pedestalmode != 0 );
@@ -90,7 +92,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
     TString codafilename;
     //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
-    codafilename.Form("%s/%s_%d.evio.%d", prefix.Data(), fname_prefix, runnum, segment );
+    codafilename.Form("%s/%s_%d.evio.0.%d", prefix.Data(), fname_prefix, runnum, segment );
 
     segmentexists = true;
     

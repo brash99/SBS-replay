@@ -5,7 +5,7 @@ block sbs.hcal.a*
 block sbs.hcal.ped
 block sbs.hcal.t*
 block sbs.hcal.ped
-block sbs.hcal.*samps*
+#block sbs.hcal.*samps* # don't write the f'ing samps to the tree! do necessary analysis of the samps in the SBS-offline
 block sbs.hcal.ledbit
 block sbs.hcal.ledcount
 block sbs.hcal.*Ref*
