@@ -51,8 +51,15 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   bigbite->AddDetector(grinch_adc);
   bigbite->AddDetector(grinch_tdc);
  
-  bigbite->AddDetector( new SBSTimingHodoscope("hodotdc", "timing hodo tdc") );
-  //bigbite->AddDetector( new SBSTimingHodoscope("hodoadc", "timing hodo adc") );
+  SBSTimingHodoscope* hodotdc = new  SBSTimingHodoscope("hodotdc", "BigBite hodo");
+  hodotdc->SetModeTDC(SBSModeTDC::kTDC);
+  hodotdc->SetModeADC(SBSModeADC::kNone);
+  SBSTimingHodoscope* hodoadc = new  SBSTimingHodoscope("hodoadc", "BigBite hodo");
+  hodoadc->SetModeTDC(SBSModeTDC::kNone);
+  hodoadc->SetModeADC(SBSModeADC::kADCSimple);
+  //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
+  bigbite->AddDetector(hodotdc);
+  bigbite->AddDetector(hodoadc);
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   SBSGEMSpectrometerTracker *bbgem = new SBSGEMSpectrometerTracker("gem", "BigBite Hall A GEM data");
   bool pm =  ( pedestalmode != 0 );
@@ -72,7 +79,10 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   harm->AddDetector( sbstrig );  
   
   gHaApps->Add(harm);
-
+  
+  //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
+  //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
+  
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
