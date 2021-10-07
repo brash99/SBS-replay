@@ -42,7 +42,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
   bigbite->AddDetector( new SBSTimingHodoscope("hodotdc", "timing hodo tdc") );
-  bigbite->AddDetector( new SBSTimingHodoscope("hodoadc", "timing hodo adc") );
+  //bigbite->AddDetector( new SBSTimingHodoscope("hodoadc", "timing hodo adc") );
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   SBSGEMSpectrometerTracker *bbgem = new SBSGEMSpectrometerTracker("gem", "BigBite Hall A GEM data");
   bool pm =  ( pedestalmode != 0 );

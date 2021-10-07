@@ -1,5 +1,5 @@
 # Sample outout definition file
-block bb.grinch.*
+block bb.grinch_tdc.*
 
 # test adding histograms directly per Bradley's script:
 
