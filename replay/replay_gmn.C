@@ -62,7 +62,10 @@ void replay_gmn(int runnum=220, int firstsegment=0, int maxsegments=1, const cha
   harm->AddDetector( sbstrig );  
   
   gHaApps->Add(harm);
-
+  
+  //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
+  //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
+  
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
