@@ -18,7 +18,7 @@
 // Simple example replay script
 //
 // Ole Hansen, 11 April 2016
-void replay_bbcosmics(int run_number = 124, uint nev = -1, TString start_name = "e1209019_trigtest", uint nseg = 0)
+void replay_BBCal(int run_number = 124, uint nev = -1, TString start_name = "e1209019", uint nseg = 0)
 {
   //load SBS-offline
   // gSystem->Load("libsbs.so");
@@ -33,12 +33,19 @@ void replay_bbcosmics(int run_number = 124, uint nev = -1, TString start_name = 
   SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
   ts->SetDataOutputLevel(0);
   bigbite->AddDetector( ts );
-  SBSGenericDetector* trig= new SBSGenericDetector("trig","BigBite shower trig");
-  trig->SetModeADC(SBSModeADC::kWaveform);
-  bigbite->AddDetector( trig );
-  //  bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
-  // bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
+
+  SBSGenericDetector* bbtrig= new SBSGenericDetector("bbtrig","BigBite shower ADC trig");
+  bbtrig->SetModeADC(SBSModeADC::kADC);
+  bbtrig->SetModeTDC(SBSModeTDC::kTDC);
+  bigbite->AddDetector( bbtrig );
   gHaApps->Add(bigbite);
+
+  // SBSGenericDetector* trig= new SBSGenericDetector("trig","BigBite shower trig");
+  // trig->SetModeADC(SBSModeADC::kWaveform);
+  // bigbite->AddDetector( trig );
+  // bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
+  // bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
+  // gHaApps->Add(bigbite);
   
   // Ideal beam (perfect normal incidence and centering)
   // THaIdealBeam* ib = new THaIdealBeam("IB", "Ideal beam");
@@ -50,13 +57,13 @@ void replay_bbcosmics(int run_number = 124, uint nev = -1, TString start_name = 
   // for non-existent files, etc.
   TString exp = "bbshower";
   // Create file name patterns.
-  string firstname = "ts_bbshower_%d";
+  string firstname = "bbshower_%d";
   string endname = Form(".evio.%d",nseg);
   //string endname = Form(".evio");
   string combined(string(firstname)+endname);
   const char* RunFileNamePattern = combined.c_str();
   vector<TString> pathList;
-  pathList.push_back(".");
+  pathList.push_back("/cache/halla/sbs/raw");
   pathList.push_back(Form("%s/data","/adaqfs/home/a-onl/sbs"));
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -66,15 +73,17 @@ void replay_bbcosmics(int run_number = 124, uint nev = -1, TString start_name = 
   bool seg_ok = true;
   while(seg_ok) {
     TString data_fname;
-    //data_fname = TString::Format("%s/ts_bbshower_%d.evio.%d",getenv("DATA_DIR"),run_number,seg);
-    data_fname = TString::Format("%s/%s_%d.evio.%d",getenv("DATA_DIR"),start_name.Data(),run_number,seg);
+    data_fname = TString::Format("%s/%s_%d.evio.0.%d",getenv("DATA_DIR"),start_name.Data(),run_number,seg);
     //new THaRun( pathList, Form(RunFileNamePattern, run_number) );
+    //  for (UInt_t nn=0; nn < pathList.size(); nn++) {
+    // data_fname = TString::Format("%s/%s_%d.evio.%d",pathList[nn].Data(),start_name.Data(),run_number,seg);
     std::cout << "Looking for segment " << seg << " file " << data_fname.Data() << std::endl;
     if( gSystem->AccessPathName(data_fname)) {
       seg_ok = false;
       std::cout << "Segment " << seg << " not found. Exiting" << std::endl;
       continue;
     }
+    //  }
     run = new THaRun(data_fname);
     run->SetLastEvent(nev);
 
