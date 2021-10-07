@@ -41,6 +41,16 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   
   SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
+  grinch_adc->SetModeADC(SBSModeADC::kWaveform);
+  grinch_adc->SetModeTDC(SBSModeTDC::kNone);
+
+  grinch_tdc->SetModeTDC(SBSModeTDC::kTDC);
+  //grinch_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
+  grinch_tdc->SetModeADC(SBSModeADC::kNone);
+  grinch_tdc->SetDisableRefTDC(true);
+  bigbite->AddDetector(grinch_adc);
+  bigbite->AddDetector(grinch_tdc);
+ 
   bigbite->AddDetector( new SBSTimingHodoscope("hodotdc", "timing hodo tdc") );
   //bigbite->AddDetector( new SBSTimingHodoscope("hodoadc", "timing hodo adc") );
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );

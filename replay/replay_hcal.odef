@@ -22,7 +22,7 @@ block sbs.*
 th2f hADCtime_vs_elem_hcal 'ADC time vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_time[I] 288 0 288 200 -50 150 sbs.hcal.a_time[I]>0 
 th2f hADCint_vs_elem_hcal 'ADC integral vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_p[I] 288 0 288 100 0 100 sbs.hcal.a_p[I]>0 
 th2f hADCamp_vs_elem_hcal 'ADC amplitude vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_amp_p[I] 288 0 288 150 0 150 sbs.hcal.a_amp_p[I]>0 
-th1f hADCint 'ADC integral' sbs.hcal.a_p[50] 60 0 30 sbs.hcal.a_p[50]>0
+th1f hADCint 'ADC integral' sbs.hcal.a_p[I] 60 0 30 sbs.hcal.a_p[I]>0
 
 th3f hADC_heatmap 'ADC integral heatmap' sbs.hcal.adcrow[I] sbs.hcal.adccol[I] sbs.hcal.a_p[I] 12 0 12 24 0 24 100 0 100
 
