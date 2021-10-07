@@ -22,9 +22,9 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
     
   bb->AddDetector(bbgem);
 
-  bool pm =  ( pedestalmode != 0 );
+  //bool pm =  ( pedestalmode != 0 );
   //this will override the database setting:
-  ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetPedestalMode( pm );
+  ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetPedestalMode( pedestalmode );
   //
   //  Steering script for Hall A analyzer demo
   //
