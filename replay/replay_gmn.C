@@ -39,7 +39,27 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   bbtrig->SetModeADC(SBSModeADC::kWaveform);
   bigbite->AddDetector( bbtrig );
   
-  bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
+  SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
+  SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
+  grinch_adc->SetModeADC(SBSModeADC::kWaveform);
+  grinch_adc->SetModeTDC(SBSModeTDC::kNone);
+
+  grinch_tdc->SetModeTDC(SBSModeTDC::kTDC);
+  //grinch_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
+  grinch_tdc->SetModeADC(SBSModeADC::kNone);
+  grinch_tdc->SetDisableRefTDC(true);
+  bigbite->AddDetector(grinch_adc);
+  bigbite->AddDetector(grinch_tdc);
+ 
+  SBSTimingHodoscope* hodotdc = new  SBSTimingHodoscope("hodotdc", "BigBite hodo");
+  hodotdc->SetModeTDC(SBSModeTDC::kTDC);
+  hodotdc->SetModeADC(SBSModeADC::kNone);
+  SBSTimingHodoscope* hodoadc = new  SBSTimingHodoscope("hodoadc", "BigBite hodo");
+  hodoadc->SetModeTDC(SBSModeTDC::kNone);
+  hodoadc->SetModeADC(SBSModeADC::kADCSimple);
+  //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
+  bigbite->AddDetector(hodotdc);
+  bigbite->AddDetector(hodoadc);
   bigbite->AddDetector( new SBSTimingHodoscope("hodotdc", "timing hodo") );
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   SBSGEMSpectrometerTracker *bbgem = new SBSGEMSpectrometerTracker("gem", "BigBite Hall A GEM data");
