@@ -123,9 +123,9 @@ void hcal_e_cal_POC( int run = -1 ){
     
     cout << "p_tVec_ep.mag2() = " << p_tVec_ep.mag2() << endl;
     
-    TLorentzVector p_lVec_ep(p_tVec_ep,M_e); //Lorentz vector of track scattered electron in electron frame
-    TVector3 l_tVec(0.0,0.0,0.0); //3Vector of lab frame
-    TLorentzVector l_lVec_ep; //Lorentz vector of electron in lab frame
+    //TLorentzVector p_lVec_ep(p_tVec_ep,M_e); //Lorentz vector of track scattered electron in electron frame
+    //TVector3 l_tVec(0.0,0.0,0.0); //3Vector of lab frame
+    //TLorentzVector l_lVec_ep; //Lorentz vector of electron in lab frame
     
     double E_ep = sqrt(pow(M_e,2) - p_tVec_ep.mag2());
 
