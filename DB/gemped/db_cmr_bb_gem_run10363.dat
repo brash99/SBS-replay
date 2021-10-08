@@ -1,4 +1,4 @@
-#Sat Sep 25 12:01:29 2021
+#Fri Sep 24 20:57:45 2021
 # Copy the contents of this file into $DB_DIR/db_bb.gem.dat to use these pedestals for analysis
 # format = detname.commonmode_mean(U,V) and detname.commonmode_rms(U,V) = common-mode mean and RMS for U, V strips by APV card in order of position
 
@@ -115,9 +115,9 @@ bb.gem.m10.commonmode_meanU =
 bb.gem.m10.commonmode_rmsU = 
            11.683            10.425            9.7095            10.032             10.38            9.2963            9.2602            9.0939            8.8775            9.9374 
 bb.gem.m10.commonmode_meanV = 
-           606.63             679.8            558.04             610.1            543.05            623.28            506.19            394.22            400.45            377.19            448.21             468.8 
+           657.66            419.33            758.72            664.31             470.1            615.15            577.26            552.73            454.13            390.52             564.8            586.61 
 bb.gem.m10.commonmode_rmsV = 
-           10.552            7.1808            7.5956            8.0646            7.8216            8.6496            7.9333             7.675            8.1041            9.0645            7.0657            13.074 
+           11.085            8.0646            7.9072            8.0755            7.4267            9.7902            8.6712            8.4159            7.7914            10.334            7.7007            12.007 
 
 
 bb.gem.m11.commonmode_meanU = 
@@ -125,7 +125,7 @@ bb.gem.m11.commonmode_meanU =
 bb.gem.m11.commonmode_rmsU = 
            8.8908            7.6701            9.4697            8.5803            9.2238            10.862            12.816             12.88            8.4888            12.141 
 bb.gem.m11.commonmode_meanV = 
-           657.66            419.33            758.72            664.31             470.1            615.15            577.26            552.73            454.13            390.52             564.8            586.61 
+           606.63             679.8            558.04             610.1            543.05            623.28            506.19            394.22            400.45            377.19            448.21             468.8 
 bb.gem.m11.commonmode_rmsV = 
-           11.085            8.0646            7.9072            8.0755            7.4267            9.7902            8.6712            8.4159            7.7914            10.334            7.7007            12.007 
+           10.552            7.1808            7.5956            8.0646            7.8216            8.6496            7.9333             7.675            8.1041            9.0645            7.0657            13.074 
 
