@@ -5,6 +5,7 @@
 #include "replay_grinch.odef"
 #include "replay_hcal.odef"
 #include "replay_hodo.odef"
+#include "replay_bb.odef"
 
 ## eg 
 # variable 1 4 1  TSbcmu1  BCM x1 counts

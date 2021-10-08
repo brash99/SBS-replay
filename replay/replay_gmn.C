@@ -15,6 +15,7 @@
 #include "THaAnalyzer.h"
 #include "THaVarList.h"
 #include "THaInterface.h"
+#include "THaGoldenTrack.h"
 
 #include "SBSBigBite.h"
 #include "SBSBBShower.h"
@@ -83,6 +84,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   
   gHaApps->Add(harm);
   
+  gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
   

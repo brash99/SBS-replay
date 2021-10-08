@@ -5,26 +5,29 @@ block sbs.hcal.a*
 block sbs.hcal.ped
 block sbs.hcal.t*
 block sbs.hcal.ped
-#block sbs.hcal.*samps* # don't write the f'ing samps to the tree! do necessary analysis of the samps in the SBS-offline
+#block sbs.hcal.*samps*
 block sbs.hcal.ledbit
 block sbs.hcal.ledcount
 block sbs.hcal.*Ref*
 block sbs.*trig*
 block sbs.*clus*
 #block sbs.hcal.*
-block sbs.*
+#block sbs.*
 
 #Histograms
 
-#cut vert 
+cut signal sbs.hcal.a_time[I]>0
+
+th1f hnev_vs_elem_hcal 'NEV vs element ID : HCAL' sbs.hcal.adcelemID 288 0 288 signal
+th2f hped_vs_elem_hcal 'Pedestal vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.ped[I] 288 0 288 200 0 200 signal 
+th2f hADCtime_vs_elem_hcal 'ADC time vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_time[I] 288 0 288 200 -50 150 signal 
+th2f hADCint_vs_elem_hcal 'ADC integral vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_p[I] 288 0 288 100 0 100 signal 
+th2f hADCamp_vs_elem_hcal 'ADC amplitude vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_amp_p[I] 288 0 288 150 0 150 signal 
 
 
-th2f hADCtime_vs_elem_hcal 'ADC time vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_time[I] 288 0 288 200 -50 150 sbs.hcal.a_time[I]>0 
-th2f hADCint_vs_elem_hcal 'ADC integral vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_p[I] 288 0 288 100 0 100 sbs.hcal.a_p[I]>0 
-th2f hADCamp_vs_elem_hcal 'ADC amplitude vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.a_amp_p[I] 288 0 288 150 0 150 sbs.hcal.a_amp_p[I]>0 
-th1f hADCint 'ADC integral' sbs.hcal.a_p[I] 60 0 30 sbs.hcal.a_p[I]>0
+#th1f hADCint 'ADC integral' sbs.hcal.a_p[50] 60 0 30 sbs.hcal.a_time[50]>0
 
-th3f hADC_heatmap 'ADC integral heatmap' sbs.hcal.adcrow[I] sbs.hcal.adccol[I] sbs.hcal.a_p[I] 12 0 12 24 0 24 100 0 100
+#th3f hADC_heatmap 'ADC integral heatmap' sbs.hcal.adcrow[I] sbs.hcal.adccol[I] sbs.hcal.a_p[I] 12 0 12 24 0 24 100 0 100 signal
 
 
 
