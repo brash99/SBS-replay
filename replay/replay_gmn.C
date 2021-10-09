@@ -37,9 +37,11 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
   ts->SetDataOutputLevel(0);
   bigbite->AddDetector( ts );
+  ts->SetStoreEmptyElements(kFALSE);
   SBSGenericDetector* bbtrig= new SBSGenericDetector("bbtrig","BigBite shower ADC trig");
   bbtrig->SetModeADC(SBSModeADC::kADC);
   bbtrig->SetModeTDC(SBSModeTDC::kTDC);
+  bbtrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( bbtrig );
   gHaApps->Add(bigbite);
   
@@ -47,10 +49,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
   grinch_adc->SetModeADC(SBSModeADC::kWaveform);
   grinch_adc->SetModeTDC(SBSModeTDC::kNone);
-
+  grinch_adc->SetStoreEmptyElements(kFALSE);
+  
   grinch_tdc->SetModeTDC(SBSModeTDC::kTDC);
   //grinch_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
   grinch_tdc->SetModeADC(SBSModeADC::kNone);
+  grinch_tdc->SetStoreEmptyElements(kFALSE);
   grinch_tdc->SetDisableRefTDC(true);
   bigbite->AddDetector(grinch_adc);
   bigbite->AddDetector(grinch_tdc);
@@ -58,9 +62,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   SBSTimingHodoscope* hodotdc = new  SBSTimingHodoscope("hodotdc", "BigBite hodo");
   hodotdc->SetModeTDC(SBSModeTDC::kTDC);
   hodotdc->SetModeADC(SBSModeADC::kNone);
+  hodotdc->SetStoreEmptyElements(kFALSE);
+  
   SBSTimingHodoscope* hodoadc = new  SBSTimingHodoscope("hodoadc", "BigBite hodo");
   hodoadc->SetModeTDC(SBSModeTDC::kNone);
   hodoadc->SetModeADC(SBSModeADC::kADC);
+  hodoadc->SetStoreEmptyElements(kFALSE);
   //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
   bigbite->AddDetector(hodotdc);
   bigbite->AddDetector(hodoadc);
@@ -74,12 +81,14 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
     
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   SBSHCal* hcal =  new SBSHCal("hcal","HCAL");
-  hcal->SetStoreRawHits(kTRUE);
+  //hcal->SetStoreRawHits(kTRUE);
+  hcal->SetStoreEmptyElements(kFALSE);
   harm->AddDetector(hcal);
 
   SBSGenericDetector* sbstrig= new SBSGenericDetector("trig","HCal trigs");
   sbstrig->SetModeADC(SBSModeADC::kWaveform);
-  sbstrig->SetStoreRawHits(kTRUE);
+  //sbstrig->SetStoreRawHits(kTRUE);
+  sbstrig->SetStoreEmptyElements(kFALSE);
   harm->AddDetector( sbstrig );  
   
   gHaApps->Add(harm);
