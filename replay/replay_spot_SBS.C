@@ -27,17 +27,20 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSRasteredBeam.h"
 #endif 
 
-const std::string SCRIPT = "[replay_spot]: "; 
+const std::string SCRIPT = "[replay_spot_SBS]: "; 
 
-void replay_spot(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
+void replay_spot_SBS(const char *codaFilePath,
+                     int runNum,unsigned int firstEv,unsigned int lastEv,
+                     const char *outfileName){
 
    // set up file paths
 
    // output and cut definition files
    TString replayDir = gSystem->Getenv("SBS_REPLAY");
+   // TString replayDir = "/adaqfs/home/a-onl/dflay/workspace/SBS-replay";
    // std::cout << SCRIPT << "REPLAY DIR = " << replayDir << std::endl;
-   TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data()); 
-   TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data()); 
+   TString odef_path = Form("%s/replay/output_beam_raster_sbs.def",replayDir.Data()); 
+   TString cdef_path = Form("%s/replay/cuts_beam_raster.def"      ,replayDir.Data()); 
   
    // output ROOT file destination and name
    TString out_file = Form("%s",outfileName);
@@ -52,18 +55,18 @@ void replay_spot(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
       analyzer = new THaAnalyzer;
    }
  
-  // add the LHRS (where the beam signals are)  
-  THaHRS* HRSL = new THaHRS("L","Left arm HRS");
-  HRSL->AutoStandardDetectors(kFALSE);
-  gHaApps->Add( HRSL );
+  // need to add a spectrometer  
+  THaHRS *SBS = new THaHRS("sbs","SBS Spectrometer");
+  SBS->AutoStandardDetectors(kFALSE);
+  gHaApps->Add( SBS );
 
   // add decoder
   THaApparatus* decL = new THaDecData("DL","Misc. Decoder Data");
   gHaApps->Add( decL );
 
   // add *rastered* beam
-  THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
-  gHaApps->Add(Lrb);
+  THaApparatus* sbs = new SBSRasteredBeam("sbs","Raster Beamline for FADC");
+  gHaApps->Add(sbs);
 
   analyzer->SetEvent(event);
 
