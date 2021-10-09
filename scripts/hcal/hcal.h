@@ -16,6 +16,7 @@ namespace hcalt {
   Double_t samps_idx[MAX_HCAL_MODULES+1000] = {0};
   Double_t a[MAX_HCAL_MODULES+1000] = {0};
   Double_t a_p[MAX_HCAL_MODULES+1000] = {0};
+  Double_t a_c[MAX_HCAL_MODULES+1000] = {0};
   Double_t ped[MAX_HCAL_MODULES+1000] = {0};
   Double_t a_amp[MAX_HCAL_MODULES+1000] = {0};
   Double_t a_amp_p[MAX_HCAL_MODULES+1000] = {0};
