@@ -1,5 +1,5 @@
 # Sample run database
-#--------[ 2017-07-26 17:50:14 ]
+--------[ 2017-07-26 17:50:14 ]
 
 ebeam = 11.0
 
@@ -16,3 +16,27 @@ bb.pcentral = 2.0
 
 L.theta     = 30.0
 L.pcentral  = -1
+
+--------[ 2021-10-10 00:00:00 ] # SBS-1 kinematics for GMN:
+
+# The minimal required information in this file (for now) is the beam energy and
+# the spectrometer central angles and central momenta:
+
+ebeam = 1.92
+
+# as far as I can see only central angle and central momentum are required run parameters
+# for THaSpectrometer
+# note that pcentral is meaningless for SBS and BB, but as far as I know they are required for
+# THaSpectrometer, so I just set them to the momentum of elastically scattered electrons (protons) for
+# BB (SBS) respectively
+
+# SBS on beam right:
+sbs.theta = -33.5
+sbs.pcentral = 1.5
+
+# BB on beam left:
+bb.theta = 51.0
+bb.pcentral = 1.09
+bb.colldist = 1.51
+
+

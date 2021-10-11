@@ -4,6 +4,18 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TRandom3.h"
+#include "TChain.h"
+#include "TTree.h"
+#include "TFile.h"
+#include "TH1D.h"
+#include "TH2D.h"
+#include "TCut.h"
+#include "TCutG.h"
+#include "TEventList.h"
+#include "TMinuit.h"
+#include <iostream>
+#include <fstream>
+
 
 const double PI = TMath::Pi();
 
@@ -46,7 +58,7 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
   TVector3 GEM_xaxis = (Global_yaxis.Cross( GEM_zaxis )).Unit();
   TVector3 GEM_yaxis = (GEM_zaxis.Cross( GEM_xaxis )).Unit();
   
-  double chi2 = 0.0;
+  chi2 = 0.0;
 
   for( int i=0; i<NTRACKS; i++ ){
     //Track position at sieve plate: XSIEVE and YSIEVE have to be determined by Holly's code:
@@ -166,27 +178,97 @@ void AlignZeroField_example( const char *configfilename ){
 
   //TODO: need to declare variables and set tree branch addresses
 
-  UInt_t MAXNHITS = 10000;
+  UInt_t MAXNTRACKS = 10000;
   
   double ntracks, besttrack;
 
   //We'll use the GEM track variables directly rather than the BigBite ones to avoid confusion initially.
   //The GEM track variables are guaranteed to be given in the internal GEM coordinates:
-  vector<double> tracknhits(MAXNHITS);
-  vector<double> trackChi2NDF(MAXNHITS);
-  vector<double> trackX(MAXNHITS);
-  vector<double> trackY(MAXNHITS);
-  vector<double> trackXp(MAXNHITS);
-  vector<double> trackYp(MAXNHITS); 
-  
-  //main event loop here:
+  vector<double> tracknhits(MAXNTRACKS);
+  vector<double> trackChi2NDF(MAXNTRACKS);
+  vector<double> trackX(MAXNTRACKS);
+  vector<double> trackY(MAXNTRACKS);
+  vector<double> trackXp(MAXNTRACKS);
+  vector<double> trackYp(MAXNTRACKS); 
 
+  C->SetBranchStatus("*",0);
+
+  TString branchname;
+  
+  C->SetBranchStatus( branchname.Format("%s.track.ntrack",prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format("%s.track.chi2ndf",prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format("%s.track.x",prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format("%s.track.y",prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format("%s.track.xp",prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format("%s.track.yp",prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format("%s.track.nhits",prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format("%s.track.besttrack",prefix.Data() ), 1 );
+  //main event loop here:
+  C->SetBranchAddress( branchname.Format("%s.track.ntrack",prefix.Data() ), &ntracks );
+  C->SetBranchAddress( branchname.Format("%s.track.chi2ndf",prefix.Data() ), &(trackChi2NDF[0]) );
+  C->SetBranchAddress( branchname.Format("%s.track.x",prefix.Data() ), &(trackX[0]) );
+  C->SetBranchAddress( branchname.Format("%s.track.y",prefix.Data() ), &(trackY[0]) );
+  C->SetBranchAddress( branchname.Format("%s.track.xp",prefix.Data() ), &(trackXp[0]) );
+  C->SetBranchAddress( branchname.Format("%s.track.yp",prefix.Data() ), &(trackYp[0]) );
+  C->SetBranchAddress( branchname.Format("%s.track.nhits",prefix.Data() ), &(tracknhits[0]) );
+  C->SetBranchAddress( branchname.Format("%s.track.besttrack",prefix.Data() ), &besttrack );
+  
+
+  TH2D *hxyfp = new TH2D("hxyfp"," ; y_{fp} (m) ; x_{fp} (m)",100,-0.3,0.3,250,-1.1,1.1);
+  TH2D *hxysieve = new TH2D("hxysieve", " ; x_{sieve} (m) ; y_{sieve} (m)", 200,-0.2,0.2,400,-0.4,0.4);
+  
   long nevent=0;
+
+  TVector3 Global_yaxis(0,1,0);
+  //Not clear if we will need these:
+  TVector3 Global_xaxis(1,0,0);
+  TVector3 Global_zaxis(0,0,1);
+
+  TVector3 GEMzaxis( sin(GEMtheta)*cos(GEMphi), sin(GEMtheta)*sin(GEMphi), cos(GEMtheta) );
+  TVector3 GEMxaxis = (Global_yaxis.Cross(GEMzaxis)).Unit();
+  TVector3 GEMyaxis = (GEMzaxis.Cross(GEMxaxis)).Unit();
+  TVector3 GEMorigin( GEMX0, GEMY0, GEMZ0 );
+  TVector3 SieveOrigin(0,0,ZSIEVE);
   
   while( C->GetEntry( elist->GetEntry( nevent++ ) ) ){
-
-    //do stuff: grab track info from tree, apply cuts, fill the track arrays defined near the top of this macro (see XTRACK, YTRACK, XPTRACK, YPTRACK, XSIEVE, YSIEVE above)
     
+    //do stuff: grab track info from tree, apply cuts, fill the track arrays defined near the top of this macro (see XTRACK, YTRACK, XPTRACK, YPTRACK, XSIEVE, YSIEVE above)
+    int itr = int(besttrack);
+    if( besttrack >= 0 && ntracks <= MAXNTRACKS ){
+      hxyfp->Fill( trackY[itr], trackX[itr] );
+
+      TVector3 TrackPos_local( trackX[itr], trackY[itr], 0.0 );
+      TVector3 TrackDir_local( trackXp[itr], trackYp[itr], 1.0 );
+      TrackDir_local = TrackDir_local.Unit();
+      
+      TVector3 TrackDir_global = TrackDir_local.X() * GEMxaxis +
+	TrackDir_local.Y() * GEMyaxis +
+	TrackDir_local.Z() * GEMzaxis;
+
+      TVector3 TrackPos_global = GEMorigin + TrackPos_local.X() * GEMxaxis + TrackPos_local.Y() * GEMyaxis + TrackPos_local.Z() * GEMzaxis; 
+      
+      //Now compute intersection of track ray in global coordinates with sieve slit:
+      // (trackpos + s * trackdir - sieveorigin) dot globalzaxis = 0
+      // --> s * trackdir dot globalzaxis = (sieveorigin - trackpos) dot globalzaxis
+      double sintersect = (SieveOrigin - TrackPos_global).Dot( Global_zaxis ) /
+	( TrackDir_global.Dot( Global_zaxis ) );
+      TVector3 TrackSievePos = TrackPos_global + sintersect * TrackDir_global;
+
+      hxysieve->Fill( TrackSievePos.Y(), TrackSievePos.X() );
+    }
+
+   
+    //////// INSERT CODE TO SELECT HOLES AND ASSIGN XSIEVE VALUES HERE /////////////
+
+    /////// DO WE NEED TWO LOOPS OVER THE TREE? ONE TO FILL HISTOGRAMS AND ANOTHER TO
+    /////// DEFINE CUTS?
+    bool goodtrack = true;
+    
+  }
+
+  nevent = 0;
+  while( C->GetEntry( elist->GetEntry( nevent++ ) ) ){
+    //In this second loop, make explicit the association between sieve holes and tracks:
   }
   
   
@@ -206,12 +288,14 @@ void AlignZeroField_example( const char *configfilename ){
 
   double arglist[10];
   arglist[0]=1;
-  ExtraFit->mnexcm("SET ERR",arglist,1,ierflg);
+  FitZeroField->mnexcm("SET ERR",arglist,1,ierflg);
   
   arglist[0] = 5000;
   arglist[1] = 1.;
+
+  //Uncomment this line when we are actually set up to do a fit:
   
-  ExtraFit->mnexcm("MIGRAD",arglist,2,ierflg);
+  //FitZeroField->mnexcm("MIGRAD",arglist,2,ierflg);
 
   //TODO: grab parameters, write them out to file. Profit.
   
