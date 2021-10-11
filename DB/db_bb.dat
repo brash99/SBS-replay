@@ -314,7 +314,8 @@ grinchPIDprobatable =
 48   0.999523   0   0   0   0   0   0.000159101
 49   0.999582   0   0   0   0   0   0.000106067
 
---------[ 2021-10-10 22:39:00 ] # g4sbs 2nd-order starting optics model for BB distance = 1.85 m, current 750 A, angle = 51.0 degrees (added by AJRP). This should work better than the default model above, but we are still flying blind due to lack of survey info:
+--------[ 2021-10-10 22:39:00 ]
+# g4sbs 2nd-order starting optics model for BB distance = 1.85 m, current 750 A, angle = 51.0 degrees (added by AJRP). This should work better than the default model above, but we are still flying blind due to the lack of survey info in the final SBS-1 kinematics
 
 bb.tracker_pitch_angle = 10.24
 

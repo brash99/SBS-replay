@@ -1,5 +1,5 @@
 # Sample run database
-#--------[ 2017-07-26 17:50:14 ]
+--------[ 2017-07-26 17:50:14 ]
 
 ebeam = 11.0
 
@@ -16,3 +16,18 @@ bb.pcentral = 2.0
 
 L.theta     = 30.0
 L.pcentral  = -1
+
+--------[ 2021-10-10 00:00:00 ] # SBS-1 kinematics for GMN:
+
+ebeam = 1.92
+
+# note that pcentral is meaningless for SBS and BB, but as far as I know they are required for
+# THaSpectrometer, so I just set them to the momentum of elastically scattered electrons (protons) for
+# BB (SBS) respectively
+
+sbs.theta = 33.5
+sbs.pcentral = 1.5
+
+bb.theta = 51.0
+bb.pcentral = 1.09
+
