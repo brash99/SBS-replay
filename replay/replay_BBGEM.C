@@ -16,6 +16,8 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
 
   //  gSystem->Load("libsbs.so");
 
+  int stream = 0;
+
   SBSBigBite   *bb = new SBSBigBite("bb", "Generic apparatus");
   //SBSGEMStand *gems = new SBSGEMStand("gems", "Collection of GEMs in stand");
   SBSGEMSpectrometerTracker *bbgem = new SBSGEMSpectrometerTracker("gem", "BigBite Hall A GEM data");
@@ -66,32 +68,105 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
 
   TDatime now = TDatime();
   
+  vector<TString> pathlist;
+  pathlist.push_back( prefix );
+
+  if( prefix != "/adaqeb1/data1" )
+    pathlist.push_back( "/adaqeb1/data1" );
+
+  if( prefix != "/adaq1/data1/sbs" )
+    pathlist.push_back( "/adaq1/data1/sbs" );
+
+  if( prefix != "/cache/mss/halla/sbs/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/raw" );
+
+  for( int i=0; i<pathlist.size(); i++ ){
+    cout << "search paths = " << pathlist[i] << endl;
+  }
+
+  TDatime RunDate = TDatime(); 
+
+  int max1 = maxsegments;
+
   int segcounter=0;
+  //New: Always add first segment even if not included in request:
+  if( firstsegment > 0 ){
+    TString codafilename;
+    codafilename.Form( "%s_%d.evio.%d.%d", fname_prefix, runnum, stream, 0 );
+    
+    TString ftest(fname_prefix);
+
+    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, 0 );
+    }
+
+    new( (THaRun*) (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
+
+    ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+    //( (THaRun*) (*filelist)[segcounter] )->Init();
+    //Not sure if we need to call Init()
+    ( (THaRun*) (*filelist)[segcounter] )->Init();
+    RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
+
+    segcounter++;
+    max1++;
+  }
+  
   //This loop adds all file segments found to the list of THaRuns to process:
-  while( segcounter < maxsegments && segment - firstsegment < maxsegments ){
+  while( segcounter < max1 && segment - firstsegment < maxsegments ){
 
     TString codafilename;
     //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
-    codafilename.Form("%s/%s_%d.evio.%d", prefix.Data(), fname_prefix, runnum, segment );
+    codafilename.Form("%s_%d.evio.%d.%d", fname_prefix, runnum, stream, segment );
 
-    segmentexists = true;
-    
-    if( gSystem->AccessPathName( codafilename.Data() ) ){
-      segmentexists = false;
-    } else if( segcounter == 0 ){
-      new( (*filelist)[segcounter] ) THaRun( codafilename.Data() );
-      cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
-      //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
-      ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(1);
-      ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
-      ( (THaRun*) (*filelist)[segcounter] )->Init();
-    } else {
-      THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
-      new( (*filelist)[segcounter] ) THaRun( *rtemp );
-      ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
-      ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
-      cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
+    TString ftest(fname_prefix);
+    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, segment );
     }
+
+    segmentexists = false;
+
+    cout << "codafilename = " << codafilename << endl;
+
+    for( int ipath=0; ipath<pathlist.size(); ipath++ ){
+      TString searchname;
+      searchname.Form( "%s/%s", pathlist[ipath].Data(), codafilename.Data() );
+      
+      if( !gSystem->AccessPathName( searchname.Data() ) ){
+	segmentexists = true;
+	break;
+      }
+    }
+   
+    if( segmentexists ){
+      new( (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
+      cout << "Added segment " << segment << ", CODA file name = " << codafilename << endl;
+
+      //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
+
+      if( stream == 0 && segment == 0 ){
+	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+	( (THaRun*) (*filelist)[segcounter] )->Init();
+
+	RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
+      } else {
+	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(0);
+
+	cout << "Warning: setting date to " << RunDate.AsString() << " for stream " << stream << " segment " << segment 
+	     << endl; 
+
+	( (THaRun*) (*filelist)[segcounter] )->SetDate(RunDate);
+	( (THaRun*) (*filelist)[segcounter] )->SetNumber(UInt_t(runnum));
+      }
+      //( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+      //( (THaRun*) (*filelist)[segcounter] )->Init();
+    } // else {
+    //   THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
+    //   new( (*filelist)[segcounter] ) THaRun( *rtemp );
+    //   ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
+    //   ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+    //   cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
+    // }
     if( segmentexists ){
       segcounter++;
       lastsegment = segment;
@@ -104,8 +179,8 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  outfilename.Form( "%s/bbgem_replayed_%d_seg%d_%d.root", prefix.Data(), runnum,
-		    firstsegment, lastsegment );
+  outfilename.Form( "%s/bbgem_replayed_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
+		    stream, firstsegment, lastsegment );
 
   // Define the run(s) that we want to analyze.
   // We just set up one, but this could be many.
@@ -147,9 +222,10 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
 
     run->SetFirstEvent( firstevent );
     
-    run->SetDataRequired(1);
+    //    run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
     
-
-    analyzer->Process(run);     // start the actual analysis
+    if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
+      analyzer->Process(run);     // start the actual analysis
+    }
   }
 }
