@@ -21,13 +21,19 @@ L.pcentral  = -1
 
 ebeam = 1.92
 
+# as far as I can see only central angle and central momentum are required run parameters
+# for THaSpectrometer
 # note that pcentral is meaningless for SBS and BB, but as far as I know they are required for
 # THaSpectrometer, so I just set them to the momentum of elastically scattered electrons (protons) for
 # BB (SBS) respectively
 
-sbs.theta = 33.5
+# SBS on beam right:
+sbs.theta = -33.5
 sbs.pcentral = 1.5
 
+# BB on beam left:
 bb.theta = 51.0
 bb.pcentral = 1.09
+bb.colldist = 1.51
+
 
