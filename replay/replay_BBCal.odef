@@ -57,8 +57,6 @@ th2f hADCtime_vs_elem_trig 'ADC time vs element ID : BBTrig' bb.bbtrig.adcelemID
 th2f hADCamp_vs_elem_trig 'ADC amplitude(mV) vs element ID : BBTrig' bb.bbtrig.adcelemID[I] bb.bbtrig.a_amp_p[I] 25 0 25 100 0 100 bb.bbtrig.a_time[I]>0 
 th1f helemID_trig 'BBCal Trigger Elements (total 25 sums)' bb.bbtrig.adcelemID[I] 25 0 25 bb.bbtrig.a_time[I]>0
 # TDC
-th2f htdc_vs_elem_trig 'TDC vs element ID : BBTrig (High)' bb.bbtrig.tdcelemID[I] bb.bbtrig.tdc[I] 25 0 25 200 -200 200 
-
 th2f hped_vs_elem_trig 'Pedestal vs element ID : Trig' bb.bbtrig.adcelemID[I] bb.bbtrig.ped[I] 25 0 25 200 0 200 bb.bbtrig.a_time[I]>0 
 th2f hADCtime_vs_elem_trig 'ADC time vs element ID : Trig' bb.bbtrig.adcelemID[I] bb.bbtrig.a_time[I] 25 0 25 200 0 200 bb.bbtrig.a_time[I]>0 
 th2f hADCamp_vs_elem_trig 'ADC amplitude(mV) vs element ID : Trig' bb.bbtrig.adcelemID[I] bb.bbtrig.a_amp_p[I] 25 0 25 100 0 100 bb.bbtrig.a_time[I]>0 
