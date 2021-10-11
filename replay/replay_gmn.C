@@ -16,6 +16,7 @@
 #include "THaVarList.h"
 #include "THaInterface.h"
 #include "THaGoldenTrack.h"
+#include "THaDecData.h"
 
 #include "SBSBigBite.h"
 #include "SBSBBShower.h"
@@ -27,6 +28,7 @@
 #include "SBSTimingHodoscope.h"
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMTrackerBase.h"
+#include "SBSRasteredBeam.h"
 //#endif
 
 void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
@@ -92,6 +94,14 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   harm->AddDetector( sbstrig );  
   
   gHaApps->Add(harm);
+
+  // add decoder
+  THaApparatus* decL = new THaDecData("DL","Misc. Decoder Data");
+  gHaApps->Add( decL );
+  
+  // add *rastered* beam
+  THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
+  gHaApps->Add(Lrb);
   
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
@@ -244,8 +254,10 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   analyzer->SetEvent( event );
   analyzer->SetOutFile( outfilename.Data() );
   // File to record cuts accounting information
-  analyzer->SetSummaryFile("replay_gmn.log"); // optional
-
+  
+  prefix = gSystem->Getenv("LOG_DIR");
+  analyzer->SetSummaryFile(Form("%s/replay_gmn.log", prefix.Data()));
+  
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 

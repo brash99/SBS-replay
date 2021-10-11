@@ -7,3 +7,4 @@ export DB_DIR=$SBS_REPLAY/DB
 export DATA_DIR=$HOME/sbs/data
 export ANALYZER_CONFIGPATH=$SBS_REPLAY/replay
 export OUT_DIR=$HOME/sbs/Rootfiles
+export LOG_DIR=$HOME/sbs/AnalysisLogs
