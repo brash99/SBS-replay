@@ -19,6 +19,9 @@ L.pcentral  = -1
 
 --------[ 2021-10-10 00:00:00 ] # SBS-1 kinematics for GMN:
 
+# The minimal required information in this file (for now) is the beam energy and
+# the spectrometer central angles and central momenta:
+
 ebeam = 1.92
 
 # as far as I can see only central angle and central momentum are required run parameters
