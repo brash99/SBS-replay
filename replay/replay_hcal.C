@@ -18,9 +18,7 @@
 #include "SBSTimingHodoscope.h"
 #endif
 
-// Simple example replay script
-//
-// Ole Hansen, 11 April 2016
+//HCAL Expert Analysis Replay
 void replay_hcal(int run_number = 124, uint nev = -1, uint nseg = 0)
 {
   //load SBS-offline
@@ -37,15 +35,17 @@ void replay_hcal(int run_number = 124, uint nev = -1, uint nseg = 0)
 
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   SBSHCal* hcal =  new SBSHCal("hcal","HCAL");
-  hcal->SetStoreRawHits(kTRUE);
+  //hcal->SetStoreRawHits(kTRUE);
+  hcal->SetDataOutputLevel(1);
   harm->AddDetector(hcal);
 
   SBSGenericDetector* trig= new SBSGenericDetector("trig","HCal trigs");
-  trig->SetModeADC(SBSModeADC::kWaveform);
-  trig->SetStoreRawHits(kTRUE);
+  //trig->SetModeADC(SBSModeADC::kWaveform);
+  //trig->SetStoreRawHits(kTRUE);
+  //trig->SetDataOutputLevel(1);
   harm->AddDetector( trig );
   
-  gHaApps->Add(harm);
+  gHaApps->Add( harm );
   
   //--- Set up the run we want to replay ---
   

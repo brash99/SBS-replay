@@ -64,6 +64,15 @@
   15    250     250  # GRINCH FADC
   16    250     250  # GRINCH FADC
 
+# LHRS crate (includes beam line signals) 
+==== Crate 10 type vme
+## slot model bank 
+    14  250   250
+
+## SBSVME29 standalone crate (includes beam line signals) 
+==== Crate 1 type vme
+## slot model bank 
+    20  250   250     
 
 ## Proposed crates (16-17) for SBS side (HCal + CDet + Hadron arm GEMs, etc...)
 # Date/Time = Fri Sep  14 09:33:00 2018
