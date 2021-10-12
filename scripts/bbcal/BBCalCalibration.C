@@ -10,7 +10,7 @@
 #include "gmn_rec_tree.C"
 
 // filename
-void BBCalCalibration(const char* filename, const int Nmin = 1000, const double minMBratio = 0.1, const int printstat = 0)
+void BBCalCalibration(const char* filename, const int Nmin = 1000, const double minMBratio = 0.1, const int printstats = 0)
 {
   TFile *_file0 = TFile::Open(filename);
   TChain *C = (TChain*)_file0->Get("T");
