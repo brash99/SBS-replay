@@ -10,18 +10,7 @@ bb.gem.modules = ft0_m0 ft0_m1 ft0_m2
 	         ft2_m0 ft2_m1 ft2_m2
 	         ft3_m0 ft3_m1 ft3_m2
 		 bt0_m0 bt0_m1 bt0_m2 bt0_m3
-
-bb.gem.gridbinwidthx = 0.005
-bb.gem.gridbinwidthy = 0.005
-bb.gem.gridedgetolerancex = 0.002
-bb.gem.gridedgetolerancey = 0.002
-bb.gem.useconstraint = 1
-
-bb.gem.corrcoeff_cut = 0.6
-bb.gem.ADCasym_cut = 0.21
-bb.gem.deltat_cut = 7.9
-bb.gem.filterflag1D = 1
-bb.gem.filterflag2D = 0
+bb.gem.useconstraint = 0
 
 ## Channel maps
 bb.gem.ft0_m0.chanmap =
@@ -62,7 +51,7 @@ bb.gem.ft0_m0.rmsu = 8
 bb.gem.ft0_m0.pedv = 1500
 bb.gem.ft0_m0.rmsv = 8
 
-bb.gem.ft0_m0.position = -0.512 0.0 0.05
+bb.gem.ft0_m0.position = -0.512 0.0 0.0
 bb.gem.ft0_m0.size = 0.512 0.4096 0.003
 bb.gem.ft0_m0.angle = 0. 0. 0.
 
@@ -105,7 +94,7 @@ bb.gem.ft0_m1.rmsu = 8
 bb.gem.ft0_m1.pedv = 1500
 bb.gem.ft0_m1.rmsv = 8
 
-bb.gem.ft0_m1.position = 0.0 0.0 0.05
+bb.gem.ft0_m1.position = 0.0 0.0 0.0
 bb.gem.ft0_m1.size = 0.512 0.4096 0.003
 bb.gem.ft0_m1.angle = 0. 0. 0.
 
@@ -148,7 +137,7 @@ bb.gem.ft0_m2.rmsu = 8
 bb.gem.ft0_m2.pedv = 1500
 bb.gem.ft0_m2.rmsv = 8
 
-bb.gem.ft0_m2.position = 0.512 0.0 0.05
+bb.gem.ft0_m2.position = 0.512 0.0 0.0
 bb.gem.ft0_m2.size = 0.512 0.4096 0.003
 bb.gem.ft0_m2.angle = 0. 0. 0.
 
@@ -191,7 +180,7 @@ bb.gem.ft1_m0.rmsu = 8
 bb.gem.ft1_m0.pedv = 1500
 bb.gem.ft1_m0.rmsv = 8
 
-bb.gem.ft1_m0.position = -0.512 0.0 0.20
+bb.gem.ft1_m0.position = -0.512 0.0 0.137
 bb.gem.ft1_m0.size = 0.512 0.4096 0.003
 bb.gem.ft1_m0.angle = 0. 0. 0.
 
@@ -234,7 +223,7 @@ bb.gem.ft1_m1.rmsu = 8
 bb.gem.ft1_m1.pedv = 1500
 bb.gem.ft1_m1.rmsv = 8
 
-bb.gem.ft1_m1.position = 0.0 0.0 0.20
+bb.gem.ft1_m1.position = 0.0 0.0 0.137
 bb.gem.ft1_m1.size = 0.512 0.4096 0.003
 bb.gem.ft1_m1.angle = 0. 0. 0.
 
@@ -276,7 +265,7 @@ bb.gem.ft1_m2.rmsu = 8
 bb.gem.ft1_m2.pedv = 1500
 bb.gem.ft1_m2.rmsv = 8
 
-bb.gem.ft1_m2.position = 0.512 0.0 0.20
+bb.gem.ft1_m2.position = 0.512 0.0 0.137
 bb.gem.ft1_m2.size = 0.512 0.4096 0.003
 bb.gem.ft1_m2.angle = 0. 0. 0.
 
@@ -318,7 +307,7 @@ bb.gem.ft2_m0.rmsu = 8
 bb.gem.ft2_m0.pedv = 1500
 bb.gem.ft2_m0.rmsv = 8
 
-bb.gem.ft2_m0.position = -0.512 0.0 0.35
+bb.gem.ft2_m0.position = -0.512 0.0 0.274
 bb.gem.ft2_m0.size = 0.512 0.4096 0.003
 bb.gem.ft2_m0.angle = 0. 0. 0.
 
@@ -361,7 +350,7 @@ bb.gem.ft2_m1.rmsu = 8
 bb.gem.ft2_m1.pedv = 1500
 bb.gem.ft2_m1.rmsv = 8
 
-bb.gem.ft2_m1.position = 0.0 0.0 0.35
+bb.gem.ft2_m1.position = 0.0 0.0 0.274
 bb.gem.ft2_m1.size = 0.512 0.4096 0.003
 bb.gem.ft2_m1.angle = 0. 0. 0.
 
@@ -404,7 +393,7 @@ bb.gem.ft2_m2.rmsu = 8
 bb.gem.ft2_m2.pedv = 1500
 bb.gem.ft2_m2.rmsv = 8
 
-bb.gem.ft2_m2.position = 0.512 0.0 0.35
+bb.gem.ft2_m2.position = 0.512 0.0 0.274
 bb.gem.ft2_m2.size = 0.512 0.4096 0.003
 bb.gem.ft2_m2.angle = 0. 0. 0.
 
@@ -447,7 +436,7 @@ bb.gem.ft3_m0.rmsu = 8
 bb.gem.ft3_m0.pedv = 1500
 bb.gem.ft3_m0.rmsv = 8
 
-bb.gem.ft3_m0.position = -0.512 0.0 0.50
+bb.gem.ft3_m0.position = -0.512 0.0 0.411
 bb.gem.ft3_m0.size = 0.512 0.4096 0.003
 bb.gem.ft3_m0.angle = 0. 0. 0.
 
@@ -490,7 +479,7 @@ bb.gem.ft3_m1.rmsu = 8
 bb.gem.ft3_m1.pedv = 1500
 bb.gem.ft3_m1.rmsv = 8
 
-bb.gem.ft3_m1.position = 0.0 0.0 0.50
+bb.gem.ft3_m1.position = 0.0 0.0 0.411
 bb.gem.ft3_m1.size = 0.512 0.4096 0.003
 bb.gem.ft3_m1.angle = 0. 0. 0.
 
@@ -533,7 +522,7 @@ bb.gem.ft3_m2.rmsu = 8
 bb.gem.ft3_m2.pedv = 1500
 bb.gem.ft3_m2.rmsv = 8
 
-bb.gem.ft3_m2.position = 0.512 0.0 0.50
+bb.gem.ft3_m2.position = 0.512 0.0 0.411
 bb.gem.ft3_m2.size = 0.512 0.4096 0.003
 bb.gem.ft3_m2.angle = 0. 0. 0.
 
@@ -580,7 +569,7 @@ bb.gem.bt0_m0.rmsu = 8
 bb.gem.bt0_m0.pedv = 1500
 bb.gem.bt0_m0.rmsv = 8
 
-bb.gem.bt0_m0.position = -0.768 0.0 1.5582044
+bb.gem.bt0_m0.position = -0.768 0.0 1.5517
 bb.gem.bt0_m0.size = 0.512 0.6144 0.003
 bb.gem.bt0_m0.angle = 0. 0. 0.
 
@@ -627,7 +616,7 @@ bb.gem.bt0_m1.rmsu = 8
 bb.gem.bt0_m1.pedv = 1500
 bb.gem.bt0_m1.rmsv = 8
 
-bb.gem.bt0_m1.position = -0.256 0.0 1.5582044
+bb.gem.bt0_m1.position = -0.256 0.0 1.5517
 bb.gem.bt0_m1.size = 0.512 0.6144 0.003
 bb.gem.bt0_m1.angle = 0. 0. 0.
 
@@ -674,7 +663,7 @@ bb.gem.bt0_m2.rmsu = 8
 bb.gem.bt0_m2.pedv = 1500
 bb.gem.bt0_m2.rmsv = 8
 
-bb.gem.bt0_m2.position = 0.256 0.0 1.5582044
+bb.gem.bt0_m2.position = 0.256 0.0 1.5517
 bb.gem.bt0_m2.size = 0.512 0.6144 0.003
 bb.gem.bt0_m2.angle = 0. 0. 0.
 
@@ -721,6 +710,6 @@ bb.gem.bt0_m3.rmsu = 8
 bb.gem.bt0_m3.pedv = 1500
 bb.gem.bt0_m3.rmsv = 8
 
-bb.gem.bt0_m3.position = 0.768 0.0 1.5582044
+bb.gem.bt0_m3.position = 0.768 0.0 1.5517
 bb.gem.bt0_m3.size = 0.512 0.6144 0.003
 bb.gem.bt0_m3.angle = 0. 0. 0.
