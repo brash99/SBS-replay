@@ -64,7 +64,7 @@ bb.sh.adc.gain = 1.0
 ## BB SH front: 1.89215 m + most probable shower depth 0.065 cm 
 #bb.sh.position = 0 0 1.95715
 ## surface of shower from 1st GEM: (90.88-16.00)"x 0.0254 m = 1.901952 cm 
-bb.ps.position = 0 0 1.901952 
+bb.sh.position = 0 0 1.901952 
 
 bb.sh.xpos = 
 1.1115 1.1115 1.1115 1.1115 1.1115 1.1115 1.1115 

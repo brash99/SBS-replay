@@ -152,27 +152,27 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   int segcounter=0;
   
-  if( firstsegment > 0 ){
-    TString codafilename;
-    codafilename.Form( "%s_%d.evio.%d.%d", fname_prefix, runnum, stream, 0 );
+  // if( firstsegment > 0 ){
+  //   TString codafilename;
+  //   codafilename.Form( "%s_%d.evio.%d.%d", fname_prefix, runnum, stream, 0 );
     
-    TString ftest(fname_prefix);
+  //   TString ftest(fname_prefix);
 
-    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
-      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, 0 );
-    }
+  //   if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+  //     codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, 0 );
+  //   }
 
-    new( (THaRun*) (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
+  //   new( (THaRun*) (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
 
-    ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
-    //( (THaRun*) (*filelist)[segcounter] )->Init();
-    //Not sure if we need to call Init()
-    ( (THaRun*) (*filelist)[segcounter] )->Init();
-    RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
+  //   ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+  //   //( (THaRun*) (*filelist)[segcounter] )->Init();
+  //   //Not sure if we need to call Init()
+  //   ( (THaRun*) (*filelist)[segcounter] )->Init();
+  //   RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
 
-    segcounter++;
-    max1++;
-  }
+  //   segcounter++;
+  //   max1++;
+  // }
   
   //This loop adds all file segments found to the list of THaRuns to process:
   while( segcounter < max1 && segment - firstsegment < maxsegments ){
@@ -206,20 +206,20 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
       //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
 
-      if( stream == 0 && segment == 0 ){
-	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
-	( (THaRun*) (*filelist)[segcounter] )->Init();
+      // if( stream == 0 && segment == 0 ){
+      // 	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+      // 	( (THaRun*) (*filelist)[segcounter] )->Init();
 
-	RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
-      } else {
-	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(0);
+      // 	RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
+      // }  else {
+      // 	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(0);
 
-	cout << "Warning: setting date to " << RunDate.AsString() << " for stream " << stream << " segment " << segment 
-	     << endl; 
+      // 	cout << "Warning: setting date to " << RunDate.AsString() << " for stream " << stream << " segment " << segment 
+      // 	     << endl; 
 
-	( (THaRun*) (*filelist)[segcounter] )->SetDate(RunDate);
-	( (THaRun*) (*filelist)[segcounter] )->SetNumber(UInt_t(runnum));
-      }
+      // 	( (THaRun*) (*filelist)[segcounter] )->SetDate(RunDate);
+      // 	( (THaRun*) (*filelist)[segcounter] )->SetNumber(UInt_t(runnum));
+      // }
       //( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
       //( (THaRun*) (*filelist)[segcounter] )->Init();
     } // else {
@@ -277,7 +277,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
     run->SetFirstEvent( firstevent );
     
-    //    run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+    run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
     
     if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
       analyzer->Process(run);     // start the actual analysis
