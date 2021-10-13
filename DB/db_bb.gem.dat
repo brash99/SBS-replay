@@ -417,7 +417,7 @@ bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004 
 bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
-bb.gem.trackchi2cut = 150.0
+bb.gem.trackchi2cut = 300.0
 bb.gem.onlinezerosuppression = 0
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.minhitsontrack = 3
@@ -425,10 +425,10 @@ bb.gem.maxhitcombos = 10000
 bb.gem.maxhitcombos_inner = 10000
 bb.gem.maxhitcombos_total = 1000000000
 bb.gem.tryfasttrack = 1
-bb.gem.gridbinwidthx = 0.05
-bb.gem.gridbinwidthy = 0.05
-bb.gem.gridedgetolerancex = 0.02
-bb.gem.gridedgetolerancey = 0.02
+bb.gem.gridbinwidthx = 0.01
+bb.gem.gridbinwidthy = 0.01
+bb.gem.gridedgetolerancex = 0.003
+bb.gem.gridedgetolerancey = 0.003
 bb.gem.useconstraint = 0
 
 ################### DECODE INFO ########################################################################
