@@ -86,11 +86,20 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
 
   TDatime RunDate = TDatime(); 
 
+  int max1 = maxsegments;
+
   int segcounter=0;
   //New: Always add first segment even if not included in request:
   if( firstsegment > 0 ){
     TString codafilename;
     codafilename.Form( "%s_%d.evio.%d.%d", fname_prefix, runnum, stream, 0 );
+    
+    TString ftest(fname_prefix);
+
+    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, 0 );
+    }
+
     new( (THaRun*) (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
 
     ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
@@ -100,14 +109,20 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
     RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
 
     segcounter++;
+    max1++;
   }
   
   //This loop adds all file segments found to the list of THaRuns to process:
-  while( segcounter < maxsegments && segment - firstsegment < maxsegments ){
+  while( segcounter < max1 && segment - firstsegment < maxsegments ){
 
     TString codafilename;
     //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
     codafilename.Form("%s_%d.evio.%d.%d", fname_prefix, runnum, stream, segment );
+
+    TString ftest(fname_prefix);
+    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, segment );
+    }
 
     segmentexists = false;
 

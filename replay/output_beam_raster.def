@@ -199,15 +199,18 @@ TH2F fdrastraw_x_bpmb_y 'Down Fast Raster Current X vs BPMB Y' Lrb.Raster2.rawcu
 
 #Project to the target and the collimator 
 #Distance between BPMs = 5.14633, distance from A to collimator = 7.27894, distance from BPMA to target = 6.37394
-FORMULA colx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/5.14633*7.27894+1000.*Lrb.BPMA.x
-FORMULA coly 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/5.14633*7.27894+1000.*Lrb.BPMA.y
-FORMULA targx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/5.14633*6.37394+1000.*Lrb.BPMA.x
-FORMULA targy 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/5.14533*6.37394+1000.*Lrb.BPMA.y
+# FORMULA colx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/5.14633*7.27894+1000.*Lrb.BPMA.x
+# FORMULA coly 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/5.14633*7.27894+1000.*Lrb.BPMA.y
+# FORMULA targx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/5.14633*6.37394+1000.*Lrb.BPMA.x
+# FORMULA targy 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/5.14533*6.37394+1000.*Lrb.BPMA.y
+# As of 10-08-21 
+FORMULA targx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/4.083*5.969+1000.*Lrb.BPMA.x
+FORMULA targy 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/4.083*5.969+1000.*Lrb.BPMA.y
 
-TH1F col_x 'x at collimator [mm]' colx 4000 -5. 5.
-TH1F col_y 'y at collimator [mm]' coly 4000 -5. 5.
+# TH1F col_x 'x at collimator [mm]' colx 4000 -5. 5.
+# TH1F col_y 'y at collimator [mm]' coly 4000 -5. 5.
 TH1F targ_x 'x at target [mm]' targx 4000 -5. 5.
 TH1F targ_y 'y at target [mm]' targy 4000 -5. 5.
 
-TH2F col_xy 'Postion at collimator [mm]' colx coly 4000 -5. 5. 4000 -5. 5.
+# TH2F col_xy 'Postion at collimator [mm]' colx coly 4000 -5. 5. 4000 -5. 5.
 TH2F targ_xy 'Postion at target [mm]' targx targy 4000 -5. 5. 4000 -5. 5.

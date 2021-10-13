@@ -7,6 +7,7 @@
 #include "TFile.h"
 #include "TList.h"
 #include "TObject.h"
+#include "TClonesArray.h"
 
 #include "THaEvData.h"
 #include "THaEvent.h"
@@ -14,6 +15,8 @@
 #include "THaAnalyzer.h"
 #include "THaVarList.h"
 #include "THaInterface.h"
+#include "THaGoldenTrack.h"
+#include "THaDecData.h"
 
 #include "SBSBigBite.h"
 #include "SBSBBShower.h"
@@ -25,6 +28,7 @@
 #include "SBSTimingHodoscope.h"
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMTrackerBase.h"
+#include "SBSRasteredBeam.h"
 //#endif
 
 void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
@@ -35,18 +39,24 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
   ts->SetDataOutputLevel(0);
   bigbite->AddDetector( ts );
-  SBSGenericDetector* bbtrig= new SBSGenericDetector("trig","BigBite shower trig");
-  bbtrig->SetModeADC(SBSModeADC::kWaveform);
+  ts->SetStoreEmptyElements(kFALSE);
+  SBSGenericDetector* bbtrig= new SBSGenericDetector("bbtrig","BigBite shower ADC trig");
+  bbtrig->SetModeADC(SBSModeADC::kADC);
+  bbtrig->SetModeTDC(SBSModeTDC::kTDC);
+  bbtrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( bbtrig );
+  gHaApps->Add(bigbite);
   
   SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
   grinch_adc->SetModeADC(SBSModeADC::kWaveform);
   grinch_adc->SetModeTDC(SBSModeTDC::kNone);
-
+  grinch_adc->SetStoreEmptyElements(kFALSE);
+  
   grinch_tdc->SetModeTDC(SBSModeTDC::kTDC);
   //grinch_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
   grinch_tdc->SetModeADC(SBSModeADC::kNone);
+  grinch_tdc->SetStoreEmptyElements(kFALSE);
   grinch_tdc->SetDisableRefTDC(true);
   bigbite->AddDetector(grinch_adc);
   bigbite->AddDetector(grinch_tdc);
@@ -54,9 +64,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   SBSTimingHodoscope* hodotdc = new  SBSTimingHodoscope("hodotdc", "BigBite hodo");
   hodotdc->SetModeTDC(SBSModeTDC::kTDC);
   hodotdc->SetModeADC(SBSModeADC::kNone);
+  hodotdc->SetStoreEmptyElements(kFALSE);
+  
   SBSTimingHodoscope* hodoadc = new  SBSTimingHodoscope("hodoadc", "BigBite hodo");
   hodoadc->SetModeTDC(SBSModeTDC::kNone);
-  hodoadc->SetModeADC(SBSModeADC::kADCSimple);
+  hodoadc->SetModeADC(SBSModeADC::kADC);
+  hodoadc->SetStoreEmptyElements(kFALSE);
   //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
   bigbite->AddDetector(hodotdc);
   bigbite->AddDetector(hodoadc);
@@ -70,16 +83,27 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
     
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   SBSHCal* hcal =  new SBSHCal("hcal","HCAL");
-  hcal->SetStoreRawHits(kTRUE);
+  //hcal->SetStoreRawHits(kTRUE);
+  hcal->SetStoreEmptyElements(kFALSE);
   harm->AddDetector(hcal);
 
   SBSGenericDetector* sbstrig= new SBSGenericDetector("trig","HCal trigs");
   sbstrig->SetModeADC(SBSModeADC::kWaveform);
-  sbstrig->SetStoreRawHits(kTRUE);
+  //sbstrig->SetStoreRawHits(kTRUE);
+  sbstrig->SetStoreEmptyElements(kFALSE);
   harm->AddDetector( sbstrig );  
   
   gHaApps->Add(harm);
+
+  // add decoder
+  THaApparatus* decL = new THaDecData("DL","Misc. Decoder Data");
+  gHaApps->Add( decL );
   
+  // add *rastered* beam
+  THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
+  gHaApps->Add(Lrb);
+  
+  gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
   
@@ -98,10 +122,170 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   int lastsegment=firstsegment;
   
-  TClonesArray *filelist = new TClonesArray("THaRun",10);
-
   TDatime now = TDatime();
   
+  
+  //EPAF: copied the following from replay_BBGEM.C, as this script seems to be thought to handle splits properly.
+  int stream = 0;
+ 
+  TClonesArray *filelist = new TClonesArray("THaRun",10);
+
+  vector<TString> pathlist;
+  pathlist.push_back( prefix );
+
+  if( prefix != "/adaqeb1/data1" )
+    pathlist.push_back( "/adaqeb1/data1" );
+
+  if( prefix != "/adaq1/data1/sbs" )
+    pathlist.push_back( "/adaq1/data1/sbs" );
+
+  if( prefix != "/cache/mss/halla/sbs/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/raw" );
+
+  for( int i=0; i<pathlist.size(); i++ ){
+    cout << "search paths = " << pathlist[i] << endl;
+  }
+
+  TDatime RunDate = TDatime(); 
+
+  int max1 = maxsegments;
+
+  int segcounter=0;
+  
+  if( firstsegment > 0 ){
+    TString codafilename;
+    codafilename.Form( "%s_%d.evio.%d.%d", fname_prefix, runnum, stream, 0 );
+    
+    TString ftest(fname_prefix);
+
+    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, 0 );
+    }
+
+    new( (THaRun*) (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
+
+    ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+    //( (THaRun*) (*filelist)[segcounter] )->Init();
+    //Not sure if we need to call Init()
+    ( (THaRun*) (*filelist)[segcounter] )->Init();
+    RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
+
+    segcounter++;
+    max1++;
+  }
+  
+  //This loop adds all file segments found to the list of THaRuns to process:
+  while( segcounter < max1 && segment - firstsegment < maxsegments ){
+    
+    TString codafilename;
+    //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
+    codafilename.Form("%s_%d.evio.%d.%d", fname_prefix, runnum, stream, segment );
+
+    TString ftest(fname_prefix);
+    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, segment );
+    }
+
+    segmentexists = false;
+
+    cout << "codafilename = " << codafilename << endl;
+
+    for( int ipath=0; ipath<pathlist.size(); ipath++ ){
+      TString searchname;
+      searchname.Form( "%s/%s", pathlist[ipath].Data(), codafilename.Data() );
+      
+      if( !gSystem->AccessPathName( searchname.Data() ) ){
+	segmentexists = true;
+	break;
+      }
+    }
+   
+    if( segmentexists ){
+      new( (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
+      cout << "Added segment " << segment << ", CODA file name = " << codafilename << endl;
+
+      //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
+
+      if( stream == 0 && segment == 0 ){
+	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+	( (THaRun*) (*filelist)[segcounter] )->Init();
+
+	RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
+      } else {
+	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(0);
+
+	cout << "Warning: setting date to " << RunDate.AsString() << " for stream " << stream << " segment " << segment 
+	     << endl; 
+
+	( (THaRun*) (*filelist)[segcounter] )->SetDate(RunDate);
+	( (THaRun*) (*filelist)[segcounter] )->SetNumber(UInt_t(runnum));
+      }
+      //( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+      //( (THaRun*) (*filelist)[segcounter] )->Init();
+    } // else {
+    //   THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
+    //   new( (*filelist)[segcounter] ) THaRun( *rtemp );
+    //   ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
+    //   ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+    //   cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
+    // }
+    if( segmentexists ){
+      segcounter++;
+      lastsegment = segment;
+    }
+    segment++;
+  }
+
+  cout << "n segments to analyze = " << segcounter << endl;
+
+  prefix = gSystem->Getenv("OUT_DIR");
+
+  TString outfilename;
+  outfilename.Form( "%s/gmn_replayed_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
+		    stream, firstsegment, lastsegment );
+ 
+
+  analyzer->SetVerbosity(2);
+  analyzer->SetMarkInterval(100);
+
+  analyzer->EnableBenchmarks();
+  
+  // Define the analysis parameters
+  analyzer->SetEvent( event );
+  analyzer->SetOutFile( outfilename.Data() );
+  // File to record cuts accounting information
+  
+  prefix = gSystem->Getenv("LOG_DIR");
+  analyzer->SetSummaryFile(Form("%s/replay_gmn.log", prefix.Data()));
+  
+  prefix = gSystem->Getenv("SBS_REPLAY");
+  prefix += "/replay/";
+
+  TString odef_filename = "replay_gmn.odef";
+  
+  odef_filename.Prepend( prefix );
+
+  analyzer->SetOdefFile( odef_filename );
+  
+  //analyzer->SetCompressionLevel(0); // turn off compression
+
+  filelist->Compress();
+
+  for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
+    THaRun *run = ( (THaRun*) (*filelist)[iseg] );
+    if( nevents > 0 ) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
+
+    run->SetFirstEvent( firstevent );
+    
+    //    run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+    
+    if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
+      analyzer->Process(run);     // start the actual analysis
+    }
+  }
+  
+  /*
+  //old stuff
   //EPAF: copied the following from replay_BBGEM.C, as this script seems to be thought to handle splits properly.
   int segcounter=0;
 
@@ -195,66 +379,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
     analyzer->Process(run);     // start the actual analysis
   }
   
-  /*
-  TString run_file = Form("%s.root", filebase);
-  if(std::getenv("DATA_DIR")){
-    run_file = Form("%s/%s.root", std::string(std::getenv("DATA_DIR")).c_str(), filebase);
-  }
-  
-  if( gSystem->AccessPathName(run_file) ) {
-    Error("replay.C", "Input file does not exist: %s", run_file.Data() );
-    exit(-1);
-  }
-
-  THaRunBase *run = new SBSSimFile(run_file.Data(), "gmn", "");
-  run->SetFirstEvent(0);
-
-  cout << "Number of events to replay (-1=all)? ";
-  //if( nev > 0 )
-  //run->SetFirstEvent(110);
-  run->SetLastEvent(nev);
-  
-  run->SetDataRequired(0);
-  run->SetDate(TDatime());
-  
-  TString out_dir = gSystem->Getenv("OUT_DIR");
-  if( out_dir.IsNull() )
-    out_dir = ".";
-  TString out_file = out_dir + "/" + Form("replayed_%s.root", filebase);
-  
-  analyzer->SetOutFile( out_file.Data() );
-  cout << "output file " << out_file.Data() << " set up " << endl; 
-  // File to record cuts accounting information
-  analyzer->SetSummaryFile("sbs_hcal_test.log"); // optional
-
-  // Change the cratemap to point to the sim one
-  analyzer->SetCrateMapFileName("sbssim_cratemap");
-
-  cout << "sim crate map setup " << endl;
-  
-  analyzer->SetCutFile( "replay_gmn.cdef" );
-  analyzer->SetOdefFile( "replay_gmn.odef" );
-  
-  cout << "cut file and out file processed " << endl;
-  
-  analyzer->SetVerbosity(2);  // write cut summary to stdout
-  analyzer->EnableBenchmarks();
-  
-  run->Print();
-  
-  cout << "about to process " << endl;
-  analyzer->Process(run);
-
-  // Clean up
-
-  analyzer->Close();
-  delete analyzer;
-  //gHaCuts->Clear();
-  gHaVars->Clear();
-  gHaPhysics->Delete();
-  gHaApps->Delete();
   */
-  
 }
 
 
