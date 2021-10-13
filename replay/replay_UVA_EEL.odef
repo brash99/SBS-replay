@@ -23,22 +23,24 @@ cut anytrack sbs.uvagem.track.ntrack>0
 
 # Histogram definitions: 
 # layers fired, strip and cluster multiplicities
-th1d hsbs_uvagem_Nlayers_hit 'Number of layers with fired strips (u/x OR v/y)' sbs.uvagem.nlayershit 6 -0.5 5.5
-th1d hsbs_uvagem_Nlayers_hitu 'Number of layers with fired U/X strips' sbs.uvagem.nlayershitu 6 -0.5 5.5
-th1d hsbs_uvagem_Nlayers_hitv 'Number of layers with fired V/Y strips' sbs.uvagem.nlayershitv 6 -0.5 5.5
-th1d hsbs_uvagem_Nlayers_hituv 'Number of layers with 2D hits' sbs.uvagem.nlayershituv 6 -0.5 5.5
 
-th2d hsbs_uvagem_NstripsU_layer 'Number of U/X strips fired by layer' [I] sbs.uvagem.nstripsu_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
-th2d hsbs_uvagem_NstripsV_layer 'Number of V/Y strips fired by layer' [I] sbs.uvagem.nstripsv_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
-th2d hsbs_uvagem_NclustU_layer 'Number of U/X clusters by layer' [I] sbs.uvagem.nclustu_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
-th2d hsbs_uvagem_NclustV_layer 'Number of V/Y clusters by layer' [I] sbs.uvagem.nclustv_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
-th2d hsbs_uvagem_Nclust2D_layer 'Number of 2D hits by layer' [I] sbs.uvagem.n2Dhit_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
+th1d hsbs_uvagem_Nlayers_hit ';Number of layers with fired strips (u/x OR v/y);' sbs.uvagem.nlayershit 6 -0.5 5.5
+th1d hsbs_uvagem_Nlayers_hitu ';Number of layers with fired U/X strips;' sbs.uvagem.nlayershitu 6 -0.5 5.5
+th1d hsbs_uvagem_Nlayers_hitv ';Number of layers with fired V/Y strips;' sbs.uvagem.nlayershitv 6 -0.5 5.5
+th1d hsbs_uvagem_Nlayers_hituv ;'Number of layers with 2D hits;' sbs.uvagem.nlayershituv 6 -0.5 5.5
 
-th1d hsbs_uvagem_clustwidthU 'U/X cluster size in strips (clusters on tracks)' sbs.uvagem.hit.nstripu 10 0.5 10.5 singletrack
-th1d hsbs_uvagem_clustwidthV 'V/Y cluster size in strips (clusters on tracks)' sbs.uvagem.hit.nstripv 10 0.5 10.5 singletrack
-th2d hsbs_uvagem_clustwidthVvsU 'V/Y cluster size vs U/X cluster size' sbs.uvagem.hit.nstripu sbs.uvagem.hit.nstripv 10 0.5 10.5 10 0.5 10.5 singletrack
-th2d hsbs_uvagem_clustwidthU_vs_module 'U/X cluster size by module' sbs.uvagem.hit.module sbs.uvagem.hit.nstripu 20 -0.5 19.5 10 0.5 10.5 singletrack
-th2d hsbs_uvagem_clustwidthV_vs_module 'V/Y cluster size by module' sbs.uvagem.hit.module sbs.uvagem.hit.nstripv 20 -0.5 19.5 10 0.5 10.5 singletrack
+th2d hsbs_uvagem_NstripsU_layer ';layer;Number of U/X strips fired' [I] sbs.uvagem.nstripsu_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
+th2d hsbs_uvagem_NstripsV_layer ';layer;Number of V/Y strips fired' [I] sbs.uvagem.nstripsv_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
+th2d hsbs_uvagem_NclustU_layer ';layer;Number of U/X clusters' [I] sbs.uvagem.nclustu_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
+th2d hsbs_uvagem_NclustV_layer ';layer;Number of V/Y clusters' [I] sbs.uvagem.nclustv_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
+th2d hsbs_uvagem_Nclust2D_layer ';layer;Number of 2D hits' [I] sbs.uvagem.n2Dhit_layer[I] 5 -0.5 4.5 1001 -0.5 1000.5
+
+th1d hsbs_uvagem_clustwidthU 'U/X clusters on tracks; cluster size in strips' sbs.uvagem.hit.nstripu 10 0.5 10.5 singletrack
+th1d hsbs_uvagem_clustwidthV 'V/Y clusters on tracks; cluster size in strips' sbs.uvagem.hit.nstripv 10 0.5 10.5 singletrack
+th2d hsbs_uvagem_clustwidthVvsU '2D hits on tracks; U/X cluster size ; V/Y cluster size' sbs.uvagem.hit.nstripu sbs.uvagem.hit.nstripv 10 0.5 10.5 10 0.5 10.5 singletrack
+th2d hsbs_uvagem_clustwidthU_vs_module ';module;U/X cluster size' sbs.uvagem.hit.module sbs.uvagem.hit.nstripu 20 -0.5 19.5 10 0.5 10.5 singletrack
+th2d hsbs_uvagem_clustwidthV_vs_module ';module;V/Y cluster size' sbs.uvagem.hit.module sbs.uvagem.hit.nstripv 20 -0.5 19.5 10 0.5 10.5 singletrack
+
 th1d hsbs_uvagem_clust_Utime 'U/X cluster time (ns)' sbs.uvagem.hit.Utime 150 0 150 singletrack
 th1d hsbs_uvagem_clust_Vtime 'V/Y cluster time (ns)' sbs.uvagem.hit.Vtime 150 0 150 singletrack
 th2d hsbs_uvagem_clust_UVtime 'V/Y vs U/X cluster time (ns)' sbs.uvagem.hit.Utime sbs.uvagem.hit.Vtime 150 0 150 150 0 150 singletrack

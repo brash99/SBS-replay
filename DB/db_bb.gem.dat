@@ -64,6 +64,8 @@ bb.gem.m2.commonmode_range_nsigma = 10.0
 bb.gem.m3.commonmode_range_nsigma = 10.0
 
 
+bb.gem.plot_event_info = 1
+
 # to start with, let's not worry about the misalignments, let's put everything at its nominal/ideal position:
 
 #bb.gem.m0.position = 0 0 0
