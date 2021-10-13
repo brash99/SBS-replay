@@ -209,6 +209,26 @@ void BBCalCalibration(const char* filename, const int Nmin = 1000, const double 
   TMatrixD M_jk_inv = M_jk.Invert();
   TMatrixD C_j = M_jk_inv*B_j;
   
+  int nsh = 0;
+  int nps = 0;
+  double avg_sh = 0;
+  double avg_ps = 0;
+  for(int k = 0; k<189; k++){
+    if(!badcells[k]){
+      nsh++;
+      avg_sh+= C_j(k, 0);
+    }
+  }
+  avg_sh/= nsh;
+  for(int k = 189; k<241; k++){
+    if(!badcells[k]){
+      nps++;
+      avg_ps+= C_j(k, 0);
+    }
+  }
+  avg_ps/= nps;
+  
+  
   cout << endl;
   k = 0;
   //C_j.Print();
@@ -218,9 +238,9 @@ void BBCalCalibration(const char* filename, const int Nmin = 1000, const double 
   for(int i = 0; i<27; i++){
     for(int j = 0; j<7; j++){
       if(badcells[k]){
-	cout << 1.0 << "  ";
+	cout << avg_sh << "  ";
       }else{
-	cout << abs(C_j(k, 0)) << "  ";
+	cout << C_j(k, 0) << "  ";
       }
       k++;
     }
@@ -234,9 +254,9 @@ void BBCalCalibration(const char* filename, const int Nmin = 1000, const double 
   for(int i = 0; i<26; i++){
     for(int j = 0; j<2; j++){
       if(badcells[k]){
-	cout << 1.0 << "  ";
+	cout << avg_ps << "  ";
       }else{
-	cout << abs(C_j(k, 0)) << "  ";
+	cout << C_j(k, 0) << "  ";
       }
       k++;
     }
@@ -251,9 +271,9 @@ void BBCalCalibration(const char* filename, const int Nmin = 1000, const double 
   for(int i = 0; i<27; i++){
     for(int j = 0; j<7; j++){
       if(badcells[k]){
-	cout << 1.0 << " +- " << 1.0 << endl;
+	cout << avg_sh << " +- " << 1.0 << endl;
       }else{
-	cout << abs(C_j(k, 0)) << " +- "<< sqrt(fabs(M_jk(k,k))) << endl;
+	cout << C_j(k, 0) << " +- "<< sqrt(fabs(M_jk(k,k))) << endl;
       }
       k++;
     }
@@ -264,9 +284,9 @@ void BBCalCalibration(const char* filename, const int Nmin = 1000, const double 
   for(int i = 0; i<26; i++){
     for(int j = 0; j<2; j++){
       if(badcells[k]){
-	cout << 1.0 << " +- " << 1.0 << endl;
+	cout << avg_ps << " +- " << 1.0 << endl;
       }else{
-	cout << abs(C_j(k, 0)) << " +- "<< sqrt(fabs(M_jk(k,k))) << endl;
+	cout << C_j(k, 0) << " +- "<< sqrt(fabs(M_jk(k,k))) << endl;
       }
       k++;
     }
