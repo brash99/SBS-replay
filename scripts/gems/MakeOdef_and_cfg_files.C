@@ -24,6 +24,8 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   vector<double> mod_x0, mod_y0, mod_z0;
   vector<TString> modname;
   vector<TString> modname_nodots;
+
+  vector<TString> moddesc;
   
   TString currentline;
 
@@ -59,10 +61,28 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
 	    modname_nodots.push_back( nametemp.Format("%s_m%d", nametemp.Data(), i ) );
 	    
-	    
+	    moddesc.push_back( modname[i] ); //default mod description to mod name
 	  }
 	}
 
+	if( skey == "moddesc" ){ //override module descriptions (for config file):
+
+	  TString moddescstring = currentline;
+	  moddescstring.ReplaceAll("moddesc","");
+
+	  TObjArray *moddesc_tokens = moddescstring.Tokenize(";"); 
+
+	  if( moddesc_tokens->GetEntries() >= nmodules ){
+	    for( int i=0; i<nmodules; i++ ){
+	      moddesc[i] = ( ( TObjString*) (*moddesc_tokens)[i] )->GetString();
+	      moddesc[i].Remove(TString::kBoth, ' '); //this should remove leading and trailing spaces
+
+	      cout << "\"" << moddesc[i] << "\"" << endl;
+	      
+	    }
+	  }
+	}
+	
 	if( skey == "nlayers" ){
 	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 
@@ -245,177 +265,177 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   TString histdef;
 
   
-  odef_file << histdef.Format( "th1d h%s_Nlayers_hit 'Number of layers with fired strips (u/x OR v/y)' %s.nlayershit %d %g %g",
+  odef_file << histdef.Format( "th1d h%s_Nlayers_hit ';Number of layers with fired strips (u/x OR v/y);' %s.nlayershit %d %g %g",
 			       detname_nodots.Data(), detname.Data(), nlayers+1, -0.5, nlayers+0.5 ) << endl;
-  odef_file << histdef.Format( "th1d h%s_Nlayers_hitu 'Number of layers with fired U/X strips' %s.nlayershitu %d %g %g",
+  odef_file << histdef.Format( "th1d h%s_Nlayers_hitu ';Number of layers with fired U/X strips;' %s.nlayershitu %d %g %g",
 			       detname_nodots.Data(), detname.Data(), nlayers+1, -0.5, nlayers+0.5 ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_Nlayers_hitv 'Number of layers with fired V/Y strips' %s.nlayershitv %d %g %g",
+  odef_file << histdef.Format( "th1d h%s_Nlayers_hitv ';Number of layers with fired V/Y strips;' %s.nlayershitv %d %g %g",
 			       detname_nodots.Data(), detname.Data(), nlayers+1, -0.5, nlayers+0.5 ) << endl;
-  odef_file << histdef.Format( "th1d h%s_Nlayers_hituv 'Number of layers with 2D hits' %s.nlayershituv %d %g %g",
+  odef_file << histdef.Format( "th1d h%s_Nlayers_hituv ';Number of layers with 2D hits;' %s.nlayershituv %d %g %g",
 			       detname_nodots.Data(), detname.Data(), nlayers+1, -0.5, nlayers+0.5 ) << endl << endl;
 
 
   
-  odef_file << histdef.Format( "th2d h%s_NstripsU_layer 'Number of U/X strips fired by layer' [I] %s.nstripsu_layer[I] %d %g %g 1001 -0.5 1000.5",
+  odef_file << histdef.Format( "th2d h%s_NstripsU_layer ';layer;Number of U/X strips fired' [I] %s.nstripsu_layer[I] %d %g %g 1001 -0.5 1000.5",
 			       detname_nodots.Data(), detname.Data(), nlayers, -0.5, nlayers-.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_NstripsV_layer 'Number of V/Y strips fired by layer' [I] %s.nstripsv_layer[I] %d %g %g 1001 -0.5 1000.5",
+  odef_file << histdef.Format( "th2d h%s_NstripsV_layer ';layer;Number of V/Y strips fired' [I] %s.nstripsv_layer[I] %d %g %g 1001 -0.5 1000.5",
 			       detname_nodots.Data(), detname.Data(), nlayers, -0.5, nlayers-0.5 ) << endl;
 
 
-  odef_file << histdef.Format( "th2d h%s_NclustU_layer 'Number of U/X clusters by layer' [I] %s.nclustu_layer[I] %d %g %g 1001 -0.5 1000.5",
+  odef_file << histdef.Format( "th2d h%s_NclustU_layer ';layer;Number of U/X clusters' [I] %s.nclustu_layer[I] %d %g %g 1001 -0.5 1000.5",
 			       detname_nodots.Data(), detname.Data(), nlayers, -0.5, nlayers-0.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_NclustV_layer 'Number of V/Y clusters by layer' [I] %s.nclustv_layer[I] %d %g %g 1001 -0.5 1000.5",
+  odef_file << histdef.Format( "th2d h%s_NclustV_layer ';layer;Number of V/Y clusters' [I] %s.nclustv_layer[I] %d %g %g 1001 -0.5 1000.5",
 			       detname_nodots.Data(), detname.Data(), nlayers, -0.5, nlayers-0.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_Nclust2D_layer 'Number of 2D hits by layer' [I] %s.n2Dhit_layer[I] %d %g %g 1001 -0.5 1000.5",
+  odef_file << histdef.Format( "th2d h%s_Nclust2D_layer ';layer;Number of 2D hits' [I] %s.n2Dhit_layer[I] %d %g %g 1001 -0.5 1000.5",
 			       detname_nodots.Data(), detname.Data(), nlayers, -0.5, nlayers-0.5 ) << endl << endl;
 
 
-  odef_file << histdef.Format( "th1d h%s_clustwidthU 'U/X cluster size in strips (clusters on tracks)' %s.hit.nstripu 10 0.5 10.5 singletrack",
+  odef_file << histdef.Format( "th1d h%s_clustwidthU 'U/X clusters on tracks; cluster size in strips' %s.hit.nstripu 10 0.5 10.5 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_clustwidthV 'V/Y cluster size in strips (clusters on tracks)' %s.hit.nstripv 10 0.5 10.5 singletrack",
+  odef_file << histdef.Format( "th1d h%s_clustwidthV 'V/Y clusters on tracks; cluster size in strips' %s.hit.nstripv 10 0.5 10.5 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_clustwidthVvsU 'V/Y cluster size vs U/X cluster size' %s.hit.nstripu %s.hit.nstripv 10 0.5 10.5 10 0.5 10.5 singletrack",
+  odef_file << histdef.Format( "th2d h%s_clustwidthVvsU '2D hits on tracks; U/X cluster size ; V/Y cluster size' %s.hit.nstripu %s.hit.nstripv 10 0.5 10.5 10 0.5 10.5 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
 
 
-  odef_file << histdef.Format( "th2d h%s_clustwidthU_vs_module 'U/X cluster size by module' %s.hit.module %s.hit.nstripu %d -0.5 %g 10 0.5 10.5 singletrack",
+  odef_file << histdef.Format( "th2d h%s_clustwidthU_vs_module ';module;U/X cluster size' %s.hit.module %s.hit.nstripu %d -0.5 %g 10 0.5 10.5 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nmodules, nmodules-0.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_clustwidthV_vs_module 'V/Y cluster size by module' %s.hit.module %s.hit.nstripv %d -0.5 %g 10 0.5 10.5 singletrack",
+  odef_file << histdef.Format( "th2d h%s_clustwidthV_vs_module ';module;V/Y cluster size' %s.hit.module %s.hit.nstripv %d -0.5 %g 10 0.5 10.5 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nmodules, nmodules-0.5 ) << endl;
   
   
-  odef_file << histdef.Format( "th1d h%s_clust_Utime 'U/X cluster time (ns)' %s.hit.Utime 150 0 150 singletrack",
+  odef_file << histdef.Format( "th1d h%s_clust_Utime ';U/X cluster time (ns);' %s.hit.Utime 150 0 150 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_clust_Vtime 'V/Y cluster time (ns)' %s.hit.Vtime 150 0 150 singletrack",
+  odef_file << histdef.Format( "th1d h%s_clust_Vtime ';V/Y cluster time (ns);' %s.hit.Vtime 150 0 150 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_clust_UVtime 'V/Y vs U/X cluster time (ns)' %s.hit.Utime %s.hit.Vtime 150 0 150 150 0 150 singletrack",
+  odef_file << histdef.Format( "th2d h%s_clust_UVtime ';U/X cluster time (ns); V/Y cluster time (ns)' %s.hit.Utime %s.hit.Vtime 150 0 150 150 0 150 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_clust_deltat 't_{U/X} - t_{V/Y} (ns)' %s.hit.deltat 200 -50 50 singletrack",
+  odef_file << histdef.Format( "th1d h%s_clust_deltat ';t_{U/X} - t_{V/Y} (ns);' %s.hit.deltat 200 -50 50 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_clust_deltat_vs_tavg 't_{diff} vs t_{avg} (ns)' %s.hit.Tavg %s.hit.deltat 150 0 150 200 -50 50 singletrack",
+  odef_file << histdef.Format( "th2d h%s_clust_deltat_vs_tavg ';t_{avg} (ns); t_{diff} (ns)' %s.hit.Tavg %s.hit.deltat 150 0 150 200 -50 50 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
   
-  odef_file << histdef.Format( "th1d h%s_iSampMaxU 'Peak time sample, U/X strips' %s.hit.isampmaxUclust 6 -0.5 5.5",
+  odef_file << histdef.Format( "th1d h%s_iSampMaxU ';Peak time sample, U/X strips;' %s.hit.isampmaxUclust 6 -0.5 5.5",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_iSampMaxV 'Peak time sample, V/Y strips' %s.hit.isampmaxVclust 6 -0.5 5.5",
+  odef_file << histdef.Format( "th1d h%s_iSampMaxV ';Peak time sample, V/Y strips;' %s.hit.isampmaxVclust 6 -0.5 5.5",
 			       detname_nodots.Data(), detname.Data() ) << endl;
   
-  odef_file << histdef.Format( "th1d h%s_CorrCoeff_clust 'Corr. Coeff., cluster sums' %s.hit.ccor_clust 202 -1.01 1.01 singletrack",
+  odef_file << histdef.Format( "th1d h%s_CorrCoeff_clust ';Corr. Coeff., cluster sums;' %s.hit.ccor_clust 202 -1.01 1.01 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_CorrCoeff_maxstrip 'Corr. Coeff., max strips' %s.hit.ccor_strip 202 -1.01 1.01 singletrack",
+  odef_file << histdef.Format( "th1d h%s_CorrCoeff_maxstrip ';Corr. Coeff., max strips;' %s.hit.ccor_strip 202 -1.01 1.01 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_ADCasym '(ADCU-ADCV)/(ADCU+ADCV)' %s.hit.ADCasym 202 -1.01 1.01 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCasym ';(ADCU-ADCV)/(ADCU+ADCV)' %s.hit.ADCasym 202 -1.01 1.01 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl << endl;
 
-  odef_file << histdef.Format( "th1d h%s_ADCavg '(ADCU+ADCV)/2, hits on tracks' %s.hit.ADCavg 1500 0 30000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCavg 'hits on tracks ;(ADCU+ADCV)/2;' %s.hit.ADCavg 1500 0 30000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_ADCasym_vs_ADCavg 'ADC asym. vs ADC avg' %s.hit.ADCavg %s.hit.ADCasym 250 0 25000 250 -1.01 1.01",
+  odef_file << histdef.Format( "th2d h%s_ADCasym_vs_ADCavg ';ADC avg;ADC asym.' %s.hit.ADCavg %s.hit.ADCasym 250 0 25000 250 -1.01 1.01",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
   
-  odef_file << histdef.Format( "th1d h%s_ADCU_clust 'ADC cluster sum (U/X strips)' %s.hit.ADCU 1500 0 30000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCU_clust ';ADC cluster sum (U/X strips);' %s.hit.ADCU 1500 0 30000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_ADCV_clust 'ADC cluster sum (V/Y strips)' %s.hit.ADCV 1500 0 30000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCV_clust ';ADC cluster sum (V/Y strips);' %s.hit.ADCV 1500 0 30000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_ADCVvsU_clust 'ADC cluster sum, V/Y vs U/X' %s.hit.ADCU %s.hit.ADCV 200 0 30000 200 0 30000 singletrack",
+  odef_file << histdef.Format( "th2d h%s_ADCVvsU_clust ';ADC cluster sum (U/X); ADC cluster sum (V/Y)' %s.hit.ADCU %s.hit.ADCV 200 0 30000 200 0 30000 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
 
-  odef_file << histdef.Format( "th2d h%s_ADCavg_vs_module 'Cluster ADC avg vs module' %s.hit.module %s.hit.ADCavg %d -0.5 %g 250 0 25000",
+  odef_file << histdef.Format( "th2d h%s_ADCavg_vs_module ';module; Cluster ADC avg' %s.hit.module %s.hit.ADCavg %d -0.5 %g 250 0 25000",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nmodules, nmodules-0.5 ) << endl;
   
-  odef_file << histdef.Format( "th1d h%s_ADCU_maxstrip 'Max strip ADC sum (U/X strips)' %s.hit.ADCmaxstripU 1500 0 15000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCU_maxstrip ';Max strip ADC sum (U/X strips);' %s.hit.ADCmaxstripU 1500 0 15000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_ADCV_maxstrip 'Max strip ADC sum (V/Y strips)' %s.hit.ADCmaxstripV 1500 0 15000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCV_maxstrip ';Max strip ADC sum (V/Y strips);' %s.hit.ADCmaxstripV 1500 0 15000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxstrip 'Max strip ADC sum, V/Y vs U/X' %s.hit.ADCmaxstripU %s.hit.ADCmaxstripV 200 0 12000 200 0 12000 singletrack",
+  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxstrip ';Max strip ADC sum (U/X); Max strip ADC sum (V/Y)' %s.hit.ADCmaxstripU %s.hit.ADCmaxstripV 200 0 12000 200 0 12000 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
 
 
 
-  odef_file << histdef.Format( "th1d h%s_ADCU_maxsample 'U/X max strip max sample' %s.hit.ADCmaxsampU 500 0 4000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCU_maxsample ';U/X max strip max sample;' %s.hit.ADCmaxsampU 500 0 4000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_ADCV_maxsample 'V/Y max strip max sample' %s.hit.ADCmaxsampV 500 0 4000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCV_maxsample ';V/Y max strip max sample;' %s.hit.ADCmaxsampV 500 0 4000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxsample 'Max strip max sample, V/Y vs U/X' %s.hit.ADCmaxsampU %s.hit.ADCmaxsampV 200 0 4000 200 0 4000 singletrack",
+  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxsample ';Max strip max sample (U/X);Max strip max sample (V/Y)' %s.hit.ADCmaxsampU %s.hit.ADCmaxsampV 200 0 4000 200 0 4000 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl;
 
 
-  odef_file << histdef.Format( "th1d h%s_ADCU_maxclustsample 'Max cluster-summed U/X sample' %s.hit.ADCmaxsampUclust 500 0 8000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCU_maxclustsample ';Max cluster-summed U/X sample;' %s.hit.ADCmaxsampUclust 500 0 8000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_ADCV_maxclustsample 'Max cluster-summed V/Y sample' %s.hit.ADCmaxsampVclust 500 0 8000 singletrack",
+  odef_file << histdef.Format( "th1d h%s_ADCV_maxclustsample ';Max cluster-summed V/Y sample;' %s.hit.ADCmaxsampVclust 500 0 8000 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxclustsample 'Max cluster-summed sample, V/Y vs U/X' %s.hit.ADCmaxsampUclust %s.hit.ADCmaxsampVclust 200 0 8000 200 0 8000 singletrack",
+  odef_file << histdef.Format( "th2d h%s_ADCVvsU_maxclustsample ';Max cluster-summed sample (U/X);Max cluster-summed sample (V/Y)' %s.hit.ADCmaxsampUclust %s.hit.ADCmaxsampVclust 200 0 8000 200 0 8000 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data() ) << endl << endl;
   
   
   //Now put together the track stuff:
 
-  odef_file << histdef.Format( "th1d h%s_Ntracks 'Number of tracks found' %s.track.ntrack 11 -0.5 10.5",
+  odef_file << histdef.Format( "th1d h%s_Ntracks ';Number of tracks found;' %s.track.ntrack 11 -0.5 10.5",
 			       detname_nodots.Data(), detname.Data() ) << endl;
   
-  odef_file << histdef.Format( "th1d h%s_TrackNhits 'Number of hits on first/best track' %s.track.nhits[I] %d -0.5 %g singletrack",
+  odef_file << histdef.Format( "th1d h%s_TrackNhits ';Number of hits on first/best track;' %s.track.nhits[I] %d -0.5 %g singletrack",
 			       detname_nodots.Data(), detname.Data(), nlayers+1, nlayers+0.5 ) << endl;
-  odef_file << histdef.Format( "th1d h%s_TrackX 'Best track X(z=0), m' %s.track.x[I] 200 %g %g singletrack",
+  odef_file << histdef.Format( "th1d h%s_TrackX ';Best track X(z=0), m;' %s.track.x[I] 200 %g %g singletrack",
 			       detname_nodots.Data(), detname.Data(), -maxlayersizeX/2.0, maxlayersizeX/2.0 ) << endl;
-  odef_file << histdef.Format( "th1d h%s_TrackY 'Best track Y(z=0), m' %s.track.y[I] 200 %g %g singletrack",
+  odef_file << histdef.Format( "th1d h%s_TrackY ';Best track Y(z=0), m;' %s.track.y[I] 200 %g %g singletrack",
 			       detname_nodots.Data(), detname.Data(), -maxlayersizeY/2.0, maxlayersizeY/2.0 ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_TrackXp 'Best track dx/dz' %s.track.xp[I] 200 %g %g singletrack",
+  odef_file << histdef.Format( "th1d h%s_TrackXp ';Best track dx/dz;' %s.track.xp[I] 200 %g %g singletrack",
 			       detname_nodots.Data(), detname.Data(), -maxTrackXp, maxTrackXp ) << endl;
-  odef_file << histdef.Format( "th1d h%s_TrackYp 'Best track dy/dz' %s.track.yp[I] 200 %g %g singletrack",
+  odef_file << histdef.Format( "th1d h%s_TrackYp ';Best track dy/dz;' %s.track.yp[I] 200 %g %g singletrack",
 			       detname_nodots.Data(), detname.Data(), -maxTrackYp, maxTrackYp) << endl;
   
-  odef_file << histdef.Format( "th2d h%s_TrackXY 'Best track x vs y, m' %s.track.y[I] %s.track.x[I] 150 %g %g 150 %g %g singletrack",
+  odef_file << histdef.Format( "th2d h%s_TrackXY 'Best track; y(m); x(m)' %s.track.y[I] %s.track.x[I] 150 %g %g 150 %g %g singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), -maxlayersizeY/2.0, maxlayersizeY/2.0, -maxlayersizeX/2.0, maxlayersizeX/2.0 ) << endl;
 
-  odef_file << histdef.Format( "th2d h%s_TrackXpYp 'Best track dx/dz vs dy/dz' %s.track.yp[I] %s.track.xp[I] 150 %g %g 150 %g %g singletrack",
+  odef_file << histdef.Format( "th2d h%s_TrackXpYp 'Best track ;dy/dz;dx/dz' %s.track.yp[I] %s.track.xp[I] 150 %g %g 150 %g %g singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), -maxTrackYp, maxTrackYp, -maxTrackXp, maxTrackXp ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_TrackChi2NDF 'Best track chi2/ndf' %s.track.chi2ndf[I] 200 0 200 singletrack",
+  odef_file << histdef.Format( "th1d h%s_TrackChi2NDF ';Best track chi2/ndf;' %s.track.chi2ndf[I] 200 0 200 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl << endl;
 
 
   //what is next: tracking residuals inclusive and exclusive, all hits:
-  odef_file << histdef.Format( "th1d h%s_residu_allhits 'Track u/x incl. residuals, all hits' %s.hit.residu 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_residu_allhits 'All hits; Track u/x incl. residuals (m);' %s.hit.residu 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_residv_allhits 'Track v/y incl. residuals, all hits' %s.hit.residv 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_residv_allhits 'All hits; Track v/y incl. residuals (m);' %s.hit.residv 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
 
-  odef_file << histdef.Format( "th1d h%s_eresidu_allhits 'Track u/x excl. residuals, all hits' %s.hit.eresidu 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_eresidu_allhits 'All hits; Track u/x excl. residuals (m);' %s.hit.eresidu 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
-  odef_file << histdef.Format( "th1d h%s_eresidv_allhits 'Track v/y excl. residuals, all hits' %s.hit.eresidv 500 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th1d h%s_eresidv_allhits 'All hits; Track v/y excl. residuals (m);' %s.hit.eresidv 500 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data() ) << endl;
 
   //inclusive tracking residuals by layer and module:
-  odef_file << histdef.Format( "th2d h%s_residu_vs_layer 'Track u/x incl. residuals vs layer' %s.hit.layer %s.hit.residu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_residu_vs_layer ';layer; Track u/x incl. residuals (m)' %s.hit.layer %s.hit.residu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nlayers, nlayers - 0.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_residv_vs_layer 'Track v/y incl. residuals vs layer' %s.hit.layer %s.hit.residv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_residv_vs_layer ';layer; Track v/y incl. residuals (m)' %s.hit.layer %s.hit.residv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nlayers, nlayers - 0.5 ) << endl;
 
-  odef_file << histdef.Format( "th2d h%s_residu_vs_module 'Track u/x incl. residuals vs module' %s.hit.module %s.hit.residu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_residu_vs_module ';module; Track u/x incl. residuals (m)' %s.hit.module %s.hit.residu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nmodules, nmodules - 0.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_residv_vs_module 'Track v/y incl. residuals vs module' %s.hit.module %s.hit.residv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_residv_vs_module ';module; Track v/y incl. residuals (m)' %s.hit.module %s.hit.residv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nmodules, nmodules - 0.5 ) << endl;
 
 
   //exclusive tracking residuals by layer and module:
-  odef_file << histdef.Format( "th2d h%s_eresidu_vs_layer 'Track u/x excl. residuals vs layer' %s.hit.layer %s.hit.eresidu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_eresidu_vs_layer ';layer; Track u/x excl. residuals (m)' %s.hit.layer %s.hit.eresidu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nlayers, nlayers - 0.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_eresidv_vs_layer 'Track v/y excl. residuals vs layer' %s.hit.layer %s.hit.eresidv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_eresidv_vs_layer ';layer; Track v/y excl. residuals (m)' %s.hit.layer %s.hit.eresidv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nlayers, nlayers - 0.5 ) << endl;
 
-  odef_file << histdef.Format( "th2d h%s_eresidu_vs_module 'Track u/x excl. residuals vs module' %s.hit.module %s.hit.eresidu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_eresidu_vs_module ';module; Track u/x excl. residuals (m)' %s.hit.module %s.hit.eresidu %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nmodules, nmodules - 0.5 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_eresidv_vs_module 'Track v/y excl. residuals vs module' %s.hit.module %s.hit.eresidv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
+  odef_file << histdef.Format( "th2d h%s_eresidv_vs_module ';module; Track v/y excl. residuals (m)' %s.hit.module %s.hit.eresidv %d -0.5 %g 250 -0.0025 0.0025 singletrack",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nmodules, nmodules - 0.5 ) << endl;
 
  
   //Next up: hit maps by layer/module and strip heat maps/ADC distributions by module:
-  odef_file << histdef.Format( "th2d h%s_hit_xglobal_vs_layer 'Hit x global (m) by layer' %s.hit.layer %s.hit.xglobal %d -0.5 %g 250 %g %g",
+  odef_file << histdef.Format( "th2d h%s_hit_xglobal_vs_layer ';layer; Hit x global (m)' %s.hit.layer %s.hit.xglobal %d -0.5 %g 250 %g %g",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nlayers, nlayers-0.5, -maxlayersizeX/2.0, maxlayersizeX/2.0 ) << endl;
-  odef_file << histdef.Format( "th2d h%s_hit_yglobal_vs_layer 'Hit y global (m) by layer' %s.hit.layer %s.hit.yglobal %d -0.5 %g 250 %g %g",
+  odef_file << histdef.Format( "th2d h%s_hit_yglobal_vs_layer ';layer; Hit y global (m)' %s.hit.layer %s.hit.yglobal %d -0.5 %g 250 %g %g",
 			       detname_nodots.Data(), detname.Data(), detname.Data(), nlayers, nlayers-0.5, -maxlayersizeY/2.0, maxlayersizeY/2.0 ) << endl << endl;
 
 
@@ -426,112 +446,112 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   for( int i=0; i<nmodules; i++ ){
     odef_file << "# Module " << i << " strip histograms, all strips: " << endl;
     //Strip counts, require track cut:
-    odef_file << histdef.Format( "th1d h%s_nstripstot_good 'Num. fired strips (U/X) + (V/Y), Module %d' %s.strip.nstripsfired %d -0.5 %g %s.ontrack",
-				 modname_nodots[i].Data(), i, modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_nstripstot_good '%s; Num. fired strips (U/X) + (V/Y);' %s.strip.nstripsfired %d -0.5 %g %s.ontrack",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
 
-    odef_file << histdef.Format( "th1d h%s_nclustU_good 'num. U clusters, Module %d' %s.clust.nclustu 251 -0.5 250.5 %s.ontrack",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_nclustU_good '%s; num. U clusters;' %s.clust.nclustu 251 -0.5 250.5 %s.ontrack",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    
+    odef_file << histdef.Format( "th1d h%s_nclustV_good '%s; num. V clusters; ' %s.clust.nclustv 251 -0.5 250.5 %s.ontrack",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    
+    
+    odef_file << histdef.Format( "th1d h%s_nstripstot_all '%s; Num. fired strips (U/X) + (V/Y);' %s.strip.nstripsfired %d -0.5 %g",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5 ) << endl;
+    
+    odef_file << histdef.Format( "th1d h%s_nclustU_all '%s; num. U clusters;' %s.clust.nclustu 251 -0.5 250.5",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data() ) << endl;
 
-    odef_file << histdef.Format( "th1d h%s_nclustV_good 'num. V clusters, Module %d' %s.clust.nclustv 251 -0.5 250.5 %s.ontrack",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-
-
-     odef_file << histdef.Format( "th1d h%s_nstripstot_all 'Num. fired strips (U/X) + (V/Y), Module %d' %s.strip.nstripsfired %d -0.5 %g",
-				 modname_nodots[i].Data(), i, modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5 ) << endl;
-
-    odef_file << histdef.Format( "th1d h%s_nclustU_all 'num. U clusters, Module %d' %s.clust.nclustu 251 -0.5 250.5",
-				 modname_nodots[i].Data(), i, modname[i].Data() ) << endl;
-
-    odef_file << histdef.Format( "th1d h%s_nclustV_all 'num. V clusters, Module %d' %s.clust.nclustv 251 -0.5 250.5",
-				 modname_nodots[i].Data(), i, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_nclustV_all '%s; num. V clusters;' %s.clust.nclustv 251 -0.5 250.5",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data() ) << endl;
     
     //No cuts for strip heat map:
-    odef_file << histdef.Format( "th1d h%s_stripU_all 'U/X strip index, Module %d (all strips)' %s.strip.istrip[I] %d -0.5 %g %s.strip.IsU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_stripU_all '%s; U/X strip index; ' %s.strip.istrip[I] %d -0.5 %g %s.strip.IsU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
     //No cuts for strip heat map:
-    odef_file << histdef.Format( "th1d h%s_stripV_all 'V/Y strip index, Module %d (all strips)' %s.strip.istrip[I] %d -0.5 %g %s.strip.IsV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_stripV_all '%s; V/Y strip index; ' %s.strip.istrip[I] %d -0.5 %g %s.strip.IsV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
 
     
 
     //1D histograms for strip T values and ADC values:
-    odef_file << histdef.Format( "th1d h%s_ADCsumU_all 'Strip ADC sum, U/X strips, Module %d' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.IsU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_ADCsumV_all 'Strip ADC sum, V/Y strips, Module %d' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.IsV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_ADCmaxU_all 'Strip ADC max, U/X strips, Module %d' %s.strip.ADCmax[I] 500 0 4000 %s.strip.IsU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_ADCmaxV_all 'Strip ADC max, V/Y strips, Module %d' %s.strip.ADCmax[I] 500 0 4000 %s.strip.IsV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_TimeU_all 'Strip Time, U/X strips, Module %d' %s.strip.Tmean[I] 150 0 150 %s.strip.IsU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_TimeV_all 'Strip Time, V/Y strips, Module %d' %s.strip.Tmean[I] 150 0 150 %s.strip.IsV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_iSampMaxU_all 'Peak time sample, U/X strips, Module %d' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.IsU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_iSampMaxV_all 'Peak time sample, V/Y strips, Module %d' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.IsV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCsumU_all '%s; Strip ADC sum, U/X strips;' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.IsU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCsumV_all '%s; Strip ADC sum, V/Y strips;' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.IsV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCmaxU_all '%s; Strip ADC max, U/X strips;' %s.strip.ADCmax[I] 500 0 4000 %s.strip.IsU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCmaxV_all '%s; Strip ADC max, V/Y strips; ' %s.strip.ADCmax[I] 500 0 4000 %s.strip.IsV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_TimeU_all '%s; Strip Time, U/X strips;' %s.strip.Tmean[I] 150 0 150 %s.strip.IsU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_TimeV_all '%s; Strip Time, V/Y strips;' %s.strip.Tmean[I] 150 0 150 %s.strip.IsV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_iSampMaxU_all '%s; Peak time sample, U/X strips;' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.IsU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_iSampMaxV_all '%s; Peak time sample, V/Y strips;' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.IsV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
 
     //ADC sum dist. vs strip:
-    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Ustrip_all 'U strip ADC sum vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.IsU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Vstrip_all 'V strip ADC sum vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.IsV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Ustrip_all '%s; U strip ADC sum vs strip;' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.IsU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Vstrip_all '%s; V strip ADC sum vs strip;' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.IsV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
 
     //ADC max dist. vs strip:
-    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Ustrip_all 'U strip ADC max vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.IsU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Vstrip_all 'V strip ADC max vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.IsV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Ustrip_all '%s; U strip ADC max vs strip;' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.IsU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Vstrip_all '%s; V strip ADC max vs strip;' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.IsV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
     
 
     odef_file << endl << "# Module " << i << " strip histograms, strips on tracks: " << endl;
     //Strips on tracks:
-    odef_file << histdef.Format( "th1d h%s_stripU_good 'U/X strip index, Module %d (strips on tracks)' %s.strip.istrip[I] %d -0.5 %g %s.strip.ontrackU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_stripU_good '%s (strips on tracks); U/X strip index;' %s.strip.istrip[I] %d -0.5 %g %s.strip.ontrackU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
     
-    odef_file << histdef.Format( "th1d h%s_stripV_good 'V/Y strip index, Module %d (strips on tracks)' %s.strip.istrip[I] %d -0.5 %g %s.strip.ontrackV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_stripV_good '%s (strips on tracks); V/Y strip index;' %s.strip.istrip[I] %d -0.5 %g %s.strip.ontrackV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
 
     //1D histograms for strip T values and ADC values:
-    odef_file << histdef.Format( "th1d h%s_ADCsumU_good 'Strip ADC sum, U/X strips, Module %d' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.ontrackU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_ADCsumV_good 'Strip ADC sum, V/Y strips, Module %d' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.ontrackV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_ADCmaxU_good 'Strip ADC max, U/X strips, Module %d' %s.strip.ADCmax[I] 500 0 4000 %s.strip.ontrackU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_ADCmaxV_good 'Strip ADC max, V/Y strips, Module %d' %s.strip.ADCmax[I] 500 0 4000 %s.strip.ontrackV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_TimeU_good 'Strip Time, U/X strips, Module %d' %s.strip.Tmean[I] 150 0 150 %s.strip.ontrackU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_TimeV_good 'Strip Time, V/Y strips, Module %d' %s.strip.Tmean[I] 150 0 150 %s.strip.ontrackV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_iSampMaxU_good 'Peak time sample, U/X strips, Module %d' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.ontrackU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_iSampMaxV_good 'Peak time sample, V/Y strips, Module %d' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.ontrackV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCsumU_good '%s; Strip ADC sum, U/X strips;' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.ontrackU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCsumV_good '%s; Strip ADC sum, V/Y strips;' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.ontrackV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCmaxU_good '%s; Strip ADC max, U/X strips;' %s.strip.ADCmax[I] 500 0 4000 %s.strip.ontrackU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_ADCmaxV_good '%s; Strip ADC max, V/Y strips;' %s.strip.ADCmax[I] 500 0 4000 %s.strip.ontrackV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_TimeU_good '%s; Strip Time, U/X strips;' %s.strip.Tmean[I] 150 0 150 %s.strip.ontrackU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_TimeV_good '%s; Strip Time, V/Y strips;' %s.strip.Tmean[I] 150 0 150 %s.strip.ontrackV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_iSampMaxU_good '%s; Peak time sample, U/X strips;' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.ontrackU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_iSampMaxV_good '%s; Peak time sample, V/Y strips;' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.ontrackV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
 
     //ADC sum dist. vs strip:
-    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Ustrip_good 'U strip ADC sum vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.ontrackU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Vstrip_good 'V strip ADC sum vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.ontrackV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Ustrip_good '%s; U strip ADC sum vs strip;' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.ontrackU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCsum_vs_Vstrip_good '%s; V strip ADC sum vs strip;' %s.strip.istrip[I] %s.strip.ADCsum[I] %d -0.5 %g 250 0 12000 %s.strip.ontrackV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
 
     //ADC max dist. vs strip:
-    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Ustrip_good 'U strip ADC max vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.ontrackU[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Vstrip_good 'V strip ADC max vs strip, module %d' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.ontrackV[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Ustrip_good '%s; U strip ADC max vs strip;' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.ontrackU[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripu[i], mod_nstripu[i]-0.5, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_ADCmax_vs_Vstrip_good '%s; V strip ADC max vs strip;' %s.strip.istrip[I] %s.strip.ADCmax[I] %d -0.5 %g 250 0 4000 %s.strip.ontrackV[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), mod_nstripv[i], mod_nstripv[i]-0.5, modname[i].Data() ) << endl;
     
     
     odef_file << endl << "# Module " << i << " hit maps " << endl;
 
-    odef_file << histdef.Format( "th1d h%s_hit_xlocal 'Hit local X position (m), Module %d' %s.hit.hitx[I] 250 %g %g %s.hit.ontrack[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), -mod_xsize[i]/2.0, mod_xsize[i]/2.0, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_hit_ylocal 'Hit local Y position (m), Module %d' %s.hit.hity[I] 250 %g %g %s.hit.ontrack[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), -mod_ysize[i]/2.0, mod_ysize[i]/2.0, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th2d h%s_hit_xylocal 'Hit local X vs Y (m), Module %d' %s.hit.hity[I] %s.hit.hitx[I] 200 %g %g 200 %g %g %s.hit.ontrack[I]",
-				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), -mod_ysize[i]/2.0, mod_ysize[i]/2.0, -mod_xsize[i]/2.0, mod_xsize[i]/2.0,
+    odef_file << histdef.Format( "th1d h%s_hit_xlocal '%s; Hit local X position (m);' %s.hit.hitx[I] 250 %g %g %s.hit.ontrack[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), -mod_xsize[i]/2.0, mod_xsize[i]/2.0, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th1d h%s_hit_ylocal '%s; Hit local Y position (m);' %s.hit.hity[I] 250 %g %g %s.hit.ontrack[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), -mod_ysize[i]/2.0, mod_ysize[i]/2.0, modname[i].Data() ) << endl;
+    odef_file << histdef.Format( "th2d h%s_hit_xylocal '%s; Hit local X vs Y (m);' %s.hit.hity[I] %s.hit.hitx[I] 200 %g %g 200 %g %g %s.hit.ontrack[I]",
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data(), -mod_ysize[i]/2.0, mod_ysize[i]/2.0, -mod_xsize[i]/2.0, mod_xsize[i]/2.0,
 				 modname[i].Data() ) << endl;
 
     
@@ -549,10 +569,10 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
   cfg_file << "newpage 2 2" << endl;
   cfg_file << "title Strip and cluster multiplicities" << endl;
-  cfg_file << histcfg.Format( "h%s_NstripsU_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_NstripsV_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_NclustU_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl;
-  cfg_file << histcfg.Format( "h%s_NclustV_layer -drawopt colz -nostat", detname_nodots.Data() ) << endl << endl;
+  cfg_file << histcfg.Format( "h%s_NstripsU_layer -drawopt colz -logz -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_NstripsV_layer -drawopt colz -logz -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_NclustU_layer -drawopt colz -logz -nostat", detname_nodots.Data() ) << endl;
+  cfg_file << histcfg.Format( "h%s_NclustV_layer -drawopt colz -logz -nostat", detname_nodots.Data() ) << endl << endl;
 
   cfg_file << "newpage 4 3" << endl;
   cfg_file << "title Cluster size, timing, ADC correlations" << endl;
@@ -623,7 +643,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
   for( int i=0; i<nmodules; i++ ){
     cfg_file << "newpage 3 3" << endl;
-    cfg_file << "title Module " << i << " efficiencies" << endl;
+    cfg_file << "title Module " << i << " (" << moddesc[i].Data() << ") efficiencies" << endl;
     cfg_file << histcfg.Format( "hshouldhitx_%s", modname_nodots[i].Data() ) << endl;
     cfg_file << histcfg.Format( "hshouldhity_%s", modname_nodots[i].Data() ) << endl;
     cfg_file << histcfg.Format( "hshouldhitxy_%s -drawopt colz -nostat", modname_nodots[i].Data() ) << endl;
@@ -655,7 +675,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   			     
   for( int i=0; i<nmodules; i++ ){
     cfg_file_lowlevel << "newpage 4 4" << endl;
-    cfg_file_lowlevel << "title Module " << i << " low-level plots (with track cuts):" << endl;
+    cfg_file_lowlevel << "title Module " << i << " (" << moddesc[i].Data() << ") low-level plots (with track cuts):" << endl;
     cfg_file_lowlevel << histcfg.Format("h%s_nstripstot_good -logy", modname_nodots[i].Data() ) << endl;
     cfg_file_lowlevel << histcfg.Format("macro overlay.C(\"h%s_nclustU_good\",\"h%s_nclustV_good\",\"Num. U/X clusters\",\"Num. V/Y clusters\")", modname_nodots[i].Data(), modname_nodots[i].Data() ) << endl;
     cfg_file_lowlevel << histcfg.Format("h%s_TimeU_good", modname_nodots[i].Data() ) << endl;
@@ -679,7 +699,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
   for( int i=0; i<nmodules; i++ ){
     cfg_file_lowlevel << "newpage 4 4" << endl;
-    cfg_file_lowlevel << "title Module " << i << " low-level plots (no track cuts):" << endl;
+    cfg_file_lowlevel << "title Module " << i << " (" << moddesc[i].Data() << ") low-level plots (no track cuts):" << endl;
     cfg_file_lowlevel << histcfg.Format("h%s_nstripstot_all -logy", modname_nodots[i].Data() ) << endl;
     cfg_file_lowlevel << histcfg.Format("macro overlay.C(\"h%s_nclustU_all\",\"h%s_nclustV_all\",\"Num. U/X clusters\",\"Num. V/Y clusters\")", modname_nodots[i].Data(), modname_nodots[i].Data() ) << endl;
     cfg_file_lowlevel << histcfg.Format("h%s_TimeU_all", modname_nodots[i].Data() ) << endl;

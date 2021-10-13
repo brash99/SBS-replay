@@ -223,6 +223,9 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
     run->SetFirstEvent( firstevent );
     
     //    run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+
+    // run->SetDataRequired(0);
+    // run->SetDate(now);
     
     if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
       analyzer->Process(run);     // start the actual analysis
