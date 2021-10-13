@@ -752,35 +752,35 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   for( int i=0; i<nmodules; i++ ){
     cfg_file_lowlevel << histcfg.Format("h%s_ADCmax_good_CM -logy", modname_nodots[i].Data() ) << endl;
   }
-  cfg_file << endl;
+  cfg_file_lowlevel << endl;
 
   cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
   cfg_file_lowlevel << "title All modules strip ADC sum" << endl;
   for( int i=0; i<nmodules; i++ ){
     cfg_file_lowlevel << histcfg.Format("h%s_ADCsum_good_CM -logy", modname_nodots[i].Data() ) << endl;
   }
-  cfg_file << endl;
+  cfg_file_lowlevel << endl;
 
   cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
   cfg_file_lowlevel << "title All modules max time sample" << endl;
   for( int i=0; i<nmodules; i++ ){
     cfg_file_lowlevel << histcfg.Format("h%s_iSampMax_good_CM -logy", modname_nodots[i].Data() ) << endl;
   }
-  cfg_file << endl;
+  cfg_file_lowlevel << endl;
 
   cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
   cfg_file_lowlevel << "title All modules strip time" << endl;
   for( int i=0; i<nmodules; i++ ){
     cfg_file_lowlevel << histcfg.Format("h%s_StripTime_good_CM -logy", modname_nodots[i].Data() ) << endl;
   }
-  cfg_file << endl;
+  cfg_file_lowlevel << endl;
 
   cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
   cfg_file_lowlevel << "title All modules strip rms time" << endl;
   for( int i=0; i<nmodules; i++ ){
     cfg_file_lowlevel << histcfg.Format("h%s_StripTsigma_good_CM -logy", modname_nodots[i].Data() ) << endl;
   }
-  cfg_file << endl;
+  cfg_file_lowlevel << endl;
 
 
   
