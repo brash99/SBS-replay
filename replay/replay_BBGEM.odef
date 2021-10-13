@@ -93,6 +93,10 @@ th2d hbb_gem_hit_yglobal_vs_layer ';layer; Hit y global (m)' bb.gem.hit.layer bb
 
 # Module-specific histograms: 
 # Module 0 strip histograms, all strips: 
+# test:
+th1d hbb_gem_m0_ADCsum_CMGOOD 'ADC sum all strips, good CM only; strip ADC sum; ' bb.gem.m0.strip.ADCsum[I] 1000 0 15000 bb.gem.m0.strip.CM_GOOD[I]
+
+
 th1d hbb_gem_m0_nstripstot_good 'UVA U/V  strip layer 1; Num. fired strips (U/X) + (V/Y);' bb.gem.m0.strip.nstripsfired 3840 -0.5 3839.5 bb.gem.m0.ontrack
 th1d hbb_gem_m0_nclustU_good 'UVA U/V  strip layer 1; num. U clusters;' bb.gem.m0.clust.nclustu 251 -0.5 250.5 bb.gem.m0.ontrack
 th1d hbb_gem_m0_nclustV_good 'UVA U/V  strip layer 1; num. V clusters; ' bb.gem.m0.clust.nclustv 251 -0.5 250.5 bb.gem.m0.ontrack
