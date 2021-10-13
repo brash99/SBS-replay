@@ -346,7 +346,7 @@ int hcal_gain_match(int run = -1, int event = -1){
   st->Start( kTRUE );
   
   //Declare outfile
-  TFile *cosHistFile = new TFile( Form( "/work/halla/sbs/seeds/outFiles/gainMatchResults_run%d.root", run ), "RECREATE" );
+  TFile *cosHistFile = new TFile( Form( "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/scripts/hcal/outFiles/gainMatchResults_run%d.root", run ), "RECREATE" );
   ofstream fitData;
   fitData.open( Form( "outFiles/HCal_%d_FitData.txt", run ) );
   fitData << "Run Number: " << run << " Desired Peak Position: " << kTargetpC << endl;
@@ -419,7 +419,7 @@ int hcal_gain_match(int run = -1, int event = -1){
   cout << "Reading replayed root file.." << endl;
   if( !T ) { 
     T = new TChain( "T" );
-    T->Add( Form( "/volatile/halla/sbs/seeds/rootfiles/hcal_%d*.root", run ) );
+    T->Add( Form( "/adaqfs/home/a-onl/sbs/Rootfiles/hcal_%d*.root", run ) );
     //T->Add( Form( "/volatile/halla/sbs/seeds/rootfiles/hcal_%d_-1_1.root", run ) ); //Debug
     T->SetBranchStatus( "*", 0 );
     T->SetBranchStatus( "sbs.hcal.*", 1 );
