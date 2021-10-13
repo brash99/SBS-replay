@@ -526,14 +526,29 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     
     odef_file << endl << "# Module " << i << " hit maps " << endl;
 
-    odef_file << histdef.Format( "th1d h%s_hit_xlocal 'Hit local X position (m), Module %d' %s.hit.hitx[I] 250 %g %g %s.hit.ontrack[I]",
+    odef_file << histdef.Format( "#th1d h%s_hit_xlocal 'Hit local X position (m), Module %d' %s.hit.hitx[I] 250 %g %g %s.hit.ontrack[I]",
 				 modname_nodots[i].Data(), i, modname[i].Data(), -mod_xsize[i]/2.0, mod_xsize[i]/2.0, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th1d h%s_hit_ylocal 'Hit local Y position (m), Module %d' %s.hit.hity[I] 250 %g %g %s.hit.ontrack[I]",
+    odef_file << histdef.Format( "#th1d h%s_hit_ylocal 'Hit local Y position (m), Module %d' %s.hit.hity[I] 250 %g %g %s.hit.ontrack[I]",
 				 modname_nodots[i].Data(), i, modname[i].Data(), -mod_ysize[i]/2.0, mod_ysize[i]/2.0, modname[i].Data() ) << endl;
-    odef_file << histdef.Format( "th2d h%s_hit_xylocal 'Hit local X vs Y (m), Module %d' %s.hit.hity[I] %s.hit.hitx[I] 200 %g %g 200 %g %g %s.hit.ontrack[I]",
+    odef_file << histdef.Format( "#th2d h%s_hit_xylocal 'Hit local X vs Y (m), Module %d' %s.hit.hity[I] %s.hit.hitx[I] 200 %g %g 200 %g %g %s.hit.ontrack[I]",
 				 modname_nodots[i].Data(), i, modname[i].Data(), modname[i].Data(), -mod_ysize[i]/2.0, mod_ysize[i]/2.0, -mod_xsize[i]/2.0, mod_xsize[i]/2.0,
 				 modname[i].Data() ) << endl;
 
+
+    //Let's also make some histograms with CM_OR variables:
+    odef_file << endl;
+    odef_file << histdef.Format("th1d h%s_ADCmax_good_CM '%s; Strip ADC max; ' %s.strip.ADCmax[I] 500 0 4000 %s.strip.CM_GOOD[I]",
+				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format("th1d h%s_ADCsum_good_CM '%s; Strip ADC sum; ' %s.strip.ADCmax[I] 1000 0 15000 %s.strip.CM_GOOD[I]",
+				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format("th1d h%s_iSampMax_good_CM '%s; Strip max time sample;' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.CM_GOOD[I]",
+				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format("th1d h%s_StripTime_good_CM '%s; Strip Mean Time (ns);' %s.strip.Tmean[I] 150 0 150 %s.strip.CM_GOOD[I]",
+				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << histdef.Format("th1d h%s_StripTsigma_good_CM '%s; Strip RMS Time (ns);' %s.strip.Tsigma[I] 150 0 150 %s.strip.CM_GOOD[I]",
+				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
+    odef_file << endl;
+    
     
     odef_file << endl;
   }
@@ -699,6 +714,53 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     cfg_file_lowlevel << histcfg.Format("h%s_ADCsum_vs_Ustrip_all -drawopt colz -logz", modname_nodots[i].Data() ) << endl;
     cfg_file_lowlevel << histcfg.Format("h%s_ADCsum_vs_Vstrip_all -drawopt colz -logz", modname_nodots[i].Data() ) << endl << endl;
   }
+
+  cfg_file_lowlevel << endl;
   
+  int pagediv = int(sqrt(double(nmodules)));
+
+  int testdiv=1;
+
+  while( pagediv*testdiv < nmodules ){ testdiv++; }
+
+  int ndivx = std::max(pagediv,testdiv);
+  int ndivy = std::min(pagediv,testdiv);
+
+  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
+  cfg_file_lowlevel << "title All modules strip ADC max" << endl;
+  for( int i=0; i<nmodules; i++ ){
+    cfg_file_lowlevel << histcfg.Format("h%s_ADCmax_good_CM -logy", modname_nodots[i].Data() ) << endl;
+  }
+  cfg_file << endl;
+
+  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
+  cfg_file_lowlevel << "title All modules strip ADC sum" << endl;
+  for( int i=0; i<nmodules; i++ ){
+    cfg_file_lowlevel << histcfg.Format("h%s_ADCsum_good_CM -logy", modname_nodots[i].Data() ) << endl;
+  }
+  cfg_file << endl;
+
+  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
+  cfg_file_lowlevel << "title All modules max time sample" << endl;
+  for( int i=0; i<nmodules; i++ ){
+    cfg_file_lowlevel << histcfg.Format("h%s_iSampMax_good_CM -logy", modname_nodots[i].Data() ) << endl;
+  }
+  cfg_file << endl;
+
+  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
+  cfg_file_lowlevel << "title All modules strip time" << endl;
+  for( int i=0; i<nmodules; i++ ){
+    cfg_file_lowlevel << histcfg.Format("h%s_StripTime_good_CM -logy", modname_nodots[i].Data() ) << endl;
+  }
+  cfg_file << endl;
+
+  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
+  cfg_file_lowlevel << "title All modules strip rms time" << endl;
+  for( int i=0; i<nmodules; i++ ){
+    cfg_file_lowlevel << histcfg.Format("h%s_StripTsigma_good_CM -logy", modname_nodots[i].Data() ) << endl;
+  }
+  cfg_file << endl;
+
+
   
 }
