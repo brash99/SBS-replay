@@ -560,7 +560,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     odef_file << endl;
     odef_file << histdef.Format("th1d h%s_ADCmax_good_CM '%s; Strip ADC max; ' %s.strip.ADCmax[I] 500 0 4000 %s.strip.CM_GOOD[I]",
 				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
-    odef_file << histdef.Format("th1d h%s_ADCsum_good_CM '%s; Strip ADC sum; ' %s.strip.ADCmax[I] 1000 0 15000 %s.strip.CM_GOOD[I]",
+    odef_file << histdef.Format("th1d h%s_ADCsum_good_CM '%s; Strip ADC sum; ' %s.strip.ADCsum[I] 1000 0 15000 %s.strip.CM_GOOD[I]",
 				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
     odef_file << histdef.Format("th1d h%s_iSampMax_good_CM '%s; Strip max time sample;' %s.strip.isampmax[I] 6 -0.5 5.5 %s.strip.CM_GOOD[I]",
 				modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), modname[i].Data() ) << endl;
