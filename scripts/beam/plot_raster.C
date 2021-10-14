@@ -197,12 +197,12 @@ int plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TStri
  TH2F *fdrastraw_x_bpmb_y; spotFile->GetObject("fdrastraw_x_bpmb_y", fdrastraw_x_bpmb_y);
 
  //For projecting onto collimator and target
- TH1F *col_x; spotFile->GetObject("col_x", col_x);
- TH1F *col_y; spotFile->GetObject("col_y", col_y);
+ // TH1F *col_x; spotFile->GetObject("col_x", col_x);
+ // TH1F *col_y; spotFile->GetObject("col_y", col_y);
  TH1F *targ_x; spotFile->GetObject("targ_x", targ_x);
  TH1F *targ_y; spotFile->GetObject("targ_y", targ_y);
 
- TH2F *col_xy; spotFile->GetObject("col_xy", col_xy);
+ // TH2F *col_xy; spotFile->GetObject("col_xy", col_xy);
  TH2F *targ_xy; spotFile->GetObject("targ_xy", targ_xy);
 
  fbpma_x->GetXaxis()->SetLabelSize(0.075);
@@ -417,13 +417,13 @@ int plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TStri
   fc6->cd(3);
   targ_y->Draw();
   fc6->cd(4);
-  col_xy->Draw("col");
+  // col_xy->Draw("col");
   gPad->SetGridx();  
   gPad->SetGridy();
   fc6->cd(5);
-  col_x->Draw();
+  // col_x->Draw();
   fc6->cd(6);
-  col_y->Draw();
+  // col_y->Draw();
 
   std::cout << SCRIPT << "++++++++++++++++++++++++++++++++" << std::endl;
   std::cout << SCRIPT << "****** Beam Check For SBS ******" << std::endl;

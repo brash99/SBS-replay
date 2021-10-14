@@ -76,6 +76,12 @@ void hcal_e_cal_POC( int run = -1 ){
   Energy_ep->GetXaxis()->SetTitle( "GeV" );
   TH1F *CvChannel = new TH1F( "CvChannel", "CConst vs Channel", kNcols*kNrows, 0, kNcols*kNrows );
   TH1F *NEVvChannel = new TH1F( "NEVvChannel", "Number Events vs Channel", kNcols*kNrows, 0, kNcols*kNrows );
+  TH1D *Phi_p = new TH1D("Scattering Angle Phi: proton","Phi_p",100,0,45);
+  Phi_p->GetXaxis()->SetTitle( "Phi" );
+  TH1D *Theta_e = new TH1D("Scattering Angle Theta: electron","Theta_e",100,0,45);
+  Theta_e->GetXaxis()->SetTitle( "Theta" );
+  TH1D *Phi_e = new TH1D("Scattering Angle Phi: electron","Phi_e",100,-10,10);
+  Phi_e->GetXaxis()->SetTitle( "phi" );
 
   //Empirical limits, GeV/pC, may need updating
   double min_const=0.1, max_const=10.0;
@@ -210,7 +216,13 @@ void hcal_e_cal_POC( int run = -1 ){
     
     //Get magnitude of scattered electron momentum
     double p_ep = lVep.Mag();
+
+    double theta = acos((hcalt::BBtr_pz[0])/p_ep) * 180.0 / PI;
+    Theta_e->Fill(theta);
     
+    double phi_e = asin(hcalt::BBtr_py[0]/(p_ep*sin(theta)));
+    Phi_e->Fill(phi_e);
+
     if(debug==1) cout << "p_ep = " << p_ep << endl;
     
     //Get Q2 from beam energy, outgoing electron energy, and momenta
@@ -233,6 +245,20 @@ void hcal_e_cal_POC( int run = -1 ){
       hitlist.push_back( mevent );
       energy.push_back( E_ep );
     }
+
+    //Get proton momentum in zero SBS field
+    double nu = E_e-E_ep;
+
+    //Use the electron kinematics to predict the proton momentum assuming elastic scattering on free proton at rest:
+    double p_p = sqrt(Q2_ep*(1.+Q2_ep/(4.*pow(M_p,2))));
+    
+    TVector3 lVpp(-lVep.X(),-lVep.Y(),E_e-lVep.Z());
+    TLorentzVector lLVpp(lVpp, M_p+nu);
+
+    //Each component in the form p_p_z = p_p*cos(phi)
+    double phi_p = acos((E_e-hcalt::BBtr_pz[0])/p_p) * 180.0 / PI;
+    Phi_p->Fill(phi_p);
+
   }
 
   foutTEST->cd();
@@ -308,7 +334,7 @@ void hcal_e_cal_POC( int run = -1 ){
   
   //Loop over only elastic events as passed by BB
   //Assume that a clean sample of elastic events has already been selected by global_cut:
-  //In this case, we are trying to minimize chi^2 = sum_i=1,nevent (E_i - sum_j c_j A^i_j)^2/sig_E^2, where sig_E_i^2 ~ E_i; in this case, dchi^2/dc_k = 2 * sum_i=1,nevent 1/E_i * (E_i - sum_j c_j A_j) * A_k 
+  //In this case, we are trying to minimize chi^2 = sum_i=1,nevent (E_i - sum_j c_j A^i_j)^2/sig_E^2, where sig_E_i^2 ~ E_i; in this case, dchi^2/dc_k = 2 * sum_i=1,nevent 1/E_i * (E_i - sum_j c_j A_j) * A_k, set the difference on the RHS to zero to minimize.
   // This is a system of linear equations for c_k, with RHS = sum_i A_k and LHS = sum_i sum_j A_j c_j A_k/E_i 
   
   cout << "Beginning main loop over events.." << endl;
@@ -444,6 +470,7 @@ void hcal_e_cal_POC( int run = -1 ){
   ////////////////
   //Critical debug and possible loss of function - this section should be removed before production. Suspect that not enough data yet exists to populate the matrix effectively
   //if(debug==1){
+  /*
   for( int i=0; i<ncell; i++ ){
     for( int j=0; j<ncell; j++){
 
@@ -456,6 +483,7 @@ void hcal_e_cal_POC( int run = -1 ){
     }
     if(debug==1) cout << "Final ADC sum vector elements i -> " << i << " = " << b(i) << endl; 
   }
+  */
   //}
 
   //IF the number of events in a cell exceeds the minimum, then we can calibrate 
@@ -466,8 +494,6 @@ void hcal_e_cal_POC( int run = -1 ){
 
   for(int i=0; i<ncell; i++){
     badcells[i] = 0;
-
-    xErr[i] = 1/sqrt(nevents[i]);
 
     if( nevents[i] < min_events_per_cell || M(i,i) < 0.1*b(i) ){ //If we have fewer than the minimum (100) events to calibrate, OR the diagonal element of matrix M for this cell is less than 0.1 * the corresponding vector element, exclude this block from the calibration:
       //To do so without affecting the solution of the system, we do the following: 
@@ -517,6 +543,8 @@ cout << "Solving for calibration constants..." << endl;
 
     y[i] = i;
 
+    xErr[i] = E_targ*sqrt(fabs(M(i,i)));
+
     NEVvChannel->SetBinContent(i,nevents[i]);
 
     int r = i/kNcols;
@@ -552,7 +580,7 @@ cout << "Solving for calibration constants..." << endl;
 	}
 	
 	hconstants_chan->Fill( i+1, solution(i)*E_targ );
-	//hconstants_chan->SetBinError( i+1, E_targ*sqrt(fabs(M(i,i))) );
+	hconstants_chan->SetBinError( i+1, E_targ*sqrt(fabs(M(i,i))) );
 	
 	hconstants->Fill( solution(i)*E_targ );
 	
@@ -631,6 +659,18 @@ cout << "Solving for calibration constants..." << endl;
   CvChannel->SetTitle( "CConst vs Channel" );
   CvChannel->Write( "CvChannel" );
   CvChannel->Draw( "AP" );
+
+  Phi_p->SetTitle( "Proton Scattering Angle Phi" );
+  Phi_p->Write( "Phi_p" );
+  Phi_p->Draw( "AP" );
+
+  Theta_e->SetTitle( "Electron Scattering Angle Theta" );
+  Theta_e->Write( "Theta_e" );
+  Theta_e->Draw( "AP" );
+
+  Phi_e->SetTitle( "Electron Scattering Angle Phi" );
+  Phi_e->Write( "Phi_e" );
+  Phi_e->Draw( "AP" );
 
   ccgraph->SetTitle("Calibration Constants");
   ccgraph->GetXaxis()->SetTitle("Channel");

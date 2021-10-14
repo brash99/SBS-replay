@@ -29,10 +29,10 @@ bb.optics_parameters =
    4.344296e-15 -1.2879984e-15  3.9146744e-15  1.2162675e-15  0 0 0 0 2
 
 ## track constraint widths:
-bb.frontconstraintwidth_x = 0.075 # m
-bb.frontconstraintwidth_y = 0.05 # m
-bb.backconstraintwidth_x = 0.05 # m
-bb.backconstraintwidth_y = 0.05 # m
+bb.frontconstraintwidth_x = 0.035 # m
+bb.frontconstraintwidth_y = 0.030 # m
+bb.backconstraintwidth_x = 0.035 # m
+bb.backconstraintwidth_y = 0.035 # m
 
 trackgrinchcorr_const = -0.44160517
 trackgrinchcorr_slope = 0.90774908

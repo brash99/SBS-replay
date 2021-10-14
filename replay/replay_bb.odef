@@ -3,11 +3,13 @@ block bb.tr.*
 
 variable bb.etot_over_p
 
-th2f htrk_y_vs_x 'track position, y vs x, all tracks' bb.tr.x bb.tr.y 200 -1.0 1.0 40 -0.2 0.2
-th1f htrk_p 'track momentum, all tracks' bb.tr.p 100 0.0 10.0 
+th2f htr_y_vs_x 'track position, y vs x, all tracks' bb.tr.x bb.tr.y 200 -1.0 1.0 40 -0.2 0.2
+th2f htr_dy_vs_dx 'track position, dy vs dx, all tracks' bb.tr.ph bb.tr.th 100 0.5 0.5 100 -0.5 0.5
+th1f htr_p 'track momentum, all tracks' bb.tr.p 100 0.0 10.0 
 
-th2f htrk_y_vs_x 'track position, y vs x, golden track' BB.gold.x BB.gold.y 200 -1.0 1.0 40 -0.2 0.2
-th1f htrk_p 'track momentum, golden track' BB.gold.p 100 0.0 10.0 
+th2f hgtr_y_vs_x 'track position, y vs x, golden track' BB.gold.x BB.gold.y 200 -1.0 1.0 40 -0.2 0.2
+th2f hgtr_dy_vs_dx 'track position, dy vs dx, golden track' BB.gold.ph BB.gold.th 100 0.5 0.5 100 -0.5 0.5
+th1f hgtr_p 'track momentum, golden track' BB.gold.p 100 0.0 10.0 
  
 
 th1f hetot_over_p 'Etot/P' bb.etot_over_p 100 0.5 1.5
