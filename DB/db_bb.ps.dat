@@ -30,7 +30,9 @@ bb.ps.adc.FixThresBin = 14
 
 ## Positions in [m] where +z is roated by bb.theta
 ## BB PS front: 1.71745 m + most probable preshower depth 0.033 cm 
-bb.ps.position = 0 0 1.75045 ## Need to re-check this number
+#bb.ps.position = 0 0 1.75045 ## Need to re-check this number
+## surface of preshower from 1st GEM: (90.88-24.12)"x 0.0254 m = 1.695704 cm 
+bb.ps.position = 0 0 1.695704 
 
 bb.ps.xpos = 
 1.106 1.106 
