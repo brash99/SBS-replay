@@ -2,8 +2,8 @@ void overlay(TString hist1name, TString hist2name, TString legentry1="", TString
   TH1F* H1;
   TH1F* H2;
   
-  H1 = (TH1F*) gDirectory->Get(hist1name);
-  H2 = (TH1F*) gDirectory->Get(hist2name);
+  H1 = (TH1F*) gFile->Get(hist1name);
+  H2 = (TH1F*) gFile->Get(hist2name);
 
   H1->SetStats(false);
   H2->SetStats(false);
