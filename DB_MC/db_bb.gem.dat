@@ -11,22 +11,32 @@ bb.gem.modules = ft0_m0 ft0_m1 ft0_m2
 	         ft3_m0 ft3_m1 ft3_m2
 		 bt0_m0 bt0_m1 bt0_m2 bt0_m3
 
-bb.gem.gridbinwidthx = 0.01
-bb.gem.gridbinwidthy = 0.01
-bb.gem.gridedgetolerancex = 0.003
-bb.gem.gridedgetolerancey = 0.003
+#bb.gem.gridbinwidthx = 0.01
+#bb.gem.gridbinwidthy = 0.01
+#bb.gem.gridedgetolerancex = 0.003
+#bb.gem.gridedgetolerancey = 0.003
 bb.gem.useconstraint = 1
 
-bb.gem.corrcoeff_cut = 0.5
-bb.gem.ADCasym_cut = 0.3
-bb.gem.deltat_cut = 10.0
-bb.gem.filterflag1D = 0
-bb.gem.filterflag2D = 0
+#bb.gem.corrcoeff_cut = 0.5
+#bb.gem.ADCasym_cut = 0.5
+#bb.gem.deltat_cut = 15.0
+#bb.gem.filterflag1D = 0
+#bb.gem.filterflag2D = 0
 
-bb.gem.peakprominence_minsigma = 5.0
-bb.gem.peakprominence_minfraction = 0.2
+bb.gem.threshold_stripsum = 240
+bb.gem.threshold_sample = 100
+bb.gem.threshold_clustersum = 400.0
 
-bb.gem.trackchi2cut = 150.0
+#bb.gem.peakprominence_minsigma = 5.0
+#bb.gem.peakprominence_minfraction = 0.2
+
+#bb.gem.trackchi2cut = 150.0
+
+#bb.gem.maxnu_charge = 4
+#bb.gem.maxnv_charge = 4
+
+#bb.gem.maxnu_pos = 2
+#bb.gem.maxnv_pos = 2
 
 
 ## Channel maps
@@ -54,8 +64,6 @@ bb.gem.ft0_m0.chanmap =
 # MC apvmap
 bb.gem.ft0_m0.apvmap = 3 
 bb.gem.ft0_m0.layer = 0
-bb.gem.ft0_m0.threshold_stripsum = 240
-bb.gem.ft0_m0.threshold_sample = 100
 bb.gem.ft0_m0.nstripsu = 1280
 bb.gem.ft0_m0.nstripsv = 1024
 bb.gem.ft0_m0.uangle = 0.
@@ -97,8 +105,6 @@ bb.gem.ft0_m1.chanmap =
 # MC apvmap
 bb.gem.ft0_m1.apvmap = 3 
 bb.gem.ft0_m1.layer = 0
-bb.gem.ft0_m1.threshold_stripsum = 240
-bb.gem.ft0_m1.threshold_sample = 100
 bb.gem.ft0_m1.nstripsu = 1280
 bb.gem.ft0_m1.nstripsv = 1024
 bb.gem.ft0_m1.uangle = 0.
@@ -140,8 +146,6 @@ bb.gem.ft0_m2.chanmap =
 # MC apvmap
 bb.gem.ft0_m2.apvmap = 3 
 bb.gem.ft0_m2.layer = 0
-bb.gem.ft0_m2.threshold_stripsum = 240
-bb.gem.ft0_m2.threshold_sample = 100
 bb.gem.ft0_m2.nstripsu = 1280
 bb.gem.ft0_m2.nstripsv = 1024
 bb.gem.ft0_m2.uangle = 0.
@@ -183,8 +187,6 @@ bb.gem.ft1_m0.chanmap =
 # MC apvmap
 bb.gem.ft1_m0.apvmap = 3 
 bb.gem.ft1_m0.layer = 1
-bb.gem.ft1_m0.threshold_stripsum = 240
-bb.gem.ft1_m0.threshold_sample = 100
 bb.gem.ft1_m0.nstripsu = 1280
 bb.gem.ft1_m0.nstripsv = 1024
 bb.gem.ft1_m0.uangle = 0.
@@ -226,8 +228,6 @@ bb.gem.ft1_m1.chanmap =
 # MC apvmap
 bb.gem.ft1_m1.apvmap = 3 
 bb.gem.ft1_m1.layer = 1
-bb.gem.ft1_m1.threshold_stripsum = 240
-bb.gem.ft1_m1.threshold_sample = 100
 bb.gem.ft1_m1.nstripsu = 1280
 bb.gem.ft1_m1.nstripsv = 1024
 bb.gem.ft1_m1.uangle = 0.
@@ -268,8 +268,6 @@ bb.gem.ft1_m2.chanmap =
 # MC apvmap
 bb.gem.ft1_m2.apvmap = 3 
 bb.gem.ft1_m2.layer = 1
-bb.gem.ft1_m2.threshold_stripsum = 240
-bb.gem.ft1_m2.threshold_sample = 100
 bb.gem.ft1_m2.nstripsu = 1280
 bb.gem.ft1_m2.nstripsv = 1024
 bb.gem.ft1_m2.uangle = 0.
@@ -310,8 +308,6 @@ bb.gem.ft2_m0.chanmap =
 # MC apvmap
 bb.gem.ft2_m0.apvmap = 3 
 bb.gem.ft2_m0.layer = 2
-bb.gem.ft2_m0.threshold_stripsum = 240
-bb.gem.ft2_m0.threshold_sample = 100
 bb.gem.ft2_m0.nstripsu = 1280
 bb.gem.ft2_m0.nstripsv = 1024
 bb.gem.ft2_m0.uangle = 0.
@@ -353,8 +349,6 @@ bb.gem.ft2_m1.chanmap =
 # MC apvmap
 bb.gem.ft2_m1.apvmap = 3 
 bb.gem.ft2_m1.layer = 2
-bb.gem.ft2_m1.threshold_stripsum = 240
-bb.gem.ft2_m1.threshold_sample = 100
 bb.gem.ft2_m1.nstripsu = 1280
 bb.gem.ft2_m1.nstripsv = 1024
 bb.gem.ft2_m1.uangle = 0.
@@ -396,8 +390,6 @@ bb.gem.ft2_m2.chanmap =
 # MC apvmap
 bb.gem.ft2_m2.apvmap = 3 
 bb.gem.ft2_m2.layer = 2
-bb.gem.ft2_m2.threshold_stripsum = 240
-bb.gem.ft2_m2.threshold_sample = 100
 bb.gem.ft2_m2.nstripsu = 1280
 bb.gem.ft2_m2.nstripsv = 1024
 bb.gem.ft2_m2.uangle = 0.
@@ -439,8 +431,6 @@ bb.gem.ft3_m0.chanmap =
 # MC apvmap
 bb.gem.ft3_m0.apvmap = 3 
 bb.gem.ft3_m0.layer = 3
-bb.gem.ft3_m0.threshold_stripsum = 240
-bb.gem.ft3_m0.threshold_sample = 100
 bb.gem.ft3_m0.nstripsu = 1280
 bb.gem.ft3_m0.nstripsv = 1024
 bb.gem.ft3_m0.uangle = 0.
@@ -482,8 +472,6 @@ bb.gem.ft3_m1.chanmap =
 # MC apvmap
 bb.gem.ft3_m1.apvmap = 3 
 bb.gem.ft3_m1.layer = 3
-bb.gem.ft3_m1.threshold_stripsum = 240
-bb.gem.ft3_m1.threshold_sample = 100
 bb.gem.ft3_m1.nstripsu = 1280
 bb.gem.ft3_m1.nstripsv = 1024
 bb.gem.ft3_m1.uangle = 0.
@@ -525,8 +513,6 @@ bb.gem.ft3_m2.chanmap =
 # MC apvmap
 bb.gem.ft3_m2.apvmap = 3 
 bb.gem.ft3_m2.layer = 3
-bb.gem.ft3_m2.threshold_stripsum = 240
-bb.gem.ft3_m2.threshold_sample = 100
 bb.gem.ft3_m2.nstripsu = 1280
 bb.gem.ft3_m2.nstripsv = 1024
 bb.gem.ft3_m2.uangle = 0.
@@ -572,8 +558,6 @@ bb.gem.bt0_m0.chanmap =
 # MC apvmap
 bb.gem.bt0_m0.apvmap = 3 
 bb.gem.bt0_m0.layer = 4
-bb.gem.bt0_m0.threshold_stripsum = 240
-bb.gem.bt0_m0.threshold_sample = 100
 bb.gem.bt0_m0.nstripsu = 1280
 bb.gem.bt0_m0.nstripsv = 1536
 bb.gem.bt0_m0.uangle = 0.
@@ -619,8 +603,6 @@ bb.gem.bt0_m1.chanmap =
 # MC apvmap
 bb.gem.bt0_m1.apvmap = 3 
 bb.gem.bt0_m1.layer = 4
-bb.gem.bt0_m1.threshold_stripsum = 240
-bb.gem.bt0_m1.threshold_sample = 100
 bb.gem.bt0_m1.nstripsu = 1280
 bb.gem.bt0_m1.nstripsv = 1536
 bb.gem.bt0_m1.uangle = 0.
@@ -666,8 +648,6 @@ bb.gem.bt0_m2.chanmap =
 # MC apvmap
 bb.gem.bt0_m2.apvmap = 3 
 bb.gem.bt0_m2.layer = 4
-bb.gem.bt0_m2.threshold_stripsum = 240
-bb.gem.bt0_m2.threshold_sample = 100
 bb.gem.bt0_m2.nstripsu = 1280
 bb.gem.bt0_m2.nstripsv = 1536
 bb.gem.bt0_m2.uangle = 0.
@@ -713,8 +693,6 @@ bb.gem.bt0_m3.chanmap =
 # MC apvmap
 bb.gem.bt0_m3.apvmap = 3 
 bb.gem.bt0_m3.layer = 4
-bb.gem.bt0_m3.threshold_stripsum = 240
-bb.gem.bt0_m3.threshold_sample = 100
 bb.gem.bt0_m3.nstripsu = 1280
 bb.gem.bt0_m3.nstripsv = 1536
 bb.gem.bt0_m3.uangle = 0.
