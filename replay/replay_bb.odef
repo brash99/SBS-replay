@@ -4,32 +4,33 @@ block bb.tr.*
 variable bb.eps_over_etot
 variable bb.etot_over_p
 
+
 th1f htr_x 'all tracks, x_fp' bb.tr.x 200 -1.0 1.0 
-th1f htr_y 'all tracks, y_fp' bb.tr.y 80 -0.2 0.2
-th1f htr_dx 'all tracks, dx_fp' bb.tr.th 100 -0.5 0.5 
-th1f htr_dy 'all tracks, dy_fp ' bb.tr.ph 100 -0.5 0.5 
+th1d htr_y 'all tracks, y_fp' bb.tr.y 80 -0.2 0.2
+th1d htr_dx 'all tracks, dx_fp' bb.tr.th 100 -0.5 0.5 
+th1d htr_dy 'all tracks, dy_fp ' bb.tr.ph 100 -0.5 0.5 
 
-th1f htr_tg_x 'all tracks, x_tg' bb.tr.x 200 -2.0 2.0 
-th1f htr_tg_y 'all tracks, y_tg' bb.tr.y 200 -2.0 2.0
-th1f htr_tg_dx 'all tracks, dx_tg' bb.tr.th 200 -2.0 2.0 
-th1f htr_tg_dy 'all tracks, dy_tg ' bb.tr.ph 200 -2.0 2.0
+th1d htr_tg_x 'all tracks, x_tg' bb.tr.x 200 -2.0 2.0 
+th1d htr_tg_y 'all tracks, y_tg' bb.tr.tg_y 200 -2.0 2.0
+th1d htr_tg_dx 'all tracks, dx_tg' bb.tr.tg_th 200 -2.0 2.0 
+th1d htr_tg_dy 'all tracks, dy_tg ' bb.tr.tg_ph 200 -2.0 2.0
 
-th1f htr_p 'track momentum, all tracks' bb.tr.p 100 0.0 10.0 
-th1f htr_v 'track vertex, all tracks' bb.tr.vz 500 -0.5 0.5 
+th1d htr_p 'track momentum, all tracks' bb.tr.p 100 0.0 10.0 
+th1d htr_v 'track vertex, all tracks' bb.tr.vz 500 -0.5 0.5 
 
-th1f hgtr_x 'golden track, x_fp' bb.tr.x 200 -1.0 1.0 
-th1f hgtr_y 'golden track, y_fp' bb.tr.y 80 -0.2 0.2
-th1f hgtr_dx 'golden track, dx_fp' bb.tr.th 100 -0.5 0.5 
-th1f hgtr_dy 'golden track, dy_fp ' bb.tr.ph 100 -0.5 0.5 
+th1d hgtr_x 'golden track, x_fp' bb.tr.x 200 -1.0 1.0 
+th1d hgtr_y 'golden track, y_fp' bb.tr.y 80 -0.2 0.2
+th1d hgtr_dx 'golden track, dx_fp' bb.tr.th 100 -0.5 0.5 
+th1d hgtr_dy 'golden track, dy_fp ' bb.tr.ph 100 -0.5 0.5 
 
-th1f hgtr_tg_x 'golden track, x_tg' bb.tr.x 200 -2.0 2.0 
-th1f hgtr_tg_y 'golden track, y_tg' bb.tr.y 200 -2.0 2.0
-th1f hgtr_tg_dx 'golden track, dx_tg' bb.tr.th 200 -2.0 2.0 
-th1f hgtr_tg_dy 'golden track, dy_tg ' bb.tr.ph 200 -2.0 2.0
+th1d hgtr_tg_x 'golden track, x_tg' bb.tr.x 200 -2.0 2.0 
+th1d hgtr_tg_y 'golden track, y_tg' bb.tr.y 200 -2.0 2.0
+th1d hgtr_tg_dx 'golden track, dx_tg' bb.tr.th 200 -2.0 2.0 
+th1d hgtr_tg_dy 'golden track, dy_tg ' bb.tr.ph 200 -2.0 2.0
 
-th1f hgtr_p 'track momentum, golden track' bb.tr.p 100 0.0 10.0 
-th1f hgtr_v 'track vertex, golden track' bb.tr.vz 500 -0.5 0.5 
+th1d hgtr_p 'track momentum, golden track' bb.tr.p 100 0.0 10.0 
+th1d hgtr_v 'track vertex, golden track' bb.tr.vz 500 -0.5 0.5 
 
-th1f heps_over_etot 'EPS/Etot' bb.eps_over_etot 100 0.0 1.0
-th1f hetot_over_p 'Etot/P' bb.etot_over_p 100 0.5 1.5
+th1d heps_over_etot 'EPS/Etot' bb.eps_over_etot 100 0.0 1.0
+th1d hetot_over_p 'Etot/P' bb.etot_over_p 100 0.5 1.5
 
