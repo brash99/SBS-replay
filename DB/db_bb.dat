@@ -34,7 +34,7 @@ bb.frontconstraintwidth_y = 0.035 # m
 bb.backconstraintwidth_x = 0.035 # m
 bb.backconstraintwidth_y = 0.035 # m
 
-bb.ecalo_fudgefactor = 0.8
+bb.ecalo_fudgefactor = 1.25
 
 #bb.do_pid = 1
 
