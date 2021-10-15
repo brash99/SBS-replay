@@ -1,6 +1,7 @@
 block BB.gold.*
 block bb.tr.*
 
+variable bb.eps_over_etot
 variable bb.etot_over_p
 
 th2f htr_y_vs_x 'track position, y vs x, all tracks' bb.tr.x bb.tr.y 200 -1.0 1.0 40 -0.2 0.2
@@ -12,5 +13,6 @@ th2f hgtr_dy_vs_dx 'track position, dy vs dx, golden track' BB.gold.ph BB.gold.t
 th1f hgtr_p 'track momentum, golden track' BB.gold.p 100 0.0 10.0 
  
 
+th1f heps_over_etot 'EPS/Etot' bb.eps_over_etot 100 0.0 1.0
 th1f hetot_over_p 'Etot/P' bb.etot_over_p 100 0.5 1.5
 
