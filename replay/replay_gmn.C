@@ -40,6 +40,9 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   ts->SetDataOutputLevel(0);
   bigbite->AddDetector( ts );
   ts->SetStoreEmptyElements(kFALSE);
+  ts->GetShower()->SetStoreEmptyElements(kFALSE);
+  ts->GetPreShower()->SetStoreEmptyElements(kFALSE);
+
   SBSGenericDetector* bbtrig= new SBSGenericDetector("bbtrig","BigBite shower ADC trig");
   bbtrig->SetModeADC(SBSModeADC::kADC);
   bbtrig->SetModeTDC(SBSModeTDC::kTDC);
@@ -52,11 +55,13 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   grinch_adc->SetModeADC(SBSModeADC::kWaveform);
   grinch_adc->SetModeTDC(SBSModeTDC::kNone);
   grinch_adc->SetStoreEmptyElements(kFALSE);
-  
+  grinch_adc->SetStoreRawHits(kFALSE);
+
   grinch_tdc->SetModeTDC(SBSModeTDC::kTDC);
   //grinch_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
   grinch_tdc->SetModeADC(SBSModeADC::kNone);
   grinch_tdc->SetStoreEmptyElements(kFALSE);
+  grinch_tdc->SetStoreRawHits(kFALSE);
   grinch_tdc->SetDisableRefTDC(true);
   bigbite->AddDetector(grinch_adc);
   bigbite->AddDetector(grinch_tdc);
@@ -70,6 +75,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   hodoadc->SetModeTDC(SBSModeTDC::kNone);
   hodoadc->SetModeADC(SBSModeADC::kADC);
   hodoadc->SetStoreEmptyElements(kFALSE);
+  hodoadc->SetStoreRawHits(kFALSE);
   //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
   bigbite->AddDetector(hodotdc);
   bigbite->AddDetector(hodoadc);

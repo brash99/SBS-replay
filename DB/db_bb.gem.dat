@@ -429,7 +429,8 @@ bb.gem.gridbinwidthx = 0.01
 bb.gem.gridbinwidthy = 0.01
 bb.gem.gridedgetolerancex = 0.003
 bb.gem.gridedgetolerancey = 0.003
-bb.gem.useconstraint = 0
+#bb.gem.useconstraint = 0
+bb.gem.useconstraint = 1
 
 ################### DECODE INFO ########################################################################
 ## Channel maps for decoding explained                                                                ##
