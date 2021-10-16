@@ -143,7 +143,8 @@ TH2F fbpma_xy 'BPMA y vs x'  frbax frbay 2000 -5. 5. 2000 -5. 5.
 TH2F fbpmb_xy 'BPMB y vs x'  frbbx frbby 2000 -5. 5. 2000 -5. 5.
 TH2F fbeam_xy 'beam at target y vs x'  frbx frby 500 -15. 15.  500 -25. 15. cutrxy
 
-TH2F frastxy1 'Fast Raster 1 X vs Y (current)' Lrb.Raster.rawcur.y Lrb.Raster.rawcur.x     500 30000 50000 500 30000 50000 
+# TH2F frastxy1 'Fast Raster 1 X vs Y (current)' Lrb.Raster.rawcur.y Lrb.Raster.rawcur.x     500 30000 50000 500 30000 50000 
+TH2F frastxy1 'Fast Raster 1 X vs Y (current)' Lrb.Raster.rawcur.y Lrb.Raster.rawcur.x     500 0 120000 500 0 120000 
 TH2F frastxy2 'Fast Raster 2 X vs Y (current)' Lrb.Raster2.rawcur.y Lrb.Raster2.rawcur.x   500 0 120000 500 0 120000 cutrxy
 TH2F frastx1x2 'Fast Raster 1 X vs 2 X (current)' Lrb.Raster2.rawcur.x Lrb.Raster.rawcur.x 500 0 120000 500 0 120000 
 TH2F frasty1y2 'Fast Raster 1 Y vs 2 Y (current)' Lrb.Raster2.rawcur.y Lrb.Raster.rawcur.y 500 0 120000 500 0 120000
@@ -171,10 +172,15 @@ TH1F fbpmaraws 'BPMA Raw Sum' fbpmaws 5000 260000 300000
 TH1F fbpmbraws 'BPMA Raw Sum' fbpmbws 5000 260000 300000
 
 #Note that rawcur1.y refers to the current for the magnetic field in the y-direction (but electron deflection in x-direction!!!)
-TH1F fURastX 'Upstream Raster X' Lrb.Raster.rawcur.y 5000 30000 50000
-TH1F fURastY 'Upstream Raster Y' Lrb.Raster.rawcur.x 5000 30000 50000
-TH1F fDRastX 'Downstream Raster X' Lrb.Raster2.rawcur.y 5000 1000 100000 cutry
-TH1F fDRastY 'Downstream Raster Y' Lrb.Raster2.rawcur.x 5000 1000 100000 cutrx
+# TH1F fURastX 'Upstream Raster X' Lrb.Raster.rawcur.y 5000 30000 50000
+# TH1F fURastY 'Upstream Raster Y' Lrb.Raster.rawcur.x 5000 30000 50000
+# TH1F fDRastX 'Downstream Raster X' Lrb.Raster2.rawcur.y 5000 1000 100000 cutry
+# TH1F fDRastY 'Downstream Raster Y' Lrb.Raster2.rawcur.x 5000 1000 100000 cutrx
+
+TH1F fURastX 'Upstream Raster X' Lrb.Raster.rawcur.y 5000 0 150000
+TH1F fURastY 'Upstream Raster Y' Lrb.Raster.rawcur.x 5000 0 150000
+TH1F fDRastX 'Downstream Raster X' Lrb.Raster2.rawcur.y 5000 0 150000 cutry
+TH1F fDRastY 'Downstream Raster Y' Lrb.Raster2.rawcur.x 5000 0 150000 cutrx
 
 TH2F furastraw_bpma_x 'Up Fast Raster Current vs BPMA X' Lrb.Raster.rawcur.y frbax 500 60000 70000 200 -5. 5.
 TH2F furastraw_bpma_y 'Up Fast Raster Current vs BPMA Y' Lrb.Raster.rawcur.x frbay 500 60000 70000 200 -5. 5.

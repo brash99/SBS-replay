@@ -196,7 +196,6 @@ TH2F fdrastraw_x_bpma_y 'Down Fast Raster Current X vs BPMA Y' sbs.Raster2.rawcu
 TH2F fdrastraw_y_bpmb_x 'Down Fast Raster Current Y vs BPMB X' sbs.Raster2.rawcur.x frbbx 500 60000 70000 200 -5. 5.
 TH2F fdrastraw_x_bpmb_y 'Down Fast Raster Current X vs BPMB Y' sbs.Raster2.rawcur.y frbby 500 60000 70000 200 -5. 5.
 
-
 #Project to the target and the collimator 
 #Distance between BPMs = 5.14633, distance from A to collimator = 7.27894, distance from BPMA to target = 6.37394
 # FORMULA colx 1000.*(sbs.BPMB.x-sbs.BPMA.x)/5.14633*7.27894+1000.*sbs.BPMA.x
