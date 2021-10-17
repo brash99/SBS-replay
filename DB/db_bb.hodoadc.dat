@@ -18,7 +18,8 @@ bb.hodoadc.chanmap =
 
 
 ## Positions in [m] where +z is roated by bb.theta
-bb.hodoadc.position = 0 0 2.5319 ## Need to re-check this number
+## surface of hodoscope from 1st GEM: (90.88-17.87)"x 0.0254 m = 1.854454 cm 
+bb.hodoadc.position = 0 0 1.854454 
 
 
 ## Size
