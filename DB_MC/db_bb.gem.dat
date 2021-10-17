@@ -11,32 +11,32 @@ bb.gem.modules = ft0_m0 ft0_m1 ft0_m2
 	         ft3_m0 ft3_m1 ft3_m2
 		 bt0_m0 bt0_m1 bt0_m2 bt0_m3
 
-#bb.gem.gridbinwidthx = 0.01
-#bb.gem.gridbinwidthy = 0.01
-#bb.gem.gridedgetolerancex = 0.003
-#bb.gem.gridedgetolerancey = 0.003
-bb.gem.useconstraint = 1
+bb.gem.gridbinwidthx = 0.01
+bb.gem.gridbinwidthy = 0.01
+bb.gem.gridedgetolerancex = 0.003
+bb.gem.gridedgetolerancey = 0.003
+bb.gem.useconstraint = 0
 
-#bb.gem.corrcoeff_cut = 0.5
-#bb.gem.ADCasym_cut = 0.5
-#bb.gem.deltat_cut = 15.0
-#bb.gem.filterflag1D = 0
-#bb.gem.filterflag2D = 0
+bb.gem.corrcoeff_cut = 0.5
+bb.gem.ADCasym_cut = 1.0
+bb.gem.deltat_cut = 30.0
+bb.gem.filterflag1D = 0
+bb.gem.filterflag2D = 0
 
 bb.gem.threshold_stripsum = 240
 bb.gem.threshold_sample = 100
 bb.gem.threshold_clustersum = 400.0
 
-#bb.gem.peakprominence_minsigma = 5.0
-#bb.gem.peakprominence_minfraction = 0.2
+bb.gem.peakprominence_minsigma = 5.0
+bb.gem.peakprominence_minfraction = 0.2
 
-#bb.gem.trackchi2cut = 150.0
+bb.gem.trackchi2cut = 150.0
 
-#bb.gem.maxnu_charge = 4
-#bb.gem.maxnv_charge = 4
+bb.gem.maxnu_charge = 4
+bb.gem.maxnv_charge = 4
 
-#bb.gem.maxnu_pos = 2
-#bb.gem.maxnv_pos = 2
+bb.gem.maxnu_pos = 2
+bb.gem.maxnv_pos = 2
 
 
 ## Channel maps
