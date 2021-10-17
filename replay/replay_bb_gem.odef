@@ -28,11 +28,11 @@ th1d hbb_gem_Nlayers_hitu ';Number of layers with fired U/X strips;' bb.gem.nlay
 th1d hbb_gem_Nlayers_hitv ';Number of layers with fired V/Y strips;' bb.gem.nlayershitv 6 -0.5 5.5
 th1d hbb_gem_Nlayers_hituv ';Number of layers with 2D hits;' bb.gem.nlayershituv 6 -0.5 5.5
 
-th2d hbb_gem_NstripsU_layer ';layer;Number of U/X strips fired' [I] bb.gem.nstripsu_layer[I] 5 -0.5 4.5 101 -0.5 100.5
-th2d hbb_gem_NstripsV_layer ';layer;Number of V/Y strips fired' [I] bb.gem.nstripsv_layer[I] 5 -0.5 4.5 101 -0.5 100.5
-th2d hbb_gem_NclustU_layer ';layer;Number of U/X clusters' [I] bb.gem.nclustu_layer[I] 5 -0.5 4.5 51 -0.5 50.5
-th2d hbb_gem_NclustV_layer ';layer;Number of V/Y clusters' [I] bb.gem.nclustv_layer[I] 5 -0.5 4.5 51 -0.5 50.5
-th2d hbb_gem_Nclust2D_layer ';layer;Number of 2D hits' [I] bb.gem.n2Dhit_layer[I] 5 -0.5 4.5 51 -0.5 50.5
+th2d hbb_gem_NstripsU_layer ';layer;Number of U/X strips fired' [I] bb.gem.nstripsu_layer[I] 5 -0.5 4.5 1501 -0.5 1500.5
+th2d hbb_gem_NstripsV_layer ';layer;Number of V/Y strips fired' [I] bb.gem.nstripsv_layer[I] 5 -0.5 4.5 1501 -0.5 1500.5
+th2d hbb_gem_NclustU_layer ';layer;Number of U/X clusters' [I] bb.gem.nclustu_layer[I] 5 -0.5 4.5 301 -0.5 300.5
+th2d hbb_gem_NclustV_layer ';layer;Number of V/Y clusters' [I] bb.gem.nclustv_layer[I] 5 -0.5 4.5 301 -0.5 300.5
+th2d hbb_gem_Nclust2D_layer ';layer;Number of 2D hits' [I] bb.gem.n2Dhit_layer[I] 5 -0.5 4.5 301 -0.5 300.5
 
 th1d hbb_gem_clustwidthU 'U/X clusters on tracks; cluster size in strips' bb.gem.hit.nstripu 10 0.5 10.5 singletrack
 th1d hbb_gem_clustwidthV 'V/Y clusters on tracks; cluster size in strips' bb.gem.hit.nstripv 10 0.5 10.5 singletrack
@@ -93,12 +93,12 @@ th2d hbb_gem_hit_yglobal_vs_layer ';layer; Hit y global (m)' bb.gem.hit.layer bb
 
 # Module-specific histograms: 
 # Module 0 strip histograms, all strips: 
-th1d hbb_gem_m0_nstripstot_good 'UVA U/V  strip layer 1; Num. fired strips (U/X) + (V/Y);' bb.gem.m0.strip.nstripsfired 101 -0.5 100.5 bb.gem.m0.ontrack
-th1d hbb_gem_m0_nclustU_good 'UVA U/V  strip layer 1; num. U clusters;' bb.gem.m0.clust.nclustu 51 -0.5 50.5 bb.gem.m0.ontrack
-th1d hbb_gem_m0_nclustV_good 'UVA U/V  strip layer 1; num. V clusters; ' bb.gem.m0.clust.nclustv 51 -0.5 50.5 bb.gem.m0.ontrack
-th1d hbb_gem_m0_nstripstot_all 'UVA U/V  strip layer 1; Num. fired strips (U/X) + (V/Y);' bb.gem.m0.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m0_nclustU_all 'UVA U/V  strip layer 1; num. U clusters;' bb.gem.m0.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m0_nclustV_all 'UVA U/V  strip layer 1; num. V clusters;' bb.gem.m0.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m0_nstripstot_good 'UVA U/V  strip layer 1; Num. fired strips (U/X) + (V/Y);' bb.gem.m0.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m0.ontrack
+th1d hbb_gem_m0_nclustU_good 'UVA U/V  strip layer 1; num. U clusters;' bb.gem.m0.clust.nclustu 301 -0.5 300.5 bb.gem.m0.ontrack
+th1d hbb_gem_m0_nclustV_good 'UVA U/V  strip layer 1; num. V clusters; ' bb.gem.m0.clust.nclustv 301 -0.5 300.5 bb.gem.m0.ontrack
+th1d hbb_gem_m0_nstripstot_all 'UVA U/V  strip layer 1; Num. fired strips (U/X) + (V/Y);' bb.gem.m0.strip.nstripsfired 7681 -0.5 7680.5
+th1d hbb_gem_m0_nclustU_all 'UVA U/V  strip layer 1; num. U clusters;' bb.gem.m0.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m0_nclustV_all 'UVA U/V  strip layer 1; num. V clusters;' bb.gem.m0.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m0_stripU_all 'UVA U/V  strip layer 1; U/X strip index; ' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.IsU[I]
 th1d hbb_gem_m0_stripV_all 'UVA U/V  strip layer 1; V/Y strip index; ' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.IsV[I]
 th1d hbb_gem_m0_ADCsumU_all 'UVA U/V  strip layer 1; Strip ADC sum, U/X strips;' bb.gem.m0.strip.ADCsum[I] 1000 0 15000 bb.gem.m0.strip.IsU[I]
@@ -143,12 +143,12 @@ th1d hbb_gem_m0_StripTsigma_good_CM 'UVA U/V  strip layer 1; Strip RMS Time (ns)
 
 
 # Module 1 strip histograms, all strips: 
-th1d hbb_gem_m1_nstripstot_good 'INFN J0 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m1.strip.nstripsfired 101 -0.5 100.5 bb.gem.m1.ontrack
-th1d hbb_gem_m1_nclustU_good 'INFN J0 bottom; num. U clusters;' bb.gem.m1.clust.nclustu 51 -0.5 50.5 bb.gem.m1.ontrack
-th1d hbb_gem_m1_nclustV_good 'INFN J0 bottom; num. V clusters; ' bb.gem.m1.clust.nclustv 51 -0.5 50.5 bb.gem.m1.ontrack
-th1d hbb_gem_m1_nstripstot_all 'INFN J0 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m1.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m1_nclustU_all 'INFN J0 bottom; num. U clusters;' bb.gem.m1.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m1_nclustV_all 'INFN J0 bottom; num. V clusters;' bb.gem.m1.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m1_nstripstot_good 'INFN J0 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m1.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m1.ontrack
+th1d hbb_gem_m1_nclustU_good 'INFN J0 bottom; num. U clusters;' bb.gem.m1.clust.nclustu 301 -0.5 300.5 bb.gem.m1.ontrack
+th1d hbb_gem_m1_nclustV_good 'INFN J0 bottom; num. V clusters; ' bb.gem.m1.clust.nclustv 301 -0.5 300.5 bb.gem.m1.ontrack
+th1d hbb_gem_m1_nstripstot_all 'INFN J0 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m1.strip.nstripsfired 2305 -0.5 2304.5
+th1d hbb_gem_m1_nclustU_all 'INFN J0 bottom; num. U clusters;' bb.gem.m1.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m1_nclustV_all 'INFN J0 bottom; num. V clusters;' bb.gem.m1.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m1_stripU_all 'INFN J0 bottom; U/X strip index; ' bb.gem.m1.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m1.strip.IsU[I]
 th1d hbb_gem_m1_stripV_all 'INFN J0 bottom; V/Y strip index; ' bb.gem.m1.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m1.strip.IsV[I]
 th1d hbb_gem_m1_ADCsumU_all 'INFN J0 bottom; Strip ADC sum, U/X strips;' bb.gem.m1.strip.ADCsum[I] 1000 0 15000 bb.gem.m1.strip.IsU[I]
@@ -193,12 +193,12 @@ th1d hbb_gem_m1_StripTsigma_good_CM 'INFN J0 bottom; Strip RMS Time (ns);' bb.ge
 
 
 # Module 2 strip histograms, all strips: 
-th1d hbb_gem_m2_nstripstot_good 'INFN J0 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m2.strip.nstripsfired 101 -0.5 100.5 bb.gem.m2.ontrack
-th1d hbb_gem_m2_nclustU_good 'INFN J0 middle; num. U clusters;' bb.gem.m2.clust.nclustu 51 -0.5 50.5 bb.gem.m2.ontrack
-th1d hbb_gem_m2_nclustV_good 'INFN J0 middle; num. V clusters; ' bb.gem.m2.clust.nclustv 51 -0.5 50.5 bb.gem.m2.ontrack
-th1d hbb_gem_m2_nstripstot_all 'INFN J0 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m2.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m2_nclustU_all 'INFN J0 middle; num. U clusters;' bb.gem.m2.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m2_nclustV_all 'INFN J0 middle; num. V clusters;' bb.gem.m2.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m2_nstripstot_good 'INFN J0 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m2.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m2.ontrack
+th1d hbb_gem_m2_nclustU_good 'INFN J0 middle; num. U clusters;' bb.gem.m2.clust.nclustu 301 -0.5 300.5 bb.gem.m2.ontrack
+th1d hbb_gem_m2_nclustV_good 'INFN J0 middle; num. V clusters; ' bb.gem.m2.clust.nclustv 301 -0.5 300.5 bb.gem.m2.ontrack
+th1d hbb_gem_m2_nstripstot_all 'INFN J0 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m2.strip.nstripsfired 2305 -0.5 2304.5
+th1d hbb_gem_m2_nclustU_all 'INFN J0 middle; num. U clusters;' bb.gem.m2.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m2_nclustV_all 'INFN J0 middle; num. V clusters;' bb.gem.m2.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m2_stripU_all 'INFN J0 middle; U/X strip index; ' bb.gem.m2.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m2.strip.IsU[I]
 th1d hbb_gem_m2_stripV_all 'INFN J0 middle; V/Y strip index; ' bb.gem.m2.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m2.strip.IsV[I]
 th1d hbb_gem_m2_ADCsumU_all 'INFN J0 middle; Strip ADC sum, U/X strips;' bb.gem.m2.strip.ADCsum[I] 1000 0 15000 bb.gem.m2.strip.IsU[I]
@@ -243,12 +243,12 @@ th1d hbb_gem_m2_StripTsigma_good_CM 'INFN J0 middle; Strip RMS Time (ns);' bb.ge
 
 
 # Module 3 strip histograms, all strips: 
-th1d hbb_gem_m3_nstripstot_good 'INFN J0 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m3.strip.nstripsfired 101 -0.5 100.5 bb.gem.m3.ontrack
-th1d hbb_gem_m3_nclustU_good 'INFN J0 top; num. U clusters;' bb.gem.m3.clust.nclustu 51 -0.5 50.5 bb.gem.m3.ontrack
-th1d hbb_gem_m3_nclustV_good 'INFN J0 top; num. V clusters; ' bb.gem.m3.clust.nclustv 51 -0.5 50.5 bb.gem.m3.ontrack
-th1d hbb_gem_m3_nstripstot_all 'INFN J0 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m3.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m3_nclustU_all 'INFN J0 top; num. U clusters;' bb.gem.m3.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m3_nclustV_all 'INFN J0 top; num. V clusters;' bb.gem.m3.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m3_nstripstot_good 'INFN J0 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m3.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m3.ontrack
+th1d hbb_gem_m3_nclustU_good 'INFN J0 top; num. U clusters;' bb.gem.m3.clust.nclustu 301 -0.5 300.5 bb.gem.m3.ontrack
+th1d hbb_gem_m3_nclustV_good 'INFN J0 top; num. V clusters; ' bb.gem.m3.clust.nclustv 301 -0.5 300.5 bb.gem.m3.ontrack
+th1d hbb_gem_m3_nstripstot_all 'INFN J0 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m3.strip.nstripsfired 2305 -0.5 2304.5
+th1d hbb_gem_m3_nclustU_all 'INFN J0 top; num. U clusters;' bb.gem.m3.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m3_nclustV_all 'INFN J0 top; num. V clusters;' bb.gem.m3.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m3_stripU_all 'INFN J0 top; U/X strip index; ' bb.gem.m3.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m3.strip.IsU[I]
 th1d hbb_gem_m3_stripV_all 'INFN J0 top; V/Y strip index; ' bb.gem.m3.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m3.strip.IsV[I]
 th1d hbb_gem_m3_ADCsumU_all 'INFN J0 top; Strip ADC sum, U/X strips;' bb.gem.m3.strip.ADCsum[I] 1000 0 15000 bb.gem.m3.strip.IsU[I]
@@ -293,12 +293,12 @@ th1d hbb_gem_m3_StripTsigma_good_CM 'INFN J0 top; Strip RMS Time (ns);' bb.gem.m
 
 
 # Module 4 strip histograms, all strips: 
-th1d hbb_gem_m4_nstripstot_good 'UVA U/V strip layer 2; Num. fired strips (U/X) + (V/Y);' bb.gem.m4.strip.nstripsfired 101 -0.5 100.5 bb.gem.m4.ontrack
-th1d hbb_gem_m4_nclustU_good 'UVA U/V strip layer 2; num. U clusters;' bb.gem.m4.clust.nclustu 51 -0.5 50.5 bb.gem.m4.ontrack
-th1d hbb_gem_m4_nclustV_good 'UVA U/V strip layer 2; num. V clusters; ' bb.gem.m4.clust.nclustv 51 -0.5 50.5 bb.gem.m4.ontrack
-th1d hbb_gem_m4_nstripstot_all 'UVA U/V strip layer 2; Num. fired strips (U/X) + (V/Y);' bb.gem.m4.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m4_nclustU_all 'UVA U/V strip layer 2; num. U clusters;' bb.gem.m4.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m4_nclustV_all 'UVA U/V strip layer 2; num. V clusters;' bb.gem.m4.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m4_nstripstot_good 'UVA U/V strip layer 2; Num. fired strips (U/X) + (V/Y);' bb.gem.m4.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m4.ontrack
+th1d hbb_gem_m4_nclustU_good 'UVA U/V strip layer 2; num. U clusters;' bb.gem.m4.clust.nclustu 301 -0.5 300.5 bb.gem.m4.ontrack
+th1d hbb_gem_m4_nclustV_good 'UVA U/V strip layer 2; num. V clusters; ' bb.gem.m4.clust.nclustv 301 -0.5 300.5 bb.gem.m4.ontrack
+th1d hbb_gem_m4_nstripstot_all 'UVA U/V strip layer 2; Num. fired strips (U/X) + (V/Y);' bb.gem.m4.strip.nstripsfired 7681 -0.5 7680.5
+th1d hbb_gem_m4_nclustU_all 'UVA U/V strip layer 2; num. U clusters;' bb.gem.m4.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m4_nclustV_all 'UVA U/V strip layer 2; num. V clusters;' bb.gem.m4.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m4_stripU_all 'UVA U/V strip layer 2; U/X strip index; ' bb.gem.m4.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m4.strip.IsU[I]
 th1d hbb_gem_m4_stripV_all 'UVA U/V strip layer 2; V/Y strip index; ' bb.gem.m4.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m4.strip.IsV[I]
 th1d hbb_gem_m4_ADCsumU_all 'UVA U/V strip layer 2; Strip ADC sum, U/X strips;' bb.gem.m4.strip.ADCsum[I] 1000 0 15000 bb.gem.m4.strip.IsU[I]
@@ -343,12 +343,12 @@ th1d hbb_gem_m4_StripTsigma_good_CM 'UVA U/V strip layer 2; Strip RMS Time (ns);
 
 
 # Module 5 strip histograms, all strips: 
-th1d hbb_gem_m5_nstripstot_good 'INFN J2 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m5.strip.nstripsfired 101 -0.5 100.5 bb.gem.m5.ontrack
-th1d hbb_gem_m5_nclustU_good 'INFN J2 bottom; num. U clusters;' bb.gem.m5.clust.nclustu 51 -0.5 50.5 bb.gem.m5.ontrack
-th1d hbb_gem_m5_nclustV_good 'INFN J2 bottom; num. V clusters; ' bb.gem.m5.clust.nclustv 51 -0.5 50.5 bb.gem.m5.ontrack
-th1d hbb_gem_m5_nstripstot_all 'INFN J2 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m5.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m5_nclustU_all 'INFN J2 bottom; num. U clusters;' bb.gem.m5.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m5_nclustV_all 'INFN J2 bottom; num. V clusters;' bb.gem.m5.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m5_nstripstot_good 'INFN J2 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m5.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m5.ontrack
+th1d hbb_gem_m5_nclustU_good 'INFN J2 bottom; num. U clusters;' bb.gem.m5.clust.nclustu 301 -0.5 300.5 bb.gem.m5.ontrack
+th1d hbb_gem_m5_nclustV_good 'INFN J2 bottom; num. V clusters; ' bb.gem.m5.clust.nclustv 301 -0.5 300.5 bb.gem.m5.ontrack
+th1d hbb_gem_m5_nstripstot_all 'INFN J2 bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m5.strip.nstripsfired 2305 -0.5 2304.5
+th1d hbb_gem_m5_nclustU_all 'INFN J2 bottom; num. U clusters;' bb.gem.m5.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m5_nclustV_all 'INFN J2 bottom; num. V clusters;' bb.gem.m5.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m5_stripU_all 'INFN J2 bottom; U/X strip index; ' bb.gem.m5.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m5.strip.IsU[I]
 th1d hbb_gem_m5_stripV_all 'INFN J2 bottom; V/Y strip index; ' bb.gem.m5.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m5.strip.IsV[I]
 th1d hbb_gem_m5_ADCsumU_all 'INFN J2 bottom; Strip ADC sum, U/X strips;' bb.gem.m5.strip.ADCsum[I] 1000 0 15000 bb.gem.m5.strip.IsU[I]
@@ -393,12 +393,12 @@ th1d hbb_gem_m5_StripTsigma_good_CM 'INFN J2 bottom; Strip RMS Time (ns);' bb.ge
 
 
 # Module 6 strip histograms, all strips: 
-th1d hbb_gem_m6_nstripstot_good 'INFN J2 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m6.strip.nstripsfired 101 -0.5 100.5 bb.gem.m6.ontrack
-th1d hbb_gem_m6_nclustU_good 'INFN J2 middle; num. U clusters;' bb.gem.m6.clust.nclustu 51 -0.5 50.5 bb.gem.m6.ontrack
-th1d hbb_gem_m6_nclustV_good 'INFN J2 middle; num. V clusters; ' bb.gem.m6.clust.nclustv 51 -0.5 50.5 bb.gem.m6.ontrack
-th1d hbb_gem_m6_nstripstot_all 'INFN J2 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m6.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m6_nclustU_all 'INFN J2 middle; num. U clusters;' bb.gem.m6.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m6_nclustV_all 'INFN J2 middle; num. V clusters;' bb.gem.m6.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m6_nstripstot_good 'INFN J2 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m6.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m6.ontrack
+th1d hbb_gem_m6_nclustU_good 'INFN J2 middle; num. U clusters;' bb.gem.m6.clust.nclustu 301 -0.5 300.5 bb.gem.m6.ontrack
+th1d hbb_gem_m6_nclustV_good 'INFN J2 middle; num. V clusters; ' bb.gem.m6.clust.nclustv 301 -0.5 300.5 bb.gem.m6.ontrack
+th1d hbb_gem_m6_nstripstot_all 'INFN J2 middle; Num. fired strips (U/X) + (V/Y);' bb.gem.m6.strip.nstripsfired 2305 -0.5 2304.5
+th1d hbb_gem_m6_nclustU_all 'INFN J2 middle; num. U clusters;' bb.gem.m6.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m6_nclustV_all 'INFN J2 middle; num. V clusters;' bb.gem.m6.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m6_stripU_all 'INFN J2 middle; U/X strip index; ' bb.gem.m6.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m6.strip.IsU[I]
 th1d hbb_gem_m6_stripV_all 'INFN J2 middle; V/Y strip index; ' bb.gem.m6.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m6.strip.IsV[I]
 th1d hbb_gem_m6_ADCsumU_all 'INFN J2 middle; Strip ADC sum, U/X strips;' bb.gem.m6.strip.ADCsum[I] 1000 0 15000 bb.gem.m6.strip.IsU[I]
@@ -443,12 +443,12 @@ th1d hbb_gem_m6_StripTsigma_good_CM 'INFN J2 middle; Strip RMS Time (ns);' bb.ge
 
 
 # Module 7 strip histograms, all strips: 
-th1d hbb_gem_m7_nstripstot_good 'INFN J2 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m7.strip.nstripsfired 101 -0.5 100.5 bb.gem.m7.ontrack
-th1d hbb_gem_m7_nclustU_good 'INFN J2 top; num. U clusters;' bb.gem.m7.clust.nclustu 51 -0.5 50.5 bb.gem.m7.ontrack
-th1d hbb_gem_m7_nclustV_good 'INFN J2 top; num. V clusters; ' bb.gem.m7.clust.nclustv 51 -0.5 50.5 bb.gem.m7.ontrack
-th1d hbb_gem_m7_nstripstot_all 'INFN J2 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m7.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m7_nclustU_all 'INFN J2 top; num. U clusters;' bb.gem.m7.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m7_nclustV_all 'INFN J2 top; num. V clusters;' bb.gem.m7.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m7_nstripstot_good 'INFN J2 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m7.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m7.ontrack
+th1d hbb_gem_m7_nclustU_good 'INFN J2 top; num. U clusters;' bb.gem.m7.clust.nclustu 301 -0.5 300.5 bb.gem.m7.ontrack
+th1d hbb_gem_m7_nclustV_good 'INFN J2 top; num. V clusters; ' bb.gem.m7.clust.nclustv 301 -0.5 300.5 bb.gem.m7.ontrack
+th1d hbb_gem_m7_nstripstot_all 'INFN J2 top; Num. fired strips (U/X) + (V/Y);' bb.gem.m7.strip.nstripsfired 2305 -0.5 2304.5
+th1d hbb_gem_m7_nclustU_all 'INFN J2 top; num. U clusters;' bb.gem.m7.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m7_nclustV_all 'INFN J2 top; num. V clusters;' bb.gem.m7.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m7_stripU_all 'INFN J2 top; U/X strip index; ' bb.gem.m7.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m7.strip.IsU[I]
 th1d hbb_gem_m7_stripV_all 'INFN J2 top; V/Y strip index; ' bb.gem.m7.strip.istrip[I] 1024 -0.5 1023.5 bb.gem.m7.strip.IsV[I]
 th1d hbb_gem_m7_ADCsumU_all 'INFN J2 top; Strip ADC sum, U/X strips;' bb.gem.m7.strip.ADCsum[I] 1000 0 15000 bb.gem.m7.strip.IsU[I]
@@ -493,12 +493,12 @@ th1d hbb_gem_m7_StripTsigma_good_CM 'INFN J2 top; Strip RMS Time (ns);' bb.gem.m
 
 
 # Module 8 strip histograms, all strips: 
-th1d hbb_gem_m8_nstripstot_good 'UVA X/Y top; Num. fired strips (U/X) + (V/Y);' bb.gem.m8.strip.nstripsfired 101 -0.5 100.5 bb.gem.m8.ontrack
-th1d hbb_gem_m8_nclustU_good 'UVA X/Y top; num. U clusters;' bb.gem.m8.clust.nclustu 51 -0.5 50.5 bb.gem.m8.ontrack
-th1d hbb_gem_m8_nclustV_good 'UVA X/Y top; num. V clusters; ' bb.gem.m8.clust.nclustv 51 -0.5 50.5 bb.gem.m8.ontrack
-th1d hbb_gem_m8_nstripstot_all 'UVA X/Y top; Num. fired strips (U/X) + (V/Y);' bb.gem.m8.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m8_nclustU_all 'UVA X/Y top; num. U clusters;' bb.gem.m8.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m8_nclustV_all 'UVA X/Y top; num. V clusters;' bb.gem.m8.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m8_nstripstot_good 'UVA X/Y top; Num. fired strips (U/X) + (V/Y);' bb.gem.m8.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m8.ontrack
+th1d hbb_gem_m8_nclustU_good 'UVA X/Y top; num. U clusters;' bb.gem.m8.clust.nclustu 301 -0.5 300.5 bb.gem.m8.ontrack
+th1d hbb_gem_m8_nclustV_good 'UVA X/Y top; num. V clusters; ' bb.gem.m8.clust.nclustv 301 -0.5 300.5 bb.gem.m8.ontrack
+th1d hbb_gem_m8_nstripstot_all 'UVA X/Y top; Num. fired strips (U/X) + (V/Y);' bb.gem.m8.strip.nstripsfired 2817 -0.5 2816.5
+th1d hbb_gem_m8_nclustU_all 'UVA X/Y top; num. U clusters;' bb.gem.m8.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m8_nclustV_all 'UVA X/Y top; num. V clusters;' bb.gem.m8.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m8_stripU_all 'UVA X/Y top; U/X strip index; ' bb.gem.m8.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m8.strip.IsU[I]
 th1d hbb_gem_m8_stripV_all 'UVA X/Y top; V/Y strip index; ' bb.gem.m8.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m8.strip.IsV[I]
 th1d hbb_gem_m8_ADCsumU_all 'UVA X/Y top; Strip ADC sum, U/X strips;' bb.gem.m8.strip.ADCsum[I] 1000 0 15000 bb.gem.m8.strip.IsU[I]
@@ -543,12 +543,12 @@ th1d hbb_gem_m8_StripTsigma_good_CM 'UVA X/Y top; Strip RMS Time (ns);' bb.gem.m
 
 
 # Module 9 strip histograms, all strips: 
-th1d hbb_gem_m9_nstripstot_good 'UVA X/Y mid-upper; Num. fired strips (U/X) + (V/Y);' bb.gem.m9.strip.nstripsfired 101 -0.5 100.5 bb.gem.m9.ontrack
-th1d hbb_gem_m9_nclustU_good 'UVA X/Y mid-upper; num. U clusters;' bb.gem.m9.clust.nclustu 51 -0.5 50.5 bb.gem.m9.ontrack
-th1d hbb_gem_m9_nclustV_good 'UVA X/Y mid-upper; num. V clusters; ' bb.gem.m9.clust.nclustv 51 -0.5 50.5 bb.gem.m9.ontrack
-th1d hbb_gem_m9_nstripstot_all 'UVA X/Y mid-upper; Num. fired strips (U/X) + (V/Y);' bb.gem.m9.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m9_nclustU_all 'UVA X/Y mid-upper; num. U clusters;' bb.gem.m9.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m9_nclustV_all 'UVA X/Y mid-upper; num. V clusters;' bb.gem.m9.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m9_nstripstot_good 'UVA X/Y mid-upper; Num. fired strips (U/X) + (V/Y);' bb.gem.m9.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m9.ontrack
+th1d hbb_gem_m9_nclustU_good 'UVA X/Y mid-upper; num. U clusters;' bb.gem.m9.clust.nclustu 301 -0.5 300.5 bb.gem.m9.ontrack
+th1d hbb_gem_m9_nclustV_good 'UVA X/Y mid-upper; num. V clusters; ' bb.gem.m9.clust.nclustv 301 -0.5 300.5 bb.gem.m9.ontrack
+th1d hbb_gem_m9_nstripstot_all 'UVA X/Y mid-upper; Num. fired strips (U/X) + (V/Y);' bb.gem.m9.strip.nstripsfired 2817 -0.5 2816.5
+th1d hbb_gem_m9_nclustU_all 'UVA X/Y mid-upper; num. U clusters;' bb.gem.m9.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m9_nclustV_all 'UVA X/Y mid-upper; num. V clusters;' bb.gem.m9.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m9_stripU_all 'UVA X/Y mid-upper; U/X strip index; ' bb.gem.m9.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m9.strip.IsU[I]
 th1d hbb_gem_m9_stripV_all 'UVA X/Y mid-upper; V/Y strip index; ' bb.gem.m9.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m9.strip.IsV[I]
 th1d hbb_gem_m9_ADCsumU_all 'UVA X/Y mid-upper; Strip ADC sum, U/X strips;' bb.gem.m9.strip.ADCsum[I] 1000 0 15000 bb.gem.m9.strip.IsU[I]
@@ -593,12 +593,12 @@ th1d hbb_gem_m9_StripTsigma_good_CM 'UVA X/Y mid-upper; Strip RMS Time (ns);' bb
 
 
 # Module 10 strip histograms, all strips: 
-th1d hbb_gem_m10_nstripstot_good 'UVA X/Y mid-lower; Num. fired strips (U/X) + (V/Y);' bb.gem.m10.strip.nstripsfired 101 -0.5 100.5 bb.gem.m10.ontrack
-th1d hbb_gem_m10_nclustU_good 'UVA X/Y mid-lower; num. U clusters;' bb.gem.m10.clust.nclustu 51 -0.5 50.5 bb.gem.m10.ontrack
-th1d hbb_gem_m10_nclustV_good 'UVA X/Y mid-lower; num. V clusters; ' bb.gem.m10.clust.nclustv 51 -0.5 50.5 bb.gem.m10.ontrack
-th1d hbb_gem_m10_nstripstot_all 'UVA X/Y mid-lower; Num. fired strips (U/X) + (V/Y);' bb.gem.m10.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m10_nclustU_all 'UVA X/Y mid-lower; num. U clusters;' bb.gem.m10.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m10_nclustV_all 'UVA X/Y mid-lower; num. V clusters;' bb.gem.m10.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m10_nstripstot_good 'UVA X/Y mid-lower; Num. fired strips (U/X) + (V/Y);' bb.gem.m10.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m10.ontrack
+th1d hbb_gem_m10_nclustU_good 'UVA X/Y mid-lower; num. U clusters;' bb.gem.m10.clust.nclustu 301 -0.5 300.5 bb.gem.m10.ontrack
+th1d hbb_gem_m10_nclustV_good 'UVA X/Y mid-lower; num. V clusters; ' bb.gem.m10.clust.nclustv 301 -0.5 300.5 bb.gem.m10.ontrack
+th1d hbb_gem_m10_nstripstot_all 'UVA X/Y mid-lower; Num. fired strips (U/X) + (V/Y);' bb.gem.m10.strip.nstripsfired 2817 -0.5 2816.5
+th1d hbb_gem_m10_nclustU_all 'UVA X/Y mid-lower; num. U clusters;' bb.gem.m10.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m10_nclustV_all 'UVA X/Y mid-lower; num. V clusters;' bb.gem.m10.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m10_stripU_all 'UVA X/Y mid-lower; U/X strip index; ' bb.gem.m10.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m10.strip.IsU[I]
 th1d hbb_gem_m10_stripV_all 'UVA X/Y mid-lower; V/Y strip index; ' bb.gem.m10.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m10.strip.IsV[I]
 th1d hbb_gem_m10_ADCsumU_all 'UVA X/Y mid-lower; Strip ADC sum, U/X strips;' bb.gem.m10.strip.ADCsum[I] 1000 0 15000 bb.gem.m10.strip.IsU[I]
@@ -643,12 +643,12 @@ th1d hbb_gem_m10_StripTsigma_good_CM 'UVA X/Y mid-lower; Strip RMS Time (ns);' b
 
 
 # Module 11 strip histograms, all strips: 
-th1d hbb_gem_m11_nstripstot_good 'UVA X/Y bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m11.strip.nstripsfired 101 -0.5 100.5 bb.gem.m11.ontrack
-th1d hbb_gem_m11_nclustU_good 'UVA X/Y bottom; num. U clusters;' bb.gem.m11.clust.nclustu 51 -0.5 50.5 bb.gem.m11.ontrack
-th1d hbb_gem_m11_nclustV_good 'UVA X/Y bottom; num. V clusters; ' bb.gem.m11.clust.nclustv 51 -0.5 50.5 bb.gem.m11.ontrack
-th1d hbb_gem_m11_nstripstot_all 'UVA X/Y bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m11.strip.nstripsfired 101 -0.5 100.5
-th1d hbb_gem_m11_nclustU_all 'UVA X/Y bottom; num. U clusters;' bb.gem.m11.clust.nclustu 51 -0.5 50.5
-th1d hbb_gem_m11_nclustV_all 'UVA X/Y bottom; num. V clusters;' bb.gem.m11.clust.nclustv 51 -0.5 50.5
+th1d hbb_gem_m11_nstripstot_good 'UVA X/Y bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m11.strip.nstripsfired 1501 -0.5 1500.5 bb.gem.m11.ontrack
+th1d hbb_gem_m11_nclustU_good 'UVA X/Y bottom; num. U clusters;' bb.gem.m11.clust.nclustu 301 -0.5 300.5 bb.gem.m11.ontrack
+th1d hbb_gem_m11_nclustV_good 'UVA X/Y bottom; num. V clusters; ' bb.gem.m11.clust.nclustv 301 -0.5 300.5 bb.gem.m11.ontrack
+th1d hbb_gem_m11_nstripstot_all 'UVA X/Y bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m11.strip.nstripsfired 2817 -0.5 2816.5
+th1d hbb_gem_m11_nclustU_all 'UVA X/Y bottom; num. U clusters;' bb.gem.m11.clust.nclustu 301 -0.5 300.5
+th1d hbb_gem_m11_nclustV_all 'UVA X/Y bottom; num. V clusters;' bb.gem.m11.clust.nclustv 301 -0.5 300.5
 th1d hbb_gem_m11_stripU_all 'UVA X/Y bottom; U/X strip index; ' bb.gem.m11.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m11.strip.IsU[I]
 th1d hbb_gem_m11_stripV_all 'UVA X/Y bottom; V/Y strip index; ' bb.gem.m11.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m11.strip.IsV[I]
 th1d hbb_gem_m11_ADCsumU_all 'UVA X/Y bottom; Strip ADC sum, U/X strips;' bb.gem.m11.strip.ADCsum[I] 1000 0 15000 bb.gem.m11.strip.IsU[I]
