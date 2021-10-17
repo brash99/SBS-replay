@@ -252,19 +252,28 @@ int plot_raster(TString codafname,Int_t runNo,Int_t firsteve,Int_t lasteve,TStri
   // TH2F *fhaxis = new TH2F("fhaxis","FADC Fast Raster 1 X vs.Y",500,60000,70000,500,60000,70000);
   //fhaxis->Draw();
   frastxy1->SetStats(0); 
- // frastxy1->Draw("colz");
-  frastxy1->SetTitle("FADC Upstream Raster X vs.Y");
+  frastxy1->Draw("colz");
+  frastxy1->SetTitle("FADC Upstream Raster Y vs. X");
   frastxy1->SetAxisRange(0, 150000,"Y");
   frastxy1->SetAxisRange(0, 150000,"X");
   frastxy1->GetXaxis()->SetLabelSize(.04);
   frastxy1->GetYaxis()->SetLabelSize(.03);
+  frastxy1->GetXaxis()->SetTitle("X");
+  frastxy1->GetYaxis()->SetTitle("Y");
   gPad->SetGrid(1,1);
   gStyle->SetOptStat(1);
 
-  // fc2->cd(2);
-  // fURastX->Draw();
-  // fc2->cd(3);
-  // fURastY->Draw();
+  fc2->cd(2);
+  fURastX->Draw();
+  fURastX->SetTitle("FADC Upstream Raster X");
+  fURastX->GetXaxis()->SetLabelSize(.04);
+  fURastX->GetYaxis()->SetLabelSize(.04);
+
+  fc2->cd(3);
+  fURastY->SetTitle("FADC Upstream Raster Y");
+  fURastY->Draw();
+  fURastY->GetXaxis()->SetLabelSize(.04);
+  fURastY->GetYaxis()->SetLabelSize(.04);
 
   TCanvas* fc2A =  new TCanvas("fc2A","FADC Downstream Raster Plots",1800,600);
   fc2A->Divide(3,1);
