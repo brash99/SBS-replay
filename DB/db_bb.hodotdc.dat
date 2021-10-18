@@ -23,6 +23,7 @@ bb.hodotdc.chanmap =
          -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1    -1 
          -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1 -1000
 
+bb.hodotdc.maxclussize = 5
 
 ## Positions in [m] where +z is roated by bb.theta
 ##
