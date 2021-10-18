@@ -5,8 +5,8 @@
 #block bb.hodotdc.*
 #block bb.hodoadc.*
 
-block bb.hodotdc.bar.*
-block bb.hodoadc.bar.*
+#block bb.hodotdc.bar.*
+#block bb.hodoadc.bar.*
 
 variable bb.hodotdc.nclus
 block bb.hodotdc.clus.*
