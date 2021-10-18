@@ -2,8 +2,14 @@
 # Raw TDC and FADC data
 #-----------------------------------------------------------------------------
 
-block bb.hodotdc.*
-block bb.hodoadc.*
+#block bb.hodotdc.*
+#block bb.hodoadc.*
+
+block bb.hodotdc.bar.*
+block bb.hodoadc.bar.*
+
+variable bb.hodotdc.nclus
+block bb.hodotdc.clus.*
 
 #-----------------------------------------------------------------------------
 # 2D TDC histograms

@@ -1,8 +1,13 @@
 block BB.gold.*
 block bb.tr.*
 
-#variable bb.eps_over_etot
-#variable bb.etot_over_p
+variable bb.eps_over_etot
+variable bb.etot_over_p
+
+variable bb.x_fcp
+variable bb.y_fcp
+variable bb.x_bcp
+variable bb.y_bcp
 
 
 th1d htr_x 'all tracks, x_fp' bb.tr.x 200 -1.0 1.0 

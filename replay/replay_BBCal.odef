@@ -1,16 +1,25 @@
 #ADC from calorimeter
-block bb.ps.e
+variable bb.ps.e
+variable bb.ps.e_c
+variable bb.ps.x
+variable bb.ps.y
+variable bb.ps.nblk
+#variable bb.ps.idblk
 block bb.ps.clus*
-block bb.ps.nclus
-block bb.ps.clus_blk.e
-block bb.ps.clus_blk.id
-block bb.ps.ngoodADChits
-block bb.sh.e
+variable bb.ps.nclus
+variable bb.ps.clus_blk.e
+variable bb.ps.clus_blk.id
+variable bb.ps.ngoodADChits
+variable bb.sh.e
+variable bb.sh.e_c
+variable bb.sh.x
+variable bb.sh.y
+variable bb.sh.nblk
 block bb.sh.clus*
-block bb.sh.nclus
-block bb.sh.clus_blk.e
-block bb.sh.clus_blk.id
-block bb.sh.ngoodADChits
+variable bb.sh.nclus
+variable bb.sh.clus_blk.e
+variable bb.sh.clus_blk.id
+variable bb.sh.ngoodADChits
 
 ## PS 
 th2f hped_vs_elem_ps 'Pedestal vs element ID : PS' bb.ps.adcelemID[I] bb.ps.ped[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 

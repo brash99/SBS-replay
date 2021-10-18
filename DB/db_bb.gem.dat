@@ -397,10 +397,10 @@ bb.gem.vpitch = 0.0004
 
 # tracking parameters:
 bb.gem.threshold_sample = 50.0
-bb.gem.threshold_stripsum = 200.0
-bb.gem.threshold_clustersum = 400.0
+bb.gem.threshold_stripsum = 250.0
+bb.gem.threshold_clustersum = 500.0
 
-bb.gem.ADCasym_cut = 1.1
+bb.gem.ADCasym_cut = 0.5
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = 1
