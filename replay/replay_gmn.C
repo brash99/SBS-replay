@@ -70,12 +70,14 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   hodotdc->SetModeTDC(SBSModeTDC::kTDC);
   hodotdc->SetModeADC(SBSModeADC::kNone);
   hodotdc->SetStoreEmptyElements(kFALSE);
+  hodotdc->SetDataOutputLevel(1);// => this adds in the output the elements belonging to the "main" cluster.
   
   SBSTimingHodoscope* hodoadc = new  SBSTimingHodoscope("hodoadc", "BigBite hodo");
   hodoadc->SetModeTDC(SBSModeTDC::kNone);
   hodoadc->SetModeADC(SBSModeADC::kADC);
   hodoadc->SetStoreEmptyElements(kFALSE);
   hodoadc->SetStoreRawHits(kFALSE);
+  hodotdc->SetDataOutputLevel(0);
   //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
   bigbite->AddDetector(hodotdc);
   bigbite->AddDetector(hodoadc);
