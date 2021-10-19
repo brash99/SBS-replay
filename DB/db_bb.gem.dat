@@ -417,11 +417,11 @@ bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004 
 bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
-bb.gem.trackchi2cut = 300.0
+bb.gem.trackchi2cut = 200.0
 bb.gem.onlinezerosuppression = 0
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.minhitsontrack = 3
-bb.gem.maxhitcombos = 10000
+bb.gem.maxhitcombos = 20000
 bb.gem.maxhitcombos_inner = 10000
 bb.gem.maxhitcombos_total = 1000000000
 bb.gem.tryfasttrack = 1
@@ -943,6 +943,16 @@ bb.gem.m11.angle =      -0.3687799      -0.2340395      -0.2669022
 
 
 ########################### END TIME-DEPENDENT ALIGNMENT PARAMETERS 
+
+###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
+
+-----------[ 2021-10-17 19:12:00 ] # new higher thresholds after GEM HV increase
+bb.gem.threshold_sample = 150.0
+bb.gem.threshold_stripsum = 500.0
+bb.gem.threshold_clustersum = 1000.0
+
+###############################################################################			    
+
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
 
