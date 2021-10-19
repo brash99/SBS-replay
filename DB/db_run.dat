@@ -22,7 +22,7 @@ L.pcentral  = -1
 # The minimal required information in this file (for now) is the beam energy and
 # the spectrometer central angles and central momenta:
 
-ebeam = 1.92
+ebeam = 1.916
 
 # as far as I can see only central angle and central momentum are required run parameters
 # for THaSpectrometer
@@ -39,4 +39,16 @@ bb.theta = 51.0
 bb.pcentral = 1.09
 bb.colldist = 1.51
 
+
+--------[ 2021-10-18 16:00:00 ] ## Starting SBS-2 kinematics for GMN
+
+3.736
+
+sbs.theta = 31.9
+sbs.pcentral = 2.373 # elastic proton momentum
+
+# pcentral chosen for elastic
+# note BB field production setting is 750 A most of the time
+bb.theta = 36.0
+bb.pcentral = 2.122 
 

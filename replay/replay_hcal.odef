@@ -24,6 +24,7 @@ variable sbs.hcal.x
 variable sbs.hcal.y
 variable sbs.hcal.nblk
 variable sbs.hcal.idblk
+variable sbs.hcal.atimeblk
 block sbs.hcal.clus.*
 variable sbs.hcal.nclus
 block sbs.hcal.clus_blk.*
