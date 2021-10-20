@@ -419,6 +419,7 @@ bb.sh.trigtoFADCratio = 0.99 1.01 0.97 1.00 0.97 0.99 0.97
 
 ## emin
 bb.sh.emin= 0.02 #GeV
+bb.sh.Rmax_dis = 0.15 #m, Search radius for cluster 
 
 ## Gain factor for energy calibration using cosmic: GeV/pC 
 ## Asuming trigger amplitudes are aligned to 10mV
