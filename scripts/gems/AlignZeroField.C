@@ -13,6 +13,11 @@
 #include "TCutG.h"
 #include "TEventList.h"
 #include "TMinuit.h"
+#include "TPad.h"
+#include "TCanvas.h"
+#include "TROOT.h"
+#include "TLine.h"
+#include "TText.h"
 #include <iostream>
 #include <fstream>
 
