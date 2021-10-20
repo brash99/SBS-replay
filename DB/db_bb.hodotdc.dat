@@ -30,6 +30,7 @@ bb.hodotdc.maxclussize = 5
 ## surface of hodoscope from 1st GEM: (90.88-17.87)"x 0.0254 m = 1.854454 cm 
 bb.hodotdc.position = 0 0 1.854454 
 
+# this is actually vertical position (X in transport coordinates): 
 bb.hodotdc.ypos = 
 1.14045 1.11545 1.09045 1.06545 1.04045 
 1.01545 0.99045 0.96545 0.94045 0.91545 
