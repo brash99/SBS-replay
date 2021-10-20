@@ -435,7 +435,7 @@ bb.gem.useconstraint = 1
 ---------[ 2021-10-14 21:50:00 ]
 bb.gem.useconstraint = 0
 ---------[ 2021-10-14 23:14:00 ]
-bb.gem.useconstraint = 0
+bb.gem.useconstraint = 1
 
 # reset timestamp for following info:
 ---------[ 2021-01-01 00:00:00 ]
