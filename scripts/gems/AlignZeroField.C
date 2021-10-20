@@ -245,6 +245,21 @@ void AlignZeroField( const char *configfilename ){
   TVector3 GEMorigin( GEMX0, GEMY0, GEMZ0 );
   TVector3 SieveOrigin(0,0,ZSIEVE);
 
+  cout << endl << "GEM z axis in global coordinates:" << endl;
+  GEMzaxis.Print();
+
+  cout << endl << "GEM x axis in global coordinates:" << endl;
+  GEMxaxis.Print();
+
+  cout << endl << "GEM y axis in global coordinates:" << endl;
+  GEMyaxis.Print();
+
+  cout << endl << "GEM origin in global coordinates:" << endl;
+  GEMorigin.Print();
+
+  cout << endl << "Sieve slit origin in global coordinates: " << endl;
+  SieveOrigin.Print();
+
   TString outCutFile;
   outCutFile=Form("sieve_cut.root");
   cout << "outCutFile =  " << outCutFile << endl;
@@ -273,6 +288,8 @@ void AlignZeroField( const char *configfilename ){
   }
   
   while( C->GetEntry( elist->GetEntry( nevent++ ) ) ){
+
+    if( nevent % 1000 == 0 ) cout << "nevent = " << nevent << endl;
     
     //do stuff: grab track info from tree, apply cuts, fill the track arrays defined near the top of this macro (see XTRACK, YTRACK, XPTRACK, YPTRACK, XSIEVE, YSIEVE above)
     int itr = int(besttrack);
