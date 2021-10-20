@@ -422,16 +422,23 @@ bb.gem.onlinezerosuppression = 0
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.minhitsontrack = 3
 bb.gem.maxhitcombos = 20000
-bb.gem.maxhitcombos_inner = 10000
+bb.gem.maxhitcombos_inner = 20000
 bb.gem.maxhitcombos_total = 1000000000
 bb.gem.tryfasttrack = 1
 bb.gem.gridbinwidthx = 0.01
 bb.gem.gridbinwidthy = 0.01
 bb.gem.gridedgetolerancex = 0.003
 bb.gem.gridedgetolerancey = 0.003
-#bb.gem.useconstraint = 0
 bb.gem.useconstraint = 1
 
+# turn off track search region constraint for zero-field runs in BB with sieve:
+---------[ 2021-10-14 21:50:00 ]
+bb.gem.useconstraint = 0
+---------[ 2021-10-14 23:14:00 ]
+bb.gem.useconstraint = 0
+
+# reset timestamp for following info:
+---------[ 2021-01-01 00:00:00 ]
 ################### DECODE INFO ########################################################################
 ## Channel maps for decoding explained                                                                ##
 ## Each entry corresponds to one APV card                                                             ## 
