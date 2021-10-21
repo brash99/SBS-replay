@@ -107,6 +107,8 @@ void AlignZeroField( const char *configfilename ){
   //These are in spectrometer transport coordinates for an assumed magnet distance of 1.85 m
   double GEMX0=-0.1637, GEMY0=0.0, GEMZ0=2.958;
   double ZSIEVE=1.85-13.37*2.54/100.0; // = 1.51 m
+  double XOFFSIEVE = 0.0;
+  double YOFFSIEVE = 0.0; 
   double GEMtheta = 10.0*PI/180.0; //this will become the pitch angle
   double GEMphi = 180.0*PI/180.0; 
 
@@ -147,6 +149,16 @@ void AlignZeroField( const char *configfilename ){
 	  if( skey == "GEMZ0" ){
 	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	    GEMZ0 = stemp.Atof();
+	  }
+
+	  if( skey == "X0SIEVE" ){
+	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	    XOFFSIEVE = stemp.Atof();
+	  }
+
+	  if( skey == "Y0SIEVE" ){
+	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	    YOFFSIEVE = stemp.Atof();
 	  }
 
 	  if( skey == "ZSIEVE" ){
@@ -224,7 +236,7 @@ void AlignZeroField( const char *configfilename ){
   
   TObjArray HList(0);
   TH2D *hxyfp = new TH2D("hxyfp"," ; y_{fp} (m) ; x_{fp} (m)",100,-0.3,0.3,250,-1.1,1.1); HList.Add(hxyfp);
-  TH2D *hxysieve = new TH2D("hxysieve", " ; y_{sieve} (m) ; x_{sieve} (m)", 200,-0.4,0.4,200,-0.4,0.4); HList.Add(hxysieve);
+  TH2D *hxysieve = new TH2D("hxysieve", " ; y_{sieve} (m) ; x_{sieve} (m)", 200,-0.2,0.2,200,-0.4,0.4); HList.Add(hxysieve);
   TH2F *hYpFpYFp = new TH2F("hYpFpYFp"," ; Ypfp ; Yfp",100,-.3,.3,100,-0.3,0.3); HList.Add(hYpFpYFp);
   TH2F *hXpFpXFp = new TH2F("hXpFpXFp"," ; Xpfp ; Xfp",100,-.7,.7,100,-0.7,0.7); HList.Add(hXpFpXFp);
   TH2D *hxyfp_sel = new TH2D("hxyfp_sel","with sieve cuts; y_{fp} (m) ; x_{fp} (m)",100,-0.3,0.3,250,-1.1,1.1); HList.Add(hxyfp);
@@ -267,24 +279,29 @@ void AlignZeroField( const char *configfilename ){
   TString hname_cut;
 
   //Here are the desired sieve positions:
-  vector <Double_t> xs_cent{-(0.3+0.0492)+0.0493/cos(18.*3.14/180.),
-      -(0.3+0.0492)+(0.0493+0.0492)/cos(18.*3.14/180),
-      -(0.3+0.0492)+0.1493/cos(9.*3.14/180.),
-      -(0.3+0.0492)+(0.1493+0.0492)/cos(9.*3.14/180.),
-      -(0.3+0.0492)+(0.1493+0.0492*2.)/cos(9.*3.14/180.),
+  vector <Double_t> xs_cent{-(0.3+0.0492)+0.0493/cos(18.*PI/180.),
+      -(0.3+0.0492)+(0.0493+0.0492)/cos(18.*PI/180.),
+      -(0.3+0.0492)+0.1493/cos(9.*PI/180.),
+      -(0.3+0.0492)+(0.1493+0.0492)/cos(9.*PI/180.),
+      -(0.3+0.0492)+(0.1493+0.0492*2.)/cos(9.*PI/180.),
       -0.0492,
       0.0,
       0.0492,
-      0.3+0.0492-(0.1493+0.0492*2.)/cos(9.*3.14/180.),
-      0.3+0.0492-(0.1493+0.0492)/cos(9.*3.14/180.),
-      0.3+0.0492-0.1493/cos(9.*3.14/180.),
+      0.3+0.0492-(0.1493+0.0492*2.)/cos(9.*PI/180.),
+      0.3+0.0492-(0.1493+0.0492)/cos(9.*PI/180.),
+      0.3+0.0492-0.1493/cos(9.*PI/180.),
       0.3+0.0492-(0.0493+0.0492)/cos(18.*3.14/180),
-      0.3+0.0492-0.0493/cos(18.*3.14/180.)};
+      0.3+0.0492-0.0493/cos(18.*PI/180.)};
    
+  //Add in any XSIEVE offset defined by the user:
+  for( int ix=0; ix<nxsieve; ix++ ){
+    xs_cent[ix] += XOFFSIEVE;
+  }
+
   vector <Double_t> ys_cent;
   for (Int_t nys=0;nys<nysieve;nys++) {
     Double_t pos=nys*0.0381-0.0381*3;//old sieve
-    ys_cent.push_back(pos);
+    ys_cent.push_back(pos + YOFFSIEVE);
   }
   
   while( C->GetEntry( elist->GetEntry( nevent++ ) ) ){
@@ -323,7 +340,7 @@ void AlignZeroField( const char *configfilename ){
   //Set the sieve hole selection
   gROOT->Reset();
   TCanvas *histView_Cut; 
-  histView_Cut= new TCanvas("histView_Cut","cut",900,500);
+  histView_Cut= new TCanvas("histView_Cut","cut",1200,1200);
   histView_Cut->Divide(1,1);
   histView_Cut->cd(1);
   gPad->SetGridx();
@@ -345,7 +362,7 @@ void AlignZeroField( const char *configfilename ){
   for (Int_t nys=0;nys<nysieve;nys++) {
     Double_t pos=ys_cent[nys];//for old nysieve=7	
     ys_line[nys]= new TLine(pos,-0.4,pos,0.4);
-    ys_text[nys]= new TText(pos,-0.5,Form("%d",nys));
+    ys_text[nys]= new TText(pos,-0.4,Form("%d",nys));
     ys_text[nys]->SetTextColor(2);
     ys_line[nys]->SetLineColor(2);
     ys_line[nys]->SetLineWidth(1);
@@ -354,8 +371,8 @@ void AlignZeroField( const char *configfilename ){
   }
   for (Int_t nxs=0;nxs<nxsieve;nxs++) {
     Double_t pos=xs_cent[nxs];//for old nysieve=7	
-    xs_line[nxs]= new TLine(-0.4,pos,0.4,pos);
-    xs_text[nxs]= new TText(-0.5,pos,Form("%d",nxs));
+    xs_line[nxs]= new TLine(-0.2,pos,0.2,pos);
+    xs_text[nxs]= new TText(-0.2,pos,Form("%d",nxs));
     xs_text[nxs]->SetTextColor(2);
     xs_line[nxs]->SetLineColor(2);
     xs_line[nxs]->SetLineWidth(1);
@@ -369,70 +386,70 @@ void AlignZeroField( const char *configfilename ){
   //in some kind of loop
   int nloop=0;
   while (nloop !=-1 ) {
-  fcut.cd();
-  for  (Int_t nys=0;nys<nysieve;nys++) {
-    for (Int_t nxs=0; nxs<nxsieve;nxs++){
-      hname_cut= Form("sievecut_%d_%d;1",nys,nxs);
-      t=(TCutG*)gROOT->FindObject(hname_cut);
-      if(t) {
-	fcut.cd();
-	t->Draw("same");
-	t->SetLineColor(1);
-	Double_t xcut,ycut;
-	t->GetPoint(0,xcut,ycut);
-	TText* ystext = new TText(xcut,ycut,Form("(%d,%d)",nys,nxs));
-	ystext->Draw();
-	histView_Cut->Update();
+    fcut.cd();
+    for  (Int_t nys=0;nys<nysieve;nys++) {
+      for (Int_t nxs=0; nxs<nxsieve;nxs++){
+	hname_cut= Form("sievecut_%d_%d;1",nys,nxs);
+	t=(TCutG*)gROOT->FindObject(hname_cut);
+	if(t) {
+	  fcut.cd();
+	  t->Draw("same");
+	  t->SetLineColor(1);
+	  Double_t xcut,ycut;
+	  t->GetPoint(0,xcut,ycut);
+	  TText* ystext = new TText(xcut,ycut,Form("(%d,%d)",nys,nxs));
+	  ystext->Draw();
+	  histView_Cut->Update();
+	}
       }
     }
-  }
   
-  Int_t yscol=0;
-  Int_t xscol=0;
+    Int_t yscol=0;
+    Int_t xscol=0;
     
-  cout <<" Action ( 0 ( set cut) , -10 delete cut,  -100 exit) "  << endl;
-  cin >> nloop ;
-  if (nloop == -100) return;
-  if (!(nloop == -10 || nloop==0 || nloop==-1 || nloop==-100)) continue;//return;
-  if (nloop==-10 || nloop ==0) {
-    cout << " Which xsieve hole ? " << " xscol = " << xscol << endl;
-    cin >> xscol;
-    cout << " Which ysieve hole ? " << " yscol = " << yscol << endl;
-    cin >> yscol;
-    if (yscol >=nysieve)yscol=0;
-    if (xscol >=nxsieve)xscol=0;
-    hname_cut= Form("sievecut_%d_%d;1",yscol,xscol);
-  }
-  if(nloop==-10) {
-    fcut.cd();
-    fcut.Delete(hname_cut+";*");
-    fcut.Delete(hname_cut);
-    t=(TCutG*)gROOT->FindObject(hname_cut);
-    gROOT->Remove(t);
-    t=(TCutG*)gROOT->FindObject(hname_cut);
-    if (!t) cout << " delete cut = " <<hname_cut  << endl;
-    if (t) cout << " delete cut? = " <<hname_cut  << endl;
-    fcut.Write("",TObject::kOverwrite);
-  }
-  if (nloop==0) {
-    t=(TCutG*)gROOT->FindObject(hname_cut);	      
-    if (t) {
-      fcut.cd();
-      fcut.Delete(hname_cut);
+    cout <<" Action ( 0 ( set cut) , -10 delete cut,  -100 exit, -1 done entering cuts) "  << endl;
+    cin >> nloop ;
+    if (nloop == -100) return;
+    if (!(nloop == -10 || nloop==0 || nloop==-1 || nloop==-100)) continue;//return;
+    if (nloop==-10 || nloop ==0) {
+      cout << " Which xsieve hole ? " << " xscol = " << xscol << endl;
+      cin >> xscol;
+      cout << " Which ysieve hole ? " << " yscol = " << yscol << endl;
+      cin >> yscol;
+      if (yscol >=nysieve)yscol=0;
+      if (xscol >=nxsieve)xscol=0;
       hname_cut= Form("sievecut_%d_%d;1",yscol,xscol);
+    }
+    if(nloop==-10) {
+      fcut.cd();
+      fcut.Delete(hname_cut+";*");
+      fcut.Delete(hname_cut);
       t=(TCutG*)gROOT->FindObject(hname_cut);
       gROOT->Remove(t);
+      t=(TCutG*)gROOT->FindObject(hname_cut);
+      if (!t) cout << " delete cut = " <<hname_cut  << endl;
+      if (t) cout << " delete cut? = " <<hname_cut  << endl;
+      fcut.Write("",TObject::kOverwrite);
     }
-    TCutG*cutg=(TCutG*)gPad->WaitPrimitive("CUTG","CutG");
-    histView_Cut->Update();
-    TCutG*tmpg= (TCutG*)gROOT->GetListOfSpecials()->FindObject("CUTG");
-    hname_cut= Form("sievecut_%d_%d;1",yscol,xscol);
-    TCutG*mycutg=(TCutG*)(tmpg->Clone(hname_cut));
-    fcut.cd();
-    mycutg->Write("",TObject::kOverwrite);
-  }
-    
-  }//end while for setting cuts
+    if (nloop==0) {
+      t=(TCutG*)gROOT->FindObject(hname_cut);	      
+      if (t) {
+	fcut.cd();
+	fcut.Delete(hname_cut);
+	hname_cut= Form("sievecut_%d_%d;1",yscol,xscol);
+	t=(TCutG*)gROOT->FindObject(hname_cut);
+	gROOT->Remove(t);
+      }
+      TCutG*cutg=(TCutG*)gPad->WaitPrimitive("CUTG","CutG");
+      histView_Cut->Update();
+      TCutG*tmpg= (TCutG*)gROOT->GetListOfSpecials()->FindObject("CUTG");
+      hname_cut= Form("sievecut_%d_%d;1",yscol,xscol);
+      TCutG*mycutg=(TCutG*)(tmpg->Clone(hname_cut));
+      fcut.cd();
+      mycutg->Write("",TObject::kOverwrite);
+    }
+  } //end while for setting cuts
+  
   TFile hsimc(outCutFile,"recreate");
   HList.Write();
 
@@ -441,9 +458,13 @@ void AlignZeroField( const char *configfilename ){
   //load up the sieve hole cuts
   nevent = 0;
   vector<vector<TCutG*>> sieve_cut;
+  vector<vector<bool> > cutexists;
+
   sieve_cut.resize(nysieve);
+  cutexists.resize(nysieve);
   for (Int_t iy=0;iy<nysieve;iy++){
     sieve_cut[iy].resize(nxsieve);
+    cutexists[iy].resize(nxsieve);
   }
   
   for (Int_t iy=0; iy<nysieve; iy++){
@@ -453,12 +474,17 @@ void AlignZeroField( const char *configfilename ){
 	Int_t npt = tempg->GetN();
 	cout<<"found one"<<endl;
 	//sieve_cut[iy][ix].push_back(tempg);
+	sieve_cut[iy][ix] = tempg;
+	cutexists[iy][ix] = true;
       }
       else{
 	cout<<"didn't find one"<<endl;
 	//sieve_cut[iy][ix].push_back(tempg);
+	sieve_cut[iy][ix] = NULL;
+	cutexists[iy][ix] = false;
       }
-    }}  
+    }
+  }  
 
   while( C->GetEntry( elist->GetEntry( nevent++ ) ) ){
     //In this second loop, make explicit the association between sieve holes and tracks:
@@ -489,10 +515,12 @@ void AlignZeroField( const char *configfilename ){
       for (Int_t iy=0; iy<nysieve; iy++){
 	for (Int_t ix=0;ix<nxsieve;ix++){ 
 
-	  if (sieve_cut[iy][ix]->IsInside(TrackSievePos.Y(),TrackSievePos.X())){
-	    iy_found = iy; ix_found=ix;
-	    hxysieve_sel->Fill( TrackSievePos.Y(), TrackSievePos.X() );
+	  if( cutexists[iy][ix] ){
+	    if (sieve_cut[iy][ix]->IsInside(TrackSievePos.Y(),TrackSievePos.X())){
+	      iy_found = iy; ix_found=ix;
+	      hxysieve_sel->Fill( TrackSievePos.Y(), TrackSievePos.X() );
 
+	    }
 	  }
 	}
       }
@@ -534,7 +562,7 @@ void AlignZeroField( const char *configfilename ){
   arglist[1] = 1.;
   
   //Uncomment this line when we are actually set up to do a fit:   
-  //FitZeroField->mnexcm("MIGRAD",arglist,2,ierflg);
+  FitZeroField->mnexcm("MIGRAD",arglist,2,ierflg);
   
   //TODO: grab parameters, write them out to file. Profit.
   double fitpar[6];
