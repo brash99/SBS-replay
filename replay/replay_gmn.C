@@ -16,6 +16,7 @@
 #include "THaVarList.h"
 #include "THaInterface.h"
 #include "THaGoldenTrack.h"
+#include "THaPrimaryKine.h"
 #include "THaDecData.h"
 
 #include "SBSBigBite.h"
@@ -112,6 +113,8 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   gHaApps->Add(Lrb);
   
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
+  gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
+  
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
   
