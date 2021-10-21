@@ -29,7 +29,8 @@ variable bb.sh.nclus
 block bb.sh.clus_blk.*
 variable bb.sh.ngoodADChits
 
-
+#just one variable for trigger tdc
+variable bb.tdctrig.tdc
 
 ## PS 
 th2d hped_vs_elem_ps 'Pedestal vs element ID : PS' bb.ps.adcelemID[I] bb.ps.ped[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 

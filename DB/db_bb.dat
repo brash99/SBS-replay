@@ -35,11 +35,18 @@ bb.backconstraintwidth_x = 0.05 # m
 bb.backconstraintwidth_y = 0.05 # m
 
 --------[ 2021-10-15 09:00:00 ] # first runs in SBS-1 after sieve removed
+
 bb.frontconstraintwidth_x = 0.1 # m
 bb.frontconstraintwidth_y = 0.1 # m
 bb.backconstraintwidth_x = 0.05 # m
 bb.backconstraintwidth_y = 0.05 # m
 
+--------[ 2021-10-21 00:00:00 ] # open up constraint cuts until calibrations are in better shape:
+
+bb.frontconstraintwidth_x = 0.15 # m
+bb.frontconstraintwidth_y = 0.1 # m
+bb.backconstraintwidth_x = 0.075 # m
+bb.backconstraintwidth_y = 0.075 # m
 
 --------[ 2021-01-01 00:00:00 ]
 
