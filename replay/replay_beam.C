@@ -1,9 +1,10 @@
 R__ADD_INCLUDE_PATH($SBS/include)
 R__ADD_LIBRARY_PATH($SBS/lib64)
 R__ADD_LIBRARY_PATH($SBS/lib)
-R__LOAD_LIBRARY(libsbs.so)
+R__LOAD_LIBRARY(libsbs_df.so)
 
 #if !defined(__CLING__) || defined(__ROOTCLING__)
+
 #include <cstdlib>
 #include <iostream>
 #include <string> 
@@ -25,6 +26,8 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "THaDecData.h"
 
 #include "SBSRasteredBeam.h"
+#include "SBSScalerEvtHandler.h"
+
 #endif 
 
 const std::string SCRIPT = "[replay_beam]: "; 
@@ -34,16 +37,11 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
    // set up file paths
 
    // output and cut definition files
-   // TString replayDir = gSystem->Getenv("SBS-replay");
-   // TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data());  
-   // TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data());  
-   TString odef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/output_beam_raster.def"; 
-   TString cdef_path = "/adaqfs/home/a-onl/sbs/sbs_devel/SBS-replay/replay/cuts_beam_raster.def"; 
+   TString replayDir = gSystem->Getenv("SBS_REPLAY");
+   TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data());
+   TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data()); 
   
    // output ROOT file destination and name
-   // TString out_dir = gSystem->Getenv("OUT_DIR");
-   // if( out_dir.IsNull() ) out_dir = ".";
-   // TString out_file = out_dir + "/" + Form("replayed_%s_%d.root", filePrefix.Data(),runNum);
    TString out_file = Form("%s",outfileName);
  
    THaEvent* event = new THaEvent;
@@ -69,10 +67,18 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
 
-  // FIXME: Check db_LeftScalevt.dat file!  
+  std::ofstream debugFile; 
+  debugFile.open("scaler-dump.txt");
   
-  THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
+  // FIXME: this doesn't work.  
+  SBSScalerEvtHandler *lScaler = new SBSScalerEvtHandler("Left","HA scaler event type 140");
+  lScaler->SetDebugFile(&debugFile);
   gHaEvtHandlers->Add(lScaler);
+  
+  // Old THaScalerEvtHandler (also doesn't work. basically the same class as above...) 
+  // THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
+  // lScaler->SetDebugFile(&debugFile);
+  // gHaEvtHandlers->Add(lScaler);
 
   analyzer->SetEvent(event);
 

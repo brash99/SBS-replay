@@ -16,6 +16,7 @@
 #include "THaVarList.h"
 #include "THaInterface.h"
 #include "THaGoldenTrack.h"
+#include "THaPrimaryKine.h"
 #include "THaDecData.h"
 
 #include "SBSBigBite.h"
@@ -48,7 +49,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   bbtrig->SetModeTDC(SBSModeTDC::kTDC);
   bbtrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( bbtrig );
-  gHaApps->Add(bigbite);
+  
+  SBSGenericDetector* tdctrig= new SBSGenericDetector("tdctrig","BigBite shower TDC trig");
+  tdctrig->SetModeADC(SBSModeADC::kNone);
+  tdctrig->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig->SetStoreEmptyElements(kFALSE);
+  bigbite->AddDetector( tdctrig );
   
   SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
@@ -112,6 +118,8 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   gHaApps->Add(Lrb);
   
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
+  gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
+  
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
   
