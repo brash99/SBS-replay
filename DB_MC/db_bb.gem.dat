@@ -18,7 +18,7 @@ bb.gem.gridedgetolerancey = 0.003
 bb.gem.useconstraint = 1
 
 bb.gem.corrcoeff_cut = 0.5
-bb.gem.ADCasym_cut = 1.0
+bb.gem.ADCasym_cut = 0.5
 bb.gem.deltat_cut = 30.0
 bb.gem.filterflag1D = 0
 bb.gem.filterflag2D = 0
@@ -29,7 +29,6 @@ bb.gem.threshold_clustersum = 400.0
 
 bb.gem.peakprominence_minsigma = 5.0
 bb.gem.peakprominence_minfraction = 0.2
-
 bb.gem.trackchi2cut = 150.0
 
 bb.gem.maxnu_charge = 4
