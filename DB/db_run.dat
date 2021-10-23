@@ -11,6 +11,7 @@ sbs.off_x = 0
 sbs.off_y = 0
 sbs.off_z = 0
 
+bb.magdist = 1.55
 bb.theta    = 33.0                                                              
 bb.pcentral = 2.0 
 
@@ -37,7 +38,8 @@ sbs.pcentral = 1.5
 # BB on beam left:
 bb.theta = 51.0
 bb.pcentral = 1.09
-bb.colldist = 1.51
+bb.colldist = 1.4779
+bb.magdist = 1.8518
 
 
 --------[ 2021-10-18 16:00:00 ] ## Starting SBS-2 kinematics for GMN
@@ -51,4 +53,4 @@ sbs.pcentral = 2.373 # elastic proton momentum
 # note BB field production setting is 750 A most of the time
 bb.theta = 36.0
 bb.pcentral = 2.122 
-
+bb.magdist = 1.799
