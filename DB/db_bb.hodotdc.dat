@@ -23,7 +23,16 @@ bb.hodotdc.chanmap =
          -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1    -1 
          -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1 -1000
 
+bb.hodotdc.horizposbarcut = 0.3
+bb.hodotdc.timeref = 80.0
+bb.hodotdc.timebarcut = 10000.0 
+#time cut wipes out *all* bars - loosened up for the time being
+
 bb.hodotdc.maxclussize = 5
+bb.hodotdc.maxyposdiff_clus = 0.05
+bb.hodotdc.maxtimediff_clus = 10.0
+
+bb.hodotdc.trackmatchcutX = 0.05
 
 ## Positions in [m] where +z is roated by bb.theta
 ##
