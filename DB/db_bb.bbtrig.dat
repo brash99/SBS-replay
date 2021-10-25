@@ -36,13 +36,15 @@ bb.bbtrig.adc.FixThresBin = 14
 # Convert adc integral in pC to GeV
 bb.bbtrig.adc.gain = 1.0
 #
-bb.bbtrig.tdc.cal = 0.112
+## tdc.cal & reftdc.cal has been updated from 0.112->0.0936 following Rachel's calculation
+#
+bb.bbtrig.tdc.cal = 0.0936
 #
 bb.bbtrig.tdc.offset = 0
 #
-bb.bbtrig.tdc.GoodTimeCut = 40.
+bb.bbtrig.tdc.GoodTimeCut = 80.
 #
-bb.bbtrig.reftdc.cal = 0.112
+bb.bbtrig.reftdc.cal = 0.0936
 #
 bb.bbtrig.reftdc.offset = 0
 #
