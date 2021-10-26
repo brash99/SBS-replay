@@ -46,7 +46,7 @@ bb.magdist = 1.8518
 
 ebeam = 3.7278
 
-sbs.theta = 31.9
+sbs.theta = -31.9
 sbs.pcentral = 2.373 # elastic proton momentum
 
 # pcentral chosen for elastic
