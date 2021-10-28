@@ -1,7 +1,8 @@
 R__ADD_INCLUDE_PATH($SBS/include)
 R__ADD_LIBRARY_PATH($SBS/lib64)
 R__ADD_LIBRARY_PATH($SBS/lib)
-R__LOAD_LIBRARY(libsbs_df.so)
+R__LOAD_LIBRARY(libsbs.so)
+// R__LOAD_LIBRARY(libsbs_df.so)
 
 #if !defined(__CLING__) || defined(__ROOTCLING__)
 
@@ -70,16 +71,11 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   std::ofstream debugFile; 
   debugFile.open("lhrs-scaler-dump.txt");
   
-  // FIXME: this doesn't work.  
+  // LHRS scaler data   
   LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
   lScaler->SetDebugFile(&debugFile);
   gHaEvtHandlers->Add(lScaler);
-  
-  // Old THaScalerEvtHandler (also doesn't work. basically the same class as above...) 
-  // THaScalerEvtHandler *lScaler = new THaScalerEvtHandler("Left","HA scaler event type 140");
-  // lScaler->SetDebugFile(&debugFile);
-  // gHaEvtHandlers->Add(lScaler);
-
+ 
   analyzer->SetEvent(event);
 
   analyzer->SetCompressionLevel(1);
