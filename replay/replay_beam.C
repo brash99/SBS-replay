@@ -26,7 +26,7 @@ R__LOAD_LIBRARY(libsbs_df.so)
 #include "THaDecData.h"
 
 #include "SBSRasteredBeam.h"
-#include "SBSScalerEvtHandler.h"
+#include "LHRSScalerEvtHandler.h"
 
 #endif 
 
@@ -68,10 +68,10 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   gHaApps->Add(Lrb);
 
   std::ofstream debugFile; 
-  debugFile.open("scaler-dump.txt");
+  debugFile.open("lhrs-scaler-dump.txt");
   
   // FIXME: this doesn't work.  
-  SBSScalerEvtHandler *lScaler = new SBSScalerEvtHandler("Left","HA scaler event type 140");
+  LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
   lScaler->SetDebugFile(&debugFile);
   gHaEvtHandlers->Add(lScaler);
   
