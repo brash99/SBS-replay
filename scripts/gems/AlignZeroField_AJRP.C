@@ -341,7 +341,7 @@ void AlignZeroField( const char *configfilename ){
   //Set the sieve hole selection
   gROOT->Reset();
   TCanvas *histView_Cut; 
-  histView_Cut= new TCanvas("histView_Cut","cut",1200,900);
+  histView_Cut= new TCanvas("histView_Cut","cut",1400,1000);
   histView_Cut->Divide(1,1);
   histView_Cut->cd(1);
   gPad->SetGridx();

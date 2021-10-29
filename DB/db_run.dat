@@ -42,11 +42,11 @@ bb.colldist = 1.4779
 bb.magdist = 1.8518
 
 
---------[ 2021-10-18 16:00:00 ] ## Starting SBS-2 kinematics for GMN
+--------[ 2021-10-18 16:00:00 ] ## Starting SBS-4 kinematics for GMN
 
-ebeam = 3.74269
+ebeam = 3.7278
 
-sbs.theta = 31.9
+sbs.theta = -31.9
 sbs.pcentral = 2.373 # elastic proton momentum
 
 # pcentral chosen for elastic
@@ -54,3 +54,16 @@ sbs.pcentral = 2.373 # elastic proton momentum
 bb.theta = 36.0
 bb.pcentral = 2.122 
 bb.magdist = 1.799
+
+---------[ 2021-10-25 16:00:00 ] ## Starting SBS-5 kinematics for GMN
+
+ebeam = 7.38 # to be adjusted when we find out what the actual beam energy is according to HALLA:p
+
+sbs.theta = 24.7
+sbs.pcentral = 4.31
+
+# pcentral chosen for elastic:
+
+bb.theta = 27.5 
+bb.pcentral = 3.91
+bb.magdist = 1.90
