@@ -23,10 +23,14 @@ bb.hodotdc.chanmap =
          -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1    -1 
          -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1 -1000
 
+	 
+#setting *very loose* cuts before we are informed on what those values shall be.
+bb.hodotdc.tdcwindowmin = -102
+bb.hodotdc.tdcwindowmax = -62
+
 bb.hodotdc.horizposbarcut = 0.3
-bb.hodotdc.timeref = 80.0
-bb.hodotdc.timebarcut = 10000.0 
-#time cut wipes out *all* bars - loosened up for the time being
+#bb.hodotdc.timeref = -80.0
+#bb.hodotdc.timebarcut = 30.0 
 
 bb.hodotdc.maxclussize = 5
 bb.hodotdc.maxyposdiff_clus = 0.05
