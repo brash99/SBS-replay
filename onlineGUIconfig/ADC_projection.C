@@ -5,7 +5,7 @@ void ADC_projection(TString Thist, int module){
 
   TH1D *ADC1D = ADC2D->ProjectionY();
 
-  ADC1D->SetTitle(Form("module %i U Strip", module));
+  ADC1D->SetTitle(Form("module %i", module));
   
   ADC1D->Draw();
 

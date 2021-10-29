@@ -1,5 +1,6 @@
 -------[ 2021-01-01 00:00:00 ]
 
+bb.magdist = 1.8
 #bb.tracker_pitch_angle = 10.
 
 # GEM origin coordinates for SBS-1 kinematics
