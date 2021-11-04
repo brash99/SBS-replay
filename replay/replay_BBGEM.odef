@@ -114,6 +114,13 @@ th2d hbb_gem_m0_ADCsum_vs_Vstrip_all 'UVA U/V  strip layer 1; V strip ADC sum vs
 th2d hbb_gem_m0_ADCmax_vs_Ustrip_all 'UVA U/V  strip layer 1; U strip ADC max vs strip;' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m0.strip.IsU[I]
 th2d hbb_gem_m0_ADCmax_vs_Vstrip_all 'UVA U/V  strip layer 1; V strip ADC max vs strip;' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m0.strip.IsV[I]
 
+# experimental: strip fit times
+th1d hbb_gem_m0_stripU_Tfit_good 'Module 0 fit time of U strip on track; T fit (ns);' bb.gem.m0.strip.Tfit[I] 450 -150.0 300.0 bb.gem.m0.strip.ontrackU[I]
+th1d hbb_gem_m0_stripV_Tfit_good 'Module 0 fit time of V strip on track; T fit (ns);' bb.gem.m0.strip.Tfit[I] 450 -150.0 300.0 bb.gem.m0.strip.ontrackV[I]
+th1d hbb_gem_m0_stripU_Tfit_all 'Module 0 fit time of U strip; T fit (ns);' bb.gem.m0.strip.Tfit[I] 450 -150.0 300.0 bb.gem.m0.strip.IsU[I]
+th1d hbb_gem_m0_stripV_Tfit_all 'Module 0 fit time of V strip; T fit (ns);' bb.gem.m0.strip.Tfit[I] 450 -150.0 300.0 bb.gem.m0.strip.IsV[I]
+
+
 # Module 0 strip histograms, strips on tracks: 
 th1d hbb_gem_m0_stripU_good 'UVA U/V  strip layer 1 (strips on tracks); U/X strip index;' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.ontrackU[I]
 th1d hbb_gem_m0_stripV_good 'UVA U/V  strip layer 1 (strips on tracks); V/Y strip index;' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.ontrackV[I]
