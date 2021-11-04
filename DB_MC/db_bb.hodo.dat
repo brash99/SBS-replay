@@ -38,6 +38,17 @@ bb.hodo.chanmap = 0 1 2 3 4 5 6 7 8 9
 		 160 161 162 163 164 165 166 167 168 169
 		 170 171 172 173 174 175 176 177 178 179
 
+bb.hodo.horizposbarcut = 3.0
+bb.hodo.timeref = 80.0
+bb.hodo.timebarcut = 10000.0
+
+bb.hodo.maxclussize = 5
+bb.hodo.maxyposdiff_clus = 0.05
+bb.hodo.maxtimediff_clus = 10.0
+
+bb.hodo.trackmatchcutX = 0.05
+bb.hodo.trackmatchcutY = 0.6
+
 bb.hodo.ypos = 
 -1.1125 -1.0875 -1.0625 -1.0375 -1.0125 
 -0.9875 -0.9625 -0.9375 -0.9125 -0.8875 
