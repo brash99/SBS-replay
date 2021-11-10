@@ -52,7 +52,7 @@ bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
 bb.gem.commonmode_minstrips = 20
-bb.gem.plot_common_mode = 1
+bb.gem.plot_common_mode = 0
 bb.gem.pedsub_online = 1 # normally this should always be set to 1
 bb.gem.dump_geometry_info = 1
 bb.gem.efficiency_bin_width_1D = 0.02
@@ -62,6 +62,13 @@ bb.gem.commonmode_range_nsigma = 5.0
 bb.gem.m1.commonmode_range_nsigma = 10.0
 bb.gem.m2.commonmode_range_nsigma = 10.0
 bb.gem.m3.commonmode_range_nsigma = 10.0
+
+bb.gem.usestriptimingcut = 1
+bb.gem.useTSchi2cut = 0
+bb.gem.maxstrip_t0 = 85.4
+bb.gem.maxstrip_tcut = 21.0
+bb.gem.addstrip_tcut = 21.0
+bb.gem.addstrip_ccor_cut = 0.4
 
 
 bb.gem.plot_event_info = 1
