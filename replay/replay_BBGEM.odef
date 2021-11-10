@@ -10,6 +10,14 @@ variable bb.gem.nstripsv_layer
 variable bb.gem.nclustu_layer
 variable bb.gem.nclustv_layer
 variable bb.gem.n2Dhit_layer
+block bb.gem.*.strip.nstripsfired
+block bb.gem.*.strip.nstrips_keep
+block bb.gem.*.strip.nstrips_keepU
+block bb.gem.*.strip.nstrips_keepV
+block bb.gem.*.strip.nstrips_keep_lmax
+block bb.gem.*.strip.nstrips_keep_lmaxU
+block bb.gem.*.strip.nstrips_keep_lmaxV
+
 #block bb.gem.*.time.T0_by_APV
 #block bb.gem.*.time.Tref_coarse
 #block bb.gem.*.time.Tcoarse_by_APV
