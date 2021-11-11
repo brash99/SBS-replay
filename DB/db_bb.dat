@@ -74,18 +74,22 @@ bb.backconstraintwidth_y = 0.05 # m
 --------[ 2021-10-15 09:00:00 ] # first runs in SBS-1 after sieve removed
 
 bb.frontconstraintwidth_x = 0.1 # m
-bb.frontconstraintwidth_y = 0.1 # m
-bb.backconstraintwidth_x = 0.05 # m
-bb.backconstraintwidth_y = 0.05 # m
+bb.frontconstraintwidth_y = 0.06 # m
+bb.backconstraintwidth_x = 0.06 # m
+bb.backconstraintwidth_y = 0.06 # m
+bb.frontconstraint_x0 = 0.055
+bb.frontconstraint_y0 = -0.014
 
---------[ 2021-10-21 00:00:00 ] # open up constraint cuts until calibrations are in better shape:
+--------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics: 
 
 bb.frontconstraintwidth_x = 0.1 # m
-bb.frontconstraintwidth_y = 0.05 # m
-bb.backconstraintwidth_x = 0.05 # m
-bb.backconstraintwidth_y = 0.05 # m
-bb.frontconstraint_x0 = 0.0331
-bb.frontconstraint_y0 = -0.0155 # m
+bb.frontconstraintwidth_y = 0.06 # m
+bb.backconstraintwidth_x = 0.06 # m
+bb.backconstraintwidth_y = 0.06 # m
+#bb.frontconstraint_x0 = 0.0331
+#bb.frontconstraint_y0 = -0.0155 # m
+bb.frontconstraint_x0 = 0.055
+bb.frontconstraint_y0 = -0.014
 
 --------[ 2021-01-01 00:00:00 ]
 

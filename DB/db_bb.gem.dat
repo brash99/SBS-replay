@@ -63,6 +63,7 @@ bb.gem.m1.commonmode_range_nsigma = 10.0
 bb.gem.m2.commonmode_range_nsigma = 10.0
 bb.gem.m3.commonmode_range_nsigma = 10.0
 
+# these may need adjusting:
 bb.gem.usestriptimingcut = 1
 bb.gem.useTSchi2cut = 0
 bb.gem.maxstrip_t0 = 85.4
@@ -424,10 +425,10 @@ bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004 
 bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
-bb.gem.trackchi2cut = 200.0
+bb.gem.trackchi2cut = 100.0
 bb.gem.onlinezerosuppression = 0
 bb.gem.zerosuppress_nsigma = 5.0
-bb.gem.minhitsontrack = 4
+bb.gem.minhitsontrack = 3
 bb.gem.maxhitcombos = 20000
 bb.gem.maxhitcombos_inner = 20000
 bb.gem.maxhitcombos_total = 1000000000
@@ -437,6 +438,16 @@ bb.gem.gridbinwidthy = 0.01
 bb.gem.gridedgetolerancex = 0.003
 bb.gem.gridedgetolerancey = 0.003
 bb.gem.useconstraint = 1
+
+bb.gem.useopticsconstraint = 0
+bb.gem.xptar_min = -0.25
+bb.gem.xptar_max = 0.25
+bb.gem.yptar_min = -0.08
+bb.gem.yptar_max = -0.08
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
+bb.gem.pmin = 0.5
+bb.gem.pmax = 4.5
 
 ################### DECODE INFO ########################################################################
 ## Channel maps for decoding explained                                                                ##
@@ -1099,7 +1110,35 @@ bb.gem.threshold_sample = 150.0
 bb.gem.threshold_stripsum = 500.0
 bb.gem.threshold_clustersum = 1000.0
 
-###############################################################################			    
+###############################################################################
+
+###################### BEGIN TIME-DEPENDENT OPTICS constraints for track search #############
+
+-----------[ 2021-01-01 00:00:00 ] # at SBS-1, the max. good electron momentum is about 1.5 GeV
+bb.gem.useopticsconstraint = 1
+bb.gem.xptar_min = -0.25
+bb.gem.xptar_max = 0.25
+bb.gem.yptar_min = -0.08
+bb.gem.yptar_max = 0.08
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
+bb.gem.pmin = 0.5
+bb.gem.pmax = 1.5
+
+----------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics:
+
+bb.gem.useopticsconstraint = 1
+bb.gem.xptar_min = -0.3
+bb.gem.xptar_max = 0.3
+bb.gem.yptar_min = -0.09
+bb.gem.yptar_max = 0.1
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
+bb.gem.pmin = 0.7
+bb.gem.pmax = 2.7
+
+
+###############################################################################	
 
 ###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
 
@@ -1107,11 +1146,12 @@ bb.gem.threshold_clustersum = 1000.0
 ---------[ 2021-10-14 21:50:00 ]
 
 bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
 
 ---------[ 2021-10-14 23:14:00 ]  
 
 bb.gem.useconstraint = 1
-
+bb.gem.useopticsconstraint = 1
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
 
