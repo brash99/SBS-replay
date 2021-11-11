@@ -52,7 +52,7 @@ bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
 bb.gem.commonmode_minstrips = 20
-bb.gem.plot_common_mode = 1
+bb.gem.plot_common_mode = 0
 bb.gem.pedsub_online = 1 # normally this should always be set to 1
 bb.gem.dump_geometry_info = 1
 bb.gem.efficiency_bin_width_1D = 0.02
@@ -62,6 +62,14 @@ bb.gem.commonmode_range_nsigma = 5.0
 bb.gem.m1.commonmode_range_nsigma = 10.0
 bb.gem.m2.commonmode_range_nsigma = 10.0
 bb.gem.m3.commonmode_range_nsigma = 10.0
+
+# these may need adjusting:
+bb.gem.usestriptimingcut = 1
+bb.gem.useTSchi2cut = 0
+bb.gem.maxstrip_t0 = 85.4
+bb.gem.maxstrip_tcut = 21.0
+bb.gem.addstrip_tcut = 21.0
+bb.gem.addstrip_ccor_cut = 0.4
 
 
 bb.gem.plot_event_info = 1
@@ -417,10 +425,10 @@ bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004 
 bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
-bb.gem.trackchi2cut = 200.0
+bb.gem.trackchi2cut = 100.0
 bb.gem.onlinezerosuppression = 0
 bb.gem.zerosuppress_nsigma = 5.0
-bb.gem.minhitsontrack = 4
+bb.gem.minhitsontrack = 3
 bb.gem.maxhitcombos = 20000
 bb.gem.maxhitcombos_inner = 20000
 bb.gem.maxhitcombos_total = 1000000000
@@ -430,6 +438,16 @@ bb.gem.gridbinwidthy = 0.01
 bb.gem.gridedgetolerancex = 0.003
 bb.gem.gridedgetolerancey = 0.003
 bb.gem.useconstraint = 1
+
+bb.gem.useopticsconstraint = 0
+bb.gem.xptar_min = -0.25
+bb.gem.xptar_max = 0.25
+bb.gem.yptar_min = -0.08
+bb.gem.yptar_max = -0.08
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
+bb.gem.pmin = 0.5
+bb.gem.pmax = 4.5
 
 ################### DECODE INFO ########################################################################
 ## Channel maps for decoding explained                                                                ##
@@ -884,6 +902,8 @@ bb.gem.m11.chanmap =
 
 ############ END TIME-DEPENDENT DECODE MAP ENTRIES
 
+
+
 ################### BEGIN TIME-DEPENDENT ALIGNMENT ENTRIES ##################################
 
 --------[ 2021-10-04 22:36:00 ] # start of run 1109, the first good run that I'm aware of with "final" alignment
@@ -940,6 +960,33 @@ bb.gem.m10.angle =     -0.06476492      -0.1361551      -0.2631999
 bb.gem.m11.position =       0.7707586     -0.01281094        1.533085
 bb.gem.m11.angle =      -0.3687799      -0.2340395      -0.2669022
 
+--------[ 2021-10-21 07:00:00 ] # run 11436 new alignments:
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =       0.5300799    -0.001005456        0.131787
+bb.gem.m1.angle =       0.1094326      -0.3002299      -0.1640128
+bb.gem.m2.position =    -0.004782724     0.002241139       0.1296298
+bb.gem.m2.angle =     -0.07869501       0.1492489      -0.3683688
+bb.gem.m3.position =      -0.5409488     0.005962754       0.1314313
+bb.gem.m3.angle =      -0.2850737       0.2653069      -0.3794431
+bb.gem.m4.position =    -0.007574628     0.005974507       0.2775943
+bb.gem.m4.angle =       0.1291546      0.09468681      -0.2988169
+bb.gem.m5.position =        0.524765     0.003674245       0.4137747
+bb.gem.m5.angle =         0.15849      -0.4730873      -0.1798822
+bb.gem.m6.position =     -0.01012711     0.004799457       0.4152936
+bb.gem.m6.angle =       0.1776978       0.4056619     -0.03328259
+bb.gem.m7.position =          -0.535               0          0.4112
+bb.gem.m7.angle =               0               0               0
+bb.gem.m8.position =      -0.7646609    0.0006738031        1.572312
+bb.gem.m8.angle =      0.03023887      -0.1724502        -0.32777
+bb.gem.m9.position =      -0.2526523    -0.003210836        1.532267
+bb.gem.m9.angle =      -0.1880107      -0.1276798      -0.3071291
+bb.gem.m10.position =       0.2584796     -0.00902241        1.574917
+bb.gem.m10.angle =      -0.2297891      -0.1024329      -0.2625098
+bb.gem.m11.position =       0.7709063     -0.01275901        1.534581
+bb.gem.m11.angle =      -0.1848441      -0.1216714      -0.3048087
+
+
 --------[ 2021-10-23 12:30:00 ] # run 11548 new alignments:
 bb.gem.m0.position =               0               0               0
 bb.gem.m0.angle =               0               0               0
@@ -969,6 +1016,93 @@ bb.gem.m11.angle =      -0.2717525       -0.136618      -0.3044106
 
 ########################### END TIME-DEPENDENT ALIGNMENT PARAMETERS 
 
+#################### BEGIN TIME-DEPENDENT GAIN MATCH PARAMETERS ##############################
+-------[ 2021-01-01 00:00:00 ] # initially, we were running at lower HV, these parameters are from SBS-1 optics data:
+
+#Module internal relative gains by APV card: 
+bb.gem.m0.vgain = 1  1  0.922788  0.868468  0.84795  0.854752  0.840927  0.812182  0.824985  0.897269  0.909287  0.825  0.833803  0.852752  0.865516  0.895084  0.863674  0.912388  0.929856  0.946513  0.901281  0.937671  0.931435  0.927749  0.918065  0.904849  1.04538  1.07406  1.17524  1  
+bb.gem.m0.ugain = 1  1.12969  0.982299  0.910987  0.917517  1.028  0.91389  0.969501  0.887228  0.967483  0.891437  0.932717  1  0.967796  0.932223  0.981003  1.02996  0.982872  1.04916  1.02479  1.04176  1.04898  1.10283  1.02383  1.08466  1.15114  1.1012  1.22265  1  1  
+bb.gem.m1.vgain = 0.834677  0.936815  0.926078  0.992003  0.982374  0.959832  0.953892  1  
+bb.gem.m1.ugain = 0.98402  1.14722  1.02382  1.17778  1.17857  1.12681  1.21804  1.02897  1.13128  1  
+bb.gem.m2.vgain = 0.922182  0.992759  1.00046  1.01103  0.974527  0.990518  0.974219  1  
+bb.gem.m2.ugain = 0.901511  0.96341  0.943244  1  1.00683  1.0195  1.03975  0.943573  1.05399  0.955832  
+bb.gem.m3.vgain = 0.746919  0.855883  0.793305  0.898179  0.894198  0.94549  0.987106  1  
+bb.gem.m3.ugain = 1  0.962197  1.01866  0.897486  0.91264  0.916954  0.92726  0.888314  0.842845  0.780455  
+bb.gem.m4.vgain = 1  1  0.908483  0.861523  0.870762  0.894558  0.918363  0.86584  0.917447  0.900065  0.931988  0.888258  0.900339  0.866696  0.904625  0.895892  0.909609  0.901222  0.903116  0.966236  0.933901  0.905593  1.09444  0.915333  0.919532  0.911813  0.997771  1.0059  1.1446  1  
+bb.gem.m4.ugain = 1  1.32552  1.1755  1  1.02688  0.969465  0.9567  1.02503  0.963719  1.00959  0.952652  0.946918  0.965749  1  0.9928  0.964212  0.975184  0.944532  1.00474  0.990463  0.958997  0.994467  0.987853  0.973374  0.996838  0.943026  1.24062  1.17362  1.27841  1  
+bb.gem.m5.vgain = 1.00038  1.10874  0.936689  1.09039  1.08088  0.993479  0.975173  0.908546  
+bb.gem.m5.ugain = 0.974903  0.970055  1.01891  0.979843  0.995483  0.991839  0.994148  0.926615  0.962828  1  
+bb.gem.m6.vgain = 1.44504  1.4656  1.35181  1.38701  1.43499  1.3773  1.46336  1.3702  
+bb.gem.m6.ugain = 1.20865  1.15118  1.03908  1  0.892997  0.851192  0.859832  0.899839  0.925309  0.933918  
+bb.gem.m7.vgain = 1  1  1  1  1  1  1  1  
+bb.gem.m7.ugain = 1  1  1  1  1  1  1  1  1  1  
+bb.gem.m8.vgain = 1.20762  1.46186  1.47289  1.52728  1.42734  1.46237  1.54609  1.57153  1.38926  1.51197  1.39925  1.47964  
+bb.gem.m8.ugain = 1.04355  1.08157  0.991193  0.980462  1.07556  1.01484  0.997567  0.981134  0.971901  1  
+bb.gem.m9.vgain = 0.986325  1.07143  1.0652  1.05772  1.06236  1.16748  1.11773  1.18123  1.16681  1.12572  1.16477  1  
+bb.gem.m9.ugain = 0.909907  0.859424  0.88184  0.833333  0.850128  0.915828  1.04332  0.896299  0.974283  1  
+bb.gem.m10.vgain = 0.982756  0.953853  1.01486  0.9776  0.901376  0.974171  0.947625  0.991018  0.941061  0.900823  0.901122  0.720588  
+bb.gem.m10.ugain = 1.02865  0.918693  0.931512  0.96831  1.02504  1  1.01036  1.06258  1.08999  1.16642  
+bb.gem.m11.vgain = 1  1  1.33634  1.41503  1.44152  1.31617  1.30393  1.29733  1.2852  1.30906  1.17912  1  
+bb.gem.m11.ugain = 1  0.917205  0.988728  0.975045  1.00739  1.01275  0.981746  0.977806  1.02512  1  
+
+# Module average gains relative to target ADC peak position of 4000
+bb.gem.m0.modulegain = 0.611979
+bb.gem.m1.modulegain = 0.592877
+bb.gem.m2.modulegain = 0.669019
+bb.gem.m3.modulegain = 0.669415
+bb.gem.m4.modulegain = 0.578455
+bb.gem.m5.modulegain = 0.632566
+bb.gem.m6.modulegain = 0.450249
+bb.gem.m7.modulegain = 0.557015
+bb.gem.m8.modulegain = 1.19897
+bb.gem.m9.modulegain = 0.530478
+bb.gem.m10.modulegain = 0.553906
+bb.gem.m11.modulegain = 0.612277
+
+--------[ 2021-10-17 19:12:00 ] # HVs increased: these gain params are from a combined analysis of 11436 and 11548, and should be valid for the HV settings used starting around run 11288
+
+#Module internal relative gains by APV card: 
+bb.gem.m0.vgain = 1  1  1.06483  0.950643  0.906718  0.934693  0.925852  0.882276  0.90816  0.970558  0.988866  0.879329  0.878048  0.905286  0.916642  0.946197  0.901426  0.961623  0.981029  0.988568  0.942982  1.00734  0.938049  0.958685  0.940139  0.924492  1.05634  1.08367  1.17105  1  
+bb.gem.m0.ugain = 1  1.16492  1.07764  0.960597  0.954891  1.11908  0.971215  1.0569  0.96255  1.03047  0.918095  0.998702  1.08531  1.04399  1  1.03808  1.11021  1.03664  1.11237  1.10662  1.10937  1.14383  1.15979  1.02913  1.08122  1.13941  1.05918  1.20774  1  1  
+bb.gem.m1.vgain = 0.575252  0.723073  0.752058  0.833959  0.810148  0.807566  0.772084  1  
+bb.gem.m1.ugain = 1.10456  1.13093  1.00153  1.19238  1.03648  1.13114  1.14577  1.05673  1.04941  1  
+bb.gem.m2.vgain = 0.896885  1.00686  0.984208  1.027  0.96316  1.00018  0.927685  -0.610782  
+bb.gem.m2.ugain = 0.888977  0.933939  0.92513  0.983811  0.980911  1  1.0159  0.934215  1.00584  0.968406  
+bb.gem.m3.vgain = 0.602148  0.716368  0.673616  0.761879  0.756498  0.811389  0.818077  1  
+bb.gem.m3.ugain = 1  0.990978  1.00444  0.89965  0.783276  0.799914  0.771528  0.743175  0.663513  0.641394  
+bb.gem.m4.vgain = 1  0.94971  0.901694  0.84226  0.83308  0.877367  0.89413  0.848039  0.904985  0.877614  0.920633  0.880537  0.892813  0.858638  0.899967  0.89394  0.895042  0.891998  0.901818  0.97249  0.932229  0.904235  0.919683  0.890731  0.922026  0.898758  0.979616  0.982672  1.14007  1  
+bb.gem.m4.ugain = 1.43963  1.28588  1.11498  1  0.997386  0.925278  0.912983  0.991287  0.926727  0.990833  0.931736  0.92243  0.92505  0.990169  1  0.932141  0.966641  0.915131  0.99021  0.960534  0.92854  0.989135  0.951035  0.91734  0.923832  0.894934  0.914158  1.10141  1.23579  1  
+bb.gem.m5.vgain = 1.04755  1.15574  1.10622  1.15989  1.12205  1.05195  1.05793  1  
+bb.gem.m5.ugain = 0.976526  0.953323  1.01484  0.983995  1.01062  0.98228  0.993154  0.931771  0.949827  1  
+bb.gem.m6.vgain = 1.19479  1.24268  1.12021  1.1551  1.22152  1.18108  1.24015  1.17146  
+bb.gem.m6.ugain = 1  0.918529  0.821424  0.783212  0.701388  0.676882  0.666563  0.701977  0.725926  0.733232  
+bb.gem.m7.vgain = 1  1  1  1  1  1  1  1  
+bb.gem.m7.ugain = 1  1  1  1  1  1  1  1  1  1  
+bb.gem.m8.vgain = 1.35699  1.51729  1.5497  1.5955  1.44713  1.55522  1.6148  1.58615  1.453  1.58188  1.42501  1.49749  
+bb.gem.m8.ugain = 1.07333  1.10254  1.02308  1.0261  1.13112  1.07996  1.04827  1.01954  1.02554  1  
+bb.gem.m9.vgain = 1.00173  1.11241  1.13067  1.12764  1.11068  1.24879  1.17878  1.29444  1.27328  1.19837  1.26296  1  
+bb.gem.m9.ugain = 0.905012  0.875234  0.891155  0.878846  0.868256  0.947062  1.10215  0.925472  1  1.01252  
+bb.gem.m10.vgain = 1.07163  1.07491  1.14079  1.1105  1.02625  1.10835  1.06856  1.13619  1.10987  1.04367  1.02195  0.778023  
+bb.gem.m10.ugain = 1.19762  1  1.01702  1.1046  1.14449  1.13773  1.12822  1.21689  1.26307  1.33573  
+bb.gem.m11.vgain = 1  1.41229  1.35991  1.40826  1.48319  1.38494  1.40448  1.40384  1.4132  1.4236  1.28722  1.1366  
+bb.gem.m11.ugain = 1.01233  0.946893  1  1.0084  1.0472  1.0491  0.998412  0.99437  1.05855  1.04976  
+
+# Module average gains relative to target ADC peak position of 4000
+bb.gem.m0.modulegain = 1.31101
+bb.gem.m1.modulegain = 0.823174
+bb.gem.m2.modulegain = 0.873871
+bb.gem.m3.modulegain = 0.917247
+bb.gem.m4.modulegain = 1.19257
+bb.gem.m5.modulegain = 0.884421
+bb.gem.m6.modulegain = 0.785245
+bb.gem.m7.modulegain = 1.0
+bb.gem.m8.modulegain = 1.81043
+bb.gem.m9.modulegain = 1.17566
+bb.gem.m10.modulegain = 1.19767
+bb.gem.m11.modulegain = 1.27523
+
+######################### END TIME-DEPENDENT GAIN-MATCH PARAMETERS $$$$$$$$$$$$$$$$$$$$$$$$
+
 ###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
 
 -----------[ 2021-10-17 19:12:00 ] # new higher thresholds after GEM HV increase
@@ -976,7 +1110,35 @@ bb.gem.threshold_sample = 150.0
 bb.gem.threshold_stripsum = 500.0
 bb.gem.threshold_clustersum = 1000.0
 
-###############################################################################			    
+###############################################################################
+
+###################### BEGIN TIME-DEPENDENT OPTICS constraints for track search #############
+
+-----------[ 2021-01-01 00:00:00 ] # at SBS-1, the max. good electron momentum is about 1.5 GeV
+bb.gem.useopticsconstraint = 1
+bb.gem.xptar_min = -0.25
+bb.gem.xptar_max = 0.25
+bb.gem.yptar_min = -0.08
+bb.gem.yptar_max = 0.08
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
+bb.gem.pmin = 0.5
+bb.gem.pmax = 1.5
+
+----------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics:
+
+bb.gem.useopticsconstraint = 1
+bb.gem.xptar_min = -0.3
+bb.gem.xptar_max = 0.3
+bb.gem.yptar_min = -0.09
+bb.gem.yptar_max = 0.1
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
+bb.gem.pmin = 0.7
+bb.gem.pmax = 2.7
+
+
+###############################################################################	
 
 ###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
 
@@ -984,11 +1146,12 @@ bb.gem.threshold_clustersum = 1000.0
 ---------[ 2021-10-14 21:50:00 ]
 
 bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
 
 ---------[ 2021-10-14 23:14:00 ]  
 
 bb.gem.useconstraint = 1
-
+bb.gem.useopticsconstraint = 1
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
 
