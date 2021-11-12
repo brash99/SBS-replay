@@ -11,7 +11,7 @@ Block: Decode
 Decode_master   1
 
 Block: CoarseReconstruct
-
+bb.gem.track.ntrack>0
 
 CoarseReconstruct_master 1
 

@@ -12,9 +12,9 @@ Decode_master   1
 
 Block: CoarseReconstruct
 
-HitsPreShower          bb.ps.nhits>5
+HitsPreShower          bb.ps.nhits>2
 HitsShower             bb.sh.nhits>5
-GoodPreShower          bb.ps.ngoodADChits>5
+GoodPreShower          bb.ps.ngoodADChits>2
 GoodShower             bb.sh.ngoodADChits>5
 GoodEvent              GoodPreShower||GoodShower
 

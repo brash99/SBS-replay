@@ -1150,7 +1150,7 @@ bb.gem.useopticsconstraint = 0
 
 ---------[ 2021-10-14 23:14:00 ]  
 
-bb.gem.useconstraint = 1
+bb.gem.useconstraint = 0
 bb.gem.useopticsconstraint = 1
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
