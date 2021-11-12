@@ -1193,6 +1193,9 @@ bb.gem.pedfile = gemped/daq_ped_bb_gem_run11440.dat
 --------[ 2021-10-21 17:00:00 ] # run 11462
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run11462.dat
 
+--------[ 2021-11-12 17:00:00 ] # run 11462
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run11936.dat
+
 #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
 
 
