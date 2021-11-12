@@ -10,6 +10,14 @@ variable bb.gem.nstripsv_layer
 variable bb.gem.nclustu_layer
 variable bb.gem.nclustv_layer
 variable bb.gem.n2Dhit_layer
+block bb.gem.*.strip.nstripsfired
+block bb.gem.*.strip.nstrips_keep
+block bb.gem.*.strip.nstrips_keepU
+block bb.gem.*.strip.nstrips_keepV
+block bb.gem.*.strip.nstrips_keep_lmax
+block bb.gem.*.strip.nstrips_keep_lmaxU
+block bb.gem.*.strip.nstrips_keep_lmaxV
+
 #block bb.gem.*.time.T0_by_APV
 #block bb.gem.*.time.Tref_coarse
 #block bb.gem.*.time.Tcoarse_by_APV
@@ -113,6 +121,19 @@ th2d hbb_gem_m0_ADCsum_vs_Ustrip_all 'UVA U/V  strip layer 1; U strip ADC sum vs
 th2d hbb_gem_m0_ADCsum_vs_Vstrip_all 'UVA U/V  strip layer 1; V strip ADC sum vs strip;' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCsum[I] 3840 -0.5 3839.5 250 0 12000 bb.gem.m0.strip.IsV[I]
 th2d hbb_gem_m0_ADCmax_vs_Ustrip_all 'UVA U/V  strip layer 1; U strip ADC max vs strip;' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m0.strip.IsU[I]
 th2d hbb_gem_m0_ADCmax_vs_Vstrip_all 'UVA U/V  strip layer 1; V strip ADC max vs strip;' bb.gem.m0.strip.istrip[I] bb.gem.m0.strip.ADCmax[I] 3840 -0.5 3839.5 250 0 4000 bb.gem.m0.strip.IsV[I]
+
+# experimental: new strip timing variables:
+th1d hbb_gem_m0_strip_Tdiff '; Tstrip - Tclust (ns) ; ' bb.gem.m0.strip.Tdiff[I] 200 -50 50 bb.gem.m0.strip.ontrack[I]
+th1d hbb_gem_m0_strip_CorrCoeff '; Corr. Coeff. ; ' bb.gem.m0.strip.CorrCoeff[I] 200 -1 1 bb.gem.m0.strip.ontrack[I] 
+th1d hbb_gem_m0_strip_TSchi2_all 'All strips ; Time samples chi2 ; ' bb.gem.m0.strip.TSchi2 200 0 200 
+th1d hbb_gem_m0_strip_TSchi2_good 'Strips on tracks ; Time samples chi2 ; ' bb.gem.m0.strip.TSchi2 200[I] 0 200 bb.gem.m0.strip.ontrack[I] 
+
+th2d hbb_gem_m0_strip_CorrCoeff_vs_Tdiff '; Tstrip - Tclust (ns) ; Corr Coeff' bb.gem.m0.strip.Tdiff[I] bb.gem.m0.strip.CorrCoeff[I] 200 -50 50 200 -1 1 bb.gem.m0.strip.ontrack[I] 
+th2d hbb_gem_m0_strip_Tdiff_vs_ADC '; ADC sum ; Tstrip - Tclust (ns)' bb.gem.m0.strip.ADCsum[I] bb.gem.m0.strip.Tdiff[I] 500 0 15000 200 -50 50 bb.gem.m0.strip.ontrack[I]
+th2d hbb_gem_m0_strip_CorrCoeff_vs_ADC '; ADC sum ; Corr. Coeff' bb.gem.m0.strip.ADCsum[I] bb.gem.m0.strip.CorrCoeff[I] 250 0 15000 200 -1 1 bb.gem.m0.strip.ontrack[I]
+
+
+
 
 # Module 0 strip histograms, strips on tracks: 
 th1d hbb_gem_m0_stripU_good 'UVA U/V  strip layer 1 (strips on tracks); U/X strip index;' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.ontrackU[I]

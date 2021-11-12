@@ -233,9 +233,13 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   C->SetBranchAddress( branchnames["hit.ADCasym"].Data(), &(hit_ADCasym[0]) );
   cout << "done." << endl;
   
-  TString outfilename = fname;
+  TString outfilename = Form("GainRatios_%s_temp.root",detname); 
 
-  outfilename.Prepend("GainRatios_");
+  
+
+  //  outfilename.Prepend("GainRatios_");
+
+  cout << "Out file name = " << outfilename << endl;
 
   TFile *fout = new TFile( outfilename.Data(), "RECREATE" );
   
@@ -415,18 +419,20 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     hnametemp.Form("ADCasym_module%d",i);
     htemp = hADCasym_module->ProjectionY(hnametemp.Data(), i+1, i+1 );
 
-    double max = htemp->GetMaximum();
-    int binmax,binlo,binhi;
-
-    binmax = htemp->GetMaximumBin();
-    binlo = binmax;
-    binhi = binmax;
-
-    while( htemp->GetBinContent(binlo) >= 0.5*max && binlo > 1 ){binlo--;}
-    while( htemp->GetBinContent(binhi) >= 0.5*max && binhi < 500 ){binhi++; }
-
     if( htemp->GetEntries() >= 100 ){
-    
+      
+      double max = htemp->GetMaximum();
+      int binmax,binlo,binhi;
+      
+      binmax = htemp->GetMaximumBin();
+      binlo = binmax;
+      binhi = binmax;
+      
+      while( htemp->GetBinContent(binlo) >= 0.5*max && binlo > 1 ){binlo--;}
+      while( htemp->GetBinContent(binhi) >= 0.5*max && binhi < 500 ){binhi++; }
+      
+      
+      
       htemp->Fit("gaus","S","",htemp->GetBinCenter(binlo),htemp->GetBinCenter(binhi) );
       
       TF1 *fitfunc = (TF1*) htemp->GetListOfFunctions()->FindObject("gaus");
@@ -458,13 +464,17 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
     htemp = hADCavg_module->ProjectionY( hnametemp.Data(), i+1, i+1 );
 
-    TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",ADCcut,25000.0);
-    double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
+    if( htemp->GetEntries() >= 100. ){
 
-    cout << "module " << i << " MPV = " << MPV_mod << endl;
-    cout << "module " << i << " relative gain = " << MPV_mod / target_ADC << endl;
-    
-    RelativeGainByModule[i] = MPV_mod/MPV_all;
+      TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",ADCcut,25000.0);
+      double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
+
+      cout << "module " << i << " MPV = " << MPV_mod << endl;
+      cout << "module " << i << " relative gain = " << MPV_mod / target_ADC << endl;
+      RelativeGainByModule[i] = MPV_mod/MPV_all;
+    } else {
+      RelativeGainByModule[i] = 1.0;
+    }
   }
 
 
@@ -771,7 +781,10 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
       cout << "module " << i << ", Y APV " << iy << ", Relative gain = " << Ygain.back() << " +/- " << dYgain.back() << endl;
 
       outfile << Ygain.back() << "  ";
-      outfile_db << Ygain.back() << "  ";
+
+      if( iy*128 < nstripy_mod[i] ){
+	outfile_db << Ygain.back() << "  ";
+      }
     }
     outfile << endl;
     outfile_db << endl;
@@ -821,7 +834,9 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
       cout << "module " << i << ", X APV " << ix << ", Relative gain = " << Xgain.back() << " +/- " << dXgain.back() << endl;
 
       outfile << Xgain.back() << "  ";
-      outfile_db << Xgain.back() << "  ";
+      if( ix*128 < nstripx_mod[i] ){
+	outfile_db << Xgain.back() << "  ";
+      }
     }
     outfile << endl;
     outfile_db << endl;
