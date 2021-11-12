@@ -68,12 +68,12 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
 
-  std::ofstream debugFile; 
-  debugFile.open("lhrs-scaler-dump.txt");
+  // std::ofstream debugFile; 
+  // debugFile.open("lhrs-scaler-dump.txt");
   
   // LHRS scaler data   
   LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
-  lScaler->SetDebugFile(&debugFile);
+  // lScaler->SetDebugFile(&debugFile);
   gHaEvtHandlers->Add(lScaler);
  
   analyzer->SetEvent(event);
