@@ -1,6 +1,5 @@
 # Sample cut definition file
 Block: RawDecode
-
 RawDecode_master        1
 
 Block: Decode
@@ -11,13 +10,11 @@ Block: Decode
 Decode_master   1
 
 Block: CoarseReconstruct
-
 HitsPreShower          bb.ps.nhits>2
 HitsShower             bb.sh.nhits>5
 GoodPreShower          bb.ps.ngoodADChits>2
 GoodShower             bb.sh.ngoodADChits>5
 GoodEvent              GoodPreShower||GoodShower
-
 CoarseReconstruct_master 1
 
 
