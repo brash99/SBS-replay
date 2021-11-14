@@ -7,6 +7,8 @@ void ADC_projection(TString Thist, int module){
 
   ADC1D->SetTitle(Form("module %i U Strip", module));
   
+  gPad->SetLogy();
+
   ADC1D->Draw();
 
  
