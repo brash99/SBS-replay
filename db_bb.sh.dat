@@ -502,7 +502,7 @@ bb.sh.adc.gain =
 # Configuration Change [SBS-4 -> SBS-5]
 ## Gain factor for energy calibration using cosmic: GeV/pC 
 # Asuming trigger amplitudes are aligned to 20mV (Run used 10983 (cosmic))
-#-------[ 2021-10-25 08:00:00 ]
+-------[ 2021-10-25 08:00:00 ]
 bb.sh.adc.gain =
 0.00693493 0.00699947 0.00703269 0.00744571 0.00741094 0.0074044 0.00689057 
 0.00719419 0.00720493 0.00696023 0.00695777 0.00696042 0.00711099 0.00714522 
