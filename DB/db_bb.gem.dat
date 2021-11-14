@@ -64,13 +64,13 @@ bb.gem.m2.commonmode_range_nsigma = 10.0
 bb.gem.m3.commonmode_range_nsigma = 10.0
 
 # these may need adjusting:
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 bb.gem.useTSchi2cut = 0
 bb.gem.maxstrip_t0 = 85.4
 bb.gem.maxstrip_tcut = 21.0
 bb.gem.addstrip_tcut = 21.0
 bb.gem.addstrip_ccor_cut = 0.4
-
+bb.gem.suppressfirstlast = 0
 
 bb.gem.plot_event_info = 1
 
@@ -1178,8 +1178,8 @@ bb.gem.useopticsconstraint = 0
 
 ---------[ 2021-10-14 23:14:00 ]  
 
-bb.gem.useconstraint = 1
-bb.gem.useopticsconstraint = 1
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
 

@@ -10,11 +10,11 @@ Block: Decode
 Decode_master   1
 
 Block: CoarseReconstruct
-HitsPreShower          bb.ps.nhits>2
-HitsShower             bb.sh.nhits>5
-GoodPreShower          bb.ps.ngoodADChits>2
-GoodShower             bb.sh.ngoodADChits>5
+HitsPreShower          bb.ps.nhits>0
+HitsShower             bb.sh.nhits>0
+GoodPreShower          bb.ps.ngoodADChits>0
+GoodShower             bb.sh.ngoodADChits>0
 GoodEvent              GoodPreShower||GoodShower
+#CoarseReconstruct_master GoodEvent
 CoarseReconstruct_master 1
-
 
