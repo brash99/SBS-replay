@@ -2,9 +2,6 @@ R__ADD_INCLUDE_PATH($SBS/include)
 R__ADD_LIBRARY_PATH($SBS/lib64)
 R__ADD_LIBRARY_PATH($SBS/lib)
 R__LOAD_LIBRARY(libsbs.so)
-// R__LOAD_LIBRARY(libsbs_df.so)
-
-// #if !defined(__CLING__) || defined(__ROOTCLING__)
 
 #include <cstdlib>
 #include <iostream>
@@ -29,8 +26,6 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSRasteredBeam.h"
 #include "SBSScalerEvtHandler.h"
 #include "LHRSScalerEvtHandler.h"
-
-// #endif 
 
 const std::string SCRIPT = "[replay_beam]: "; 
 
