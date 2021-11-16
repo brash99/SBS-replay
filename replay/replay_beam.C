@@ -4,7 +4,7 @@ R__ADD_LIBRARY_PATH($SBS/lib)
 R__LOAD_LIBRARY(libsbs.so)
 // R__LOAD_LIBRARY(libsbs_df.so)
 
-#if !defined(__CLING__) || defined(__ROOTCLING__)
+// #if !defined(__CLING__) || defined(__ROOTCLING__)
 
 #include <cstdlib>
 #include <iostream>
@@ -27,21 +27,32 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "THaDecData.h"
 
 #include "SBSRasteredBeam.h"
+#include "SBSScalerEvtHandler.h"
 #include "LHRSScalerEvtHandler.h"
 
-#endif 
+// #endif 
 
 const std::string SCRIPT = "[replay_beam]: "; 
 
-void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
+// void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
+void replay_beam(int runNum){
+
+   unsigned int firstEv = 1; 
+   unsigned int lastEv  = 50000; 
+
+   char codaFilePath[200]; 
+   sprintf(codaFilePath,"/adaqeb1/data1/e1209019_%d.evio.0.0",runNum); 
+
+   char outfileName[200]; 
+   sprintf(outfileName,"test_%d.root",runNum); 
 
    // set up file paths
 
    // output and cut definition files
    TString replayDir = gSystem->Getenv("SBS_REPLAY");
-   TString odef_path = Form("%s/replay/output_beam_raster.def",replayDir.Data());
-   TString cdef_path = Form("%s/replay/cuts_beam_raster.def"  ,replayDir.Data()); 
-  
+   TString odef_path = Form("%s/replay/output_beam_both.def",replayDir.Data());
+   TString cdef_path = Form("%s/replay/cuts_beam_raster.def",replayDir.Data()); 
+   
    // output ROOT file destination and name
    TString out_file = Form("%s",outfileName);
  
@@ -54,30 +65,40 @@ void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsign
    }else{
       analyzer = new THaAnalyzer;
    }
- 
+   
   // add the LHRS (where the beam signals are)  
   THaHRS* HRSL = new THaHRS("L","Left arm HRS");
   HRSL->AutoStandardDetectors(kFALSE);
   gHaApps->Add( HRSL );
-
+   
   // add decoder
   THaApparatus* decL = new THaDecData("DL","Misc. Decoder Data");
   gHaApps->Add( decL );
 
-  // add *rastered* beam
+  // add *rastered* beam (LHRS)
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
+
+  // add *rastered* beam (SBS)
+  THaApparatus* sbs = new SBSRasteredBeam("SBSrb","Raster Beamline for FADC");
+  gHaApps->Add(sbs);
 
   std::ofstream debugFile; 
   debugFile.open("lhrs-scaler-dump.txt");
   
-  // LHRS scaler data   
+  // LHRS scaler data (ROC10)  
   LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
   lScaler->SetDebugFile(&debugFile);
   gHaEvtHandlers->Add(lScaler);
+
+  // SBS scaler data (sbsvme29) 
+  SBSScalerEvtHandler *sbsScaler = new SBSScalerEvtHandler("sbs","SBS Scaler Bank event type 1");
+  // sbsScaler->AddEvType(1);             // Repeat for each event type with scaler banks
+  sbsScaler->SetUseFirstEvent(kTRUE);
+  gHaEvtHandlers->Add(sbsScaler);
  
   analyzer->SetEvent(event);
-
+  
   analyzer->SetCompressionLevel(1);
   analyzer->SetOdefFile(odef_path.Data());
   analyzer->SetCutFile(cdef_path.Data());
