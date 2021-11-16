@@ -1,7 +1,7 @@
-R__ADD_INCLUDE_PATH($SBS/include)
-R__ADD_LIBRARY_PATH($SBS/lib64)
-R__ADD_LIBRARY_PATH($SBS/lib)
-R__LOAD_LIBRARY(libsbs.so)
+// R__ADD_INCLUDE_PATH($SBS/include)
+// R__ADD_LIBRARY_PATH($SBS/lib64)
+// R__ADD_LIBRARY_PATH($SBS/lib)
+// R__LOAD_LIBRARY(libsbs.so)
 
 #include <cstdlib>
 #include <iostream>
