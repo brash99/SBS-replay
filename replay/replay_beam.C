@@ -109,7 +109,7 @@ void replay_beam(int runNum){
    prefix = gSystem->Getenv("SBS_REPLAY");
    prefix += "/replay/";
 
-   TString odef_filename = "replay_beam_gmn.odef";
+   TString odef_filename = "output_beam_both.def";
 
    odef_filename.Prepend( prefix );
 
