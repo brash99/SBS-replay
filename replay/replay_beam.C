@@ -32,11 +32,13 @@ const std::string SCRIPT = "[replay_beam]: ";
 // void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
 void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegments=1){
 
+   std::cout << "=============================" << std::endl;
    std::cout << SCRIPT << "Input parameters: "  << std::endl;
    std::cout << "Run:          " << runNum      << std::endl;
    std::cout << "First event:  " << firstevent  << std::endl;
    std::cout << "N events:     " << nevents     << std::endl;
    std::cout << "max segments: " << maxsegments << std::endl;
+   std::cout << "=============================" << std::endl;
 
    // Set up the analyzer
    THaAnalyzer* analyzer = THaAnalyzer::GetInstance();
@@ -183,36 +185,21 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
 
    filelist->Compress();
 
-   // Long_t firstevent=0;
-   // Long_t nevents = 50000; 
-
-   for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
+   for(int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
+      std::cout << SCRIPT << "Trying file segment " << iseg << std::endl;
       THaRun *run = ( (THaRun*) (*filelist)[iseg] );
       if(nevents>0) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
       run->SetFirstEvent( firstevent );
       run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+      // FIXME: to address prescale factor issue (temporary) 
+      // TDatime now; 
+      // run->SetDate(now); 
+      // run->SetDataRequired(0); 
       if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
          analyzer->Process(run);     // start the actual analysis
+         std::cout << SCRIPT << "--> Done!" << std::endl;
       }
    }
-
-   // FIXME: to address prescale factor issue (temporary) 
-   // TDatime now; 
-   // run->SetDate(now); 
-   // run->SetDataRequired(0); 
-
-   // if(firstEv>0) run->SetFirstEvent(firstEv);
-   // if(lastEv>0)  run->SetLastEvent(lastEv);
-
-   // analyzer->SetOutFile( outfilename.Data() );
-   // std::cout << SCRIPT << "Output file " << outfilename.Data() << " set up " << std::endl; 
-
-   // // File to record cuts accounting information
-   // analyzer->SetSummaryFile("sbs_beam_test.log"); // optional
-
-   // // run analysis 
-   // analyzer->SetVerbosity(10);   
-   // // analyzer->Process(*run);
 
    std::cout << SCRIPT << "Replay of run " << runNum << " COMPLETE!" << std::endl;
 
