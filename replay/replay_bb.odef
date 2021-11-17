@@ -42,6 +42,8 @@ th1d hetot_over_p 'Etot/P; E/p' bb.etot_over_p 200 0.0 2.0
 th1d hepreshower ';Preshower energy (GeV)' bb.ps.e 200 0.0 1.0 GoodTrack
 th2d heoverP_vs_PS 'E/p vs. preshower; E_{PS} ; E/p' bb.ps.e bb.etot_over_p 200 0.0 1.0 200 0.0 2.0 
 
+th1d hEoverP_electron 'Electrons only; E/p' bb.etot_over_p 200 0.0 2.0 GoodElectron
+
 th1d hq2 'electron Q2; Q^{2} (GeV^{2})' e.kine.Q2 200 1.0 16.0 
 th1d hw2 'electron W2; W^{2} (GeV^{2})' e.kine.W2 200 0.0 12.0
 th1d hnu 'electron nu; e^{-} Energy loss (GeV)' e.kine.nu 100 0.0 8.0

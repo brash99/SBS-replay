@@ -72,6 +72,8 @@ bb.gem.addstrip_tcut = 21.0
 bb.gem.addstrip_ccor_cut = 0.4
 bb.gem.suppressfirstlast = 0
 
+bb.gem.modulegain = 1
+
 bb.gem.plot_event_info = 1
 
 # to start with, let's not worry about the misalignments, let's put everything at its nominal/ideal position:
@@ -409,9 +411,9 @@ bb.gem.threshold_stripsum = 250.0
 bb.gem.threshold_clustersum = 500.0
 
 bb.gem.ADCasym_cut = 0.5
-bb.gem.deltat_cut = 30.0
+bb.gem.deltat_cut = 21.0
 bb.gem.corrcoeff_cut = 0.5
-bb.gem.filterflag1D = 1
+bb.gem.filterflag1D = 0
 bb.gem.filterflag2D = 0
 
 bb.gem.peakprominence_minsigma = 5.0
@@ -1135,12 +1137,12 @@ bb.gem.m11.modulegain = 1.27523
 
 -----------[ 2021-10-17 19:12:00 ] # new higher thresholds after GEM HV increase
 bb.gem.threshold_sample = 150.0
-bb.gem.threshold_stripsum = 500.0
-bb.gem.threshold_clustersum = 1000.0
+bb.gem.threshold_stripsum = 400.0
+bb.gem.threshold_clustersum = 800.0
 
 ###############################################################################
 
-###################### BEGIN TIME-DEPENDENT OPTICS constraints for track search #############
+###################### BEGIN TIME-DEPENDENT OPTICS track search constraints #############
 
 -----------[ 2021-01-01 00:00:00 ] # at SBS-1, the max. good electron momentum is about 1.5 GeV
 bb.gem.useopticsconstraint = 1
@@ -1152,6 +1154,17 @@ bb.gem.ytar_min = -0.08
 bb.gem.ytar_max = 0.08
 bb.gem.pmin = 0.5
 bb.gem.pmax = 1.5
+
+# turn off track search region constraint for zero-field runs in BB with sieve:
+---------[ 2021-10-14 21:50:00 ]
+
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+---------[ 2021-10-14 23:14:00 ]  
+
+bb.gem.useconstraint = 1
+bb.gem.useopticsconstraint = 1
 
 ----------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics:
 
@@ -1165,21 +1178,62 @@ bb.gem.ytar_max = 0.08
 bb.gem.pmin = 0.7
 bb.gem.pmax = 2.7
 
+-----------[ 2021-11-12 00:00:00 ] # at SBS-7, the max. good electron momentum is about 3.5 GeV
+bb.gem.useconstraint = 0 # start with no constraint for zero-field runs
+bb.gem.useopticsconstraint = 0
+
+# these may need adjusting:
+bb.gem.usestriptimingcut = 0
+bb.gem.useTSchi2cut = 0
+bb.gem.maxstrip_t0 = 85.4
+bb.gem.maxstrip_tcut = 21.0
+bb.gem.addstrip_tcut = 21.0
+bb.gem.addstrip_ccor_cut = 0.4
+bb.gem.suppressfirstlast = 0
+
+-----------[ 2021-11-12 10:15:00 ] # turn on constraints after turning on BB magnet:  
+
+bb.gem.useconstraint = 1
+
+bb.gem.useopticsconstraint = 1
+bb.gem.xptar_min = -0.3
+bb.gem.xptar_max = 0.3
+bb.gem.yptar_min = -0.1
+bb.gem.yptar_max = 0.1
+bb.gem.ytar_min = -0.1
+bb.gem.ytar_max = 0.1
+bb.gem.pmin = 0.8
+bb.gem.pmax = 3.5
+
+bb.gem.useslopeconstraint = 1
+bb.gem.xpfp_min = -0.4
+bb.gem.xpfp_max = 0.4 
+bb.gem.ypfp_min = -0.1
+bb.gem.ypfp_max = 0.1
+
+----------[ 2021-11-12 13:55:00 ] # after re-adjusting GEM latency:
+# these may need adjusting:
+bb.gem.usestriptimingcut = 1
+bb.gem.useTSchi2cut = 0
+bb.gem.maxstrip_t0 = 91.0
+bb.gem.maxstrip_tcut = 24.0
+bb.gem.addstrip_tcut = 24.0
+bb.gem.addstrip_ccor_cut = 0.4
+bb.gem.suppressfirstlast = 0
+
+----------[ 2021-11-16 04:35:00 ] # additional GEM latency adjustment starting with run 12051
+bb.gem.maxstrip_t0 = 79.0
+bb.gem.maxstrip_tcut = 24.0
+bb.gem.addstrip_tcut = 24.0
+bb.gem.addstrip_ccor_cut = 0.4
+bb.gem.suppressfirstlast = 0
+
 
 ###############################################################################	
 
 ###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
 
-# turn off track search region constraint for zero-field runs in BB with sieve:
----------[ 2021-10-14 21:50:00 ]
 
-bb.gem.useconstraint = 0
-bb.gem.useopticsconstraint = 0
-
----------[ 2021-10-14 23:14:00 ]  
-
-bb.gem.useconstraint = 0
-bb.gem.useopticsconstraint = 0
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
 
@@ -1221,7 +1275,7 @@ bb.gem.pedfile = gemped/daq_ped_bb_gem_run11440.dat
 --------[ 2021-10-21 17:00:00 ] # run 11462
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run11462.dat
 
---------[ 2021-11-12 17:00:00 ] # run 11462
+--------[ 2021-11-12 16:00:00 ] # run 11936
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run11936.dat
 
 #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
@@ -2435,7 +2489,7 @@ bb.gem.m11.commonmode_meanV =
 bb.gem.m11.commonmode_rmsV = 
            12.418            7.5251            7.7902            8.1114            7.9708            9.1781             8.029            7.8391            8.0191            8.7101            6.9501            12.244 
 
-
+---------[ 2021-10-21 09:00:00 ]
 #Thu Oct 21 08:57:49 2021
 # Copy the contents of this file into $DB_DIR/db_bb.gem.dat to use these pedestals for analysis
 # format = detname.commonmode_mean(U,V) and detname.commonmode_rms(U,V) = common-mode mean and RMS for U, V strips by APV card in order of position
@@ -2568,7 +2622,7 @@ bb.gem.m11.commonmode_rmsV =
            9.0945            7.0283            7.6987            8.0803            8.0207            9.6266            8.2122            7.5177            7.8989            8.3358            6.8386             18.33 
 
 
-
+--------[ 2021-10-21 17:00:00 ] 
 #Thu Oct 21 16:47:40 2021
 # Copy the contents of this file into $DB_DIR/db_bb.gem.dat to use these pedestals for analysis
 # format = detname.commonmode_mean(U,V) and detname.commonmode_rms(U,V) = common-mode mean and RMS for U, V strips by APV card in order of position
@@ -2700,6 +2754,7 @@ bb.gem.m11.commonmode_meanV =
 bb.gem.m11.commonmode_rmsV = 
            9.3437            6.9218            7.1539            7.6156            7.6588            9.2003            7.9369             7.437            7.9404            8.4259            6.9508            16.526 
 
+----------[ 2021-11-12 16:00:00 ] # run 11936
 #Fri Nov 12 16:03:49 2021
 # Copy the contents of this file into $DB_DIR/db_bb.gem.dat to use these pedestals for analysis
 # format = detname.commonmode_mean(U,V) and detname.commonmode_rms(U,V) = common-mode mean and RMS for U, V strips by APV card in order of position
