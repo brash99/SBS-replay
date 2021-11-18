@@ -119,6 +119,7 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
 
    //This loop adds all file segments found to the list of THaRuns to process:
    while( segcounter < max1 && segment - firstsegment < maxsegments ){
+      std::cout << "segcounter = " << segcounter << ", segment = " << segment << std::endl;
       TString codafilename;
       //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runNum, segment );
       codafilename.Form("%s_%d.evio.%d.%d", fname_prefix, runNum, stream, segment );
@@ -143,7 +144,7 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
       
       if( segmentexists ){
          new( (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
-         cout << "Added segment " << segment << ", CODA file name = " << codafilename << endl;
+         cout << "Added segment " << segment << ", CODA file name = " << codafilename << ", segcounter = " << segcounter << std::endl;
       }
       if( segmentexists ){
          segcounter++;
@@ -177,9 +178,11 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
    filelist->Compress();
 
    int runSegment=-1;
+  
+   bool replaySuccess=false;
+   std::vector<int> failSegment; 
 
    for(int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
-      std::cout << SCRIPT << "Trying file segment " << iseg << std::endl;
       THaRun *run = ( (THaRun*) (*filelist)[iseg] );
       if(nevents>0) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
       run->SetFirstEvent( firstevent );
@@ -189,14 +192,24 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
       // run->SetDate(now); 
       // run->SetDataRequired(0);
       runSegment = run->GetSegment(); 
-      std::cout << "   run segment: " << runSegment << std::endl;  
       if( runSegment>=firstsegment && (runSegment-firstsegment)<maxsegments ){
          analyzer->Process(run);     // start the actual analysis
          std::cout << SCRIPT << "--> Done!" << std::endl;
+	 replaySuccess = true;
+      }else{
+	 std::cout << SCRIPT << "ERROR! Cannot analyze file segment = " << runSegment << std::endl;
+	 failSegment.push_back(runSegment);
       }
    }
 
-   std::cout << SCRIPT << "Replay of run " << runNum << " COMPLETE!" << std::endl;
+   if(replaySuccess) std::cout << SCRIPT << "Replay of run " << runNum << " COMPLETE!" << std::endl;
+
+   int NFAIL = failSegment.size();
+   if(NFAIL!=0){
+      for(int i=0;i<NFAIL;i++){
+         std::cout << SCRIPT << "WARNING: Failed replaying file segment " << failSegment[i] << std::endl;
+      }
+   }
 
    // clean up  
    delete analyzer;
