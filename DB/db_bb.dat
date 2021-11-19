@@ -71,6 +71,10 @@ bb.frontconstraintwidth_x = 0.2 # m
 bb.frontconstraintwidth_y = 0.2 # m
 bb.backconstraintwidth_x = 0.05 # m
 bb.backconstraintwidth_y = 0.05 # m
+bb.backconstraint_x0 = 0.0 
+bb.backconstraint_y0 = 0.0
+bb.frontconstraint_x0 = 0.0
+bb.frontconstraint_y0 = 0.0
 
 --------[ 2021-10-15 09:00:00 ] # first runs in SBS-1 after sieve removed
 
@@ -490,8 +494,13 @@ bb.optics_parameters =
  -2.1275432e-17  4.8910742e-16  8.4221738e-17  1.5411584e-15  0 0 0 1 1
  -8.2962594e-17   3.055217e-16 -1.1158777e-16  5.1719949e-16  0 0 0 0 2
 
-----------[ 2021-11-12 00:00:00 ] 
+----------[ 2021-11-12 00:00:00 ]  # start of SBS-7 kinematics:
 # re-using SBS-1 optics initially until I have time to generate new SBS-7 optics(they should be more or less the same since magnet distance is the same)
+
+# GEM origin coordinates for SBS-7 kinematics: see https://logbooks.jlab.org/entry/3943431
+bb.gemorigin_xyz = -0.21192 0.04069 3.0170
+bb.gemtheta = 8.8355 # degrees
+bb.gemphi   = 179.882 # degrees
 
 # scaled simulation optics, SBS-1 kinematics:
 bb.optics_parameters = 
@@ -517,3 +526,14 @@ bb.optics_parameters =
  -1.4758179e-17  6.6168751e-17 -2.7328371e-17   4.322175e-16  0 0 0 1 1
    2.675701e-17   6.815644e-17   1.987716e-17  1.3165776e-16  0 0 0 0 2
 
+
+bb.frontconstraintwidth_x = 0.1 # m
+bb.frontconstraintwidth_y = 0.05 # m
+bb.backconstraintwidth_x = 0.05 #m
+bb.backconstraintwidth_y = 0.05 #m
+bb.frontconstraint_x0 = 0.058
+bb.frontconstraint_y0 = -0.017
+bb.backconstraint_x0 = 0.0039
+bb.backconstraint_y0 = -0.0015
+
+bb.ecalo_fudgefactor = 1.0
