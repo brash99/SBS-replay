@@ -153,8 +153,8 @@
    variable   2      5          2           .4Mhz_CLK.scalerRate         BCM 4MHz_CLK 
    variable   2      6          1           .EDTM.scaler                 BCM EDTM 
    variable   2      6          2           .EDTM.scalerRate             BCM EDTM 
-   variable   2      7          1           .104kHz_CLK.scaler           103.7 kHz clock 
-   variable   2      7          2           .104kHz_CLK.scalerRate       103.7 kHz clock
+   variable   2      7          1           .104kHz_CLK.cnt              103.7 kHz clock 
+   variable   2      7          2           .104kHz_CLK.rate             103.7 kHz clock
    variable   2      8          1           .2_8.scaler                  BCM Channel 8 
    variable   2      8          2           .2_8.scalerRate              BCM Channel 8 
    variable   2      9          1           .2_9.scaler                  BCM Channel 9 
