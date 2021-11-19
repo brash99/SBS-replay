@@ -31,6 +31,7 @@
 #include "SBSGEMTrackerBase.h"
 #include "SBSRasteredBeam.h"
 #include "LHRSScalerEvtHandler.h"
+#include "SBSScalerEvtHandler.h"
 //#endif
 
 void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
@@ -121,6 +122,9 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
   
+  THaApparatus* sbs = new SBSRasteredBeam("SBSrb","Raster Beamline for FADC");
+  gHaApps->Add(sbs);
+  
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
   gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
   
@@ -133,7 +137,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
   // lScaler->SetDebugFile(&debugFile);
   gHaEvtHandlers->Add(lScaler);
-    
+
+  SBSScalerEvtHandler *sbsScaler = new SBSScalerEvtHandler("sbs","SBS Scaler Bank event type 1");
+  //sbsScaler->AddEvtType(1);             // Repeat for each event type with scaler banks
+  sbsScaler->SetUseFirstEvent(kTRUE);
+  gHaEvtHandlers->Add(sbsScaler);
+   
   //THaInterface::SetDecoder( SBSSimDecoder::Class() );
   THaEvent* event = new THaEvent;
 
