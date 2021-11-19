@@ -24,6 +24,21 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
     
   bb->AddDetector(bbgem);
 
+  //Add trigger TDC info:
+
+  SBSGenericDetector* tdctrig= new SBSGenericDetector("tdctrig","BigBite shower TDC trig");
+  tdctrig->SetModeADC(SBSModeADC::kNone);
+  tdctrig->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig->SetStoreEmptyElements(kFALSE);
+  bigbite->AddDetector( tdctrig );
+
+  SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
+  ts->SetDataOutputLevel(0);
+  bigbite->AddDetector( ts );
+  ts->SetStoreEmptyElements(kFALSE);
+  ts->GetShower()->SetStoreEmptyElements(kFALSE);
+  ts->GetPreShower()->SetStoreEmptyElements(kFALSE);
+
   //bool pm =  ( pedestalmode != 0 );
   //this will override the database setting:
   ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetPedestalMode( pedestalmode );
@@ -206,7 +221,7 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_BBGEM.odef";
+  TString odef_filename = "replay_bbgem_trigtdc_shower.odef";
   
   odef_filename.Prepend( prefix );
 
@@ -218,6 +233,9 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
 
   for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
     THaRun *run = ( (THaRun*) (*filelist)[iseg] );
+
+    run->Init();
+
     if( nevents > 0 ) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
 
     run->SetFirstEvent( firstevent );

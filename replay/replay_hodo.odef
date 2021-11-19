@@ -25,14 +25,15 @@ TH2D h2d_RefTE 'BBHodo Ref TE vs PMT' bb.hodotdc.Ref.tdc_te bb.hodotdc.Ref.tdcel
 TH2D h2d_RefTot 'BBHodo Ref Tot vs PMT' bb.hodotdc.Ref.tdc_tot bb.hodotdc.Ref.tdcelemID  50 0 50 2 0 2 
 TH2D h2d_RefMult 'BBHodo Ref PMT Multiplicity vs PMT' bb.hodotdc.Ref.tdc_mult bb.hodotdc.Ref.tdcelemID  5 1 5 2 0 2 
 
+
 # Raw PMT hits
-TH2D h2d_RawLE 'BBHodo LE vs PMT' bb.hodotdc.tdc bb.hodotdc.tdcelemID  100 -200 0 180 0 180
-TH2D h2d_RawTE 'BBHodo TE vs PMT' bb.hodotdc.tdc_te bb.hodotdc.tdcelemID  100 -200 0 180 0 180 
+TH2D h2d_RawLE 'BBHodo LE vs PMT' bb.hodotdc.tdc bb.hodotdc.tdcelemID  100 -50 50 180 0 180
+TH2D h2d_RawTE 'BBHodo TE vs PMT' bb.hodotdc.tdc_te bb.hodotdc.tdcelemID  100 -50 50 180 0 180
 TH2D h2d_RawTot 'BBHodo Tot vs PMT' bb.hodotdc.tdc_tot bb.hodotdc.tdcelemID  50 0 50 180 0 180 
 TH2D h2d_RawMult 'BBHodo PMT Multiplicity vs PMT' bb.hodotdc.tdc_mult bb.hodotdc.tdcelemID  5 1 5 180 0 180 
 
 # Bar hits
-TH2D h2d_BarMT 'BBHodo Bar mean time vs bar' bb.hodotdc.bar.tdc.meantime bb.hodotdc.bar.tdc.id  100 -200 0 89 0 89 
+TH2D h2d_BarMT 'BBHodo Bar mean time vs bar' bb.hodotdc.bar.tdc.meantime bb.hodotdc.bar.tdc.id  100 -50 50 89 0 89
 TH2D h2d_BarTD 'BBHodo Bar time diff vs bar' bb.hodotdc.bar.tdc.timediff bb.hodotdc.bar.tdc.id   60 -30 30 89 0 89
 
 #-----------------------------------------------------------------------------

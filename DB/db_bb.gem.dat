@@ -347,7 +347,7 @@ bb.gem.m9.uoffset = 0.0
 bb.gem.m10.uoffset = 0.0
 bb.gem.m11.uoffset = 0.0
 
-# U offsets:
+# V offsets:
 bb.gem.m0.voffset = 0.0108
 
 bb.gem.m1.voffset = 0.0
@@ -1277,6 +1277,7 @@ bb.gem.pedfile = gemped/daq_ped_bb_gem_run11462.dat
 
 --------[ 2021-11-12 16:00:00 ] # run 11936
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run11936.dat
+
 
 #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
 
