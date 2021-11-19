@@ -17,17 +17,17 @@ void SCMultDraw()
 
   hRawMultL->SetTitle("Total Hits per PMT / Bar");  
   hRawMultL->SetLineColor(2);  
-  hRawMultL->Sumw2();  
+  hRawMultL->Sumw2(kFALSE);  
   hRawMultL->Draw();  
 
   hRawMultR->SetLineColor(4);  
-  hRawMultR->Sumw2();  
+  hRawMultR->Sumw2(kFALSE);  
   hRawMultR->Draw("sames");  
 
   TH2F *hBarMult2D = (TH2F*)gDirectory->Get("h2d_BarMT");  
   TH1F *hBarMult = (TH1F*)hBarMult2D->ProjectionY("hBarMultL");
   hBarMult->SetLineColor(1);  
-  hBarMult->Sumw2();  
+  hBarMult->Sumw2(kFALSE);  
   hBarMult->Draw("sames");  
 
   TLatex* tex = new TLatex( 0.5, 0.25, "Bar");

@@ -121,7 +121,7 @@ sbs.hcal.adc.NSA = 10
 # Number of bin for fixed Threshold if no Threshold Crossing is found
 sbs.hcal.adc.FixThresBin = 14
 # Convert adc integral in pC to GeV
-sbs.hcal.adc.gain = 1.0
+sbs.hcal.adc.gain = 0.00175
 #
 sbs.hcal.tdc.offset = 0.
 #

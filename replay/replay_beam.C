@@ -67,7 +67,7 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
 
    // LHRS scaler data (ROC10)  
    LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
-   lScaler->SetDebugFile(&debugFile);
+   // lScaler->SetDebugFile(&debugFile);
    gHaEvtHandlers->Add(lScaler);
 
    // SBS scaler data (sbsvme29) 

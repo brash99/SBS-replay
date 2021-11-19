@@ -470,7 +470,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     
     
     odef_file << histdef.Format( "th1d h%s_nstripstot_all '%s; Num. fired strips (U/X) + (V/Y);' %s.strip.nstripsfired %d -0.5 %g",
-				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), maxstrips+1, maxstrips+0.5 ) << endl;
+				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), mod_nstripu[i]+mod_nstripv[i]+1, mod_nstripu[i]+mod_nstripv[i]+0.5 ) << endl;
     
     odef_file << histdef.Format( "th1d h%s_nclustU_all '%s; num. U clusters;' %s.clust.nclustu %d -0.5 %g",
 				 modname_nodots[i].Data(), moddesc[i].Data(), modname[i].Data(), maxclust+1, maxclust+0.5 ) << endl;

@@ -16,6 +16,7 @@
 #include "THaVarList.h"
 #include "THaInterface.h"
 #include "THaGoldenTrack.h"
+#include "THaPrimaryKine.h"
 #include "THaDecData.h"
 
 #include "SBSBigBite.h"
@@ -29,10 +30,14 @@
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMTrackerBase.h"
 #include "SBSRasteredBeam.h"
+#include "LHRSScalerEvtHandler.h"
 //#endif
 
 void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
 {
+
+  THaAnalyzer* analyzer = new THaAnalyzer;
+  
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
   //bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
@@ -40,23 +45,33 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   ts->SetDataOutputLevel(0);
   bigbite->AddDetector( ts );
   ts->SetStoreEmptyElements(kFALSE);
+  ts->GetShower()->SetStoreEmptyElements(kFALSE);
+  ts->GetPreShower()->SetStoreEmptyElements(kFALSE);
+
   SBSGenericDetector* bbtrig= new SBSGenericDetector("bbtrig","BigBite shower ADC trig");
   bbtrig->SetModeADC(SBSModeADC::kADC);
   bbtrig->SetModeTDC(SBSModeTDC::kTDC);
   bbtrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( bbtrig );
-  gHaApps->Add(bigbite);
+  
+  SBSGenericDetector* tdctrig= new SBSGenericDetector("tdctrig","BigBite shower TDC trig");
+  tdctrig->SetModeADC(SBSModeADC::kNone);
+  tdctrig->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig->SetStoreEmptyElements(kFALSE);
+  bigbite->AddDetector( tdctrig );
   
   SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
   grinch_adc->SetModeADC(SBSModeADC::kWaveform);
   grinch_adc->SetModeTDC(SBSModeTDC::kNone);
   grinch_adc->SetStoreEmptyElements(kFALSE);
-  
+  grinch_adc->SetStoreRawHits(kFALSE);
+
   grinch_tdc->SetModeTDC(SBSModeTDC::kTDC);
   //grinch_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
   grinch_tdc->SetModeADC(SBSModeADC::kNone);
   grinch_tdc->SetStoreEmptyElements(kFALSE);
+  grinch_tdc->SetStoreRawHits(kFALSE);
   grinch_tdc->SetDisableRefTDC(true);
   bigbite->AddDetector(grinch_adc);
   bigbite->AddDetector(grinch_tdc);
@@ -65,11 +80,14 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   hodotdc->SetModeTDC(SBSModeTDC::kTDC);
   hodotdc->SetModeADC(SBSModeADC::kNone);
   hodotdc->SetStoreEmptyElements(kFALSE);
+  hodotdc->SetDataOutputLevel(1);// => this adds in the output the elements belonging to the "main" cluster.
   
   SBSTimingHodoscope* hodoadc = new  SBSTimingHodoscope("hodoadc", "BigBite hodo");
   hodoadc->SetModeTDC(SBSModeTDC::kNone);
   hodoadc->SetModeADC(SBSModeADC::kADC);
   hodoadc->SetStoreEmptyElements(kFALSE);
+  hodoadc->SetStoreRawHits(kFALSE);
+  hodotdc->SetDataOutputLevel(0);
   //bigbite->AddDetector( new THaShower("ps", "BigBite preshower") );
   bigbite->AddDetector(hodotdc);
   bigbite->AddDetector(hodoadc);
@@ -104,14 +122,18 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   gHaApps->Add(Lrb);
   
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
+  gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
+  
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
   
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
-  THaAnalyzer* analyzer = new THaAnalyzer;
-  
+  LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
+  // lScaler->SetDebugFile(&debugFile);
+  gHaEvtHandlers->Add(lScaler);
+    
   //THaInterface::SetDecoder( SBSSimDecoder::Class() );
   THaEvent* event = new THaEvent;
 
@@ -256,7 +278,8 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   // File to record cuts accounting information
   
   prefix = gSystem->Getenv("LOG_DIR");
-  analyzer->SetSummaryFile(Form("%s/replay_gmn.log", prefix.Data()));
+  analyzer->SetSummaryFile(Form("%s/replay_gmn_%d_stream%d_seg%d_%d.log", prefix.Data(), runnum, 
+				stream, firstsegment, lastsegment));
   
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
@@ -267,6 +290,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   analyzer->SetOdefFile( odef_filename );
   
+  //added cut list in order to have 
+  TString cdef_filename = "replay_gmn.cdef";
+  
+  cdef_filename.Prepend( prefix );
+  
+  analyzer->SetCutFile( cdef_filename );
   //analyzer->SetCompressionLevel(0); // turn off compression
 
   filelist->Compress();
@@ -278,8 +307,11 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
     run->SetFirstEvent( firstevent );
     
     run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+
+    run->Init();
     
     if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
+      //std::cout 
       analyzer->Process(run);     // start the actual analysis
     }
   }
@@ -383,36 +415,37 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 }
 
 
-int main(int argc, char *argv[])
-{
-  new THaInterface( "The Hall A analyzer", &argc, argv, 0, 0, 1 );
-  uint runnum = 220;
-  uint firstsegment = 0;
-  uint maxsegments = 0;
-  string name_prefix = "e1209019_trigtest";
-  long firstevent=0;
-  long nevents=-1; 
-  int pedestalmode=0;
-  uint nev = -1;
-  if(argc<2 || argc>8){
-    cout << "Usage: replay_gmn runnum(uint) nevents(ulong) firstevent(ulong)" 
-	 << endl 
-	 << "                  name_prefix(string) firstsegment(uint) maxsegments(uint) "
-	 << endl 
-	 << "                  pedestalmode(int)"
-	 << endl;
-    return -1;
-  }
-  if(argc>=2) runnum = atoi(argv[1]);
-  if(argc>=3) firstsegment = atoi(argv[2]);
-  if(argc>=4) maxsegments = atoi(argv[3]);
-  if(argc>=5) name_prefix = argv[4];
-  if(argc>=6) firstevent = atoi(argv[5]);
-  if(argc>=7) nevents = atoi(argv[6]);
-  if(argc>=8) pedestalmode = atoi(argv[7]);
+// int main(int argc, char *argv[])
+// {
+//   //does this int main actually get called when we run our script?
+//   new THaInterface( "The Hall A analyzer", &argc, argv, 0, 0, 1 );
+//   uint runnum = 220;
+//   uint firstsegment = 0;
+//   uint maxsegments = 0;
+//   string name_prefix = "e1209019";
+//   long firstevent=0;
+//   long nevents=-1; 
+//   int pedestalmode=0;
+//   uint nev = -1;
+//   if(argc<2 || argc>8){
+//     cout << "Usage: replay_gmn runnum(uint) nevents(ulong) firstevent(ulong)" 
+// 	 << endl 
+// 	 << "                  name_prefix(string) firstsegment(uint) maxsegments(uint) "
+// 	 << endl 
+// 	 << "                  pedestalmode(int)"
+// 	 << endl;
+//     return -1;
+//   }
+//   if(argc>=2) runnum = atoi(argv[1]);
+//   if(argc>=3) firstsegment = atoi(argv[2]);
+//   if(argc>=4) maxsegments = atoi(argv[3]);
+//   if(argc>=5) name_prefix = argv[4];
+//   if(argc>=6) firstevent = atoi(argv[5]);
+//   if(argc>=7) nevents = atoi(argv[6]);
+//   if(argc>=8) pedestalmode = atoi(argv[7]);
 
-  replay_gmn(runnum, nevents, firstevent, 
-	     name_prefix.c_str(), firstsegment, maxsegments, 
-	     pedestalmode);
-  return 0;
-}
+//   replay_gmn(runnum, nevents, firstevent, 
+// 	     name_prefix.c_str(), firstsegment, maxsegments, 
+// 	     pedestalmode);
+//   return 0;
+// }
