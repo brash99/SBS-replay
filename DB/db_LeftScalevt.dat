@@ -131,8 +131,8 @@ map      1151     8       5       abc50010   ffffffff    2
   variable       2        5        2        slot02.T6.rate        Trigger S0A and S0B and S3
   variable       2        6        1        slot02.test.cnt       test 
   variable       2        6        2        slot02.test.rate      test 
-  variable       2        7        1        slot02.T8.cnt         103.7 kHz clock 
-  variable       2        7        2        slot02.T8.rate        103.7 kHz clock 
+  variable       2        7        1        104kHz_CLK.cnt        103.7 kHz clock 
+  variable       2        7        2        104kHz_CLK.rate       103.7 kHz clock 
   variable       2        8        1        slot02.ch08.cnt       empty 
   variable       2        8        2        slot02.ch08.rate      empty 
   variable       2        9        1        slot02.ch09.cnt       empty 

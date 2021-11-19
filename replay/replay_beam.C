@@ -1,7 +1,3 @@
-// R__ADD_INCLUDE_PATH($SBS/include)
-// R__ADD_LIBRARY_PATH($SBS/lib64)
-// R__ADD_LIBRARY_PATH($SBS/lib)
-// R__LOAD_LIBRARY(libsbs.so)
 
 #include <cstdlib>
 #include <iostream>
@@ -29,7 +25,6 @@
 
 const std::string SCRIPT = "[replay_beam]: "; 
 
-// void replay_beam(const char *codaFilePath,int runNum,unsigned int firstEv,unsigned int lastEv,const char *outfileName){
 void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegments=1){
 
    std::cout << "=============================" << std::endl;
@@ -112,6 +107,11 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
       std::cout << "search paths = " << pathlist[i] << std::endl;
    }
 
+   if(nevents<0){
+      std::cout << SCRIPT << "Requested all events!  Changing maxsegments to 50" << std::endl;
+      maxsegments = 50;
+   }
+
    int max1 = maxsegments;
    int segcounter=0,segment=0,firstsegment=0,lastsegment=0; 
 
@@ -153,7 +153,7 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
       segment++;
    }
 
-   std::cout << "n segments to analyze = " << segcounter << endl;
+   std::cout << SCRIPT << "n segments to analyze = " << segcounter << endl;
    
    // set up file paths
    prefix = gSystem->Getenv("OUT_DIR");
@@ -191,6 +191,7 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
       // TDatime now; 
       // run->SetDate(now); 
       // run->SetDataRequired(0);
+      run->Init(); 
       runSegment = run->GetSegment(); 
       if( runSegment>=firstsegment && (runSegment-firstsegment)<maxsegments ){
          analyzer->Process(run);     // start the actual analysis
