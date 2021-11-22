@@ -8,7 +8,7 @@
 # scaler   type   crate   slot    header     mask        norm   ch   clk freq
 map      1151     8       0       abc00010   ffffffff    2 
 map      3800     8       1       abc10020   ffffffff    2        
-map      3800     8       2       abc20020   ffffffff    2      7    103951
+map      3800     8       2       abc20020   ffffffff    2      7    103900
 map      3800     8       3       abc30020   ffffffff    2 
 map      1151     8       4       abc40010   ffffffff    2 
 map      1151     8       5       abc50010   ffffffff    2 

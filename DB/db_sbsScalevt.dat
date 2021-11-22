@@ -1,17 +1,17 @@
 # SBS GMn 2021
 # Crate: sbsvme29 
-# scaler   type   crate   slot    header     mask        norm    ch    clk freq
-   map      3801   1       0       00000220   ffffffff    1
-   map      3801   1       1       00200320   ffffffff    1      30    6250000
-   map      3801   1       2       00400420   ffffffff    1
-   map      3801   1       3       00600520   ffffffff    1
-   map      3801   1       4       00800620   ffffffff    1
-   map      3801   1       5       00a00d20   ffffffff    1
-   map      3801   1       6       00c00e20   ffffffff    1
-   map      3801   1       7       00e00f20   ffffffff    1
-   map      3801   1       8       01001020   ffffffff    1
+# scaler   type   crate   slot    header     mask       norm    ch    clk freq
+   map      3801   1       0      00000220   ffffffff   1 
+   map      3801   1       1      00200320   ffffffff   1       30    6250000
+   map      3801   1       2      00400420   ffffffff   1
+   map      3801   1       3      00600520   ffffffff   1
+   map      3801   1       4      00800620   ffffffff   1
+   map      3801   1       5      00a00d20   ffffffff   1
+   map      3801   1       6      00c00e20   ffffffff   1
+   map      3801   1       7      00e00f20   ffffffff   1
+   map      3801   1       8      01001020   ffffffff   1
 
-# slot#, chan#, (1=cnt, 2=rate), var name, description string
+# slot#, chan#, (1=cnt, 2=rate), var name, description sting
 # type        slot  chan   cnt(1) or rate(2)  var name                           description string
    variable   0      0          1           .BBCalLo.SC1_2.scaler                BBCalLo SC1_2 
    variable   0      0          2           .BBCalLo.SC1_2.scalerRate            BBCalLo SC1_2 
