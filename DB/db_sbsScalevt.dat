@@ -1,5 +1,6 @@
 # SBS GMn 2021
 # Crate: sbsvme29 
+
 # scaler   type   crate   slot    header     mask        norm    ch    clk freq
    map      3801   1       0       00000220   ffffffff    1
    map      3801   1       1       00200320   ffffffff    1      30    6250000
@@ -589,3 +590,4 @@
    variable   8     30          2           .8_30.scalerRate                     Slot 8 Channel 30 
    variable   8     31          1           .8_31.scaler                         Slot 8 Channel 31 
    variable   8     31          2           .8_31.scalerRate                     Slot 8 Channel 31 
+
