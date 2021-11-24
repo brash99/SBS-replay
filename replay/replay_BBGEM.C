@@ -6,13 +6,17 @@
 #include "THaApparatus.h"
 #include "TString.h"
 #include "TClonesArray.h"
+#include "SBSGenericDetector.h"
+#include "SBSBBTotalShower.h"
+#include "SBSBBShower.h"
+
 
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSBigBite.h"
 //#include "SBSGEMStand.h"
 //#include "SBSBigBite.h"
 
-void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019_trigtest", long firstevent=0, long nevents=-1, int pedestalmode=0 ){
+void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019", long firstevent=0, long nevents=-1, int pedestalmode=0 ){
 
   //  gSystem->Load("libsbs.so");
 
@@ -30,14 +34,20 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
   tdctrig->SetModeADC(SBSModeADC::kNone);
   tdctrig->SetModeTDC(SBSModeTDC::kTDC);
   tdctrig->SetStoreEmptyElements(kFALSE);
-  bigbite->AddDetector( tdctrig );
+  bb->AddDetector( tdctrig );
 
   SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
   ts->SetDataOutputLevel(0);
-  bigbite->AddDetector( ts );
+  bb->AddDetector( ts );
   ts->SetStoreEmptyElements(kFALSE);
   ts->GetShower()->SetStoreEmptyElements(kFALSE);
   ts->GetPreShower()->SetStoreEmptyElements(kFALSE);
+
+  SBSGenericDetector* bbtrig= new SBSGenericDetector("bbtrig","BigBite shower ADC trig");
+  bbtrig->SetModeADC(SBSModeADC::kADC);
+  bbtrig->SetModeTDC(SBSModeTDC::kTDC);
+  bbtrig->SetStoreEmptyElements(kFALSE);
+  bb->AddDetector( bbtrig );
 
   //bool pm =  ( pedestalmode != 0 );
   //this will override the database setting:
