@@ -38,7 +38,7 @@ void bbcal_hcal_clust_corr(){
 
     Double_t bbcal_time=0., hcal_time=0.;
     for(Int_t ihit=0; ihit<Ndata_bb_tdctrig_tdcelemID; ihit++){
-      if(bb_tdctrig_tdcelemID[ihit]==4) bbcal_time=bb_tdctrig_tdc[ihit];
+      if(bb_tdctrig_tdcelemID[ihit]==5) bbcal_time=bb_tdctrig_tdc[ihit];
       if(bb_tdctrig_tdcelemID[ihit]==0) hcal_time=bb_tdctrig_tdc[ihit];
     }
 
