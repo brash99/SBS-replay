@@ -1,10 +1,10 @@
 #grinch detector map (adc only)
 ## crate slot start_channel end_channel
 bb.grinch_adc.detmap =
-  7     13     0     15  0
-  7     14     0     15  0
-  7     15     0     15  0
-  7     16     0     15  0
+  7     13     0     15  -1
+  7     14     0     15  -1
+  7     15     0     15  -1
+  7     16     0     15  -1
 #  5     18     31    31  -1
 
 bb.grinch_adc.chanmap =
@@ -23,20 +23,20 @@ bb.grinch_adc.dxdydz = 1 1 1 # Meh, just so it won't crash
 bb.grinch_adc.nrows = 16
 bb.grinch_adc.ncols = 4
 
-## adc channels to mV assume F250 set fot 2V for 4096
-bb.grinch_adc.conv = 0.4882
+## adc channels to mV assume F250 set fot 0.5V for 4096
+bb.grinch_adc.adc.conv = 0.12207
 # Threshold for pulse finding in waveform (mV)
-bb.grinch_adc.thres = 20.
+bb.grinch_adc.adc.thres = 20.
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
-bb.grinch_adc.NPedBin = 4
+bb.grinch_adc.adc.NPedBin = 4
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
-bb.grinch_adc.NSB = 3
+bb.grinch_adc.adc.NSB = 3
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
-bb.grinch_adc.NSA = 10
+bb.grinch_adc.adc.NSA = 12
 # Number of bin for fixed Threshold if no Threshold Crossing is found
-bb.grinch_adc.FixThresBin = 14
+bb.grinch_adc.adc.FixThresBin = 14
 # Convert adc integral in pC to GeV
-bb.grinch_adc.gain = 1.0
+bb.grinch_adc.adc.gain = 1.0
 
 
 bb.grinch_adc.adc.pedestal =

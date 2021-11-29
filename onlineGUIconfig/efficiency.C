@@ -72,6 +72,9 @@ void efficiency(TString hdidhit, TString hshouldhit, int module=0 ){
   text += '%';
   
   p->AddText( text.Data() );
+  p->AddText( text.Format("N. did hit = %d", int(Nhit) ) );
+  p->AddText( text.Format("N. should hit = %d", int(Ntr) ) );
+
   p->Draw();
   
 }

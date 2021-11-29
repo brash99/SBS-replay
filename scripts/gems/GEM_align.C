@@ -563,11 +563,11 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   //double resid_cut = 100.0; //mm
   //double resid2_sum = 0.0;
 
-  double maxresid = 1.0; //mm
+  double maxresid = 0.5e-3; //mm
 
   double ndf_max = 2.0*nlayers-4;
   
-  double minchi2cut = pow( maxresid/0.1, 2 ); //smallest cut on chi2/dof that we are allowed to use:
+  double minchi2cut = pow( maxresid/sigma_hitpos, 2 ); //smallest cut on chi2/dof that we are allowed to use:
 
   double meanchi2 = 10000.0;
   double oldmeanchi2 = meanchi2;
@@ -831,8 +831,8 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	  TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
 	  TVector3 hitpos_global = modcenter_global + R*hitpos_local;
 
-	  // trackchi2 += ( pow( hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z()), 2 ) +
-	  // 		 pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(sigma_hitpos,-2);
+	  trackchi2 += ( pow( hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z()), 2 ) +
+	   		 pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(sigma_hitpos,-2);
 
 	  //for consistency with how we calculate residuals, should we change the chi2 calculation to be in terms of the u and v residuals instead of X and Y? 
 	  
@@ -843,7 +843,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	  double utrack = trackpos_local.X()*mod_Pxu[module] + trackpos_local.Y()*mod_Pyu[module];
 	  double vtrack = trackpos_local.X()*mod_Pxv[module] + trackpos_local.Y()*mod_Pyv[module];
 
-	  trackchi2 += ( pow( ulocal - utrack, 2 ) + pow( vlocal - vtrack, 2 ) ) * pow(sigma_hitpos, -2);
+	  //	  trackchi2 += ( pow( ulocal - utrack, 2 ) + pow( vlocal - vtrack, 2 ) ) * pow(sigma_hitpos, -2);
 	  
 	  Tuhit[ihit] = ulocal;
 	  Tvhit[ihit] = vlocal;
@@ -1343,7 +1343,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   
   if( (offsetsonlyflag == 0 && rotationsonlyflag == 0) ){
 
-  //if( false ){
+  // if( false ){
     TMinuit *ExtraFit = new TMinuit( 6*nmodules );
     
     ExtraFit->SetFCN( CHI2_FCN );

@@ -30,10 +30,15 @@
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMTrackerBase.h"
 #include "SBSRasteredBeam.h"
+#include "LHRSScalerEvtHandler.h"
+#include "SBSScalerEvtHandler.h"
 //#endif
 
 void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
 {
+
+  THaAnalyzer* analyzer = new THaAnalyzer;
+  
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
   //bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
@@ -117,6 +122,9 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
   
+  THaApparatus* sbs = new SBSRasteredBeam("SBSrb","Raster Beamline for FADC");
+  gHaApps->Add(sbs);
+  
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
   gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
   
@@ -126,8 +134,15 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
-  THaAnalyzer* analyzer = new THaAnalyzer;
-  
+  LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
+  // lScaler->SetDebugFile(&debugFile);
+  gHaEvtHandlers->Add(lScaler);
+
+  SBSScalerEvtHandler *sbsScaler = new SBSScalerEvtHandler("sbs","SBS Scaler Bank event type 1");
+  //sbsScaler->AddEvtType(1);             // Repeat for each event type with scaler banks
+  sbsScaler->SetUseFirstEvent(kTRUE);
+  gHaEvtHandlers->Add(sbsScaler);
+   
   //THaInterface::SetDecoder( SBSSimDecoder::Class() );
   THaEvent* event = new THaEvent;
 
@@ -284,6 +299,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   analyzer->SetOdefFile( odef_filename );
   
+  //added cut list in order to have 
+  TString cdef_filename = "replay_gmn.cdef";
+  
+  cdef_filename.Prepend( prefix );
+  
+  analyzer->SetCutFile( cdef_filename );
   //analyzer->SetCompressionLevel(0); // turn off compression
 
   filelist->Compress();
@@ -295,8 +316,11 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
     run->SetFirstEvent( firstevent );
     
     run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+
+    run->Init();
     
     if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
+      //std::cout 
       analyzer->Process(run);     // start the actual analysis
     }
   }
@@ -400,37 +424,37 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 }
 
 
-int main(int argc, char *argv[])
-{
-  //does this int main actually get called when we run our script?
-  new THaInterface( "The Hall A analyzer", &argc, argv, 0, 0, 1 );
-  uint runnum = 220;
-  uint firstsegment = 0;
-  uint maxsegments = 0;
-  string name_prefix = "e1209019";
-  long firstevent=0;
-  long nevents=-1; 
-  int pedestalmode=0;
-  uint nev = -1;
-  if(argc<2 || argc>8){
-    cout << "Usage: replay_gmn runnum(uint) nevents(ulong) firstevent(ulong)" 
-	 << endl 
-	 << "                  name_prefix(string) firstsegment(uint) maxsegments(uint) "
-	 << endl 
-	 << "                  pedestalmode(int)"
-	 << endl;
-    return -1;
-  }
-  if(argc>=2) runnum = atoi(argv[1]);
-  if(argc>=3) firstsegment = atoi(argv[2]);
-  if(argc>=4) maxsegments = atoi(argv[3]);
-  if(argc>=5) name_prefix = argv[4];
-  if(argc>=6) firstevent = atoi(argv[5]);
-  if(argc>=7) nevents = atoi(argv[6]);
-  if(argc>=8) pedestalmode = atoi(argv[7]);
+// int main(int argc, char *argv[])
+// {
+//   //does this int main actually get called when we run our script?
+//   new THaInterface( "The Hall A analyzer", &argc, argv, 0, 0, 1 );
+//   uint runnum = 220;
+//   uint firstsegment = 0;
+//   uint maxsegments = 0;
+//   string name_prefix = "e1209019";
+//   long firstevent=0;
+//   long nevents=-1; 
+//   int pedestalmode=0;
+//   uint nev = -1;
+//   if(argc<2 || argc>8){
+//     cout << "Usage: replay_gmn runnum(uint) nevents(ulong) firstevent(ulong)" 
+// 	 << endl 
+// 	 << "                  name_prefix(string) firstsegment(uint) maxsegments(uint) "
+// 	 << endl 
+// 	 << "                  pedestalmode(int)"
+// 	 << endl;
+//     return -1;
+//   }
+//   if(argc>=2) runnum = atoi(argv[1]);
+//   if(argc>=3) firstsegment = atoi(argv[2]);
+//   if(argc>=4) maxsegments = atoi(argv[3]);
+//   if(argc>=5) name_prefix = argv[4];
+//   if(argc>=6) firstevent = atoi(argv[5]);
+//   if(argc>=7) nevents = atoi(argv[6]);
+//   if(argc>=8) pedestalmode = atoi(argv[7]);
 
-  replay_gmn(runnum, nevents, firstevent, 
-	     name_prefix.c_str(), firstsegment, maxsegments, 
-	     pedestalmode);
-  return 0;
-}
+//   replay_gmn(runnum, nevents, firstevent, 
+// 	     name_prefix.c_str(), firstsegment, maxsegments, 
+// 	     pedestalmode);
+//   return 0;
+// }
