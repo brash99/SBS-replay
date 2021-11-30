@@ -540,6 +540,12 @@ bb.ecalo_fudgefactor = 1.0
 
 ---------[ 2021-11-23 00:00:00 ] # start of SBS-11 kinematics:
 
+# GEM origin coordinates for SBS-7 kinematics: see https://logbooks.jlab.org/entry/3943431
+# For SBS-11 we shift the Z coordinate by 0.3 m upstream initially:
+bb.gemorigin_xyz = -0.21192 0.04069 2.7170
+bb.gemtheta = 8.8355 # degrees
+bb.gemphi   = 179.882 # degrees
+
 bb.optics_order = 2
 bb.optics_parameters = 
    -0.016994674  0.00015173793 -0.00032036755     0.27029389  0 0 0 0 0
@@ -565,13 +571,20 @@ bb.optics_parameters =
  -1.2615664e-16  2.0467856e-16 -5.1558342e-17 -2.0608788e-15  0 0 0 0 2
 
 # initial guesses for SBS-11:
-bb.frontconstraintwidth_x = 0.2 # m
-bb.frontconstraintwidth_y = 0.1 # m
-bb.backconstraintwidth_x = 0.08 #m
-bb.backconstraintwidth_y = 0.08 #m
-bb.frontconstraint_x0 = 0.058
-bb.frontconstraint_y0 = -0.017
-bb.backconstraint_x0 = 0.0039
-bb.backconstraint_y0 = -0.0015
+bb.frontconstraintwidth_x = 0.15 # m
+bb.frontconstraintwidth_y = 0.08 # m
+bb.backconstraintwidth_x = 0.06 #m
+bb.backconstraintwidth_y = 0.06 #m
+bb.frontconstraint_x0 = 0.050
+bb.frontconstraint_y0 = -0.020
+bb.backconstraint_x0 = 0.0
+bb.backconstraint_y0 = 0.0
 
 bb.ecalo_fudgefactor = 1.0
+
+# for single C foil runs use a wider cut in X: 
+----------[ 2021-11-24 23:59:00 ] 
+bb.frontconstraintwidth_x = 0.75 # m
+
+----------[ 2021-11-25 00:56:00 ] # turn BB magnet on starting run 12279:
+bb.frontconstraintwidth_x = 0.15 # m 

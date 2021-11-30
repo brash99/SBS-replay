@@ -3736,8 +3736,8 @@ bb.gem.threshold_clustersum = 1000.
 bb.gem.ADCasym_cut = 0.5 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
-bb.gem.filterflag1D = 0
-bb.gem.filterflag2D = 0
+bb.gem.filterflag1D = -1
+bb.gem.filterflag2D = 1
 
 bb.gem.peakprominence_minsigma = 5.0 
 bb.gem.peakprominence_minfraction = 0.2
@@ -3761,24 +3761,24 @@ bb.gem.chan_cm_flags = 512
 
 # when zero suppression is enabled again we will turn this to 1: 
 bb.gem.pedsub_online = 0
-bb.gem.max2Dhits = 1000000 # per-module
+bb.gem.max2Dhits = 10000000 # per-module
 
 bb.gem.usestriptimingcut = 1 
 bb.gem.useTSchi2cut = 0
 
 # the following are initial guesses:
 bb.gem.maxstrip_t0 = 80.0 
-bb.gem.maxstrip_tcut = 80.0 
-bb.gem.addstrip_tcut = 30.0
-bb.gem.addstrip_ccor_cut = 0.4
-bb.gem.suppressfirstlast = 0
+bb.gem.maxstrip_tcut = 30.0 
+bb.gem.addstrip_tcut = 21.0
+bb.gem.addstrip_ccor_cut = 0.5
+bb.gem.suppressfirstlast = 1
 
 
 ########### The following parameters are searched by SBSGEMSpectrometerTracker::ReadDatabase() #####################
 
 # parameters controlling tracking behavior:
 bb.gem.sigmahitpos = 0.00015
-bb.gem.minhitsontrack = 3
+bb.gem.minhitsontrack = 4
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 100000
 bb.gem.maxhitcombos_total = 10000000000 # 1 x 10^10
@@ -3828,3 +3828,24 @@ bb.gem.m8.position =       0.2581456    -0.009530078        1.574666
 bb.gem.m8.angle =     -0.08098862      -0.2869029      -0.2958932
 bb.gem.m9.position =       0.7704563     -0.01303848        1.533024
 bb.gem.m9.angle =      -0.1775039     -0.01016292      -0.2312197
+
+--------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:
+
+bb.gem.useconstraint = 1
+bb.gem.suppressfirstlast = 1
+
+bb.gem.useslopeconstraint = 1
+bb.gem.xpfp_min = -0.4
+bb.gem.xpfp_max = 0.4
+bb.gem.ypfp_min = -0.12
+bb.gem.ypfp_max = 0.12
+
+bb.gem.useopticsconstraint = 1
+bb.gem.xptar_min = -0.4
+bb.gem.xptar_max = 0.4
+bb.gem.yptar_min = -0.1
+bb.gem.yptar_max = 0.1
+bb.gem.ytar_min = -0.1
+bb.gem.ytar_max = 0.1
+bb.gem.pmin = 0.5
+bb.gem.pmax = 4.5
