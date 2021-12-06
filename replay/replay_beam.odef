@@ -1,0 +1,22 @@
+#SBSrb.raster.target.x
+#SBSrb.raster.target.y
+
+#SBSrb.raster.bpma.x
+#SBSrb.raster.bpma.y
+#SBSrb.raster.bpmb.x
+#SBSrb.raster.bpmb.y
+
+#sbs.bcm.4MHz_CLK.scaler
+#sbs.bcm.unser.cnt
+#sbs.bcm.u1.cnt
+#sbs.bcm.unew.cnt
+#sbs.bcm.dnew.cnt
+#sbs.bcm.d1.cnt
+#sbs.bcm.d3.cnt
+#sbs.bcm.d10.cnt
+
+th2d h_beam_yVs_bpma 'Beam position at BPM A: x : y' SBSrb.Raster.bpma.x SBSrb.Raster.bpma.y 100 -1.0, 1.0, 100 -1.0, 1.0
+th2d h_beam_yVs_bpmb 'Beam position at BPM B: x : y' SBSrb.Raster.bpmb.x SBSrb.Raster.bpmb.y 100 -1.0, 1.0, 100 -1.0, 1.0
+th2d h_beam_yVs_target 'Beam position at target: x : y' SBSrb.Raster.target.x SBSrb.Raster.target.y 100 -2.0, 2.0, 100 -2.0, 2.0
+
+th1d h_Iunser_Vs_Time 'beam current (unser) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.unser.rate 

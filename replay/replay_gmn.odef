@@ -1,5 +1,6 @@
 ## output variable definition for analysis of all detectors replay_gmn.C
 
+#include "replay_beam.odef"
 #include "replay_BBGEM.odef"
 #include "replay_BBCal.odef"
 #include "replay_grinch.odef"
