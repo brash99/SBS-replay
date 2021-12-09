@@ -1,9 +1,9 @@
 void bbcal_hcal_trig(){
 
-  cout << "Processing macro.." << endl;
+  // cout << "Processing macro.." << endl;
 
-  TStopwatch *st = new TStopwatch();
-  st->Start(kTRUE);
+  // TStopwatch *st = new TStopwatch();
+  // st->Start(kTRUE);
 
   Int_t Ndata_bb_tdctrig_tdcelemID = 0;
   Double_t bb_sh_rowblk = 0., sbs_hcal_rowblk = 0.; 
@@ -50,8 +50,8 @@ void bbcal_hcal_trig(){
   h1_bbcal_hcal_trig->SetStats(0);
   h1_bbcal_hcal_trig->Draw();
 
-  cout << "Processed macro with " << nevents << " entries." << endl;
+  // cout << "Processed macro with " << nevents << " entries." << endl;
 
-  st->Stop();
-  cout << "CPU time = " << st->CpuTime() << " s " << " Real time = " << st->RealTime() << " s " << endl;
+  // st->Stop();
+  // cout << "CPU time = " << st->CpuTime() << " s " << " Real time = " << st->RealTime() << " s " << endl;
 }
