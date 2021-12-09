@@ -4135,6 +4135,30 @@ bb.gem.m8.angle =       0.3646838       0.3322534      -0.2643034
 bb.gem.m9.position =       0.7702544     -0.01321848        1.532618
 bb.gem.m9.angle =       0.2616684      -0.1017688      -0.3492579
 
+-------[ 2021-12-07 23:30:00 ] # new alignments after access for (what proved to be unnecessary) MPD swap:
+
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =       0.5301341    0.0002519694       0.1319955
+bb.gem.m1.angle =      0.06798414      -0.1600245      -0.1605207
+bb.gem.m2.position =    -0.004800802     0.003560502       0.1295274
+bb.gem.m2.angle =      0.01890078       0.1796345       -0.369735
+bb.gem.m3.position =      -0.5409041     0.007348496       0.1308837
+bb.gem.m3.angle =      -0.3032338       0.2365412       -0.384346
+bb.gem.m4.position =    -0.007675283      0.00681702       0.2783618
+bb.gem.m4.angle =       0.1954782       0.1137458      -0.2881732
+bb.gem.m5.position =    -0.009284352     0.005604046       0.4566668
+bb.gem.m5.angle =       0.2523719       0.1452118      -0.4424986
+bb.gem.m6.position =       -0.766243    0.0006624914        1.581306
+bb.gem.m6.angle =      -0.1122734      -0.5167078      -0.3381397
+bb.gem.m7.position =      -0.2530203    -0.003519917        1.535394
+bb.gem.m7.angle =      -0.4048697     -0.08874192      -0.3211477
+bb.gem.m8.position =        0.258252     -0.00956044        1.578279
+bb.gem.m8.angle =       0.3289351       0.2487599      -0.2671702
+bb.gem.m9.position =       0.7701477     -0.01334064        1.532902
+bb.gem.m9.angle =       0.4019132      -0.1141013       -0.357992
+
+
 --------[ 2021-12-02 16:51:00 ] # J0 middle failed, start using 3-hit minimum for tracking:
 
 bb.gem.minhitsontrack = 3
