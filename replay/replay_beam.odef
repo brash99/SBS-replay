@@ -15,8 +15,28 @@
 #sbs.bcm.d3.cnt
 #sbs.bcm.d10.cnt
 
-th2d h_beam_yVs_bpma 'Beam position at BPM A: x : y' SBSrb.Raster.bpma.x SBSrb.Raster.bpma.y 100 -1.0, 1.0, 100 -1.0, 1.0
-th2d h_beam_yVs_bpmb 'Beam position at BPM B: x : y' SBSrb.Raster.bpmb.x SBSrb.Raster.bpmb.y 100 -1.0, 1.0, 100 -1.0, 1.0
-th2d h_beam_yVs_target 'Beam position at target: x : y' SBSrb.Raster.target.x SBSrb.Raster.target.y 100 -2.0, 2.0, 100 -2.0, 2.0
+#th2d h_beam_yVs_bpma 'Beam position at BPM A: x : y' SBSrb.Raster.bpma.x SBSrb.Raster.bpma.y 100 -1.0, 1.0, 100 -1.0, 1.0
+#th2d h_beam_yVs_bpmb 'Beam position at BPM B: x : y' SBSrb.Raster.bpmb.x SBSrb.Raster.bpmb.y 100 -1.0, 1.0, 100 -1.0, 1.0
+#th2d h_beam_yVs_target 'Beam position at target: x : y' SBSrb.Raster.target.x SBSrb.Raster.target.y 100 -2.0, 2.0, 100 -2.0, 2.0
 
-th1d h_Iunser_Vs_Time 'beam current (unser) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.unser.rate 
+FORMULA frbax 1000.*SBSrb.BPMA.x
+FORMULA frbay 1000.*SBSrb.BPMA.y
+FORMULA frbbx 1000.*SBSrb.BPMB.x
+FORMULA frbby 1000.*SBSrb.BPMB.y
+
+TH2F fbpma_xy 'BPMA y vs x'  frbax frbay 1000 -5. 5. 1000 -5. 5.
+TH2F fbpmb_xy 'BPMB y vs x'  frbbx frbby 1000 -5. 5. 1000 -5. 5.
+
+FORMULA targx 1000.*(SBSrb.BPMB.x-SBSrb.BPMA.x)/4.083*5.969+1000.*SBSrb.BPMA.x
+FORMULA targy 1000.*(SBSrb.BPMB.y-SBSrb.BPMA.y)/4.083*5.969+1000.*SBSrb.BPMA.y
+TH2F targ_xy 'Postion at target [mm]' targx targy 1000 -5. 5. 1000 -5. 5.
+
+
+
+#th1d h_Iunser_Vs_Time 'beam current (unser) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.unser.rate 
+#th1d h_Iu1_Vs_Time 'beam current (u1) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.u1.rate 
+#th1d h_Iunew_Vs_Time 'beam current (unew) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.unew.rate 
+#th1d h_Idnew_Vs_Time 'beam current (dnew) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.dnew.rate 
+#th1d h_Id1_Vs_Time 'beam current (d1) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.d1.rate 
+#th1d h_Id3_Vs_Time 'beam current (d3) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.d3.rate 
+#th1d h_Id10_Vs_Time 'beam current (d10) vs time' sbs.4MHz_CLK.scaler 1000 0, 2.4e8 sbs.bcm.d10.rate 
