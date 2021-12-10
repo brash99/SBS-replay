@@ -4112,6 +4112,7 @@ bb.gem.ytar_max = 0.1
 bb.gem.pmin = 0.5
 bb.gem.pmax = 4.5
 
+
 --------[ 2021-12-01 17:00:00 ] # new alignments after GEM work during access on Dec. 1st
 
 bb.gem.m0.position =               0               0               0
@@ -4183,3 +4184,13 @@ bb.gem.suppressfirstlast = 0
 bb.gem.usestriptimingcut = 1
 bb.gem.suppressfirstlast = 1
 
+--------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:
+bb.gem.useconstraint = 0
+bb.gem.useslopeconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+--------[ 2021-11-25 00:45:00 ] # turn on optics and track slope constraints:
+
+bb.gem.useconstraint = 1
+bb.gem.useslopeconstraint = 1
+bb.gem.useopticsconstraint = 1
