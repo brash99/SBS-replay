@@ -11,7 +11,7 @@ void bb_trig(){
   //Double_t bb_sh_e = 0.;
   Double_t bb_tdctrig_tdc[6] = {0.}, bb_tdctrig_tdcelemID[6] = {0.};
 
-  TH1D *h1_bb_trig = new TH1D("h1_bb_trig","BBCal trigger; BBCal Trigger", 140, 260, 330);
+  TH1D *h1_bb_trig = new TH1D("h1_bb_trig","BBCal trigger; BBCal Trigger", 280, 260, 400);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
