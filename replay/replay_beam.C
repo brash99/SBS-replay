@@ -22,6 +22,10 @@
 #include "SBSRasteredBeam.h"
 #include "SBSScalerEvtHandler.h"
 #include "LHRSScalerEvtHandler.h"
+#include "SBSScalerHelicity.h"
+#include "SBSScalerHelicityReader.h"
+
+int MAX_SEG = 700; 
 
 const std::string SCRIPT = "[replay_beam]: "; 
 
@@ -56,14 +60,16 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
 
    // add *rastered* beam (LHRS)
    THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
-   gHaApps->Add(Lrb);
+   // add scaler helicity 
+   // Lrb->AddDetector( new SBSScalerHelicity("scalhel","Scaler Helicity info"));
+   // gHaApps->Add(Lrb);
 
    // add *rastered* beam (SBS)
    THaApparatus* sbs = new SBSRasteredBeam("SBSrb","Raster Beamline for FADC");
    gHaApps->Add(sbs);
 
-   std::ofstream debugFile; 
-   debugFile.open("lhrs-scaler-dump.txt");
+   // std::ofstream debugFile; 
+   // debugFile.open("lhrs-scaler-dump.txt");
 
    // LHRS scaler data (ROC10)  
    LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
@@ -108,8 +114,8 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
    }
 
    if(nevents<0){
-      std::cout << SCRIPT << "Requested all events!  Changing maxsegments to 50" << std::endl;
-      maxsegments = 50;
+      std::cout << SCRIPT << "Requested all events!  Changing maxsegments to " << MAX_SEG << std::endl;
+      maxsegments = MAX_SEG;
    }
 
    int max1 = maxsegments;
