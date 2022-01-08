@@ -5,7 +5,7 @@ void efficiency_layer(TString hdidhit, TString hshouldhit, int layer=0 ){
   Hdid = (TH1D*) gFile->Get(hdidhit);
   Hshould = (TH1D*) gFile->Get(hshouldhit);
 
-  Hshould->SetXTitle("x (m)");
+  //Hshould->SetXTitle("x (m)");
   //Hshou
 
   Hshould->SetTitleSize(0.07,"X");

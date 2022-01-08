@@ -591,7 +591,7 @@ bb.ecalo_fudgefactor = 1.0
 # and also: https://logbooks.jlab.org/entry/3966480
 # NOTE: ZSIEVE = 1.19570 m from straight-track analysis:
 bb.gemorigin_xyz = -0.204061 0.039233 2.69957
-bb.gemtheta = 8.717 # degrees
+bb.gemtheta = 8.71692 # degrees
 bb.gemphi   = 179.078 # degrees
 
 bb.optics_order = 2
