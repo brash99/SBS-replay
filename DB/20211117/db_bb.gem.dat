@@ -4222,6 +4222,14 @@ bb.gem.m9.angle =       0.1103163      0.02013475       -0.300051
 
 bb.gem.useconstraint = 1
 bb.gem.suppressfirstlast = 1
+# turn off slope and optics-based constraints for zero-field runs:
+bb.gem.useslopeconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+-------[ 2021-11-25 00:56:00 ] 
+
+bb.gem.useconstraint = 1
+bb.gem.suppressfirstlast = 1
 
 bb.gem.useslopeconstraint = 1
 bb.gem.xpfp_min = -0.4

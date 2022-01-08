@@ -1178,6 +1178,16 @@ bb.gem.ytar_max = 0.08
 bb.gem.pmin = 0.7
 bb.gem.pmax = 2.7
 
+-----------[ 2021-10-24 23:10:00 ] # Zero-field run for SBS-4:
+bb.gem.useconstraint = 1
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+
+-----------[ 2021-10-25 00:18:00 ] # Optics runs with field-on for SBS-4:
+bb.gem.useconstraint = 1
+bb.gem.useopticsconstraint = 1
+
+
 -----------[ 2021-11-12 00:00:00 ] # at SBS-7, the max. good electron momentum is about 3.5 GeV
 bb.gem.useconstraint = 0 # start with no constraint for zero-field runs
 bb.gem.useopticsconstraint = 0

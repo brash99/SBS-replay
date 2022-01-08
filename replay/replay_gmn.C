@@ -34,7 +34,7 @@
 #include "SBSScalerEvtHandler.h"
 //#endif
 
-void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
+void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=0)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -97,6 +97,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   bool pm =  ( pedestalmode != 0 );
   //this will override the database setting:
   ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetPedestalMode( pm );
+  ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetMakeCommonModePlots( cmplots );
   bigbite->AddDetector(bbgem);
   gHaApps->Add(bigbite);
     
