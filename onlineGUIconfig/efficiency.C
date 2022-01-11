@@ -67,7 +67,7 @@ void efficiency(TString hdidhit, TString hshouldhit, int module=0 ){
 
   p->AddText( text.Format( "Module %d Average", module ) );
   
-  text.Form( "Efficiency = (%5.2f #pm %5.2f) ", module, 100.*efficiency, 100.*defficiency );
+  text.Form( "Efficiency = (%5.2f #pm %5.2f) ", 100.*efficiency, 100.*defficiency );
 
   text += '%';
   
