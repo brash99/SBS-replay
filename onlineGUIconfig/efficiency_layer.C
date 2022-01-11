@@ -67,7 +67,7 @@ void efficiency_layer(TString hdidhit, TString hshouldhit, int layer=0 ){
 
   p->AddText( text.Format( "Layer %d Average", layer ) );
   
-  text.Form( "Efficiency = (%5.2f #pm %5.2f) ", layer, 100.*efficiency, 100.*defficiency );
+  text.Form( "Efficiency = (%5.2f #pm %5.2f) ", 100.*efficiency, 100.*defficiency );
 
   text += '%';
   
