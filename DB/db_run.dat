@@ -89,3 +89,15 @@ bb.theta = 42.0
 bb.magdist = 1.55 
 bb.pcentral = 2.67
 
+--------[ 2022-01-06 12:00:00 ] ## starting SBS-14 kinematics for GMN:
+
+ebeam = 5.974 
+sbs.theta = -17.3 # degrees
+sbs.pcentral = 4.8 # GeV
+
+# note: SBS distance = 2.25 m
+# note also: HCAL distance = 14.0 meters 
+
+bb.theta = 46.5 # degrees
+bb.magdist = 1.85 # meters
+bb.pcentral = 2.0 # GeV

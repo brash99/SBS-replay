@@ -639,3 +639,95 @@ bb.frontconstraintwidth_y = 0.25 # basically set wide open at the front, so that
 
 ----------[ 2021-11-25 00:56:00 ] # turn BB magnet on starting run 12279:
 bb.frontconstraintwidth_x = 0.15 # m 
+
+----------[ 2022-01-06 12:00:00 ] # start of January 2022 running and SBS-14 kinematics:
+# for SBS-14 we are back at 1.85 meter distance:
+
+# initial guess for GEM alignments: add 0.3 meters to GEM z coordinate relative to SBS-11:
+bb.gemorigin_xyz = -0.204061 0.039233 3.0
+bb.gemtheta = 8.71692 # degrees
+bb.gemphi   = 179.078 # degrees
+
+
+# initial guess for optics: re-use SBS-1 optics which is very close to SBS-14 optics in 
+# terms of BigBite angle and distance:
+
+# Optimized angle and vertex reconstruction results for SBS-1 by Holly S.-Vance: 
+# See https://sbs.jlab.org/cgi-bin/DocDB/private/ShowDocument?docid=136 
+# and also https://logbooks.jlab.org/entry/3942893
+# Momentum optimization forthcoming: 
+bb.optics_parameters = 
+    -0.0174461086  -0.00113650089  0.000787627039      0.27014683  0 0 0 0 0
+      0.446503753    0.0015290496   0.00238256667      0.12263747  1 0 0 0 0
+    -0.0297872918   0.00387126217  -0.00860627686    -0.019948636  2 0 0 0 0
+     0.0105018101   -0.0526149625      1.14835839    0.0035087727  0 1 0 0 0
+     -0.182160414      0.15905763    -0.347304174    0.0016165883  1 1 0 0 0
+     0.0420334894     0.253441803   -0.0521031875     0.099444276  0 2 0 0 0
+     -0.353584016   -0.0062595527  -0.00701297567    -0.067598058  0 0 1 0 0
+     0.0444357676   0.00358535694    0.0307924492     0.059928015  1 0 1 0 0
+      0.165808974    -0.187739967     0.643618728   -0.0047219173  0 1 1 0 0
+    -0.0538763496   -0.0211674175   -0.0439441847    0.0028185913  0 0 2 0 0
+     -0.026077177      1.04321194     -3.05137073   -0.0054259747  0 0 0 1 0
+      0.490841418    -0.231377234      0.39107269      0.00139445  1 0 0 1 0
+     -0.117798952    -0.901964981     0.365371184   -0.0068146927  0 1 0 1 0
+     -0.428995345     0.245113611    -0.878051616    0.0068090428  0 0 1 1 0
+      0.200912444       1.1236912    -0.764682121     -0.15213115  0 0 0 2 0
+   -9.6140311e-16   -1.357631e-15   9.2605663e-17  -1.0943194e-14  0 0 0 0 1
+   -2.1436212e-16   2.1026365e-16   1.9389511e-16   3.8920755e-15  1 0 0 0 1
+    2.2572645e-16   1.5761084e-16  -3.5722312e-17  -3.6675353e-15  0 1 0 0 1
+   -4.6911865e-17   1.5525669e-16   -2.405119e-18    1.333243e-15  0 0 1 0 1
+    3.8674907e-16   1.4831082e-16    8.137218e-17  -5.2351365e-15  0 0 0 1 1
+    4.5026307e-17  -8.6377048e-17   5.8408047e-17  -1.5141878e-15  0 0 0 0 2
+
+# constraint parameters: 
+# initial values are guesses: We will adjust when the beam comes and we see where we stand:
+bb.backconstraintwidth_x = 0.1
+bb.backconstraintwidth_y = 0.1
+bb.frontconstraintwidth_x = 0.25
+bb.frontconstraintwidth_y = 0.15
+
+bb.ecalo_fudgefactor = 1.0
+
+bb.frontconstraint_x0 = 0.0
+bb.frontconstraint_y0 = 0.0
+bb.backconstraint_x0 = 0.0
+bb.backconstraint_y0 = 0.0
+
+
+# time-dependent entries for SBS-14 optics data:
+---------[ 2022-01-11 8:45:00 ] # zero-field, five-foil:
+
+#bb.gem.useopticsconstraint = 0
+#bb.gem.useslopeconstraint = 0
+
+# for zero-field running we set the front constraints wide open:
+bb.frontconstraint_x0 = 0.75
+bb.frontconstraint_y0 = 0.25
+
+---------[ 2022-01-11 9:13:00 ] # field-on, five-foil optics:
+
+#bb.gem.useopticsconstraint = 1
+#bb.gem.useslopeconstraint = 1
+# with field-on we use tighter (but still loose) cuts for now:
+bb.frontconstraint_x0 = 0.25
+bb.frontconstraint_y0 = 0.15
+
+
+---------[ 2022-01-11 10:09:00 ] # zero-field, 1-foil optics: 
+
+#bb.gem.useopticsconstraint = 0
+#bb.gem.useslopeconstraint = 0
+
+# for zero-field running we set the front constraints wide open:
+bb.frontconstraint_x0 = 0.75
+bb.frontconstraint_y0 = 0.25
+
+---------[ 2022-01-11 10:35:00 ] # presumably going to production after this:
+
+
+#bb.gem.useopticsconstraint = 1
+#bb.gem.useslopeconstraint = 1
+
+# with field-on we use tighter (but still loose) cuts for now:
+bb.frontconstraint_x0 = 0.25
+bb.frontconstraint_y0 = 0.15

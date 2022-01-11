@@ -4326,7 +4326,7 @@ bb.gem.useopticsconstraint = 0
 
 --------[ 2021-11-25 00:45:00 ] # turn on optics and track slope constraints:
 
-bb.gem.useconstraint = 0
+bb.gem.useconstraint = 1
 bb.gem.useslopeconstraint = 1
 bb.gem.useopticsconstraint = 1
 
