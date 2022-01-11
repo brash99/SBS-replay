@@ -912,7 +912,7 @@ bb.gem.threshold_stripsum = 400.
 bb.gem.threshold_clustersum 800.
 
 
-bb.gem.ADCasym_cut = 0.5 
+bb.gem.ADCasym_cut = 0.75 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
@@ -1007,6 +1007,10 @@ bb.gem.xpfp_min = -0.5
 bb.gem.xpfp_max = 0.5
 bb.gem.ypfp_min = -0.15
 bb.gem.ypfp_max = 0.15
+
+---------[ 2022-01-11 00:00:00 ] # for optics running with sieve in, we will disable suppression of strips peaking in first or last time sample for now:
+
+bb.gem.suppressfirstlast = 0
 
 # time-dependent entries for SBS-14 optics data:
 ---------[ 2022-01-11 8:45:00 ] # zero-field, five-foil:

@@ -701,16 +701,16 @@ bb.backconstraint_y0 = 0.0
 #bb.gem.useslopeconstraint = 0
 
 # for zero-field running we set the front constraints wide open:
-bb.frontconstraint_x0 = 0.75
-bb.frontconstraint_y0 = 0.25
+bb.frontconstraintwidth_x = 0.75
+bb.frontconstraintwidth_y = 0.25
 
 ---------[ 2022-01-11 9:13:00 ] # field-on, five-foil optics:
 
 #bb.gem.useopticsconstraint = 1
 #bb.gem.useslopeconstraint = 1
 # with field-on we use tighter (but still loose) cuts for now:
-bb.frontconstraint_x0 = 0.25
-bb.frontconstraint_y0 = 0.15
+bb.frontconstraintwidth_x = 0.25
+bb.frontconstraintwidth_y = 0.15
 
 
 ---------[ 2022-01-11 10:09:00 ] # zero-field, 1-foil optics: 
@@ -719,8 +719,8 @@ bb.frontconstraint_y0 = 0.15
 #bb.gem.useslopeconstraint = 0
 
 # for zero-field running we set the front constraints wide open:
-bb.frontconstraint_x0 = 0.75
-bb.frontconstraint_y0 = 0.25
+bb.frontconstraintwidth_x = 0.75
+bb.frontconstraintwidth_y = 0.25
 
 ---------[ 2022-01-11 10:35:00 ] # presumably going to production after this:
 
@@ -729,5 +729,5 @@ bb.frontconstraint_y0 = 0.25
 #bb.gem.useslopeconstraint = 1
 
 # with field-on we use tighter (but still loose) cuts for now:
-bb.frontconstraint_x0 = 0.25
-bb.frontconstraint_y0 = 0.15
+bb.frontconstraintwidth_x = 0.25
+bb.frontconstraintwidth_y = 0.15
