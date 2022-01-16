@@ -104,23 +104,41 @@ bb.gem.plot_event_info = 0
 
 # initial alignment at SBS-14 with cosmic, run 13144:
 
+#bb.gem.m0.position =               0               0               0
+#bb.gem.m0.angle =               0               0               0
+#bb.gem.m1.position =    -0.001954513     -0.01134765       0.1639595
+#bb.gem.m1.angle =     -0.02666889      0.01705889      0.05252126
+#bb.gem.m2.position =    -0.007401226     0.006056647       0.2785673
+#bb.gem.m2.angle =      0.01060074      0.03872735      -0.2882233
+#bb.gem.m3.position =    -0.009096659     0.004456345       0.4554179
+#bb.gem.m3.angle =      -0.0446651      0.04245064      -0.4383002
+#bb.gem.m4.position =      -0.7642624     0.002077642        1.570671
+#bb.gem.m4.angle =     -0.06548244      -0.1482707      -0.3291127
+#bb.gem.m5.position =      -0.2523894    -0.002123372        1.530318
+#bb.gem.m5.angle =      -0.1433406      -0.0857477      -0.3093657
+#bb.gem.m6.position =       0.2582463    -0.008230987         1.57488
+#bb.gem.m6.angle =     -0.01092449      -0.2465096       -0.284389
+#bb.gem.m7.position =       0.7702822     -0.01153325        1.532191
+#bb.gem.m7.angle =      -0.2498589    -0.005741859      -0.2241135
+
+# Better alignment at SBS-14 with 1.4M tracks from optics runs 13193-13196:
+
 bb.gem.m0.position =               0               0               0
 bb.gem.m0.angle =               0               0               0
-bb.gem.m1.position =    -0.001954513     -0.01134765       0.1639595
-bb.gem.m1.angle =     -0.02666889      0.01705889      0.05252126
-bb.gem.m2.position =    -0.007401226     0.006056647       0.2785673
-bb.gem.m2.angle =      0.01060074      0.03872735      -0.2882233
-bb.gem.m3.position =    -0.009096659     0.004456345       0.4554179
-bb.gem.m3.angle =      -0.0446651      0.04245064      -0.4383002
-bb.gem.m4.position =      -0.7642624     0.002077642        1.570671
-bb.gem.m4.angle =     -0.06548244      -0.1482707      -0.3291127
-bb.gem.m5.position =      -0.2523894    -0.002123372        1.530318
-bb.gem.m5.angle =      -0.1433406      -0.0857477      -0.3093657
-bb.gem.m6.position =       0.2582463    -0.008230987         1.57488
-bb.gem.m6.angle =     -0.01092449      -0.2465096       -0.284389
-bb.gem.m7.position =       0.7702822     -0.01153325        1.532191
-bb.gem.m7.angle =      -0.2498589    -0.005741859      -0.2241135
-
+bb.gem.m1.position =     -0.00190827     -0.01146471       0.1649894
+bb.gem.m1.angle =       0.0343289      0.03669316      0.04158537
+bb.gem.m2.position =    -0.007452511     0.006062391       0.2782266
+bb.gem.m2.angle =       0.1264656      0.04048647      -0.2963303
+bb.gem.m3.position =     -0.00908496     0.004405104       0.4564431
+bb.gem.m3.angle =      0.08732198      0.07478543      -0.4459407
+bb.gem.m4.position =      -0.7646241     0.002086477        1.573567
+bb.gem.m4.angle =     -0.02277654      -0.3173591      -0.3238963
+bb.gem.m5.position =      -0.2524617    -0.002086854        1.531969
+bb.gem.m5.angle =      -0.1023922     0.009814123      -0.3089679
+bb.gem.m6.position =       0.2584947    -0.008109702        1.575409
+bb.gem.m6.angle =      0.06506941      -0.1580078       -0.274574
+bb.gem.m7.position =       0.7703868     -0.01163536        1.533183
+bb.gem.m7.angle =      -0.2013085      -0.1343043      -0.2989329
 
 
 
@@ -1030,6 +1048,22 @@ bb.gem.useslopeconstraint = 0
 
 ---------[ 2022-01-11 10:35:00 ] # presumably going to production after this:
 
+bb.gem.suppressfirstlast = 1
+bb.gem.useopticsconstraint = 1
+bb.gem.useslopeconstraint = 1
 
+
+---------[ 2022-01-13 12:00:00 ] # cosmic runs while target was broken
+
+bb.gem.suppressfirstlast = 0
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+
+---------[ 2022-01-15 12:00:00 ] # production runs after this
+
+bb.gem.suppressfirstlast = -1
+
+bb.gem.useconstraint = 1
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1

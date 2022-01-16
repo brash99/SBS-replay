@@ -729,5 +729,14 @@ bb.frontconstraintwidth_y = 0.25
 #bb.gem.useslopeconstraint = 1
 
 # with field-on we use tighter (but still loose) cuts for now:
-bb.frontconstraintwidth_x = 0.25
-bb.frontconstraintwidth_y = 0.15
+bb.frontconstraint_y0 = -0.018
+bb.frontconstraint_x0 = 0.058
+
+bb.frontconstraintwidth_x = 0.06
+bb.frontconstraintwidth_y = 0.06
+
+bb.backconstraint_y0 = 0.0
+bb.backconstraint_x0 = 0.006
+
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.06
