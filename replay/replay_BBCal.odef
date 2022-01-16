@@ -60,6 +60,7 @@ th1d hHEclus_eng_sh 'Energy of the best cluster(GeV) : SH' bb.sh.e 100 0 5 bb.sh
 th2d hHEclus_pos_sh 'Position of best cluster : SH' bb.sh.colblk+1 bb.sh.rowblk+1 7 1 8 27 1 28 bb.sh.nclus>0
 
 ## PS+SH Cluster
+th1d htotalClus_eng 'BBCal Total Cluster Eng. (SH+PS)' bb.ps.e+bb.sh.e 100 0 3 bb.sh.nclus>0&&bb.ps.nclus>0&&bb.ps.idblk!=-1
 th2d hHEclus_cor_sh_ps 'PS Cluster Eng. vs SH Cluster Eng (GeV).' bb.sh.e bb.ps.e 100 0 5 100 0 5 bb.sh.nclus>0&&bb.ps.nclus>0
 th2d hps_shPlusps_e 'PS Cluster Eng. vs SH+PS Cluster Eng (GeV).' bb.ps.e+bb.sh.e bb.ps.e 100 0 3 100 0 1.5 bb.sh.nclus>0&&bb.ps.nclus>0
 
