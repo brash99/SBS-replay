@@ -1008,23 +1008,23 @@ bb.gem.efficiency_bin_width_1D = 0.02
 bb.gem.efficiency_bin_width_2D = 0.04
 
 # these should probably be tighter later on:
-bb.gem.xptar_min = -0.3
-bb.gem.xptar_max = 0.3
+bb.gem.xptar_min = -0.25
+bb.gem.xptar_max = 0.25
 
-bb.gem.yptar_min = -0.15
-bb.gem.yptar_max = 0.15
+bb.gem.yptar_min = -0.09
+bb.gem.yptar_max = 0.09
 
-bb.gem.ytar_min = -0.1
-bb.gem.ytar_max = 0.1
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
 
 # central electron momentum for SBS-14 is p ~= 2.0 GeV
-bb.gem.pmin = 0.75
-bb.gem.pmax = 3.5
+bb.gem.pmin = 0.8
+bb.gem.pmax = 2.6
 
-bb.gem.xpfp_min = -0.5
-bb.gem.xpfp_max = 0.5
-bb.gem.ypfp_min = -0.15
-bb.gem.ypfp_max = 0.15
+bb.gem.xpfp_min = -0.25
+bb.gem.xpfp_max = 0.25
+bb.gem.ypfp_min = -0.09
+bb.gem.ypfp_max = 0.09
 
 ---------[ 2022-01-11 00:00:00 ] # for optics running with sieve in, we will disable suppression of strips peaking in first or last time sample for now:
 
@@ -1048,7 +1048,7 @@ bb.gem.useslopeconstraint = 0
 
 ---------[ 2022-01-11 10:35:00 ] # presumably going to production after this:
 
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
 

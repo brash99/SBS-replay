@@ -13,7 +13,7 @@ const double Mp = 0.938272;
 const double Mn = 0.939565;
 
 void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilename, double ebeam=3.7278, 
-				double bbtheta=36.0, double sbstheta=31.9, double hcaldist=11.0 ){
+				double bbtheta=36.0, double sbstheta=31.9, double hcaldist=11.0, double dx0=0.0, double dy0=0.0, double dxsigma=0.06, double dysigma=0.1, double Wmin=0.6, double Wmax=1.2, double dpel_min=-0.06, double dpel_max=0.06 ){
   //ifstream infile(configfilename);
 
   TChain *C = new TChain("T");
@@ -44,8 +44,8 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   int ncols_hcal=12;
   
   
-  double Wmin_elastic = 0.85;
-  double Wmax_elastic = 1.04;
+  double Wmin_elastic = Wmin;
+  double Wmax_elastic = Wmax;
   
   //HCAL variables:
   double xHCAL, yHCAL, EHCAL;
@@ -58,6 +58,8 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   
   double vx[MAXNTRACKS], vy[MAXNTRACKS], vz[MAXNTRACKS];
 
+  double tracknhits[MAXNTRACKS];
+
   //BigBite shower/preshower variables:
   double Eps_BB, Esh_BB;
   double xps_BB, yps_BB, xsh_BB, ysh_BB;
@@ -67,6 +69,7 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   C->SetBranchStatus("sbs.hcal.y",1);
   C->SetBranchStatus("sbs.hcal.e",1);
   C->SetBranchStatus("bb.tr.n",1);
+  C->SetBranchStatus("bb.gem.track.nhits",1);
   C->SetBranchStatus("bb.tr.px",1);
   C->SetBranchStatus("bb.tr.py",1);
   C->SetBranchStatus("bb.tr.pz",1);
@@ -85,6 +88,7 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   C->SetBranchAddress("sbs.hcal.e",&EHCAL);
 
   C->SetBranchAddress("bb.tr.n",&ntrack);
+  C->SetBranchAddress("bb.gem.track.nhits",&tracknhits);
   C->SetBranchAddress("bb.tr.px",px);
   C->SetBranchAddress("bb.tr.py",py);
   C->SetBranchAddress("bb.tr.pz",pz);
@@ -157,7 +161,7 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   TH1D *hpphi_cut = new TH1D("hpphi_cut","#phi_{p} (deg)",250,135,225);
 
   double pel_central = ebeam/(1.+ebeam/Mp*(1.-cos(bbtheta)));
-  double Q2_central = 2.*ebeam*(ebeam-pel_central)*(1.-cos(bbtheta));
+  double Q2_central = 2.*ebeam*pel_central*(1.-cos(bbtheta));
   
   TH1D *hep_cut = new TH1D("hep_cut",";p_{e} (GeV);",250,0.5*pel_central,1.5*pel_central);
   TH1D *hQ2_cut = new TH1D("hQ2_cut",";Q^{2} (GeV^{2});",250,0.5*Q2_central, 1.5*Q2_central );
@@ -175,8 +179,11 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   TH1D *hpEkin_cut = new TH1D("hpEkin_cut","E_{kin,expect} (GeV)",250,0.5*Tcentral,1.5*Tcentral);
 
   TH1D *hEHCALoverEkin = new TH1D("hEHCALoverEkin","E_{HCAL}/E_{kin,expect}",250,0.0,1.0);
-			       
-			       
+
+  TH1D *hTrackNhits_cut = new TH1D("hTrackNhits_cut",";Num. hits on track;",6,-0.5,5.5);
+
+  TH1D *hvz_cut = new TH1D("hvz_cut",";vertex z (m);", 250,-0.125,0.125);
+
   long nevent = 0;
 
   while( C->GetEntry( nevent++ ) ){
@@ -293,32 +300,53 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
       
       hE_HCAL->Fill( EHCAL );
 
-      if( pow( (xHCAL-xexpect_HCAL)/0.06,2) + pow( (yHCAL-yexpect_HCAL)/0.1,2) <= pow(2.5,2) ){
-	hW_cut_HCAL->Fill( PgammaN.M() );
-	hdpel_cut_HCAL->Fill( p[0]/pel - 1.0 );
+      if( pow( (xHCAL-xexpect_HCAL - dx0)/dxsigma,2) + pow( (yHCAL-yexpect_HCAL - dy0)/dysigma,2) <= pow(2.5,2) ){
 
-	hE_preshower_cut->Fill( Eps_BB );
-	hEoverP_cut->Fill( (Eps_BB+Esh_BB)/p[0] );
-	hEoverP_vs_preshower_cut->Fill( Eps_BB,  (Eps_BB+Esh_BB)/p[0] );
 
-	hE_HCAL_cut->Fill( EHCAL );
+	if( Eps_BB >= 0.15 && abs( (Eps_BB+Esh_BB)/p[0] - 1. ) < 0.25 ){
 
-	hep_cut->Fill( p[0] );
-	hQ2_cut->Fill( 2.*ebeam*(ebeam-p[0])*(1.-cos(etheta)) );
-	hptheta_cut->Fill( thetanucleon * TMath::RadToDeg() );
-	hetheta_cut->Fill( etheta* TMath::RadToDeg() );
-	hpp_cut->Fill( pp );
-	hpEkin_cut->Fill( nu );
-	hEHCALoverEkin->Fill( EHCAL/nu );
+	  hW_cut_HCAL->Fill( PgammaN.M() );
+	  hdpel_cut_HCAL->Fill( p[0]/pel - 1.0 );
+	  
+	  
+	  hE_HCAL_cut->Fill( EHCAL );
 
-	hephi_cut->Fill( ephi * TMath::RadToDeg() );
-	hpphi_cut->Fill( pphi_recon * TMath::RadToDeg() );
+	  //for the following histograms make aggressive cuts:
+	  if( Wmin < PgammaN.M() && PgammaN.M() < Wmax && dpel_min < p[0]/pel-1.&&p[0]/pel-1. < dpel_max ){ 
+	    hep_cut->Fill( p[0] );
+	    hQ2_cut->Fill( 2.*ebeam*p[0]*(1.-cos(etheta)) );
+	    hptheta_cut->Fill( thetanucleon * TMath::RadToDeg() );
+	    hetheta_cut->Fill( etheta* TMath::RadToDeg() );
+	    hpp_cut->Fill( pp );
+	    hpEkin_cut->Fill( nu );
+	    hEHCALoverEkin->Fill( EHCAL/nu );
+	    
+	    hephi_cut->Fill( ephi * TMath::RadToDeg() );
+	    hpphi_cut->Fill( pphi_recon * TMath::RadToDeg() );
+
+	    hTrackNhits_cut->Fill( tracknhits[0] );
+
+	    hvz_cut->Fill( vz[0] );
+
+
+	  }
+	}
+
+	//cut on elastic peak for EoverP and preshower cut plots:
+	if( Wmin < PgammaN.M() && PgammaN.M() < Wmax && dpel_min < p[0]/pel-1.&&p[0]/pel-1. < dpel_max ){ 
+	  hE_preshower_cut->Fill( Eps_BB );
+	  hEoverP_cut->Fill( (Eps_BB+Esh_BB)/p[0] );
+	  hEoverP_vs_preshower_cut->Fill( Eps_BB,  (Eps_BB+Esh_BB)/p[0] );
+	  
+	}
+
       }
 
-      if( Eps_BB >= 0.15 && abs( (Eps_BB+Esh_BB)/p[0] - 0.96 ) <= 0.25 ){
+      if( Eps_BB >= 0.15 && abs( (Eps_BB+Esh_BB)/p[0] - 1.0 ) <= 0.3 ){
 	hdpel_cutBBCAL->Fill( p[0]/pel - 1.0 );
 	hW_cutBBCAL->Fill( PgammaN.M() );
-	if( 0.85 <= PgammaN.M() && PgammaN.M() <= 1.05 ){
+	if( Wmin <= PgammaN.M() && PgammaN.M() <= Wmax && 
+	    dpel_min <= p[0]/pel - 1. && p[0]/pel - 1. < dpel_max ){
 	  hdx_HCAL_cut->Fill( xHCAL - xexpect_HCAL );
 	  hdy_HCAL_cut->Fill( yHCAL - yexpect_HCAL );
 	  hdxdy_HCAL_cut->Fill( yHCAL - yexpect_HCAL, xHCAL - xexpect_HCAL );

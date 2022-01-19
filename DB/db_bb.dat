@@ -644,9 +644,16 @@ bb.frontconstraintwidth_x = 0.15 # m
 # for SBS-14 we are back at 1.85 meter distance:
 
 # initial guess for GEM alignments: add 0.3 meters to GEM z coordinate relative to SBS-11:
-bb.gemorigin_xyz = -0.204061 0.039233 3.0
-bb.gemtheta = 8.71692 # degrees
-bb.gemphi   = 179.078 # degrees
+#bb.gemorigin_xyz = -0.204061 0.039233 3.0
+#bb.gemtheta = 8.71692 # degrees
+#bb.gemphi   = 179.078 # degrees
+
+# new results for SBS-14 straight-through alignment:
+bb.gemorigin_xyz = -0.206968 0.0412156 3.0399
+bb.gemtheta = 8.6725 
+bb.gemphi = 180.8816
+
+# note: z sieve = 1.50922
 
 
 # initial guess for optics: re-use SBS-1 optics which is very close to SBS-14 optics in 
