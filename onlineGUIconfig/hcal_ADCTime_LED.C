@@ -6,11 +6,11 @@ void hcal_ADCTime_LED(){
   st->Start(kTRUE);
 
   Double_t sbs_hcal_clus_e[30] = {0.}, sbs_hcal_clus_atime[30] = {0.}, sbs_hcal_nclus = 0.; 
-  Int_t fEvtHdr_fTrigBits = -1;
+  UInt_t fEvtHdr_fTrigBits = -1;
 
   Double_t sbs_hcal_ledbit = 0.;
 
-  TH1D *h1_hcal_adctime_led = new TH1D("h1_hcal_adctime_noled","HCal ADC Time; HCal ADC time",80,0,160);
+  TH1D *h1_hcal_adctime_led = new TH1D("h1_hcal_adctime_led","HCal ADC Time; HCal ADC time",80,0,160);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
@@ -36,11 +36,8 @@ void hcal_ADCTime_LED(){
     //sbs_hcal_clus_e[0]<0.35
     if( sbs_hcal_clus_atime[0]<1 || sbs_hcal_nclus==0 ) continue;
 
-    //cout << "Here " << fEvtHdr_fTrigBits << " also " << sbs_hcal_nclus << " also " << sbs_hcal_ledbit << endl;
-
-    //if(fEvtHdr_fTrigBits==32) {
-    if(sbs_hcal_ledbit!=-1){
-      //cout << "GOOOOOT HEEEERE" << endl;
+    if(fEvtHdr_fTrigBits==32) {
+    //if(sbs_hcal_ledbit!=-1){
       h1_hcal_adctime_led->Fill( sbs_hcal_clus_atime[0] );
     }
   }

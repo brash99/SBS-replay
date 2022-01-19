@@ -6,7 +6,7 @@ void hcal_ADCTime_NoLED(){
   st->Start(kTRUE);
 
   Double_t sbs_hcal_clus_e[30] = {0.}, sbs_hcal_clus_atime[30] = {0.}, sbs_hcal_nclus = 0., sbs_hcal_ledbit = -2.; 
-  Double_t fEvtHdr_fTrigBits = -1;
+  UInt_t fEvtHdr_fTrigBits = -1;
 
   TH1D *h1_hcal_adctime_noled = new TH1D("h1_hcal_adctime_noled","HCal ADC Time; HCal ADC time",80,0,160);
 
@@ -32,7 +32,7 @@ void hcal_ADCTime_NoLED(){
 
     T->GetEntry(nevent);
     //sbs_hcal_clus_e[0]<0.35
-    if( sbs_hcal_clus_atime[0]<1 || sbs_hcal_ledbit!=-1 || sbs_hcal_nclus==0 ) continue;
+    if( sbs_hcal_clus_atime[0]<1 || fEvtHdr_fTrigBits==32 || sbs_hcal_nclus==0 ) continue;
     
     h1_hcal_adctime_noled->Fill( sbs_hcal_clus_atime[0] );
 
