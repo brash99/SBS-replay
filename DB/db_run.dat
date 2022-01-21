@@ -101,3 +101,14 @@ sbs.pcentral = 4.8 # GeV
 bb.theta = 46.5 # degrees
 bb.magdist = 1.85 # meters
 bb.pcentral = 2.0 # GeV
+
+--------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics:
+
+ebeam = 5.9648
+sbs.theta = -29.9
+sbs.pcentral = 3.22
+
+bb.theta = 26.5
+bb.magdist = 2.00 # meters
+bb.pcentral = 3.6 # GeV
+
