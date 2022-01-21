@@ -492,6 +492,12 @@ bb.optics_parameters =
 
 #bb.tracker_pitch_angle = 10.22
 
+# updated SBS-4 GEM origin coordinates with straight-track analysis from Holly:
+bb.gemorigin_xyz = -0.210082 0.0422169 2.95157
+bb.gemtheta = 8.7746 # degrees
+bb.gemphi = 179.351  # degrees
+
+# note: ZSIEVE = 1.4261 m in this analysis
 
 #bb.magdist = 
 

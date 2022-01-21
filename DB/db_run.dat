@@ -55,7 +55,7 @@ bb.theta = 36.0
 bb.pcentral = 2.122 
 bb.magdist = 1.799
 
----------[ 2021-10-25 16:00:00 ] ## Starting SBS-5 kinematics for GMN
+---------[ 2021-10-25 16:00:00 ] ## Starting SBS-5 kinematics for GMN (note we never took any real data here due to magnet "incident")
 
 ebeam = 7.38 # to be adjusted when we find out what the actual beam energy is according to HALLA:p
 
