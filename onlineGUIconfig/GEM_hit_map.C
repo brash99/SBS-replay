@@ -1,5 +1,7 @@
 void GEM_hit_map(int layer){
 
+  gStyle->SetPalette(1);
+
   double width = .60;
   double height = 2.0;
   double edge = 0.05;

@@ -12,8 +12,9 @@
 #block bb.hodotdc.clus.*
 
 # turn on only "main cluster" output for the tree to keep the tree lightweight for large-scale analysis:
-block bb.hodotdc.allclus.*
+#block bb.hodotdc.allclus.*
 block bb.hodotdc.clus.*
+variable bb.hodotdc.nclus
 
 #-----------------------------------------------------------------------------
 # 2D TDC histograms
