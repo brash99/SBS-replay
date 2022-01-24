@@ -5,6 +5,7 @@ block bb.tr.*
 variable bb.eps_over_etot
 variable bb.etot_over_p
 
+# so we can check constraints
 variable bb.x_fcp
 variable bb.y_fcp
 variable bb.x_bcp

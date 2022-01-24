@@ -314,7 +314,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   analyzer->SetOdefFile( odef_filename );
   
   //added cut list in order to have 
-  TString cdef_filename = "replay_gmn.cdef";
+  TString cdef_filename = "replay_gmn_farm.cdef";
   
   cdef_filename.Prepend( prefix );
   
