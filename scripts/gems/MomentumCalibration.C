@@ -19,6 +19,7 @@
 #include "TObjString.h"
 #include "TString.h"
 #include "TEventList.h"
+#include "TLorentzVector.h"
 
 double PI = TMath::Pi();
 
@@ -91,6 +92,26 @@ void MomentumCalibration( const char *configfilename, const char *outputfilename
   double dpelmax_fit = 0.03;
   double Wmin_fit = 0.86;
   double Wmax_fit = 1.02; 
+
+  //To calculate a proper dx, dy for HCAL, we need
+  double hcalheight = 0.365; //m (we are guessing that this is the height of the center of HCAL above beam height:
+
+  //The following are the positions of the "first" row and column from HCAL database (top right block as viewed from upstream)
+  double xoff_hcal = 0.92835;
+  double yoff_hcal = 0.47305;
+  
+  double blockspace_hcal = 0.15254; //don't need to make this configurable
+
+  int nrows_hcal=24;
+  int ncols_hcal=12;
+
+  //By default we fix the zero-order coefficient for pth and the first-order pth coefficient for xfp:
+  
+  int fix_pth0_flag = 1;
+  int fix_pthx_flag = 1;
+
+  double pth0 = 0.275;
+  double pthx = 0.102;
   
   int order = 2; 
   
@@ -198,7 +219,41 @@ void MomentumCalibration( const char *configfilename, const char *outputfilename
 	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	  Wmax_fit = stemp.Atof();
 	}
-	
+
+	if( skey == "fix_pth0" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  fix_pth0_flag = stemp.Atoi();
+	}
+
+	if( skey == "fix_pthx" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  fix_pthx_flag = stemp.Atoi();
+	}
+
+	if( skey == "pth0" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  pth0 = stemp.Atof();
+	}
+
+	if( skey == "pthx" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  pthx = stemp.Atof();
+	}
+
+	if( skey == "hcalvoff" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  hcalheight = stemp.Atof();
+	}
+
+	if( skey == "hcalxoff" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  xoff_hcal = stemp.Atof();
+	}
+
+	if( skey == "hcalyoff" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  yoff_hcal = stemp.Atof();
+	}
       }
       
       tokens->Delete();
@@ -360,7 +415,7 @@ void MomentumCalibration( const char *configfilename, const char *outputfilename
 
   //After we get this working, we'll also want correlation plots of dpel and W vs. focal plane and target variables, new and old:
   TH1D *hdpel_old = new TH1D("hdpel_old","Old MEs;p/p_{elastic}(#theta)-1;",250,-0.125,0.125);
-  TH1D *hW_old = new TH1D("hW_old","Old MEs;W (GeV);",250,Mp-0.2,Mp+0.2);
+  TH1D *hW_old = new TH1D("hW_old","Old MEs;W (GeV);",250,0,2);
   TH1D *hp_old = new TH1D("hp_old","Old MEs;p (GeV);",250,0.5*pcentral,1.5*pcentral);
   TH1D *hpthetabend_old = new TH1D("hpthetabend_old","Old MEs; p#theta_{bend};",250,0.2,0.35);
 
@@ -384,8 +439,13 @@ void MomentumCalibration( const char *configfilename, const char *outputfilename
   TH2D *hdpel_yptar_old = new TH2D("hdpel_yptar_old", "Old MEs; yptar; p/p_{elastic}(#theta)-1",250,-0.15,0.15,250,-0.125,0.125);
   TH2D *hdpel_ytar_old = new TH2D("hdpel_ytar_old", "Old MEs; ytar; p/p_{elastic}(#theta)-1",250,-0.15,0.15,250,-0.125,0.125);
 
+  TH1D *hdx_HCAL_old = new TH1D("hdx_HCAL_old","Old MEs; xHCAL - xBB (m);", 250, -2.5,2.5);
+  TH1D *hdy_HCAL_old = new TH1D("hdy_HCAL_old","Old MEs; yHCAL - yBB (m);", 250, -1.25,1.25);
   
-  TH1D *hW_new = new TH1D("hW_new","New MEs;W (GeV);",250,Mp-0.2,Mp+0.2);
+  TH2D *hdxdy_HCAL_old = new TH2D("hdxdy_HCAL_old","Old MEs; yHCAL - yBB (m); xHCAL - xBB (m)", 250, -1.25,1.25, 250,-2.5,2.5);
+  TH2D *hdxdy_HCAL_new = new TH2D("hdxdy_HCAL_new","Old MEs; yHCAL - yBB (m); yHCAL - yBB (m)", 250, -1.25,1.25, 250,-2.5,2.5);
+  
+  TH1D *hW_new = new TH1D("hW_new","New MEs;W (GeV);",250,0,2);
   TH1D *hdpel_new = new TH1D("hdpel_new","New MEs;p/p_{elastic}(#theta)-1;",250,-0.125,0.125);
   
   long nevent=0;
@@ -417,10 +477,58 @@ void MomentumCalibration( const char *configfilename, const char *outputfilename
       double dpel = precon/pelastic-1.0;
       
       bool passed_HCAL_cut = true;
+
+      TVector3 vertex( 0, 0, vz[0] );
+      TLorentzVector Pbeam(0,0,Ebeam_corrected,Ebeam_corrected);
+      TLorentzVector Kprime(px[0],py[0],pz[0],p[0]);
+      TLorentzVector Ptarg(0,0,0,Mp);
+
+      TLorentzVector q = Pbeam - Kprime;
+
+      double ephi = atan2( py[0], px[0] );
+      //double etheta = acos( pz[0]/p[0] );
+      
+      double nu = Ebeam_corrected - p[0];
+      double pp_expect = sqrt(pow(nu,2)+Q2recon); //sqrt(nu^2 + Q^2) = sqrt(nu^2 + 2Mnu)
+      double pphi_expect = ephi + PI;
+      double ptheta_expect = acos( (Ebeam_corrected-pz[0])/pp_expect );
+
+      TVector3 pNhat( sin(ptheta_expect)*cos(pphi_expect), sin(ptheta_expect)*sin(pphi_expect), cos(ptheta_expect) );
+
+      TVector3 HCAL_zaxis(-sin(sbstheta),0,cos(sbstheta));
+      TVector3 HCAL_xaxis(0,1,0);
+      TVector3 HCAL_yaxis = HCAL_zaxis.Cross(HCAL_xaxis).Unit();
+      
+      TVector3 HCAL_origin = hcaldist * HCAL_zaxis + hcalheight * HCAL_xaxis;
+      
+      TVector3 TopRightBlockPos_DB(xoff_hcal,yoff_hcal,0);
+      
+      TVector3 TopRightBlockPos_Hall( hcalheight + (nrows_hcal/2-0.5)*blockspace_hcal,
+				      (ncols_hcal/2-0.5)*blockspace_hcal, 0 );
+      
+      
+      //Assume that HCAL origin is at the vertical and horizontal midpoint of HCAL
+      
+      xHCAL += TopRightBlockPos_Hall.X() - TopRightBlockPos_DB.X();
+      yHCAL += TopRightBlockPos_Hall.Y() - TopRightBlockPos_DB.Y();
+
+      double sintersect = (HCAL_origin - vertex ).Dot( HCAL_zaxis ) / (pNhat.Dot(HCAL_zaxis));
+      //Straight-line projection to the surface of HCAL:
+      TVector3 HCAL_intersect = vertex + sintersect * pNhat;
+
+      double yexpect_HCAL = (HCAL_intersect - HCAL_origin).Dot( HCAL_yaxis );
+      double xexpect_HCAL = (HCAL_intersect - HCAL_origin).Dot( HCAL_xaxis );
+
+      if( Wrecon >= Wmin_fit && Wrecon <= Wmax_fit ){
+	hdx_HCAL_old->Fill( xHCAL - xexpect_HCAL );
+	hdy_HCAL_old->Fill( yHCAL - yexpect_HCAL );
+	hdxdy_HCAL_old->Fill( yHCAL - yexpect_HCAL,
+			      xHCAL - xexpect_HCAL );
+      }
       
       if( usehcalcut != 0 ){
-	passed_HCAL_cut = false; //go through the machinery to calculate dx and dy
-	
+	passed_HCAL_cut = pow( (xHCAL-xexpect_HCAL - dx0)/dxsigma, 2 ) +
+	  pow( (yHCAL-yexpect_HCAL - dy0)/dysigma, 2 ) <= pow(2.5,2); 
       }
 
       if( passed_HCAL_cut && W2recon > 0.0 ){
@@ -526,6 +634,34 @@ void MomentumCalibration( const char *configfilename, const char *outputfilename
     }
   }
 
+  if( fix_pth0_flag != 0 ){
+    for( int ipar=0; ipar<nparams; ipar++ ){
+      if( xtar_expon[ipar] + xfp_expon[ipar] + yfp_expon[ipar] + xpfp_expon[ipar] + ypfp_expon[ipar] == 0 ){
+	M(ipar,ipar) = 1.0;
+	b_pth(ipar) = pth0;
+	for( int jpar=0; jpar<nparams; jpar++ ){
+	  if( jpar != ipar ) M(ipar,jpar) = 0.0;
+	}
+      }
+    }
+  }
+
+  if( fix_pthx_flag != 0 ){
+    for( int ipar=0; ipar<nparams; ipar++ ){
+      if( xtar_expon[ipar] == 0 &&
+	  xfp_expon[ipar] == 1 &&
+	  yfp_expon[ipar] == 0 &&
+	  xpfp_expon[ipar] == 0 &&
+	  ypfp_expon[ipar] == 0 ){
+	M(ipar,ipar) = 1.0;
+	b_pth(ipar) = pthx;
+	for( int jpar=0; jpar<nparams; jpar++ ){
+	  if( jpar != ipar ) M(ipar,jpar) = 0.0;
+	}
+      }
+    }
+  }
+  
   TDecompSVD A_pth(M);
 
   bool goodfit = A_pth.Solve( b_pth );
