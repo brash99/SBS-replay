@@ -108,7 +108,10 @@ ebeam = 5.9648
 sbs.theta = -29.9
 sbs.pcentral = 3.22
 
+# note HCAL distance = 11 m
+
 bb.theta = 26.5
-bb.magdist = 2.00 # meters
+#bb.magdist = 2.00 # meters
+bb.magdist = 1.9599 # meters, according to straight-through results
 bb.pcentral = 3.6 # GeV
 

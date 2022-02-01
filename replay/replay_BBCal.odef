@@ -9,6 +9,7 @@ variable bb.ps.x
 variable bb.ps.y
 variable bb.ps.nblk
 variable bb.ps.idblk
+variable bb.ps.atimeblk
 #block bb.ps.clus*
 variable bb.ps.nclus
 block bb.ps.clus_blk.*
@@ -24,6 +25,7 @@ variable bb.sh.x
 variable bb.sh.y
 variable bb.sh.nblk
 variable bb.sh.idblk
+variable bb.sh.atimeblk
 #block bb.sh.clus*
 variable bb.sh.nclus
 block bb.sh.clus_blk.*
