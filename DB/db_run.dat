@@ -115,3 +115,17 @@ bb.theta = 26.5
 bb.magdist = 1.9599 # meters, according to straight-through results
 bb.pcentral = 3.6 # GeV
 
+--------[ 2022-02-01 12:00:00 ] ## starting SBS-9 kinematics:
+
+# very, very preliminary settings:
+
+ebeam = 4.015 # to be refined later
+sbs.theta = 22.5
+sbs.pcentral = 3.22 
+
+# note HCAL distance = 11 m
+
+bb.theta = 49.0
+bb.magdist = 1.55
+bb.pcentral = 1.63
+
