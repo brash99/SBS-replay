@@ -66,13 +66,14 @@ void MomentumCalibration( const char *configfilename, const char *outputfilename
   double Ltgt = 15.0; //cm
   double rho_tgt = 0.0723; //g/cc
 
-  double celldiameter = 5.0; //cm, right now this is a guess
+  double celldiameter = 1.6*2.65; //cm, right now this is a guess
   
   double Ztgt = 1.0;
   double Atgt = 1.0;
   double Mmol_tgt = 1.008; //g/mol
   
   //For energy-loss correction to beam energy:
+  
   double dEdx_tgt=0.00574; //According to NIST ESTAR, the collisional stopping power of hydrogen is about 5.74 MeV*cm2/g at 2 GeV energy:
 
   //Mean energy loss of the beam prior to the scattering:

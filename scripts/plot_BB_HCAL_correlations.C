@@ -12,10 +12,13 @@
 const double Mp = 0.938272;
 const double Mn = 0.939565;
 
-void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilename, double ebeam=3.7278, 
-				double bbtheta=36.0, double sbstheta=31.9, double hcaldist=11.0, double dx0=0.0, double dy0=0.0, double dxsigma=0.06, double dysigma=0.1, double Wmin=0.6, double Wmax=1.2, double dpel_min=-0.06, double dpel_max=0.06 ){
+void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilename, double ebeam=5.965, 
+				double bbtheta=26.5, double sbstheta=29.4, double hcaldist=11.0, double dx0=0.897, double dy0=0.044, double dxsigma=0.11, double dysigma=0.1, double Wmin=0.6, double Wmax=1.2, double dpel_min=-0.04, double dpel_max=0.04 ){
   //ifstream infile(configfilename);
 
+  double zsieve = 1.59027; //m
+  double bbdist = zsieve + 0.369;
+  
   TChain *C = new TChain("T");
 
   C->Add(rootfilename);
@@ -55,6 +58,8 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   int MAXNTRACKS=1000;
   //double trackX[MAXNTRACKS], trackY[MAXNTRACKS], trackXp[MAXNTRACKS],
   double px[MAXNTRACKS], py[MAXNTRACKS], pz[MAXNTRACKS], p[MAXNTRACKS];
+  double thtgt[MAXNTRACKS], phtgt[MAXNTRACKS],ytgt[MAXNTRACKS];
+  double thfp[MAXNTRACKS], phfp[MAXNTRACKS];
   
   double vx[MAXNTRACKS], vy[MAXNTRACKS], vz[MAXNTRACKS];
 
@@ -76,6 +81,11 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   C->SetBranchStatus("bb.tr.vx",1);
   C->SetBranchStatus("bb.tr.vy",1);
   C->SetBranchStatus("bb.tr.vz",1);
+  C->SetBranchStatus("bb.tr.tg_th",1);
+  C->SetBranchStatus("bb.tr.tg_ph",1);
+  C->SetBranchStatus("bb.tr.tg_y",1);
+  C->SetBranchStatus("bb.tr.r_th",1);
+  C->SetBranchStatus("bb.tr.r_ph",1);
   C->SetBranchStatus("bb.ps.e",1);
   C->SetBranchStatus("bb.ps.x",1);
   C->SetBranchStatus("bb.ps.y",1);
@@ -92,6 +102,11 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   C->SetBranchAddress("bb.tr.px",px);
   C->SetBranchAddress("bb.tr.py",py);
   C->SetBranchAddress("bb.tr.pz",pz);
+  C->SetBranchAddress("bb.tr.tg_th",thtgt);
+  C->SetBranchAddress("bb.tr.tg_ph",phtgt);
+  C->SetBranchAddress("bb.tr.tg_y",ytgt);
+  C->SetBranchAddress("bb.tr.r_th",thfp);
+  C->SetBranchAddress("bb.tr.r_ph",phfp);
   C->SetBranchAddress("bb.tr.p",p);
   C->SetBranchAddress("bb.tr.vx",vx);
   C->SetBranchAddress("bb.tr.vy",vy);
@@ -184,8 +199,28 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
 
   TH1D *hvz_cut = new TH1D("hvz_cut",";vertex z (m);", 250,-0.125,0.125);
 
+  TH2D *hpelthbend_vs_thtgt = new TH2D("hpelthbend_vs_thtgt",";#theta_{tgt} (rad);p_{el}#theta_{bend} (GeV*rad)",150,-0.25,0.25,150,0.1,0.5);
+  TH2D *hpelthbend_vs_phtgt = new TH2D("hpelthbend_vs_phtgt",";#phi_{tgt} (rad);p_{el}#theta_{bend} (GeV*rad)",150,-0.125,0.125,150,0.1,0.5);
+  TH2D *hpelthbend_vs_z = new TH2D("hpelthbend_vs_z",";z_{vertex} (m); p_{el}#theta_{bend} (GeV*rad)",150,-0.15,0.15,150,0.1,0.5);
+
+  TH2D *hxysieve_cut = new TH2D("hxysieve_cut",";y_{sieve} (m); x_{sieve} (m)", 150,-0.15,0.15,150,-0.3,0.3);
+
+  TH1D *hpel_center_hole = new TH1D("hpel_center_hole","Center sieve hole ;p_{el}(#theta);",250,0.9*pel_central,1.1*pel_central);
+  TH2D *hpel_phfp_center_hole = new TH2D("hpel_phfp_center_hole", "Center sieve hole; #phi_{fp}; p_{el}(#theta);",150,-0.05,0.05,150,0.9*pel_central,1.1*pel_central);
+  TH1D *hthfp_center_hole = new TH1D("hthfp_center_hole","Center sieve hole ;#theta_{fp};",250,0.0,0.2);
+  TH2D *hthfp_phfp_center_hole = new TH2D("hthfp_phfp_center_hole", "Center sieve hole; #phi_{fp}; #theta_{fp}", 150,-0.05,0.05,150,0.07,0.13);
+  
+  
+  //double zsieve = 
+  
   long nevent = 0;
 
+  double GEMpitch = 10.0*TMath::DegToRad();
+
+  TVector3 GEMzaxis(-sin(GEMpitch),0.0,cos(GEMpitch));
+  TVector3 GEMyaxis(0,1,0);
+  TVector3 GEMxaxis = (GEMyaxis.Cross(GEMzaxis)).Unit();
+		      
   while( C->GetEntry( nevent++ ) ){
     if( nevent % 1000 == 0 ) cout << nevent << endl;
 
@@ -328,6 +363,26 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
 
 	    hvz_cut->Fill( vz[0] );
 
+	    TVector3 nhat_tgt(thtgt[0],phtgt[0],1.0);
+	    nhat_tgt = nhat_tgt.Unit();
+	    TVector3 nhat_fp(thfp[0],phfp[0],1.0);
+	    nhat_fp = nhat_fp.Unit();
+
+	    TVector3 nhat_fp_spec = nhat_fp.X() * GEMxaxis + nhat_fp.Y() * GEMyaxis + nhat_fp.Z() * GEMzaxis;
+	    double thetabend = acos( nhat_fp_spec.Dot( nhat_tgt ) );
+	    
+	    hpelthbend_vs_thtgt->Fill( thtgt[0], pel*thetabend );
+	    hpelthbend_vs_phtgt->Fill( phtgt[0], pel*thetabend );
+	    hpelthbend_vs_z->Fill( vz[0], pel*thetabend );
+	    
+	    hxysieve_cut->Fill( ytgt[0]+zsieve*phtgt[0], zsieve*thtgt[0] );
+
+	    if( pow( ytgt[0]+zsieve*phtgt[0], 2 ) + pow( zsieve*thtgt[0], 2 ) <= pow(0.015,2) ){ //events passing through center sieve hole:
+	      hthfp_center_hole->Fill( thfp[0] );
+	      hthfp_phfp_center_hole->Fill( phfp[0], thfp[0]);
+	      hpel_center_hole->Fill( pel );
+	      hpel_phfp_center_hole->Fill( phfp[0], pel );
+	    }
 
 	  }
 	}
