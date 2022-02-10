@@ -238,6 +238,8 @@ void AlignZeroField( const char *configfilename ){
   C->SetBranchAddress( branchname.Format("%s.track.besttrack",prefix.Data() ), &besttrack );
   
   TObjArray HList(0);
+  TFile *fout = new TFile("ZeroFieldAlign_results_new.root","RECREATE");
+
   TH2D *hxyfp = new TH2D("hxyfp"," ; y_{fp} (m) ; x_{fp} (m)",100,-0.3,0.3,250,-1.1,1.1); HList.Add(hxyfp);
   TH2D *hxysieve = new TH2D("hxysieve", " ; y_{sieve} (m) ; x_{sieve} (m)", 200,-0.2,0.2,200,-0.4,0.4); HList.Add(hxysieve);
   TH2F *hYpFpYFp = new TH2F("hYpFpYFp"," ; Ypfp ; Yfp",100,-.3,.3,100,-0.3,0.3); HList.Add(hYpFpYFp);
@@ -246,6 +248,9 @@ void AlignZeroField( const char *configfilename ){
   TH2D *hxysieve_sel = new TH2D("hxysieve_sel", "with sieve cuts; y_{sieve} (m) ; x_{sieve} (m)", 200,-0.4,0.4,200,-0.4,0.4); HList.Add(hxysieve);
   TH2F *hYpFpYFp_sel = new TH2F("hYpFpYFp_sel","with sieve cuts; Ypfp ; Yfp",100,-.3,.3,100,-0.3,0.3); HList.Add(hYpFpYFp);
   TH2F *hXpFpXFp_sel = new TH2F("hXpFpXFp_sel","with sieve cuts; Xpfp ; Xfp",100,-.7,.7,100,-0.7,0.7); HList.Add(hXpFpXFp);
+
+  TH1D *hytar_old = new TH1D("hytar_old",";y_{tar} (m);", 250,-0.025,0.025);
+  TH1D *hxtar_old = new TH1D("hxtar_old",";x_{tar} (m);", 250,-0.025,0.025);
   
   long nevent=0;
 
@@ -337,6 +342,13 @@ void AlignZeroField( const char *configfilename ){
 
       hxysieve->Fill( TrackSievePos.Y(), TrackSievePos.X() );
       //cout<<"ysieve: "<<TrackSievePos.Y()<<" xsieve: "<<TrackSievePos.X()<<endl;
+      double sintersect_target = -TrackPos_global.Dot( Global_zaxis ) / (TrackDir_global.Dot( Global_zaxis ) );
+
+      TVector3 TrackTargPos = TrackPos_global + sintersect_target * TrackDir_global;
+      
+      hytar_old->Fill( TrackTargPos.Y() );
+      hxtar_old->Fill( TrackTargPos.X() );
+      
     }
   }//end while event
 
@@ -639,9 +651,43 @@ void AlignZeroField( const char *configfilename ){
   //TODO: grab parameters, write them out to file. Profit.
   double fitpar[6];
   double fitparerr[6];
-  for (int ii=0;ii<6;ii++){
-    //fitpar[ii]=FitZeroField->GetParameter(ii);fitparerr[ii]=FitZeroField->GetParameter(ii);?????
-  }
+
+  ofstream outfile("ZeroFieldAlign_results_new.txt");
+
+  TString outline;
   
+  for (int ii=0;ii<6;ii++){
+  //fitpar[ii]=FitZeroField->GetParameter(ii);fitparerr[ii]=FitZeroField->GetParameter(ii);?????
+    FitZeroField->GetParameter(ii,fitpar[ii],fitparerr[ii]);
+  }
+  outline.Form("GEMX0 = %18.9g +/- %18.9g",fitpar[0], fitparerr[0]);
+  outfile << outline << endl;
+  cout << outline << endl;
+
+ outline.Form("GEMY0 = %18.9g +/- %18.9g",fitpar[1], fitparerr[1]);
+  outfile << outline << endl;
+  cout << outline << endl;
+
+  outline.Form("GEMZ0 = %18.9g +/- %18.9g",fitpar[2], fitparerr[2]);
+  outfile << outline << endl;
+  cout << outline << endl;
+
+  outline.Form("ZSIEVE = %18.9g +/- %18.9g",fitpar[3], fitparerr[3]);
+  outfile << outline << endl;
+  cout << outline << endl;
+
+  outline.Form("GEMtheta = %18.9g +/- %18.9g",fitpar[4]*TMath::RadToDeg(), fitparerr[4]*TMath::RadToDeg());
+  outfile << outline << endl;
+  cout << outline << endl;
+
+  outline.Form("GEMphi = %18.9g +/- %18.9g",fitpar[5]*TMath::RadToDeg(), fitparerr[5]*TMath::RadToDeg());
+  outfile << outline << endl;
+  cout << outline << endl;
+
+  outline.Form("Implied magnet distance = %18.9g +/- %18.9g",fitpar[3]+0.3882-0.75*0.0254, fitparerr[3]);
+  outfile << outline << endl;
+  cout << outline << endl;
+
+  fout->Write();
  
 }//end program
