@@ -210,6 +210,7 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
   TH1D *hthfp_center_hole = new TH1D("hthfp_center_hole","Center sieve hole ;#theta_{fp};",250,0.0,0.2);
   TH2D *hthfp_phfp_center_hole = new TH2D("hthfp_phfp_center_hole", "Center sieve hole; #phi_{fp}; #theta_{fp}", 150,-0.05,0.05,150,0.07,0.13);
   
+  TH2D *hpelthbend_vs_phtgt_center_hole = new TH2D("hpelthbend_vs_phtgt_center_hole","Center sieve hole; #phi_{tgt} (rad); p_{el}#theta_{bend} (GeV*rad)",150,-0.15,0.15,150,0.1,0.5);
   
   //double zsieve = 
   
@@ -338,7 +339,7 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
       if( pow( (xHCAL-xexpect_HCAL - dx0)/dxsigma,2) + pow( (yHCAL-yexpect_HCAL - dy0)/dysigma,2) <= pow(2.5,2) ){
 
 
-	if( Eps_BB >= 0.15 && abs( (Eps_BB+Esh_BB)/p[0] - 1. ) < 0.25 ){
+	if( Eps_BB >= 0.2 && abs( (Eps_BB+Esh_BB)/p[0] - 1. ) < 0.3 ){
 
 	  hW_cut_HCAL->Fill( PgammaN.M() );
 	  hdpel_cut_HCAL->Fill( p[0]/pel - 1.0 );
@@ -382,6 +383,8 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
 	      hthfp_phfp_center_hole->Fill( phfp[0], thfp[0]);
 	      hpel_center_hole->Fill( pel );
 	      hpel_phfp_center_hole->Fill( phfp[0], pel );
+
+	      hpelthbend_vs_phtgt_center_hole->Fill( phtgt[0], pel*thetabend );
 	    }
 
 	  }
@@ -397,7 +400,7 @@ void plot_BB_HCAL_correlations( const char *rootfilename, const char *outfilenam
 
       }
 
-      if( Eps_BB >= 0.15 && abs( (Eps_BB+Esh_BB)/p[0] - 1.0 ) <= 0.3 ){
+      if( Eps_BB >= 0.2 && abs( (Eps_BB+Esh_BB)/p[0] - 1.0 ) <= 0.3 ){
 	hdpel_cutBBCAL->Fill( p[0]/pel - 1.0 );
 	hW_cutBBCAL->Fill( PgammaN.M() );
 	if( Wmin <= PgammaN.M() && PgammaN.M() <= Wmax && 
