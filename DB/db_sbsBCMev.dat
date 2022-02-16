@@ -1,15 +1,14 @@
 --------[ 2021-09-18 00:00:00 -0500 ]
-sbsBCMev.u1.offset = 0
-sbsBCMev.u1.gain = 0.0003673
-sbsBCMev.d1.offset = 0
-sbsBCMev.d1.gain = 0.0003212
-sbsBCMev.d3.offset = 0.2068
-sbsBCMev.d3.gain = 0.0001076
-sbsBCMev.d10.offset= 0.1775
-sbsBCMev.d10.gain = 0.00003714
-sbsBCMev.dnew.offset = 0.0127
-sbsBCMev.dnew.gain = 0.0003486
-sbsBCMev.unew.offset = -0.03138
-sbsBCMev.unew.gain = 0.0003054
+sbsBCMev.u1.offset   = -4018.64     
+sbsBCMev.u1.gain     = 1051.18          
+sbsBCMev.d1.offset   = -4063.20        
+sbsBCMev.d1.gain     = 951.32            
+sbsBCMev.d3.offset   = -6101.99          
+sbsBCMev.d3.gain     = 3171.33           
+sbsBCMev.d10.offset  = -6877.55        
+sbsBCMev.d10.gain    = 8919.81          
+sbsBCMev.dnew.offset = -214.66    
+sbsBCMev.dnew.gain   = 3329.68     
+sbsBCMev.unew.offset = -199.35    
+sbsBCMev.unew.gain   = 2961.65
 sbsBCMev.current_cut = 3.0 8.0 13.0 16.0 19.0
-

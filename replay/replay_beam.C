@@ -58,10 +58,13 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
    THaApparatus* decL = new THaDecData("DL","Misc. Decoder Data");
    gHaApps->Add( decL );
 
+   SBSScalerHelicity *scalerHelicity = new SBSScalerHelicity("scalHel","Scaler Helicity Info"); 
+   // scalerHelicity->SetVerbosity(2); 
+  
    // add *rastered* beam (LHRS)
    THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
    // add scaler helicity 
-   // Lrb->AddDetector( new SBSScalerHelicity("scalhel","Scaler Helicity info"));
+   Lrb->AddDetector(scalerHelicity);
    gHaApps->Add(Lrb);
 
    // add *rastered* beam (SBS)
