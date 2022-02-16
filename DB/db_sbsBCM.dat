@@ -1,14 +1,9 @@
 --------[ 2021-09-18 00:00:00 -0500 ]
-sbsBCM.u1.offset   = -4018.64     
-sbsBCM.u1.gain     = 1051.18          
-sbsBCM.d1.offset   = -4063.20        
-sbsBCM.d1.gain     = 951.32            
-sbsBCM.d3.offset   = -6101.99          
-sbsBCM.d3.gain     = 3171.33           
-sbsBCM.d10.offset  = -6877.55        
-sbsBCM.d10.gain    = 8919.81          
-sbsBCM.dnew.offset = -214.66    
-sbsBCM.dnew.gain   = 3329.68     
-sbsBCM.unew.offset = -199.35    
-sbsBCM.unew.gain   = 2961.65
-sbsBCM.current_cut = 3.0 8.0 13.0 16.0 19.0
+NumBCMs                     = 7
+BCM_Names                   = sbs.bcm.u1.current sbs.bcm.unew.current sbs.bcm.d1.current sbs.bcm.d3.current sbs.bcm.d10.current sbs.bcm.dnew.current sbs.bcm.unser.current
+BCM_Gain                    = 990.608 2956.768 913.730 3008.895 8606.943 3317.998 4005.235
+BCM_Offset                  = -3390.887 -38.890 -2612.405 -4544.114 -4018.184 34.086 33.492
+BCM_SatQuadratic            = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+BCM_SatOffset               = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+BCM_Current_threshold       = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+BCM_Current_threshold_index = 0 0 0 0 0 0 0
