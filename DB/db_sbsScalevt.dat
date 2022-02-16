@@ -1,5 +1,6 @@
 # SBS GMn 2021
 # Crate: sbsvme29 
+
 # scaler   type   crate   slot    header     mask       norm    ch    clk freq
    map      3801   1       0      00000220   ffffffff   1 
    map      3801   1       1      00200320   ffffffff   1       30    6250000
@@ -9,7 +10,7 @@
    map      3801   1       5      00a00d20   ffffffff   1
    map      3801   1       6      00c00e20   ffffffff   1
 
-# slot#, chan#, (1=cnt, 2=rate), var name, description sting
+# slot#, chan#, (1=cnt, 2=rate), var name, description string
 # type        slot  chan   cnt(1) or rate(2)  var name                           description string
    variable   0      0          1           .BBCalLo.SC1_2.scaler                BBCalLo SC1_2 
    variable   0      0          2           .BBCalLo.SC1_2.scalerRate            BBCalLo SC1_2 
@@ -459,3 +460,131 @@
    variable   6     30          2           .6_30.scalerRate                     Slot 6 Channel 30 
    variable   6     31          1           .6_31.scaler                         Slot 6 Channel 31 
    variable   6     31          2           .6_31.scalerRate                     Slot 6 Channel 31 
+   variable   7      0          1           .7_0.scaler                          Slot 7 Channel 0 
+   variable   7      0          2           .7_0.scalerRate                      Slot 7 Channel 0 
+   variable   7      1          1           .7_1.scaler                          Slot 7 Channel 1 
+   variable   7      1          2           .7_1.scalerRate                      Slot 7 Channel 1 
+   variable   7      2          1           .7_2.scaler                          Slot 7 Channel 2 
+   variable   7      2          2           .7_2.scalerRate                      Slot 7 Channel 2 
+   variable   7      3          1           .7_3.scaler                          Slot 7 Channel 3 
+   variable   7      3          2           .7_3.scalerRate                      Slot 7 Channel 3 
+   variable   7      4          1           .7_4.scaler                          Slot 7 Channel 4 
+   variable   7      4          2           .7_4.scalerRate                      Slot 7 Channel 4 
+   variable   7      5          1           .7_5.scaler                          Slot 7 Channel 5 
+   variable   7      5          2           .7_5.scalerRate                      Slot 7 Channel 5 
+   variable   7      6          1           .7_6.scaler                          Slot 7 Channel 6 
+   variable   7      6          2           .7_6.scalerRate                      Slot 7 Channel 6 
+   variable   7      7          1           .7_7.scaler                          Slot 7 Channel 7 
+   variable   7      7          2           .7_7.scalerRate                      Slot 7 Channel 7 
+   variable   7      8          1           .7_8.scaler                          Slot 7 Channel 8 
+   variable   7      8          2           .7_8.scalerRate                      Slot 7 Channel 8 
+   variable   7      9          1           .7_9.scaler                          Slot 7 Channel 9 
+   variable   7      9          2           .7_9.scalerRate                      Slot 7 Channel 9 
+   variable   7     10          1           .7_10.scaler                         Slot 7 Channel 10 
+   variable   7     10          2           .7_10.scalerRate                     Slot 7 Channel 10 
+   variable   7     11          1           .7_11.scaler                         Slot 7 Channel 11 
+   variable   7     11          2           .7_11.scalerRate                     Slot 7 Channel 11 
+   variable   7     12          1           .7_12.scaler                         Slot 7 Channel 12 
+   variable   7     12          2           .7_12.scalerRate                     Slot 7 Channel 12 
+   variable   7     13          1           .7_13.scaler                         Slot 7 Channel 13 
+   variable   7     13          2           .7_13.scalerRate                     Slot 7 Channel 13 
+   variable   7     14          1           .7_14.scaler                         Slot 7 Channel 14 
+   variable   7     14          2           .7_14.scalerRate                     Slot 7 Channel 14 
+   variable   7     15          1           .7_15.scaler                         Slot 7 Channel 15 
+   variable   7     15          2           .7_15.scalerRate                     Slot 7 Channel 15 
+   variable   7     16          1           .7_16.scaler                         Slot 7 Channel 16 
+   variable   7     16          2           .7_16.scalerRate                     Slot 7 Channel 16 
+   variable   7     17          1           .7_17.scaler                         Slot 7 Channel 17 
+   variable   7     17          2           .7_17.scalerRate                     Slot 7 Channel 17 
+   variable   7     18          1           .7_18.scaler                         Slot 7 Channel 18 
+   variable   7     18          2           .7_18.scalerRate                     Slot 7 Channel 18 
+   variable   7     19          1           .7_19.scaler                         Slot 7 Channel 19 
+   variable   7     19          2           .7_19.scalerRate                     Slot 7 Channel 19 
+   variable   7     20          1           .7_20.scaler                         Slot 7 Channel 20 
+   variable   7     20          2           .7_20.scalerRate                     Slot 7 Channel 20 
+   variable   7     21          1           .7_21.scaler                         Slot 7 Channel 21 
+   variable   7     21          2           .7_21.scalerRate                     Slot 7 Channel 21 
+   variable   7     22          1           .7_22.scaler                         Slot 7 Channel 22 
+   variable   7     22          2           .7_22.scalerRate                     Slot 7 Channel 22 
+   variable   7     23          1           .7_23.scaler                         Slot 7 Channel 23 
+   variable   7     23          2           .7_23.scalerRate                     Slot 7 Channel 23 
+   variable   7     24          1           .7_24.scaler                         Slot 7 Channel 24 
+   variable   7     24          2           .7_24.scalerRate                     Slot 7 Channel 24 
+   variable   7     25          1           .7_25.scaler                         Slot 7 Channel 25 
+   variable   7     25          2           .7_25.scalerRate                     Slot 7 Channel 25 
+   variable   7     26          1           .7_26.scaler                         Slot 7 Channel 26 
+   variable   7     26          2           .7_26.scalerRate                     Slot 7 Channel 26 
+   variable   7     27          1           .7_27.scaler                         Slot 7 Channel 27 
+   variable   7     27          2           .7_27.scalerRate                     Slot 7 Channel 27 
+   variable   7     28          1           .7_28.scaler                         Slot 7 Channel 28 
+   variable   7     28          2           .7_28.scalerRate                     Slot 7 Channel 28 
+   variable   7     29          1           .7_29.scaler                         Slot 7 Channel 29 
+   variable   7     29          2           .7_29.scalerRate                     Slot 7 Channel 29 
+   variable   7     30          1           .7_30.scaler                         Slot 7 Channel 30 
+   variable   7     30          2           .7_30.scalerRate                     Slot 7 Channel 30 
+   variable   7     31          1           .7_31.scaler                         Slot 7 Channel 31 
+   variable   7     31          2           .7_31.scalerRate                     Slot 7 Channel 31 
+   variable   8      0          1           .8_0.scaler                          Slot 8 Channel 0 
+   variable   8      0          2           .8_0.scalerRate                      Slot 8 Channel 0 
+   variable   8      1          1           .8_1.scaler                          Slot 8 Channel 1 
+   variable   8      1          2           .8_1.scalerRate                      Slot 8 Channel 1 
+   variable   8      2          1           .8_2.scaler                          Slot 8 Channel 2 
+   variable   8      2          2           .8_2.scalerRate                      Slot 8 Channel 2 
+   variable   8      3          1           .8_3.scaler                          Slot 8 Channel 3 
+   variable   8      3          2           .8_3.scalerRate                      Slot 8 Channel 3 
+   variable   8      4          1           .8_4.scaler                          Slot 8 Channel 4 
+   variable   8      4          2           .8_4.scalerRate                      Slot 8 Channel 4 
+   variable   8      5          1           .8_5.scaler                          Slot 8 Channel 5 
+   variable   8      5          2           .8_5.scalerRate                      Slot 8 Channel 5 
+   variable   8      6          1           .8_6.scaler                          Slot 8 Channel 6 
+   variable   8      6          2           .8_6.scalerRate                      Slot 8 Channel 6 
+   variable   8      7          1           .8_7.scaler                          Slot 8 Channel 7 
+   variable   8      7          2           .8_7.scalerRate                      Slot 8 Channel 7 
+   variable   8      8          1           .8_8.scaler                          Slot 8 Channel 8 
+   variable   8      8          2           .8_8.scalerRate                      Slot 8 Channel 8 
+   variable   8      9          1           .8_9.scaler                          Slot 8 Channel 9 
+   variable   8      9          2           .8_9.scalerRate                      Slot 8 Channel 9 
+   variable   8     10          1           .8_10.scaler                         Slot 8 Channel 10 
+   variable   8     10          2           .8_10.scalerRate                     Slot 8 Channel 10 
+   variable   8     11          1           .8_11.scaler                         Slot 8 Channel 11 
+   variable   8     11          2           .8_11.scalerRate                     Slot 8 Channel 11 
+   variable   8     12          1           .8_12.scaler                         Slot 8 Channel 12 
+   variable   8     12          2           .8_12.scalerRate                     Slot 8 Channel 12 
+   variable   8     13          1           .8_13.scaler                         Slot 8 Channel 13 
+   variable   8     13          2           .8_13.scalerRate                     Slot 8 Channel 13 
+   variable   8     14          1           .8_14.scaler                         Slot 8 Channel 14 
+   variable   8     14          2           .8_14.scalerRate                     Slot 8 Channel 14 
+   variable   8     15          1           .8_15.scaler                         Slot 8 Channel 15 
+   variable   8     15          2           .8_15.scalerRate                     Slot 8 Channel 15 
+   variable   8     16          1           .8_16.scaler                         Slot 8 Channel 16 
+   variable   8     16          2           .8_16.scalerRate                     Slot 8 Channel 16 
+   variable   8     17          1           .8_17.scaler                         Slot 8 Channel 17 
+   variable   8     17          2           .8_17.scalerRate                     Slot 8 Channel 17 
+   variable   8     18          1           .8_18.scaler                         Slot 8 Channel 18 
+   variable   8     18          2           .8_18.scalerRate                     Slot 8 Channel 18 
+   variable   8     19          1           .8_19.scaler                         Slot 8 Channel 19 
+   variable   8     19          2           .8_19.scalerRate                     Slot 8 Channel 19 
+   variable   8     20          1           .8_20.scaler                         Slot 8 Channel 20 
+   variable   8     20          2           .8_20.scalerRate                     Slot 8 Channel 20 
+   variable   8     21          1           .8_21.scaler                         Slot 8 Channel 21 
+   variable   8     21          2           .8_21.scalerRate                     Slot 8 Channel 21 
+   variable   8     22          1           .8_22.scaler                         Slot 8 Channel 22 
+   variable   8     22          2           .8_22.scalerRate                     Slot 8 Channel 22 
+   variable   8     23          1           .8_23.scaler                         Slot 8 Channel 23 
+   variable   8     23          2           .8_23.scalerRate                     Slot 8 Channel 23 
+   variable   8     24          1           .8_24.scaler                         Slot 8 Channel 24 
+   variable   8     24          2           .8_24.scalerRate                     Slot 8 Channel 24 
+   variable   8     25          1           .8_25.scaler                         Slot 8 Channel 25 
+   variable   8     25          2           .8_25.scalerRate                     Slot 8 Channel 25 
+   variable   8     26          1           .8_26.scaler                         Slot 8 Channel 26 
+   variable   8     26          2           .8_26.scalerRate                     Slot 8 Channel 26 
+   variable   8     27          1           .8_27.scaler                         Slot 8 Channel 27 
+   variable   8     27          2           .8_27.scalerRate                     Slot 8 Channel 27 
+   variable   8     28          1           .8_28.scaler                         Slot 8 Channel 28 
+   variable   8     28          2           .8_28.scalerRate                     Slot 8 Channel 28 
+   variable   8     29          1           .8_29.scaler                         Slot 8 Channel 29 
+   variable   8     29          2           .8_29.scalerRate                     Slot 8 Channel 29 
+   variable   8     30          1           .8_30.scaler                         Slot 8 Channel 30 
+   variable   8     30          2           .8_30.scalerRate                     Slot 8 Channel 30 
+   variable   8     31          1           .8_31.scaler                         Slot 8 Channel 31 
+   variable   8     31          2           .8_31.scalerRate                     Slot 8 Channel 31 

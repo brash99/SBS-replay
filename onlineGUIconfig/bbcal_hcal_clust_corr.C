@@ -1,7 +1,9 @@
 void bbcal_hcal_clust_corr(){
 
-  TStopwatch *st = new TStopwatch();
-  st->Start(kTRUE);
+  //cout << "Processing macro.." << endl;
+
+  //TStopwatch *st = new TStopwatch();
+  //st->Start(kTRUE);
 
   Int_t Ndata_bb_tdctrig_tdcelemID = 0;
   Double_t bb_sh_rowblk = 0., sbs_hcal_rowblk = 0.; 
@@ -27,7 +29,7 @@ void bbcal_hcal_clust_corr(){
   T->SetBranchAddress("sbs.hcal.nclus", &sbs_hcal_nclus);
   T->SetBranchAddress("bb.sh.rowblk", &bb_sh_rowblk);
   T->SetBranchAddress("sbs.hcal.rowblk", &sbs_hcal_rowblk);
-  
+
   // Loop through events
   Long64_t nevents = T->GetEntries();
   for(Long64_t nevent=0; nevent<nevents; nevent++){
@@ -38,7 +40,7 @@ void bbcal_hcal_clust_corr(){
 
     Double_t bbcal_time=0., hcal_time=0.;
     for(Int_t ihit=0; ihit<Ndata_bb_tdctrig_tdcelemID; ihit++){
-      if(bb_tdctrig_tdcelemID[ihit]==4) bbcal_time=bb_tdctrig_tdc[ihit];
+      if(bb_tdctrig_tdcelemID[ihit]==5) bbcal_time=bb_tdctrig_tdc[ihit];
       if(bb_tdctrig_tdcelemID[ihit]==0) hcal_time=bb_tdctrig_tdc[ihit];
     }
 
@@ -48,11 +50,12 @@ void bbcal_hcal_clust_corr(){
     }
   }
   
-  //gStyle->SetPalette(60);
   h2_bbcal_hcal_corr->SetMinimum(-0.1);
   h2_bbcal_hcal_corr->SetStats(0);
   h2_bbcal_hcal_corr->Draw("colz");
 
-  st->Stop();
-  cout << "CPU time = " << st->CpuTime() << " s " << " Real time = " << st->RealTime() << " s " << endl;
+  //cout << "Processed macro with " << nevents << " entries." << endl;
+
+  //st->Stop();
+  //cout << "CPU time = " << st->CpuTime() << " s " << " Real time = " << st->RealTime() << " s " << endl;
 }

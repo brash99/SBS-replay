@@ -6,13 +6,17 @@
 #include "THaApparatus.h"
 #include "TString.h"
 #include "TClonesArray.h"
+#include "SBSGenericDetector.h"
+#include "SBSBBTotalShower.h"
+#include "SBSBBShower.h"
+
 
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSBigBite.h"
 //#include "SBSGEMStand.h"
 //#include "SBSBigBite.h"
 
-void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019_trigtest", long firstevent=0, long nevents=-1, int pedestalmode=0 ){
+void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019", long firstevent=0, long nevents=-1, int pedestalmode=0 ){
 
   //  gSystem->Load("libsbs.so");
 
@@ -23,6 +27,27 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
   SBSGEMSpectrometerTracker *bbgem = new SBSGEMSpectrometerTracker("gem", "BigBite Hall A GEM data");
     
   bb->AddDetector(bbgem);
+
+  //Add trigger TDC info:
+
+  SBSGenericDetector* tdctrig= new SBSGenericDetector("tdctrig","BigBite shower TDC trig");
+  tdctrig->SetModeADC(SBSModeADC::kNone);
+  tdctrig->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig->SetStoreEmptyElements(kFALSE);
+  bb->AddDetector( tdctrig );
+
+  SBSBBTotalShower* ts= new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower");
+  ts->SetDataOutputLevel(0);
+  bb->AddDetector( ts );
+  ts->SetStoreEmptyElements(kFALSE);
+  ts->GetShower()->SetStoreEmptyElements(kFALSE);
+  ts->GetPreShower()->SetStoreEmptyElements(kFALSE);
+
+  SBSGenericDetector* bbtrig= new SBSGenericDetector("bbtrig","BigBite shower ADC trig");
+  bbtrig->SetModeADC(SBSModeADC::kADC);
+  bbtrig->SetModeTDC(SBSModeTDC::kTDC);
+  bbtrig->SetStoreEmptyElements(kFALSE);
+  bb->AddDetector( bbtrig );
 
   //bool pm =  ( pedestalmode != 0 );
   //this will override the database setting:
@@ -206,7 +231,7 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_BBGEM.odef";
+  TString odef_filename = "replay_bbgem_trigtdc_shower.odef";
   
   odef_filename.Prepend( prefix );
 
@@ -218,6 +243,9 @@ void replay_BBGEM( int runnum=220, int firstsegment=0, int maxsegments=1, const 
 
   for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
     THaRun *run = ( (THaRun*) (*filelist)[iseg] );
+
+    run->Init();
+
     if( nevents > 0 ) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
 
     run->SetFirstEvent( firstevent );

@@ -25,8 +25,8 @@ void overlay(TString hist1name, TString hist2name, TString legentry1="", TString
     H2->SetLineWidth(2);
     H2->SetLineStyle(10);
     
-    H1->SetFillColorAlpha(4,0.2);
-    H2->SetFillColorAlpha(2,0.2);
+    //H1->SetFillColorAlpha(4,0.2);
+    //H2->SetFillColorAlpha(2,0.2);
     //H1->SetMarkerStyle(20);
     //H1->SetMarkerColor(4);
     //H1->SetMarkerSize(1.0);
