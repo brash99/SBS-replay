@@ -1,8 +1,9 @@
---------[ 2021-09-18 00:00:00 -0500 M.NumBCMs                     = 7
-LeftBCMev.BCM_Names                   = Left.bcm.u1.current Left.bcm.unew.current Left.bcm.d1.current Left.bcm.d3.current Left.bcm.d10.current Left.bcm.dnew.current Left.bcm.unser.current
-LeftBCMev.BCM_Gain                    = 990.608 2956.768 913.730 3008.895 8606.943 3317.998 4005.235
-LeftBCMev.BCM_Offset                  = -3390.887 -38.890 -2612.405 -4544.114 -4018.184 34.086 33.492
-LeftBCMev.BCM_SatQuadratic            = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
-LeftBCMev.BCM_SatOffset               = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
-LeftBCMev.BCM_Current_threshold       = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
-LeftBCMev.BCM_Current_threshold_index = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+--------[ 2021-09-18 00:00:00 -0500 ]
+NumBCMs                     = 7
+BCM_Names                   = u1 unew d1 d3 d10 dnew unser
+BCM_Gain                    = 990.608 2956.768 913.730 3008.895 8606.943 3317.998 4005.235
+BCM_Offset                  = -3390.887 -38.890 -2612.405 -4544.114 -4018.184 34.086 775033.491
+BCM_SatQuadratic            = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+BCM_SatOffset               = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+BCM_Current_threshold       = 0.000 0.000 0.000 0.000 0.000 0.000 0.000
+BCM_Current_threshold_index = 0 0 0 0 0 0 0

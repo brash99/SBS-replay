@@ -176,8 +176,8 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
    prefix = gSystem->Getenv("SBS_REPLAY");
    prefix += "/replay/";
 
-   TString odef_filename = Form("%s/output_beam_both.def",prefix.Data());
-   TString cdef_filename = Form("%s/cuts_beam_raster.def",prefix.Data());
+   TString odef_filename = Form("%s/replay_beam.odef",prefix.Data());
+   TString cdef_filename = Form("%s/replay_beam.cdef",prefix.Data());
 
    analyzer->SetOdefFile(odef_filename);
    analyzer->SetCutFile(cdef_filename);      
