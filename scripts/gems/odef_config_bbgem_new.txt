@@ -1,15 +1,15 @@
 # this is the configuration after replacing J2 with U/V number 3:
 name bb.gem
-nmodules 10
+nmodules 8
 nlayers 5
 layersizeX 2.2
 layersizeY 0.65
 
-mod_nstripu 3840   1280 1280 1280   3840   3840   1280 1280 1280 1280
-mod_nstripv 3840    1024 1024 1024  3840   3840   1536 1536 1536 1536
+mod_nstripu 3840   3840   3840   3840   1280 1280 1280 1280
+mod_nstripv 3840   3840   3840   3840   1536 1536 1536 1536
 
-mod_xsize   1.5    0.512 0.512 0.512       1.5   1.5    0.512 0.512 0.512 0.512
-mod_ysize   0.4    0.4096 0.4096 0.4096    0.4   0.4    0.6144 0.6144 0.6144 0.6144
+mod_xsize   1.5    1.5       1.5   1.5    0.512 0.512 0.512 0.512
+mod_ysize   0.4    0.4       0.4   0.4    0.6144 0.6144 0.6144 0.6144
 
 maxstrips 2000
 maxclust  100
@@ -25,5 +25,5 @@ mod_z0               0       0.132294       0.130173       0.131113       0.2785
 maxtrackxp 0.4
 maxtrackyp 0.1
 
-moddesc UVA U/V layer 1; INFN J0 bottom; INFN J0 middle; INFN J0 top; UVA U/V layer 2; UVA U/V layer 3; UVA X/Y top; UVA X/Y mid-upper; UVA X/Y mid-lower; UVA X/Y bottom
+moddesc UVA U/V layer 0; UVA U/V layer 1; UVA U/V layer 2; UVA U/V layer 3; UVA X/Y top; UVA X/Y mid-upper; UVA X/Y mid-lower; UVA X/Y bottom
 

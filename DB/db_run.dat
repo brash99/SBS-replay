@@ -55,7 +55,7 @@ bb.theta = 36.0
 bb.pcentral = 2.122 
 bb.magdist = 1.799
 
----------[ 2021-10-25 16:00:00 ] ## Starting SBS-5 kinematics for GMN
+---------[ 2021-10-25 16:00:00 ] ## Starting SBS-5 kinematics for GMN (note we never took any real data here due to magnet "incident")
 
 ebeam = 7.38 # to be adjusted when we find out what the actual beam energy is according to HALLA:p
 
@@ -88,4 +88,44 @@ sbs.pcentral = 8.1
 bb.theta = 42.0
 bb.magdist = 1.55 
 bb.pcentral = 2.67
+
+--------[ 2022-01-06 12:00:00 ] ## starting SBS-14 kinematics for GMN:
+
+ebeam = 5.9648
+sbs.theta = -17.3 # degrees
+sbs.pcentral = 4.8 # GeV
+
+# note: SBS distance = 2.25 m
+# note also: HCAL distance = 14.0 meters 
+
+bb.theta = 46.5 # degrees
+bb.magdist = 1.85 # meters
+bb.pcentral = 2.0 # GeV
+
+--------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics:
+
+ebeam = 5.9648
+sbs.theta = -29.9
+sbs.pcentral = 3.22
+
+# note HCAL distance = 11 m
+
+bb.theta = 26.5
+#bb.magdist = 2.00 # meters
+bb.magdist = 1.9599 # meters, according to straight-through results
+bb.pcentral = 3.6 # GeV
+
+--------[ 2022-02-01 12:00:00 ] ## starting SBS-9 kinematics:
+
+# very, very preliminary settings:
+
+ebeam = 4.015 # to be refined later
+sbs.theta = 22.5
+sbs.pcentral = 3.22 
+
+# note HCAL distance = 11 m
+
+bb.theta = 49.0
+bb.magdist = 1.55
+bb.pcentral = 1.63
 

@@ -22,6 +22,10 @@
 #include "SBSRasteredBeam.h"
 #include "SBSScalerEvtHandler.h"
 #include "LHRSScalerEvtHandler.h"
+#include "SBSScalerHelicity.h"
+#include "SBSScalerHelicityReader.h"
+
+int MAX_SEG = 700; 
 
 const std::string SCRIPT = "[replay_beam]: "; 
 
@@ -54,16 +58,21 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
    THaApparatus* decL = new THaDecData("DL","Misc. Decoder Data");
    gHaApps->Add( decL );
 
+   SBSScalerHelicity *scalerHelicity = new SBSScalerHelicity("scalHel","Scaler Helicity Info"); 
+   // scalerHelicity->SetVerbosity(2); 
+  
    // add *rastered* beam (LHRS)
    THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
+   // add scaler helicity 
+   Lrb->AddDetector(scalerHelicity);
    gHaApps->Add(Lrb);
 
    // add *rastered* beam (SBS)
    THaApparatus* sbs = new SBSRasteredBeam("SBSrb","Raster Beamline for FADC");
    gHaApps->Add(sbs);
 
-   std::ofstream debugFile; 
-   debugFile.open("lhrs-scaler-dump.txt");
+   // std::ofstream debugFile; 
+   // debugFile.open("lhrs-scaler-dump.txt");
 
    // LHRS scaler data (ROC10)  
    LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
@@ -108,8 +117,8 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
    }
 
    if(nevents<0){
-      std::cout << SCRIPT << "Requested all events!  Changing maxsegments to 50" << std::endl;
-      maxsegments = 50;
+      std::cout << SCRIPT << "Requested all events!  Changing maxsegments to " << MAX_SEG << std::endl;
+      maxsegments = MAX_SEG;
    }
 
    int max1 = maxsegments;
@@ -167,8 +176,8 @@ void replay_beam(int runNum,Long_t firstevent=0,Long_t nevents=-1,int maxsegment
    prefix = gSystem->Getenv("SBS_REPLAY");
    prefix += "/replay/";
 
-   TString odef_filename = Form("%s/output_beam_both.def",prefix.Data());
-   TString cdef_filename = Form("%s/cuts_beam_raster.def",prefix.Data());
+   TString odef_filename = Form("%s/replay_beam.odef",prefix.Data());
+   TString cdef_filename = Form("%s/replay_beam.cdef",prefix.Data());
 
    analyzer->SetOdefFile(odef_filename);
    analyzer->SetCutFile(cdef_filename);      

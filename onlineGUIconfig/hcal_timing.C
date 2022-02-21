@@ -5,7 +5,7 @@ void hcal_timing(){
   TStopwatch *st = new TStopwatch();
   st->Start(kTRUE);
 
-  Double_t sbs_hcal_clus_tdctime[30] = {0.}, sbs_hcal_clus_atime[30] = {0.}, sbs_hcal_nclus = 0.; 
+  Double_t sbs_hcal_clus_blk_tdctime[30] = {0.}, sbs_hcal_clus_blk_atime[30] = {0.}, sbs_hcal_nclus = 0.; 
 
   TH2D *h2_hcal_cluster_tdc_vs_adc = new TH2D("h2_hcal_cluster_tdc_vs_adc","HCal Timing Check; HCal TDC; HCal ADC time",300,-300,300,80,0,160);
 
@@ -13,12 +13,12 @@ void hcal_timing(){
   TTree *T = (TTree*) gDirectory->Get("T");
   T->SetBranchStatus("*",0);
   //T->SetBranchStatus("sbs.hcal.*",1);
-  T->SetBranchStatus("sbs.hcal.clus.atime",1);
-  T->SetBranchStatus("sbs.hcal.clus.tdctime",1);
+  T->SetBranchStatus("sbs.hcal.clus_blk.atime",1);
+  T->SetBranchStatus("sbs.hcal.clus_blk.tdctime",1);
   T->SetBranchStatus("sbs.hcal.nclus",1);
 
-  T->SetBranchAddress("sbs.hcal.clus.atime", &sbs_hcal_clus_atime);
-  T->SetBranchAddress("sbs.hcal.clus.tdctime", &sbs_hcal_clus_tdctime);
+  T->SetBranchAddress("sbs.hcal.clus_blk.atime", &sbs_hcal_clus_blk_atime);
+  T->SetBranchAddress("sbs.hcal.clus_blk.tdctime", &sbs_hcal_clus_blk_tdctime);
   T->SetBranchAddress("sbs.hcal.nclus", &sbs_hcal_nclus);
 
   // Acquire the number of entries
@@ -28,9 +28,9 @@ void hcal_timing(){
 
     T->GetEntry(nevent);
     
-    if( sbs_hcal_clus_atime[0]<1 || sbs_hcal_clus_tdctime[0]>1000 || sbs_hcal_nclus==0 ) continue;
+    if( sbs_hcal_clus_blk_atime[0]<1 || sbs_hcal_clus_blk_tdctime[0]>1000 || sbs_hcal_nclus==0 ) continue;
     
-    h2_hcal_cluster_tdc_vs_adc->Fill( sbs_hcal_clus_tdctime[0], sbs_hcal_clus_atime[0] );
+    h2_hcal_cluster_tdc_vs_adc->Fill( sbs_hcal_clus_blk_tdctime[0], sbs_hcal_clus_blk_atime[0] );
 
   }
   

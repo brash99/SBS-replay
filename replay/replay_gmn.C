@@ -35,7 +35,7 @@
 #include "SBSScalerEvtHandler.h"
 //#endif
 
-void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
+void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=0)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -100,6 +100,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   bool pm =  ( pedestalmode != 0 );
   //this will override the database setting:
   ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetPedestalMode( pm );
+  ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetMakeCommonModePlots( cmplots );
   bigbite->AddDetector(bbgem);
   gHaApps->Add(bigbite);
     
@@ -281,8 +282,15 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  outfilename.Form( "%s/gmn_replayed_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
-		    stream, firstsegment, lastsegment );
+
+  if( nevents > 0 ){ 
+
+    outfilename.Form( "%s/e1209019_replayed_%d_stream%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), runnum,
+		      stream, firstsegment, lastsegment, firstevent, nevents );
+  } else {
+    outfilename.Form( "%s/e1209019_fullreplay_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
+		      stream, firstsegment, lastsegment );
+  }
  
 
   analyzer->SetVerbosity(2);
@@ -309,7 +317,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   analyzer->SetOdefFile( odef_filename );
   
   //added cut list in order to have 
-  TString cdef_filename = "replay_gmn.cdef";
+  TString cdef_filename = "replay_gmn_farm.cdef";
   
   cdef_filename.Prepend( prefix );
   

@@ -20,6 +20,14 @@ void SBSBCM()
   LegR->AddEntry(fId3VsTime, "d3", "P");
   LegR->AddEntry(fId10VsTime, "d10", "P");
   
+  fIunserVsTime->GetXaxis()->SetRangeUser(0., 60);
+  fIu1VsTime->GetXaxis()->SetRangeUser(0., 60);
+  fIunewVsTime->GetXaxis()->SetRangeUser(0., 60);
+  fIdnewVsTime->GetXaxis()->SetRangeUser(0., 60);
+  fId1VsTime->GetXaxis()->SetRangeUser(0., 60);
+  fId3VsTime->GetXaxis()->SetRangeUser(0., 60);
+  fId10VsTime->GetXaxis()->SetRangeUser(0., 60);
+
   fIunserVsTime->SetMarkerColor(1);
   fIu1VsTime->SetMarkerColor(2);
   fIunewVsTime->SetMarkerColor(3);
@@ -37,8 +45,8 @@ void SBSBCM()
   fId10VsTime->SetMarkerStyle(27);
 
   fIunserVsTime->Draw("P");
-  fIunserVsTime->SetMinimum(0);
-  fIunserVsTime->SetMaximum(2*fIunserVsTime->GetMaximum());
+  fIunserVsTime->SetMinimum(1.e3);
+  fIunserVsTime->SetMaximum(25*fIunserVsTime->GetMaximum());
   fIu1VsTime->Draw("P, same");
   fIunewVsTime->Draw("P, same");
   fIdnewVsTime->Draw("P, same");

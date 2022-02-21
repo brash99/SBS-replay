@@ -1341,9 +1341,9 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   //      << ", HITMOD.size() = " << HITMOD.size() << ", HITX.size() = " << HITX.size()
   //      << ", HITY.size() = " << HITY.size() << endl;
   
-  if( (offsetsonlyflag == 0 && rotationsonlyflag == 0) ){
+  //if( (offsetsonlyflag == 0 && rotationsonlyflag == 0) ){
 
-  // if( false ){
+  if( false ){
     TMinuit *ExtraFit = new TMinuit( 6*nmodules );
     
     ExtraFit->SetFCN( CHI2_FCN );
