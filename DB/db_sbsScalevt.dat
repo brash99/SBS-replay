@@ -9,10 +9,8 @@
    map      3801   1       4      00800620   ffffffff   1
    map      3801   1       5      00a00d20   ffffffff   1
    map      3801   1       6      00c00e20   ffffffff   1
-   map      3801   1       7      00e00f20   ffffffff   1
-   map      3801   1       8      01001020   ffffffff   1
 
-# slot#, chan#, (1=cnt, 2=rate), var name, description string
+# slot#, chan#, (1=cnt, 2=rate, 3=current, 4=charge), var name, description string
 # type        slot  chan   cnt(1) or rate(2)  var name                           description string
    variable   0      0          1           .BBCalLo.SC1_2.scaler                BBCalLo SC1_2 
    variable   0      0          2           .BBCalLo.SC1_2.scalerRate            BBCalLo SC1_2 
@@ -176,18 +174,25 @@
    variable   2     15          2           .2_15.scalerRate                     BCM Channel 15 
    variable   2     16          1           .bcm.u1.cnt                          BCM Ux1 
    variable   2     16          2           .bcm.u1.rate                         BCM Ux1 
+   variable   2     16          3           .bcm.u1.current                      BCM Ux1 
    variable   2     17          1           .bcm.d1.cnt                          BCM Dx1 
    variable   2     17          2           .bcm.d1.rate                         BCM Dx1 
+   variable   2     17          3           .bcm.d1.current                      BCM Dx1 
    variable   2     18          1           .bcm.d10.cnt                         BCM Dx10 
    variable   2     18          2           .bcm.d10.rate                        BCM Dx10 
+   variable   2     18          3           .bcm.d10.current                     BCM Dx10 
    variable   2     19          1           .bcm.d3.cnt                          BCM Dx3 
    variable   2     19          2           .bcm.d3.rate                         BCM Dx3 
+   variable   2     19          3           .bcm.d3.current                      BCM Dx3 
    variable   2     20          1           .bcm.unser.cnt                       BCM Unser 
    variable   2     20          2           .bcm.unser.rate                      BCM Unser 
+   variable   2     20          3           .bcm.unser.current                   BCM Unser 
    variable   2     21          1           .bcm.unew.cnt                        BCM U_new 
    variable   2     21          2           .bcm.unew.rate                       BCM U_new 
+   variable   2     21          3           .bcm.unew.current                    BCM U_new 
    variable   2     22          1           .bcm.dnew.cnt                        BCM D_new 
    variable   2     22          2           .bcm.dnew.rate                       BCM D_new 
+   variable   2     22          3           .bcm.dnew.current                    BCM D_new 
    variable   2     23          1           .2_23.scaler                         BCM Channel 23 
    variable   2     23          2           .2_23.scalerRate                     BCM Channel 23 
    variable   2     23          1           .2_24.scaler                         BCM Channel 24 
@@ -590,4 +595,3 @@
    variable   8     30          2           .8_30.scalerRate                     Slot 8 Channel 30 
    variable   8     31          1           .8_31.scaler                         Slot 8 Channel 31 
    variable   8     31          2           .8_31.scalerRate                     Slot 8 Channel 31 
-
