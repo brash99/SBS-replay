@@ -55,6 +55,9 @@ bb.grinch_tdc.dxdydz = 1 1 1 # Meh, just so it won't crash
 bb.grinch_tdc.tdc.GoodTimeCut = 50
 #bb.grinch_tdc.reftdcGoodTimeCut = 50
 
+bb.grinch_tdc.hit_mintime = 875.
+bb.grinch_tdc.hit_maxtime = 920.
+
 #grinch geometry info
 bb.grinch_tdc.nrows = 61
 bb.grinch_tdc.ncols =
@@ -72,3 +75,4 @@ bb.grinch_tdc.nlayers = 1
 #  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 #  0 0 0 0 0 0 0 0 0 0 0 0 0 0 0 0
 
+bb.grinch_tdc.amp_tot_coeffs = 1.

@@ -22,7 +22,8 @@
 #include "SBSBigBite.h"
 #include "SBSBBShower.h"
 #include "SBSBBTotalShower.h"
-#include "SBSGRINCH.h"
+//#include "SBSGRINCH.h"
+#include "SBSCherenkovDetector.h"
 #include "SBSEArm.h"
 #include "SBSHCal.h"
 #include "SBSGEMStand.h"
@@ -61,7 +62,9 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   tdctrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( tdctrig );
   
-  SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
+  //SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
+  SBSCherenkovDetector *grinch_tdc = new SBSCherenkovDetector("grinch_tdc","GRINCH TDC data");
+  //SBSGRINCH *grinch_tdc = new SBSGRINCH("grinch","GRINCH TDC data");
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
   grinch_adc->SetModeADC(SBSModeADC::kWaveform);
   grinch_adc->SetModeTDC(SBSModeTDC::kNone);
