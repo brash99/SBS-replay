@@ -52,11 +52,13 @@ bb.grinch_tdc.size = 10 10 10 ## This needs to be fixed
 bb.grinch_tdc.xyz = -0.9145 -0.124 0.0 #m # we don't really need z
 bb.grinch_tdc.dxdydz = 1 1 1 # Meh, just so it won't crash
 
-bb.grinch_tdc.tdc.GoodTimeCut = 50
+bb.grinch_tdc.tdc.offset = 897.5 
+
+bb.grinch_tdc.tdc.GoodTimeCut = 22.5
 #bb.grinch_tdc.reftdcGoodTimeCut = 50
 
-bb.grinch_tdc.hit_mintime = 875.
-bb.grinch_tdc.hit_maxtime = 920.
+#bb.grinch_tdc.hit_mintime = 875.
+#bb.grinch_tdc.hit_maxtime = 920.
 
 #grinch geometry info
 bb.grinch_tdc.nrows = 61
