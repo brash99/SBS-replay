@@ -23,6 +23,7 @@
 #include "SBSBBShower.h"
 #include "SBSBBTotalShower.h"
 #include "SBSGRINCH.h"
+//#include "SBSCherenkovDetector.h"
 #include "SBSEArm.h"
 #include "SBSHCal.h"
 #include "SBSGEMStand.h"
@@ -30,9 +31,11 @@
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMTrackerBase.h"
 #include "SBSRasteredBeam.h"
+#include "LHRSScalerEvtHandler.h"
+#include "SBSScalerEvtHandler.h"
 //#endif
 
-void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0)
+void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=0)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -59,7 +62,9 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   tdctrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( tdctrig );
   
-  SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
+  //SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
+  //SBSCherenkovDetector *grinch_tdc = new SBSCherenkovDetector("grinch_tdc","GRINCH TDC data");
+  SBSGRINCH *grinch_tdc = new SBSGRINCH("grinch_tdc","GRINCH TDC data");
   SBSGenericDetector *grinch_adc = new SBSGenericDetector("grinch_adc","GRINCH ADC data");
   grinch_adc->SetModeADC(SBSModeADC::kWaveform);
   grinch_adc->SetModeTDC(SBSModeTDC::kNone);
@@ -95,6 +100,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   bool pm =  ( pedestalmode != 0 );
   //this will override the database setting:
   ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetPedestalMode( pm );
+  ( static_cast<SBSGEMTrackerBase *> (bbgem) )->SetMakeCommonModePlots( cmplots );
   bigbite->AddDetector(bbgem);
   gHaApps->Add(bigbite);
     
@@ -120,6 +126,9 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   THaApparatus* Lrb = new SBSRasteredBeam("Lrb","Raster Beamline for FADC");
   gHaApps->Add(Lrb);
   
+  THaApparatus* sbs = new SBSRasteredBeam("SBSrb","Raster Beamline for FADC");
+  gHaApps->Add(sbs);
+  
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
   gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
   
@@ -129,8 +138,15 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
-  
-  
+  LHRSScalerEvtHandler *lScaler = new LHRSScalerEvtHandler("Left","HA scaler event type 140");
+  // lScaler->SetDebugFile(&debugFile);
+  gHaEvtHandlers->Add(lScaler);
+
+  SBSScalerEvtHandler *sbsScaler = new SBSScalerEvtHandler("sbs","SBS Scaler Bank event type 1");
+  //sbsScaler->AddEvtType(1);             // Repeat for each event type with scaler banks
+  sbsScaler->SetUseFirstEvent(kTRUE);
+  gHaEvtHandlers->Add(sbsScaler);
+   
   //THaInterface::SetDecoder( SBSSimDecoder::Class() );
   THaEvent* event = new THaEvent;
 
@@ -154,6 +170,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   if( prefix != "/adaqeb1/data1" )
     pathlist.push_back( "/adaqeb1/data1" );
+
+  if( prefix != "/adaqeb2/data1" )
+    pathlist.push_back( "/adaqeb2/data1" );
+
+  if( prefix != "/adaqeb3/data1" )
+    pathlist.push_back( "/adaqeb3/data1" );
 
   if( prefix != "/adaq1/data1/sbs" )
     pathlist.push_back( "/adaq1/data1/sbs" );
@@ -260,8 +282,15 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  outfilename.Form( "%s/gmn_replayed_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
-		    stream, firstsegment, lastsegment );
+
+  if( nevents > 0 ){ 
+
+    outfilename.Form( "%s/e1209019_replayed_%d_stream%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), runnum,
+		      stream, firstsegment, lastsegment, firstevent, nevents );
+  } else {
+    outfilename.Form( "%s/e1209019_fullreplay_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
+		      stream, firstsegment, lastsegment );
+  }
  
 
   analyzer->SetVerbosity(2);
@@ -287,6 +316,12 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   analyzer->SetOdefFile( odef_filename );
   
+  //added cut list in order to have 
+  TString cdef_filename = "replay_gmn_farm.cdef";
+  
+  cdef_filename.Prepend( prefix );
+  
+  analyzer->SetCutFile( cdef_filename );
   //analyzer->SetCompressionLevel(0); // turn off compression
 
   filelist->Compress();

@@ -13,3 +13,5 @@ sbs.off_z = 0
 
 bb.theta    = 33.0                                                              
 bb.pcentral = 2.0 
+
+bb.magdist = 1.85
