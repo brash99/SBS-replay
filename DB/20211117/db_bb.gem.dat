@@ -47,7 +47,8 @@ bb.gem.m11.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
-bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
+# NOTE: commenting out explicit definition of cm flags, new default value will suffice for this and other dummy channels.
+#bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3

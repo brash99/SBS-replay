@@ -41,7 +41,8 @@ bb.gem.m7.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
-bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
+# commenting out definition of cm flags channel
+#bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
@@ -1375,7 +1376,8 @@ bb.gem.onlinezerosuppress = 0 # note that this parameter only provides a default
 
 bb.gem.plot_common_mode = 1
 bb.gem.plot_event_info = 1
-bb.gem.chan_cm_flags = 512
+# default values will suffice for the time being.
+#bb.gem.chan_cm_flags = 512
 
 # when zero suppression is enabled again we will turn this to 1: 
 bb.gem.pedsub_online = 1 # under normal conditions, this should always be 1, unless running normal data taking in pedestal mode:
