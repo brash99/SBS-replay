@@ -86,7 +86,9 @@ bb.hodotdc.xyz    = -1.105  -0.255  0.000
 ## Space between modules
 #bb.hodotdc.dxdydz =  10.000  10.000  0.000
 #need to check this
-bb.hodotdc.dxdydz =  0.010  0.010  0.000
+#bb.hodotdc.dxdydz =  0.010  0.010  0.000
+##in transport coordinates:
+bb.hodotdc.dxdydz =  0.025  0.600  0.000
 
 bb.hodotdc.tdcwindowmin = -20
 bb.hodotdc.tdcwindowmax = 20
