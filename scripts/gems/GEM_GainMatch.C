@@ -174,6 +174,10 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   vector<double> hit_ADCV(MAXNHITS);
   vector<double> hit_ADCavg(MAXNHITS);
   vector<double> hit_ADCasym(MAXNHITS);
+  vector<double> hit_ADCmaxsampU(MAXNHITS);
+  vector<double> hit_ADCmaxsampV(MAXNHITS);
+  vector<double> hit_ADCmaxstripU(MAXNHITS);
+  vector<double> hit_ADCmaxstripV(MAXNHITS);
 
   map<TString,TString> branchnames;
   vector<TString> varnames;
@@ -197,6 +201,10 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   varnames.push_back("hit.ADCV");
   varnames.push_back("hit.ADCavg");
   varnames.push_back("hit.ADCasym");
+  varnames.push_back("hit.ADCmaxsampU");
+  varnames.push_back("hit.ADCmaxsampV");
+  varnames.push_back("hit.ADCmaxstripU");
+  varnames.push_back("hit.ADCmaxstripV");
 
   cout << "disabling all branches...";
   
@@ -231,6 +239,10 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   C->SetBranchAddress( branchnames["hit.ADCV"].Data(), &(hit_ADCV[0]) );
   C->SetBranchAddress( branchnames["hit.ADCavg"].Data(), &(hit_ADCavg[0]) );
   C->SetBranchAddress( branchnames["hit.ADCasym"].Data(), &(hit_ADCasym[0]) );
+  C->SetBranchAddress( branchnames["hit.ADCmaxsampU"].Data(), &(hit_ADCmaxsampU[0]) );
+  C->SetBranchAddress( branchnames["hit.ADCmaxsampV"].Data(), &(hit_ADCmaxsampV[0]) );
+  C->SetBranchAddress( branchnames["hit.ADCmaxstripU"].Data(), &(hit_ADCmaxstripU[0]) );
+  C->SetBranchAddress( branchnames["hit.ADCmaxstripV"].Data(), &(hit_ADCmaxstripV[0]) );
   cout << "done." << endl;
   
   TString outfilename = Form("GainRatios_%s_temp.root",detname); 
@@ -299,6 +311,11 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
   TH2D *hADCavg_module = new TH2D("hADCavg_module","",nmodules,-0.5,nmodules-0.5,1500,0,30000);
   TH1D *hADCavg_allhits = new TH1D("hADCavg_allhits","",1500,0,30000);
+
+  TH2D *hStripADCsumU_module = new TH2D("hStripADCsumU_module","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
+  TH2D *hStripADCmaxU_module = new TH2D("hStripADCmaxU_module","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
+  TH2D *hStripADCsumV_module = new TH2D("hStripADCsumV_module","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
+  TH2D *hStripADCmaxV_module = new TH2D("hStripADCmaxV_module","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
   
   //int nAPVmax = 
 
@@ -319,7 +336,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     
     if( NTRACKS > 0 ){
 
-      if( trackChi2NDF[itrack] < chi2cut ){
+      if( trackChi2NDF[itrack] < chi2cut && tracknhits[itrack] > 3 ){
 	int nhits = int(ngoodhits);
 	//	cout << "nhits = " << nhits << endl;
 	
@@ -340,6 +357,12 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 	    hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
 	    hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
 	    hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
+
+	    hStripADCsumU_module->Fill( hit_module[ihit], hit_ADCmaxstripU[ihit] );
+	    hStripADCsumV_module->Fill( hit_module[ihit], hit_ADCmaxstripV[ihit] );
+
+	    hStripADCmaxU_module->Fill( hit_module[ihit], hit_ADCmaxsampU[ihit] );
+	    hStripADCmaxV_module->Fill( hit_module[ihit], hit_ADCmaxsampV[ihit] );
 
 	    int ixlo = hit_ustriplo[ihit];
 	    int ixhi = hit_ustriphi[ihit];
@@ -480,6 +503,8 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
   outfile_db << endl << "#Module internal relative gains by APV card: " << endl;
 
+  map<int,vector<double> > Xgain_by_module, Ygain_by_module;
+  
   for( int i=0; i<nmodules; i++ ){
     int xAPV_ref = nAPVmaxX/2;
       
@@ -784,6 +809,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
       if( iy*128 < nstripy_mod[i] ){
 	outfile_db << Ygain.back() << "  ";
+	Ygain_by_module[i].push_back( Ygain.back() );
       }
     }
     outfile << endl;
@@ -836,6 +862,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
       outfile << Xgain.back() << "  ";
       if( ix*128 < nstripx_mod[i] ){
 	outfile_db << Xgain.back() << "  ";
+	Xgain_by_module[i].push_back( Xgain.back() );
       }
     }
     outfile << endl;
@@ -844,11 +871,166 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
   }
 
+  
+
+
+  //We will want a 2nd loop over the data to make plots of corrected ADC spectra:
+
+  //int nAPVmax = 
+
+  TH1D *hADCavg_allhits_corrected = new TH1D("hADCavg_allhits_corrected","",1500,0,30000);
+  TH1D *hADCasym_allhits_corrected = new TH1D("hADCasym_allhits_corrected","",250,-1.01,1.01);
+  TH2D *hADCavg_module_corrected = new TH2D("hADCavg_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,30000);
+
+  TH2D *hStripADCsumU_module_corrected = new TH2D("hStripADCsumU_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
+  TH2D *hStripADCmaxU_module_corrected = new TH2D("hStripADCmaxU_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
+  TH2D *hStripADCsumV_module_corrected = new TH2D("hStripADCsumV_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
+  TH2D *hStripADCmaxV_module_corrected = new TH2D("hStripADCmaxV_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
+
+  TH2D *hADC_UV_allhits_corrected = new TH2D("hADC_UV_allhits_corrected","Cluster sum ;ADCU;ADCV",250,0,25000,250,0,25000);
+  TH2D *hADC_UVmaxstrip_allhits_corrected = new TH2D("hADC_UVmaxstrip_allhits_corrected","Max Strip sum;ADCU;ADCV",250,0,15000,250,0,15000);
+  TH2D *hADC_UVmaxsamp_allhits_corrected = new TH2D("hADC_UVmaxsamp_allhits_corrected","Max Strip max sample;ADCU;ADCV",250,0,3000,250,0,3000);
+
+  nevent = 0;
+  
+  //cout << "starting event loop:" << endl;
+  while( C->GetEntry( nevent++ ) ){
+
+    if( ngoodhits > MAXNHITS ) continue;
+    if( ntracks > MAXNHITS ) continue;
+    
+    if( nevent % 1000 == 0 ) cout << "event " << nevent << endl;
+    //loop over hits:
+    int itrack = int(besttrack);
+    //cout << "itrack = " << itrack << endl;
+
+    int NTRACKS = int(ntracks);
+
+    //cout << "ntracks = " << NTRACKS << endl;
+    
+    if( NTRACKS > 0 ){
+
+      if( trackChi2NDF[itrack] < chi2cut && tracknhits[itrack] > 3 ){
+	int nhits = int(ngoodhits);
+	//	cout << "nhits = " << nhits << endl;
+	
+	for( int ihit=0; ihit<nhits; ihit++ ){
+	  int tridx = int( hit_trackindex[ihit] );
+
+	  //cout << "ihit, tridx = " << ihit << ", " << tridx;
+	  
+	  //if( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) >= ADCcut && tridx == itrack ){
+	  if( tridx == itrack ){
+	    // cout << ", ADCavg[ihit] = " << hit_ADCavg[ihit]
+	    // 	 << ", ADCasym[ihit] = " << hit_ADCasym[ihit]
+	    // 	 << ", (nstripu,nstripv) = (" << hit_nstripu[ihit] << ", " << hit_nstripv[ihit] << ")"
+	    // 	 << ", (ustriplo,ustriphi,ustripmax)=(" << hit_ustriplo[ihit] << ", " << hit_ustriphi[ihit] << ", " << hit_ustripmax[ihit] << ")"
+	    // 	 << ", (vstriplo,vstriphi,vstripmax)=(" << hit_vstriplo[ihit] << ", " << hit_vstriphi[ihit] << ", " << hit_vstripmax[ihit] << ")"
+	    // 	 << ", module = " << hit_module[ihit] << endl;
+	    // hADCavg_allhits->Fill( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) );
+	    // hADCavg_module->Fill( hit_module[ihit], 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) );
+	    // hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
+	    // hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
+	    // hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
+
+	    // hStripADCsumU_module->Fill( hit_module[ihit], hit_ADCmaxstripU[ihit] );
+	    // hStripADCsumV_module->Fill( hit_module[ihit], hit_ADCmaxstripV[ihit] );
+
+	    // hStripADCmaxU_module->Fill( hit_module[ihit], hit_ADCmaxsampU[ihit] );
+	    // hStripADCmaxV_module->Fill( hit_module[ihit], hit_ADCmaxsampV[ihit] );
+
+	    int ixlo = hit_ustriplo[ihit];
+	    int ixhi = hit_ustriphi[ihit];
+	    int ixmax = hit_ustripmax[ihit];
+
+	    int iylo = hit_vstriplo[ihit];
+	    int iyhi = hit_vstriphi[ihit];
+	    int iymax = hit_vstripmax[ihit];
+
+	    int xAPVmax = ixmax/128;
+	    int yAPVmax = iymax/128;
+	    int xAPVlo = ixlo/128;
+	    int yAPVlo = iylo/128;
+
+	    int xAPVhi = ixhi/128;
+	    int yAPVhi = iyhi/128;
+
+	    int module = int(hit_module[ihit]);
+
+	    if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
+	    	yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
+	    	hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 &&
+	    	xAPVmax*128 < nstripx_mod[module] && yAPVmax*128<nstripy_mod[module] ){
+
+	      double Xgaintemp = Xgain_by_module[module][xAPVmax];
+	      double Ygaintemp = Ygain_by_module[module][yAPVmax];
+	      
+	      hADCavg_allhits_corrected->Fill( 0.5*(hit_ADCU[ihit]/Xgaintemp+hit_ADCV[ihit]/Ygaintemp) );
+	      hADCavg_module_corrected->Fill( hit_module[ihit], 0.5*(hit_ADCU[ihit]/Xgaintemp+hit_ADCV[ihit]/Ygaintemp) );
+
+	      hADCasym_allhits_corrected->Fill( (hit_ADCU[ihit]/Xgaintemp-hit_ADCV[ihit]/Ygaintemp) /
+						(hit_ADCU[ihit]/Xgaintemp+hit_ADCV[ihit]/Ygaintemp) );
+	      
+	      // hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
+	      // hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
+	      // hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
+
+	      hStripADCsumU_module_corrected->Fill( hit_module[ihit], hit_ADCmaxstripU[ihit]/Xgaintemp );
+	      hStripADCsumV_module_corrected->Fill( hit_module[ihit], hit_ADCmaxstripV[ihit]/Ygaintemp );
+
+	      hStripADCmaxU_module_corrected->Fill( hit_module[ihit], hit_ADCmaxsampU[ihit]/Xgaintemp );
+	      hStripADCmaxV_module_corrected->Fill( hit_module[ihit], hit_ADCmaxsampV[ihit]/Ygaintemp );
+
+	      hADC_UV_allhits_corrected->Fill( hit_ADCU[ihit]/Xgaintemp, hit_ADCV[ihit]/Ygaintemp );
+	      hADC_UVmaxstrip_allhits_corrected->Fill( hit_ADCmaxstripU[ihit]/Xgaintemp, hit_ADCmaxstripV[ihit]/Ygaintemp );
+	      hADC_UVmaxsamp_allhits_corrected->Fill( hit_ADCmaxsampU[ihit]/Xgaintemp, hit_ADCmaxsampV[ihit]/Ygaintemp );
+	      
+	    // if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
+	    // 	yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
+	    // 	hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 &&
+	    // 	xAPVmax*128 < nstripx_mod[module] && yAPVmax*128<nstripy_mod[module] ){
+
+	    //   // cout << "filling histograms " << endl;
+
+	    //   // cout << "apvxy hist index = " << yAPVmax + nAPVmaxY*xAPVmax+nAPVmaxX*nAPVmaxY*module << endl;
+	    //   // cout << "apvx hist index = " << xAPVmax + nAPVmaxX*module << endl;
+	    //   // cout << "apvy hist index = " << yAPVmax + nAPVmaxY*module << endl;
+	      
+	    //   ( (TH1D*) (*hADCasym_vs_APVXY)[yAPVmax + nAPVmaxY*xAPVmax+nAPVmaxX*nAPVmaxY*module] )->Fill( hit_ADCasym[ihit] );
+
+	    //   ( (TH1D*) (*hADCasym_vs_APVX)[xAPVmax + nAPVmaxX*module] )->Fill( hit_ADCasym[ihit] );
+	    //   ( (TH1D*) (*hADCasym_vs_APVY)[yAPVmax + nAPVmaxY*module] )->Fill( hit_ADCasym[ihit] );
+	    //   //cout << "done histogram fill" << endl;
+	    }
+	    // }
+	  }
+	////
+	}
+      }
+    }
+    //cout << "Event " << nevent << " done" << endl;
+  }
+
+  //Adjust module ABSOLUTE gain AFTER correction for RELATIVE gain:
+
   outfile_db << endl << "# Module average gains relative to target ADC peak position of " << target_ADC << endl;
   
   for( int i=0; i<nmodules; i++ ){
-    double Gmod = RelativeGainByModule[i]*MPV_all/target_ADC;
-    //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
+    //double Gmod = RelativeGainByModule[i]*MPV_all/target_ADC;
+
+    double Gmod = 1.0;
+
+    TString hname;
+    hname.Form("hADCavg_corrected_module%d",i);
+    htemp = hADCavg_module_corrected->ProjectionY( hname.Data(), i+1, i+1 );
+
+    TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",2000.0,25000.0);
+
+    double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
+
+    Gmod = MPV_mod / target_ADC;
+    
+    cout << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
     TString dbentry;
     dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
     outfile_db << dbentry << endl;
@@ -858,6 +1040,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   outfile << endl;
   outfile_db << endl;
 
+  
   fout->Write();
 
 }

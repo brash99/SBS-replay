@@ -4318,7 +4318,7 @@ bb.gem.suppressfirstlast = 0
 --------[ 2021-12-08 01:40: 00 ] 
 
 bb.gem.usestriptimingcut = 1
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
 
 --------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:
 bb.gem.useconstraint = 0
@@ -4328,6 +4328,11 @@ bb.gem.useopticsconstraint = 0
 --------[ 2021-11-25 00:45:00 ] # turn on optics and track slope constraints:
 
 bb.gem.useconstraint = 1
+# disable slope and optics constraints for optics runs.
+bb.gem.useslopeconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+-------[ 2021-11-25 04:20:00 ] # start production, turn on optics and track slope constraints:
 bb.gem.useslopeconstraint = 1
 bb.gem.useopticsconstraint = 1
 

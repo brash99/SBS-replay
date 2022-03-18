@@ -39,7 +39,9 @@ sbs.pcentral = 1.5
 bb.theta = 51.0
 bb.pcentral = 1.09
 bb.colldist = 1.4779
-bb.magdist = 1.8518
+bb.magdist = 1.8518 # from survey
+# bb.magdist = 1.85 # nominal
+# bb.magdist = 1.8470 # from zero-field alignment
 
 
 --------[ 2021-10-18 16:00:00 ] ## Starting SBS-4 kinematics for GMN
@@ -53,7 +55,9 @@ sbs.pcentral = 2.373 # elastic proton momentum
 # note BB field production setting is 750 A most of the time
 bb.theta = 36.0
 bb.pcentral = 2.122 
-bb.magdist = 1.799
+# bb.magdist = 1.80 # nominal
+# bb.magdist = 1.7956 # from zero-field alignment
+bb.magdist = 1.7988 # from survey
 
 ---------[ 2021-10-25 16:00:00 ] ## Starting SBS-5 kinematics for GMN (note we never took any real data here due to magnet "incident")
 
@@ -68,6 +72,8 @@ bb.theta = 27.5
 bb.pcentral = 3.91
 bb.magdist = 1.90
 
+#LOL
+
 --------[ 2021-11-12 00:00:00 ] ## Starting SBS-7 kinematics for GMN:
 
 ebeam = 7.906
@@ -77,7 +83,9 @@ sbs.theta = -16.1
 
 bb.theta = 40.0 
 bb.pcentral = 2.67
-bb.magdist = 1.85
+#bb.magdist = 1.85 # nominal
+bb.magdist = 1.84896 # from survey
+#bb.magdist = 1.86159 # from zero-field alignment
 
 --------[ 2021-11-23 00:00:00 ] ## starting SBS-11 kinematics for GMN
 
@@ -86,7 +94,9 @@ sbs.theta = -13.3
 sbs.pcentral = 8.1
 
 bb.theta = 42.0
-bb.magdist = 1.55 
+#bb.magdist = 1.55 # meters, nominal
+bb.magdist = 1.55146 # meters, from survey
+#bb.magdist = 1.5649 # meters, from zero-field alignment
 bb.pcentral = 2.67
 
 --------[ 2022-01-06 12:00:00 ] ## starting SBS-14 kinematics for GMN:
@@ -99,7 +109,9 @@ sbs.pcentral = 4.8 # GeV
 # note also: HCAL distance = 14.0 meters 
 
 bb.theta = 46.5 # degrees
-bb.magdist = 1.85 # meters
+#bb.magdist = 1.85 # meters, nominal:
+#bb.magdist = 1.8784 # meters, from zero-field alignment
+bb.magdist = 1.84787 # meters, from survey
 bb.pcentral = 2.0 # GeV
 
 --------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics:
@@ -111,8 +123,9 @@ sbs.pcentral = 3.22
 # note HCAL distance = 11 m
 
 bb.theta = 26.5
-#bb.magdist = 2.00 # meters
-bb.magdist = 1.9599 # meters, according to straight-through results
+#bb.magdist = 2.00 # meters, nominal
+bb.magdist = 1.97473 # meters, according to survey
+#bb.magdist = 1.9594 # meters, according to straight-through analysis
 bb.pcentral = 3.6 # GeV
 
 --------[ 2022-02-01 12:00:00 ] ## starting SBS-9 kinematics:
@@ -126,6 +139,9 @@ sbs.pcentral = 3.22
 # note HCAL distance = 11 m
 
 bb.theta = 49.0
-bb.magdist = 1.55
+#bb.magdist = 1.55: from survey or from nominal distance
+# new estimate for magnet distance based on zero-field alignment results for z sieve:
+# bb.magdist = 1.559
+bb.magdist = 1.550 # survey matches nominal, to within its precision
 bb.pcentral = 1.63
 
