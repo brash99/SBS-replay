@@ -506,6 +506,7 @@ bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs4.dat
 
+bb.optics_order = 2
 bb.optics_parameters = 
      -0.01797485  -0.00046124219    0.0010911736               0    0 0 0 0 0 
       0.45582214  -0.00096052863    0.0017924612               0    1 0 0 0 0 
@@ -591,7 +592,6 @@ bb.optics_parameters =
   2.2572645e-16   1.5761084e-16  -3.5722312e-17               0      0 1 0 0 1
  -4.6911865e-17   1.5525669e-16   -2.405119e-18               0      0 0 1 0 1
   3.8674907e-16   1.4831082e-16    8.137218e-17               0      0 0 0 1 1
-  4.5026307e-17  -8.6377048e-17   5.8408047e-17               0      0 0 0 0 2
   4.5026307e-17  -8.6377048e-17   5.8408047e-17               0      0 0 0 0 2
 
 
@@ -702,7 +702,6 @@ bb.optics_parameters =
  -1.4567222e-17   1.2541327e-16  -6.0125217e-17               0      0 0 1 0 1
  -1.4130748e-16   1.0382918e-16  -1.6620708e-17               0      0 0 0 1 1
  -1.2615664e-16  -5.1558342e-17   2.0467856e-16               0      0 0 0 0 2
- -1.2615664e-16  -5.1558342e-17   2.0467856e-16               0      0 0 0 0 2
  
 
 # initial guesses for SBS-11:
@@ -762,6 +761,8 @@ bb.B_pth1 =     0.970217825
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs14.dat
+
+bb.optics_order = 2
 
 bb.optics_parameters = 
     -0.021087198    0.0015626434    -0.001557145               0    0 0 0 0 0 
@@ -915,6 +916,8 @@ bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs8.dat
 
+bb.optics_order = 2
+
 bb.optics_parameters = 
     -0.013759973   -1.592921e-05     0.001484359               0    0 0 0 0 0 
       0.44906976   2.6389167e-05   -0.0036176462               0    1 0 0 0 0 
@@ -1041,6 +1044,8 @@ bb.B_pth1 =     0.893519136
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs9.dat
+
+bb.optics_order = 2
 
 bb.optics_parameters = 
     -0.020517883  -0.00042989563      0.00010271               0    0 0 0 0 0 
