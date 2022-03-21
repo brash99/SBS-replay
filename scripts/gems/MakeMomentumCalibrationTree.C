@@ -156,6 +156,9 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 
   //double Wmin_treefill = 0;
   //double Wmax_treefill = 
+
+  int hcal_coordflag = 0; //0 = "new" HCAL coordinate system that matches transport.
+                          //1 = "old" HCAL coordinate system that doesn't match transport
   
   
   while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endconfig") ){
@@ -337,6 +340,11 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 	  yoff_hcal = stemp.Atof();
 	}
 
+	if( skey == "hcalcoordsys" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  hcal_coordflag = stemp.Atoi();
+	}
+	
 	if( skey == "fit_thtgt_min" ){
 	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	  thtgtmin_fit = stemp.Atof();
@@ -733,10 +741,20 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
       
       
       //Assume that HCAL origin is at the vertical and horizontal midpoint of HCAL
-      
-      xHCAL += TopRightBlockPos_Hall.X() - TopRightBlockPos_DB.X();
-      yHCAL += TopRightBlockPos_Hall.Y() - TopRightBlockPos_DB.Y();
 
+      
+      if( hcal_coordflag == 0 ){ //new HCAL coordinate system:
+	HCAL_zaxis.SetXYZ( -sin(sbstheta),0,cos(sbstheta) );
+	HCAL_xaxis.SetXYZ(0, -1, 0 );
+	HCAL_yaxis = HCAL_zaxis.Cross(HCAL_xaxis).Unit();
+	HCAL_origin = hcaldist * HCAL_zaxis; //We no longer need to offset the origin. 
+      }
+
+      if( hcal_coordflag != 0 ){ //if we are still using the old HCAL coordinates, need to offset xHCAL, yHCAL:
+	xHCAL += TopRightBlockPos_Hall.X() - TopRightBlockPos_DB.X();
+	yHCAL += TopRightBlockPos_Hall.Y() - TopRightBlockPos_DB.Y();
+      }
+      
       double sintersect = (HCAL_origin - vertex ).Dot( HCAL_zaxis ) / (pNhat.Dot(HCAL_zaxis));
       //Straight-line projection to the surface of HCAL:
       TVector3 HCAL_intersect = vertex + sintersect * pNhat;
