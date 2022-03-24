@@ -264,3 +264,37 @@ sbs.hcal.adc.gain =
 0.00265122  0.00165226  0.00246627  0.00200294  0.00178346  0.001705  0.00180826  0.00179812  0.00213332  0.00139189  0.00222044  0.00338812  
 0.00175  0.00403728  0.00184311  0.00188862  0.00164165  0.00163744  0.00149042  0.0017886  0.00188636  0.00193083  0.00262937  0.00308539  
 0.00731553  0.00733844  0.00269888  0.00236267  0.00204097  0.00246712  0.00241754  0.00240661  0.00195007  0.00151657  0.00263376  0.00416878 
+
+# let's add kinematics-dependent clustering thresholds (these may need some work)
+-------[ 2021-10-10 00:00:00 ] # SBS-1:
+
+## Mininum energy for a cluster element, set to 20 MeV
+sbs.hcal.emin = 0.005
+
+## Minimum energy for a cluster center, set to 5 MeV for SBS-1:
+sbs.hcal.emin_clSeed = 0.005
+
+--------[ 2021-10-18 16:00:00 ] # SBS-4:
+
+## Minimum energy for a cluster center, set to 10 MeV
+sbs.hcal.emin_clSeed = 0.01
+
+--------[ 2021-11-12 00:00:00 ] ## Starting SBS-7 kinematics for GMN:
+
+## Minimum energy for a cluster center
+sbs.hcal.emin_clSeed = 0.036
+
+--------[ 2021-11-23 00:00:00 ] ## starting SBS-11 kinematics for GMN
+
+## Minimum energy for a cluster center
+sbs.hcal.emin_clSeed = 0.048
+
+--------[ 2022-01-06 12:00:00 ] ## starting SBS-14 kinematics for GMN:
+
+## Minimum energy for a cluster center
+sbs.hcal.emin_clSeed = 0.027
+
+--------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics 
+
+## Minimum energy for a cluster center: we use the same threshold for SBS-8/9 since they have pretty much the same nucleon energy:
+sbs.hcal.emin_clSeed = 0.016
