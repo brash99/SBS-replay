@@ -4230,13 +4230,13 @@ bb.gem.useopticsconstraint = 0
 bb.gem.useconstraint = 1
 bb.gem.suppressfirstlast = -1
 
-bb.gem.useslopeconstraint = 1
+bb.gem.useslopeconstraint = 0
 bb.gem.xpfp_min = -0.4
 bb.gem.xpfp_max = 0.4
 bb.gem.ypfp_min = -0.12
 bb.gem.ypfp_max = 0.12
 
-bb.gem.useopticsconstraint = 1
+bb.gem.useopticsconstraint = 0
 bb.gem.xptar_min = -0.4
 bb.gem.xptar_max = 0.4
 bb.gem.yptar_min = -0.1
@@ -4245,6 +4245,10 @@ bb.gem.ytar_min = -0.1
 bb.gem.ytar_max = 0.1
 bb.gem.pmin = 0.5
 bb.gem.pmax = 3.5
+
+-------[ 2021-11-25 04:21:00 ] # going to production:
+bb.gem.useslopeconstraint = 1
+bb.gem.useopticsconstraint = 1
 
 
 --------[ 2021-12-01 17:00:00 ] # new alignments after GEM work during access on Dec. 1st
