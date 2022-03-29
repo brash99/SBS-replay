@@ -161,7 +161,7 @@ sbs.hcal.xpos =
 sbs.hcal.emin = 0.005
 
 ## Maximum time difference between cluster seed and additional clusters, set to 20 ns
-sbs.hcal.tmax = 0.0
+sbs.hcal.tmax = 20.0
 
 ## Add good time cut at 806ns
 sbs.hcal.tdc.GoodTimeCut = 806
