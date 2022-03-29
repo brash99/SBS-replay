@@ -379,9 +379,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   cout << "BigBite theta = " << bbtheta * TMath::RadToDeg() << endl;
   cout << "Mean E loss (outgoing electron) = " << MeanEloss_outgoing << endl;
   cout << "Ebeam corrected (GeV) = " << ebeam - MeanEloss << endl;
-  
-
-						   
+ 
 					   
 					   
   

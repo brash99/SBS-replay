@@ -3,9 +3,10 @@
 /Users/puckett/GMN_ROOTFILES/SBS9/e1209019_fullreplay_13676_*.root
 /Users/puckett/GMN_ROOTFILES/SBS9/e1209019_fullreplay_13747_*.root
 endlist
-bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz)<0.08&&bb.gem.track.nhits>3&&abs(bb.etot_over_p-0.98)<0.25&&bb.ps.e+bb.sh.e>1.4&&sbs.hcal.e>0.05
+bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz)<0.08&&bb.gem.track.nhits>3&&abs(bb.etot_over_p-0.98)<0.25&&bb.ps.e+bb.sh.e>1.2&&sbs.hcal.e>0.05
 endcut
 order 1
+useAlShield 1
 dEdx 0.00574
 dEdx_Al 0.0021
 ebeam 4.013
@@ -37,4 +38,5 @@ dpel_min -0.02
 dpel_max 0.08
 useAlShield 1
 oldcoeffs newfit_sbs9.dat
+hcalcoordsys 1
 endconfig
