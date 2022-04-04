@@ -10,6 +10,7 @@ variable bb.ps.y
 variable bb.ps.nblk
 variable bb.ps.idblk
 variable bb.ps.atimeblk
+variable bb.ps.index
 #block bb.ps.clus*
 variable bb.ps.nclus
 block bb.ps.clus_blk.*
@@ -26,10 +27,12 @@ variable bb.sh.y
 variable bb.sh.nblk
 variable bb.sh.idblk
 variable bb.sh.atimeblk
+variable bb.sh.index
 #block bb.sh.clus*
 variable bb.sh.nclus
 block bb.sh.clus_blk.*
 variable bb.sh.ngoodADChits
+variable bb.ts.over_threshold
 
 #just one variable for trigger tdc
 variable bb.tdctrig.tdc
