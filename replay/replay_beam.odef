@@ -1,22 +1,28 @@
 # Beam output definition file 
 
+# blocks for all beam variables in the T tree 
+block Lrb.*
+block SBSrb.*
+
 begin epics
-# average beam current from upstream and downstream BCMs in uA 
+# beam momentum [MeV] 
+      halla:p
+# average beam current from upstream and downstream BCMs [uA] 
       hac_bcm_average
-# beam position in m
+# beam position [m]
       IPM1H04A.XPOS
       IPM1H04A.YPOS
       IPM1H04E.XPOS
       IPM1H04E.YPOS
-# current from IBC1H04 in uA 
+# current from IBC1H04 [uA]
       IBC1H04CRCUR2
-# digital voltmeter readout for upstream BCM (1) and downstream BCM (2) in V
+# digital voltmeter readout for upstream BCM (1) and downstream BCM (2) [V]
       hac_bcm_dvm1_read
       hac_bcm_dvm2_read
-# current from upstream BCM (1) and downstream BCM (2) in uA 
+# current from upstream BCM (1) and downstream BCM (2) [uA]
       hac_bcm_dvm1_current
       hac_bcm_dvm2_current
-# calibration coefficients to convert voltage to current 
+# calibration coefficients to convert BCM voltages to current [uA/V] 
       hac_bcm_A1
       hac_bcm_A2
 end epics
@@ -26,6 +32,7 @@ end epics
 FORMULA targx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/4.083*5.969+1000.*Lrb.BPMA.x
 FORMULA targy 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/4.083*5.969+1000.*Lrb.BPMA.y
 
+# helpful histograms
 TH1F hTarg_x 'x at target [mm]' targx 4000 -5. 5.
 TH1F hTarg_y 'y at target [mm]' targy 4000 -5. 5.
 TH2F hTarg_xy 'Postion at target [mm]' targx targy 4000 -5. 5. 4000 -5. 5.
