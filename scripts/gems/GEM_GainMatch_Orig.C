@@ -98,12 +98,7 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 }
 
 //Need to understand the input parameters. infilename is the file to be used to do the gain match. nmodules probably the told number of modules. fname_stripconfig will have to be modified to reflect the number  of strips of the config present for infilename. How are the rest of the variables determined?
-void GEM_GainMatch(const int runnum, int nmodules,const int numseg, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4000.0, const char *fname_stripconfig="stripconfig_bb_gem.txt" ){
-//convert runnum to a char so that way it can be used in names
-std::string runnum_temp = std::to_string(runnum);
-const char *runnum_char = runnum_temp.c_str();
-//cout <<"My number " << runnum_char << endl;
-
+void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4000.0, const char *fname_stripconfig="stripconfig_bb_gem.txt" ){
 //setups up an input stream for the strip config file
   ifstream stripconfigfile(fname_stripconfig);
 // defines an emptry current line for the input stream
@@ -139,8 +134,6 @@ const char *runnum_char = runnum_temp.c_str();
       }
     }
   }
- 
-
 //Error message if problem with strip config file
   if( !( gotxconfig && gotyconfig ) ){
     cout << "module strip config not properly defined, quitting..." << endl;
@@ -158,24 +151,12 @@ const char *runnum_char = runnum_temp.c_str();
 
 //Arbitrarily choose 10000 max hits?
   UInt_t MAXNHITS=10000;
-  //Not used?
-  //TString fname(infilename);
+  //Makes a string with the infilename
+  TString fname(infilename);
 //Remind me why TChain is important
   TChain *C = new TChain("T");
 
-  //C->Add( infilename );
-  //Do some file name management. This will of course need to change if you get files from not ewertz volatile
-  string input_directory = "/volatile/halla/sbs/ewertz/GMn_replays/rootfiles/"; 
-  const char *input_directory_char = input_directory.c_str();	
-//To implement multiple files or that is replay segments use a for loop
-	for(int iseg=0; iseg<=numseg; iseg++){
-	//If the file name format changed this will of course need to change
-	std::string iseg_temp = std::to_string(iseg);
-	const char *iseg_char = iseg_temp.c_str();
-	TString inputfile = Form("%se1209019_fullreplay_%s_stream0_seg%s_%s.root",input_directory_char,runnum_char,iseg_char,iseg_char);
-	//cout << "My name " << inputfile << endl;
-	C->Add(inputfile);
-	}
+  C->Add( infilename );
 
   C->Print();
   //some variables that are useful, for some reason
@@ -225,20 +206,20 @@ const char *runnum_char = runnum_temp.c_str();
   varnames.push_back("hit.ADCavg");
   varnames.push_back("hit.ADCasym");
 //Why are the branches disabled here?
-  //cout << "disabling all branches...";
+  cout << "disabling all branches...";
   //the * applies it to all branches, the 0 disables those branches. to enable would need to make 1
   C->SetBranchStatus("*",0);
 
-  //cout << "done." << endl;
+  cout << "done." << endl;
 
   for( int i=0; i<varnames.size(); i++ ){
 //What is actually going on in this for loop. It looks like branch and variable names are getting printed. But also setting branches up in the TChain
     branchnames[varnames[i]] = branchname.Format("%s.%s",detname,varnames[i].Data());
-   // cout << "Branch " << i << " name = " << branchnames[varnames[i]] << endl;
+    cout << "Branch " << i << " name = " << branchnames[varnames[i]] << endl;
     C->SetBranchStatus( branchnames[varnames[i]].Data(), 1 );
   }
 //Populating data in the TChain branchs?
- // cout << "Setting branch addresses: ";
+  cout << "Setting branch addresses: ";
   C->SetBranchAddress( branchnames["track.ntrack"].Data(), &ntracks );
   C->SetBranchAddress( branchnames["track.besttrack"].Data(), &besttrack );
   C->SetBranchAddress( branchnames["track.nhits"].Data(), &(tracknhits[0]) );
@@ -259,25 +240,24 @@ const char *runnum_char = runnum_temp.c_str();
   C->SetBranchAddress( branchnames["hit.ADCV"].Data(), &(hit_ADCV[0]) );
   C->SetBranchAddress( branchnames["hit.ADCavg"].Data(), &(hit_ADCavg[0]) );
   C->SetBranchAddress( branchnames["hit.ADCasym"].Data(), &(hit_ADCasym[0]) );
- // cout << "done." << endl;
+  cout << "done." << endl;
  //Setup the output file name 
- //changed output file name to include run number for file organization
- TString outfilename = Form("GEM_GainMatch_output/GainRatios_%s_%s.root",detname,runnum_char); 
+  TString outfilename = Form("GainRatios_%s_temp.root",detname); 
 
   
 
   //  outfilename.Prepend("GainRatios_");
 
- // cout << "Out file name = " << outfilename << endl;
+  cout << "Out file name = " << outfilename << endl;
 //Next couple of lines is to output the info to files
   TFile *fout = new TFile( outfilename.Data(), "RECREATE" );
   
   outfilename.ReplaceAll(".root",".txt");
 
   ofstream outfile(outfilename.Data());
-//changed output file name to include run number for file organization
+
   TString dbfilename;
-  dbfilename.Form( "GEM_GainMatch_output/GEM_GainMatchResults_%s_%s.dat",detname,runnum_char );
+  dbfilename.Form( "GEM_GainMatchResults_%s.dat",detname );
   
   ofstream outfile_db(dbfilename.Data());
   //what is going on here with the nAPVmaxX/Y?
@@ -419,7 +399,7 @@ const char *runnum_char = runnum_temp.c_str();
 
   double MPV_all = ( (TF1*) hADCavg_allhits->GetListOfFunctions()->FindObject("landau") )->GetParameter("MPV");
 
-  //cout << "All hits ADC peak position = " << MPV_all << endl;
+  cout << "All hits ADC peak position = " << MPV_all << endl;
 
   
   
@@ -499,8 +479,8 @@ const char *runnum_char = runnum_temp.c_str();
       TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",ADCcut,25000.0);
       double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
 
-     // cout << "module " << i << " MPV = " << MPV_mod << endl;
-     // cout << "module " << i << " relative gain = " << MPV_mod / target_ADC << endl;
+      cout << "module " << i << " MPV = " << MPV_mod << endl;
+      cout << "module " << i << " relative gain = " << MPV_mod / target_ADC << endl;
       RelativeGainByModule[i] = MPV_mod/MPV_all;
     } else {
       RelativeGainByModule[i] = 1.0;
@@ -808,7 +788,7 @@ const char *runnum_char = runnum_temp.c_str();
       Ygain.push_back( Gy );
       dYgain.push_back( dGy );
       
-      //cout << "module " << i << ", Y APV " << iy << ", Relative gain = " << Ygain.back() << " +/- " << dYgain.back() << endl;
+      cout << "module " << i << ", Y APV " << iy << ", Relative gain = " << Ygain.back() << " +/- " << dYgain.back() << endl;
 
       outfile << Ygain.back() << "  ";
 
@@ -862,7 +842,7 @@ const char *runnum_char = runnum_temp.c_str();
       // 	Xgain.push_back( 1.0 );
       // 	dXgain.push_back( 0.0 );
       // }
-      //cout << "module " << i << ", X APV " << ix << ", Relative gain = " << Xgain.back() << " +/- " << dXgain.back() << endl;
+      cout << "module " << i << ", X APV " << ix << ", Relative gain = " << Xgain.back() << " +/- " << dXgain.back() << endl;
 
       outfile << Xgain.back() << "  ";
       if( ix*128 < nstripx_mod[i] ){
@@ -883,7 +863,7 @@ const char *runnum_char = runnum_temp.c_str();
     TString dbentry;
     dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
     outfile_db << dbentry << endl;
-    //cout << dbentry << endl;
+    cout << dbentry << endl;
   }
 
   outfile << endl;
