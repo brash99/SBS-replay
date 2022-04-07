@@ -2947,7 +2947,6 @@ bb.gem.m9.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
-bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
@@ -4098,10 +4097,10 @@ bb.gem.pedestalmode = 0
 
 ######## The following parameters are searched in SBSGEMModule::ReadDatabase() ############
 bb.gem.threshold_sample = 150.
-bb.gem.threshold_stripsum = 500.
-bb.gem.threshold_clustersum = 1000.
+bb.gem.threshold_stripsum = 400.
+bb.gem.threshold_clustersum = 800.
 
-bb.gem.ADCasym_cut = 0.5 
+bb.gem.ADCasym_cut = 0.75 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1
@@ -4121,11 +4120,10 @@ bb.gem.maxnv_pos = 3
 bb.gem.sigmahitshape = 0.0004
 bb.gem.zerosuppress = 1
 bb.gem.zerosuppress_nsigma = 5.0
-bb.gem.onlinezerosuppress = 0 # note that this parameter only provides a default value, actual behavior is determined by the flags seen in the raw data:
+bb.gem.onlinezerosuppress = 1 # note that this parameter only provides a default value, actual behavior is determined by the flags seen in the raw data:
 
 bb.gem.plot_common_mode = 1
 bb.gem.plot_event_info = 1
-bb.gem.chan_cm_flags = 512
 
 # when zero suppression is enabled again we will turn this to 1: 
 bb.gem.pedsub_online = 0
@@ -4139,14 +4137,14 @@ bb.gem.maxstrip_t0 = 80.0
 bb.gem.maxstrip_tcut = 30.0 
 bb.gem.addstrip_tcut = 21.0
 bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
 
 
 ########### The following parameters are searched by SBSGEMSpectrometerTracker::ReadDatabase() #####################
 
 # parameters controlling tracking behavior:
 bb.gem.sigmahitpos = 0.00015
-bb.gem.minhitsontrack = 4
+bb.gem.minhitsontrack = 3
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 100000
 bb.gem.maxhitcombos_total = 10000000000 # 1 x 10^10
@@ -4169,8 +4167,8 @@ bb.gem.useslopeconstraint = 0
 
 bb.gem.do_efficiencies = 1
 bb.gem.dump_geometry_info = 0 # turn this off if we are not using this run to do a new alignment!
-bb.gem.efficiency_bin_width_1D = 0.05
-bb.gem.efficiency_bin_width_2D = 0.05
+bb.gem.efficiency_bin_width_1D = 0.02
+bb.gem.efficiency_bin_width_2D = 0.02
 w
 --------[ 2021-11-18 12:16:00 ] # after APV fix:
 
@@ -4222,23 +4220,23 @@ bb.gem.m9.angle =       0.1103163      0.02013475       -0.300051
 --------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:
 
 bb.gem.useconstraint = 1
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
 # turn off slope and optics-based constraints for zero-field runs:
 bb.gem.useslopeconstraint = 0
 bb.gem.useopticsconstraint = 0
 
--------[ 2021-11-25 00:56:00 ] 
+-------[ 2021-11-25 00:56:00 ] # turning on magnet
 
 bb.gem.useconstraint = 1
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
 
-bb.gem.useslopeconstraint = 1
+bb.gem.useslopeconstraint = 0
 bb.gem.xpfp_min = -0.4
 bb.gem.xpfp_max = 0.4
 bb.gem.ypfp_min = -0.12
 bb.gem.ypfp_max = 0.12
 
-bb.gem.useopticsconstraint = 1
+bb.gem.useopticsconstraint = 0
 bb.gem.xptar_min = -0.4
 bb.gem.xptar_max = 0.4
 bb.gem.yptar_min = -0.1
@@ -4246,7 +4244,11 @@ bb.gem.yptar_max = 0.1
 bb.gem.ytar_min = -0.1
 bb.gem.ytar_max = 0.1
 bb.gem.pmin = 0.5
-bb.gem.pmax = 4.5
+bb.gem.pmax = 3.5
+
+-------[ 2021-11-25 04:21:00 ] # going to production:
+bb.gem.useslopeconstraint = 1
+bb.gem.useopticsconstraint = 1
 
 
 --------[ 2021-12-01 17:00:00 ] # new alignments after GEM work during access on Dec. 1st
@@ -4308,7 +4310,7 @@ bb.gem.suppressfirstlast = 0
 --------[ 2021-12-07 23:48: 00 ] 
 
 bb.gem.usestriptimingcut = 1
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
 
 --------[ 2021-12-08 01:25: 00 ] 
 
@@ -4318,7 +4320,7 @@ bb.gem.suppressfirstlast = 0
 --------[ 2021-12-08 01:40: 00 ] 
 
 bb.gem.usestriptimingcut = 1
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
 
 --------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:
 bb.gem.useconstraint = 0
@@ -4328,6 +4330,11 @@ bb.gem.useopticsconstraint = 0
 --------[ 2021-11-25 00:45:00 ] # turn on optics and track slope constraints:
 
 bb.gem.useconstraint = 1
+# disable slope and optics constraints for optics runs.
+bb.gem.useslopeconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+-------[ 2021-11-25 04:20:00 ] # start production, turn on optics and track slope constraints:
 bb.gem.useslopeconstraint = 1
 bb.gem.useopticsconstraint = 1
 

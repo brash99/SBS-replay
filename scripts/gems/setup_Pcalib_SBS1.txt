@@ -1,63 +1,10 @@
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg0_0.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg10_10.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg11_11.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg12_12.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg13_13.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg14_14.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg15_15.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg16_16.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg17_17.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg18_18.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg19_19.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg1_1.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg20_20.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg21_21.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg22_22.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg23_23.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg24_24.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg25_25.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg26_26.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg2_2.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg3_3.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg4_4.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg5_5.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg6_6.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg7_7.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg8_8.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11182_stream0_seg9_9.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg0_0.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg10_10.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg11_11.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg12_12.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg13_13.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg14_14.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg15_15.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg16_16.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg17_17.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg18_18.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg19_19.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg1_1.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg20_20.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg21_21.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg22_22.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg23_23.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg24_24.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg25_25.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg26_26.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg27_27.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg2_2.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg3_3.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg4_4.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg5_5.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg6_6.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg7_7.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg8_8.root
-/Users/puckett/GMN_ROOTFILES/SBS1/OPTICS/gmn_replayed_11185_stream0_seg9_9.root
+/Users/puckett/GMN_ROOTFILES/SBS1/e1209019_fullreplay_1118*.root
 endlist
-bb.tr.n==1&&bb.ps.e>0.15&&abs(bb.etot_over_p-1.0)<=0.3&&abs(bb.tr.vz)<0.07
+bb.tr.n==1&&bb.ps.e>0.15&&abs(bb.etot_over_p-0.93)<=0.25&&abs(bb.tr.vz)<0.08&&bb.ps.e+bb.sh.e>0.8&&sbs.hcal.e>0.015
 endcut
 order 2
 dEdx 0.00574
+dEdx_Al 0.0021
 ebeam 1.916
 bbtheta 51.0
 sbstheta 34.5
@@ -66,13 +13,22 @@ Ltgt 15.0
 rho_tgt 0.072
 celldiameter 5.0
 usehcalcut 1
-dx0 0.004
+dx0 0.043
 dy0 -0.022
-dxsigma 0.052
-dysigma 0.13
+dxsigma 0.053
+dysigma 0.066
 GEMpitch 10.0
 fix_pth0 1
 fix_pthx 1
 pth0 0.274932
 pthx 0.101809
+bbdist 1.8518
+Wmin 0.8
+Wmax 1.05
+dpel_min -0.01
+dpel_max 0.06
+useAlShield 0
+oldcoeffs newfit_sbs1.dat
+fit_thtgt_min -0.12
+fit_thtgt_max 0.15
 endconfig

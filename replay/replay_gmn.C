@@ -328,7 +328,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
     THaRun *run = ( (THaRun*) (*filelist)[iseg] );
-    if( nevents > 0 ) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
+    if( nevents > 0 ) run->SetLastEvent(firstevent+nevents-1); //not sure if this will work as we want it to for multiple file segments chained together
 
     run->SetFirstEvent( firstevent );
     
