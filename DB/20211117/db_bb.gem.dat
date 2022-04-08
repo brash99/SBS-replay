@@ -4334,10 +4334,28 @@ bb.gem.useconstraint = 1
 bb.gem.useslopeconstraint = 0
 bb.gem.useopticsconstraint = 0
 
+# these entries are redundant with similar entries above, should clean up (to-do list)
+# we actually need a few superseding entries for the "GEM rate study from runs 12307-12312". 
+
 -------[ 2021-11-25 04:20:00 ] # start production, turn on optics and track slope constraints:
 bb.gem.useslopeconstraint = 1
 bb.gem.useopticsconstraint = 1
 
+------[ 2021-11-25 09:29:00 ] # attempt to analyze low-current LH2 run without constraints:
+bb.gem.useslopeconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+------[ 2021-11-25 10:10:00 ] # LH2 runs at 5-15 uA we need to use the optics and slope constraints as well:
+bb.gem.useslopeconstraint = 1
+bb.gem.useopticsconstraint = 1
+
+------[ 2021-11-25 11:40:00 ] # back to 1 uA: attempt to analyze low-current LH2 run without constraints:
+bb.gem.useslopeconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+------[ 2021-11-25 12:15:00 ] #starting "true production" here
+bb.gem.useslopeconstraint = 1
+bb.gem.useopticsconstraint = 1
 
 
 
