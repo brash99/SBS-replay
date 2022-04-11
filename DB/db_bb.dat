@@ -986,8 +986,7 @@ bb.optics_order = 2
 #  3.4916311e-16 -5.7801037e-16 -8.8795124e-16 -1.1214327e-14  0 0 0 1 1
 # -5.5736366e-16  2.2786736e-16  4.0535244e-17  5.8646239e-15  0 0 0 0 2
 
-# below is the result of Holly's optimization for SBS-8, that gives problematic 
-# momentum reconstruction (for now)
+# below is the result of Holly's optimization for SBS-8
 
 bb.preconflag = 1
 # NOTE on new momentum reconstruction formalism: 1st-order momentum is calculated from
@@ -995,13 +994,11 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.289898476
-bb.B_pth1 =      1.13979772
+bb.A_pth1 =     0.291533473
+bb.B_pth1 =      1.05941451
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs8.dat
-
-bb.optics_order = 2
 
 bb.optics_parameters = 
     -0.013759973   -1.592921e-05     0.001484359               0    0 0 0 0 0 
