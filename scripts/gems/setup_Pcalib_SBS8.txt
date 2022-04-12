@@ -1,8 +1,14 @@
-#/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13444_*.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13452_*.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_1348*.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13490_*.root
-#/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13542_*.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg0_9.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg100_105.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg10_19.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg20_29.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg30_39.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg40_49.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg50_59.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg60_69.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg70_79.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg80_89.root
+/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg90_99.root
 endlist
 bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz)<0.08&&bb.gem.track.nhits>3&&abs(bb.etot_over_p-1.02)<0.21&&sbs.hcal.e>0.05&&bb.ps.e+bb.sh.e>3.0
 endcut
@@ -17,10 +23,10 @@ Ltgt 15.0
 rho_tgt 0.072
 celldiameter 4.064
 usehcalcut 1
-dx0 0.86
-dy0 0.042
-dxsigma 0.11
-dysigma 0.077
+dx0 -0.495
+dy0 -0.0381
+dxsigma 0.088
+dysigma 0.063
 GEMpitch 10.0
 #fix_pth0 1
 #fix_pthx 1
@@ -32,12 +38,13 @@ bbdist 1.97473
 A_pth0 0.28982
 B_pth0 1.15051
 C_pth0 0.0
-Wmin 0.8
-Wmax 1.4
-dpel_min -0.08
-dpel_max 0.02
+Wmin 0.7
+Wmax 1.2
+dpel_min -0.04
+dpel_max 0.04
 useAlShield 1
 oldcoeffs newfit_sbs8.dat
 fit_thtgt_min -0.12
 fit_thtgt_max 0.1
+hcalcoordsys 0
 endconfig
