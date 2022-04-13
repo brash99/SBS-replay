@@ -1,4 +1,5 @@
 bb.grinch.nchan = 510
+bb.grinch.is_mc = 1
 
 ## Detector map, format:
 ## crate slot start_channel end_channel
@@ -7,16 +8,23 @@ bb.grinch.detmap =
 #  7     2     0     0  -1 #
 #  7     3     0     0  -1 #
 #  7     4     0     0  -1 #
-  7     1     1   128   0 #
-  7     2     1   128   0 #
-  7     3     1   128   0 #
-  7     4     1   126   0 #
+  7     1     0   127   0 #
+  7     2     0   127   0 #
+  7     3     0   127   0 #
+  7     4     0   125   0 #
 
-bb.grinch.detmap_adc =
-  5     1     0     127 #
-  5     2     0     127 #
-  5     3     0     127 #
-  5     4     0     125 #
+#bb.grinch.detmap_adc =
+#  5     1     0     127 #
+#  5     2     0     127 #
+#  5     3     0     127 #
+#  5     4     0     125 #
+
+#bb.grinch.chanmap_start = 0
+#bb.grinch.chanmap =
+
+
+#bb.grinch.model_in_detmap = 1
+#bb.grinch.tdc.calib = 1
 
 bb.grinch.position = 0 0 0.4824  ## z of entrance window, m
 bb.grinch.size =  2.47015 1.1480 0.889 ## tank size, m
