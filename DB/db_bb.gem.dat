@@ -1,5 +1,6 @@
 # Date/Time = Fri Jan 1 11:00:00 2021 
 # start database from the beginning of time 
+# BigBite GEM database during GMN run from start of experiment in Oct. 2021 through 11/17/2021 when the J2 layer was replaced by a U/V layer.
 -------[ 2021-01-01 00:00:00 ] 
 # database format: the tracker consists of a collection of modules: 
 # database properties will be organized by module, not by "plane" as in old SBS-offline
@@ -47,7 +48,8 @@ bb.gem.m11.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
-bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
+# commenting this out as we can use the new default value of 640
+#bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
@@ -1147,7 +1149,7 @@ bb.gem.threshold_clustersum = 800.0
 ###################### BEGIN TIME-DEPENDENT OPTICS track search constraints #############
 
 -----------[ 2021-01-01 00:00:00 ] # at SBS-1, the max. good electron momentum is about 1.5 GeV
-bb.gem.useopticsconstraint = 1
+bb.gem.useopticsconstraint = 0
 bb.gem.xptar_min = -0.25
 bb.gem.xptar_max = 0.25
 bb.gem.yptar_min = -0.08
@@ -1166,7 +1168,11 @@ bb.gem.useopticsconstraint = 0
 ---------[ 2021-10-14 23:14:00 ]  
 
 bb.gem.useconstraint = 1
+bb.gem.useopticsconstraint = 0
+
+---------[ 2021-10-15 08:21:00 ] # turn on optics constraint after sieve is removed:
 bb.gem.useopticsconstraint = 1
+bb.gem.useslopeconstraint = 1
 
 ----------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics:
 
@@ -1187,12 +1193,14 @@ bb.gem.useslopeconstraint = 0
 
 -----------[ 2021-10-25 00:18:00 ] # Optics runs with field-on for SBS-4:
 bb.gem.useconstraint = 1
-bb.gem.useopticsconstraint = 1
+bb.gem.useopticsconstraint = 0
 
+----------[ 2021-10-25 04:52:00 ] # for production turn on optics and track slope constraints
 
 -----------[ 2021-11-12 00:00:00 ] # at SBS-7, the max. good electron momentum is about 3.5 GeV
 bb.gem.useconstraint = 0 # start with no constraint for zero-field runs
 bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
 
 # these may need adjusting:
 bb.gem.usestriptimingcut = 0
@@ -1203,11 +1211,11 @@ bb.gem.addstrip_tcut = 21.0
 bb.gem.addstrip_ccor_cut = 0.4
 bb.gem.suppressfirstlast = 0
 
------------[ 2021-11-12 10:15:00 ] # turn on constraints after turning on BB magnet:  
+-----------[ 2021-11-13 10:15:00 ] # turn on constraints after turning on BB magnet:  
 
 bb.gem.useconstraint = 1
 
-bb.gem.useopticsconstraint = 1
+bb.gem.useopticsconstraint = 0
 bb.gem.xptar_min = -0.3
 bb.gem.xptar_max = 0.3
 bb.gem.yptar_min = -0.1
@@ -1217,13 +1225,17 @@ bb.gem.ytar_max = 0.1
 bb.gem.pmin = 0.8
 bb.gem.pmax = 3.5
 
-bb.gem.useslopeconstraint = 1
+bb.gem.useslopeconstraint = 0
 bb.gem.xpfp_min = -0.4
 bb.gem.xpfp_max = 0.4 
 bb.gem.ypfp_min = -0.1
 bb.gem.ypfp_max = 0.1
 
-----------[ 2021-11-12 13:55:00 ] # after re-adjusting GEM latency:
+----------[ 2021-11-13 20:10:00 ] # turn on track slope and optics constraints when going to production
+bb.gem.useopticsconstraint = 1
+bb.gem.useslopeconstraint = 1
+
+----------[ 2021-11-13 13:55:00 ] # after re-adjusting GEM latency:
 # these may need adjusting:
 bb.gem.usestriptimingcut = 1
 bb.gem.useTSchi2cut = 0
@@ -2904,3 +2916,8 @@ bb.gem.m11.commonmode_rmsV =
 
 #################### END OF TIME-DEPENDENT COMMON-MODE PARAMETERS ############################
 
+-----[ 2021-01-01 00:00:00 ]
+
+bb.gem.commonmode_binwidth_nsigma = 1.0
+bb.gem.commonmode_scanrange_nsigma = 10.0
+bb.gem.commonmode_stepsize_nsigma = 0.25
