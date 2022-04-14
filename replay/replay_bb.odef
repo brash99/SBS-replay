@@ -8,8 +8,10 @@ variable bb.etot_over_p
 # so we can check constraints
 variable bb.x_fcp
 variable bb.y_fcp
+variable bb.z_fcp
 variable bb.x_bcp
 variable bb.y_bcp
+variable bb.z_bcp
 
 
 th1d htr_x 'all tracks ; x_fp (m)' bb.tr.x 200 -1.0 1.0 
