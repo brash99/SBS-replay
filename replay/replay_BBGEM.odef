@@ -24,6 +24,8 @@ block bb.gem.*.strip.nstrips_keepV
 block bb.gem.*.strip.nstrips_keep_lmaxU
 block bb.gem.*.strip.nstrips_keep_lmaxV
 
+
+
 #Cuts: 
 cut singletrack bb.gem.track.ntrack==1
 cut anytrack bb.gem.track.ntrack>0
@@ -96,6 +98,15 @@ th2d hbb_gem_eresidv_vs_layer ';layer; Track v/y excl. residuals (m)' bb.gem.hit
 th2d hbb_gem_eresidu_vs_module ';module; Track u/x excl. residuals (m)' bb.gem.hit.module bb.gem.hit.eresidu 8 -0.5 7.5 250 -0.0025 0.0025 singletrack
 th2d hbb_gem_eresidv_vs_module ';module; Track v/y excl. residuals (m)' bb.gem.hit.module bb.gem.hit.eresidv 8 -0.5 7.5 250 -0.0025 0.0025 singletrack
 
+th2d hbb_gem_NclustU_layer_neg 'Negative Strip Muliplicities;layer;Number of U/X clusters' [I] bb.gem.nclustu_layer_neg[I] 5 -0.5 4.5 101 -0.5 100.5
+th2d hbb_gem_NclustV_layer_neg 'Negative Strip Muliplicities;layer;Number of V/Y clusters' [I] bb.gem.nclustv_layer_neg[I] 5 -0.5 4.5 101 -0.5 100.5
+th2d hbb_gem_NstripsU_layer_neg 'Negative Strip Muliplicities;layer;Number of U/X strips fired' [I] bb.gem.nstripsu_layer_neg[I] 5 -0.5 4.5 2001 -0.5 2000.5
+th2d hbb_gem_NstripsV_layer_neg 'Negative Strip Muliplicities;layer;Number of V/Y strips fired' [I] bb.gem.nstripsv_layer_neg[I] 5 -0.5 4.5 2001 -0.5 2000.5
+th2d hbb_gem_NstripsU_layer_neg_miss 'Negative Strips Near Tracks with Hits Not Found;layer;Number of negative U/X strips fired' [I] bb.gem.nstripsu_layer_neg_miss[I] 5 -0.5 4.5 16 -0.5 16.5
+th2d hbb_gem_NstripsV_layer_neg_miss 'Negative Strips Near Tracks with Hits Not Found;layer;Number of negative V/Y strips fired' [I] bb.gem.nstripsv_layer_neg_miss[I] 5 -0.5 4.5 16 -0.5 16.5
+th2d hbb_gem_NstripsU_layer_neg_hit 'Negative Strips Near Tracks with Hits Found;layer;Number of negative U/X strips fired' [I] bb.gem.nstripsu_layer_neg_hit[I] 5 -0.5 4.5 16 -0.5 16.5
+th2d hbb_gem_NstripsV_layer_neg_hit 'Negative Strips Near Tracks with Hits Found;layer;Number of negative V/Y strips fired' [I] bb.gem.nstripsv_layer_neg_hit[I] 5 -0.5 4.5 16 -0.5 16.5
+
 # Module-specific histograms: 
 # Module 0 strip histograms, all strips: 
 th1d hbb_gem_m0_nstripstot_good 'UVA U/V layer 0; Num. fired strips (U/X) + (V/Y);' bb.gem.m0.strip.nstripsfired 7681 -0.5 7680.5 bb.gem.m0.ontrack
@@ -151,6 +162,24 @@ th1d hbb_gem_m0_strip_CorrCoeff 'UVA U/V layer 0; Strip. Corr. Coeff.;' bb.gem.m
 th2d hbb_gem_m0_strip_CorrCoeff_vs_Tdiff 'UVA U/V layer 0; Tstrip - Tclust (ns); Corr. Coeff.' bb.gem.m0.strip.Tdiff[I] bb.gem.m0.strip.CorrCoeff[I] 200 -40 40 200 0.5 1 bb.gem.m0.strip.ontrack[I]
 th2d hbb_gem_m0_strip_Tdiff_vs_ADC 'UVA U/V layer 0; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m0.strip.ADCsum[I] bb.gem.m0.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m0.strip.ontrack[I]
 th2d hbb_gem_m0_strip_CorrCoeff_vs_ADC 'UVA U/V layer 0; strip ADC sum ; Corr. Coeff.' bb.gem.m0.strip.ADCsum[I] bb.gem.m0.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m0.strip.ontrack[I]
+
+th1d hbb_gem_m0_ADCsumU_neg_good 'UVA U/V layer 0; Negative Strip ADC sum, U/X strips;' bb.gem.m0.strip.ADCsum[I] 500 -3000 -250 bb.gem.m0.strip.isnegontrackU[I]
+th1d hbb_gem_m0_ADCsumV_neg_good 'UVA U/V layer 0; Negative Strip ADC sum, V/Y strips;' bb.gem.m0.strip.ADCsum[I] 500 -3000 -250 bb.gem.m0.strip.isnegontrackV[I]
+th1d hbb_gem_m0_ADCmaxU_neg_good 'UVA U/V layer 0; Negative Strip ADC max, U/X strips;' bb.gem.m0.strip.ADCmax[I] 500 -500 0 bb.gem.m0.strip.isnegontrackU[I]
+th1d hbb_gem_m0_ADCmaxV_neg_good 'UVA U/V layer 0; Negative Strip ADC max, V/Y strips;' bb.gem.m0.strip.ADCmax[I] 500 -500 0 bb.gem.m0.strip.isnegontrackV[I]
+th1d hbb_gem_m0_iSampMaxU_neg_good 'UVA U/V layer 0; Negative Signal Peak time sample, U/X strips;' bb.gem.m0.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m0.strip.isnegontrackU[I]
+th1d hbb_gem_m0_iSampMaxV_neg_good 'UVA U/V layer 0; Negative Signal Peak time sample, V/Y strips;' bb.gem.m0.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m0.strip.isnegontrackV[I]
+th1d hbb_gem_m0_stripU_neg_good 'UVA U/V layer 0 Negative Strips on Tracks; U/X strip index;' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.isnegontrackU[I]
+th1d hbb_gem_m0_stripV_neg_good 'UVA U/V layer 0 Negative Strips on Tracks; V/Y strip index;' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.isnegontrackV[I]
+
+th1d hbb_gem_m0_ADCsumU_neg_all 'UVA U/V layer 0; Negative Strip ADC sum, U/X strips;' bb.gem.m0.strip.ADCsum[I] 500 -3000 -250 bb.gem.m0.strip.isnegativeU[I]
+th1d hbb_gem_m0_ADCsumV_neg_all 'UVA U/V layer 0; Negative Strip ADC sum, V/Y strips;' bb.gem.m0.strip.ADCsum[I] 500 -3000 -250 bb.gem.m0.strip.isnegativeV[I]
+th1d hbb_gem_m0_ADCmaxU_neg_all 'UVA U/V layer 0; Negative Strip ADC max, U/X strips;' bb.gem.m0.strip.ADCmax[I] 500 -500 0 bb.gem.m0.strip.isnegativeU[I]
+th1d hbb_gem_m0_ADCmaxV_neg_all 'UVA U/V layer 0; Negative Strip ADC max, V/Y strips;' bb.gem.m0.strip.ADCmax[I] 500 -500 0 bb.gem.m0.strip.isnegativeV[I]
+th1d hbb_gem_m0_iSampMaxU_neg_all 'UVA U/V layer 0; Negative Signal Peak time sample, U/X strips;' bb.gem.m0.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m0.strip.isnegativeU[I]
+th1d hbb_gem_m0_iSampMaxV_neg_all 'UVA U/V layer 0; Negative Signal Peak time sample, V/Y strips;' bb.gem.m0.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m0.strip.isnegativeV[I]
+th1d hbb_gem_m0_stripU_neg_all 'UVA U/V layer 0 Negative Strips on Tracks; U/X strip index;' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.isnegativeU[I]
+th1d hbb_gem_m0_stripV_neg_all 'UVA U/V layer 0 Negative Strips on Tracks; V/Y strip index;' bb.gem.m0.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m0.strip.isnegativeV[I]
 
 
 # Module 1 strip histograms, all strips: 
@@ -208,6 +237,24 @@ th2d hbb_gem_m1_strip_CorrCoeff_vs_Tdiff 'UVA U/V layer 1; Tstrip - Tclust (ns);
 th2d hbb_gem_m1_strip_Tdiff_vs_ADC 'UVA U/V layer 1; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m1.strip.ADCsum[I] bb.gem.m1.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m1.strip.ontrack[I]
 th2d hbb_gem_m1_strip_CorrCoeff_vs_ADC 'UVA U/V layer 1; strip ADC sum ; Corr. Coeff.' bb.gem.m1.strip.ADCsum[I] bb.gem.m1.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m1.strip.ontrack[I]
 
+th1d hbb_gem_m1_ADCsumU_neg_good 'UVA U/V layer 1; Negative Strip ADC sum, U/X strips;' bb.gem.m1.strip.ADCsum[I] 500 -3000 -250 bb.gem.m1.strip.isnegontrackU[I]
+th1d hbb_gem_m1_ADCsumV_neg_good 'UVA U/V layer 1; Negative Strip ADC sum, V/Y strips;' bb.gem.m1.strip.ADCsum[I] 500 -3000 -250 bb.gem.m1.strip.isnegontrackV[I]
+th1d hbb_gem_m1_ADCmaxU_neg_good 'UVA U/V layer 1; Negative Strip ADC max, U/X strips;' bb.gem.m1.strip.ADCmax[I] 500 -500 0 bb.gem.m1.strip.isnegontrackU[I]
+th1d hbb_gem_m1_ADCmaxV_neg_good 'UVA U/V layer 1; Negative Strip ADC max, V/Y strips;' bb.gem.m1.strip.ADCmax[I] 500 -500 0 bb.gem.m1.strip.isnegontrackV[I]
+th1d hbb_gem_m1_iSampMaxU_neg_good 'UVA U/V layer 1; Negative Signal Peak time sample, U/X strips;' bb.gem.m1.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m1.strip.isnegontrackU[I]
+th1d hbb_gem_m1_iSampMaxV_neg_good 'UVA U/V layer 1; Negative Signal Peak time sample, V/Y strips;' bb.gem.m1.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m1.strip.isnegontrackV[I]
+th1d hbb_gem_m1_stripU_neg_good 'UVA U/V layer 1 Negative Strips on Tracks; U/X strip index;' bb.gem.m1.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m1.strip.isnegontrackU[I]
+th1d hbb_gem_m1_stripV_neg_good 'UVA U/V layer 1 Negative Strips on Tracks; V/Y strip index;' bb.gem.m1.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m1.strip.isnegontrackV[I]
+
+th1d hbb_gem_m1_ADCsumU_neg_all 'UVA U/V layer 1; Negative Strip ADC sum, U/X strips;' bb.gem.m1.strip.ADCsum[I] 500 -3000 -250 bb.gem.m1.strip.isnegativeU[I]
+th1d hbb_gem_m1_ADCsumV_neg_all 'UVA U/V layer 1; Negative Strip ADC sum, V/Y strips;' bb.gem.m1.strip.ADCsum[I] 500 -3000 -250 bb.gem.m1.strip.isnegativeV[I]
+th1d hbb_gem_m1_ADCmaxU_neg_all 'UVA U/V layer 1; Negative Strip ADC max, U/X strips;' bb.gem.m1.strip.ADCmax[I] 500 -500 0 bb.gem.m1.strip.isnegativeU[I]
+th1d hbb_gem_m1_ADCmaxV_neg_all 'UVA U/V layer 1; Negative Strip ADC max, V/Y strips;' bb.gem.m1.strip.ADCmax[I] 500 -500 0 bb.gem.m1.strip.isnegativeV[I]
+th1d hbb_gem_m1_iSampMaxU_neg_all 'UVA U/V layer 1; Negative Signal Peak time sample, U/X strips;' bb.gem.m1.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m1.strip.isnegativeU[I]
+th1d hbb_gem_m1_iSampMaxV_neg_all 'UVA U/V layer 1; Negative Signal Peak time sample, V/Y strips;' bb.gem.m1.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m1.strip.isnegativeV[I]
+th1d hbb_gem_m1_stripU_neg_all 'UVA U/V layer 1 Negative Strips on Tracks; U/X strip index;' bb.gem.m1.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m1.strip.isnegativeU[I]
+th1d hbb_gem_m1_stripV_neg_all 'UVA U/V layer 1 Negative Strips on Tracks; V/Y strip index;' bb.gem.m1.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m1.strip.isnegativeV[I]
+
 
 # Module 2 strip histograms, all strips: 
 th1d hbb_gem_m2_nstripstot_good 'UVA U/V layer 2; Num. fired strips (U/X) + (V/Y);' bb.gem.m2.strip.nstripsfired 7681 -0.5 7680.5 bb.gem.m2.ontrack
@@ -263,6 +310,24 @@ th1d hbb_gem_m2_strip_CorrCoeff 'UVA U/V layer 2; Strip. Corr. Coeff.;' bb.gem.m
 th2d hbb_gem_m2_strip_CorrCoeff_vs_Tdiff 'UVA U/V layer 2; Tstrip - Tclust (ns); Corr. Coeff.' bb.gem.m2.strip.Tdiff[I] bb.gem.m2.strip.CorrCoeff[I] 200 -40 40 200 0.5 1 bb.gem.m2.strip.ontrack[I]
 th2d hbb_gem_m2_strip_Tdiff_vs_ADC 'UVA U/V layer 2; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m2.strip.ADCsum[I] bb.gem.m2.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m2.strip.ontrack[I]
 th2d hbb_gem_m2_strip_CorrCoeff_vs_ADC 'UVA U/V layer 2; strip ADC sum ; Corr. Coeff.' bb.gem.m2.strip.ADCsum[I] bb.gem.m2.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m2.strip.ontrack[I]
+
+th1d hbb_gem_m2_ADCsumU_neg_good 'UVA U/V layer 2; Negative Strip ADC sum, U/X strips;' bb.gem.m2.strip.ADCsum[I] 500 -3000 -250 bb.gem.m2.strip.isnegontrackU[I]
+th1d hbb_gem_m2_ADCsumV_neg_good 'UVA U/V layer 2; Negative Strip ADC sum, V/Y strips;' bb.gem.m2.strip.ADCsum[I] 500 -3000 -250 bb.gem.m2.strip.isnegontrackV[I]
+th1d hbb_gem_m2_ADCmaxU_neg_good 'UVA U/V layer 2; Negative Strip ADC max, U/X strips;' bb.gem.m2.strip.ADCmax[I] 500 -500 0 bb.gem.m2.strip.isnegontrackU[I]
+th1d hbb_gem_m2_ADCmaxV_neg_good 'UVA U/V layer 2; Negative Strip ADC max, V/Y strips;' bb.gem.m2.strip.ADCmax[I] 500 -500 0 bb.gem.m2.strip.isnegontrackV[I]
+th1d hbb_gem_m2_iSampMaxU_neg_good 'UVA U/V layer 2; Negative Signal Peak time sample, U/X strips;' bb.gem.m2.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m2.strip.isnegontrackU[I]
+th1d hbb_gem_m2_iSampMaxV_neg_good 'UVA U/V layer 2; Negative Signal Peak time sample, V/Y strips;' bb.gem.m2.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m2.strip.isnegontrackV[I]
+th1d hbb_gem_m2_stripU_neg_good 'UVA U/V layer 2 Negative Strips on Tracks; U/X strip index;' bb.gem.m2.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m2.strip.isnegontrackU[I]
+th1d hbb_gem_m2_stripV_neg_good 'UVA U/V layer 2 Negative Strips on Tracks; V/Y strip index;' bb.gem.m2.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m2.strip.isnegontrackV[I]
+
+th1d hbb_gem_m2_ADCsumU_neg_all 'UVA U/V layer 2; Negative Strip ADC sum, U/X strips;' bb.gem.m2.strip.ADCsum[I] 500 -3000 -250 bb.gem.m2.strip.isnegativeU[I]
+th1d hbb_gem_m2_ADCsumV_neg_all 'UVA U/V layer 2; Negative Strip ADC sum, V/Y strips;' bb.gem.m2.strip.ADCsum[I] 500 -3000 -250 bb.gem.m2.strip.isnegativeV[I]
+th1d hbb_gem_m2_ADCmaxU_neg_all 'UVA U/V layer 2; Negative Strip ADC max, U/X strips;' bb.gem.m2.strip.ADCmax[I] 500 -500 0 bb.gem.m2.strip.isnegativeU[I]
+th1d hbb_gem_m2_ADCmaxV_neg_all 'UVA U/V layer 2; Negative Strip ADC max, V/Y strips;' bb.gem.m2.strip.ADCmax[I] 500 -500 0 bb.gem.m2.strip.isnegativeV[I]
+th1d hbb_gem_m2_iSampMaxU_neg_all 'UVA U/V layer 2; Negative Signal Peak time sample, U/X strips;' bb.gem.m2.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m2.strip.isnegativeU[I]
+th1d hbb_gem_m2_iSampMaxV_neg_all 'UVA U/V layer 2; Negative Signal Peak time sample, V/Y strips;' bb.gem.m2.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m2.strip.isnegativeV[I]
+th1d hbb_gem_m2_stripU_neg_all 'UVA U/V layer 2 Negative Strips on Tracks; U/X strip index;' bb.gem.m2.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m2.strip.isnegativeU[I]
+th1d hbb_gem_m2_stripV_neg_all 'UVA U/V layer 2 Negative Strips on Tracks; V/Y strip index;' bb.gem.m2.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m2.strip.isnegativeV[I]
 
 
 # Module 3 strip histograms, all strips: 
@@ -320,6 +385,24 @@ th2d hbb_gem_m3_strip_CorrCoeff_vs_Tdiff 'UVA U/V layer 3; Tstrip - Tclust (ns);
 th2d hbb_gem_m3_strip_Tdiff_vs_ADC 'UVA U/V layer 3; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m3.strip.ADCsum[I] bb.gem.m3.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m3.strip.ontrack[I]
 th2d hbb_gem_m3_strip_CorrCoeff_vs_ADC 'UVA U/V layer 3; strip ADC sum ; Corr. Coeff.' bb.gem.m3.strip.ADCsum[I] bb.gem.m3.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m3.strip.ontrack[I]
 
+th1d hbb_gem_m3_ADCsumU_neg_good 'UVA U/V layer 3; Negative Strip ADC sum, U/X strips;' bb.gem.m3.strip.ADCsum[I] 500 -3000 -250 bb.gem.m3.strip.isnegontrackU[I]
+th1d hbb_gem_m3_ADCsumV_neg_good 'UVA U/V layer 3; Negative Strip ADC sum, V/Y strips;' bb.gem.m3.strip.ADCsum[I] 500 -3000 -250 bb.gem.m3.strip.isnegontrackV[I]
+th1d hbb_gem_m3_ADCmaxU_neg_good 'UVA U/V layer 3; Negative Strip ADC max, U/X strips;' bb.gem.m3.strip.ADCmax[I] 500 -500 0 bb.gem.m3.strip.isnegontrackU[I]
+th1d hbb_gem_m3_ADCmaxV_neg_good 'UVA U/V layer 3; Negative Strip ADC max, V/Y strips;' bb.gem.m3.strip.ADCmax[I] 500 -500 0 bb.gem.m3.strip.isnegontrackV[I]
+th1d hbb_gem_m3_iSampMaxU_neg_good 'UVA U/V layer 3; Negative Signal Peak time sample, U/X strips;' bb.gem.m3.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m3.strip.isnegontrackU[I]
+th1d hbb_gem_m3_iSampMaxV_neg_good 'UVA U/V layer 3; Negative Signal Peak time sample, V/Y strips;' bb.gem.m3.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m3.strip.isnegontrackV[I]
+th1d hbb_gem_m3_stripU_neg_good 'UVA U/V layer 3 Negative Strips on Tracks; U/X strip index;' bb.gem.m3.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m3.strip.isnegontrackU[I]
+th1d hbb_gem_m3_stripV_neg_good 'UVA U/V layer 3 Negative Strips on Tracks; V/Y strip index;' bb.gem.m3.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m3.strip.isnegontrackV[I]
+
+th1d hbb_gem_m3_ADCsumU_neg_all 'UVA U/V layer 3; Negative Strip ADC sum, U/X strips;' bb.gem.m3.strip.ADCsum[I] 500 -3000 -250 bb.gem.m3.strip.isnegativeU[I]
+th1d hbb_gem_m3_ADCsumV_neg_all 'UVA U/V layer 3; Negative Strip ADC sum, V/Y strips;' bb.gem.m3.strip.ADCsum[I] 500 -3000 -250 bb.gem.m3.strip.isnegativeV[I]
+th1d hbb_gem_m3_ADCmaxU_neg_all 'UVA U/V layer 3; Negative Strip ADC max, U/X strips;' bb.gem.m3.strip.ADCmax[I] 500 -500 0 bb.gem.m3.strip.isnegativeU[I]
+th1d hbb_gem_m3_ADCmaxV_neg_all 'UVA U/V layer 3; Negative Strip ADC max, V/Y strips;' bb.gem.m3.strip.ADCmax[I] 500 -500 0 bb.gem.m3.strip.isnegativeV[I]
+th1d hbb_gem_m3_iSampMaxU_neg_all 'UVA U/V layer 3; Negative Signal Peak time sample, U/X strips;' bb.gem.m3.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m3.strip.isnegativeU[I]
+th1d hbb_gem_m3_iSampMaxV_neg_all 'UVA U/V layer 3; Negative Signal Peak time sample, V/Y strips;' bb.gem.m3.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m3.strip.isnegativeV[I]
+th1d hbb_gem_m3_stripU_neg_all 'UVA U/V layer 3 Negative Strips on Tracks; U/X strip index;' bb.gem.m3.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m3.strip.isnegativeU[I]
+th1d hbb_gem_m3_stripV_neg_all 'UVA U/V layer 3 Negative Strips on Tracks; V/Y strip index;' bb.gem.m3.strip.istrip[I] 3840 -0.5 3839.5 bb.gem.m3.strip.isnegativeV[I]
+
 
 # Module 4 strip histograms, all strips: 
 th1d hbb_gem_m4_nstripstot_good 'UVA X/Y top; Num. fired strips (U/X) + (V/Y);' bb.gem.m4.strip.nstripsfired 2817 -0.5 2816.5 bb.gem.m4.ontrack
@@ -375,6 +458,24 @@ th1d hbb_gem_m4_strip_CorrCoeff 'UVA X/Y top; Strip. Corr. Coeff.;' bb.gem.m4.st
 th2d hbb_gem_m4_strip_CorrCoeff_vs_Tdiff 'UVA X/Y top; Tstrip - Tclust (ns); Corr. Coeff.' bb.gem.m4.strip.Tdiff[I] bb.gem.m4.strip.CorrCoeff[I] 200 -40 40 200 0.5 1 bb.gem.m4.strip.ontrack[I]
 th2d hbb_gem_m4_strip_Tdiff_vs_ADC 'UVA X/Y top; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m4.strip.ADCsum[I] bb.gem.m4.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m4.strip.ontrack[I]
 th2d hbb_gem_m4_strip_CorrCoeff_vs_ADC 'UVA X/Y top; strip ADC sum ; Corr. Coeff.' bb.gem.m4.strip.ADCsum[I] bb.gem.m4.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m4.strip.ontrack[I]
+
+th1d hbb_gem_m4_ADCsumU_neg_good 'UVA X/Y top; Negative Strip ADC sum, U/X strips;' bb.gem.m4.strip.ADCsum[I] 500 -3000 -250 bb.gem.m4.strip.isnegontrackU[I]
+th1d hbb_gem_m4_ADCsumV_neg_good 'UVA X/Y top; Negative Strip ADC sum, V/Y strips;' bb.gem.m4.strip.ADCsum[I] 500 -3000 -250 bb.gem.m4.strip.isnegontrackV[I]
+th1d hbb_gem_m4_ADCmaxU_neg_good 'UVA X/Y top; Negative Strip ADC max, U/X strips;' bb.gem.m4.strip.ADCmax[I] 500 -500 0 bb.gem.m4.strip.isnegontrackU[I]
+th1d hbb_gem_m4_ADCmaxV_neg_good 'UVA X/Y top; Negative Strip ADC max, V/Y strips;' bb.gem.m4.strip.ADCmax[I] 500 -500 0 bb.gem.m4.strip.isnegontrackV[I]
+th1d hbb_gem_m4_iSampMaxU_neg_good 'UVA X/Y top; Negative Signal Peak time sample, U/X strips;' bb.gem.m4.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m4.strip.isnegontrackU[I]
+th1d hbb_gem_m4_iSampMaxV_neg_good 'UVA X/Y top; Negative Signal Peak time sample, V/Y strips;' bb.gem.m4.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m4.strip.isnegontrackV[I]
+th1d hbb_gem_m4_stripU_neg_good 'UVA X/Y top Negative Strips on Tracks; U/X strip index;' bb.gem.m4.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m4.strip.isnegontrackU[I]
+th1d hbb_gem_m4_stripV_neg_good 'UVA X/Y top Negative Strips on Tracks; V/Y strip index;' bb.gem.m4.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m4.strip.isnegontrackV[I]
+
+th1d hbb_gem_m4_ADCsumU_neg_all 'UVA X/Y top; Negative Strip ADC sum, U/X strips;' bb.gem.m4.strip.ADCsum[I] 500 -3000 -250 bb.gem.m4.strip.isnegativeU[I]
+th1d hbb_gem_m4_ADCsumV_neg_all 'UVA X/Y top; Negative Strip ADC sum, V/Y strips;' bb.gem.m4.strip.ADCsum[I] 500 -3000 -250 bb.gem.m4.strip.isnegativeV[I]
+th1d hbb_gem_m4_ADCmaxU_neg_all 'UVA X/Y top; Negative Strip ADC max, U/X strips;' bb.gem.m4.strip.ADCmax[I] 500 -500 0 bb.gem.m4.strip.isnegativeU[I]
+th1d hbb_gem_m4_ADCmaxV_neg_all 'UVA X/Y top; Negative Strip ADC max, V/Y strips;' bb.gem.m4.strip.ADCmax[I] 500 -500 0 bb.gem.m4.strip.isnegativeV[I]
+th1d hbb_gem_m4_iSampMaxU_neg_all 'UVA X/Y top; Negative Signal Peak time sample, U/X strips;' bb.gem.m4.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m4.strip.isnegativeU[I]
+th1d hbb_gem_m4_iSampMaxV_neg_all 'UVA X/Y top; Negative Signal Peak time sample, V/Y strips;' bb.gem.m4.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m4.strip.isnegativeV[I]
+th1d hbb_gem_m4_stripU_neg_all 'UVA X/Y top Negative Strips on Tracks; U/X strip index;' bb.gem.m4.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m4.strip.isnegativeU[I]
+th1d hbb_gem_m4_stripV_neg_all 'UVA X/Y top Negative Strips on Tracks; V/Y strip index;' bb.gem.m4.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m4.strip.isnegativeV[I]
 
 
 # Module 5 strip histograms, all strips: 
@@ -432,6 +533,24 @@ th2d hbb_gem_m5_strip_CorrCoeff_vs_Tdiff 'UVA X/Y mid-upper; Tstrip - Tclust (ns
 th2d hbb_gem_m5_strip_Tdiff_vs_ADC 'UVA X/Y mid-upper; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m5.strip.ADCsum[I] bb.gem.m5.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m5.strip.ontrack[I]
 th2d hbb_gem_m5_strip_CorrCoeff_vs_ADC 'UVA X/Y mid-upper; strip ADC sum ; Corr. Coeff.' bb.gem.m5.strip.ADCsum[I] bb.gem.m5.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m5.strip.ontrack[I]
 
+th1d hbb_gem_m5_ADCsumU_neg_good 'UVA X/Y mid-upper; Negative Strip ADC sum, U/X strips;' bb.gem.m5.strip.ADCsum[I] 500 -3000 -250 bb.gem.m5.strip.isnegontrackU[I]
+th1d hbb_gem_m5_ADCsumV_neg_good 'UVA X/Y mid-upper; Negative Strip ADC sum, V/Y strips;' bb.gem.m5.strip.ADCsum[I] 500 -3000 -250 bb.gem.m5.strip.isnegontrackV[I]
+th1d hbb_gem_m5_ADCmaxU_neg_good 'UVA X/Y mid-upper; Negative Strip ADC max, U/X strips;' bb.gem.m5.strip.ADCmax[I] 500 -500 0 bb.gem.m5.strip.isnegontrackU[I]
+th1d hbb_gem_m5_ADCmaxV_neg_good 'UVA X/Y mid-upper; Negative Strip ADC max, V/Y strips;' bb.gem.m5.strip.ADCmax[I] 500 -500 0 bb.gem.m5.strip.isnegontrackV[I]
+th1d hbb_gem_m5_iSampMaxU_neg_good 'UVA X/Y mid-upper; Negative Signal Peak time sample, U/X strips;' bb.gem.m5.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m5.strip.isnegontrackU[I]
+th1d hbb_gem_m5_iSampMaxV_neg_good 'UVA X/Y mid-upper; Negative Signal Peak time sample, V/Y strips;' bb.gem.m5.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m5.strip.isnegontrackV[I]
+th1d hbb_gem_m5_stripU_neg_good 'UVA X/Y mid-upper Negative Strips on Tracks; U/X strip index;' bb.gem.m5.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m5.strip.isnegontrackU[I]
+th1d hbb_gem_m5_stripV_neg_good 'UVA X/Y mid-upper Negative Strips on Tracks; V/Y strip index;' bb.gem.m5.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m5.strip.isnegontrackV[I]
+
+th1d hbb_gem_m5_ADCsumU_neg_all 'UVA X/Y mid-upper; Negative Strip ADC sum, U/X strips;' bb.gem.m5.strip.ADCsum[I] 500 -3000 -250 bb.gem.m5.strip.isnegativeU[I]
+th1d hbb_gem_m5_ADCsumV_neg_all 'UVA X/Y mid-upper; Negative Strip ADC sum, V/Y strips;' bb.gem.m5.strip.ADCsum[I] 500 -3000 -250 bb.gem.m5.strip.isnegativeV[I]
+th1d hbb_gem_m5_ADCmaxU_neg_all 'UVA X/Y mid-upper; Negative Strip ADC max, U/X strips;' bb.gem.m5.strip.ADCmax[I] 500 -500 0 bb.gem.m5.strip.isnegativeU[I]
+th1d hbb_gem_m5_ADCmaxV_neg_all 'UVA X/Y mid-upper; Negative Strip ADC max, V/Y strips;' bb.gem.m5.strip.ADCmax[I] 500 -500 0 bb.gem.m5.strip.isnegativeV[I]
+th1d hbb_gem_m5_iSampMaxU_neg_all 'UVA X/Y mid-upper; Negative Signal Peak time sample, U/X strips;' bb.gem.m5.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m5.strip.isnegativeU[I]
+th1d hbb_gem_m5_iSampMaxV_neg_all 'UVA X/Y mid-upper; Negative Signal Peak time sample, V/Y strips;' bb.gem.m5.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m5.strip.isnegativeV[I]
+th1d hbb_gem_m5_stripU_neg_all 'UVA X/Y mid-upper Negative Strips on Tracks; U/X strip index;' bb.gem.m5.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m5.strip.isnegativeU[I]
+th1d hbb_gem_m5_stripV_neg_all 'UVA X/Y mid-upper Negative Strips on Tracks; V/Y strip index;' bb.gem.m5.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m5.strip.isnegativeV[I]
+
 
 # Module 6 strip histograms, all strips: 
 th1d hbb_gem_m6_nstripstot_good 'UVA X/Y mid-lower; Num. fired strips (U/X) + (V/Y);' bb.gem.m6.strip.nstripsfired 2817 -0.5 2816.5 bb.gem.m6.ontrack
@@ -488,6 +607,24 @@ th2d hbb_gem_m6_strip_CorrCoeff_vs_Tdiff 'UVA X/Y mid-lower; Tstrip - Tclust (ns
 th2d hbb_gem_m6_strip_Tdiff_vs_ADC 'UVA X/Y mid-lower; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m6.strip.ADCsum[I] bb.gem.m6.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m6.strip.ontrack[I]
 th2d hbb_gem_m6_strip_CorrCoeff_vs_ADC 'UVA X/Y mid-lower; strip ADC sum ; Corr. Coeff.' bb.gem.m6.strip.ADCsum[I] bb.gem.m6.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m6.strip.ontrack[I]
 
+th1d hbb_gem_m6_ADCsumU_neg_good 'UVA X/Y mid-lower; Negative Strip ADC sum, U/X strips;' bb.gem.m6.strip.ADCsum[I] 500 -3000 -250 bb.gem.m6.strip.isnegontrackU[I]
+th1d hbb_gem_m6_ADCsumV_neg_good 'UVA X/Y mid-lower; Negative Strip ADC sum, V/Y strips;' bb.gem.m6.strip.ADCsum[I] 500 -3000 -250 bb.gem.m6.strip.isnegontrackV[I]
+th1d hbb_gem_m6_ADCmaxU_neg_good 'UVA X/Y mid-lower; Negative Strip ADC max, U/X strips;' bb.gem.m6.strip.ADCmax[I] 500 -500 0 bb.gem.m6.strip.isnegontrackU[I]
+th1d hbb_gem_m6_ADCmaxV_neg_good 'UVA X/Y mid-lower; Negative Strip ADC max, V/Y strips;' bb.gem.m6.strip.ADCmax[I] 500 -500 0 bb.gem.m6.strip.isnegontrackV[I]
+th1d hbb_gem_m6_iSampMaxU_neg_good 'UVA X/Y mid-lower; Negative Signal Peak time sample, U/X strips;' bb.gem.m6.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m6.strip.isnegontrackU[I]
+th1d hbb_gem_m6_iSampMaxV_neg_good 'UVA X/Y mid-lower; Negative Signal Peak time sample, V/Y strips;' bb.gem.m6.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m6.strip.isnegontrackV[I]
+th1d hbb_gem_m6_stripU_neg_good 'UVA X/Y mid-lower Negative Strips on Tracks; U/X strip index;' bb.gem.m6.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m6.strip.isnegontrackU[I]
+th1d hbb_gem_m6_stripV_neg_good 'UVA X/Y mid-lower Negative Strips on Tracks; V/Y strip index;' bb.gem.m6.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m6.strip.isnegontrackV[I]
+
+th1d hbb_gem_m6_ADCsumU_neg_all 'UVA X/Y mid-lower; Negative Strip ADC sum, U/X strips;' bb.gem.m6.strip.ADCsum[I] 500 -3000 -250 bb.gem.m6.strip.isnegativeU[I]
+th1d hbb_gem_m6_ADCsumV_neg_all 'UVA X/Y mid-lower; Negative Strip ADC sum, V/Y strips;' bb.gem.m6.strip.ADCsum[I] 500 -3000 -250 bb.gem.m6.strip.isnegativeV[I]
+th1d hbb_gem_m6_ADCmaxU_neg_all 'UVA X/Y mid-lower; Negative Strip ADC max, U/X strips;' bb.gem.m6.strip.ADCmax[I] 500 -500 0 bb.gem.m6.strip.isnegativeU[I]
+th1d hbb_gem_m6_ADCmaxV_neg_all 'UVA X/Y mid-lower; Negative Strip ADC max, V/Y strips;' bb.gem.m6.strip.ADCmax[I] 500 -500 0 bb.gem.m6.strip.isnegativeV[I]
+th1d hbb_gem_m6_iSampMaxU_neg_all 'UVA X/Y mid-lower; Negative Signal Peak time sample, U/X strips;' bb.gem.m6.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m6.strip.isnegativeU[I]
+th1d hbb_gem_m6_iSampMaxV_neg_all 'UVA X/Y mid-lower; Negative Signal Peak time sample, V/Y strips;' bb.gem.m6.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m6.strip.isnegativeV[I]
+th1d hbb_gem_m6_stripU_neg_all 'UVA X/Y mid-lower Negative Strips on Tracks; U/X strip index;' bb.gem.m6.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m6.strip.isnegativeU[I]
+th1d hbb_gem_m6_stripV_neg_all 'UVA X/Y mid-lower Negative Strips on Tracks; V/Y strip index;' bb.gem.m6.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m6.strip.isnegativeV[I]
+
 
 # Module 7 strip histograms, all strips: 
 th1d hbb_gem_m7_nstripstot_good 'UVA X/Y bottom; Num. fired strips (U/X) + (V/Y);' bb.gem.m7.strip.nstripsfired 2817 -0.5 2816.5 bb.gem.m7.ontrack
@@ -543,5 +680,23 @@ th1d hbb_gem_m7_strip_CorrCoeff 'UVA X/Y bottom; Strip. Corr. Coeff.;' bb.gem.m7
 th2d hbb_gem_m7_strip_CorrCoeff_vs_Tdiff 'UVA X/Y bottom; Tstrip - Tclust (ns); Corr. Coeff.' bb.gem.m7.strip.Tdiff[I] bb.gem.m7.strip.CorrCoeff[I] 200 -40 40 200 0.5 1 bb.gem.m7.strip.ontrack[I]
 th2d hbb_gem_m7_strip_Tdiff_vs_ADC 'UVA X/Y bottom; strip ADC sum ; Tstrip - Tclust (ns)' bb.gem.m7.strip.ADCsum[I] bb.gem.m7.strip.Tdiff[I] 200 0 1.5e4 200 -40 40 bb.gem.m7.strip.ontrack[I]
 th2d hbb_gem_m7_strip_CorrCoeff_vs_ADC 'UVA X/Y bottom; strip ADC sum ; Corr. Coeff.' bb.gem.m7.strip.ADCsum[I] bb.gem.m7.strip.CorrCoeff[I] 200 0 1.5e4 200 0.5 1 bb.gem.m7.strip.ontrack[I]
+
+th1d hbb_gem_m7_ADCsumU_neg_good 'UVA X/Y bottom; Negative Strip ADC sum, U/X strips;' bb.gem.m7.strip.ADCsum[I] 500 -3000 -250 bb.gem.m7.strip.isnegontrackU[I]
+th1d hbb_gem_m7_ADCsumV_neg_good 'UVA X/Y bottom; Negative Strip ADC sum, V/Y strips;' bb.gem.m7.strip.ADCsum[I] 500 -3000 -250 bb.gem.m7.strip.isnegontrackV[I]
+th1d hbb_gem_m7_ADCmaxU_neg_good 'UVA X/Y bottom; Negative Strip ADC max, U/X strips;' bb.gem.m7.strip.ADCmax[I] 500 -500 0 bb.gem.m7.strip.isnegontrackU[I]
+th1d hbb_gem_m7_ADCmaxV_neg_good 'UVA X/Y bottom; Negative Strip ADC max, V/Y strips;' bb.gem.m7.strip.ADCmax[I] 500 -500 0 bb.gem.m7.strip.isnegontrackV[I]
+th1d hbb_gem_m7_iSampMaxU_neg_good 'UVA X/Y bottom; Negative Signal Peak time sample, U/X strips;' bb.gem.m7.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m7.strip.isnegontrackU[I]
+th1d hbb_gem_m7_iSampMaxV_neg_good 'UVA X/Y bottom; Negative Signal Peak time sample, V/Y strips;' bb.gem.m7.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m7.strip.isnegontrackV[I]
+th1d hbb_gem_m7_stripU_neg_good 'UVA X/Y bottom Negative Strips on Tracks; U/X strip index;' bb.gem.m7.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m7.strip.isnegontrackU[I]
+th1d hbb_gem_m7_stripV_neg_good 'UVA X/Y bottom Negative Strips on Tracks; V/Y strip index;' bb.gem.m7.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m7.strip.isnegontrackV[I]
+
+th1d hbb_gem_m7_ADCsumU_neg_all 'UVA X/Y bottom; Negative Strip ADC sum, U/X strips;' bb.gem.m7.strip.ADCsum[I] 500 -3000 -250 bb.gem.m7.strip.isnegativeU[I]
+th1d hbb_gem_m7_ADCsumV_neg_all 'UVA X/Y bottom; Negative Strip ADC sum, V/Y strips;' bb.gem.m7.strip.ADCsum[I] 500 -3000 -250 bb.gem.m7.strip.isnegativeV[I]
+th1d hbb_gem_m7_ADCmaxU_neg_all 'UVA X/Y bottom; Negative Strip ADC max, U/X strips;' bb.gem.m7.strip.ADCmax[I] 500 -500 0 bb.gem.m7.strip.isnegativeU[I]
+th1d hbb_gem_m7_ADCmaxV_neg_all 'UVA X/Y bottom; Negative Strip ADC max, V/Y strips;' bb.gem.m7.strip.ADCmax[I] 500 -500 0 bb.gem.m7.strip.isnegativeV[I]
+th1d hbb_gem_m7_iSampMaxU_neg_all 'UVA X/Y bottom; Negative Signal Peak time sample, U/X strips;' bb.gem.m7.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m7.strip.isnegativeU[I]
+th1d hbb_gem_m7_iSampMaxV_neg_all 'UVA X/Y bottom; Negative Signal Peak time sample, V/Y strips;' bb.gem.m7.strip.isampmax[I] 6 -0.5 5.5 bb.gem.m7.strip.isnegativeV[I]
+th1d hbb_gem_m7_stripU_neg_all 'UVA X/Y bottom Negative Strips on Tracks; U/X strip index;' bb.gem.m7.strip.istrip[I] 1280 -0.5 1279.5 bb.gem.m7.strip.isnegativeU[I]
+th1d hbb_gem_m7_stripV_neg_all 'UVA X/Y bottom Negative Strips on Tracks; V/Y strip index;' bb.gem.m7.strip.istrip[I] 1536 -0.5 1535.5 bb.gem.m7.strip.isnegativeV[I]
 
 

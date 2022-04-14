@@ -425,6 +425,8 @@ bb.gem.maxnv_charge = 4
 bb.gem.maxnu_pos = 2
 bb.gem.maxnv_pos = 2
 
+bb.gem.do_neg_signal_study = 0
+
 bb.gem.sigmahitshape = 0.0004 
 bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
 bb.gem.trackchi2cut = 100.0
