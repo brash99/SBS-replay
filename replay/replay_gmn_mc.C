@@ -88,9 +88,21 @@ void replay_gmn_test(const char* filebase, uint nev = -1, TString experiment="gm
   analyzer->SetCrateMapFileName("sbssim_cratemap");
 
   cout << "sim crate map setup " << endl;
+
+  TString prefix = gSystem->Getenv("SBS_REPLAY");
+  prefix += "/replay/";
   
-  analyzer->SetCutFile( "replay_gmn.cdef" );
-  analyzer->SetOdefFile( "replay_gmn_mc.odef" );
+  TString odef_filename = "replay_gmn_mc.odef";
+  odef_filename.Prepend( prefix );
+  analyzer->SetOdefFile( odef_filename );
+  
+  //added cut list in order to have 
+  TString cdef_filename = "replay_gmn_mc.cdef";
+  cdef_filename.Prepend( prefix );
+  analyzer->SetCutFile( cdef_filename );
+
+  //analyzer->SetCutFile( "replay_gmn.cdef" );
+  //analyzer->SetOdefFile( "replay_gmn_mc.odef" );
   
   cout << "cut file and out file processed " << endl;
   
