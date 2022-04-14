@@ -37,7 +37,7 @@ void replay_gmn_test(const char* filebase, uint nev = -1, TString experiment="gm
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
   //bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
   bigbite->AddDetector( new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower") );
-  bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
+  //bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
   bigbite->AddDetector( new SBSTimingHodoscope("hodo", "timing hodo") );
   bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   gHaApps->Add(bigbite);
@@ -90,7 +90,7 @@ void replay_gmn_test(const char* filebase, uint nev = -1, TString experiment="gm
   cout << "sim crate map setup " << endl;
   
   analyzer->SetCutFile( "replay_gmn.cdef" );
-  analyzer->SetOdefFile( "replay_gmn.odef" );
+  analyzer->SetOdefFile( "replay_gmn_mc.odef" );
   
   cout << "cut file and out file processed " << endl;
   
