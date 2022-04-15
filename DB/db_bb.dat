@@ -67,7 +67,7 @@ bb.optics_parameters =
 
 
 ## track constraint widths:
-bb.frontconstraintwidth_x = 0.2 # m
+bb.frontconstraintwidth_x = 0.7 # m
 bb.frontconstraintwidth_y = 0.2 # m
 bb.backconstraintwidth_x = 0.05 # m
 bb.backconstraintwidth_y = 0.05 # m
@@ -76,14 +76,25 @@ bb.backconstraint_y0 = 0.0
 bb.frontconstraint_x0 = 0.0
 bb.frontconstraint_y0 = 0.0
 
+# shower gives the best position resolution of "rear" detectors:
+bb.xsigma_shower = 0.016
+bb.ysigma_shower = 0.016 
+bb.xsigma_preshower = 0.026
+bb.ysigma_preshower = 100.0 # don't use preshower y coordinate in constraint point calculation at all.
+bb.xsigma_hodo = 0.021
+bb.ysigma_hodo = 0.0425
+
 --------[ 2021-10-15 09:00:00 ] # first runs in SBS-1 after sieve removed
 
-bb.frontconstraintwidth_x = 0.1 # m
-bb.frontconstraintwidth_y = 0.06 # m
-bb.backconstraintwidth_x = 0.06 # m
-bb.backconstraintwidth_y = 0.06 # m
+bb.frontconstraintwidth_x = 0.075 # m
+bb.frontconstraintwidth_y = 0.056 # m
+bb.backconstraintwidth_x = 0.045 # m
+bb.backconstraintwidth_y = 0.053 # m
+
 bb.frontconstraint_x0 = 0.055
 bb.frontconstraint_y0 = -0.014
+bb.backconstraint_x0 = 0.0055
+bb.backconstraint_y0 = 0.0
 
 --------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics: 
 
@@ -592,9 +603,40 @@ bb.optics_parameters =
   -4.6911865e-17   1.5525669e-16   -2.405119e-18               0    0 0 1 0 1 
    3.8674907e-16   1.4831082e-16    8.137218e-17               0    0 0 0 1 1 
    4.5026307e-17  -8.6377048e-17   5.8408047e-17               0    0 0 0 0 2 
+bb.preconflag = 1
+# NOTE on new momentum reconstruction formalism: 1st-order momentum is calculated from
+#   p*thetabend = A_pth1*(1.0 + (B_pth1+C_pth1*bb.magdist)*thtgt)
+# and momentum expansion coefficients are for delta = p(first order) * (1+delta)
+# In most of the acceptance we don't need any corrections beyond the first-order model
 
+bb.A_pth1 =      0.27756646
+bb.B_pth1 =     0.928255129
+bb.C_pth1 = 0.0
 
+#NOTE: angle and vertex reconstruction coefficients are from newfit_sbs7.dat
 
+bb.optics_parameters = 
+    -0.018501398  -6.7399972e-05   0.00051113736               0    0 0 0 0 0 
+      0.43806034   -0.0023926575    0.0045009461               0    1 0 0 0 0 
+    -0.020722233    0.0034615225    -0.012662051               0    2 0 0 0 0 
+     0.015320724    -0.045600421       1.1058649               0    0 1 0 0 0 
+     -0.26764984      0.11312445     -0.22326626               0    1 1 0 0 0 
+     0.012835836    -0.044965034     0.049439064               0    0 2 0 0 0 
+     -0.32424517    0.0061390671    -0.011105304               0    0 0 1 0 0 
+    -0.018702796   -0.0047125082     0.064590279               0    1 0 1 0 0 
+      0.16398927     -0.16899269      0.37757206               0    0 1 1 0 0 
+     0.067573257  -0.00043834694    -0.087371113               0    0 0 2 0 0 
+    -0.039041417       1.0260013      -2.9822304               0    0 0 0 1 0 
+       0.7420103     -0.15498262      0.30890089               0    1 0 0 1 0 
+    -0.099567929     -0.12153484      0.13542661               0    0 1 0 1 0 
+     -0.49758931      0.16939045     -0.78056765               0    0 0 1 1 0 
+      0.27744977      0.43693015     -0.69362856               0    0 0 0 2 0 
+  -9.6140311e-16   -1.357631e-15   9.2605663e-17               0    0 0 0 0 1 
+  -2.1436212e-16   2.1026365e-16   1.9389511e-16               0    1 0 0 0 1 
+   2.2572645e-16   1.5761084e-16  -3.5722312e-17               0    0 1 0 0 1 
+  -4.6911865e-17   1.5525669e-16   -2.405119e-18               0    0 0 1 0 1 
+   3.8674907e-16   1.4831082e-16    8.137218e-17               0    0 0 0 1 1 
+   4.5026307e-17  -8.6377048e-17   5.8408047e-17               0    0 0 0 0 2 
 
 #    -0.0185013985 -6.73999723e-05  0.000511137356      0.27014683  0 0 0 0 0
 #      0.438060342  -0.00239265752   0.00450094615      0.12263747  1 0 0 0 0
@@ -673,45 +715,43 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-# the "A" and "B" parameters below come from SBS-9 analysis which has essentially the same
-# magnet distance; we will need to update using SBS-11 data:
-bb.A_pth1 =     0.269878955
-bb.B_pth1 =     0.893519136
+bb.A_pth1 =     0.271919025
+bb.B_pth1 =     0.721807628
 bb.C_pth1 = 0.0
 
-bb.optics_order = 2
-bb.optics_parameters =
-  -0.0214458141  5.64831289e-05  0.000174813803               0      0 0 0 0 0
-     0.50718497  -0.00330453678   0.00345222149               0      1 0 0 0 0
-  -0.0527060279   -0.0017925724 -0.000741939914               0      2 0 0 0 0
-   0.0240467551   -0.0494026074      1.09957687               0      0 1 0 0 0
-   -0.338130927    0.0627425108    -0.131826944               0      1 1 0 0 0
-  -0.0174747942    -0.169294644     0.102169572               0      0 2 0 0 0
-   -0.388915692   0.00689781813 -0.000743186795               0      0 0 1 0 0
-    0.139957379   -0.0142711919   0.00681344901               0      1 0 1 0 0
-    0.286327073   -0.0120676021     0.157221134               0      0 1 1 0 0
-   -0.198519376     0.053847488   -0.0232918483               0      0 0 2 0 0
-  -0.0527263298      1.03208226     -2.70952607               0      0 0 0 1 0
-    0.815458771    -0.142307502     0.259164705               0      1 0 0 1 0
-    0.111628111     0.485404858    -0.212398573               0      0 1 0 1 0
-   -0.690880332     0.118678459    -0.609384699               0      0 0 1 1 0
-  -0.0489043987    -0.385810483   -0.0579117727               0      0 0 0 2 0
- -1.3296127e-15   1.6327616e-15  -3.0916307e-16               0      0 0 0 0 1
-  2.9936009e-16   5.4460988e-16   2.1787721e-16               0      1 0 0 0 1
- -2.4158595e-16  -1.2146423e-16   8.9872129e-17               0      0 1 0 0 1
- -1.4567222e-17   1.2541327e-16  -6.0125217e-17               0      0 0 1 0 1
- -1.4130748e-16   1.0382918e-16  -1.6620708e-17               0      0 0 0 1 1
- -1.2615664e-16  -5.1558342e-17   2.0467856e-16               0      0 0 0 0 2
- 
+#NOTE: angle and vertex reconstruction coefficients are from newfit_sbs11.dat
+
+bb.optics_parameters = 
+    -0.021445814   5.6483129e-05    0.0001748138               0    0 0 0 0 0 
+      0.50718497   -0.0033045368    0.0034522215               0    1 0 0 0 0 
+    -0.052706028   -0.0017925724  -0.00074193991               0    2 0 0 0 0 
+     0.024046755    -0.049402607       1.0995769               0    0 1 0 0 0 
+     -0.33813093     0.062742511     -0.13182694               0    1 1 0 0 0 
+    -0.017474794     -0.16929464      0.10216957               0    0 2 0 0 0 
+     -0.38891569    0.0068978181   -0.0007431868               0    0 0 1 0 0 
+      0.13995738    -0.014271192     0.006813449               0    1 0 1 0 0 
+      0.28632707    -0.012067602      0.15722113               0    0 1 1 0 0 
+     -0.19851938     0.053847488    -0.023291848               0    0 0 2 0 0 
+     -0.05272633       1.0320823      -2.7095261               0    0 0 0 1 0 
+      0.81545877      -0.1423075       0.2591647               0    1 0 0 1 0 
+      0.11162811      0.48540486     -0.21239857               0    0 1 0 1 0 
+     -0.69088033      0.11867846      -0.6093847               0    0 0 1 1 0 
+    -0.048904399     -0.38581048    -0.057911773               0    0 0 0 2 0 
+  -1.3296127e-15   1.6327616e-15  -3.0916307e-16               0    0 0 0 0 1 
+   2.9936009e-16   5.4460988e-16   2.1787721e-16               0    1 0 0 0 1 
+  -2.4158595e-16  -1.2146423e-16   8.9872129e-17               0    0 1 0 0 1 
+  -1.4567222e-17   1.2541327e-16  -6.0125217e-17               0    0 0 1 0 1 
+  -1.4130748e-16   1.0382918e-16  -1.6620708e-17               0    0 0 0 1 1 
+  -1.2615664e-16  -5.1558342e-17   2.0467856e-16               0    0 0 0 0 2  
 
 # initial guesses for SBS-11:
-bb.frontconstraintwidth_x = 0.06 # m
-bb.frontconstraintwidth_y = 0.06 # m
-bb.backconstraintwidth_x = 0.06 #m
-bb.backconstraintwidth_y = 0.06 #m
-bb.frontconstraint_x0 = 0.050
-bb.frontconstraint_y0 = -0.020
-bb.backconstraint_x0 = 0.0
+bb.frontconstraintwidth_x = 0.045 # m
+bb.frontconstraintwidth_y = 0.05 # m
+bb.backconstraintwidth_x = 0.04 #m
+bb.backconstraintwidth_y = 0.045 #m
+bb.frontconstraint_x0 = 0.048
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0033
 bb.backconstraint_y0 = 0.0
 
 bb.ecalo_fudgefactor = 1.0
@@ -731,12 +771,56 @@ bb.frontconstraintwidth_x = 0.75 # m
 bb.frontconstraintwidth_y = 0.2 # m
 
 ----------[ 2021-11-25 04:21:00 ] # going to production here, assuming we can get the constraints right
-bb.frontconstraintwidth_x = 0.5 # m 
+#bb.frontconstraintwidth_x = 0.06 # m 
+#bb.frontconstraintwidth_y = 0.06 # m
+bb.frontconstraintwidth_x = 0.045 # m
+bb.frontconstraintwidth_y = 0.05 # m
+bb.backconstraintwidth_x = 0.04 #m
+bb.backconstraintwidth_y = 0.045 #m
+bb.frontconstraint_x0 = 0.048
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0033
+bb.backconstraint_y0 = 0.0
+
+
+------[ 2021-11-25 09:29:00 ] # attempt to analyze low-current LH2 run without constraints:
+bb.frontconstraintwidth_x = 0.75 # m 
+bb.frontconstraintwidth_y = 0.2 # m
+# set offsets to zero to minimize confusion when we optimize
+bb.frontconstraint_x0 = 0.0
+bb.frontconstraint_y0 = 0.0
+
+------[ 2021-11-25 10:10:00 ] # LH2 runs at 5-15 uA we need to use the optics and slope constraints as well:
+#bb.frontconstraintwidth_x = 0.06 # m 
+#bb.frontconstraintwidth_y = 0.06 # m
+bb.frontconstraintwidth_x = 0.045 # m
+bb.frontconstraintwidth_y = 0.05 # m
+bb.backconstraintwidth_x = 0.04 #m
+bb.backconstraintwidth_y = 0.045 #m
+bb.frontconstraint_x0 = 0.048
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0033
+bb.backconstraint_y0 = 0.0
+
+
+------[ 2021-11-25 11:40:00 ] # back to 1 uA: attempt to analyze low-current LH2 run without constraints:
+bb.frontconstraintwidth_x = 0.75 # m 
 bb.frontconstraintwidth_y = 0.2 # m
 
+
 ----------[ 2021-11-25 12:15:00 ] # now really going to production; may need to adjust constraints
-bb.frontconstraintwidth_x = 0.06 # m 
-bb.frontconstraintwidth_y = 0.06 # m
+#bb.frontconstraintwidth_x = 0.06 # m 
+#bb.frontconstraintwidth_y = 0.06 # m
+# the values below are based on analysis of the low-current runs 12308 and 12312:
+bb.frontconstraintwidth_x = 0.045 # m
+bb.frontconstraintwidth_y = 0.05 # m
+bb.backconstraintwidth_x = 0.04 #m
+bb.backconstraintwidth_y = 0.045 #m
+bb.frontconstraint_x0 = 0.048
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0033
+bb.backconstraint_y0 = 0.0
+
 
 ----------[ 2022-01-06 12:00:00 ] # start of January 2022 running and SBS-14 kinematics:
 # for SBS-14 we are back at 1.85 meter distance:
@@ -913,8 +997,7 @@ bb.optics_order = 2
 #  3.4916311e-16 -5.7801037e-16 -8.8795124e-16 -1.1214327e-14  0 0 0 1 1
 # -5.5736366e-16  2.2786736e-16  4.0535244e-17  5.8646239e-15  0 0 0 0 2
 
-# below is the result of Holly's optimization for SBS-8, that gives problematic 
-# momentum reconstruction (for now)
+# below is the result of Holly's optimization for SBS-8
 
 bb.preconflag = 1
 # NOTE on new momentum reconstruction formalism: 1st-order momentum is calculated from
@@ -922,13 +1005,19 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.289898476
-bb.B_pth1 =      1.13979772
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+bb.A_pth1 =     0.292223032
+bb.B_pth1 =      1.04733553
 bb.C_pth1 = 0.0
 
-#NOTE: angle and vertex reconstruction coefficients are from newfit_sbs8.dat
+# the "A" and "B" parameters below were obtained with SBS OFF:
+#bb.A_pth1 =     0.288855182
+#bb.B_pth1 =      1.05193488
+#bb.C_pth1 = 0.0
 
-bb.optics_order = 2
+
+#NOTE: angle and vertex reconstruction coefficients are from newfit_sbs8.dat
 
 bb.optics_parameters = 
     -0.013759973   -1.592921e-05     0.001484359               0    0 0 0 0 0 
@@ -952,6 +1041,7 @@ bb.optics_parameters =
   -3.5811408e-13  -8.0462394e-14   5.0353397e-14               0    0 0 1 0 1 
    1.0681994e-14   2.3176467e-15  -1.6232571e-15               0    0 0 0 1 1 
    3.1170311e-16  -2.2752056e-16   2.5453538e-16               0    0 0 0 0 2 
+
 
 
 # below is the result of the SBS-8 g4sbs optics for bigbite distance 2.00 m
@@ -991,18 +1081,19 @@ bb.frontconstraintwidth_y = 0.25 # also relax y front constraint width initially
 
 ----------[ 2022-01-22 8:00:00 ] # sieve out, tighten up tracking constraints:
 
-bb.backconstraint_x0 = -0.005
-bb.backconstraint_y0 = 0.0
+bb.backconstraint_x0 = 0.0074
+bb.backconstraint_y0 = -0.0013
 
 
 
-bb.frontconstraint_x0 = 0.064
-bb.frontconstraint_y0 = -0.013
+bb.frontconstraint_x0 = 0.0385
+bb.frontconstraint_y0 = -0.0145
 
-bb.frontconstraintwidth_x = 0.06
-bb.frontconstraintwidth_y = 0.06
-bb.backconstraintwidth_x = 0.06
-bb.backconstraintwidth_y = 0.06
+bb.frontconstraintwidth_x = 0.05
+bb.frontconstraintwidth_y = 0.05
+
+bb.backconstraintwidth_x = 0.053
+bb.backconstraintwidth_y = 0.05
 
 
 
