@@ -13,7 +13,8 @@ bb.gem.gridbinwidthx = 0.01
 bb.gem.gridbinwidthy = 0.01
 bb.gem.gridedgetolerancex = 0.003
 bb.gem.gridedgetolerancey = 0.003
-bb.gem.useconstraint = 1
+
+bb.gem.minhitsontrack = 3
 
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.ADCasym_cut = 0.5
@@ -188,8 +189,8 @@ bb.gem.m11.angle = 0.0 0.0 0.0
 #angles
 # the "U" angle should be -30 + 180 degrees or -30 - 180 degrees = 150 or -210 degrees
 # the "V" angle should be 30 - 180 degrees or 30 + 180 degrees = 210 or -150 degrees
-bb.gem.m0.uangle = -30.0
-bb.gem.m0.vangle = +30.0
+bb.gem.m0.uangle = 150.0
+bb.gem.m0.vangle = 210.0
 
 # for the INFN X/Y modules only the X-axis direction needs to be reversed
 bb.gem.m1.uangle =  0.0
@@ -199,8 +200,8 @@ bb.gem.m2.vangle = 90.0
 bb.gem.m3.uangle =  0.0
 bb.gem.m3.vangle = 90.0
 
-bb.gem.m4.uangle = -30.0
-bb.gem.m4.vangle = +30.0
+bb.gem.m4.uangle = 150.0
+bb.gem.m4.vangle = 210.0
 
 bb.gem.m5.uangle =  0.0
 bb.gem.m5.vangle = 90.0

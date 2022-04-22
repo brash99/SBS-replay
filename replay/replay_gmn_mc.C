@@ -25,7 +25,7 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSGRINCH.h"
 #include "SBSEArm.h"
 #include "SBSHCal.h"
-#include "SBSGEMStand.h"
+#include "SBSGEMSpectrometerTracker.h"
 #include "SBSTimingHodoscope.h"
 
 #include "SBSSimDecoder.h"
@@ -37,7 +37,8 @@ void replay_gmn_test(const char* filebase, uint nev = -1, TString experiment="gm
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
   //bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
   bigbite->AddDetector( new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower") );
-  //bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
+  bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
+  //bigbite->AddDetector( new SBSGenericDetector("grinch", "GRINCH PID") );
   bigbite->AddDetector( new SBSTimingHodoscope("hodo", "timing hodo") );
   bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   gHaApps->Add(bigbite);
