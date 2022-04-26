@@ -98,7 +98,7 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 }
 
 //Need to understand the input parameters. infilename is the file to be used to do the gain match. nmodules probably the told number of modules. fname_stripconfig will have to be modified to reflect the number  of strips of the config present for infilename. How are the rest of the variables determined?
-void GEM_GainMatch(const int runnum, int nmodules,const int numseg, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4000.0, const char *fname_stripconfig="stripconfig_bb_gem.txt" ){
+void GEM_GainMatch(const int runnum, int nmodules,const int numseg, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4500.0, const char *fname_stripconfig="stripconfig_bb_gem.txt" ){
 //convert runnum to a char so that way it can be used in names
 std::string runnum_temp = std::to_string(runnum);
 const char *runnum_char = runnum_temp.c_str();
@@ -201,15 +201,14 @@ const char *runnum_char = runnum_temp.c_str();
   vector<double> hit_ADCV(MAXNHITS);
   vector<double> hit_ADCavg(MAXNHITS);
   vector<double> hit_ADCasym(MAXNHITS);
-<<<<<<< HEAD
+
 //a map for branch names and a vector for variable names
-=======
   vector<double> hit_ADCmaxsampU(MAXNHITS);
   vector<double> hit_ADCmaxsampV(MAXNHITS);
   vector<double> hit_ADCmaxstripU(MAXNHITS);
   vector<double> hit_ADCmaxstripV(MAXNHITS);
 
->>>>>>> 34625f610dbc9f40edb0b2f9e57202ae1d65c0a1
+
   map<TString,TString> branchnames;
   vector<TString> varnames;
   varnames.push_back("track.ntrack");
@@ -232,11 +231,11 @@ const char *runnum_char = runnum_temp.c_str();
   varnames.push_back("hit.ADCV");
   varnames.push_back("hit.ADCavg");
   varnames.push_back("hit.ADCasym");
-<<<<<<< HEAD
+
 //Why are the branches disabled here?
   //cout << "disabling all branches...";
   //the * applies it to all branches, the 0 disables those branches. to enable would need to make 1
-=======
+
   varnames.push_back("hit.ADCmaxsampU");
   varnames.push_back("hit.ADCmaxsampV");
   varnames.push_back("hit.ADCmaxstripU");
@@ -244,7 +243,7 @@ const char *runnum_char = runnum_temp.c_str();
 
   cout << "disabling all branches...";
   
->>>>>>> 34625f610dbc9f40edb0b2f9e57202ae1d65c0a1
+
   C->SetBranchStatus("*",0);
 
   //cout << "done." << endl;
@@ -277,20 +276,19 @@ const char *runnum_char = runnum_temp.c_str();
   C->SetBranchAddress( branchnames["hit.ADCV"].Data(), &(hit_ADCV[0]) );
   C->SetBranchAddress( branchnames["hit.ADCavg"].Data(), &(hit_ADCavg[0]) );
   C->SetBranchAddress( branchnames["hit.ADCasym"].Data(), &(hit_ADCasym[0]) );
-<<<<<<< HEAD
+
  // cout << "done." << endl;
  //Setup the output file name 
  //changed output file name to include run number for file organization
- TString outfilename = Form("GEM_GainMatch_output/GainRatios_%s_%s.root",detname,runnum_char); 
-=======
+ TString outfilename = Form("GEM_GainMatch_output/GainRatios_%s_%s.root",detname,runnum_char);
   C->SetBranchAddress( branchnames["hit.ADCmaxsampU"].Data(), &(hit_ADCmaxsampU[0]) );
   C->SetBranchAddress( branchnames["hit.ADCmaxsampV"].Data(), &(hit_ADCmaxsampV[0]) );
   C->SetBranchAddress( branchnames["hit.ADCmaxstripU"].Data(), &(hit_ADCmaxstripU[0]) );
   C->SetBranchAddress( branchnames["hit.ADCmaxstripV"].Data(), &(hit_ADCmaxstripV[0]) );
   cout << "done." << endl;
   
-  TString outfilename = Form("GainRatios_%s_temp.root",detname); 
->>>>>>> 34625f610dbc9f40edb0b2f9e57202ae1d65c0a1
+  //TString outfilename = Form("GainRatios_%s_temp.root",detname); 
+
 
   
 
@@ -403,9 +401,9 @@ const char *runnum_char = runnum_temp.c_str();
 	    hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
 	    hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
 	    hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
-<<<<<<< HEAD
+
 //Define a bunch of variables, but what are they for?
-=======
+
 
 	    hStripADCsumU_module->Fill( hit_module[ihit], hit_ADCmaxstripU[ihit] );
 	    hStripADCsumV_module->Fill( hit_module[ihit], hit_ADCmaxstripV[ihit] );
@@ -413,7 +411,7 @@ const char *runnum_char = runnum_temp.c_str();
 	    hStripADCmaxU_module->Fill( hit_module[ihit], hit_ADCmaxsampU[ihit] );
 	    hStripADCmaxV_module->Fill( hit_module[ihit], hit_ADCmaxsampV[ihit] );
 
->>>>>>> 34625f610dbc9f40edb0b2f9e57202ae1d65c0a1
+
 	    int ixlo = hit_ustriplo[ihit];
 	    int ixhi = hit_ustriphi[ihit];
 	    int ixmax = hit_ustripmax[ihit];
