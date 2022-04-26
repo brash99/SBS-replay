@@ -1075,17 +1075,25 @@ const char *runnum_char = runnum_temp.c_str();
     hname.Form("hADCavg_corrected_module%d",i);
     htemp = hADCavg_module_corrected->ProjectionY( hname.Data(), i+1, i+1 );
 
-    TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",2000.0,25000.0);
-
-    double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
-
-    Gmod = MPV_mod / target_ADC;
+   if( htemp->GetEntries() >= 10000 ){
     
-    cout << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
-    TString dbentry;
-    dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
-    outfile_db << dbentry << endl;
-    //cout << dbentry << endl;
+      TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",2000.0,25000.0);
+
+      double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
+
+      Gmod = MPV_mod / target_ADC;
+
+      cout << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
+      TString dbentry;
+      dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
+      outfile_db << dbentry << endl;
+      cout << dbentry << endl;
+    } else {
+      TString dbentry;
+      dbentry.Form("%s.m%d.modulegain = %g",detname,i,1.0);
+      outfile_db << dbentry << endl;
+      cout << dbentry << endl;
+    }
   }
 
   outfile << endl;
