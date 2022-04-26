@@ -75,15 +75,30 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   double bbtheta = 51.0*TMath::DegToRad();
   double sbstheta = 34.5*TMath::DegToRad();
   double hcaldist = 13.5; //meters
+  double hcalvoff = 0.35; //meters
   double Ltgt = 15.0; //cm
   double rho_tgt = 0.0723; //g/cc
   double rho_Al = 2.7; //g/cc
+
+  double sbsdist = 2.25;
+  double sbsfield = 1.0; //fraction of max field:
+  //double sbsmaxfield = 0.53/0.3; //About 1.77 Tesla.
+  double sbsmaxfield = 1.26; //Tesla
+  double Dgap = 48.0*2.54/100.0; //about 1.22 m
   
   double celldiameter = 1.6*2.54; //cm, right now this is a guess
 
   //Eventually we will grab HALLA:p from the EPICs tree for the beam energy:
+
   
+  sbsmaxfield = 3.1 * atan( 0.85/(11.0 - 2.25 - Dgap/2.0 ))/0.3/Dgap/0.7;
   
+  // 0.85 m deflection / 3.1 nucleon momentum @70% of max field
+  // p * thetabend = 0.3 * BdL
+  // deflection = tan(thetabend) * (11 - (2.25 + 0.6) )
+    //BdL = p*thetabend/0.3 --> Bmax = p*thetabend/0.3/dL/0.7
+
+    
   double Ztgt = 1.0;
   double Atgt = 1.0;
   double Mmol_tgt = 1.008; //g/mol
@@ -354,7 +369,26 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	  thtgtmax_fit = stemp.Atof();
 	}
-	
+
+	if( skey == "sbsdist" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  sbsdist = stemp.Atof();
+	}
+
+	if( skey == "sbsfield" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  sbsfield = stemp.Atof();
+	}
+
+	if( skey == "sbsmaxfield" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  sbsmaxfield = stemp.Atof();
+	}
+
+	if( skey == "hcalvoff" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  hcalvoff = stemp.Atof();
+	}
       }
       
       tokens->Delete();
@@ -573,6 +607,11 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   double T_EPS, T_ESH, T_Etot;
   double T_xSH, T_ySH;
   double T_Q2;
+  double T_Q2_4vect, T_W2_4vect;
+  double T_thetaq, T_phiq, T_px, T_py, T_pz, T_qx, T_qy, T_qz, T_qmag;
+  double T_theta_recon_n, T_phi_recon_n, T_theta_recon_p, T_phi_recon_p; //Reconstructed nucleon angles under proton and neutron hypothesis
+  double T_thetapq_n, T_phipq_n, T_thetapq_p, T_phipq_p;
+  double T_dx_4vect, T_dy_4vect; //Here we want to use the 4-vector momentum transfer to calculate dx/dy
   int HCALcut;
   int BBcut;
   
@@ -617,7 +656,28 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   Tout->Branch( "Etot", &T_Etot, "Etot/D");
   Tout->Branch( "xSH", &T_xSH, "xSH/D");
   Tout->Branch( "ySH", &T_ySH, "ySH/D");
-
+  Tout->Branch( "Q2_4vect", &T_Q2_4vect, "Q2_4vect/D");
+  Tout->Branch( "W2_4vect", &T_W2_4vect, "W2_4vect/D");
+  Tout->Branch( "epx", &T_px, "epx/D");
+  Tout->Branch( "epy", &T_py, "epy/D");
+  Tout->Branch( "epz", &T_pz, "epz/D");
+  Tout->Branch( "qx", &T_qx, "qx/D" );
+  Tout->Branch( "qy", &T_qy, "qy/D" );
+  Tout->Branch( "qz", &T_qz, "qz/D" );
+  Tout->Branch( "qmag", &T_qmag, "qmag/D" );
+  Tout->Branch( "thetaq", &T_thetaq, "thetaq/D");
+  Tout->Branch( "phiq", &T_phiq, "phiq/D" );
+  Tout->Branch( "thetarecon_n", &T_theta_recon_n, "thetarecon_n/D" );
+  Tout->Branch( "phirecon_n", &T_phi_recon_n, "phirecon_n/D" );
+  Tout->Branch( "thetarecon_p", &T_theta_recon_p, "thetarecon_p/D" );
+  Tout->Branch( "phirecon_p", &T_phi_recon_p, "phirecon_p/D" );
+  Tout->Branch( "thetapq_n", &T_thetapq_n, "thetapq_n/D" );
+  Tout->Branch( "thetapq_p", &T_thetapq_p, "thetapp_n/D" );
+  //Tout->Branch( "phipq_n", &T_phipq_n, "phipq_n/D" );
+  //Tout->Branch( "phipq_p", &T_phipq_p, "phipp_n/D" );
+  Tout->Branch( "deltax_4vect", &T_dx_4vect, "deltax_4vect/D" );
+  Tout->Branch( "deltay_4vect", &T_dy_4vect, "deltay_4vect/D" );
+  
   
   
   
@@ -691,11 +751,27 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 
       TVector3 vertex( 0, 0, vz[0] );
       TLorentzVector Pbeam(0,0,Ebeam_corrected,Ebeam_corrected);
-      TLorentzVector Kprime(px[0],py[0],pz[0],p[0]);
+      TLorentzVector Kprime(precon*px[0]/p[0],precon*py[0]/p[0],precon*pz[0]/p[0],precon);
       TLorentzVector Ptarg(0,0,0,Mp);
-
+      
       TLorentzVector q = Pbeam - Kprime;
 
+      T_Q2_4vect = -q.M2();
+      T_W2_4vect = (Ptarg + q).M2();
+
+      TVector3 qvect = q.Vect();
+      T_thetaq = qvect.Theta();
+      T_phiq = qvect.Phi();
+      T_px = Kprime.Px();
+      T_py = Kprime.Py();
+      T_pz = Kprime.Pz();
+
+      T_qx = q.Px();
+      T_qy = q.Py();
+      T_qz = q.Pz();
+
+      T_qmag = qvect.Mag();
+      
       double ephi = atan2( py[0], px[0] );
       //double etheta = acos( pz[0]/p[0] );
 
@@ -745,7 +821,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 	HCAL_zaxis.SetXYZ( -sin(sbstheta),0,cos(sbstheta) );
 	HCAL_xaxis.SetXYZ(0, -1, 0 );
 	HCAL_yaxis = HCAL_zaxis.Cross(HCAL_xaxis).Unit();
-	HCAL_origin = hcaldist * HCAL_zaxis; //We no longer need to offset the origin. 
+	HCAL_origin = hcaldist * HCAL_zaxis - hcalvoff * HCAL_xaxis; //We no longer need to offset the origin. 
       }
 
       if( hcal_coordflag != 0 ){ //if we are still using the old HCAL coordinates, need to offset xHCAL, yHCAL:
@@ -760,6 +836,35 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
       double yexpect_HCAL = (HCAL_intersect - HCAL_origin).Dot( HCAL_yaxis );
       double xexpect_HCAL = (HCAL_intersect - HCAL_origin).Dot( HCAL_xaxis );
 
+      TVector3 qunit = qvect.Unit();
+
+      double s4vect = (HCAL_origin - vertex).Dot( HCAL_zaxis )/ (qunit.Dot( HCAL_zaxis ) );
+      TVector3 HCAL_intersect4 = vertex + s4vect * qunit;
+
+      T_dx_4vect = xHCAL - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis );
+      T_dy_4vect = yHCAL - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis );
+
+      TVector3 HCALpos = HCAL_origin + xHCAL * HCAL_xaxis + yHCAL * HCAL_yaxis;
+
+      //Calculate expected proton deflection using crude model:
+      double BdL = sbsfield * sbsmaxfield * Dgap;
+
+      //thetabend = 0.3 * BdL: 
+      double proton_deflection = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
+
+      //cout << "Expected proton deflection = " << proton_deflection << " meters" << endl;
+      
+      TVector3 NeutronDirection = (HCALpos - vertex).Unit();
+      T_theta_recon_n = acos( NeutronDirection.Z() );
+      T_phi_recon_n = TMath::ATan2( NeutronDirection.Y(), NeutronDirection.X() );
+
+      TVector3 ProtonDirection = (HCALpos + proton_deflection * HCAL_xaxis - vertex).Unit();
+      T_theta_recon_p = acos( ProtonDirection.Z() );
+      T_phi_recon_p = TMath::ATan2( ProtonDirection.Y(), ProtonDirection.X() );
+
+      T_thetapq_n = acos( NeutronDirection.Dot( qvect.Unit() ) );
+      T_thetapq_p = acos( ProtonDirection.Dot( qvect.Unit() ) );
+      
       //Now we need to calculate the "true" trajectory bend angle for the electron from the reconstructed angles:
       TVector3 enhat_tgt( thtgt[0], phtgt[0], 1.0 );
       enhat_tgt = enhat_tgt.Unit();
