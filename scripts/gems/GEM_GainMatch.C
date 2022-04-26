@@ -1091,7 +1091,6 @@ const char *runnum_char = runnum_temp.c_str();
       outfile_db << dbentry << endl;
       cout << dbentry << endl;
     }
-
   }
 
   outfile << endl;
