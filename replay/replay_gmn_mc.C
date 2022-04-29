@@ -25,7 +25,7 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSGRINCH.h"
 #include "SBSEArm.h"
 #include "SBSHCal.h"
-#include "SBSGEMStand.h"
+#include "SBSGEMSpectrometerTracker.h"
 #include "SBSTimingHodoscope.h"
 
 #include "SBSSimDecoder.h"
@@ -38,6 +38,7 @@ void replay_gmn_test(const char* filebase, uint nev = -1, TString experiment="gm
   //bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
   bigbite->AddDetector( new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower") );
   bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
+  //bigbite->AddDetector( new SBSGenericDetector("grinch", "GRINCH PID") );
   bigbite->AddDetector( new SBSTimingHodoscope("hodo", "timing hodo") );
   bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   gHaApps->Add(bigbite);
@@ -88,9 +89,21 @@ void replay_gmn_test(const char* filebase, uint nev = -1, TString experiment="gm
   analyzer->SetCrateMapFileName("sbssim_cratemap");
 
   cout << "sim crate map setup " << endl;
+
+  TString prefix = gSystem->Getenv("SBS_REPLAY");
+  prefix += "/replay/";
   
-  analyzer->SetCutFile( "replay_gmn.cdef" );
-  analyzer->SetOdefFile( "replay_gmn.odef" );
+  TString odef_filename = "replay_gmn_mc.odef";
+  odef_filename.Prepend( prefix );
+  analyzer->SetOdefFile( odef_filename );
+  
+  //added cut list in order to have 
+  TString cdef_filename = "replay_gmn_mc.cdef";
+  cdef_filename.Prepend( prefix );
+  analyzer->SetCutFile( cdef_filename );
+
+  //analyzer->SetCutFile( "replay_gmn.cdef" );
+  //analyzer->SetOdefFile( "replay_gmn_mc.odef" );
   
   cout << "cut file and out file processed " << endl;
   
