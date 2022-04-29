@@ -156,8 +156,8 @@ sbs.hcal.xpos =
 ## Mininum energy for a cluster element, set to 5 MeV
 sbs.hcal.emin = 0.005
 
-## Maximum time difference between cluster seed and additional clusters, set to 20 ns
-sbs.hcal.tmax = 80.0
+## Maximum time difference between cluster seed and additional clusters, set to 1000 ns by default
+sbs.hcal.tmax = 1000.0
 
 ## Maximum distance difference between cluster seed and additional clusters, set to 0.3 m
 sbs.hcal.Rmax_dis = 0.3
