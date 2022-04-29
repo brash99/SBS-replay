@@ -233,6 +233,9 @@ bb.sh.trigtoFADCratio = 0.99 1.01 0.97 1.00 0.97 0.99 0.97
 bb.sh.emin= 0.02 #GeV
 bb.sh.Rmax_dis = 0.15 #m, Search radius for cluster 
 
+## Maximum time difference between cluster seed and additional clusters, set to 1000 ns
+bb.sh.tmax = 1000.0
+
 #ADCtime offsets w.r.t bbhodo
 bb.sh.adc.timeoffset =
 -44.7463 -41.9622 -42.0066 -36.9115 -37.8404 -37.0747 -40.103 
