@@ -1374,6 +1374,8 @@ bb.gem.zerosuppress = 1
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.onlinezerosuppress = 0 # note that this parameter only provides a default value, actual behavior is determined by the flags seen in the raw data:
 
+bb.gem.do_neg_signal_study = 0
+
 bb.gem.plot_common_mode = 1
 bb.gem.plot_event_info = 1
 # default values will suffice for the time being.
@@ -1551,6 +1553,16 @@ bb.xpfp_max = 0.28
 bb.ypfp_min = -0.08
 bb.ypfp_max = 0.08
 
+--------[ 2022-01-30 17:05:00 ] # Full readout runs for negative pulse study
+
+bb.gem.pedsub_online = 0
+bb.gem.suppressfirstlast = -1
+
+--------[ 2022-01-30 18:05:00 ] # Back to zero suppression for normal running
+
+bb.gem.pedsub_online = 1 # normally this should always be set to 1
+bb.gem.suppressfirstlast = -1
+
 -------[ 2022-02-01 12:00:00 ] # at start of SBS-9 kinematics, we need to adjust limits for optics and track slope constraints:
 
 bb.gem.ytar_min = -0.08
@@ -1615,3 +1627,13 @@ bb.gem.ytar_max = 0.08
 
 bb.gem.yptar_min = -0.09
 bb.gem.yptar_max = 0.09
+
+
+--------[ 2022-02-07 20:20:00 ] # Full readout runs for high current study
+
+bb.gem.pedsub_online = 0
+
+
+--------[ 2022-02-07 21:40:00 ] # Back to zero suppression for normal running
+
+bb.gem.pedsub_online = 1 # normally this should always be set to 1
