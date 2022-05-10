@@ -1081,18 +1081,16 @@ bb.frontconstraintwidth_y = 0.25 # also relax y front constraint width initially
 
 ----------[ 2022-01-22 8:00:00 ] # sieve out, tighten up tracking constraints:
 
-bb.backconstraint_x0 = 0.0074
+bb.backconstraint_x0 = 0.0016
 bb.backconstraint_y0 = -0.0013
 
-
-
-bb.frontconstraint_x0 = 0.0385
+bb.frontconstraint_x0 = 0.0414
 bb.frontconstraint_y0 = -0.0145
 
-bb.frontconstraintwidth_x = 0.05
-bb.frontconstraintwidth_y = 0.05
+bb.frontconstraintwidth_x = 0.04
+bb.frontconstraintwidth_y = 0.04
 
-bb.backconstraintwidth_x = 0.053
+bb.backconstraintwidth_x = 0.05
 bb.backconstraintwidth_y = 0.05
 
 
