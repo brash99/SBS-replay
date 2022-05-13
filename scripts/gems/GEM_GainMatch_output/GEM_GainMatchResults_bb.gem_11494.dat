@@ -33,3 +33,9 @@ bb.gem.m3.modulegain = 1.10751
 bb.gem.m4.modulegain = 1.07919
 bb.gem.m5.modulegain = 0.845925
 bb.gem.m6.modulegain = 0.820914
+bb.gem.m7.modulegain = 1
+bb.gem.m8.modulegain = 0.819324
+bb.gem.m9.modulegain = 0.836519
+bb.gem.m10.modulegain = 0.828435
+bb.gem.m11.modulegain = 0.780126
+

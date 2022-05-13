@@ -98,7 +98,7 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 }
 
 //Need to understand the input parameters. infilename is the file to be used to do the gain match. nmodules probably the told number of modules. fname_stripconfig will have to be modified to reflect the number  of strips of the config present for infilename. How are the rest of the variables determined?
-void GEM_GainMatch(const int runnum, int nmodules,const int numseg, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4500.0, const char *fname_stripconfig="stripconfig_bb_gem.txt" ){
+void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *fname_stripconfig, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4500.0){
 //convert runnum to a char so that way it can be used in names
 std::string runnum_temp = std::to_string(runnum);
 const char *runnum_char = runnum_temp.c_str();
