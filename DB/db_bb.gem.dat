@@ -1255,7 +1255,7 @@ bb.gem.suppressfirstlast = 0
 
 ###############################################################################	
 
-###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
+###################### END? TIME-DEPENDENT CLUSTERING PARAMETERS #############
 
 
 
@@ -2918,6 +2918,17 @@ bb.gem.m11.commonmode_rmsV =
 
 -----[ 2021-01-01 00:00:00 ]
 
+bb.gem.commonmode_flag = 2 # histogramming method:
+
 bb.gem.commonmode_binwidth_nsigma = 1.0
 bb.gem.commonmode_scanrange_nsigma = 10.0
 bb.gem.commonmode_stepsize_nsigma = 0.25
+
+bb.gem.correct_common_mode = 1
+bb.gem.correct_common_mode_minstrips = 10
+bb.gem.correct_common_mode_nsigma = 2.0
+
+bb.gem.use_commonmode_rolling_average = 1
+bb.gem.commonmode_nevents_lookback = 10
+
+bb.gem.plot_common_mode = 1
