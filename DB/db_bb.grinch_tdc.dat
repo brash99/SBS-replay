@@ -1,5 +1,6 @@
 #grinch detector map
 ## crate slot start_channel end_channel
+##
 bb.grinch_tdc.detmap =
   7     3     0   127   526 0
   7     4     0   127   526 0
