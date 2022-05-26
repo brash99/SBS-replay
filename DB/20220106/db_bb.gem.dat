@@ -41,7 +41,8 @@ bb.gem.m7.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
-bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
+# commenting out definition of cm flags channel
+#bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 20
 bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
@@ -1373,9 +1374,12 @@ bb.gem.zerosuppress = 1
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.onlinezerosuppress = 0 # note that this parameter only provides a default value, actual behavior is determined by the flags seen in the raw data:
 
+bb.gem.do_neg_signal_study = 0
+
 bb.gem.plot_common_mode = 1
 bb.gem.plot_event_info = 1
-bb.gem.chan_cm_flags = 512
+# default values will suffice for the time being.
+#bb.gem.chan_cm_flags = 512
 
 # when zero suppression is enabled again we will turn this to 1: 
 bb.gem.pedsub_online = 1 # under normal conditions, this should always be 1, unless running normal data taking in pedestal mode:
@@ -1549,6 +1553,16 @@ bb.xpfp_max = 0.28
 bb.ypfp_min = -0.08
 bb.ypfp_max = 0.08
 
+--------[ 2022-01-30 17:05:00 ] # Full readout runs for negative pulse study
+
+bb.gem.pedsub_online = 0
+bb.gem.suppressfirstlast = -1
+
+--------[ 2022-01-30 18:05:00 ] # Back to zero suppression for normal running
+
+bb.gem.pedsub_online = 1 # normally this should always be set to 1
+bb.gem.suppressfirstlast = -1
+
 -------[ 2022-02-01 12:00:00 ] # at start of SBS-9 kinematics, we need to adjust limits for optics and track slope constraints:
 
 bb.gem.ytar_min = -0.08
@@ -1613,3 +1627,13 @@ bb.gem.ytar_max = 0.08
 
 bb.gem.yptar_min = -0.09
 bb.gem.yptar_max = 0.09
+
+
+--------[ 2022-02-07 20:20:00 ] # Full readout runs for high current study
+
+bb.gem.pedsub_online = 0
+
+
+--------[ 2022-02-07 21:40:00 ] # Back to zero suppression for normal running
+
+bb.gem.pedsub_online = 1 # normally this should always be set to 1

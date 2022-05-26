@@ -13,9 +13,15 @@ RawDecode_master 1
 Block: Decode 
 Decode_master 1
 
-Block: CoarseReconstruct 
-CoarseReconstruct_master 1
+# Require a cluster in HCAL and BBCAL total energy sum over threshold before attempting tracking:
+Block: CoarseReconstruct
+GoodBBCALsum  bb.ts.over_threshold==1
+GoodHCAL sbs.hcal.nclus>0
+GoodCoin GoodBBCALsum&&GoodHCAL
+CoarseReconstruct_master GoodCoin
+#CoarseReconstruct_master 1
 
+# Additionally we require a good track to write output
 Block: Physics
 GoodPreShower bb.ps.ngoodADChits>0
 GoodShower    bb.sh.ngoodADChits>0

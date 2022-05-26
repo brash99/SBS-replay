@@ -113,9 +113,9 @@
 
 ### How about GEMs on Hadron arm side?? (TODO: add them later!)
 
-
+# AJRP note: we are commenting out the config string for the BigBite VTPs, we will use the new default values for the required dummy channels.
 ====Crate 19 type vme
-11 3561 3561 cfg: chan_cmflags=512
+11 3561 3561
 
 ====Crate 20 type vme
-11 3561 3561 cfg: chan_cmflags=512
+11 3561 3561
