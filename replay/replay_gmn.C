@@ -310,7 +310,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_gmn.odef";
+  TString odef_filename = "replay_gmn_v1.odef";
   
   odef_filename.Prepend( prefix );
 

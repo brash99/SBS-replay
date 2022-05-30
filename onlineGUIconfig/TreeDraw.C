@@ -1,4 +1,4 @@
-void TreeDraw( const char *varexp, const char *cutexp, const char *drawopt="" ){
+void TreeDraw( const char *varexp, const char *cutexp="", const char *drawopt="" ){
   TTree *T = (TTree*) gFile->Get("T");
 
   //gStyle->SetPalette(kRainBow);

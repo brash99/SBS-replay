@@ -5,6 +5,9 @@ nlayers 5
 layersizeX 2.2
 layersizeY 0.65
 
+maxtrackxp 0.5
+maxtrackyp 0.15
+
 mod_nstripu 3840   1280 1280 1280   3840   1280 1280 1280   1280 1280 1280 1280
 mod_nstripv 3840    1024 1024 1024  3840   1024 1024 1024   1536 1536 1536 1536
 
