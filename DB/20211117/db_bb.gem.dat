@@ -4277,15 +4277,15 @@ bb.gem.pedestalmode = 1
 bb.gem.pedestalmode = 0
 
 ######## The following parameters are searched in SBSGEMModule::ReadDatabase() ############
-bb.gem.threshold_sample = 75.
-bb.gem.threshold_stripsum = 250.
-bb.gem.threshold_clustersum = 400.
+bb.gem.threshold_sample = 50.
+bb.gem.threshold_stripsum = 200.
+bb.gem.threshold_clustersum = 200.
 
 bb.gem.ADCasym_cut = 0.75 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1
-bb.gem.filterflag2D = 1
+bb.gem.filterflag2D = 0
 
 bb.gem.peakprominence_minsigma = 5.0 
 bb.gem.peakprominence_minfraction = 0.2
