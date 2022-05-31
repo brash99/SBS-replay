@@ -1362,16 +1362,16 @@ bb.gem.m7.commonmode_rmsV =
 
 ############ parameters searched by SBSGEMModule::ReadDatabase() #################
 ############ offline thresholds: ############
-bb.gem.threshold_sample = 75.
-bb.gem.threshold_stripsum = 250.
-bb.gem.threshold_clustersum 400.
+bb.gem.threshold_sample = 50.
+bb.gem.threshold_stripsum = 200.
+bb.gem.threshold_clustersum 200.
 
 
 bb.gem.ADCasym_cut = 0.75 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
-bb.gem.filterflag2D = 1  # 1 = "hard" filtering: require 2D hits to pass all cuts
+bb.gem.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts
 
 bb.gem.peakprominence_minsigma = 5.0 
 bb.gem.peakprominence_minfraction = 0.2
