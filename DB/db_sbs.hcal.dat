@@ -1,4 +1,4 @@
-### Detector map, format:
+## Detector map, format:
 ## crate slot start_channel end_channel
 sbs.hcal.detmap =
 ## FADC modules        #     Module number that starts at channel 0

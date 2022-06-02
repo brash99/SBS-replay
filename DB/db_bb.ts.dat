@@ -70,7 +70,7 @@ bb.ts.totalsum_threshold = 1.40
 
 --------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics 
 
-bb.ts.totalsum_threshold = 1.8 
+bb.ts.totalsum_threshold = 2.5 
 
 --------[ 2022-02-01 12:00:00 ] ## starting SBS-9 kinematics:
 
