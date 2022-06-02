@@ -1,7 +1,7 @@
 
 
 ##################################################################################################################
-#          ATTENTION: THIS IS THE END OF THE "v2" database. Starting "v3" database (after J0 swap) below:        #
+#          ATTENTION: THIS IS THE "v3" database (after J0 swap) below:        #
 ##################################################################################################################
 
 ----------[ 2022-01-06 12:00:00 ] # approximate time of replacement of layer J0
@@ -40,19 +40,34 @@ bb.gem.m7.apvmap = 1 # UVA X/Y
 
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
-bb.gem.commonmode_flag = 1 # "Danning method" cm subtraction
+bb.gem.commonmode_flag = 2 # 0 = sorting, 1 = "Danning method", 2 = histogramming method cm subtraction
 # commenting out definition of cm flags channel
 #bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
-bb.gem.commonmode_nstriplo = 20
-bb.gem.commonmode_nstriphi = 20
+bb.gem.commonmode_nstriplo = 28
+bb.gem.commonmode_nstriphi = 28
 bb.gem.commonmode_niter = 3
 bb.gem.commonmode_minstrips = 20
 bb.gem.plot_common_mode = 1
 bb.gem.pedsub_online = 1 # normally this should always be set to 1
-bb.gem.dump_geometry_info = 1
+bb.gem.dump_geometry_info = 0
 bb.gem.efficiency_bin_width_1D = 0.02
 bb.gem.efficiency_bin_width_2D = 0.02
 bb.gem.commonmode_range_nsigma = 5.0
+
+# (online) Danning-method parameters:
+bb.gem.commonmode_danning_nsigma_cut = 3.0
+
+# histogramming-method parameters: 
+bb.gem.commonmode_binwidth_nsigma = 2.0
+bb.gem.commonmode_scanrange_nsigma = 2.5
+bb.gem.commonmode_stepsize_nsigma = 0.25
+
+bb.gem.correct_common_mode = 1
+bb.gem.correct_common_mode_minstrips = 15
+bb.gem.correct_common_mode_nsigma = 2.0
+
+bb.gem.use_commonmode_rolling_average = 1
+bb.gem.commonmode_nevents_lookback = 10
 
 bb.gem.m0.modulegain = 1
 bb.gem.m1.modulegain = 1
@@ -1347,16 +1362,16 @@ bb.gem.m7.commonmode_rmsV =
 
 ############ parameters searched by SBSGEMModule::ReadDatabase() #################
 ############ offline thresholds: ############
-bb.gem.threshold_sample = 150.
-bb.gem.threshold_stripsum = 400.
-bb.gem.threshold_clustersum 800.
+bb.gem.threshold_sample = 50.
+bb.gem.threshold_stripsum = 200.
+bb.gem.threshold_clustersum 200.
 
 
 bb.gem.ADCasym_cut = 0.75 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
-bb.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
-bb.gem.filterflag2D = 1  # 1 = "hard" filtering: require 2D hits to pass all cuts
+bb.gem.filterflag1D = 0 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
+bb.gem.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts
 
 bb.gem.peakprominence_minsigma = 5.0 
 bb.gem.peakprominence_minfraction = 0.2
@@ -1388,12 +1403,28 @@ bb.gem.max2Dhits = 10000000 # per-module
 bb.gem.usestriptimingcut = 1
 bb.gem.useTSchi2cut = 0
 
-# the following are initial guesses:
-bb.gem.maxstrip_t0 = 80.0 
-bb.gem.maxstrip_tcut = 80.0 
-bb.gem.addstrip_tcut = 21.0
+bb.gem.addstrip_tcut = 25.0
 bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.suppressfirstlast = 1
+bb.gem.suppressfirstlast = -1
+
+# t0 and tcut values for SBS-14:
+
+bb.gem.m0.maxstrip_t0 =     86.9
+bb.gem.m0.maxstrip_tcut =     25.8
+bb.gem.m1.maxstrip_t0 =     80.8
+bb.gem.m1.maxstrip_tcut =       33
+bb.gem.m2.maxstrip_t0 =     88.3
+bb.gem.m2.maxstrip_tcut =     25.6
+bb.gem.m3.maxstrip_t0 =     84.4
+bb.gem.m3.maxstrip_tcut =     33.1
+bb.gem.m4.maxstrip_t0 =     90.1
+bb.gem.m4.maxstrip_tcut =       25
+bb.gem.m5.maxstrip_t0 =     91.4
+bb.gem.m5.maxstrip_tcut =     25.8
+bb.gem.m6.maxstrip_t0 =     91.4
+bb.gem.m6.maxstrip_tcut =     26.2
+bb.gem.m7.maxstrip_t0 =     88.3
+bb.gem.m7.maxstrip_tcut =       26
 
 ############### Parameters searched by SBSGEMSpectrometerTracker::ReadDatabase() ######################
 
@@ -1439,6 +1470,7 @@ bb.gem.xptar_max = 0.25
 bb.gem.yptar_min = -0.09
 bb.gem.yptar_max = 0.09
 
+# be careful with these, they are angle-dependent:
 bb.gem.ytar_min = -0.08
 bb.gem.ytar_max = 0.08
 
@@ -1521,10 +1553,28 @@ bb.gem.m6.angle =       0.0780439      -0.0352653      -0.2700927
 bb.gem.m7.position =       0.7706319     -0.01153047        1.534709
 bb.gem.m7.angle =      -0.1816598      -0.1142634      -0.3129444
 
+# strip time cuts for SBS-8:
+bb.gem.m0.maxstrip_t0 =     86.6
+bb.gem.m0.maxstrip_tcut =     24.7
+bb.gem.m1.maxstrip_t0 =     80.1
+bb.gem.m1.maxstrip_tcut =     32.6
+bb.gem.m2.maxstrip_t0 =     87.9
+bb.gem.m2.maxstrip_tcut =     24.8
+bb.gem.m3.maxstrip_t0 =     83.7
+bb.gem.m3.maxstrip_tcut =     33.3
+bb.gem.m4.maxstrip_t0 =     88.6
+bb.gem.m4.maxstrip_tcut =     24.1
+bb.gem.m5.maxstrip_t0 =     90.8
+bb.gem.m5.maxstrip_tcut =       25
+bb.gem.m6.maxstrip_t0 =     90.8
+bb.gem.m6.maxstrip_tcut =     25.5
+bb.gem.m7.maxstrip_t0 =     87.7
+bb.gem.m7.maxstrip_tcut =     26.3
+
 
 ---------[ 2022-01-21 17:00:00 ] # Zero field one foil
 
-bb.gem.pedsub_online = 1  #should always be 1
+bb.gem.pedsub_online = 1  #should almost always be 1
 bb.gem.suppressfirstlast = -1
 bb.gem.useconstraint = 1
 bb.gem.useopticsconstraint = 0
@@ -1601,6 +1651,25 @@ bb.gem.m6.position =       0.2586012    -0.008067762        1.578146
 bb.gem.m6.angle =       0.1179524     -0.07008177      -0.2695913
 bb.gem.m7.position =        0.770547     -0.01169766        1.535663
 bb.gem.m7.angle =      -0.1405529       -0.192024       -0.325355
+
+# strip time cuts applicable to SBS-9:
+bb.gem.m0.maxstrip_t0 =     87.1
+bb.gem.m0.maxstrip_tcut =     27.3
+bb.gem.m1.maxstrip_t0 =     81.6
+bb.gem.m1.maxstrip_tcut =     34.1
+bb.gem.m2.maxstrip_t0 =     88.9
+bb.gem.m2.maxstrip_tcut =     26.9
+bb.gem.m3.maxstrip_t0 =       85
+bb.gem.m3.maxstrip_tcut =     34.1
+bb.gem.m4.maxstrip_t0 =     90.2
+bb.gem.m4.maxstrip_tcut =     27.2
+bb.gem.m5.maxstrip_t0 =     91.6
+bb.gem.m5.maxstrip_tcut =     27.4
+bb.gem.m6.maxstrip_t0 =     91.4
+bb.gem.m6.maxstrip_tcut =     28.2
+bb.gem.m7.maxstrip_t0 =     88.7
+bb.gem.m7.maxstrip_tcut =     27.5
+
 
 -------[ 2022-02-02 17:25:00 ] # start zero-field running for optics
 

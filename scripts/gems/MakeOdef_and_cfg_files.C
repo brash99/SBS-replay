@@ -252,6 +252,10 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   treevarnames.push_back( "*.strip.nstrips_keepV" );
   treevarnames.push_back( "*.strip.nstrips_keep_lmaxU" );
   treevarnames.push_back( "*.strip.nstrips_keep_lmaxV" );
+  treevarnames.push_back( "*.clust.nclustu" );
+  treevarnames.push_back( "*.clust.nclustv" );
+  treevarnames.push_back( "*.clust.nclustu_tot" );
+  treevarnames.push_back( "*.clust.nclustv_tot" );
 
 
   odef_file << "#tree variables: " << endl;

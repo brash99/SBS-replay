@@ -23,7 +23,13 @@ block bb.gem.*.strip.nstrips_keepU
 block bb.gem.*.strip.nstrips_keepV
 block bb.gem.*.strip.nstrips_keep_lmaxU
 block bb.gem.*.strip.nstrips_keep_lmaxV
+block bb.gem.*.clust.nclustu
+block bb.gem.*.clust.nclustv
+block bb.gem.*.clust.nclustu_tot
+block bb.gem.*.clust.nclustv_tot
 
+# turn on all raw strip variables: never use except for very specialized low-level analysis:
+#block bb.gem.*.strip.*
 
 
 #Cuts: 
