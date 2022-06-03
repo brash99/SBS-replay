@@ -1,6 +1,8 @@
 # Sample output definition file
 block bb.grinch_tdc.*
 block bb.grinch_adc.*
+block g.*
+
 
 # test adding histograms directly per Bradley's script:
 
