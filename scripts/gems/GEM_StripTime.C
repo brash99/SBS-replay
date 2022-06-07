@@ -181,11 +181,16 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
   double hit_ADCfrac4_Vmax[10000];
   double hit_ADCfrac5_Vmax[10000];
 
+  double hit_nstripu[10000];
+  double hit_nstripv[10000];
+  
   double bb_hodotdc_nclus;
   double bb_hodotdc_clus_tmean[10000];
   double bb_hodotdc_clus_trackindex[10000];
   double bb_tdctrig_tdcelemID[10000];
   double bb_tdctrig_tdc[10000];
+
+  
   
   TString branchname;
 
@@ -204,7 +209,9 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
   C->SetBranchStatus( branchname.Format( "%s.hit.module", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.hit.u", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.hit.v", prefix.Data() ), 1 );
-
+  C->SetBranchStatus( branchname.Format( "%s.hit.nstripu", prefix.Data() ), 1 );
+  C->SetBranchStatus( branchname.Format( "%s.hit.nstripv", prefix.Data() ), 1 );
+  
   C->SetBranchStatus( branchname.Format( "%s.hit.deltat", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.hit.ADCmaxstripU", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.hit.ADCmaxstripV", prefix.Data() ), 1 );
@@ -249,6 +256,8 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
   C->SetBranchAddress( branchname.Format( "%s.hit.module", prefix.Data() ), hit_module );
   C->SetBranchAddress( branchname.Format( "%s.hit.u", prefix.Data() ), hit_ulocal );
   C->SetBranchAddress( branchname.Format( "%s.hit.v", prefix.Data() ), hit_vlocal );
+  C->SetBranchAddress( branchname.Format( "%s.hit.nstripu", prefix.Data() ), hit_nstripu );
+  C->SetBranchAddress( branchname.Format( "%s.hit.nstripv", prefix.Data() ), hit_nstripv );
   C->SetBranchAddress( branchname.Format( "%s.hit.deltat", prefix.Data() ), hit_deltat );
   C->SetBranchAddress( branchname.Format( "%s.hit.UtimeMaxStrip", prefix.Data() ), hit_UtimeMaxStrip );
   C->SetBranchAddress( branchname.Format( "%s.hit.VtimeMaxStrip", prefix.Data() ), hit_VtimeMaxStrip );
@@ -366,7 +375,23 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
 
   TH2D *hVtimeMaxStrip_vs_module = new TH2D("hVtimeMaxStrip_vs_module",";module; Max V strip time (ns)",nmodules, -0.5,nmodules-0.5, 150,0,150);
 
+
+  TH1D *hADCmaxComboDeconvU = new TH1D("hADCmaxComboDeconvU", "U strips; max combination of two deconvoluted ADC samples", 300, 0, 6000);
+  TH1D *hIsampMaxComboDeconvU = new TH1D("hIsampMaxComboDeconvU", "U strips; first sample of max two-sample pair", 7, -0.5, 6.5 );
+
+  TH1D *hADCmaxComboDeconvV = new TH1D("hADCmaxComboDeconvV", "V strips; max combination of two deconvoluted ADC samples", 300, 0, 6000);
+  TH1D *hIsampMaxComboDeconvV = new TH1D("hIsampMaxComboDeconvV", "V strips; first sample of max two-sample pair", 7, -0.5, 6.5 );
   
+  TH1D *hADCfracMaxComboU = new TH1D("hADCfracMaxComboU", "U strip; max deconv two-sample combo/max ADC sample", 300, -0.5,2.5);
+  TH1D *hADCfracMaxComboV = new TH1D("hADCfracMaxComboV", "V strip; max deconv two-sample combo/max ADC sample", 300, -0.5,2.5); 
+
+  TH1D *hTdeconvU = new TH1D("hTdeconvU", "U strips; Deconvoluted strip time (ns)", 300, -50, 250.0);
+  TH1D *hTdeconvV = new TH1D("hTdeconvV", "V strips; Deconvoluted strip time (ns)", 300, -50, 250.0);
+
+  TH1D *hTdeconvUVdiff = new TH1D("hTdeconvUVdiff", "Deconv. strip time; t_{U}-t_{V} (ns)", 200,-50,50);
+
+  TH2D *hTdeconvVvsU = new TH2D("hTdeconvVvsU", ";Deconv. U strip time (ns);Deconv. V strip time (ns)",
+				150,-50,250,150,-50,250 );
   
   long nevent=0;
 
@@ -376,6 +401,8 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
 
   double ADCsampUdeconv[6], ADCsampVdeconv[6];
 
+  double tdeconv;
+  
   //It is possible we should make ONE TGraph and just update the data to avoid the overhead
   // of all these new... delete... calls, but for now I'm lazy. 
   TGraphErrors *gPulseU = new TGraphErrors( 6, tsamp, ADCsampU, dtsamp, dADCsampU );
@@ -435,7 +462,7 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
       
       //loop over all GEM hits on good tracks:
       for( int ihit=0; ihit<int(ngoodhits); ihit++ ){
-	if( hit_trackindex[ihit] == 0 ){
+	if( hit_trackindex[ihit] == 0 && hit_nstripu[ihit] > 1 && hit_nstripv[ihit] > 1){
 	  ADCsampU[0] = hit_ADCmaxstripU[ihit] * hit_ADCfrac0_Umax[ihit];
 	  ADCsampU[1] = hit_ADCmaxstripU[ihit] * hit_ADCfrac1_Umax[ihit];
 	  ADCsampU[2] = hit_ADCmaxstripU[ihit] * hit_ADCfrac2_Umax[ihit];
@@ -474,8 +501,8 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
 	    double w1, w2=0, w3=0;
 	    double x = 24.0/tau0;
 	    w1 = exp( x - 1.0 )/x;
-	    if( isamp > 0 ) w2 = -2.*exp(-1.0)/x;
-	    if( isamp > 1 ) w3 = exp(-1.0-x)/x;
+	    w2 = -2.*exp(-1.0)/x;
+	    w3 = exp(-1.0-x)/x;
 	    
 	    // for( int jsamp=0; jsamp<6; jsamp++ ){
 	    //   ADCsampUdeconv[isamp] += Hdeconv(isamp,jsamp)*ADCsampU[jsamp];
@@ -514,11 +541,78 @@ void GEM_StripTime( const char *configfilename, const char *outfilename="GEM_Str
 		
 	  }
 
+	  int isampmaxcomboU=-1;
+	  int isampmaxcomboV=-1;
+	  
+	  double maxcomboU=0.0;
+	  double maxcomboV=0.0;
+
+	  double tdeconvU = 0.0;
+	  double tdeconvV = 0.0;
+	  
 	  for( int isamp=0; isamp<6; isamp++ ){
+	    double comboU = ADCsampUdeconv[isamp];
+	    double comboV = ADCsampVdeconv[isamp];
+	    
+	    if( isamp<5 ){
+	      comboU += ADCsampUdeconv[isamp+1];
+	      comboV += ADCsampVdeconv[isamp+1];
+	    }
+
+	    if( isampmaxcomboU < 0 || comboU > maxcomboU ){
+	      isampmaxcomboU = isamp;
+	      maxcomboU = comboU;
+	    }
+
+	    if( isampmaxcomboV < 0 || comboV > maxcomboV ){
+	      isampmaxcomboV = isamp;
+	      maxcomboV = comboV;
+	    }
+	    
 	    hADCfracUdeconv->Fill( isamp, ADCsampUdeconv[isamp]/ADCsumUdeconv );
 	    hADCfracVdeconv->Fill( isamp, ADCsampVdeconv[isamp]/ADCsumVdeconv );
+
+	    tdeconvU += ADCsampUdeconv[isamp]*tsamp[isamp]/ADCsumUdeconv;
+	    tdeconvV += ADCsampVdeconv[isamp]*tsamp[isamp]/ADCsumVdeconv;
 	  }
 
+	  // if( isampmaxcomboU < 5 ){
+	  //   double t1 = tsamp[isampmaxcomboU];
+	  //   double t2 = tsamp[isampmaxcomboU+1];
+	  //   double ADC1 = ADCsampUdeconv[isampmaxcomboU];
+	  //   double ADC2 = ADCsampUdeconv[isampmaxcomboU+1];
+
+	  //   tdeconvU = (t1 * ADC1 + t2 * ADC2)/maxcomboU;
+	  // } else {
+	  //   tdeconvU = tsamp[5];
+	  // }
+
+	  // if( isampmaxcomboV < 5 ){
+	  //   double t1 = tsamp[isampmaxcomboV];
+	  //   double t2 = tsamp[isampmaxcomboV+1];
+	  //   double ADC1 = ADCsampVdeconv[isampmaxcomboV];
+	  //   double ADC2 = ADCsampVdeconv[isampmaxcomboV+1];
+
+	  //   tdeconvV = (t1 * ADC1 + t2 * ADC2)/maxcomboV;
+	  // } else {
+	  //   tdeconvV = tsamp[5];
+	  // }
+	  
+
+	  hTdeconvU->Fill( tdeconvU );
+	  hTdeconvV->Fill( tdeconvV );
+	  hTdeconvUVdiff->Fill( tdeconvU-tdeconvV );
+	  hTdeconvVvsU->Fill( tdeconvU, tdeconvV );
+	  
+	  hADCmaxComboDeconvU->Fill( maxcomboU );
+	  hADCmaxComboDeconvV->Fill( maxcomboV );
+
+	  hIsampMaxComboDeconvU->Fill( isampmaxcomboU );
+	  hIsampMaxComboDeconvV->Fill( isampmaxcomboV );
+
+	  hADCfracMaxComboU->Fill( maxcomboU/hit_ADCmaxsampU[ihit] );
+	  hADCfracMaxComboV->Fill( maxcomboV/hit_ADCmaxsampV[ihit] );
+	  
 	  hADCsumDeconvU->Fill( ADCsumUdeconv );
 	  hADCsumDeconvV->Fill( ADCsumVdeconv );
 	  

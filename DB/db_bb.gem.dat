@@ -1160,6 +1160,7 @@ bb.gem.m11.angle =      -0.2385673     -0.09314385       -0.279551
 
 ###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
 
+
 -----------[ 2021-10-17 19:12:00 ] # new higher thresholds after GEM HV increase
 bb.gem.threshold_sample = 0.0
 bb.gem.threshold_stripsum = 0.0
@@ -1210,6 +1211,55 @@ bb.gem.m10.maxstrip_tcut =     25.1
 bb.gem.m11.maxstrip_t0 =     83.6
 bb.gem.m11.maxstrip_tcut =     24.7
 
+bb.gem.m0.threshold_sample = 108.349
+bb.gem.m0.threshold_stripsum = 565
+bb.gem.m0.threshold_clustersum = 990
+b
+bb.gem.m1.threshold_sample = 99.7084
+bb.gem.m1.threshold_stripsum = 445
+bb.gem.m1.threshold_clustersum = 770
+
+bb.gem.m2.threshold_sample = 104.559
+bb.gem.m2.threshold_stripsum = 465
+bb.gem.m2.threshold_clustersum = 790
+
+bb.gem.m3.threshold_sample = 101.054
+bb.gem.m3.threshold_stripsum = 465
+bb.gem.m3.threshold_clustersum = 810
+
+bb.gem.m4.threshold_sample = 96.4713
+bb.gem.m4.threshold_stripsum = 535
+bb.gem.m4.threshold_clustersum = 930
+
+bb.gem.m5.threshold_sample = 100.177
+bb.gem.m5.threshold_stripsum = 455
+bb.gem.m5.threshold_clustersum = 790
+
+bb.gem.m6.threshold_sample = 102.82
+bb.gem.m6.threshold_stripsum = 455
+bb.gem.m6.threshold_clustersum = 810
+
+# module 7 doesn't work ever; set high threshold to exclude from analysis
+bb.gem.m7.threshold_sample = 10000
+bb.gem.m7.threshold_stripsum = 5
+bb.gem.m7.threshold_clustersum = 10
+
+bb.gem.m8.threshold_sample = 92.6519
+bb.gem.m8.threshold_stripsum = 545
+bb.gem.m8.threshold_clustersum = 1030
+
+bb.gem.m9.threshold_sample = 95.4921
+bb.gem.m9.threshold_stripsum = 455
+bb.gem.m9.threshold_clustersum = 810
+
+bb.gem.m10.threshold_sample = 100.459
+bb.gem.m10.threshold_stripsum = 495
+bb.gem.m10.threshold_clustersum = 870
+
+bb.gem.m11.threshold_sample = 100.052
+bb.gem.m11.threshold_stripsum = 485
+bb.gem.m11.threshold_clustersum = 850
+
 
 
 # turn off track search region constraint for zero-field runs in BB with sieve:
@@ -1226,6 +1276,9 @@ bb.gem.useopticsconstraint = 0
 ---------[ 2021-10-15 08:21:00 ] # turn on optics constraint after sieve is removed:
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
+
+bb.gem.constraintwidth_theta = 0.0543298
+bb.gem.constraintwidth_phi = 0.0336563
 
 ----------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics:
 
@@ -1269,6 +1322,59 @@ bb.gem.m10.maxstrip_tcut =     32.8
 bb.gem.m11.maxstrip_t0 =     84.8
 bb.gem.m11.maxstrip_tcut =     33.7
 
+bb.gem.m0.threshold_sample = 108.349
+bb.gem.m0.threshold_stripsum = 565
+bb.gem.m0.threshold_clustersum = 990
+b
+bb.gem.m1.threshold_sample = 99.7084
+bb.gem.m1.threshold_stripsum = 445
+bb.gem.m1.threshold_clustersum = 770
+
+bb.gem.m2.threshold_sample = 104.559
+bb.gem.m2.threshold_stripsum = 465
+bb.gem.m2.threshold_clustersum = 790
+
+bb.gem.m3.threshold_sample = 101.054
+bb.gem.m3.threshold_stripsum = 465
+bb.gem.m3.threshold_clustersum = 810
+
+bb.gem.m4.threshold_sample = 96.4713
+bb.gem.m4.threshold_stripsum = 535
+bb.gem.m4.threshold_clustersum = 930
+
+bb.gem.m5.threshold_sample = 100.177
+bb.gem.m5.threshold_stripsum = 455
+bb.gem.m5.threshold_clustersum = 790
+
+bb.gem.m6.threshold_sample = 102.82
+bb.gem.m6.threshold_stripsum = 455
+bb.gem.m6.threshold_clustersum = 810
+
+# module 7 doesn't work ever; set high threshold to exclude from analysis
+bb.gem.m7.threshold_sample = 10000
+bb.gem.m7.threshold_stripsum = 5
+bb.gem.m7.threshold_clustersum = 10
+
+bb.gem.m8.threshold_sample = 92.6519
+bb.gem.m8.threshold_stripsum = 545
+bb.gem.m8.threshold_clustersum = 1030
+
+bb.gem.m9.threshold_sample = 95.4921
+bb.gem.m9.threshold_stripsum = 455
+bb.gem.m9.threshold_clustersum = 810
+
+bb.gem.m10.threshold_sample = 100.459
+bb.gem.m10.threshold_stripsum = 495
+bb.gem.m10.threshold_clustersum = 870
+
+bb.gem.m11.threshold_sample = 100.052
+bb.gem.m11.threshold_stripsum = 485
+bb.gem.m11.threshold_clustersum = 850
+
+
+
+bb.gem.constraintwidth_theta = 0.0309061
+bb.gem.constraintwidth_phi = 0.0264007
 
 -----------[ 2021-10-24 23:10:00 ] # Zero-field run for SBS-4:
 bb.gem.useconstraint = 1
@@ -1317,7 +1423,56 @@ bb.gem.m10.maxstrip_tcut =     23.9
 bb.gem.m11.maxstrip_t0 =     88.7
 bb.gem.m11.maxstrip_tcut =     24.8
 
+bb.gem.constraintwidth_theta = 0.030881
+bb.gem.constraintwidth_phi = 0.0282964
 
+bb.gem.m0.threshold_sample = 118.183
+bb.gem.m0.threshold_stripsum = 555
+bb.gem.m0.threshold_clustersum = 990
+
+bb.gem.m1.threshold_sample = 103
+bb.gem.m1.threshold_stripsum = 425
+bb.gem.m1.threshold_clustersum = 750
+
+bb.gem.m2.threshold_sample = 107
+bb.gem.m2.threshold_stripsum = 435
+bb.gem.m2.threshold_clustersum = 770
+
+bb.gem.m3.threshold_sample = 105.262
+bb.gem.m3.threshold_stripsum = 445
+bb.gem.m3.threshold_clustersum = 810
+
+bb.gem.m4.threshold_sample = 110.58
+bb.gem.m4.threshold_stripsum = 535
+bb.gem.m4.threshold_clustersum = 950
+
+bb.gem.m5.threshold_sample = 106.154
+bb.gem.m5.threshold_stripsum = 435
+bb.gem.m5.threshold_clustersum = 770
+
+bb.gem.m6.threshold_sample = 109
+bb.gem.m6.threshold_stripsum = 455
+bb.gem.m6.threshold_clustersum = 790
+
+bb.gem.m7.threshold_sample = 70.9394
+bb.gem.m7.threshold_stripsum = 5
+bb.gem.m7.threshold_clustersum = 10
+
+bb.gem.m8.threshold_sample = 86.813
+bb.gem.m8.threshold_stripsum = 435
+bb.gem.m8.threshold_clustersum = 810
+
+bb.gem.m9.threshold_sample = 101.707
+bb.gem.m9.threshold_stripsum = 475
+bb.gem.m9.threshold_clustersum = 850
+
+bb.gem.m10.threshold_sample = 108.128
+bb.gem.m10.threshold_stripsum = 515
+bb.gem.m10.threshold_clustersum = 930
+
+bb.gem.m11.threshold_sample = 108.374
+bb.gem.m11.threshold_stripsum = 505
+bb.gem.m11.threshold_clustersum = 910
 
 -----------[ 2021-11-13 10:15:00 ] # turn on constraints after turning on BB magnet:  
 
