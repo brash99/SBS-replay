@@ -144,6 +144,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   gROOT->ProcessLine(".x ~/rootlogon.C");
 
   UInt_t MAXNHITS=10000;
+  UInt_t MAXNTRACKS=100;
   
   TString fname(infilename);
 
@@ -157,8 +158,8 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   double ngoodhits;
   double ntracks;
   double besttrack;
-  vector<double> tracknhits(MAXNHITS);
-  vector<double> trackChi2NDF(MAXNHITS);
+  vector<double> tracknhits(MAXNTRACKS);
+  vector<double> trackChi2NDF(MAXNTRACKS);
   vector<double> hit_trackindex(MAXNHITS);
   vector<double> hit_module(MAXNHITS);
   vector<double> hit_layer(MAXNHITS);
@@ -178,6 +179,14 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   vector<double> hit_ADCmaxsampV(MAXNHITS);
   vector<double> hit_ADCmaxstripU(MAXNHITS);
   vector<double> hit_ADCmaxstripV(MAXNHITS);
+  //vector<double> Epreshower(MAXNHITS);
+  //vector<double> Eshower(MAXNHITS);
+  double Epreshower,Eshower;
+  
+  double xfcp,yfcp,zfcp,xbcp,ybcp,zbcp;
+  
+  vector<double> track_vz(MAXNTRACKS);
+  vector<double> track_p(MAXNTRACKS);
 
   map<TString,TString> branchnames;
   vector<TString> varnames;
@@ -205,6 +214,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   varnames.push_back("hit.ADCmaxsampV");
   varnames.push_back("hit.ADCmaxstripU");
   varnames.push_back("hit.ADCmaxstripV");
+  
 
   cout << "disabling all branches...";
   
@@ -217,6 +227,19 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
     cout << "Branch " << i << " name = " << branchnames[varnames[i]] << endl;
     C->SetBranchStatus( branchnames[varnames[i]].Data(), 1 );
   }
+
+  C->SetBranchStatus("bb.tr.vz",1);
+  C->SetBranchStatus("bb.tr.p",1);
+  C->SetBranchStatus("bb.ps.e",1);
+  C->SetBranchStatus("bb.sh.e",1);
+  C->SetBranchStatus("bb.x_bcp",1);
+  C->SetBranchStatus("bb.y_bcp",1);
+  C->SetBranchStatus("bb.z_bcp",1);
+  C->SetBranchStatus("bb.x_fcp",1);
+  C->SetBranchStatus("bb.y_fcp",1);
+  C->SetBranchStatus("bb.z_fcp",1);
+  
+  
 
   cout << "Setting branch addresses: ";
   C->SetBranchAddress( branchnames["track.ntrack"].Data(), &ntracks );
@@ -243,6 +266,16 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
   C->SetBranchAddress( branchnames["hit.ADCmaxsampV"].Data(), &(hit_ADCmaxsampV[0]) );
   C->SetBranchAddress( branchnames["hit.ADCmaxstripU"].Data(), &(hit_ADCmaxstripU[0]) );
   C->SetBranchAddress( branchnames["hit.ADCmaxstripV"].Data(), &(hit_ADCmaxstripV[0]) );
+  C->SetBranchAddress( "bb.tr.vz", &(track_vz[0]) );
+  C->SetBranchAddress( "bb.tr.p", &(track_p[0]) );
+  C->SetBranchAddress( "bb.ps.e",&Epreshower);
+  C->SetBranchAddress( "bb.sh.e",&Eshower);
+  C->SetBranchAddress( "bb.x_fcp", &xfcp );
+  C->SetBranchAddress( "bb.y_fcp", &yfcp );
+  C->SetBranchAddress( "bb.z_fcp", &zfcp );
+  C->SetBranchAddress( "bb.x_bcp", &xbcp );
+  C->SetBranchAddress( "bb.y_bcp", &ybcp );
+  C->SetBranchAddress( "bb.z_bcp", &zbcp );
   cout << "done." << endl;
   
   TString outfilename = Form("GainRatios_%s_temp.root",detname); 
@@ -334,9 +367,10 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
     //cout << "ntracks = " << NTRACKS << endl;
     
-    if( NTRACKS > 0 ){
+    if( NTRACKS == 1 ){
 
-      if( trackChi2NDF[itrack] < chi2cut && tracknhits[itrack] > 3 ){
+      if( trackChi2NDF[itrack] < chi2cut && tracknhits[itrack] > 3 && Epreshower >= 0.25 && abs((Epreshower+Eshower)/track_p[0]-1.)<=0.25 &&
+	  abs(track_vz[0])<0.08 ){
 	int nhits = int(ngoodhits);
 	//	cout << "nhits = " << nhits << endl;
 	
@@ -345,7 +379,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
 
 	  //cout << "ihit, tridx = " << ihit << ", " << tridx;
 	  
-	  if( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) >= ADCcut && tridx == itrack ){
+	  if( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) >= ADCcut && tridx == itrack && hit_nstripu[ihit]>1 && hit_nstripv[ihit]>1){
 	    // cout << ", ADCavg[ihit] = " << hit_ADCavg[ihit]
 	    // 	 << ", ADCasym[ihit] = " << hit_ADCasym[ihit]
 	    // 	 << ", (nstripu,nstripv) = (" << hit_nstripu[ihit] << ", " << hit_nstripv[ihit] << ")"
@@ -1090,7 +1124,7 @@ void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="b
       outfile_db << dbentry << endl;
       cout << dbentry << endl;
 
-      outfile_db << dbentry << endl << endl;
+      outfile_db << endl << endl;
       
     } else {
       TString dbentry;
