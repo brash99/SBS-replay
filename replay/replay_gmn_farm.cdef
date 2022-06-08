@@ -18,8 +18,8 @@ Block: CoarseReconstruct
 GoodBBCALsum  bb.ts.over_threshold==1
 GoodHCAL sbs.hcal.nclus>0
 GoodCoin GoodBBCALsum&&GoodHCAL
-CoarseReconstruct_master GoodCoin
-#CoarseReconstruct_master 1
+#CoarseReconstruct_master GoodCoin
+CoarseReconstruct_master 1
 
 # Additionally we require a good track to write output
 Block: Physics
@@ -31,5 +31,3 @@ GoodTrack BB.gold.index>-1
 GoodElectron  GoodTrack&&CutPreShower
 #Physics_master GoodBBCAL
 Physics_master GoodTrack
-
-

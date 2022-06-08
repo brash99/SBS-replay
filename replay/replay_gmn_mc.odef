@@ -12,3 +12,5 @@ variable MC.nbbtracks
 block MC.bbtrack*
 variable MC.nbbgemhits
 block MC.bbgemhit*
+variable MC.bbps_esum
+variable MC.bbsh_esum
