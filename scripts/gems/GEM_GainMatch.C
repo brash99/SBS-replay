@@ -21,6 +21,7 @@
 #include "TFitResult.h"
 #include "TObjArray.h"
 #include "TObjString.h"
+#include "TGraph.h"
 // bunch of header files that are needed throughout the script
 
 //What is the purpose of each one of these vector variables?
@@ -165,7 +166,7 @@ const char *runnum_char = runnum_temp.c_str();
 
   //C->Add( infilename );
   //Do some file name management. This will of course need to change if you get files from not ewertz volatile
-  string input_directory = "/volatile/halla/sbs/ewertz/GMn_replays/rootfiles/"; 
+  string input_directory = "/volatile/halla/sbs/ewertz/GMn_replays/rootfiles/Standard/"; 
   const char *input_directory_char = input_directory.c_str();	
 //To implement multiple files or that is replay segments use a for loop
 	for(int iseg=0; iseg<=numseg; iseg++){
@@ -919,8 +920,103 @@ const char *runnum_char = runnum_temp.c_str();
 
     //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
   }
+//Define TGraph and Histogram for all gain coefficients. U/X and V/Y gain coefficient vs APV
+	TGraph *Gain_APV_all = new TGraph(268);
+	Gain_APV_all->SetName("hGainCoefficients_APV");
+	Gain_APV_all->SetTitle("Gain Coefficients vs APV");
+	Gain_APV_all->SetMarkerStyle(kFullDotMedium);
+	Gain_APV_all->SetLineColor(0);
+	
+	TGraph *XGain_APV_all = new TGraph(160);
+	XGain_APV_all->SetName("hUX_GainCoefficients_APV");
+	XGain_APV_all->SetTitle("U/X Gain Coefficients vs APV");
+	XGain_APV_all->SetMarkerStyle(kFullDotMedium);
+	XGain_APV_all->SetLineColor(0);
+	
+	TGraph *YGain_APV_all = new TGraph(168);
+	YGain_APV_all->SetName("hVY_GainCoefficients_APV");
+	YGain_APV_all->SetTitle("V/Y Gain Coefficients vs APV");
+	YGain_APV_all->SetMarkerStyle(kFullDotMedium);
+	YGain_APV_all->SetLineColor(0);
+	
+	TH1D *Gain_histo_all = new TH1D("hGainCoefficient_Histo","",200,0,2);
+	TH1D *XGain_histo_all = new TH1D("hUX_GainCoefficient_Histo","",200,0,2);	
+	TH1D *YGain_histo_all = new TH1D("hVY_GainCoefficient_Histo","",200,0,2);
+	
+	int bestcount = 0;
+	int mycountx = 0;
+	int mycounty = 0;
+	for(int mod = 0; mod < nmodules; mod++ ){
+	vector<double> Xtemp = Xgain_by_module[mod];
+	vector<double> Ytemp = Ygain_by_module[mod];
+	int mymodx = Xtemp.size();
+	int mymody = Ytemp.size();
+	//Define TGraph and Histogram per module for gain coefficients
+	TString mynamex;
+	 mynamex.Form("hUX_GainCoefficients_APV_mod%d",mod);
+	TString mynamey;
+         mynamey.Form("hVY_GainCoefficients_APV_mod%d",mod);
+	
+	TString myNameX;
+         myNameX.Form("hUX_GainCoefficient_Histo_mod%d",mod);
+        TString myNameY;
+         myNameY.Form("hVY_GainCoefficient_Histo_mod%d",mod);
+	
+	TGraph *XGain_APV_mod = new TGraph(mymodx);
+	XGain_APV_mod->SetName(mynamex);
+        XGain_APV_mod->SetTitle(mynamex);
+        XGain_APV_mod->SetMarkerStyle(kFullDotMedium);
+        XGain_APV_mod->SetLineColor(0);
+
+	TGraph *YGain_APV_mod = new TGraph(mymody);
+        YGain_APV_mod->SetName(mynamey);
+        YGain_APV_mod->SetTitle(mynamey);
+        YGain_APV_mod->SetMarkerStyle(kFullDotMedium);
+        YGain_APV_mod->SetLineColor(0);
+	
+	TH1D *XGain_histo_mod = new TH1D(myNameX,"",200,0,2);
+        TH1D *YGain_histo_mod = new TH1D(myNameY,"",200,0,2);	
+		for(int x = 0; x < Xtemp.size(); x++){
+		double myXgain = Xtemp.at(x);
+		//Fill both histos properly
+		Gain_APV_all ->SetPoint(bestcount,bestcount+1,myXgain);
+		XGain_APV_all -> SetPoint(mycountx,mycountx+1,myXgain);
+		XGain_histo_all -> Fill(myXgain);
+		XGain_APV_mod -> SetPoint(x,x+1,myXgain);
+		XGain_histo_mod -> Fill(myXgain);
+		Gain_histo_all ->Fill(myXgain);
+		mycountx++;
+		bestcount++;
+		}
+		for(int y = 0; y < Ytemp.size(); y++){
+                double myYgain = Ytemp.at(y);
+                //Fill both histos properly
+                Gain_APV_all ->SetPoint(bestcount,bestcount+1,myYgain);
+		YGain_APV_all -> SetPoint(mycounty,mycounty+1,myYgain);
+               	YGain_histo_all -> Fill(myYgain);
+		YGain_APV_mod -> SetPoint(y,y+1,myYgain);
+		YGain_histo_mod ->Fill(myYgain);
+		Gain_histo_all ->Fill(myYgain);
+		mycounty++;
+		bestcount++;
+                 }
+         XGain_APV_mod->Draw("AP");
+	 XGain_APV_mod->Write();
+	 YGain_APV_mod->Draw("AP");
+	 YGain_APV_mod->Write();       
+	
+	}
+	Gain_APV_all->Draw("AP");
+	Gain_APV_all->Write();
+	XGain_APV_all->Draw("AP");
+	XGain_APV_all->Write();
+	YGain_APV_all->Draw("AP");
+	YGain_APV_all->Write();
+
 
   
+
+
 
 
   //We will want a 2nd loop over the data to make plots of corrected ADC spectra:
@@ -939,6 +1035,20 @@ const char *runnum_char = runnum_temp.c_str();
   TH2D *hADC_UV_allhits_corrected = new TH2D("hADC_UV_allhits_corrected","Cluster sum ;ADCU;ADCV",250,0,25000,250,0,25000);
   TH2D *hADC_UVmaxstrip_allhits_corrected = new TH2D("hADC_UVmaxstrip_allhits_corrected","Max Strip sum;ADCU;ADCV",250,0,15000,250,0,15000);
   TH2D *hADC_UVmaxsamp_allhits_corrected = new TH2D("hADC_UVmaxsamp_allhits_corrected","Max Strip max sample;ADCU;ADCV",250,0,3000,250,0,3000);
+  
+  TClonesArray *hADC_UV_allhits_corrected_mod = new TClonesArray( "TH2D", nmodules);
+  TClonesArray *hADC_UVmaxstrip_allhits_corrected_mod = new TClonesArray( "TH2D", nmodules );
+  TClonesArray *hADC_UVmaxsamp_allhits_corrected_mod = new TClonesArray( "TH2D", nmodules );
+  for(int j =0; j<nmodules;j++){
+  	TString datname, Datname, datName;
+ 	datname.Form("hADC_UVmaxstrip_allhits_corrected_mod%d",j);
+	Datname.Form("hADC_UV_allhits_corrected_mod%d",j);
+	datName.Form("hADC_UVmaxsamp_allhits_corrected%d",j);
+  	new( (*hADC_UVmaxstrip_allhits_corrected_mod)[j] ) TH2D(datname.Data(),"Max Strip sum;ADCU;ADCV",250,0,15000,250,0,15000);
+	new( (*hADC_UV_allhits_corrected_mod)[j] ) TH2D(Datname.Data(),"Cluster sum ;ADCU;ADCV",250,0,25000,250,0,25000);
+	new( (*hADC_UVmaxsamp_allhits_corrected_mod)[j] ) TH2D(datName.Data(),"Max Strip max sample;ADCU;ADCV",250,0,3000,250,0,3000);	
+ } 
+
 
   nevent = 0;
   
@@ -1005,8 +1115,7 @@ const char *runnum_char = runnum_temp.c_str();
 	    int yAPVhi = iyhi/128;
 
 	    int module = int(hit_module[ihit]);
-
-	    if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
+		if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
 	    	yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
 	    	hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 &&
 	    	xAPVmax*128 < nstripx_mod[module] && yAPVmax*128<nstripy_mod[module] ){
@@ -1033,7 +1142,9 @@ const char *runnum_char = runnum_temp.c_str();
 	      hADC_UV_allhits_corrected->Fill( hit_ADCU[ihit]/Xgaintemp, hit_ADCV[ihit]/Ygaintemp );
 	      hADC_UVmaxstrip_allhits_corrected->Fill( hit_ADCmaxstripU[ihit]/Xgaintemp, hit_ADCmaxstripV[ihit]/Ygaintemp );
 	      hADC_UVmaxsamp_allhits_corrected->Fill( hit_ADCmaxsampU[ihit]/Xgaintemp, hit_ADCmaxsampV[ihit]/Ygaintemp );
-	      
+	     ( (TH2D*) (*hADC_UVmaxstrip_allhits_corrected_mod)[module] )->Fill( hit_ADCmaxstripU[ihit]/Xgaintemp, hit_ADCmaxstripV[ihit]/Ygaintemp );
+	     ( (TH2D*) (*hADC_UV_allhits_corrected_mod)[module] )->Fill(hit_ADCU[ihit]/Xgaintemp, hit_ADCV[ihit]/Ygaintemp );
+	     ( (TH2D*) (*hADC_UVmaxsamp_allhits_corrected_mod)[module] )->Fill(hit_ADCmaxsampU[ihit]/Xgaintemp, hit_ADCmaxsampV[ihit]/Ygaintemp );
 	    // if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
 	    // 	yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
 	    // 	hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 &&
@@ -1095,8 +1206,6 @@ const char *runnum_char = runnum_temp.c_str();
 
   outfile << endl;
   outfile_db << endl;
-
-  
   fout->Write();
 
 }
