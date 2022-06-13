@@ -8,7 +8,7 @@
 #block bb.hodotdc.bar.*
 #block bb.hodoadc.bar.*
 
-#variable bb.hodotdc.nclus
+variable bb.hodotdc.nclus
 #block bb.hodotdc.clus.*
 
 # turn on only "main cluster" output for the tree to keep the tree lightweight for large-scale analysis:
