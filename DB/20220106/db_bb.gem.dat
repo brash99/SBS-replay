@@ -1070,12 +1070,13 @@ bb.gem.pedsub_online = 0
 
 bb.gem.pedsub_online = 1 # normally this should always be set to 1
 
---------[ 2022-07-01 14:30:00 ] # First comsic data after GMn is over
+--------[ 2022-07-01 14:30:00 ] # Cosmic runs during the break between GMn and GEn
 
 bb.gem.suppressfirstlast = 0
 bb.gem.useconstraint = 0
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
+
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
 
@@ -1108,9 +1109,10 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run13594.dat
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13637.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run13637.dat
 
---------[ 2022-07-01 14:30:00 ] # new pedestal after many changes done to electronics during downtime
-bb.gem.pedfile = gemped/daq_ped_bb_gem_run13637.dat
-bb.gem.cmfile = gemped/db_cmr_bb_gem_run13637.dat
+--------[ 2022-07-01 14:30:00 ] # new pedestal after replacing multiple APVs and backplanes during the break after GMn
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run14035.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run14035.dat
+
 
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
