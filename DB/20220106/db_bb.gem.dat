@@ -1070,38 +1070,47 @@ bb.gem.pedsub_online = 0
 
 bb.gem.pedsub_online = 1 # normally this should always be set to 1
 
+--------[ 2022-07-01 14:30:00 ] # First comsic data after GMn is over
 
+bb.gem.suppressfirstlast = 0
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
 
 
 --------[ 2022-01-6 12:00:00 ] # new pedestal after J0 swap
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13089.dat
-bb.gem.cmfile = gemped/daq_cmr_bb_gem_run13089.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13089.dat
 
 --------[ 2022-01-9 21:00:00 ] # new pedestal after replacing an APV
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13142.dat
-bb.gem.cmfile = gemped/daq_cmr_bb_gem_run13142.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13142.dat
 
 --------[ 2022-01-11 11:45:00 ] # new pedestal after replacing an APV
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13197.dat
-bb.gem.cmfile = gemped/daq_cmr_bb_gem_run13197.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13197.dat
 
 --------[ 2022-01-22 15:25:00 ] # new pedestal because one backplane was shifted
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13456.dat
-bb.gem.cmfile = gemped/daq_cmr_bb_gem_run13456.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13456.dat
 
 --------[ 2022-01-23 16:50:00 ] # new pedestal because one APV shifted it's baseline
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13480.dat
-bb.gem.cmfile = gemped/daq_cmr_bb_gem_run13480.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13480.dat
 
 --------[ 2022-01-30 15:15:00 ] # new pedestal because one APV in UV layer#4 shifted it's baseline
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13594.dat
-bb.gem.cmfile = gemped/daq_cmr_bb_gem_run13594.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13594.dat
 
 --------[ 2022-01-31 19:30:00 ] # new pedestal after replacing one backplane on layer 2
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run13637.dat
-bb.gem.cmfile = gemped/daq_cmr_bb_gem_run13637.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13637.dat
+
+--------[ 2022-07-01 14:30:00 ] # new pedestal after many changes done to electronics during downtime
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run13637.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run13637.dat
 
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
