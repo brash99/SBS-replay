@@ -1,16 +1,8 @@
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg0_9.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg100_105.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg10_19.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg20_29.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg30_39.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg40_49.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg50_59.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg60_69.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg70_79.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg80_89.root
-/Users/puckett/GMN_ROOTFILES/SBS8/e1209019_fullreplay_13487_stream0_seg90_99.root
+/Users/puckett/GMN_ROOTFILES/PASS1_QA/SBS8/rootfiles/*_13452*.root
+/Users/puckett/GMN_ROOTFILES/PASS1_QA/SBS8/rootfiles/*_13566*.root
+/Users/puckett/GMN_ROOTFILES/PASS1_QA/SBS8/rootfiles/*_13575*.root
 endlist
-bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz)<0.08&&bb.gem.track.nhits>3&&abs(bb.etot_over_p-1.02)<0.21&&sbs.hcal.e>0.05&&bb.ps.e+bb.sh.e>3.0
+bb.tr.n==1&&bb.ps.e>0.2&&abs(bb.tr.vz)<0.08&&bb.gem.track.nhits>3&&abs(bb.etot_over_p-1.0)<0.3&&sbs.hcal.e>0.05&&bb.ps.e+bb.sh.e>3.0
 endcut
 order 1
 dEdx 0.00574
