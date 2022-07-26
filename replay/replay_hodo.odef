@@ -2,7 +2,7 @@
 # Raw TDC and FADC data
 #-----------------------------------------------------------------------------
 
-block bb.hodotdc.*
+#block bb.hodotdc.*
 #block bb.hodoadc.*
 
 #block bb.hodotdc.bar.*
