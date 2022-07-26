@@ -164,7 +164,7 @@ const char *runnum_char = runnum_temp.c_str();
 //Remind me why TChain is important
   UInt_t MAXNTRACKS=100;
   
-  TString fname(infilename);
+ 
 
 
   TChain *C = new TChain("T");
@@ -965,24 +965,25 @@ const char *runnum_char = runnum_temp.c_str();
     //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
   }
 //Define TGraph and Histogram for all gain coefficients. U/X and V/Y gain coefficient vs APV
-	TGraph *Gain_APV_all = new TGraph(268);
-	Gain_APV_all->SetName("hGainCoefficients_APV");
+	TGraph *Gain_APV_all = new TGraph();
+	Gain_APV_all->SetName("gGainCoefficients_APV");
 	Gain_APV_all->SetTitle("Gain Coefficients vs APV");
-	Gain_APV_all->SetMarkerStyle(kFullDotMedium);
+	Gain_APV_all->SetMarkerStyle(kFullDotLarge);
 	Gain_APV_all->SetLineColor(0);
 	
-	TGraph *XGain_APV_all = new TGraph(160);
-	XGain_APV_all->SetName("hUX_GainCoefficients_APV");
+	TGraph *XGain_APV_all = new TGraph();
+	XGain_APV_all->SetName("gUX_GainCoefficients_APV");
 	XGain_APV_all->SetTitle("U/X Gain Coefficients vs APV");
-	XGain_APV_all->SetMarkerStyle(kFullDotMedium);
+	XGain_APV_all->SetMarkerStyle(kFullDotLarge);
 	XGain_APV_all->SetLineColor(0);
 	
-	TGraph *YGain_APV_all = new TGraph(168);
-	YGain_APV_all->SetName("hVY_GainCoefficients_APV");
+	TGraph *YGain_APV_all = new TGraph();
+	YGain_APV_all->SetName("gVY_GainCoefficients_APV");
 	YGain_APV_all->SetTitle("V/Y Gain Coefficients vs APV");
-	YGain_APV_all->SetMarkerStyle(kFullDotMedium);
+	YGain_APV_all->SetMarkerStyle(kFullDotLarge);
 	YGain_APV_all->SetLineColor(0);
 	
+	gStyle->SetOptStat("neMRou");
 	TH1D *Gain_histo_all = new TH1D("hGainCoefficient_Histo","",200,0,2);
 	TH1D *XGain_histo_all = new TH1D("hUX_GainCoefficient_Histo","",200,0,2);	
 	TH1D *YGain_histo_all = new TH1D("hVY_GainCoefficient_Histo","",200,0,2);
@@ -997,9 +998,9 @@ const char *runnum_char = runnum_temp.c_str();
 	int mymody = Ytemp.size();
 	//Define TGraph and Histogram per module for gain coefficients
 	TString mynamex;
-	 mynamex.Form("hUX_GainCoefficients_APV_mod%d",mod);
+	 mynamex.Form("gUX_GainCoefficients_APV_mod%d",mod);
 	TString mynamey;
-         mynamey.Form("hVY_GainCoefficients_APV_mod%d",mod);
+         mynamey.Form("gVY_GainCoefficients_APV_mod%d",mod);
 	
 	TString myNameX;
          myNameX.Form("hUX_GainCoefficient_Histo_mod%d",mod);
@@ -1009,13 +1010,13 @@ const char *runnum_char = runnum_temp.c_str();
 	TGraph *XGain_APV_mod = new TGraph(mymodx);
 	XGain_APV_mod->SetName(mynamex);
         XGain_APV_mod->SetTitle(mynamex);
-        XGain_APV_mod->SetMarkerStyle(kFullDotMedium);
+        XGain_APV_mod->SetMarkerStyle(kFullDotLarge);
         XGain_APV_mod->SetLineColor(0);
 
 	TGraph *YGain_APV_mod = new TGraph(mymody);
         YGain_APV_mod->SetName(mynamey);
         YGain_APV_mod->SetTitle(mynamey);
-        YGain_APV_mod->SetMarkerStyle(kFullDotMedium);
+        YGain_APV_mod->SetMarkerStyle(kFullDotLarge);
         YGain_APV_mod->SetLineColor(0);
 	
 	TH1D *XGain_histo_mod = new TH1D(myNameX,"",200,0,2);
@@ -1023,24 +1024,28 @@ const char *runnum_char = runnum_temp.c_str();
 		for(int x = 0; x < Xtemp.size(); x++){
 		double myXgain = Xtemp.at(x);
 		//Fill both histos properly
-		Gain_APV_all ->SetPoint(bestcount,bestcount+1,myXgain);
-		XGain_APV_all -> SetPoint(mycountx,mycountx+1,myXgain);
+	
 		XGain_histo_all -> Fill(myXgain);
 		XGain_APV_mod -> SetPoint(x,x+1,myXgain);
 		XGain_histo_mod -> Fill(myXgain);
 		Gain_histo_all ->Fill(myXgain);
+		Gain_APV_all ->SetPoint(bestcount,bestcount+1,myXgain);
+		XGain_APV_all -> SetPoint(mycountx,mycountx+1,myXgain);
+		
 		mycountx++;
 		bestcount++;
 		}
 		for(int y = 0; y < Ytemp.size(); y++){
                 double myYgain = Ytemp.at(y);
                 //Fill both histos properly
-                Gain_APV_all ->SetPoint(bestcount,bestcount+1,myYgain);
-		YGain_APV_all -> SetPoint(mycounty,mycounty+1,myYgain);
+               
                	YGain_histo_all -> Fill(myYgain);
 		YGain_APV_mod -> SetPoint(y,y+1,myYgain);
 		YGain_histo_mod ->Fill(myYgain);
 		Gain_histo_all ->Fill(myYgain);
+                Gain_APV_all ->SetPoint(bestcount,bestcount+1,myYgain);
+                YGain_APV_all -> SetPoint(mycounty,mycounty+1,myYgain);
+
 		mycounty++;
 		bestcount++;
                  }
@@ -1056,7 +1061,7 @@ const char *runnum_char = runnum_temp.c_str();
 	XGain_APV_all->Write();
 	YGain_APV_all->Draw("AP");
 	YGain_APV_all->Write();
-
+	
 
   
 
@@ -1087,7 +1092,7 @@ const char *runnum_char = runnum_temp.c_str();
   	TString datname, Datname, datName;
  	datname.Form("hADC_UVmaxstrip_allhits_corrected_mod%d",j);
 	Datname.Form("hADC_UV_allhits_corrected_mod%d",j);
-	datName.Form("hADC_UVmaxsamp_allhits_corrected%d",j);
+	datName.Form("hADC_UVmaxsamp_allhits_corrected_mod%d",j);
   	new( (*hADC_UVmaxstrip_allhits_corrected_mod)[j] ) TH2D(datname.Data(),"Max Strip sum;ADCU;ADCV",250,0,15000,250,0,15000);
 	new( (*hADC_UV_allhits_corrected_mod)[j] ) TH2D(Datname.Data(),"Cluster sum ;ADCU;ADCV",250,0,25000,250,0,25000);
 	new( (*hADC_UVmaxsamp_allhits_corrected_mod)[j] ) TH2D(datName.Data(),"Max Strip max sample;ADCU;ADCV",250,0,3000,250,0,3000);	
@@ -1249,6 +1254,28 @@ const char *runnum_char = runnum_temp.c_str();
   double avgfactorYall = AppliedFactorsAllY/HitCountsAll; 
   double Gall = 2.0/(avgfactorXall + avgfactorYall);
   
+ TGraph *thresh_sample_all = new TGraph(nmodules);
+ TGraph *thresh_strip_all = new TGraph(nmodules);
+ TGraph *thresh_cluster_all = new TGraph(nmodules);
+
+ thresh_sample_all->SetName("gThresh_sample_all");
+ thresh_sample_all->SetTitle("Sample Threshold vs Module");
+ thresh_sample_all->SetMarkerStyle(kFullDotLarge);
+ thresh_sample_all->SetLineColor(0);
+ 
+ thresh_strip_all->SetName("gThresh_strip_all");
+ thresh_strip_all->SetTitle("Strip Threshold vs Module");
+ thresh_strip_all->SetMarkerStyle(kFullDotLarge);
+ thresh_strip_all->SetLineColor(0);
+
+ thresh_cluster_all->SetName("gThresh_cluster_all");
+ thresh_cluster_all->SetTitle("Cluster Threshold vs Module");
+ thresh_cluster_all->SetMarkerStyle(kFullDotLarge);
+ thresh_cluster_all->SetLineColor(0);
+
+ 
+
+
   for( int i=0; i<nmodules; i++ ){
     //double Gmod = RelativeGainByModule[i]*MPV_all/target_ADC;
 
@@ -1263,7 +1290,7 @@ const char *runnum_char = runnum_temp.c_str();
       
       double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
       
-      Gmod = MPV_mod / target_ADC;
+     // Gmod = MPV_mod / target_ADC;
 
       double avgfactorX = AppliedFactorsX[i] / HitCounts[i];
       double avgfactorY = AppliedFactorsY[i] / HitCounts[i]; 
@@ -1274,6 +1301,10 @@ const char *runnum_char = runnum_temp.c_str();
       double thresh_strip_mod = thresh_strip / (Gall * MPV_all) * (Gmod * MPV_mod );
       double thresh_cluster_mod = thresh_cluster / (Gall * MPV_all) * (Gmod * MPV_mod );
       
+      thresh_sample_all->SetPoint(i,i+1,thresh_sample_mod);
+      thresh_strip_all->SetPoint(i,i+1,thresh_strip_mod);
+      thresh_cluster_all->SetPoint(i,i+1,thresh_cluster_mod);
+
       cout << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
       TString dbentry;
       dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
@@ -1301,7 +1332,12 @@ const char *runnum_char = runnum_temp.c_str();
       cout << dbentry << endl;
     }
   }
-
+  thresh_sample_all ->Draw("AP");
+  thresh_sample_all ->Write();
+  thresh_strip_all ->Draw("AP");
+  thresh_strip_all ->Write();
+  thresh_cluster_all ->Draw("AP");
+  thresh_cluster_all ->Write();
   outfile << endl;
   outfile_db << endl;
   fout->Write();
