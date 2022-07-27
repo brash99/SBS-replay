@@ -9,38 +9,38 @@ sbs.hcal.detmap =
 #  21    16     8     8	
 #  22    19     0     11
 #  22    20     0     11
-  28   3      0     15 2
-  28   4      0     15 2
-  28   5      0     15 2
-  28   6      0     15 2
-  28   7      0     15 2
-  28   8      0     15 2
-  28   9      0     15 2
-  28   10     0     15 2
-  28   13     0     15 2
-  28   14     0     15 2
-  28   15     0     15 2
-  28   16     0     15 2
-  28   17     0     15 2
-  28   18     0     15 2
-  28   19     0     15 2
-  28   20     0     15 2
-  29   19     0     15 2 #     16
-  29   20     0     15 2 #     16
-  #29   18     0     0  2 # 1 channel. Ref fADC (copy of sum trig with pulse shaper).
-  29    4     0    31 2 # 32 channels
-  29    4     32   63 2 # 32 channels
-  29    5     0    31 2 # 32 channels
-  29    5     32   63 2 # 32 channels
-  29    6     0    31 2 # 32 channels
-  29    6     32   63 2 # 32 channels
-  29    7     0    31 2 # 32 channels
-  29    7     32   63 2 # 32 channels
-  29    8     0    31 2 # 32 channels
-  29    8     32   32 2 # 1 channel. Sum module trigger copy (logical). sbs.hcal.Ref.tdc[0]
-  29    8     34   34 2 # 1 channel. Copy of DVCS pulser EDTM signal (logical). sbs.hcal.Ref.tdc[1]
-  29    8     35   35 2 # 1 channel. Copy of BB trigger (logical). TDC reference channel. sbs.hcal.Ref.tdc[2]
-  29    8     36   36 2 # 1 channel. RF (logical). sbs.hcal.Ref.tdc[3]
+  16   3      0     15 2
+  16   4      0     15 2
+  16   5      0     15 2
+  16   6      0     15 2
+  16   7      0     15 2
+  16   8      0     15 2
+  16   9      0     15 2
+  16   10     0     15 2
+  16   13     0     15 2
+  16   14     0     15 2
+  16   15     0     15 2
+  16   16     0     15 2
+  16   17     0     15 2
+  16   18     0     15 2
+  16   19     0     15 2
+  16   20     0     15 2
+  17   19     0     15 2 #     16
+  17   20     0     15 2 #     16
+  #17   18     0     0  2 # 1 channel. Ref fADC (copy of sum trig with pulse shaper).
+  17    4     0    31 2 # 32 channels
+  17    4     32   63 2 # 32 channels
+  17    5     0    31 2 # 32 channels
+  17    5     32   63 2 # 32 channels
+  17    6     0    31 2 # 32 channels
+  17    6     32   63 2 # 32 channels
+  17    7     0    31 2 # 32 channels
+  17    7     32   63 2 # 32 channels
+  17    8     0    31 2 # 32 channels
+  17    8     32   32 2 # 1 channel. Sum module trigger copy (logical). sbs.hcal.Ref.tdc[0]
+  17    8     34   34 2 # 1 channel. Copy of DVCS pulser EDTM signal (logical). sbs.hcal.Ref.tdc[1]
+  17    8     35   35 2 # 1 channel. Copy of BB trigger (logical). TDC reference channel. sbs.hcal.Ref.tdc[2]
+  17    8     36   36 2 # 1 channel. RF (logical). sbs.hcal.Ref.tdc[3]
 
 sbs.hcal.ledmap = 16 30
 
