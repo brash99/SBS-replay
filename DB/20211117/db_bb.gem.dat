@@ -2181,18 +2181,18 @@ bb.gem.ADCasym_cut = 0.75
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1
-bb.gem.filterflag2D = 1
+bb.gem.filterflag2D = 0
 
-bb.gem.peakprominence_minsigma = 5.0 
-bb.gem.peakprominence_minfraction = 0.2
+bb.gem.peakprominence_minsigma = 3.0 
+bb.gem.peakprominence_minfraction = 0.15
 
 # limit cluster size growth to +/- 4 strips for cluster charge calculation
 bb.gem.maxnu_charge = 4
 bb.gem.maxnv_charge = 4 
 
 # limit cluster size to +/-3 strips from maximum for cluster position calculation
-bb.gem.maxnu_pos = 3
-bb.gem.maxnv_pos = 3
+bb.gem.maxnu_pos = 2
+bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004
 bb.gem.zerosuppress = 1
@@ -2488,7 +2488,7 @@ bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 1
 bb.gem.useopticsconstraint = 1
 
-------[ 2021-11-25 09:29:00 ] # attempt to analyze low-current LH2 run without constraints:
+------[ 2021-11-25 09:29:00 ] # attempt to analyze low-current LH2 run without any constraints:
 bb.gem.useslopeconstraint = 0
 bb.gem.useopticsconstraint = 0
 
@@ -2503,9 +2503,6 @@ bb.gem.useopticsconstraint = 0
 ------[ 2021-11-25 12:15:00 ] #starting "true production" here
 bb.gem.useslopeconstraint = 1
 bb.gem.useopticsconstraint = 1
-
-
-
 
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################

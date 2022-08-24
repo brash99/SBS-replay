@@ -1,5 +1,3 @@
-q
-
 ##################################################################################################################
 #          ATTENTION: THIS IS THE "v3" database (after J0 swap) below:        #
 ##################################################################################################################
@@ -660,19 +658,19 @@ bb.gem.m7.threshold_clustersum = 890
 bb.gem.ADCasym_cut = 0.75 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
-bb.gem.filterflag1D = 0 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression, 0 = "soft" filtering
+bb.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression, 0 = "soft" filtering
 bb.gem.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts
 
-bb.gem.peakprominence_minsigma = 5.0 
-bb.gem.peakprominence_minfraction = 0.2
+bb.gem.peakprominence_minsigma = 3.0 
+bb.gem.peakprominence_minfraction = 0.15
 
 # limit cluster size growth to +/- 4 strips for cluster charge calculation
 bb.gem.maxnu_charge = 4
 bb.gem.maxnv_charge = 4 
 
 # limit cluster size to +/-3 strips from maximum for cluster position calculation
-bb.gem.maxnu_pos = 3
-bb.gem.maxnv_pos = 3
+bb.gem.maxnu_pos = 2
+bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004
 bb.gem.zerosuppress = 1
