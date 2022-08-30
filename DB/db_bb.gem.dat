@@ -1143,18 +1143,6 @@ bb.gem.m11.angle =      -0.2385673     -0.09314385       -0.279551
 #bb.gem.m11.ugain = 1.01233  0.946893  1  1.0084  1.0472  1.0491  0.998412  0.99437  1.05855  1.04976  
 
 # Module average gains relative to target ADC peak position of 4000
-bb.gem.m0.modulegain = 1.31101
-bb.gem.m1.modulegain = 0.823174
-bb.gem.m2.modulegain = 0.873871
-bb.gem.m3.modulegain = 0.917247
-bb.gem.m4.modulegain = 1.19257
-bb.gem.m5.modulegain = 0.884421
-bb.gem.m6.modulegain = 0.785245
-bb.gem.m7.modulegain = 1.0
-bb.gem.m8.modulegain = 1.81043
-bb.gem.m9.modulegain = 1.17566
-bb.gem.m10.modulegain = 1.1976
-bb.gem.m11.modulegain = 1.27523
 
 #bb.gem.m0.modulegain = 1.31101
 #bb.gem.m1.modulegain = 0.823174
