@@ -1,4 +1,4 @@
-q
+
 
 ##################################################################################################################
 #          ATTENTION: THIS IS THE "v3" database (after J0 swap) below:        #
@@ -1060,6 +1060,23 @@ bb.gem.ytar_max = 0.08
 bb.gem.yptar_min = -0.09
 bb.gem.yptar_max = 0.09
 
+--------[ 2022-02-04 05:00:00 ] # Set up for cosmic runs
+
+bb.gem.suppressfirstlast = 0
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+
+bb.gem.usestriptimingcut = 0
+
+--------[ 2022-02-04 19:40:00 ] # Back to production
+
+bb.gem.suppressfirstlast = 1
+bb.gem.useconstraint = 1
+bb.gem.useopticsconstraint = 1
+bb.gem.useslopeconstraint = 1
+
+bb.gem.usestriptimingcut = 1
 
 --------[ 2022-02-07 20:20:00 ] # Full readout runs for high current study
 
@@ -1076,6 +1093,31 @@ bb.gem.suppressfirstlast = 0
 bb.gem.useconstraint = 0
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
+
+bb.gem.usestriptimingcut = 0
+
+#New alignment with cosmic data 
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001911928     -0.01125671        0.165075
+bb.gem.m1.angle =      -0.1045636      0.03398512      0.05979535
+bb.gem.m2.position =    -0.007453875     0.006105974       0.2792567
+bb.gem.m2.angle =     -0.01946687           0.032      -0.2967879
+bb.gem.m3.position =    -0.008993083     0.004983439       0.4568277
+bb.gem.m3.angle =     -0.03679291      0.05628952      -0.4555769
+bb.gem.m4.position =      -0.7643594     0.001922466        1.575923
+bb.gem.m4.angle =     -0.06423467      -0.1929917      -0.3477203
+bb.gem.m5.position =      -0.2522177    -0.002406637        1.534186
+bb.gem.m5.angle =      -0.1933844      -0.0859325      -0.3064016
+bb.gem.m6.position =       0.2586571    -0.008294649         1.57827
+bb.gem.m6.angle =     -0.01082531      -0.1947286      -0.2585426
+bb.gem.m7.position =       0.7710201     -0.01163987        1.536401
+bb.gem.m7.angle =      -0.2508493      -0.1232231      -0.2878157
+
+
+
+
+
 
 
 ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
@@ -1113,6 +1155,13 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run13637.dat
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run14035.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run14035.dat
 
+--------[ 2022-08-01 16:10:00 ] # new pedestal after some APVs has shifted
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run1039.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run1039.dat
+
+--------[ 2022-08-25 16:35:00 ] # new pedestal after some APVs has shifted
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run1224.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run1224.dat
 
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
