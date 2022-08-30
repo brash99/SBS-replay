@@ -21,7 +21,6 @@
 #include "TFitResult.h"
 #include "TObjArray.h"
 #include "TObjString.h"
-#include "TGraph.h"
 // bunch of header files that are needed throughout the script
 
 //What is the purpose of each one of these vector variables?
@@ -99,12 +98,7 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 }
 
 //Need to understand the input parameters. infilename is the file to be used to do the gain match. nmodules probably the told number of modules. fname_stripconfig will have to be modified to reflect the number  of strips of the config present for infilename. How are the rest of the variables determined?
-void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *fname_stripconfig, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4500.0){
-//convert runnum to a char so that way it can be used in names
-std::string runnum_temp = std::to_string(runnum);
-const char *runnum_char = runnum_temp.c_str();
-//cout <<"My number " << runnum_char << endl;
-
+void GEM_GainMatch( const char *infilename, int nmodules, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4000.0, const char *fname_stripconfig="stripconfig_bb_gem.txt" ){
 //setups up an input stream for the strip config file
   ifstream stripconfigfile(fname_stripconfig);
 // defines an emptry current line for the input stream
@@ -140,8 +134,6 @@ const char *runnum_char = runnum_temp.c_str();
       }
     }
   }
- 
-
 //Error message if problem with strip config file
   if( !( gotxconfig && gotyconfig ) ){
     cout << "module strip config not properly defined, quitting..." << endl;
@@ -159,29 +151,12 @@ const char *runnum_char = runnum_temp.c_str();
 
 //Arbitrarily choose 10000 max hits?
   UInt_t MAXNHITS=10000;
-  //Not used?
-  //TString fname(infilename);
+  //Makes a string with the infilename
+  TString fname(infilename);
 //Remind me why TChain is important
-  UInt_t MAXNTRACKS=100;
-  
- 
-
-
   TChain *C = new TChain("T");
 
-  //C->Add( infilename );
-  //Do some file name management. This will of course need to change if you get files from not ewertz volatile
-  string input_directory = "/volatile/halla/sbs/ewertz/GMn_replays/rootfiles/Standard/"; 
-  const char *input_directory_char = input_directory.c_str();	
-//To implement multiple files or that is replay segments use a for loop
-	for(int iseg=0; iseg<=numseg; iseg++){
-	//If the file name format changed this will of course need to change
-	std::string iseg_temp = std::to_string(iseg);
-	const char *iseg_char = iseg_temp.c_str();
-	TString inputfile = Form("%se1209019_fullreplay_%s_stream0_seg%s_%s.root",input_directory_char,runnum_char,iseg_char,iseg_char);
-	//cout << "My name " << inputfile << endl;
-	C->Add(inputfile);
-	}
+  C->Add( infilename );
 
   C->Print();
   //some variables that are useful, for some reason
@@ -190,8 +165,8 @@ const char *runnum_char = runnum_temp.c_str();
   double ntracks;
   double besttrack;
 //create a bunch of vector<double>, presumably to store info?
-  vector<double> tracknhits(MAXNTRACKS);
-  vector<double> trackChi2NDF(MAXNTRACKS);
+  vector<double> tracknhits(MAXNHITS);
+  vector<double> trackChi2NDF(MAXNHITS);
   vector<double> hit_trackindex(MAXNHITS);
   vector<double> hit_module(MAXNHITS);
   vector<double> hit_layer(MAXNHITS);
@@ -207,22 +182,7 @@ const char *runnum_char = runnum_temp.c_str();
   vector<double> hit_ADCV(MAXNHITS);
   vector<double> hit_ADCavg(MAXNHITS);
   vector<double> hit_ADCasym(MAXNHITS);
-
 //a map for branch names and a vector for variable names
-  vector<double> hit_ADCmaxsampU(MAXNHITS);
-  vector<double> hit_ADCmaxsampV(MAXNHITS);
-  vector<double> hit_ADCmaxstripU(MAXNHITS);
-  vector<double> hit_ADCmaxstripV(MAXNHITS);
-  //vector<double> Epreshower(MAXNHITS);
-  //vector<double> Eshower(MAXNHITS);
-  double Epreshower,Eshower;
-  
-  double xfcp,yfcp,zfcp,xbcp,ybcp,zbcp;
-  
-  vector<double> track_vz(MAXNTRACKS);
-  vector<double> track_p(MAXNTRACKS);
-
-
   map<TString,TString> branchnames;
   vector<TString> varnames;
   varnames.push_back("track.ntrack");
@@ -245,48 +205,21 @@ const char *runnum_char = runnum_temp.c_str();
   varnames.push_back("hit.ADCV");
   varnames.push_back("hit.ADCavg");
   varnames.push_back("hit.ADCasym");
-
 //Why are the branches disabled here?
-  //cout << "disabling all branches...";
-  //the * applies it to all branches, the 0 disables those branches. to enable would need to make 1
-
-  varnames.push_back("hit.ADCmaxsampU");
-  varnames.push_back("hit.ADCmaxsampV");
-  varnames.push_back("hit.ADCmaxstripU");
-  varnames.push_back("hit.ADCmaxstripV");
-  
-
   cout << "disabling all branches...";
-  
-
+  //the * applies it to all branches, the 0 disables those branches. to enable would need to make 1
   C->SetBranchStatus("*",0);
 
-  //cout << "done." << endl;
+  cout << "done." << endl;
 
   for( int i=0; i<varnames.size(); i++ ){
 //What is actually going on in this for loop. It looks like branch and variable names are getting printed. But also setting branches up in the TChain
     branchnames[varnames[i]] = branchname.Format("%s.%s",detname,varnames[i].Data());
-   // cout << "Branch " << i << " name = " << branchnames[varnames[i]] << endl;
+    cout << "Branch " << i << " name = " << branchnames[varnames[i]] << endl;
     C->SetBranchStatus( branchnames[varnames[i]].Data(), 1 );
   }
 //Populating data in the TChain branchs?
- // cout << "Setting branch addresses: ";
-
-  C->SetBranchStatus("bb.tr.vz",1);
-  C->SetBranchStatus("bb.tr.p",1);
-  C->SetBranchStatus("bb.ps.e",1);
-  C->SetBranchStatus("bb.sh.e",1);
-  C->SetBranchStatus("bb.x_bcp",1);
-  C->SetBranchStatus("bb.y_bcp",1);
-  C->SetBranchStatus("bb.z_bcp",1);
-  C->SetBranchStatus("bb.x_fcp",1);
-  C->SetBranchStatus("bb.y_fcp",1);
-  C->SetBranchStatus("bb.z_fcp",1);
-  
-  
-
   cout << "Setting branch addresses: ";
-
   C->SetBranchAddress( branchnames["track.ntrack"].Data(), &ntracks );
   C->SetBranchAddress( branchnames["track.besttrack"].Data(), &besttrack );
   C->SetBranchAddress( branchnames["track.nhits"].Data(), &(tracknhits[0]) );
@@ -307,44 +240,24 @@ const char *runnum_char = runnum_temp.c_str();
   C->SetBranchAddress( branchnames["hit.ADCV"].Data(), &(hit_ADCV[0]) );
   C->SetBranchAddress( branchnames["hit.ADCavg"].Data(), &(hit_ADCavg[0]) );
   C->SetBranchAddress( branchnames["hit.ADCasym"].Data(), &(hit_ADCasym[0]) );
-
- // cout << "done." << endl;
- //Setup the output file name 
- //changed output file name to include run number for file organization
- TString outfilename = Form("GEM_GainMatch_output/GainRatios_%s_%s.root",detname,runnum_char);
-  C->SetBranchAddress( branchnames["hit.ADCmaxsampU"].Data(), &(hit_ADCmaxsampU[0]) );
-  C->SetBranchAddress( branchnames["hit.ADCmaxsampV"].Data(), &(hit_ADCmaxsampV[0]) );
-  C->SetBranchAddress( branchnames["hit.ADCmaxstripU"].Data(), &(hit_ADCmaxstripU[0]) );
-  C->SetBranchAddress( branchnames["hit.ADCmaxstripV"].Data(), &(hit_ADCmaxstripV[0]) );
-  C->SetBranchAddress( "bb.tr.vz", &(track_vz[0]) );
-  C->SetBranchAddress( "bb.tr.p", &(track_p[0]) );
-  C->SetBranchAddress( "bb.ps.e",&Epreshower);
-  C->SetBranchAddress( "bb.sh.e",&Eshower);
-  C->SetBranchAddress( "bb.x_fcp", &xfcp );
-  C->SetBranchAddress( "bb.y_fcp", &yfcp );
-  C->SetBranchAddress( "bb.z_fcp", &zfcp );
-  C->SetBranchAddress( "bb.x_bcp", &xbcp );
-  C->SetBranchAddress( "bb.y_bcp", &ybcp );
-  C->SetBranchAddress( "bb.z_bcp", &zbcp );
   cout << "done." << endl;
-  
-  //TString outfilename = Form("GainRatios_%s_temp.root",detname); 
-
+ //Setup the output file name 
+  TString outfilename = Form("GainRatios_%s_temp.root",detname); 
 
   
 
   //  outfilename.Prepend("GainRatios_");
 
- // cout << "Out file name = " << outfilename << endl;
+  cout << "Out file name = " << outfilename << endl;
 //Next couple of lines is to output the info to files
   TFile *fout = new TFile( outfilename.Data(), "RECREATE" );
   
   outfilename.ReplaceAll(".root",".txt");
 
   ofstream outfile(outfilename.Data());
-//changed output file name to include run number for file organization
+
   TString dbfilename;
-  dbfilename.Form( "GEM_GainMatch_output/GEM_GainMatchResults_%s_%s.dat",detname,runnum_char );
+  dbfilename.Form( "GEM_GainMatchResults_%s.dat",detname );
   
   ofstream outfile_db(dbfilename.Data());
   //what is going on here with the nAPVmaxX/Y?
@@ -395,11 +308,6 @@ const char *runnum_char = runnum_temp.c_str();
 
   TH2D *hADCavg_module = new TH2D("hADCavg_module","",nmodules,-0.5,nmodules-0.5,1500,0,30000);
   TH1D *hADCavg_allhits = new TH1D("hADCavg_allhits","",1500,0,30000);
-
-  TH2D *hStripADCsumU_module = new TH2D("hStripADCsumU_module","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
-  TH2D *hStripADCmaxU_module = new TH2D("hStripADCmaxU_module","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
-  TH2D *hStripADCsumV_module = new TH2D("hStripADCsumV_module","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
-  TH2D *hStripADCmaxV_module = new TH2D("hStripADCmaxV_module","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
   
   //int nAPVmax = 
 
@@ -419,10 +327,9 @@ const char *runnum_char = runnum_temp.c_str();
 
     //cout << "ntracks = " << NTRACKS << endl;
     
-    if( NTRACKS == 1 ){
+    if( NTRACKS > 0 ){
 
-      if( trackChi2NDF[itrack] < chi2cut && tracknhits[itrack] > 3 && Epreshower >= 0.25 && abs((Epreshower+Eshower)/track_p[0]-1.)<=0.25 &&
-	  abs(track_vz[0])<0.08 ){
+      if( trackChi2NDF[itrack] < chi2cut ){
 	int nhits = int(ngoodhits);
 	//	cout << "nhits = " << nhits << endl;
 	
@@ -431,7 +338,7 @@ const char *runnum_char = runnum_temp.c_str();
 
 	  //cout << "ihit, tridx = " << ihit << ", " << tridx;
 	  
-	  if( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) >= ADCcut && tridx == itrack && hit_nstripu[ihit]>1 && hit_nstripv[ihit]>1){
+	  if( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) >= ADCcut && tridx == itrack ){
 	    // cout << ", ADCavg[ihit] = " << hit_ADCavg[ihit]
 	    // 	 << ", ADCasym[ihit] = " << hit_ADCasym[ihit]
 	    // 	 << ", (nstripu,nstripv) = (" << hit_nstripu[ihit] << ", " << hit_nstripv[ihit] << ")"
@@ -443,17 +350,7 @@ const char *runnum_char = runnum_temp.c_str();
 	    hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
 	    hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
 	    hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
-
 //Define a bunch of variables, but what are they for?
-
-
-	    hStripADCsumU_module->Fill( hit_module[ihit], hit_ADCmaxstripU[ihit] );
-	    hStripADCsumV_module->Fill( hit_module[ihit], hit_ADCmaxstripV[ihit] );
-
-	    hStripADCmaxU_module->Fill( hit_module[ihit], hit_ADCmaxsampU[ihit] );
-	    hStripADCmaxV_module->Fill( hit_module[ihit], hit_ADCmaxsampV[ihit] );
-
-
 	    int ixlo = hit_ustriplo[ihit];
 	    int ixhi = hit_ustriphi[ihit];
 	    int ixmax = hit_ustripmax[ihit];
@@ -502,7 +399,7 @@ const char *runnum_char = runnum_temp.c_str();
 
   double MPV_all = ( (TF1*) hADCavg_allhits->GetListOfFunctions()->FindObject("landau") )->GetParameter("MPV");
 
-  //cout << "All hits ADC peak position = " << MPV_all << endl;
+  cout << "All hits ADC peak position = " << MPV_all << endl;
 
   
   
@@ -582,8 +479,8 @@ const char *runnum_char = runnum_temp.c_str();
       TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",ADCcut,25000.0);
       double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
 
-     // cout << "module " << i << " MPV = " << MPV_mod << endl;
-     // cout << "module " << i << " relative gain = " << MPV_mod / target_ADC << endl;
+      cout << "module " << i << " MPV = " << MPV_mod << endl;
+      cout << "module " << i << " relative gain = " << MPV_mod / target_ADC << endl;
       RelativeGainByModule[i] = MPV_mod/MPV_all;
     } else {
       RelativeGainByModule[i] = 1.0;
@@ -593,8 +490,6 @@ const char *runnum_char = runnum_temp.c_str();
 
   outfile_db << endl << "#Module internal relative gains by APV card: " << endl;
 
-  map<int,vector<double> > Xgain_by_module, Ygain_by_module;
-  
   for( int i=0; i<nmodules; i++ ){
     int xAPV_ref = nAPVmaxX/2;
       
@@ -890,19 +785,15 @@ const char *runnum_char = runnum_temp.c_str();
 
       double Gy, dGy;
       gainfit->GetParameter( iy, Gy, dGy );
-
-      // d(1/x) = -1/x^2 dx = dx / x * (1/x)
+      Ygain.push_back( Gy );
+      dYgain.push_back( dGy );
       
-      Ygain.push_back( 1.0/Gy );
-      dYgain.push_back( dGy/(Gy*Gy) );
-      
-      //cout << "module " << i << ", Y APV " << iy << ", Relative gain = " << Ygain.back() << " +/- " << dYgain.back() << endl;
+      cout << "module " << i << ", Y APV " << iy << ", Relative gain = " << Ygain.back() << " +/- " << dYgain.back() << endl;
 
       outfile << Ygain.back() << "  ";
 
       if( iy*128 < nstripy_mod[i] ){
 	outfile_db << Ygain.back() << "  ";
-	Ygain_by_module[i].push_back( Ygain.back() );
       }
     }
 //Output file info again
@@ -918,8 +809,8 @@ const char *runnum_char = runnum_temp.c_str();
 //looks like it is a loop just to print out the above gain info
       double Gx, dGx;
       gainfit->GetParameter( ix + nAPVmaxY, Gx, dGx );
-      Xgain.push_back( 1.0/Gx );
-      dXgain.push_back( dGx/(Gx*Gx) );
+      Xgain.push_back( Gx );
+      dXgain.push_back( dGx );
       // if( ix != xAPV_ref ){
       // 	double sum_xgain = 0.0;
       // 	double sum_weights = 0.0;
@@ -951,12 +842,11 @@ const char *runnum_char = runnum_temp.c_str();
       // 	Xgain.push_back( 1.0 );
       // 	dXgain.push_back( 0.0 );
       // }
-      //cout << "module " << i << ", X APV " << ix << ", Relative gain = " << Xgain.back() << " +/- " << dXgain.back() << endl;
+      cout << "module " << i << ", X APV " << ix << ", Relative gain = " << Xgain.back() << " +/- " << dXgain.back() << endl;
 
       outfile << Xgain.back() << "  ";
       if( ix*128 < nstripx_mod[i] ){
 	outfile_db << Xgain.back() << "  ";
-	Xgain_by_module[i].push_back( Xgain.back() );
       }
     }
     outfile << endl;
@@ -964,382 +854,21 @@ const char *runnum_char = runnum_temp.c_str();
 
     //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
   }
-//Define TGraph and Histogram for all gain coefficients. U/X and V/Y gain coefficient vs APV
-	TGraph *Gain_APV_all = new TGraph();
-	Gain_APV_all->SetName("gGainCoefficients_APV");
-	Gain_APV_all->SetTitle("Gain Coefficients vs APV");
-	Gain_APV_all->SetMarkerStyle(kFullDotLarge);
-	Gain_APV_all->SetLineColor(0);
-	
-	TGraph *XGain_APV_all = new TGraph();
-	XGain_APV_all->SetName("gUX_GainCoefficients_APV");
-	XGain_APV_all->SetTitle("U/X Gain Coefficients vs APV");
-	XGain_APV_all->SetMarkerStyle(kFullDotLarge);
-	XGain_APV_all->SetLineColor(0);
-	
-	TGraph *YGain_APV_all = new TGraph();
-	YGain_APV_all->SetName("gVY_GainCoefficients_APV");
-	YGain_APV_all->SetTitle("V/Y Gain Coefficients vs APV");
-	YGain_APV_all->SetMarkerStyle(kFullDotLarge);
-	YGain_APV_all->SetLineColor(0);
-	
-	gStyle->SetOptStat("neMRou");
-	TH1D *Gain_histo_all = new TH1D("hGainCoefficient_Histo","",200,0,2);
-	TH1D *XGain_histo_all = new TH1D("hUX_GainCoefficient_Histo","",200,0,2);	
-	TH1D *YGain_histo_all = new TH1D("hVY_GainCoefficient_Histo","",200,0,2);
-	
-	int bestcount = 0;
-	int mycountx = 0;
-	int mycounty = 0;
-	for(int mod = 0; mod < nmodules; mod++ ){
-	vector<double> Xtemp = Xgain_by_module[mod];
-	vector<double> Ytemp = Ygain_by_module[mod];
-	int mymodx = Xtemp.size();
-	int mymody = Ytemp.size();
-	//Define TGraph and Histogram per module for gain coefficients
-	TString mynamex;
-	 mynamex.Form("gUX_GainCoefficients_APV_mod%d",mod);
-	TString mynamey;
-         mynamey.Form("gVY_GainCoefficients_APV_mod%d",mod);
-	
-	TString myNameX;
-         myNameX.Form("hUX_GainCoefficient_Histo_mod%d",mod);
-        TString myNameY;
-         myNameY.Form("hVY_GainCoefficient_Histo_mod%d",mod);
-	
-	TGraph *XGain_APV_mod = new TGraph(mymodx);
-	XGain_APV_mod->SetName(mynamex);
-        XGain_APV_mod->SetTitle(mynamex);
-        XGain_APV_mod->SetMarkerStyle(kFullDotLarge);
-        XGain_APV_mod->SetLineColor(0);
-
-	TGraph *YGain_APV_mod = new TGraph(mymody);
-        YGain_APV_mod->SetName(mynamey);
-        YGain_APV_mod->SetTitle(mynamey);
-        YGain_APV_mod->SetMarkerStyle(kFullDotLarge);
-        YGain_APV_mod->SetLineColor(0);
-	
-	TH1D *XGain_histo_mod = new TH1D(myNameX,"",200,0,2);
-        TH1D *YGain_histo_mod = new TH1D(myNameY,"",200,0,2);	
-		for(int x = 0; x < Xtemp.size(); x++){
-		double myXgain = Xtemp.at(x);
-		//Fill both histos properly
-	
-		XGain_histo_all -> Fill(myXgain);
-		XGain_APV_mod -> SetPoint(x,x+1,myXgain);
-		XGain_histo_mod -> Fill(myXgain);
-		Gain_histo_all ->Fill(myXgain);
-		Gain_APV_all ->SetPoint(bestcount,bestcount+1,myXgain);
-		XGain_APV_all -> SetPoint(mycountx,mycountx+1,myXgain);
-		
-		mycountx++;
-		bestcount++;
-		}
-		for(int y = 0; y < Ytemp.size(); y++){
-                double myYgain = Ytemp.at(y);
-                //Fill both histos properly
-               
-               	YGain_histo_all -> Fill(myYgain);
-		YGain_APV_mod -> SetPoint(y,y+1,myYgain);
-		YGain_histo_mod ->Fill(myYgain);
-		Gain_histo_all ->Fill(myYgain);
-                Gain_APV_all ->SetPoint(bestcount,bestcount+1,myYgain);
-                YGain_APV_all -> SetPoint(mycounty,mycounty+1,myYgain);
-
-		mycounty++;
-		bestcount++;
-                 }
-         XGain_APV_mod->Draw("AP");
-	 XGain_APV_mod->Write();
-	 YGain_APV_mod->Draw("AP");
-	 YGain_APV_mod->Write();       
-	
-	}
-	Gain_APV_all->Draw("AP");
-	Gain_APV_all->Write();
-	XGain_APV_all->Draw("AP");
-	XGain_APV_all->Write();
-	YGain_APV_all->Draw("AP");
-	YGain_APV_all->Write();
-	
-
-  
-
-
-
-
-  //We will want a 2nd loop over the data to make plots of corrected ADC spectra:
-
-  //int nAPVmax = 
-
-  TH1D *hADCavg_allhits_corrected = new TH1D("hADCavg_allhits_corrected","",1500,0,30000);
-  TH1D *hADCasym_allhits_corrected = new TH1D("hADCasym_allhits_corrected","",250,-1.01,1.01);
-  TH2D *hADCavg_module_corrected = new TH2D("hADCavg_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,30000);
-
-  TH2D *hStripADCsumU_module_corrected = new TH2D("hStripADCsumU_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
-  TH2D *hStripADCmaxU_module_corrected = new TH2D("hStripADCmaxU_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
-  TH2D *hStripADCsumV_module_corrected = new TH2D("hStripADCsumV_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,15000);
-  TH2D *hStripADCmaxV_module_corrected = new TH2D("hStripADCmaxV_module_corrected","",nmodules,-0.5,nmodules-0.5,1500,0,3000);
-
-  TH2D *hADC_UV_allhits_corrected = new TH2D("hADC_UV_allhits_corrected","Cluster sum ;ADCU;ADCV",250,0,25000,250,0,25000);
-  TH2D *hADC_UVmaxstrip_allhits_corrected = new TH2D("hADC_UVmaxstrip_allhits_corrected","Max Strip sum;ADCU;ADCV",250,0,15000,250,0,15000);
-  TH2D *hADC_UVmaxsamp_allhits_corrected = new TH2D("hADC_UVmaxsamp_allhits_corrected","Max Strip max sample;ADCU;ADCV",250,0,3000,250,0,3000);
-  
-  TClonesArray *hADC_UV_allhits_corrected_mod = new TClonesArray( "TH2D", nmodules);
-  TClonesArray *hADC_UVmaxstrip_allhits_corrected_mod = new TClonesArray( "TH2D", nmodules );
-  TClonesArray *hADC_UVmaxsamp_allhits_corrected_mod = new TClonesArray( "TH2D", nmodules );
-  for(int j =0; j<nmodules;j++){
-  	TString datname, Datname, datName;
- 	datname.Form("hADC_UVmaxstrip_allhits_corrected_mod%d",j);
-	Datname.Form("hADC_UV_allhits_corrected_mod%d",j);
-	datName.Form("hADC_UVmaxsamp_allhits_corrected_mod%d",j);
-  	new( (*hADC_UVmaxstrip_allhits_corrected_mod)[j] ) TH2D(datname.Data(),"Max Strip sum;ADCU;ADCV",250,0,15000,250,0,15000);
-	new( (*hADC_UV_allhits_corrected_mod)[j] ) TH2D(Datname.Data(),"Cluster sum ;ADCU;ADCV",250,0,25000,250,0,25000);
-	new( (*hADC_UVmaxsamp_allhits_corrected_mod)[j] ) TH2D(datName.Data(),"Max Strip max sample;ADCU;ADCV",250,0,3000,250,0,3000);	
- } 
-
-
-  nevent = 0;
-
-  vector<double> AppliedFactorsX(nmodules,0.0);
-  vector<double> AppliedFactorsY(nmodules,0.0);
-  vector<double> HitCounts(nmodules,0.0);
-
-  double AppliedFactorsAllX = 0.0;
-  double AppliedFactorsAllY = 0.0;
-  double HitCountsAll = 0.0;
-  
-  //cout << "starting event loop:" << endl;
-  while( C->GetEntry( nevent++ ) ){
-
-    if( ngoodhits > MAXNHITS ) continue;
-    if( ntracks > MAXNHITS ) continue;
-    
-    if( nevent % 1000 == 0 ) cout << "event " << nevent << endl;
-    //loop over hits:
-    int itrack = int(besttrack);
-    //cout << "itrack = " << itrack << endl;
-
-    int NTRACKS = int(ntracks);
-
-    //cout << "ntracks = " << NTRACKS << endl;
-    
-    if( NTRACKS > 0 ){
-
-      if( trackChi2NDF[itrack] < chi2cut && tracknhits[itrack] > 3 ){
-	int nhits = int(ngoodhits);
-	//	cout << "nhits = " << nhits << endl;
-	
-	for( int ihit=0; ihit<nhits; ihit++ ){
-	  int tridx = int( hit_trackindex[ihit] );
-
-	  //cout << "ihit, tridx = " << ihit << ", " << tridx;
-	  
-	  //if( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) >= ADCcut && tridx == itrack ){
-	  if( tridx == itrack ){
-	    // cout << ", ADCavg[ihit] = " << hit_ADCavg[ihit]
-	    // 	 << ", ADCasym[ihit] = " << hit_ADCasym[ihit]
-	    // 	 << ", (nstripu,nstripv) = (" << hit_nstripu[ihit] << ", " << hit_nstripv[ihit] << ")"
-	    // 	 << ", (ustriplo,ustriphi,ustripmax)=(" << hit_ustriplo[ihit] << ", " << hit_ustriphi[ihit] << ", " << hit_ustripmax[ihit] << ")"
-	    // 	 << ", (vstriplo,vstriphi,vstripmax)=(" << hit_vstriplo[ihit] << ", " << hit_vstriphi[ihit] << ", " << hit_vstripmax[ihit] << ")"
-	    // 	 << ", module = " << hit_module[ihit] << endl;
-	    // hADCavg_allhits->Fill( 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) );
-	    // hADCavg_module->Fill( hit_module[ihit], 0.5*(hit_ADCU[ihit]+hit_ADCV[ihit]) );
-	    // hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
-	    // hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
-	    // hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
-
-	    // hStripADCsumU_module->Fill( hit_module[ihit], hit_ADCmaxstripU[ihit] );
-	    // hStripADCsumV_module->Fill( hit_module[ihit], hit_ADCmaxstripV[ihit] );
-
-	    // hStripADCmaxU_module->Fill( hit_module[ihit], hit_ADCmaxsampU[ihit] );
-	    // hStripADCmaxV_module->Fill( hit_module[ihit], hit_ADCmaxsampV[ihit] );
-
-	    int ixlo = hit_ustriplo[ihit];
-	    int ixhi = hit_ustriphi[ihit];
-	    int ixmax = hit_ustripmax[ihit];
-
-	    int iylo = hit_vstriplo[ihit];
-	    int iyhi = hit_vstriphi[ihit];
-	    int iymax = hit_vstripmax[ihit];
-
-	    int xAPVmax = ixmax/128;
-	    int yAPVmax = iymax/128;
-	    int xAPVlo = ixlo/128;
-	    int yAPVlo = iylo/128;
-
-	    int xAPVhi = ixhi/128;
-	    int yAPVhi = iyhi/128;
-
-	    int module = int(hit_module[ihit]);
-		if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
-	    	yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
-	    	hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 &&
-	    	xAPVmax*128 < nstripx_mod[module] && yAPVmax*128<nstripy_mod[module] ){
-
-	      double Xgaintemp = Xgain_by_module[module][xAPVmax];
-	      double Ygaintemp = Ygain_by_module[module][yAPVmax];
-
-	      AppliedFactorsX[module] += Xgaintemp;
-	      AppliedFactorsY[module] += Ygaintemp;
-	      HitCounts[module] += 1.0;
-
-	      AppliedFactorsAllX += Xgaintemp;
-	      AppliedFactorsAllY += Ygaintemp;
-	      HitCountsAll += 1.0;
-	      
-	      hADCavg_allhits_corrected->Fill( 0.5*(hit_ADCU[ihit]*Xgaintemp+hit_ADCV[ihit]*Ygaintemp) );
-	      hADCavg_module_corrected->Fill( hit_module[ihit], 0.5*(hit_ADCU[ihit]*Xgaintemp+hit_ADCV[ihit]*Ygaintemp) );
-
-	      hADCasym_allhits_corrected->Fill( (hit_ADCU[ihit]*Xgaintemp-hit_ADCV[ihit]*Ygaintemp) /
-						(hit_ADCU[ihit]*Xgaintemp+hit_ADCV[ihit]*Ygaintemp) );
-	      
-	      // hADCasym_module->Fill( hit_module[ihit], hit_ADCasym[ihit] );
-	      // hNstripX_module->Fill( hit_module[ihit], hit_nstripu[ihit] );
-	      // hNstripY_module->Fill( hit_module[ihit], hit_nstripv[ihit] );
-
-	      hStripADCsumU_module_corrected->Fill( hit_module[ihit], hit_ADCmaxstripU[ihit]*Xgaintemp );
-	      hStripADCsumV_module_corrected->Fill( hit_module[ihit], hit_ADCmaxstripV[ihit]*Ygaintemp );
-
-	      hStripADCmaxU_module_corrected->Fill( hit_module[ihit], hit_ADCmaxsampU[ihit]*Xgaintemp );
-	      hStripADCmaxV_module_corrected->Fill( hit_module[ihit], hit_ADCmaxsampV[ihit]*Ygaintemp );
-
-	     
-	     ( (TH2D*) (*hADC_UVmaxstrip_allhits_corrected_mod)[module] )->Fill( hit_ADCmaxstripU[ihit]*Xgaintemp, hit_ADCmaxstripV[ihit]*Ygaintemp );
-	     ( (TH2D*) (*hADC_UV_allhits_corrected_mod)[module] )->Fill(hit_ADCU[ihit]*Xgaintemp, hit_ADCV[ihit]*Ygaintemp );
-	     ( (TH2D*) (*hADC_UVmaxsamp_allhits_corrected_mod)[module] )->Fill(hit_ADCmaxsampU[ihit]*Xgaintemp, hit_ADCmaxsampV[ihit]*Ygaintemp);
-	      hADC_UV_allhits_corrected->Fill( hit_ADCU[ihit]*Xgaintemp, hit_ADCV[ihit]*Ygaintemp );
-	      hADC_UVmaxstrip_allhits_corrected->Fill( hit_ADCmaxstripU[ihit]*Xgaintemp, hit_ADCmaxstripV[ihit]*Ygaintemp );
-	      hADC_UVmaxsamp_allhits_corrected->Fill( hit_ADCmaxsampU[ihit]*Xgaintemp, hit_ADCmaxsampV[ihit]*Ygaintemp );
-	      
-	    // if( xAPVlo == xAPVmax && xAPVhi == xAPVmax &&
-	    // 	yAPVlo == yAPVmax && yAPVhi == yAPVmax &&
-	    // 	hit_nstripu[ihit] >= 2 && hit_nstripv[ihit] >= 2 &&
-	    // 	xAPVmax*128 < nstripx_mod[module] && yAPVmax*128<nstripy_mod[module] ){
-
-	    //   // cout << "filling histograms " << endl;
-
-	    //   // cout << "apvxy hist index = " << yAPVmax + nAPVmaxY*xAPVmax+nAPVmaxX*nAPVmaxY*module << endl;
-	    //   // cout << "apvx hist index = " << xAPVmax + nAPVmaxX*module << endl;
-	    //   // cout << "apvy hist index = " << yAPVmax + nAPVmaxY*module << endl;
-	      
-	    //   ( (TH1D*) (*hADCasym_vs_APVXY)[yAPVmax + nAPVmaxY*xAPVmax+nAPVmaxX*nAPVmaxY*module] )->Fill( hit_ADCasym[ihit] );
-
-	    //   ( (TH1D*) (*hADCasym_vs_APVX)[xAPVmax + nAPVmaxX*module] )->Fill( hit_ADCasym[ihit] );
-	    //   ( (TH1D*) (*hADCasym_vs_APVY)[yAPVmax + nAPVmaxY*module] )->Fill( hit_ADCasym[ihit] );
-	    //   //cout << "done histogram fill" << endl;
-	    }
-	    // }
-	  }
-	////
-	}
-      }
-    }
-    //cout << "Event " << nevent << " done" << endl;
-  }
-
-  //Adjust module ABSOLUTE gain AFTER correction for RELATIVE gain:
 
   outfile_db << endl << "# Module average gains relative to target ADC peak position of " << target_ADC << endl;
-
-  TFitResultPtr ADCfit_all = hADCavg_allhits_corrected->Fit("landau","S","",2000.0,25000.0);
-
-  MPV_all = ( (TF1*) hADCavg_allhits_corrected->GetListOfFunctions()->FindObject("landau") )->GetParameter("MPV");
-
-  double thresh_sample = 100.0;
-  double thresh_strip = 300.0;
-  double thresh_cluster = 600.0;
   
-  double avgfactorXall = AppliedFactorsAllX/HitCountsAll;
-  double avgfactorYall = AppliedFactorsAllY/HitCountsAll; 
-  double Gall = 2.0/(avgfactorXall + avgfactorYall);
-  
- TGraph *thresh_sample_all = new TGraph(nmodules);
- TGraph *thresh_strip_all = new TGraph(nmodules);
- TGraph *thresh_cluster_all = new TGraph(nmodules);
-
- thresh_sample_all->SetName("gThresh_sample_all");
- thresh_sample_all->SetTitle("Sample Threshold vs Module");
- thresh_sample_all->SetMarkerStyle(kFullDotLarge);
- thresh_sample_all->SetLineColor(0);
- 
- thresh_strip_all->SetName("gThresh_strip_all");
- thresh_strip_all->SetTitle("Strip Threshold vs Module");
- thresh_strip_all->SetMarkerStyle(kFullDotLarge);
- thresh_strip_all->SetLineColor(0);
-
- thresh_cluster_all->SetName("gThresh_cluster_all");
- thresh_cluster_all->SetTitle("Cluster Threshold vs Module");
- thresh_cluster_all->SetMarkerStyle(kFullDotLarge);
- thresh_cluster_all->SetLineColor(0);
-
- 
-
-
   for( int i=0; i<nmodules; i++ ){
-    //double Gmod = RelativeGainByModule[i]*MPV_all/target_ADC;
-
-    double Gmod = 1.0;
-
-    TString hname;
-    hname.Form("hADCavg_corrected_module%d",i);
-    htemp = hADCavg_module_corrected->ProjectionY( hname.Data(), i+1, i+1 );
-
-    if( htemp->GetEntries() >= 10000 ){
-      TFitResultPtr ADCfit_module = htemp->Fit("landau","S","",2000.0,25000.0);
-      
-      double MPV_mod = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("landau") ) )->GetParameter("MPV");
-      
-     // Gmod = MPV_mod / target_ADC;
-
-      double avgfactorX = AppliedFactorsX[i] / HitCounts[i];
-      double avgfactorY = AppliedFactorsY[i] / HitCounts[i]; 
-      
-      Gmod = 2.0 / (avgfactorX + avgfactorY );
-
-      double thresh_sample_mod = thresh_sample / (Gall * MPV_all) * (Gmod * MPV_mod );
-      double thresh_strip_mod = thresh_strip / (Gall * MPV_all) * (Gmod * MPV_mod );
-      double thresh_cluster_mod = thresh_cluster / (Gall * MPV_all) * (Gmod * MPV_mod );
-      
-      thresh_sample_all->SetPoint(i,i+1,thresh_sample_mod);
-      thresh_strip_all->SetPoint(i,i+1,thresh_strip_mod);
-      thresh_cluster_all->SetPoint(i,i+1,thresh_cluster_mod);
-
-      cout << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
-      TString dbentry;
-      dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
-      outfile_db << dbentry << endl;
-      cout << dbentry << endl;
-
-      dbentry.Form( "%s.m%d.threshold_sample = %g", detname, i, thresh_sample_mod );
-      outfile_db << dbentry << endl;
-      cout << dbentry << endl;
-
-      dbentry.Form( "%s.m%d.threshold_stripsum = %g", detname, i, thresh_strip_mod );
-      outfile_db << dbentry << endl;
-      cout << dbentry << endl;
-
-      dbentry.Form( "%s.m%d.threshold_clustersum = %g", detname, i, thresh_cluster_mod );
-      outfile_db << dbentry << endl;
-      cout << dbentry << endl;
-
-      outfile_db << endl << endl;
-      
-    } else {
-      TString dbentry;
-      dbentry.Form("%s.m%d.modulegain = %g",detname,i,1.0);
-      outfile_db << dbentry << endl;
-      cout << dbentry << endl;
-    }
+    double Gmod = RelativeGainByModule[i]*MPV_all/target_ADC;
+    //outfile_db << "# Module " << i << " average gain relative to target ADC of " << target_ADC << " = " << Gmod << endl;
+    TString dbentry;
+    dbentry.Form("%s.m%d.modulegain = %g",detname,i,Gmod);
+    outfile_db << dbentry << endl;
+    cout << dbentry << endl;
   }
-  thresh_sample_all ->Draw("AP");
-  thresh_sample_all ->Write();
-  thresh_strip_all ->Draw("AP");
-  thresh_strip_all ->Write();
-  thresh_cluster_all ->Draw("AP");
-  thresh_cluster_all ->Write();
+
   outfile << endl;
   outfile_db << endl;
+
   fout->Write();
 
 }

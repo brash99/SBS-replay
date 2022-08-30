@@ -11,7 +11,7 @@ variable bb.ps.nblk
 variable bb.ps.idblk
 variable bb.ps.atimeblk
 variable bb.ps.index
-#block bb.ps.clus*
+block bb.ps.clus*
 variable bb.ps.nclus
 block bb.ps.clus_blk.*
 variable bb.ps.ngoodADChits
@@ -28,7 +28,7 @@ variable bb.sh.nblk
 variable bb.sh.idblk
 variable bb.sh.atimeblk
 variable bb.sh.index
-#block bb.sh.clus*
+block bb.sh.clus*
 variable bb.sh.nclus
 block bb.sh.clus_blk.*
 variable bb.sh.ngoodADChits

@@ -306,34 +306,13 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   prefix = gSystem->Getenv("LOG_DIR");
   analyzer->SetSummaryFile(Form("%s/replay_gmn_%d_stream%d_seg%d_%d.log", prefix.Data(), runnum, 
 				stream, firstsegment, lastsegment));
-  prefix = gSystem->Getenv("SBS_REPLAY");
   
+  prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
-  cout << "Hello World, if you get to this point you are reading the right script!" << endl;
-  int myrun = (int) runnum;	
-  TString odef_filename;
-	//These run number segments are determined by reviewing the run log and should be correct, but are arbitrary
-	//modified odef_filename to handle the 3 different GEM configurations throughout the run. Doing this by runnum. ~E. Wertz
-  if((myrun >= 10491) && (myrun <= 12703)){
-	//GEM config 1: 2 UV layers, 2 INFN layers, 1 UVA XY
-	odef_filename = "replay_gmn_1.odef";
-	}
-  else if((myrun >= 12078) && (myrun <= 13086)){
-	//GEM config 2: 3 UV layers, 1 INFN layer, 1 UVA XY
-	odef_filename = "replay_gmn_2.odef";
-	}
-  else if((myrun >= 13095) && (myrun <= 13799)){
-	//GEM config 3: 4 UV layers, 1 UVA XY
-	odef_filename = "replay_gmn_3.odef";
-	}
-  else{
-	//Fail safe if for some reason a runnum is inputed that does not fall in these ranges. Replay will probably be wrong. But it shouldn't crash the scrip. Will give you most modules.
-	odef_filename = "replay_gmn_1.odef";	
-	}
 
-
- // odef_filename.Prepend(prefix);
-  odef_filename.Prepend("/work/halla/sbs/ewertz/SBS-replay/replay/");
+  TString odef_filename = "replay_gmn.odef";
+  
+  odef_filename.Prepend( prefix );
 
   analyzer->SetOdefFile( odef_filename );
   
