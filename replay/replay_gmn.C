@@ -285,10 +285,10 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   if( nevents > 0 ){ 
 
-    outfilename.Form( "%s/e1209019_replayed_%d_stream%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), runnum,
+    outfilename.Form( "%s/%s_replayed_%d_stream%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), fname_prefix, runnum,
 		      stream, firstsegment, lastsegment, firstevent, nevents );
   } else {
-    outfilename.Form( "%s/e1209019_fullreplay_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
+    outfilename.Form( "%s/%s_fullreplay_%d_stream%d_seg%d_%d.root", prefix.Data(), fname_prefix, runnum,
 		      stream, firstsegment, lastsegment );
   }
  
