@@ -603,6 +603,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   double T_BBdist, T_BBtheta;
   double T_HCALdist, T_HCALtheta;
   double T_xHCAL, T_yHCAL, T_EHCAL, T_deltax, T_deltay;
+  double T_xHCAL_expect, T_yHCAL_expect;
   double T_pp_expect, T_ptheta_expect, T_pphi_expect;
   double T_EPS, T_ESH, T_Etot;
   double T_xSH, T_ySH;
@@ -645,6 +646,8 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   Tout->Branch( "HCALtheta", &T_HCALtheta, "HCALtheta/D");
   Tout->Branch( "xHCAL", &T_xHCAL, "xHCAL/D");
   Tout->Branch( "yHCAL", &T_yHCAL, "yHCAL/D");
+  Tout->Branch( "xHCAL_expect", &T_xHCAL_expect, "xHCAL_expect/D");
+  Tout->Branch( "yHCAL_expect", &T_yHCAL_expect, "yHCAL_expect/D");
   Tout->Branch( "EHCAL", &T_EHCAL, "EHCAL/D");
   Tout->Branch( "deltax", &T_deltax, "deltax/D");
   Tout->Branch( "deltay", &T_deltay, "deltay/D");
@@ -894,6 +897,9 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
       T_EHCAL = EHCAL;
       T_deltax = xHCAL - xexpect_HCAL;
       T_deltay = yHCAL - yexpect_HCAL;
+
+      T_xHCAL_expect = xexpect_HCAL;
+      T_yHCAL_expect = yexpect_HCAL;
       
       if( usehcalcut != 0 ){
 	passed_HCAL_cut = pow( (xHCAL-xexpect_HCAL - dx0)/dxsigma, 2 ) +
