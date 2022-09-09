@@ -14,6 +14,8 @@
 # variable 1 5 1  TSbcmu3  BCM u3 counts
 # variable 1 5 2  TSbcmu3r  BCM u3 rate
 
+block g.*
+
 begin epics
 HALLA:p
 end epics
