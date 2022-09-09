@@ -30,6 +30,7 @@
 #include <set>
 #include <map>
 #include <sstream>
+#include "TTreeFormula.h"
 
 double PI = TMath::Pi();
 
@@ -68,6 +69,8 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
       globalcut += currentline;
     }
   }
+
+  TTreeFormula *GlobalCut = new TTreeFormula("GlobalCut",globalcut,C);
   
   //int fitorder = 2;
   
@@ -419,9 +422,9 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   
   // In order to get 
 
-  TEventList *elist = new TEventList("elist","Event list for BigBite momentum calibration");
+  //  TEventList *elist = new TEventList("elist","Event list for BigBite momentum calibration");
 
-  C->Draw(">>elist",globalcut);
+  //C->Draw(">>elist",globalcut);
 
   int MAXNTRACKS=1000;
 
@@ -474,6 +477,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   C->SetBranchStatus("bb.tr.tg_ph",1);
   
   //Shower and preshower variables:
+  C->SetBranchStatus("bb.etot_over_p",1);
   C->SetBranchStatus("bb.ps.e",1);
   C->SetBranchStatus("bb.ps.x",1);
   C->SetBranchStatus("bb.ps.y",1);
@@ -505,7 +509,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   C->SetBranchAddress("sbs.hcal.x",&xHCAL);
   C->SetBranchAddress("sbs.hcal.y",&yHCAL);
   C->SetBranchAddress("sbs.hcal.e",&EHCAL);
-
+  
   C->SetBranchAddress("bb.ps.e",&EPS);
   C->SetBranchAddress("bb.sh.e",&ESH);
   C->SetBranchAddress("bb.ps.x",&xPS);
@@ -679,16 +683,28 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   Tout->Branch( "deltay_4vect", &T_dy_4vect, "deltay_4vect/D" );
   
   
-  
+  long ntotal = C->GetEntries();
   
   long nevent=0;
 
   //First pass: accumulate sums required for the fit: 
   
-  while( C->GetEntry(elist->GetEntry(nevent++)) ){
-    if( nevent % 100000 == 0 ) cout << nevent << endl;
+  int treenum=0, currenttreenum=0; 
 
-    if( int(ntrack) == 1 ){
+  while( C->GetEntry(nevent++) ){
+    if( nevent % 100000 == 0 ) {
+      cout << "event " << nevent << " of " << ntotal << endl;
+    }
+    currenttreenum = C->GetTreeNumber();
+
+    if( nevent == 1 || currenttreenum != treenum ){
+      treenum = currenttreenum; 
+      GlobalCut->UpdateFormulaLeaves();
+    }
+
+    bool passedglobal = GlobalCut->EvalInstance(0) != 0;
+
+    if( int(ntrack) == 1 && passedglobal ){
       //The first thing we want to do is to calculate the "true" electron momentum incident on BigBite:
       double Ebeam_corrected = ebeam - MeanEloss;
 
@@ -1132,7 +1148,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   plotsfilename.ReplaceAll(".pdf",".png");
   c1->Print(plotsfilename.Data(),"png");
   
-  elist->Delete();
+  // elist->Delete();
 
   fout->Write();
 }
