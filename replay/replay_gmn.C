@@ -312,6 +312,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   //cout << "Hello World, if you get to this point you are reading the right script!" << endl;
   int myrun = (int) runnum;	
   TString odef_filename;
+  TString ftest(fname_prefix);
   //These run number segments are determined by reviewing the run log and should be correct, but are arbitrary
   //modified odef_filename to handle the 3 different GEM configurations throughout the run. Doing this by runnum. ~E. Wertz
   if((myrun >= 10491) && (myrun <= 12703) && (ftest == "e1209019")){
