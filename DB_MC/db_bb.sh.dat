@@ -79,6 +79,10 @@ bb.sh.xyz    =  -1.105 0.255  0.000
 ## Space between modules
 bb.sh.dxdydz =   0.085 0.085  0.000
 
+## clustering
+bb.sh.emin = 0.02 #GeV
+bb.sh.Rmax_dis = 0.15 #m
+
 #bb.sh.xpos = 
 #-1.105 -1.02 -0.935 -0.85 -0.765 -0.68 -0.595 -0.51 -0.425 -0.34 -0.255 -0.17 -0.085 
 #0 0.085 0.17 0.255 0.34 0.425 0.51 0.595 0.68 0.765 0.85 0.935 1.02 1.105 
@@ -178,7 +182,7 @@ bb.sh.ypos =
 
 
 ## Mininum energy  for a cluster center (not really used right now)
-bb.sh.emin  = 0.0
+#bb.sh.emin  = 0.0
 ## adc channels to mV assume F250 set fot 2V for 4096
 bb.sh.adc.conv = 0.4882
 # Threshold for pulse finding in waveform (mV)
