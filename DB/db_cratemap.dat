@@ -111,13 +111,21 @@
   20    250     3
 
 
-### How about GEMs on Hadron arm side?? (TODO: add them later!)
+
 
 # AJRP note: we are commenting out the config string for the BigBite VTPs, we will use the new default values for the required dummy channels.
 ====Crate 19 type vme
 11 3561 3561
 
 ====Crate 20 type vme
+11 3561 3561
+
+### SBS arm GEMs
+
+====Crate 24 type vme
+11 3561 3561
+
+====Crate 25 type vme
 11 3561 3561
 
 --------[ 2022-07-26 00:00:00 ] ## Switch to HCAL VTP

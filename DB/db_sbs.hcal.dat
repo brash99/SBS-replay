@@ -88,7 +88,7 @@ sbs.hcal.chanmap =
        145 151 146 152 147 153 148 154 149 155 150 156 181 187 182 188 49  55  50  56  51  57  52  58  53  59  54  60  65  71  66  72   -1000  -1000  -1000  -1000  #TDC 5. Ribbons 9, 10.       
 
 ## Positions in [m] where +z is roated by sbs.theta
-sbs.hcal.position = 0 0 0
+sbs.hcal.position = 0 0 13.0
 
 ## HCal is composed of 4 sub-assemblies each of 6x12 (row,col) modules
 ## Test settings for one sub-assembly
