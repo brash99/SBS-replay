@@ -179,3 +179,7 @@ sbs.hcal.tdc.offset = 0.0
 sbs.hcal.tdc.cal = 0.1
 #
 sbs.hcal.tdc.GoodTimeCut = 80.0
+#
+## Maximum time difference between cluster seed and 
+## additional clusters, set to 1000 ns by default
+sbs.hcal.tmax = 1000.0
