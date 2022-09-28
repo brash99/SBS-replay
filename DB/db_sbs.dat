@@ -11,5 +11,5 @@ sbs.backconstraint_y0 = 0.0
 sbs.frontconstraint_x0 = 0.0
 sbs.frontconstraint_y0 = 0.0
 
-sbs.gemorigin_xyz = 0.0 0.0 4.3
+sbs.gemorigin_xyz = 0.0 0.0 4.825
 
