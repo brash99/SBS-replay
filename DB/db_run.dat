@@ -155,3 +155,21 @@ bb.theta = 49.0
 bb.magdist = 1.550 # survey matches nominal, to within its precision
 bb.pcentral = 1.63
 
+
+---------[ 2022-09-01 00:00:00 ] # start of GEN-1 commissioning kinematics at 1-pass:
+
+# beam energy to be refined by HALLA:p once we start up:
+ebeam = 2.1
+
+sbs.theta = 34.7
+sbs.pcentral = 1.6
+# with tracking in SBS we will also need to add sbs magnet distance as a required parameter
+sbs.magdist = 2.80 
+# sbs.hcaldist = 17.0 
+
+bb.theta = 47.5
+bb.pcentral = 1.22
+
+# to be refined from survey results later
+bb.magdist = 1.63
+
