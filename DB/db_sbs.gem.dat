@@ -106,8 +106,8 @@ sbs.gem.m29.apvmap = 1
 # threshold_sample = 75.
 # threshold_stripsum = 300.
 # threshold_clustersum = 600.
-# maxhitcombos = 25,000
-# maxhitcombos_inner = 25,000
+# maxhitcombos = 25000
+# maxhitcombos_inner = 25000
 # maxhitcombos_total = 1,000,000,000 (this is not actually the most relevant limit for the tracking algorithm and I am using an even higher limit for BigBite analysis)
 # max2Dhits = 100,000
 # filterflag1D = 0
@@ -126,11 +126,11 @@ sbs.gem.threshold_clustersum 600.
 sbs.gem.ADCasym_cut = 0.8 
 sbs.gem.deltat_cut = 25.0
 sbs.gem.corrcoeff_cut = 0.5
-sbs.gem.filterflag1D = 0 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
-sbs.gem.filterflag2D = 1  # 1 = "hard" filtering: require 2D hits to pass all cuts
+sbs.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
+sbs.gem.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts
 
-sbs.gem.peakprominence_minsigma = 5.0 
-sbs.gem.peakprominence_minfraction = 0.2
+sbs.gem.peakprominence_minsigma = 3.0 
+sbs.gem.peakprominence_minfraction = 0.15
 
 # limit cluster size growth to +/- 4 strips for cluster charge calculation
 sbs.gem.maxnu_charge = 4
@@ -149,7 +149,7 @@ sbs.gem.plot_common_mode = 1
 sbs.gem.plot_event_info = 1
 
 # when zero suppression is enabled again we will turn this to 1: 
-sbs.gem.pedsub_online = 0 # under normal conditions, this should always be 1, unless running normal data taking in pedestal mode:
+sbs.gem.pedsub_online = 1 # under normal conditions, this should always be 1, unless running normal data taking in pedestal mode:
 sbs.gem.max2Dhits = 100000 # per-module
 
 
@@ -200,34 +200,45 @@ sbs.gem.efficiency_bin_width_1D = 0.02
 sbs.gem.efficiency_bin_width_2D = 0.04
 
 # these should probably be tighter later on:
-sbs.gem.xptar_min = -0.25
-sbs.gem.xptar_max = 0.25
+sbs.gem.xptar_min = -0.24
+sbs.gem.xptar_max = 0.24
 
-sbs.gem.yptar_min = -0.09
-sbs.gem.yptar_max = 0.09
+sbs.gem.yptar_min = -0.12
+sbs.gem.yptar_max = 0.12
 
-sbs.gem.ytar_min = -0.08
-sbs.gem.ytar_max = 0.08
+sbs.gem.ytar_min = -0.25
+sbs.gem.ytar_max = 0.25
 
 sbs.gem.pmin = 0.8
-sbs.gem.pmax = 2.6
+sbs.gem.pmax = 11.0
 
-sbs.gem.xpfp_min = -0.25
-sbs.gem.xpfp_max = 0.25
-sbs.gem.ypfp_min = -0.09
-sbs.gem.ypfp_max = 0.09
-
-# ###################### END TIME-DEPENDENT CLUSTERING PARAMETERS #############
-
+sbs.gem.xpfp_min = -0.35
+sbs.gem.xpfp_max = 0.2
+sbs.gem.ypfp_min = -0.12
+sbs.gem.ypfp_max = 0.12
 
 # # basic flags controlling decoding:
 sbs.gem.pedestalmode = 0
-sbs.gem.commonmode_flag = 1 # 1 = Danning, 0 = sorting, 2 = histogramming
+sbs.gem.commonmode_flag = 2 # 1 = Danning, 0 = sorting, 2 = histogramming
 sbs.gem.chan_cm_flags = 640 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags -(40 x 16) "sbsvtp2" and "sbsvtp4"currently has 36 and 20 MPDs respectively right now. 
 sbs.gem.commonmode_nstriplo = 20 # for sorting method
 sbs.gem.commonmode_nstriphi = 20 # for sorting method
 sbs.gem.commonmode_niter = 3
 sbs.gem.commonmode_minstrips = 20
+
+# histogramming-method parameters: 
+sbs.gem.commonmode_binwidth_nsigma = 2.0
+sbs.gem.commonmode_scanrange_nsigma = 2.5
+sbs.gem.commonmode_stepsize_nsigma = 0.25
+
+# attempt to correct common-mode for negative bias:
+sbs.gem.correct_common_mode = 0
+sbs.gem.correct_common_mode_minstrips = 15
+sbs.gem.correct_common_mode_nsigma = 2.0
+
+sbs.gem.use_commonmode_rolling_average = 1
+sbs.gem.commonmode_nevents_lookback = 10
+
 sbs.gem.plot_common_mode = 1
 sbs.gem.pedsub_online = 1 # normally this should always be set to 1
 sbs.gem.dump_geometry_info = 1
@@ -236,14 +247,16 @@ sbs.gem.efficiency_bin_width_2D = 0.02
 sbs.gem.commonmode_range_nsigma = 5.0
 
 
+
+
 # these may need adjusting:
-sbs.gem.usestriptimingcut = 1
+sbs.gem.usestriptimingcut = 0
 sbs.gem.useTSchi2cut = 0
 sbs.gem.maxstrip_t0 = 85.4
 sbs.gem.maxstrip_tcut = 21.0
 sbs.gem.addstrip_tcut = 21.0
 sbs.gem.addstrip_ccor_cut = 0.4
-sbs.gem.suppressfirstlast = 1
+sbs.gem.suppressfirstlast = 0
 
 sbs.gem.modulegain = 1
 
