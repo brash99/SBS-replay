@@ -35,7 +35,7 @@
 #include "SBSScalerEvtHandler.h"
 //#endif
 
-void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=1)
+void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209016", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -194,7 +194,8 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   TDatime RunDate = TDatime(); 
 
-  int max1 = maxsegments;
+  //interpret max. number of CODA files as maxsegments times the number of streams:
+  int max1 = maxsegments*(maxstream+1);
 
   int segcounter=0;
   
@@ -222,62 +223,67 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   
   //This loop adds all file segments found to the list of THaRuns to process:
   while( segcounter < max1 && segment - firstsegment < maxsegments ){
+
+    //look for segments with stream from 0 to 2
+
+    for( stream=0; stream<=maxstream; stream++ ){
     
-    TString codafilename;
-    //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
-    codafilename.Form("%s_%d.evio.%d.%d", fname_prefix, runnum, stream, segment );
+      TString codafilename;
+      //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
+      codafilename.Form("%s_%d.evio.%d.%d", fname_prefix, runnum, stream, segment );
 
-    TString ftest(fname_prefix);
-    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
-      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, segment );
-    }
-
-    segmentexists = false;
-
-    cout << "codafilename = " << codafilename << endl;
-
-    for( int ipath=0; ipath<pathlist.size(); ipath++ ){
-      TString searchname;
-      searchname.Form( "%s/%s", pathlist[ipath].Data(), codafilename.Data() );
-      
-      if( !gSystem->AccessPathName( searchname.Data() ) ){
-	segmentexists = true;
-	break;
+      TString ftest(fname_prefix);
+      if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
+	codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, segment );
       }
-    }
+
+      segmentexists = false;
+
+      cout << "codafilename = " << codafilename << endl;
+
+      for( int ipath=0; ipath<pathlist.size(); ipath++ ){
+	TString searchname;
+	searchname.Form( "%s/%s", pathlist[ipath].Data(), codafilename.Data() );
+	
+	if( !gSystem->AccessPathName( searchname.Data() ) ){
+	  segmentexists = true;
+	  break;
+	}
+      }
    
-    if( segmentexists ){
-      new( (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
-      cout << "Added segment " << segment << ", CODA file name = " << codafilename << endl;
-
-      //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
-
-      // if( stream == 0 && segment == 0 ){
-      // 	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
-      // 	( (THaRun*) (*filelist)[segcounter] )->Init();
-
-      // 	RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
-      // }  else {
-      // 	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(0);
-
-      // 	cout << "Warning: setting date to " << RunDate.AsString() << " for stream " << stream << " segment " << segment 
-      // 	     << endl; 
-
-      // 	( (THaRun*) (*filelist)[segcounter] )->SetDate(RunDate);
-      // 	( (THaRun*) (*filelist)[segcounter] )->SetNumber(UInt_t(runnum));
-      // }
-      //( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
-      //( (THaRun*) (*filelist)[segcounter] )->Init();
-    } // else {
-    //   THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
-    //   new( (*filelist)[segcounter] ) THaRun( *rtemp );
-    //   ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
-    //   ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+      if( segmentexists ){
+	new( (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "SBS run" );
+	cout << "Added segment " << segment << ", CODA file name = " << codafilename << endl;
+	
+	//( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
+	
+	// if( stream == 0 && segment == 0 ){
+	// 	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+	// 	( (THaRun*) (*filelist)[segcounter] )->Init();
+	
+	// 	RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
+	// }  else {
+	// 	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(0);
+	
+	// 	cout << "Warning: setting date to " << RunDate.AsString() << " for stream " << stream << " segment " << segment 
+	// 	     << endl; 
+	
+	// 	( (THaRun*) (*filelist)[segcounter] )->SetDate(RunDate);
+	// 	( (THaRun*) (*filelist)[segcounter] )->SetNumber(UInt_t(runnum));
+	// }
+	//( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+	//( (THaRun*) (*filelist)[segcounter] )->Init();
+	//} // else {
+      //   THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
+      //   new( (*filelist)[segcounter] ) THaRun( *rtemp );
+      //   ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
+      //   ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
     //   cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
     // }
-    if( segmentexists ){
-      segcounter++;
-      lastsegment = segment;
+      
+	segcounter++;
+	lastsegment = segment; //now lastsegment is to be interpreted as the last segment for which at least one stream has an existing file between 0 and maxstream.
+      }
     }
     segment++;
   }
@@ -290,11 +296,11 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   if( nevents > 0 ){ 
 
-    outfilename.Form( "%s/e1206016_replayed_%d_stream%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), runnum,
-		      stream, firstsegment, lastsegment, firstevent, nevents );
+    outfilename.Form( "%s/%s_replayed_%d_stream%d_%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), fname_prefix, runnum,
+		      0, maxstream, firstsegment, lastsegment, firstevent, nevents );
   } else {
-    outfilename.Form( "%s/e1206016_fullreplay_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
-		      stream, firstsegment, lastsegment );
+    outfilename.Form( "%s/%s_fullreplay_%d_stream%d_%d_seg%d_%d.root", prefix.Data(), fname_prefix, runnum,
+		      0, maxstream, firstsegment, lastsegment );
   }
  
 
@@ -309,8 +315,8 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   // File to record cuts accounting information
   
   prefix = gSystem->Getenv("LOG_DIR");
-  analyzer->SetSummaryFile(Form("%s/replay_gmn_%d_stream%d_seg%d_%d.log", prefix.Data(), runnum, 
-				stream, firstsegment, lastsegment));
+  analyzer->SetSummaryFile(Form("%s/replay_gen_%d_stream%d_%d_seg%d_%d.log", prefix.Data(), runnum, 
+				0, maxstream, firstsegment, lastsegment));
   
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
@@ -322,8 +328,11 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   analyzer->SetOdefFile( odef_filename );
   
   //added cut list in order to have 
-  TString cdef_filename = "replay_gen_farm.cdef";
-  
+  //TString cdef_filename = "replay_gen_farm.cdef";
+  TString cdef_filename = "replay_gen.cdef";
+
+  //the above cdef file includes almost no significant cuts (basically just any hit in BigBite shower or preshower
+
   cdef_filename.Prepend( prefix );
   
   analyzer->SetCutFile( cdef_filename );
