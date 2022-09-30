@@ -327,6 +327,7 @@ sbs.hcal.emin = 0.005
 
 --------[ 2022-07-26 00:00:00 ] ## Switch to HCAL VTP
 ## crate slot start_channel end_channel
+sbs.hcal.detmap =
   28   3      0     15 2
   28   4      0     15 2
   28   5      0     15 2
