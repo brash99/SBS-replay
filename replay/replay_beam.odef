@@ -16,7 +16,9 @@
 #sbs.bcm.d10.cnt
 
 block Lrb.Raster*
+block SBSrb.Raster*
 block SBSrb.BPM*
+block Lrb.BPM*
 
 #th2d h_beam_yVs_bpma 'Beam position at BPM A: x : y' SBSrb.Raster.bpma.x SBSrb.Raster.bpma.y 100 -1.0, 1.0, 100 -1.0, 1.0
 #th2d h_beam_yVs_bpmb 'Beam position at BPM B: x : y' SBSrb.Raster.bpmb.x SBSrb.Raster.bpmb.y 100 -1.0, 1.0, 100 -1.0, 1.0

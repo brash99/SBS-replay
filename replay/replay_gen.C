@@ -121,7 +121,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   ( static_cast<SBSGEMTrackerBase *> (sbsgem) )->SetMakeCommonModePlots( cmplots );
   harm->AddDetector(sbsgem);
   
-  gHaApps->Add(harm);
+  gHaApps->Add(harm); 
 
   // add decoder
   THaApparatus* decL = new THaDecData("DL","Misc. Decoder Data");
