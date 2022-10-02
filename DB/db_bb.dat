@@ -1232,6 +1232,11 @@ bb.backconstraintwidth_y = 0.0690686
 
 ------[ 2022-09-01 00:00:00 ] # starting optics for GEN-1 kinematics from simulation with 0.97 scale factor for BB field map
 
+# Add 8 cm to Z coordinate to account for 1.63 m magnet distance at the start of GEN:
+bb.gemorigin_xyz = -0.20603 0.04289 2.78386
+# note: ZSIEVE = 1.18572
+bb.gemtheta = 8.7696
+bb.gemphi = 178.704
 
 # starting optics model from simulation for GEN-1 kinematics:
 bb.optics_order = 2
