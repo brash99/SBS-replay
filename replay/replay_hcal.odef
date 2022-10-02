@@ -22,9 +22,10 @@
 
 
 variable sbs.hcal.e
-variable sbs.hcal.e_c
+#variable sbs.hcal.e_c
 variable sbs.hcal.eblk
-variable sbs.hcal.eblk_c
+#variable sbs.hcal.eblk_c
+variable sbs.hcal.againblk
 variable sbs.hcal.rowblk
 variable sbs.hcal.colblk
 variable sbs.hcal.x
@@ -58,7 +59,7 @@ th1d hNClus_vs_elem_hcal 'Number of clusters per event : HCAL' sbs.hcal.nclus 45
 th1d hNBlk_per_cluster 'Number of blocks per cluster : HCAL' sbs.hcal.clus.nblk 16 0 16 
 th1d hclusID_vs_elem_hcal 'Cluster ID over all events : HCAL' sbs.hcal.idblk 288 1 288 #Position, zero element is primary block in cluster
 th1d hClusADC_vs_elem_hcal 'Cluster ADC : HCAL' sbs.hcal.e 100 0 1 
-th1d hClusE_vs_elem_hcal 'Cluster Energy : HCAL' sbs.hcal.e_c 100 0 1
+th1d hClusE_vs_elem_hcal 'Cluster Energy : HCAL' sbs.hcal.e 100 0 1
 th2d hClus_pos_hcal 'Position of best cluster : HCal' sbs.hcal.colblk sbs.hcal.rowblk 12 0 12 24 0 24 sbs.hcal.nclus>0
 
 #th2d hClusADC_vs_elem_hcal 'Cluster ADC vs element ID : HCAL' sbs.hcal.adcelemID[I] sbs.hcal.eblk[I] 288 0.5 288.5 100 0 100 
