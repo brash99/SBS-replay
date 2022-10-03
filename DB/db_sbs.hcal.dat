@@ -99,9 +99,9 @@ sbs.hcal.nrows = 24
 sbs.hcal.ncols = 12
 
 ## Position of first module
-sbs.hcal.xyz = -2.090 -0.825 0.0
+sbs.hcal.xyz = -2.190625 -0.85217 0.0 #Overridden by detailed ypos and xpos below
 ## Space between modules
-sbs.hcal.dxdydz = 0.15 0.15 0.0 #Overridden by detailed ypos and xpos below
+sbs.hcal.dxdydz = 0.15875 0.15494 0.0 #Overridden by detailed ypos and xpos below
 #Updated HCal position information from simulation and CAD, verified via physical measurement in hall 9.22
 sbs.hcal.ypos = 
 -0.85217 -0.69723 -0.54229 -0.38735 -0.23241 -0.07747 0.07747 0.23241 0.38735 0.54229 0.69723 0.85217
