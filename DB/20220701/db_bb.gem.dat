@@ -671,7 +671,7 @@ bb.gem.useslopeconstraint = 0
 
 # Default BB GEM alignment at the start of GEN:
 
-#New alignment with cosmic data 
+--------[ 2022-07-01 14:30:00 ] # New alignment with cosmic data 
 bb.gem.m0.position =               0               0               0
 bb.gem.m0.angle =               0               0               0
 bb.gem.m1.position =    -0.001911928     -0.01125671        0.165075
@@ -688,6 +688,24 @@ bb.gem.m6.position =       0.2586571    -0.008294649         1.57827
 bb.gem.m6.angle =     -0.01082531      -0.1947286      -0.2585426
 bb.gem.m7.position =       0.7710201     -0.01163987        1.536401
 bb.gem.m7.angle =      -0.2508493      -0.1232231      -0.2878157
+
+--------[ 2022-09-22 16:00:00 ] # New cosmic alighment before GEn starts
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001866869     -0.01142967       0.1650005
+bb.gem.m1.angle =      -0.1065888      0.03268089      0.06006474
+bb.gem.m2.position =    -0.007406738     0.005938152       0.2792381
+bb.gem.m2.angle =     -0.01993594      0.03360998      -0.2996637
+bb.gem.m3.position =    -0.008898218     0.004865077       0.4568941
+bb.gem.m3.angle =     -0.02932631      0.05863983      -0.4565881
+bb.gem.m4.position =      -0.7643013     0.002078737        1.575779
+bb.gem.m4.angle =     -0.07949925      -0.1503181      -0.3496833
+bb.gem.m5.position =      -0.2522381      -0.0022978        1.534052
+bb.gem.m5.angle =      -0.2054036      -0.0428951      -0.3128763
+bb.gem.m6.position =       0.2586138    -0.008327183        1.578055
+bb.gem.m6.angle =     -0.01938281      -0.2853453      -0.2736628
+bb.gem.m7.position =       0.7709555     -0.01183456        1.536362
+bb.gem.m7.angle =      -0.2720498      -0.0815385      -0.2664114
 
 #################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
 
