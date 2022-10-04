@@ -26,7 +26,6 @@
 //#include "SBSCherenkovDetector.h"
 #include "SBSEArm.h"
 #include "SBSHCal.h"
-#include "SBSGEMStand.h"
 #include "SBSTimingHodoscope.h"
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMTrackerBase.h"
@@ -35,7 +34,7 @@
 #include "SBSScalerEvtHandler.h"
 //#endif
 
-void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=0)
+void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, const char *fname_prefix="e1209019", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=1)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -75,7 +74,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   //grinch_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
   grinch_tdc->SetModeADC(SBSModeADC::kNone);
   grinch_tdc->SetStoreEmptyElements(kFALSE);
-  grinch_tdc->SetStoreRawHits(kTRUE); //set to kTRUE to look at all the hits 
+  grinch_tdc->SetStoreRawHits(kFALSE);
   grinch_tdc->SetDisableRefTDC(true);
   bigbite->AddDetector(grinch_adc);
   bigbite->AddDetector(grinch_tdc);
@@ -285,10 +284,10 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
 
   if( nevents > 0 ){ 
 
-    outfilename.Form( "%s/e1209019_replayed_%d_stream%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), runnum,
+    outfilename.Form( "%s/%s_replayed_%d_stream%d_seg%d_%d_firstevent%d_nevent%d.root", prefix.Data(), fname_prefix, runnum,
 		      stream, firstsegment, lastsegment, firstevent, nevents );
   } else {
-    outfilename.Form( "%s/e1209019_fullreplay_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
+    outfilename.Form( "%s/%s_fullreplay_%d_stream%d_seg%d_%d.root", prefix.Data(), fname_prefix, runnum,
 		      stream, firstsegment, lastsegment );
   }
  
@@ -306,13 +305,35 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   prefix = gSystem->Getenv("LOG_DIR");
   analyzer->SetSummaryFile(Form("%s/replay_gmn_%d_stream%d_seg%d_%d.log", prefix.Data(), runnum, 
 				stream, firstsegment, lastsegment));
-  
   prefix = gSystem->Getenv("SBS_REPLAY");
-  prefix += "/replay/";
-
-  TString odef_filename = "replay_gmn.odef";
   
-  odef_filename.Prepend( prefix );
+  prefix += "/replay/";
+  //cout << "Hello World, if you get to this point you are reading the right script!" << endl;
+  int myrun = (int) runnum;	
+  TString odef_filename;
+  TString ftest(fname_prefix);
+  //These run number segments are determined by reviewing the run log and should be correct, but are arbitrary
+  //modified odef_filename to handle the 3 different GEM configurations throughout the run. Doing this by runnum. ~E. Wertz
+  if((myrun >= 10491) && (myrun <= 12703) && (ftest == "e1209019")){
+    //GEM config 1: 2 UV layers, 2 INFN layers, 1 UVA XY
+    odef_filename = "replay_gmn_1.odef";
+  }
+  else if((myrun >= 12078) && (myrun <= 13086) && (ftest == "e1209019")){
+    //GEM config 2: 3 UV layers, 1 INFN layer, 1 UVA XY
+    odef_filename = "replay_gmn_2.odef";
+  }
+  else if(((myrun >= 13095) && (myrun <= 13799) && (ftest == "e1209019")) || (ftest == "e1209016")){
+    //GEM config 3: 4 UV layers, 1 UVA XY
+    odef_filename = "replay_gmn_3.odef";
+  }
+  else{
+    //Fail safe if for some reason a runnum is inputed that does not fall in these ranges. Replay will probably be wrong. But it shouldn't crash the scrip. Will give you most modules.
+    odef_filename = "replay_gmn_1.odef";	
+  }
+
+
+  odef_filename.Prepend(prefix);
+  //odef_filename.Prepend("/work/halla/sbs/ewertz/SBS-replay/replay/");
 
   analyzer->SetOdefFile( odef_filename );
   
@@ -352,33 +373,33 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   //This loop adds all file segments found to the list of THaRuns to process:
   while( segcounter < maxsegments && segment - firstsegment < maxsegments ){
 
-    TString codafilename;
-    //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
-    codafilename.Form("%s/%s_%d.evio.0.%d", prefix.Data(), fname_prefix, runnum, segment );
+  TString codafilename;
+  //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
+  codafilename.Form("%s/%s_%d.evio.0.%d", prefix.Data(), fname_prefix, runnum, segment );
 
-    segmentexists = true;
+  segmentexists = true;
     
-    if( gSystem->AccessPathName( codafilename.Data() ) ){
-      segmentexists = false;
-    } else if( segcounter == 0 ){
-      new( (*filelist)[segcounter] ) THaRun( codafilename.Data() );
-      cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
-      //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
-      ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(1);
-      ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
-      ( (THaRun*) (*filelist)[segcounter] )->Init();
-    } else {
-      THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
-      new( (*filelist)[segcounter] ) THaRun( *rtemp );
-      ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
-      ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
-      cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
-    }
-    if( segmentexists ){
-      segcounter++;
-      lastsegment = segment;
-    }
-    segment++;
+  if( gSystem->AccessPathName( codafilename.Data() ) ){
+  segmentexists = false;
+  } else if( segcounter == 0 ){
+  new( (*filelist)[segcounter] ) THaRun( codafilename.Data() );
+  cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
+  //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
+  ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(1);
+  ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+  ( (THaRun*) (*filelist)[segcounter] )->Init();
+  } else {
+  THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
+  new( (*filelist)[segcounter] ) THaRun( *rtemp );
+  ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
+  ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
+  cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
+  }
+  if( segmentexists ){
+  segcounter++;
+  lastsegment = segment;
+  }
+  segment++;
   }
 
   cout << "n segments to analyze = " << segcounter << endl;
@@ -426,15 +447,15 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   filelist->Compress();
 
   for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
-    THaRun *run = ( (THaRun*) (*filelist)[iseg] );
-    if( nevents > 0 ) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
+  THaRun *run = ( (THaRun*) (*filelist)[iseg] );
+  if( nevents > 0 ) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
 
-    run->SetFirstEvent( firstevent );
+  run->SetFirstEvent( firstevent );
     
-    run->SetDataRequired(1);
+  run->SetDataRequired(1);
     
 
-    analyzer->Process(run);     // start the actual analysis
+  analyzer->Process(run);     // start the actual analysis
   }
   
   */
