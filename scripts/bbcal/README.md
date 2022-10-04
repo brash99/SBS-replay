@@ -1,0 +1,1 @@
+[**BBCal_replay**](https://github.com/provakar1994/BBCal_replay) repository contains calibration and analysis scripts for the BigBite Calorimeter (BBCal). [Procedure wise How-To for BBCAL](https://sbs.jlab.org/cgi-bin/DocDB/public/ShowDocument?docid=313) provides step-by-step guidance to run all the important scripts in `BBCal_replay/macros` directory.
