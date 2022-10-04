@@ -1,6 +1,6 @@
 void hcal_ADCTime_LED(){
 
-  cout << "Processing macro.." << endl;
+  cout << "Processing hcal_ADCTime_LED.." << endl;
 
   TStopwatch *st = new TStopwatch();
   st->Start(kTRUE);
@@ -10,7 +10,7 @@ void hcal_ADCTime_LED(){
 
   Double_t sbs_hcal_ledbit = 0.;
 
-  TH1D *h1_hcal_adctime_led = new TH1D("h1_hcal_adctime_led","HCal ADC Time; HCal ADC time",80,0,160);
+  TH1D *h1_hcal_adctime_led = new TH1D("h1_hcal_adctime_led","HCal ADC Time LED; ns",200,0,200);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");

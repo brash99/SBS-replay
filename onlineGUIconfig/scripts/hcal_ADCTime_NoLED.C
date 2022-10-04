@@ -1,6 +1,6 @@
 void hcal_ADCTime_NoLED(){
 
-  cout << "Processing macro.." << endl;
+  cout << "Processing hcal_ADCTime_NoLED.." << endl;
 
   TStopwatch *st = new TStopwatch();
   st->Start(kTRUE);
@@ -8,7 +8,7 @@ void hcal_ADCTime_NoLED(){
   Double_t sbs_hcal_clus_blk_e[30] = {0.}, sbs_hcal_clus_blk_atime[30] = {0.}, sbs_hcal_nclus = 0., sbs_hcal_ledbit = -2.; 
   UInt_t fEvtHdr_fTrigBits = -1;
 
-  TH1D *h1_hcal_adctime_noled = new TH1D("h1_hcal_adctime_noled","HCal ADC Time; HCal ADC time",80,0,160);
+  TH1D *h1_hcal_adctime_noled = new TH1D("h1_hcal_adctime_noled","HCal ADC Time No LED; ns",200,0,200);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
