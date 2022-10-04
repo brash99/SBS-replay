@@ -1,8 +1,9 @@
 #ADC from calorimeter
 variable bb.ps.e
-variable bb.ps.e_c
+#variable bb.ps.e_c
+variable bb.ps.againblk
 variable bb.ps.eblk
-variable bb.ps.eblk_c
+#variable bb.ps.eblk_c
 variable bb.ps.rowblk
 variable bb.ps.colblk
 variable bb.ps.x
@@ -11,15 +12,16 @@ variable bb.ps.nblk
 variable bb.ps.idblk
 variable bb.ps.atimeblk
 variable bb.ps.index
-#block bb.ps.clus*
+block bb.ps.clus*
 variable bb.ps.nclus
 block bb.ps.clus_blk.*
 variable bb.ps.ngoodADChits
 
 variable bb.sh.e
-variable bb.sh.e_c
+#variable bb.sh.e_c
+variable bb.sh.againblk
 variable bb.sh.eblk
-variable bb.sh.eblk_c
+#variable bb.sh.eblk_c
 variable bb.sh.rowblk
 variable bb.sh.colblk
 variable bb.sh.x
@@ -28,7 +30,7 @@ variable bb.sh.nblk
 variable bb.sh.idblk
 variable bb.sh.atimeblk
 variable bb.sh.index
-#block bb.sh.clus*
+block bb.sh.clus*
 variable bb.sh.nclus
 block bb.sh.clus_blk.*
 variable bb.sh.ngoodADChits

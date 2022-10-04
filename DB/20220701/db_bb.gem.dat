@@ -1,0 +1,734 @@
+#######################################################################################################################################
+#   ATTENTION: THIS IS THE "v4" BigBite GEM database for the start of GEN (same as v3 but clean out some old GMN-specific entries     #
+#######################################################################################################################################
+
+----------[ 2022-07-01 00:00:00 ] # starting GEN-1
+
+##################### START WITH PARAMETERS THAT AREN'T EXPECTED TO CHANGE OFTEN #####################
+
+bb.gem.modules = m0   m1    m2   m3     m4 m5 m6 m7
+
+bb.gem.m0.layer = 0
+
+bb.gem.m1.layer = 1
+
+bb.gem.m2.layer = 2
+
+bb.gem.m3.layer = 3
+
+bb.gem.m4.layer = 4
+bb.gem.m5.layer = 4
+bb.gem.m6.layer = 4
+bb.gem.m7.layer = 4
+
+
+# APV mapping configurations: 0 = INFN, 1 = UVA X/Y, 2 = UVA U/V
+bb.gem.m0.apvmap = 2 # UVA U/V
+
+bb.gem.m1.apvmap = 2 # U/V
+
+bb.gem.m2.apvmap = 2 # U/V
+
+bb.gem.m3.apvmap = 2 # U/V
+ 
+bb.gem.m4.apvmap = 1 # UVA X/Y
+bb.gem.m5.apvmap = 1 # UVA X/Y
+bb.gem.m6.apvmap = 1 # UVA X/Y
+bb.gem.m7.apvmap = 1 # UVA X/Y
+
+# basic flags controlling decoding:
+bb.gem.pedestalmode = 0
+bb.gem.commonmode_flag = 2 # 0 = sorting, 1 = "Danning method", 2 = histogramming method cm subtraction
+# commenting out definition of cm flags channel
+#bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
+bb.gem.commonmode_nstriplo = 28
+bb.gem.commonmode_nstriphi = 28
+bb.gem.commonmode_niter = 3
+bb.gem.commonmode_minstrips = 20
+bb.gem.plot_common_mode = 1
+bb.gem.pedsub_online = 1 # normally this should always be set to 1
+bb.gem.dump_geometry_info = 0
+bb.gem.efficiency_bin_width_1D = 0.02
+bb.gem.efficiency_bin_width_2D = 0.02
+bb.gem.commonmode_range_nsigma = 5.0
+
+# (online) Danning-method parameters:
+bb.gem.commonmode_danning_nsigma_cut = 3.0
+
+# histogramming-method parameters: 
+bb.gem.commonmode_binwidth_nsigma = 2.0
+bb.gem.commonmode_scanrange_nsigma = 2.5
+bb.gem.commonmode_stepsize_nsigma = 0.25
+
+bb.gem.correct_common_mode = 1
+bb.gem.correct_common_mode_minstrips = 15
+bb.gem.correct_common_mode_nsigma = 2.0
+
+bb.gem.use_commonmode_rolling_average = 1
+bb.gem.commonmode_nevents_lookback = 10
+
+bb.gem.m0.modulegain = 1
+bb.gem.m1.modulegain = 1
+bb.gem.m2.modulegain = 1
+bb.gem.m3.modulegain = 1
+bb.gem.m4.modulegain = 1
+bb.gem.m5.modulegain = 1
+bb.gem.m6.modulegain = 1
+bb.gem.m7.modulegain = 1
+
+bb.gem.m0.ugain = 1
+bb.gem.m1.ugain = 1
+bb.gem.m2.ugain = 1
+bb.gem.m3.ugain = 1
+bb.gem.m4.ugain = 1
+bb.gem.m5.ugain = 1
+bb.gem.m6.ugain = 1
+bb.gem.m7.ugain = 1
+
+bb.gem.m0.vgain = 1
+bb.gem.m1.vgain = 1
+bb.gem.m2.vgain = 1
+bb.gem.m3.vgain = 1
+bb.gem.m4.vgain = 1
+bb.gem.m5.vgain = 1
+bb.gem.m6.vgain = 1
+bb.gem.m7.vgain = 1
+
+bb.gem.plot_event_info = 0
+
+# we MAY need to adjust the size on the U/V layers, but for now let's just use a nominal 40x150 cm^2:
+
+# define size of layer active area: 
+bb.gem.m0.size = 1.50 0.40 0.001
+
+bb.gem.m1.size = 1.50 0.40 0.001
+
+bb.gem.m2.size = 1.50 0.40 0.001
+
+bb.gem.m3.size = 1.50 0.40 0.001
+
+bb.gem.m4.size = 0.512 0.6144 0.001
+bb.gem.m5.size = 0.512 0.6144 0.001
+bb.gem.m6.size = 0.512 0.6144 0.001
+bb.gem.m7.size = 0.512 0.6144 0.001
+
+# define strip directions:
+
+bb.gem.m0.uangle = 150.0
+bb.gem.m0.vangle = -150.0
+
+bb.gem.m1.uangle = 150.0
+bb.gem.m1.vangle = -150.0
+
+bb.gem.m2.uangle = 150.0
+bb.gem.m2.vangle = -150.0
+
+bb.gem.m3.uangle = 150.0
+bb.gem.m3.vangle = -150.0
+
+bb.gem.m4.uangle = 0.0
+bb.gem.m4.vangle = -90.0
+bb.gem.m5.uangle = 0.0
+bb.gem.m5.vangle = -90.0
+bb.gem.m6.uangle = 0.0
+bb.gem.m6.vangle = -90.0
+bb.gem.m7.uangle = 0.0
+bb.gem.m7.vangle = -90.0
+
+# Strip offsets: 
+
+# U offsets:
+bb.gem.m0.uoffset = 0.0108
+
+bb.gem.m1.uoffset = 0.0108
+
+bb.gem.m2.uoffset = 0.0108
+
+bb.gem.m3.uoffset = 0.0108
+
+bb.gem.m4.uoffset = 0.0
+bb.gem.m5.uoffset = 0.0
+bb.gem.m6.uoffset = 0.0
+bb.gem.m7.uoffset = 0.0
+
+# V offsets:
+bb.gem.m0.voffset = 0.0108
+
+bb.gem.m1.voffset = 0.0108
+
+bb.gem.m2.voffset = 0.0108
+
+bb.gem.m3.voffset = 0.0108
+
+bb.gem.m4.voffset = 0.0
+bb.gem.m5.voffset = 0.0
+bb.gem.m6.voffset = 0.0
+bb.gem.m7.voffset = 0.0
+
+# strip counts:
+
+bb.gem.m0.nstripsu = 3840
+bb.gem.m0.nstripsv = 3840
+
+bb.gem.m1.nstripsu = 3840
+bb.gem.m1.nstripsv = 3840
+
+bb.gem.m2.nstripsu = 3840
+bb.gem.m2.nstripsv = 3840
+
+bb.gem.m3.nstripsu = 3840
+bb.gem.m3.nstripsv = 3840
+
+bb.gem.m4.nstripsu = 1280
+bb.gem.m4.nstripsv = 1536
+bb.gem.m5.nstripsu = 1280
+bb.gem.m5.nstripsv = 1536
+bb.gem.m6.nstripsu = 1280
+bb.gem.m6.nstripsv = 1536
+bb.gem.m7.nstripsu = 1280
+bb.gem.m7.nstripsv = 1536
+
+# strip pitch (always 0.4 mm):
+bb.gem.upitch = 0.0004
+bb.gem.vpitch = 0.0004
+
+# DECODE MAP: 
+
+################### DECODE INFO ########################################################################
+## Channel maps for decoding explained                                                                ##
+## Each entry corresponds to one APV card                                                             ## 
+## Crate = ROC ID = 20 for BigBite VTP                                                                ##
+## Slot = 11 for BigBite VTP                                                                          ##
+## fiber/mpd is fiber number for an MPD module, this is unique for each module within a VTP/SSP       ##
+## gemid is unique "production ID" of a GEM module, not currently used by analysis but useful         ##
+## for bookkeeping/tracking                                                                           ##
+## adc_ch is the unique adc channel of this APV card within its associated MPD                        ##
+## i2c is the "i2c address" of this APV card (not currently used by analysis)                         ##
+## pos maps APV cards to physical locations on the detector                                           ##
+## invert specifies whether strip index runs from "right-to-left" or "left-to-right" within an APV    ##
+## axis specifies which strip orientation/dimension of the readout strips connected to this APV       ##
+## ORDER of entries in the maps is:                                                                   ##
+## crate   slot   fiber/mpd  gemid  adc_ch   i2c   pos     invert   axis                              ##
+########################################################################################################
+
+bb.gem.m0.chanmap = 
+     20      11       7       3       0       3      29       1       1 
+     20      11       7       3       1       2      28       1       1 
+     20      11       7       3       2       1      27       1       1 
+     20      11       7       3       3       0      26       1       1 
+     20      11       7       3       4       7      25       1       1 
+     20      11       7       3       5       6      24       1       1 
+     20      11       7       3       6       5      23       1       1 
+     20      11       7       3       7       4      22       1       1 
+     20      11       7       3       8      11      21       1       1 
+     20      11       7       3       9      10      20       1       1 
+     20      11       7       3      10       9      19       1       1 
+     20      11       7       3      11       8      18       1       1 
+     20      11       7       3      12      14      17       1       1 
+     20      11       7       3      13      13      16       1       1 
+     20      11       7       3      14      12      15       1       1 
+     20      11       8       3       0       3      11       1       1 
+     20      11       8       3       1       2      10       1       1 
+     20      11       8       3       2       1       9       1       1 
+     20      11       8       3       3       0       8       1       1 
+     20      11       8       3       4       7       7       1       1 
+     20      11       8       3       5       6       6       1       1 
+     20      11       8       3       6       5       5       1       1 
+     20      11       8       3       7       4       4       1       1 
+     20      11       8       3       8      11       3       1       1 
+     20      11       8       3       9      10       2       1       1 
+     20      11       8       3      10       9       1       1       1 
+     20      11       8       3      11       8       0       1       1 
+     20      11       8       3      12      14      14       1       1 
+     20      11       8       3      13      13      13       1       1 
+     20      11       8       3      14      12      12       1       1 
+     20      11       9       3       0       3      26       0       0 
+     20      11       9       3       1       2      27       0       0 
+     20      11       9       3       2       1      28       0       0 
+     20      11       9       3       3       0      29       0       0 
+     20      11       9       3       4       7      22       0       0 
+     20      11       9       3       5       6      23       0       0 
+     20      11       9       3       6       5      24       0       0 
+     20      11       9       3       7       4      25       0       0 
+     20      11       9       3       8      11      18       0       0 
+     20      11       9       3       9      10      19       0       0 
+     20      11       9       3      10       9      20       0       0 
+     20      11       9       3      11       8      21       0       0 
+     20      11       9       3      12      15      15       0       0 
+     20      11       9       3      13      14      16       0       0 
+     20      11       9       3      14      13      17       0       0 
+     20      11      10       3       0       3       8       0       0 
+     20      11      10       3       1       2       9       0       0 
+     20      11      10       3       2       1      10       0       0 
+     20      11      10       3       3       0      11       0       0 
+     20      11      10       3       4       7       4       0       0 
+     20      11      10       3       5       6       5       0       0 
+     20      11      10       3       6       5       6       0       0 
+     20      11      10       3       7       4       7       0       0 
+     20      11      10       3       8      11       0       0       0 
+     20      11      10       3       9      10       1       0       0 
+     20      11      10       3      10       9       2       0       0 
+     20      11      10       3      11       8       3       0       0 
+     20      11      10       3      12      15      12       0       0 
+     20      11      10       3      13      14      13       0       0 
+     20      11      10       3      14      13      14       0       0 
+bb.gem.m1.chanmap = 
+     20      11      16     103       0       3      29       1       1 
+     20      11      16     103       1       2      28       1       1 
+     20      11      16     103       2       1      27       1       1 
+     20      11      16     103       3       0      26       1       1 
+     20      11      16     103       4       7      25       1       1 
+     20      11      16     103       5       6      24       1       1 
+     20      11      16     103       6       5      23       1       1 
+     20      11      16     103       7       4      22       1       1 
+     20      11      16     103       8      11      21       1       1 
+     20      11      16     103       9      10      20       1       1 
+     20      11      16     103      10       9      19       1       1 
+     20      11      16     103      11       8      18       1       1 
+     20      11      16     103      12      14      17       1       1 
+     20      11      16     103      13      13      16       1       1 
+     20      11      16     103      14      12      15       1       1 
+     20      11      17     103       0       3      11       1       1 
+     20      11      17     103       1       2      10       1       1 
+     20      11      17     103       2       1       9       1       1 
+     20      11      17     103       3       0       8       1       1 
+     20      11      17     103       4       7       7       1       1 
+     20      11      17     103       5       6       6       1       1 
+     20      11      17     103       6       5       5       1       1 
+     20      11      17     103       7       4       4       1       1 
+     20      11      17     103       8      11       3       1       1 
+     20      11      17     103       9      10       2       1       1 
+     20      11      17     103      10       9       1       1       1 
+     20      11      17     103      11       8       0       1       1 
+     20      11      17     103      12      14      14       1       1 
+     20      11      17     103      13      13      13       1       1 
+     20      11      17     103      14      12      12       1       1 
+     20      11      18     103       0       3      26       0       0 
+     20      11      18     103       1       2      27       0       0 
+     20      11      18     103       2       1      28       0       0 
+     20      11      18     103       3       0      29       0       0 
+     20      11      18     103       4       7      22       0       0 
+     20      11      18     103       5       6      23       0       0 
+     20      11      18     103       6       5      24       0       0 
+     20      11      18     103       7       4      25       0       0 
+     20      11      18     103       8      11      18       0       0 
+     20      11      18     103       9      10      19       0       0 
+     20      11      18     103      10       9      20       0       0 
+     20      11      18     103      11       8      21       0       0 
+     20      11      18     103      12      14      15       0       0 
+     20      11      18     103      13      13      16       0       0 
+     20      11      18     103      14      12      17       0       0 
+     20      11      19     103       0       3       8       0       0 
+     20      11      19     103       1       2       9       0       0 
+     20      11      19     103       2       1      10       0       0 
+     20      11      19     103       3       0      11       0       0 
+     20      11      19     103       4       7       4       0       0 
+     20      11      19     103       5       6       5       0       0 
+     20      11      19     103       6       5       6       0       0 
+     20      11      19     103       7       4       7       0       0 
+     20      11      19     103       8      11       0       0       0 
+     20      11      19     103       9      10       1       0       0 
+     20      11      19     103      10       9       2       0       0 
+     20      11      19     103      11       8       3       0       0 
+     20      11      19     103      12      14      12       0       0 
+     20      11      19     103      13      13      13       0       0 
+     20      11      19     103      14      12      14       0       0 
+bb.gem.m2.chanmap = 
+     20      11      11     104       0       3      29       1       1 
+     20      11      11     104       1       2      28       1       1 
+     20      11      11     104       2       1      27       1       1 
+     20      11      11     104       3       0      26       1       1 
+     20      11      11     104       4       7      25       1       1 
+     20      11      11     104       5       6      24       1       1 
+     20      11      11     104       6       5      23       1       1 
+     20      11      11     104       7       4      22       1       1 
+     20      11      11     104       8      11      21       1       1 
+     20      11      11     104       9      10      20       1       1 
+     20      11      11     104      10       9      19       1       1 
+     20      11      11     104      11       8      18       1       1 
+     20      11      11     104      12      14      17       1       1 
+     20      11      11     104      13      13      16       1       1 
+     20      11      11     104      14      12      15       1       1 
+     20      11      12     104       0       3      11       1       1 
+     20      11      12     104       1       2      10       1       1 
+     20      11      12     104       2       1       9       1       1 
+     20      11      12     104       3       0       8       1       1 
+     20      11      12     104       4       7       7       1       1 
+     20      11      12     104       5       6       6       1       1 
+     20      11      12     104       6       5       5       1       1 
+     20      11      12     104       7       4       4       1       1 
+     20      11      12     104       8      11       3       1       1 
+     20      11      12     104       9      10       2       1       1 
+     20      11      12     104      10       9       1       1       1 
+     20      11      12     104      11       8       0       1       1 
+     20      11      12     104      12      14      14       1       1 
+     20      11      12     104      13      13      13       1       1 
+     20      11      12     104      14      12      12       1       1 
+     20      11      13     104       0       3      26       0       0 
+     20      11      13     104       1       2      27       0       0 
+     20      11      13     104       2       1      28       0       0 
+     20      11      13     104       3       0      29       0       0 
+     20      11      13     104       4       7      22       0       0 
+     20      11      13     104       5       6      23       0       0 
+     20      11      13     104       6       5      24       0       0 
+     20      11      13     104       7       4      25       0       0 
+     20      11      13     104       8      11      18       0       0 
+     20      11      13     104       9      10      19       0       0 
+     20      11      13     104      10       9      20       0       0 
+     20      11      13     104      11       8      21       0       0 
+     20      11      13     104      12      14      15       0       0 
+     20      11      13     104      13      13      16       0       0 
+     20      11      13     104      14      12      17       0       0 
+     20      11      14     104       0       3       8       0       0 
+     20      11      14     104       1       2       9       0       0 
+     20      11      14     104       2       1      10       0       0 
+     20      11      14     104       3       0      11       0       0 
+     20      11      14     104       4       7       4       0       0 
+     20      11      14     104       5       6       5       0       0 
+     20      11      14     104       6       5       6       0       0 
+     20      11      14     104       7       4       7       0       0 
+     20      11      14     104       8      11       0       0       0 
+     20      11      14     104       9      10       1       0       0 
+     20      11      14     104      10       9       2       0       0 
+     20      11      14     104      11       8       3       0       0 
+     20      11      14     104      12      14      12       0       0 
+     20      11      14     104      13      13      13       0       0 
+     20      11      14     104      14      12      14       0       0 
+bb.gem.m3.chanmap = 
+     20      11      20     102       0       3      29       1       1 
+     20      11      20     102       1       2      28       1       1 
+     20      11      20     102       2       1      27       1       1 
+     20      11      20     102       3       0      26       1       1 
+     20      11      20     102       4       7      25       1       1 
+     20      11      20     102       5       6      24       1       1 
+     20      11      20     102       6       5      23       1       1 
+     20      11      20     102       7       4      22       1       1 
+     20      11      20     102       8      11      21       1       1 
+     20      11      20     102       9      10      20       1       1 
+     20      11      20     102      10       9      19       1       1 
+     20      11      20     102      11       8      18       1       1 
+     20      11      20     102      12      14      17       1       1 
+     20      11      20     102      13      13      16       1       1 
+     20      11      20     102      14      12      15       1       1 
+     20      11      21     102       0       3      11       1       1 
+     20      11      21     102       1       2      10       1       1 
+     20      11      21     102       2       1       9       1       1 
+     20      11      21     102       3       0       8       1       1 
+     20      11      21     102       4       7       7       1       1 
+     20      11      21     102       5       6       6       1       1 
+     20      11      21     102       6       5       5       1       1 
+     20      11      21     102       7       4       4       1       1 
+     20      11      21     102       8      11       3       1       1 
+     20      11      21     102       9      10       2       1       1 
+     20      11      21     102      10       9       1       1       1 
+     20      11      21     102      11       8       0       1       1 
+     20      11      21     102      12      14      14       1       1 
+     20      11      21     102      13      13      13       1       1 
+     20      11      21     102      14      12      12       1       1 
+     20      11      22     102       0       3      26       0       0 
+     20      11      22     102       1       2      27       0       0 
+     20      11      22     102       2       1      28       0       0 
+     20      11      22     102       3       0      29       0       0 
+     20      11      22     102       4       7      22       0       0 
+     20      11      22     102       5       6      23       0       0 
+     20      11      22     102       6       5      24       0       0 
+     20      11      22     102       7       4      25       0       0 
+     20      11      22     102       8      11      18       0       0 
+     20      11      22     102       9      10      19       0       0 
+     20      11      22     102      10       9      20       0       0 
+     20      11      22     102      11       8      21       0       0 
+     20      11      22     102      12      14      15       0       0 
+     20      11      22     102      13      13      16       0       0 
+     20      11      22     102      14      12      17       0       0 
+     20      11      23     102       0       3       8       0       0 
+     20      11      23     102       1       2       9       0       0 
+     20      11      23     102       2       1      10       0       0 
+     20      11      23     102       3       0      11       0       0 
+     20      11      23     102       4       7       4       0       0 
+     20      11      23     102       5       6       5       0       0 
+     20      11      23     102       6       5       6       0       0 
+     20      11      23     102       7       4       7       0       0 
+     20      11      23     102       8      11       0       0       0 
+     20      11      23     102       9      10       1       0       0 
+     20      11      23     102      10       9       2       0       0 
+     20      11      23     102      11       8       3       0       0 
+     20      11      23     102      12      14      12       0       0 
+     20      11      23     102      13      13      13       0       0 
+     20      11      23     102      14      12      14       0       0 
+bb.gem.m4.chanmap = 
+     20      11       0      13       0      15       0       1       1 
+     20      11       0      13       1      14       1       1       1 
+     20      11       0      13       2      13       2       1       1 
+     20      11       0      13       3      12       3       1       1 
+     20      11       0      13       4      11       4       1       1 
+     20      11       0      13       5      10       5       1       1 
+     20      11       0      13       6       9       6       1       1 
+     20      11       0      13       7       8       7       1       1 
+     20      11       0      13       8       7       8       1       1 
+     20      11       0      13       9       6       9       1       1 
+     20      11       0      13      10       5      10       1       1 
+     20      11       0      13      11       4      11       1       1 
+     20      11       4      13      10       4       9       1       0 
+     20      11       4      13      11       3       8       1       0 
+     20      11       4      13      12       2       7       1       0 
+     20      11       4      13      13       1       6       1       0 
+     20      11       4      13      14       0       5       1       0 
+     20      11       5      13       0       4       0       0       0 
+     20      11       5      13       1       3       1       0       0 
+     20      11       5      13       2       2       2       0       0 
+     20      11       5      13       3       1       3       0       0 
+     20      11       5      13       4       0       4       0       0 
+bb.gem.m5.chanmap = 
+     20      11       1      20       0      15       0       1       1 
+     20      11       1      20       1      14       1       1       1 
+     20      11       1      20       2      13       2       1       1 
+     20      11       1      20       3      12       3       1       1 
+     20      11       1      20       4      11       4       1       1 
+     20      11       1      20       5      10       5       1       1 
+     20      11       1      20       6       9       6       1       1 
+     20      11       1      20       7       8       7       1       1 
+     20      11       1      20       8       7       8       1       1 
+     20      11       1      20       9       6       9       1       1 
+     20      11       1      20      10       5      10       1       1 
+     20      11       1      20      11       4      11       1       1 
+     20      11       4      20       5      12       9       1       0 
+     20      11       4      20       6      11       8       1       0 
+     20      11       4      20       7      10       7       1       0 
+     20      11       4      20       8       9       6       1       0 
+     20      11       4      20       9       8       5       1       0 
+     20      11       5      20       5      12       0       0       0 
+     20      11       5      20       6      11       1       0       0 
+     20      11       5      20       7      10       2       0       0 
+     20      11       5      20       8       9       3       0       0 
+     20      11       5      20       9       8       4       0       0 
+bb.gem.m6.chanmap = 
+     20      11       2      17       0      15      11       0       1 
+     20      11       2      17       1      14      10       0       1 
+     20      11       2      17       2      13       9       0       1 
+     20      11       2      17       3      12       8       0       1 
+     20      11       2      17       4      11       7       0       1 
+     20      11       2      17       5      10       6       0       1 
+     20      11       2      17       6       9       5       0       1 
+     20      11       2      17       7       8       4       0       1 
+     20      11       2      17       8       7       3       0       1 
+     20      11       2      17       9       6       2       0       1 
+     20      11       2      17      10       5       1       0       1 
+     20      11       2      17      11       4       0       0       1 
+     20      11       4      17       0      20       9       1       0 
+     20      11       4      17       1      19       8       1       0 
+     20      11       4      17       2      18       7       1       0 
+     20      11       4      17       3      17       6       1       0 
+     20      11       4      17       4      16       5       1       0 
+     20      11       5      17      10      20       0       0       0 
+     20      11       5      17      11      19       1       0       0 
+     20      11       5      17      12      18       2       0       0 
+     20      11       5      17      13      17       3       0       0 
+     20      11       5      17      14      16       4       0       0 
+bb.gem.m7.chanmap = 
+     20      11       3      25       0      15      11       0       1 
+     20      11       3      25       1      14      10       0       1 
+     20      11       3      25       2      13       9       0       1 
+     20      11       3      25       3      12       8       0       1 
+     20      11       3      25       4      11       7       0       1 
+     20      11       3      25       5      10       6       0       1 
+     20      11       3      25       6       9       5       0       1 
+     20      11       3      25       7       8       4       0       1 
+     20      11       3      25       8       7       3       0       1 
+     20      11       3      25       9       6       2       0       1 
+     20      11       3      25      10       5       1       0       1 
+     20      11       3      25      11       4       0       0       1 
+     20      11       6      25       0       4       9       1       0 
+     20      11       6      25       1       3       8       1       0 
+     20      11       6      25       2       2       7       1       0 
+     20      11       6      25       3       1       6       1       0 
+     20      11       6      25       4       0       5       1       0 
+     20      11       6      25       8      12       0       0       0 
+     20      11       6      25       9      11       1       0       0 
+     20      11       6      25      10      10       2       0       0 
+     20      11       6      25      11       9       3       0       0 
+     20      11       6      25      12       8       4       0       0 
+
+
+
+
+################ NOW LET'S START TIME-DEPENDENT ENTRIES for the parameters that ARE expected to change frequently: #################################
+
+-------------[ 2022-07-01 00:00:00 ] # tracking and clustering parameters:
+
+############ parameters searched by SBSGEMModule::ReadDatabase() #################
+############ offline thresholds and angle constraints: ############
+
+# start with lower nominal thresholds applied to all GEMs for HV plateau/efficiency scans:
+bb.gem.threshold_sample = 100.0
+bb.gem.threshold_stripsum = 300.0
+bb.gem.threshold_clustersum = 600.0
+
+bb.gem.ADCasym_cut = 0.75 
+bb.gem.deltat_cut = 30.0
+bb.gem.corrcoeff_cut = 0.5
+bb.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression, 0 = "soft" filtering
+bb.gem.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts. 0 = "soft" filtering
+
+bb.gem.peakprominence_minsigma = 2.5 
+bb.gem.peakprominence_minfraction = 0.1
+
+# limit cluster size growth to +/- 4 strips for cluster charge calculation
+bb.gem.maxnu_charge = 4
+bb.gem.maxnv_charge = 4 
+
+# limit cluster size to +/-2 strips from maximum for cluster position calculation
+bb.gem.maxnu_pos = 2
+bb.gem.maxnv_pos = 2
+
+bb.gem.sigmahitshape = 0.0004
+bb.gem.zerosuppress = 1
+bb.gem.zerosuppress_nsigma = 5.0
+bb.gem.onlinezerosuppress = 0 # note that this parameter only provides a default value, actual behavior is determined by the flags seen in the raw data:
+
+bb.gem.do_neg_signal_study = 0
+
+bb.gem.plot_common_mode = 1
+bb.gem.plot_event_info = 1
+# default values will suffice for the time being.
+#bb.gem.chan_cm_flags = 512
+
+# when zero suppression is enabled again we will turn this to 1: 
+bb.gem.pedsub_online = 1 # under normal conditions, this should always be 1, unless running normal data taking in pedestal mode:
+bb.gem.max2Dhits = 10000000 # per-module
+
+bb.gem.usestriptimingcut = 0
+bb.gem.useTSchi2cut = 0
+
+bb.gem.addstrip_tcut = 30.0
+bb.gem.addstrip_ccor_cut = 0.0
+bb.gem.suppressfirstlast = -1
+
+############### Parameters searched by SBSGEMSpectrometerTracker::ReadDatabase() ######################
+
+# parameters controlling tracking:
+bb.gem.minhitsontrack = 3
+
+bb.gem.maxhitcombos = 25000
+bb.gem.maxhitcombos_inner = 25000
+bb.gem.maxhitcombos_total = 10000000000
+
+bb.gem.tryfasttrack = 1
+
+# typical values after alignment:
+bb.gem.gridbinwidthx = 0.01
+bb.gem.gridbinwidthy = 0.01
+bb.gem.gridedgetolerancex = 0.003
+bb.gem.gridedgetolerancey = 0.003
+bb.gem.trackchi2cut = 30.0
+
+# below are wider values to use if we don't have a good initial alignment:
+#bb.gem.gridbinwidthx = 0.05
+#bb.gem.gridbinwidthy = 0.05
+#bb.gem.gridedgetolerancex = 0.02
+#bb.gem.gridedgetolerancey = 0.02
+#bb.gem.trackchi2cut = 3000.0
+
+# For initial alignment with cosmics, we want to start with no constraints on track-finding:
+bb.gem.useconstraint = 0
+bb.gem.useslopeconstraint = 0
+bb.gem.useopticsconstraint = 0
+
+bb.gem.sigmahitpos = 0.00015
+bb.gem.do_efficiencies = 1
+bb.gem.dump_geometry_info = 0
+
+bb.gem.efficiency_bin_width_1D = 0.02
+bb.gem.efficiency_bin_width_2D = 0.04
+
+# these should probably be tighter later on:
+bb.gem.xptar_min = -0.3
+bb.gem.xptar_max = 0.3
+
+bb.gem.yptar_min = -0.15
+bb.gem.yptar_max = 0.15
+
+# be careful with these, they are angle-dependent:
+bb.gem.ytar_min = -0.3
+bb.gem.ytar_max = 0.3
+
+# In all of the SBS-GEN experiment, the maximum electron momentum should be around 4-4.5 GeV:
+bb.gem.pmin = 0.8
+bb.gem.pmax = 4.5
+
+bb.gem.xpfp_min = -0.4
+bb.gem.xpfp_max = 0.4
+bb.gem.ypfp_min = -0.15
+bb.gem.ypfp_max = 0.15
+
+
+bb.gem.pedsub_online = 1  #special run where full readout was done
+bb.gem.suppressfirstlast = 0
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+
+#################### BEGIN TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
+
+# Default BB GEM alignment at the start of GEN:
+
+--------[ 2022-07-01 14:30:00 ] # New alignment with cosmic data 
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001911928     -0.01125671        0.165075
+bb.gem.m1.angle =      -0.1045636      0.03398512      0.05979535
+bb.gem.m2.position =    -0.007453875     0.006105974       0.2792567
+bb.gem.m2.angle =     -0.01946687           0.032      -0.2967879
+bb.gem.m3.position =    -0.008993083     0.004983439       0.4568277
+bb.gem.m3.angle =     -0.03679291      0.05628952      -0.4555769
+bb.gem.m4.position =      -0.7643594     0.001922466        1.575923
+bb.gem.m4.angle =     -0.06423467      -0.1929917      -0.3477203
+bb.gem.m5.position =      -0.2522177    -0.002406637        1.534186
+bb.gem.m5.angle =      -0.1933844      -0.0859325      -0.3064016
+bb.gem.m6.position =       0.2586571    -0.008294649         1.57827
+bb.gem.m6.angle =     -0.01082531      -0.1947286      -0.2585426
+bb.gem.m7.position =       0.7710201     -0.01163987        1.536401
+bb.gem.m7.angle =      -0.2508493      -0.1232231      -0.2878157
+
+--------[ 2022-09-22 16:00:00 ] # New cosmic alighment before GEn starts
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001866869     -0.01142967       0.1650005
+bb.gem.m1.angle =      -0.1065888      0.03268089      0.06006474
+bb.gem.m2.position =    -0.007406738     0.005938152       0.2792381
+bb.gem.m2.angle =     -0.01993594      0.03360998      -0.2996637
+bb.gem.m3.position =    -0.008898218     0.004865077       0.4568941
+bb.gem.m3.angle =     -0.02932631      0.05863983      -0.4565881
+bb.gem.m4.position =      -0.7643013     0.002078737        1.575779
+bb.gem.m4.angle =     -0.07949925      -0.1503181      -0.3496833
+bb.gem.m5.position =      -0.2522381      -0.0022978        1.534052
+bb.gem.m5.angle =      -0.2054036      -0.0428951      -0.3128763
+bb.gem.m6.position =       0.2586138    -0.008327183        1.578055
+bb.gem.m6.angle =     -0.01938281      -0.2853453      -0.2736628
+bb.gem.m7.position =       0.7709555     -0.01183456        1.536362
+bb.gem.m7.angle =      -0.2720498      -0.0815385      -0.2664114
+
+#################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
+
+#################### BEGIN TIME-DEPENDENT GAIN MATCH PARAMETERS ##############################
+# these are cleared out at the beginning of GEN, we will put in later:
+
+
+########################### END TIME-DEPENDENT GAIN-MATCH PARAMETERS #########################
+
+###################### TIME-DEPENDENT PEDESTAL FILES ###############################
+#      NOTE: cleared out older GMN pedestal files from this version of the DB:     #
+####################################################################################
+
+--------[ 2022-07-01 14:30:00 ] # new pedestal after replacing multiple APVs and backplanes during the break after GMn
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run14035.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run14035.dat
+
+--------[ 2022-08-01 16:10:00 ] # new pedestal after some APVs has shifted
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run1039.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run1039.dat
+
+--------[ 2022-08-25 16:35:00 ] # new pedestal after some APVs has shifted
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run1224.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run1224.dat
+
+######################  END TIME-DEPENDENT PEDESTAL FILES #####################

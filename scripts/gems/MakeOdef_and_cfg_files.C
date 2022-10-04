@@ -7,7 +7,7 @@
 void MakeOdef_and_cfg_files( const char *configfilename ){ 
   ifstream configfile(configfilename);
 
-  TString detname="bb.gem";
+  TString detname="sbs.gem";
   TString detname_nodots;
 
   int nmodules=12;
@@ -224,6 +224,11 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   cfg_fname_lowlevel.Form("%s_basic.cfg", detname_nodots.Data() );
 
   ofstream cfg_file_lowlevel(cfg_fname_lowlevel.Data() );
+
+  TString cfg_fname_critical;
+  cfg_fname_critical.Form("%s_critical.cfg", detname_nodots.Data() );
+
+  ofstream cfg_file_critical(cfg_fname_critical.Data() );
   
   TString odefline;
 
@@ -252,6 +257,10 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   treevarnames.push_back( "*.strip.nstrips_keepV" );
   treevarnames.push_back( "*.strip.nstrips_keep_lmaxU" );
   treevarnames.push_back( "*.strip.nstrips_keep_lmaxV" );
+  treevarnames.push_back( "*.clust.nclustu" );
+  treevarnames.push_back( "*.clust.nclustv" );
+  treevarnames.push_back( "*.clust.nclustu_tot" );
+  treevarnames.push_back( "*.clust.nclustv_tot" );
 
 
   odef_file << "#tree variables: " << endl;
@@ -754,24 +763,39 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     
   }
 
-  int pagediv = int(sqrt(double(nmodules)));
+  int pagediv;
+  int testdiv;
+  int ndivx;
+  int ndivy;
+  int max_mod_per_page = 12;
+  int npages = nmodules / max_mod_per_page + 1;
 
-  int testdiv=1;
 
-  while( pagediv*testdiv < nmodules ){ testdiv++; }
+  for(int ipage = 0; ipage < npages; ipage ++){
 
-  int ndivx = std::max(pagediv,testdiv);
-  int ndivy = std::min(pagediv,testdiv);
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
 
-  cfg_file << endl;
-  cfg_file << "newpage " << ndivx << " " << ndivy << endl;
-  cfg_file << "title Module average efficiencies" << endl;
-  
-  for( int i=0; i<nmodules; i++ ){
-    cfg_file << histcfg.Format( "macro efficiency.C(\"hdidhitx_%s\",\"hshouldhitx_%s\",%d);",
-				modname_nodots[i].Data(), modname_nodots[i].Data(), i ) << endl;
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+
+    cfg_file << endl;
+    cfg_file << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file << "title Module average efficiencies" << endl;
+    else cfg_file << "title Module average efficiencies (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file << histcfg.Format( "macro efficiency.C(\"hdidhitx_%s\",\"hshouldhitx_%s\",%d);",
+				  modname_nodots[i].Data(), modname_nodots[i].Data(), i ) << endl;
+    }
+    cfg_file << endl;
   }
-  cfg_file << endl;
   
   pagediv = int(sqrt(double(nlayers)));
   testdiv=1; 
@@ -841,6 +865,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     cfg_file_lowlevel << histcfg.Format("h%s_ADCsumU_all -logy", modname_nodots[i].Data() ) << endl;
     cfg_file_lowlevel << histcfg.Format("h%s_ADCsumV_all -logy", modname_nodots[i].Data() ) << endl;
 
+    cfg_file_lowlevel << endl;
     // cfg_file_lowlevel << histcfg.Format("h%s_ADCmax_vs_Ustrip_all -drawopt colz -logz", modname_nodots[i].Data() ) << endl;
     // cfg_file_lowlevel << histcfg.Format("h%s_ADCmax_vs_Vstrip_all -drawopt colz -logz", modname_nodots[i].Data() ) << endl;
     // cfg_file_lowlevel << histcfg.Format("h%s_ADCsum_vs_Ustrip_all -drawopt colz -logz", modname_nodots[i].Data() ) << endl;
@@ -849,54 +874,230 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
   cfg_file_lowlevel << endl;
   
-  pagediv = int(sqrt(double(nmodules)));
-  testdiv=1; 
-  while( pagediv*testdiv < nmodules ){ testdiv++; }
   
-  ndivx = std::max(pagediv,testdiv);
-  ndivy = std::min(pagediv,testdiv);
 
-
-  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
-  cfg_file_lowlevel << "title All modules strip ADC max" << endl;
-  for( int i=0; i<nmodules; i++ ){
-    cfg_file_lowlevel << histcfg.Format("h%s_ADCmax_good_CM -logy", modname_nodots[i].Data() ) << endl;
+  for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_lowlevel << endl;
+    cfg_file_lowlevel << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_lowlevel << "title All modules strip ADC max" << endl;
+    else cfg_file_lowlevel << "title All modules strip ADC max (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_lowlevel << histcfg.Format("h%s_ADCmax_good_CM -logy", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_lowlevel << endl;
   }
-  cfg_file_lowlevel << endl;
 
-  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
-  cfg_file_lowlevel << "title All modules strip ADC sum" << endl;
-  for( int i=0; i<nmodules; i++ ){
-    cfg_file_lowlevel << histcfg.Format("h%s_ADCsum_good_CM -logy", modname_nodots[i].Data() ) << endl;
+  
+  for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_lowlevel << endl;
+    cfg_file_lowlevel << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_lowlevel << "title All modules strip ADC sum" << endl;
+    else cfg_file_lowlevel << "title All modules strip ADC sum (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_lowlevel << histcfg.Format("h%s_ADCsum_good_CM -logy", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_lowlevel << endl;
   }
-  cfg_file_lowlevel << endl;
+  
+  
+  for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_lowlevel << endl;
+    cfg_file_lowlevel << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_lowlevel << "title All modules max time sample" << endl;
+    else cfg_file_lowlevel << "title All modules max time sample (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_lowlevel << histcfg.Format("h%s_iSampMax_good_CM", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_lowlevel << endl;
+  }
 
-  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
-  cfg_file_lowlevel << "title All modules max time sample" << endl;
-  for( int i=0; i<nmodules; i++ ){
-    cfg_file_lowlevel << histcfg.Format("h%s_iSampMax_good_CM", modname_nodots[i].Data() ) << endl;
+  for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_lowlevel << endl;
+    cfg_file_lowlevel << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_lowlevel << "title All modules strip time" << endl;
+    else cfg_file_lowlevel << "title All modules strip time (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_lowlevel << histcfg.Format("h%s_StripTime_good_CM", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_lowlevel << endl;
   }
-  cfg_file_lowlevel << endl;
 
-  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
-  cfg_file_lowlevel << "title All modules strip time" << endl;
-  for( int i=0; i<nmodules; i++ ){
-    cfg_file_lowlevel << histcfg.Format("h%s_StripTime_good_CM", modname_nodots[i].Data() ) << endl;
-  }
-  cfg_file_lowlevel << endl;
 
-  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
-  cfg_file_lowlevel << "title All modules strip rms time" << endl;
-  for( int i=0; i<nmodules; i++ ){
-    cfg_file_lowlevel << histcfg.Format("h%s_StripTsigma_good_CM", modname_nodots[i].Data() ) << endl;
+  for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_lowlevel << endl;
+    cfg_file_lowlevel << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_lowlevel << "title All modules strip rms time" << endl;
+    else cfg_file_lowlevel << "title All modules strip rms time (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_lowlevel << histcfg.Format("h%s_StripTsigma_good_CM", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_lowlevel << endl;
   }
-  cfg_file_lowlevel << endl;
 
-  cfg_file_lowlevel << histcfg.Format("newpage %d %d", ndivx, ndivy) << endl;
-  cfg_file_lowlevel << "title All modules U strip ADC no zero sup" << endl;
-  for( int i=0; i<nmodules; i++ ){
-    cfg_file_lowlevel << histcfg.Format("hADCpedsubU_allstrips_%s -logy", modname_nodots[i].Data() ) << endl;
+  
+  for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_lowlevel << endl;
+    cfg_file_lowlevel << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_lowlevel << "title All modules U strip ADC no zero sup" << endl;
+    else cfg_file_lowlevel << "title All modules U strip ADC no zero sup (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_lowlevel << histcfg.Format("hADCpedsubU_allstrips_%s -logy", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_lowlevel << endl;
   }
-  cfg_file_lowlevel << endl;
+
+
+
+  cfg_file_critical << "newpage 3 2" <<endl;
+  cfg_file_critical << "title BigBite GEM Layer hit maps on good tracks" << endl;
+
+  for( int i=0; i<nlayers; i++ )
+    cfg_file_critical << "macro GEM_hit_map.C(" << i << ");" << endl;
+    
+  cfg_file_critical << endl;
+
+  cfg_file_critical << "newpage 3 2" <<endl;
+  cfg_file_critical << "title BigBite GEM Layer Efficiency" <<endl;
+  
+  for( int i=0; i<nlayers; i++ )
+    cfg_file_critical << "macro efficiency_hit_map.C(\"hdidhit_xy_bb_gem_layer" << i << "\",\"hshouldhit_xy_bb_gem_layer" << i << "\"," << i << ");" <<endl;
+
+
+
+  for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_critical << endl;
+    cfg_file_critical << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_critical << "title BigBite GEM Time Sample Peaking (good hits)" << endl;
+    else cfg_file_critical << "title BigBite GEM Time Sample Peaking (good hits) (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_critical << histcfg.Format("h%s_iSampMax_good_CM -nostat", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_critical << endl;
+  }
+
+ for(int ipage = 0; ipage < npages; ipage ++){
+    
+    int start_mod = ipage * max_mod_per_page;
+    int end_mod = nmodules;
+    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
+    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
+    
+    int pagediv = int(sqrt(double(end_mod - start_mod)));
+    testdiv=1;
+    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
+    
+    int ndivx = std::max(pagediv,testdiv);
+    int ndivy = std::min(pagediv,testdiv);
+    
+    cfg_file_critical << endl;
+    cfg_file_critical << "newpage " << ndivx << " " << ndivy << endl;
+    if(ipage == 0) cfg_file_critical << "title BigBite GEM ADC distributions by module" << endl;
+    else cfg_file_critical << "title BigBite GEM ADC distributions by module (contd.)" << endl;
+    
+    for( int i=start_mod; i<end_mod; i++ ){
+      cfg_file_critical << histcfg.Format("macro landau_fit.C(\"h%s_ADCmax_good_CM\",1000)", modname_nodots[i].Data() ) << endl;
+    }
+    cfg_file_critical << endl;
+  }
+
+
   
 }
