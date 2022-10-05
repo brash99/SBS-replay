@@ -172,31 +172,54 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   if( prefix != "/adaq1/data1/sbs" )
     pathlist.push_back( "/adaq1/data1/sbs" );
 
-  //This may take forever to scan
-  // if( prefix != "/cache/mss/halla/sbs/raw" )
-  //   pathlist.push_back( "/cache/mss/halla/sbs/raw" );
+  // Do not use wildcard filenames with this directory
+  if( prefix != "/cache/mss/halla/sbs/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/raw" );
 
   for( const auto& path: pathlist ) {
     cout << "search paths = " << path << endl;
   }
 
-  TString codafilename;
-  codafilename.Form("%s_%u.evio.[0-9]+.[0-9]+", fname_prefix, runnum);
   TString ftest(fname_prefix);
-  if( ftest == "bbgem" || ftest == "e1209019_trigtest" ) {
-    codafilename.Form("%s_%u.evio.[0-9]+", fname_prefix, runnum);
+  bool test_data = ( ftest == "bbgem" || ftest == "e1209019_trigtest" );
+
+  // Build list of files we'd like to analyze. These are candidates. If some of them
+  // do not exist, they will be quietly skipped by the MultiFileRun class. A list of
+  // the actually found files will be printed during initialization.
+  vector<string> filenames;
+  Int_t actual_maxstream = test_data ? 0 : maxstream;
+  for( Int_t istream = 0; istream <= actual_maxstream; ++istream ) {
+    for( UInt_t iseg = 0; iseg < maxsegments; ++iseg ) {
+      TString codafilename;
+      if( test_data )
+	codafilename.Form("%s_%u.evio.%u", fname_prefix, runnum, istream);
+      else
+	codafilename.Form("%s_%u.evio.%d.%u", fname_prefix, runnum, istream, iseg);
+      cout << "codafilename = " << codafilename << endl;
+      filenames.emplace_back(codafilename.Data());
+    }
   }
-  cout << "codafilename = " << codafilename << endl;
+  if( filenames.empty() ) {
+    cout << "No files. Check your parameters." << endl;
+    return;
+  }
 
-  auto* run = new Podd::MultiFileRun(pathlist, codafilename.Data());
-
+  auto* run = new Podd::MultiFileRun(pathlist, filenames);
   run->SetFirstSegment(firstsegment);  // Starting segment number
   run->SetMaxSegments(maxsegments);    // Number of segments
   run->SetMaxStreams(maxstream+1);  // Number of streams
 
+  // Count physics events sequentially, i.e. always starting at 1, for each invocation of
+  // analyzer->Process(). This count will be compared to the run's event range, so it
+  // can be specified independently of absolute event numbers. This is relevant if
+  // the analysis starts with a segment > 0. Actual (raw, CODA) physics event numbers
+  // will then start with some largish number (the first event number in the continuation
+  // segment), but the analyzer's count will still start at 1 for that analysis,
+  // so you can give the run an event range of, say, 1-50000 to analyze 50k events,
+  // regardless of what segments are being replayed. The event header written for each
+  // entry in the output ROOT tree does contain the actual CODA event number, which is
+  // what you usually want for analysis.
 
-  // Count physics events sequentially, always starting at 1. This count will be compared to the run's event range.
-  // The run's event range can then be specified independently of absolute event numbers.
   analyzer->SetCountMode(THaAnalyzer::kCountPhysics);
 
   if( nevents > 0 ) run->SetLastEvent(firstevent+nevents-1);
