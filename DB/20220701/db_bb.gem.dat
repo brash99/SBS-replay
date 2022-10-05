@@ -731,4 +731,8 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run1039.dat
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run1224.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run1224.dat
 
+--------[ 2022-10-04 14:00:00 ] # new pedestal after some APVs has shifted
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run1653.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run1653.dat
+
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
