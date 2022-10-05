@@ -45,9 +45,9 @@ void hcal_protonspot(){
     T->GetEntry(nevent);
 
     //Use if BB optics are trustworthy
-    //if( e_kine_W2<0.8 || e_kine_W2>1.2 || sbs_hcal_clus_blk_atime[0]<40 || sbs_hcal_clus_blk_atime[0]<80 || fEvtHdr_fTrigBits==32 || sbs_hcal_nclus==0 || bb_tr_n!=1 ) continue;
+    //if( e_kine_W2<0.8 || e_kine_W2>1.2 || sbs_hcal_clus_blk_atime[0]<40 || sbs_hcal_clus_blk_atime[0]>80 || fEvtHdr_fTrigBits==32 || sbs_hcal_nclus==0 || bb_tr_n!=1 ) continue;
     //Use if BB optics are NOT trustworthy
-    if( sbs_hcal_clus_blk_atime[0]<40 || sbs_hcal_clus_blk_atime[0]<80 || fEvtHdr_fTrigBits==32 || sbs_hcal_nclus==0 ) continue;
+    if( sbs_hcal_clus_blk_atime[0]<40 || sbs_hcal_clus_blk_atime[0]>80 || fEvtHdr_fTrigBits==32 || sbs_hcal_nclus==0 ) continue;
 
     h2_hcal_N_XvY_Cuts->Fill( sbs_hcal_y, sbs_hcal_x );
 
