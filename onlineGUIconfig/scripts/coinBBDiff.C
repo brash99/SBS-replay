@@ -9,7 +9,7 @@ void coinBBDiff(){
   Double_t bb_sh_nclus = 0., sbs_hcal_nclus = 0.;
   Double_t bb_tdctrig_tdc[6] = {0.}, bb_tdctrig_tdcelemID[6] = {0.};
 
-  TH1D *h1_coinBBDiff = new TH1D("h1_coinBBDiff","Coincidence/BBCal Difference; ns", 1000, -50, 950);
+  TH1D *h1_coinBBDiff = new TH1D("h1_coinBBDiff","Coincidence/BBCalTrigger Difference; ns", 100, -50, 50);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
@@ -32,7 +32,7 @@ void coinBBDiff(){
 
     T->GetEntry(nevent);
 
-    if( bb_sh_nclus==0 || sbs_hcal_nclus==0 ) continue;
+    //if( bb_sh_nclus==0 || sbs_hcal_nclus==0 ) continue;
 
     Double_t bb_time=0.;
     Double_t coin_time=0.;

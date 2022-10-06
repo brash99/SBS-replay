@@ -1,6 +1,6 @@
-void calDiff(){
+void coinBBDiff_slow(){
 
-  cout << "Processing calDiff.." << endl;
+  cout << "Processing coinBBDiff_slow.." << endl;
 
   TStopwatch *st = new TStopwatch();
   st->Start(kTRUE);
@@ -9,7 +9,7 @@ void calDiff(){
   Double_t bb_sh_nclus = 0., sbs_hcal_nclus = 0.;
   Double_t bb_tdctrig_tdc[6] = {0.}, bb_tdctrig_tdcelemID[6] = {0.};
 
-  TH1D *h1_calDiff = new TH1D("h1_calDiff","HCal/BBCal Difference; ns", 1000, -50, 950);
+  TH1D *h1_coinBBDiff_slow = new TH1D("h1_coinBBDiff_slow","Coincidence/BBCal Difference; ns", 100, -50, 50);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
@@ -34,20 +34,21 @@ void calDiff(){
 
     //if( bb_sh_nclus==0 || sbs_hcal_nclus==0 ) continue;
 
-    Double_t bbslow_time=0.; //L1A
-    Double_t hcal_time=0.; //Overlapping regions
+    Double_t bbslow_time=0.;
+    Double_t coin_time=0.;
     for(Int_t ihit=0; ihit<Ndata_bb_tdctrig_tdcelemID; ihit++){
-      if(bb_tdctrig_tdcelemID[ihit]==0) hcal_time=bb_tdctrig_tdc[ihit];
+      if(bb_tdctrig_tdcelemID[ihit]==1) coin_time=bb_tdctrig_tdc[ihit];
       if(bb_tdctrig_tdcelemID[ihit]==2) bbslow_time=bb_tdctrig_tdc[ihit];
     }
-    h1_calDiff->Fill(hcal_time-bbslow_time);
+    //Take difference to eliminate 25ns jitter
+    h1_coinBBDiff_slow->Fill(coin_time-bbslow_time);
   }
   
-  h1_calDiff->SetStats(0);
-  h1_calDiff->Draw();
+  h1_coinBBDiff_slow->SetStats(0);
+  h1_coinBBDiff_slow->Draw();
 
   cout << "Processed macro with " << nevents << " entries." << endl;
-  cout << "Note: This gives the difference in time between the raw BBCal and HCal triggers." << endl;
+  cout << "Note: a large spread indicates that HCal is setting the trigger time." << endl;
 
   st->Stop();
   cout << "CPU time = " << st->CpuTime() << " s " << " Real time = " << st->RealTime() << " s " << endl;
