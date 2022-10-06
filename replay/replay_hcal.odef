@@ -40,31 +40,33 @@ th2d hTDC_vs_clus_ID 'TDC vs Module : HCAL; channel; ns' sbs.hcal.tdcelemID[I] s
 #Page 4: HCal Trigger ADC Time (Individual Sums)
 th2d hADCt_hcalT_r 'HCal Trigger Sum r-{1-10} ADC Time; ns' sbs.trig.adcelemID[I] sbs.trig.a_time[I] 10 0.5 10.5 200 0 200
 
-#Page 5: Cluster Plots
+#Page 5: HCal Trigger ADC Amplitude
+#(macro) HCal Trigger ADC Amplitude
+
+#Page 6: HCal Trigger ADC Amplitude (Individual Sums)
+th2d hADCamp_hcalT_r 'HCal Trigger Sum r-{1-10} ADC Amplitude; mV' sbs.trig.adcelemID[I] sbs.trig.a_amp[I] 10 0.5 10.5 500 0 500
+
+#Page 7: Cluster Plots
 th1d hNClus_vs_elem_hcal 'Number of clusters per event : HCAL; N' sbs.hcal.nclus 20 0 20  #Multiplicity
 th1d hNBlk_per_cluster 'Number of blocks per cluster : HCAL; N' sbs.hcal.nblk 15 0 15 
 th2d hE_vs_mult_clus 'Primary Cluster E vs Multiplicity; nclus; MeV' sbs.hcal.e sbs.hcal.nclus 60 0 1.5 12 0 12
 th2d hClusE_vs_elem_hcal 'Primary Cluster Energy vs element ID : HCAL; channel; GeV' sbs.hcal.clus_blk.id[I] sbs.hcal.clus_blk.e[I] 288 0.5 288.5 100 0 0.5 sbs.hcal.clus_blk.atime[I]>0
 
-#Page 6: Cluster Heatmap
+#Page 8: Cluster Heatmap
 th2d hClus_pos_hcal 'Position of best cluster : HCal; Y(m); X(m)' sbs.hcal.colblk sbs.hcal.rowblk 12 0 12 24 0 24 sbs.hcal.nclus>0
 
-#Page 7: HCal ADC Time
+#Page 9: HCal ADC Time
 #(macro) ADC Time No LED
 #(macro) ADC Time LED
 
-#Page 8: Trigger TDC Times
-#(macro) Coincidence Trigger TDC Time
+#Page 10: Trigger TDC Times
 #(macro) Coincidence/BBCal Difference
-#(macro) HCal Trigger TDC Time
-#(macro) HCal/BBCalHi Difference
+#(macro) Coincidence/Trigger Difference
+#(macro) HCal/BBCal Difference
+#(macro) RF Time
 
-#Page 9: Calorimeter Trigger Difference
-#(macro) HCal/BBCalHi Difference
-#(macro) HCal/BBCalLo Difference
-
-#Page 10: BBCalHi RF Corrected
+#Page 11: BBCal Trigger RF Corrected
 #(macro) BBCal Trigger RF Corrected
 
-#Page 11: Proton Spot Check
+#Page 12: Proton Spot Check
 #(macro) Proton Spot Check
