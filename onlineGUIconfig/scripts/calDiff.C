@@ -9,7 +9,7 @@ void calDiff(){
   Double_t bb_sh_nclus = 0., sbs_hcal_nclus = 0.;
   Double_t bb_tdctrig_tdc[6] = {0.}, bb_tdctrig_tdcelemID[6] = {0.};
 
-  TH1D *h1_calDiff = new TH1D("h1_calDiff","HCal/BBCal Difference; ns", 1000, -50, 950);
+  TH1D *h1_calDiff = new TH1D("h1_calDiff","HCal/BBCal Difference; ns", 200, 700, 900);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
