@@ -162,17 +162,25 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
 
   TString prefix = gSystem->Getenv("DATA_DIR");
 
-  vector<string> pathlist;
+  //Here we need to revert back to the old behavior based on THaRun for the time being:
+
+  vector<TString> pathlist;
   if( !prefix.IsNull() )
     pathlist.push_back( prefix.Data() );
 
-  if( prefix != "/adaqeb[1-3]/data1" )
-    pathlist.push_back( "/adaqeb[1-3]/data1" );
+  if( prefix != "/adaqeb1/data1" )
+    pathlist.push_back( "/adaqeb1/data1" );
+
+  if( prefix != "/adaqeb2/data1" )
+    pathlist.push_back( "/adaqeb2/data1" );
+  
+  if( prefix != "/adaqeb3/data1" )
+    pathlist.push_back( "/adaqeb3/data1" );
 
   if( prefix != "/adaq1/data1/sbs" )
     pathlist.push_back( "/adaq1/data1/sbs" );
 
-  // Do not use wildcard filenames with this directory
+  //This may take forever to scan
   if( prefix != "/cache/mss/halla/sbs/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/raw" );
 
@@ -180,63 +188,80 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
     cout << "search paths = " << path << endl;
   }
 
-  TString ftest(fname_prefix);
-  bool test_data = ( ftest == "bbgem" || ftest == "e1209019_trigtest" );
+  int nstream=maxstream+1;
 
-  // Build list of files we'd like to analyze. These are candidates. If some of them
-  // do not exist, they will be quietly skipped by the MultiFileRun class. A list of
-  // the actually found files will be printed during initialization.
-  vector<string> filenames;
-  Int_t actual_maxstream = test_data ? 0 : maxstream;
-  for( Int_t istream = 0; istream <= actual_maxstream; ++istream ) {
-    for( UInt_t iseg = 0; iseg < maxsegments; ++iseg ) {
-      TString codafilename;
-      if( test_data )
-	codafilename.Form("%s_%u.evio.%u", fname_prefix, runnum, istream);
-      else
-	codafilename.Form("%s_%u.evio.%d.%u", fname_prefix, runnum, istream, iseg);
-      cout << "codafilename = " << codafilename << endl;
-      filenames.emplace_back(codafilename.Data());
+  int stream = 0, segcounter=0;
+ 
+  int segment = firstsegment; 
+  int lastsegment = firstsegment;
+
+  TClonesArray *filelist = new TClonesArray("THaRun",10);
+
+  while( segcounter < maxsegments*nstream && segment-firstsegment < maxsegments && stream < nstream ){
+
+    TString codafilename;
+    //codafilename.Form("%s_%u.evio.[0-9]+.[0-9]+", fname_prefix, runnum);
+  
+    codafilename.Form( "%s_%d.evio.%d.%d", fname_prefix, runnum, stream, segment );
+    // TString ftest(fname_prefix);
+    // if( ftest == "bbgem" || ftest == "e1209019_trigtest" ) {
+    //   codafilename.Form("%s_%u.evio.[0-9]+", fname_prefix, runnum);
+    // } these lines obsolete:
+    
+    bool segmentexists=false;
+
+    cout << "codafilename = " << codafilename << endl;
+     
+    for( int ipath=0; ipath<pathlist.size(); ipath++ ){
+      TString searchname;
+      searchname.Form( "%s/%s", pathlist[ipath].Data(), codafilename.Data() );
+      
+      if( !gSystem->AccessPathName( searchname.Data() ) ){
+	segmentexists = true;
+	break;
+      }
+    }
+    
+    if( segmentexists ){
+      new( (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GEN run" );
+      cout << "Added segment " << segment << ", CODA file name = " << codafilename << endl;
+      segcounter++;
+    }
+
+    if( stream < maxstream ){ 
+      stream++; 
+    } else if( segment - firstsegment < maxsegments ){
+      stream = 0;
+      segment++;
     }
   }
-  if( filenames.empty() ) {
-    cout << "No files. Check your parameters." << endl;
-    return;
-  }
 
-  auto* run = new Podd::MultiFileRun(pathlist, filenames);
-  run->SetFirstSegment(firstsegment);  // Starting segment number
-  run->SetMaxSegments(maxsegments);    // Number of segments
-  run->SetMaxStreams(maxstream+1);  // Number of streams
+  cout << "n segments to analyze = " << segcounter << endl;
+  //auto* run = new Podd::MultiFileRun(pathlist, codafilename.Data());
 
-  // Count physics events sequentially, i.e. always starting at 1, for each invocation of
-  // analyzer->Process(). This count will be compared to the run's event range, so it
-  // can be specified independently of absolute event numbers. This is relevant if
-  // the analysis starts with a segment > 0. Actual (raw, CODA) physics event numbers
-  // will then start with some largish number (the first event number in the continuation
-  // segment), but the analyzer's count will still start at 1 for that analysis,
-  // so you can give the run an event range of, say, 1-50000 to analyze 50k events,
-  // regardless of what segments are being replayed. The event header written for each
-  // entry in the output ROOT tree does contain the actual CODA event number, which is
-  // what you usually want for analysis.
+  //run->SetFirstSegment(firstsegment);  // Starting segment number
+  //run->SetMaxSegments(maxsegments);    // Number of segments
+  //run->SetMaxStreams(maxstream+1);  // Number of streams
 
+  // Count physics events sequentially, always starting at 1. This count will be compared to the run's event range.
+  // The run's event range can then be specified independently of absolute event numbers.
   analyzer->SetCountMode(THaAnalyzer::kCountPhysics);
 
-  if( nevents > 0 ) run->SetLastEvent(firstevent+nevents-1);
-  run->SetFirstEvent( firstevent );
-  run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
-  Int_t st = run->Init();
-  if( st != THaRunBase::READ_OK ) {
-    cerr << "========= Error initializing run" << endl;
-    return;
-  }
+  // if( nevents > 0 ) run->SetLastEvent(firstevent+nevents-1);
+  // run->SetFirstEvent( firstevent );
+  // run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+  // Int_t st = run->Init();
+  // if( st != THaRunBase::READ_OK ) {
+  //   cerr << "========= Error initializing run" << endl;
+  //   return;
+  // }
 
-  cout << "n segments to analyze = " << run->GetNFiles() << endl;
+  //  cout << "n segments to analyze = " << run->GetNFiles() << endl;
 
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  UInt_t lastsegment = run->GetLastSegment();
+  //  UInt_t lastsegment = run->GetLastSegment();
   if( nevents > 0 ){
     outfilename.Form( "%s/%s_replayed_%u_stream%d_%d_seg%u_%u_firstevent%ld_nevent%ld.root", prefix.Data(), fname_prefix, runnum,
 		      0, maxstream, firstsegment, lastsegment, firstevent, nevents );
@@ -261,7 +286,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_gmn.odef";
+  TString odef_filename = "replay_gen.odef";
 
   odef_filename.Prepend( prefix );
 
@@ -277,13 +302,25 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   analyzer->SetCutFile( cdef_filename );
   //analyzer->SetCompressionLevel(0); // turn off compression
 
-  st = analyzer->Init(run);
-  if( st != 0 ) {
-    cerr << "========= Error initializing analyzer" << endl;
-    return;
-  }
-  analyzer->Process(run);     // start the actual analysis
+  filelist->Compress();
 
+  //reverting to the behavior of the old GMN script for the time being:
+  for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
+    THaRun *run = ( (THaRun*) (*filelist)[iseg] );
+    if( nevents > 0 ) run->SetLastEvent( firstevent + nevents - 1 ); 
+    run->SetFirstEvent( firstevent );
+    
+    run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+
+    run->Init();
+   
+    Int_t st = analyzer->Init(run);
+    if( st != 0 ) {
+      cerr << "========= Error initializing analyzer" << endl;
+      return;
+    }
+    analyzer->Process(run);     // start the actual analysis
+  }
 }
 
 

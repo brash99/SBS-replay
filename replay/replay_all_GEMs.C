@@ -234,7 +234,7 @@ void replay_all_GEMs( int runnum=220, int firstsegment=0, int maxsegments=1, con
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  outfilename.Form( "%s/bbgem_replayed_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
+  outfilename.Form( "%s/gem_replayed_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
 		    stream, firstsegment, lastsegment );
 
   // Define the run(s) that we want to analyze.
