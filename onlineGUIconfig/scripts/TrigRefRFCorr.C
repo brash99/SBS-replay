@@ -43,7 +43,7 @@ void TrigRefRFCorr(){
     //Double_t rfmod = std::fmod( rf_time, 4. );
     Double_t rfmod = std::fmod( bb_time-rf_time, 4. );
 
-    cout << rfmod << endl;
+    //cout << rfmod << endl;
 
     //h1_TrigRefRFCorr->Fill(rfmod);
     h1_TrigRefRFCorr->Fill(bb_time-rfmod);
