@@ -23,5 +23,6 @@ GoodBBCAL     GoodPreShower||GoodShower
 CutPreShower  bb.ps.e>0.15
 GoodTrack BB.gold.index>-1
 GoodElectron  GoodTrack&&CutPreShower
-Physics_master GoodBBCAL
+#Physics_master GoodBBCAL
+Physics_master 1
 #Physics_master GoodTrack

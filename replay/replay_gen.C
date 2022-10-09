@@ -41,7 +41,7 @@
 
 using namespace std;
 
-void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1209016", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1)
+void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1209016", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1, Int_t usesbsgems=1)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -125,7 +125,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gem", "Super BigBite Hall A GEM data");
   sbsgem->SetPedestalMode( pm );
   sbsgem->SetMakeCommonModePlots( cmplots );
-  harm->AddDetector(sbsgem);
+  if (usesbsgems != 0 ) harm->AddDetector(sbsgem);
 
   gHaApps->Add(harm);
 
@@ -176,6 +176,9 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   if( prefix != "/cache/mss/halla/sbs/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/raw" );
 
+  if( prefix != "/cache/mss/halla/sbs/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/GEnII/raw" );
+
   for( const auto& path: pathlist ) {
     cout << "search paths = " << path << endl;
   }
@@ -189,7 +192,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   vector<string> filenames;
   Int_t actual_maxstream = test_data ? 0 : maxstream;
   for( Int_t istream = 0; istream <= actual_maxstream; ++istream ) {
-    for( UInt_t iseg = 0; iseg < maxsegments; ++iseg ) {
+    for( UInt_t iseg = firstsegment; iseg < firstsegment + maxsegments; ++iseg ) {
       TString codafilename;
       if( test_data )
 	codafilename.Form("%s_%u.evio.%u", fname_prefix, runnum, istream);
@@ -261,7 +264,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_gmn.odef";
+  TString odef_filename = "replay_gen.odef";
 
   odef_filename.Prepend( prefix );
 

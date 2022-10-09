@@ -95,11 +95,6 @@ th1d hbbgem_VtimeMaxDeconv 'Max V strip in cluster on track; Max. Deconv. Strip 
 th1d hbbgem_isampMaxDeconvU 'Max U strip in cluster on track; max. deconv time sample ;' bb.gem.hit.isampmaxUstripDeconv 6 -0.5 5.5 singletrack
 th1d hbbgem_isampMaxDeconvV 'Max V strip in cluster on track; Max. Deconv. time sample;' bb.gem.hit.isampmaxVstripDeconv 6 -0.5 5.5 singletrack
 
-th1d hbbgem_ADCmaxcomboDeconvU 'Max U strip in cluster on track; Max sum of two adjacent deconv. samples;' bb.gem.hit.DeconvADCmaxcomboU 400 -500 3500 singletrack
-th1d hbbgem_ADCmaxcomboDeconvV 'Max V strip in cluster on track; Max sum of two adjacent deconv. samples;' bb.gem.hit.DeconvADCmaxcomboV 400 -500 3500 singletrack
-th1d hbbgem_icomboMaxDeconvU 'Max U strip in cluster on track; last time sample of max. two-sample combo;' bb.gem.hit.icombomaxUstripDeconv 7 -0.5 6.5 singletrack
-th1d hbbgem_icomboMaxDeconvV 'Max V strip in cluster on track; last time sample of max. two-sample combo;' bb.gem.hit.icombomaxVstripDeconv 7 -0.5 6.5 singletrack
-
 th1d hbb_gem_Ntracks ';Number of tracks found;' bb.gem.track.ntrack 11 -0.5 10.5
 th1d hbb_gem_TrackNhits ';Number of hits on first/best track;' bb.gem.track.nhits[I] 6 -0.5 5.5 singletrack
 th1d hbb_gem_TrackX ';Best track X(z=0), m;' bb.gem.track.x[I] 200 -1.1 1.1 singletrack
@@ -141,61 +136,6 @@ th1d hbb_gem_m0_Tdeconv_good 'bb gem m0 (strips on tracks); Mean deconvoluted st
 th1d hbb_gem_m0_ADCsum_deconv_good 'bb gem m0 (strips on tracks); Sum of deconvoluted samples;' bb.gem.m0.strip.DeconvADCsum[I] 400 -500 3500 bb.gem.m0.strip.ontrack[I]
 th1d hbb_gem_m0_ADCmax_deconv_good 'bb gem m0 (strips on tracks); Max. deconvoluted sample;' bb.gem.m0.strip.DeconvADCmax[I] 400 -500 3500 bb.gem.m0.strip.ontrack[I]
 th1d hbb_gem_m0_isampmax_deconv_good 'bb gem m0 (strips on tracks); peak deconvoluted sample;' bb.gem.m0.strip.isampmaxDeconv[I] 6 -0.5 5.5 bb.gem.m0.strip.ontrack[I]
-#
-th1d hbb_gem_m0_ADCmaxcombo_deconv_good 'bb gem m0 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m0.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m0.strip.ontrack[I]
-th1d hbb_gem_m1_ADCmaxcombo_deconv_good 'bb gem m1 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m1.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m1.strip.ontrack[I]
-th1d hbb_gem_m2_ADCmaxcombo_deconv_good 'bb gem m2 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m2.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m2.strip.ontrack[I]
-th1d hbb_gem_m3_ADCmaxcombo_deconv_good 'bb gem m3 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m3.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m3.strip.ontrack[I]
-th1d hbb_gem_m4_ADCmaxcombo_deconv_good 'bb gem m4 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m4.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m4.strip.ontrack[I]
-th1d hbb_gem_m5_ADCmaxcombo_deconv_good 'bb gem m5 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m5.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m5.strip.ontrack[I]
-th1d hbb_gem_m6_ADCmaxcombo_deconv_good 'bb gem m6 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m6.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m6.strip.ontrack[I]
-th1d hbb_gem_m7_ADCmaxcombo_deconv_good 'bb gem m7 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m7.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m7.strip.ontrack[I]
-th1d hbb_gem_m8_ADCmaxcombo_deconv_good 'bb gem m8 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m8.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m8.strip.ontrack[I]
-th1d hbb_gem_m9_ADCmaxcombo_deconv_good 'bb gem m9 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m9.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m9.strip.ontrack[I]
-th1d hbb_gem_m10_ADCmaxcombo_deconv_good 'bb gem m10 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m10.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m10.strip.ontrack[I]
-th1d hbb_gem_m11_ADCmaxcombo_deconv_good 'bb gem m11 (strips on tracks); Max. deconv. two-sample combo;' bb.gem.m11.strip.DeconvADCmaxCombo[I] 400 -500 3500 bb.gem.m11.strip.ontrack[I]
-
-#
-th1d hbb_gem_m0_ADCmaxcombo_deconv_all 'bb gem m0 (all strips); Max. deconv. two-sample combo;' bb.gem.m0.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m1_ADCmaxcombo_deconv_all 'bb gem m1 (all strips); Max. deconv. two-sample combo;' bb.gem.m1.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m2_ADCmaxcombo_deconv_all 'bb gem m2 (all strips); Max. deconv. two-sample combo;' bb.gem.m2.strip.DeconvADCmaxCombo[I] 400 -500 3500
-th1d hbb_gem_m3_ADCmaxcombo_deconv_all 'bb gem m3 (all strips); Max. deconv. two-sample combo;' bb.gem.m3.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m4_ADCmaxcombo_deconv_all 'bb gem m4 (all strips); Max. deconv. two-sample combo;' bb.gem.m4.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m5_ADCmaxcombo_deconv_all 'bb gem m5 (all strips); Max. deconv. two-sample combo;' bb.gem.m5.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m6_ADCmaxcombo_deconv_all 'bb gem m6 (all strips); Max. deconv. two-sample combo;' bb.gem.m6.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m7_ADCmaxcombo_deconv_all 'bb gem m7 (all strips); Max. deconv. two-sample combo;' bb.gem.m7.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m8_ADCmaxcombo_deconv_all 'bb gem m8 (all strips); Max. deconv. two-sample combo;' bb.gem.m8.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m9_ADCmaxcombo_deconv_all 'bb gem m9 (all strips); Max. deconv. two-sample combo;' bb.gem.m9.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m10_ADCmaxcombo_deconv_all 'bb gem m10 (all strips); Max. deconv. two-sample combo;' bb.gem.m10.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-th1d hbb_gem_m11_ADCmaxcombo_deconv_all 'bb gem m11 (all strips); Max. deconv. two-sample combo;' bb.gem.m11.strip.DeconvADCmaxCombo[I] 400 -500 3500 
-
-#
-th1d hbb_gem_m0_isampmaxcombo_deconv_all 'bb gem m0 (all strips); last sample of max. two-sample combo;' bb.gem.m0.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m1_isampmaxcombo_deconv_all 'bb gem m1 (all strips); last sample of max. two-sample combo;' bb.gem.m1.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m2_isampmaxcombo_deconv_all 'bb gem m2 (all strips); last sample of max. two-sample combo;' bb.gem.m2.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m3_isampmaxcombo_deconv_all 'bb gem m3 (all strips); last sample of max. two-sample combo;' bb.gem.m3.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m4_isampmaxcombo_deconv_all 'bb gem m4 (all strips); last sample of max. two-sample combo;' bb.gem.m4.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m5_isampmaxcombo_deconv_all 'bb gem m5 (all strips); last sample of max. two-sample combo;' bb.gem.m5.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m6_isampmaxcombo_deconv_all 'bb gem m6 (all strips); last sample of max. two-sample combo;' bb.gem.m6.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m7_isampmaxcombo_deconv_all 'bb gem m7 (all strips); last sample of max. two-sample combo;' bb.gem.m7.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m8_isampmaxcombo_deconv_all 'bb gem m8 (all strips); last sample of max. two-sample combo;' bb.gem.m8.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m9_isampmaxcombo_deconv_all 'bb gem m9 (all strips); last sample of max. two-sample combo;' bb.gem.m9.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m10_isampmaxcombo_deconv_all 'bb gem m10 (all strips); last sample of max. two-sample combo;' bb.gem.m10.strip.isampmaxDeconvCombo 7 -0.5 6.5
-th1d hbb_gem_m11_isampmaxcombo_deconv_all 'bb gem m11 (all strips); last sample of max. two-sample combo;' bb.gem.m11.strip.isampmaxDeconvCombo 7 -0.5 6.5
-
-#
-th1d hbb_gem_m0_isampmaxcombo_deconv_good 'bb gem m0 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m0.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m0.strip.ontrack[I]
-th1d hbb_gem_m1_isampmaxcombo_deconv_good 'bb gem m1 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m1.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m1.strip.ontrack[I]
-th1d hbb_gem_m2_isampmaxcombo_deconv_good 'bb gem m2 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m2.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m2.strip.ontrack[I]
-th1d hbb_gem_m3_isampmaxcombo_deconv_good 'bb gem m3 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m3.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m3.strip.ontrack[I]
-th1d hbb_gem_m4_isampmaxcombo_deconv_good 'bb gem m4 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m4.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m4.strip.ontrack[I]
-th1d hbb_gem_m5_isampmaxcombo_deconv_good 'bb gem m5 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m5.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m5.strip.ontrack[I]
-th1d hbb_gem_m6_isampmaxcombo_deconv_good 'bb gem m6 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m6.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m6.strip.ontrack[I]
-th1d hbb_gem_m7_isampmaxcombo_deconv_good 'bb gem m7 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m7.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m7.strip.ontrack[I]
-th1d hbb_gem_m8_isampmaxcombo_deconv_good 'bb gem m8 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m8.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m8.strip.ontrack[I]
-th1d hbb_gem_m9_isampmaxcombo_deconv_good 'bb gem m9 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m9.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m9.strip.ontrack[I]
-th1d hbb_gem_m10_isampmaxcombo_deconv_good 'bb gem m10 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m10.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m10.strip.ontrack[I]
-th1d hbb_gem_m11_isampmaxcombo_deconv_good 'bb gem m11 (strips on tracks); last sample of max. two-sample combo;' bb.gem.m11.strip.isampmaxDeconvCombo[I] 7 -0.5 6.5 bb.gem.m11.strip.ontrack[I]
 
 # deconvolution stuff:
 th1d hbb_gem_m1_Tdeconv_all 'bb gem m1 (all strips); Mean deconvoluted strip time (ns);' bb.gem.m1.strip.TmeanDeconv 200 -100 300
@@ -267,45 +207,6 @@ th1d hbb_gem_m7_ADCsum_deconv_good 'bb gem m7 (strips on tracks); Sum of deconvo
 th1d hbb_gem_m7_ADCmax_deconv_good 'bb gem m7 (strips on tracks); Max. deconvoluted sample;' bb.gem.m7.strip.DeconvADCmax[I] 400 -500 3500 bb.gem.m7.strip.ontrack[I]
 th1d hbb_gem_m7_isampmax_deconv_good 'bb gem m7 (strips on tracks); peak deconvoluted sample;' bb.gem.m7.strip.isampmaxDeconv[I] 6 -0.5 5.5 bb.gem.m7.strip.ontrack[I]
 
-# deconvolution stuff:
-th1d hbb_gem_m8_Tdeconv_all 'bb gem m8 (all strips); Mean deconvoluted strip time (ns);' bb.gem.m8.strip.TmeanDeconv 200 -100 300
-th1d hbb_gem_m8_ADCsum_deconv_all 'bb gem m8 (all strips); Sum of deconvoluted samples;' bb.gem.m8.strip.DeconvADCsum 400 -500 3500
-th1d hbb_gem_m8_ADCmax_deconv_all 'bb gem m8 (all strips); Max. deconvoluted sample;' bb.gem.m8.strip.DeconvADCmax 400 -500 3500
-th1d hbb_gem_m8_isampmax_deconv_all 'bb gem m8 (all strips); peak deconvoluted sample;' bb.gem.m8.strip.isampmaxDeconv 6 -0.5 5.5
-th1d hbb_gem_m8_Tdeconv_good 'bb gem m8 (strips on tracks); Mean deconvoluted strip time (ns);' bb.gem.m8.strip.TmeanDeconv[I] 200 -100 300 bb.gem.m8.strip.ontrack[I]
-th1d hbb_gem_m8_ADCsum_deconv_good 'bb gem m8 (strips on tracks); Sum of deconvoluted samples;' bb.gem.m8.strip.DeconvADCsum[I] 400 -500 3500 bb.gem.m8.strip.ontrack[I]
-th1d hbb_gem_m8_ADCmax_deconv_good 'bb gem m8 (strips on tracks); Max. deconvoluted sample;' bb.gem.m8.strip.DeconvADCmax[I] 400 -500 3500 bb.gem.m8.strip.ontrack[I]
-th1d hbb_gem_m8_isampmax_deconv_good 'bb gem m8 (strips on tracks); peak deconvoluted sample;' bb.gem.m8.strip.isampmaxDeconv[I] 6 -0.5 5.5 bb.gem.m8.strip.ontrack[I]
-
-# deconvolution stuff:
-th1d hbb_gem_m9_Tdeconv_all 'bb gem m9 (all strips); Mean deconvoluted strip time (ns);' bb.gem.m9.strip.TmeanDeconv 200 -100 300
-th1d hbb_gem_m9_ADCsum_deconv_all 'bb gem m9 (all strips); Sum of deconvoluted samples;' bb.gem.m9.strip.DeconvADCsum 400 -500 3500
-th1d hbb_gem_m9_ADCmax_deconv_all 'bb gem m9 (all strips); Max. deconvoluted sample;' bb.gem.m9.strip.DeconvADCmax 400 -500 3500
-th1d hbb_gem_m9_isampmax_deconv_all 'bb gem m9 (all strips); peak deconvoluted sample;' bb.gem.m9.strip.isampmaxDeconv 6 -0.5 5.5
-th1d hbb_gem_m9_Tdeconv_good 'bb gem m9 (strips on tracks); Mean deconvoluted strip time (ns);' bb.gem.m9.strip.TmeanDeconv[I] 200 -100 300 bb.gem.m9.strip.ontrack[I]
-th1d hbb_gem_m9_ADCsum_deconv_good 'bb gem m9 (strips on tracks); Sum of deconvoluted samples;' bb.gem.m9.strip.DeconvADCsum[I] 400 -500 3500 bb.gem.m9.strip.ontrack[I]
-th1d hbb_gem_m9_ADCmax_deconv_good 'bb gem m9 (strips on tracks); Max. deconvoluted sample;' bb.gem.m9.strip.DeconvADCmax[I] 400 -500 3500 bb.gem.m9.strip.ontrack[I]
-th1d hbb_gem_m9_isampmax_deconv_good 'bb gem m9 (strips on tracks); peak deconvoluted sample;' bb.gem.m9.strip.isampmaxDeconv[I] 6 -0.5 5.5 bb.gem.m9.strip.ontrack[I]
-
-# deconvolution stuff:
-th1d hbb_gem_m10_Tdeconv_all 'bb gem m10 (all strips); Mean deconvoluted strip time (ns);' bb.gem.m10.strip.TmeanDeconv 200 -100 300
-th1d hbb_gem_m10_ADCsum_deconv_all 'bb gem m10 (all strips); Sum of deconvoluted samples;' bb.gem.m10.strip.DeconvADCsum 400 -500 3500
-th1d hbb_gem_m10_ADCmax_deconv_all 'bb gem m10 (all strips); Max. deconvoluted sample;' bb.gem.m10.strip.DeconvADCmax 400 -500 3500
-th1d hbb_gem_m10_isampmax_deconv_all 'bb gem m10 (all strips); peak deconvoluted sample;' bb.gem.m10.strip.isampmaxDeconv 6 -0.5 5.5
-th1d hbb_gem_m10_Tdeconv_good 'bb gem m10 (strips on tracks); Mean deconvoluted strip time (ns);' bb.gem.m10.strip.TmeanDeconv[I] 200 -100 300 bb.gem.m10.strip.ontrack[I]
-th1d hbb_gem_m10_ADCsum_deconv_good 'bb gem m10 (strips on tracks); Sum of deconvoluted samples;' bb.gem.m10.strip.DeconvADCsum[I] 400 -500 3500 bb.gem.m10.strip.ontrack[I]
-th1d hbb_gem_m10_ADCmax_deconv_good 'bb gem m10 (strips on tracks); Max. deconvoluted sample;' bb.gem.m10.strip.DeconvADCmax[I] 400 -500 3500 bb.gem.m10.strip.ontrack[I]
-th1d hbb_gem_m10_isampmax_deconv_good 'bb gem m10 (strips on tracks); peak deconvoluted sample;' bb.gem.m10.strip.isampmaxDeconv[I] 6 -0.5 5.5 bb.gem.m10.strip.ontrack[I]
-
-# deconvolution stuff:
-th1d hbb_gem_m11_Tdeconv_all 'bb gem m11 (all strips); Mean deconvoluted strip time (ns);' bb.gem.m11.strip.TmeanDeconv 200 -100 300
-th1d hbb_gem_m11_ADCsum_deconv_all 'bb gem m11 (all strips); Sum of deconvoluted samples;' bb.gem.m11.strip.DeconvADCsum 400 -500 3500
-th1d hbb_gem_m11_ADCmax_deconv_all 'bb gem m11 (all strips); Max. deconvoluted sample;' bb.gem.m11.strip.DeconvADCmax 400 -500 3500
-th1d hbb_gem_m11_isampmax_deconv_all 'bb gem m11 (all strips); peak deconvoluted sample;' bb.gem.m11.strip.isampmaxDeconv 6 -0.5 5.5
-th1d hbb_gem_m11_Tdeconv_good 'bb gem m11 (strips on tracks); Mean deconvoluted strip time (ns);' bb.gem.m11.strip.TmeanDeconv[I] 200 -100 300 bb.gem.m11.strip.ontrack[I]
-th1d hbb_gem_m11_ADCsum_deconv_good 'bb gem m11 (strips on tracks); Sum of deconvoluted samples;' bb.gem.m11.strip.DeconvADCsum[I] 400 -500 3500 bb.gem.m11.strip.ontrack[I]
-th1d hbb_gem_m11_ADCmax_deconv_good 'bb gem m11 (strips on tracks); Max. deconvoluted sample;' bb.gem.m11.strip.DeconvADCmax[I] 400 -500 3500 bb.gem.m11.strip.ontrack[I]
-th1d hbb_gem_m11_isampmax_deconv_good 'bb gem m11 (strips on tracks); peak deconvoluted sample;' bb.gem.m11.strip.isampmaxDeconv[I] 6 -0.5 5.5 bb.gem.m11.strip.ontrack[I]
 
 # Module-specific histograms: 
 # Module 0 strip histograms, all strips: 

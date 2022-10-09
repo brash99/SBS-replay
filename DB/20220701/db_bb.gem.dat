@@ -663,7 +663,7 @@ bb.gem.ypfp_max = 0.15
 
 bb.gem.pedsub_online = 1  #special run where full readout was done
 bb.gem.suppressfirstlast = 0
-bb.gem.useconstraint = 0
+bb.gem.useconstraint = 1
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
 
@@ -734,5 +734,10 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run1224.dat
 --------[ 2022-10-04 14:00:00 ] # new pedestal after some APVs has shifted
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run1653.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run1653.dat
+
+--------[ 2022-10-07 14:00:00 ] # new pedestal after some APVs have been fixed
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run1670.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run1670.dat
+
 
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################

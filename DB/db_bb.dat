@@ -1279,8 +1279,14 @@ bb.backconstraint_x0 = 0.0056
 bb.backconstraint_y0 = 0.0010
 
 # start with relatively wide tolerances (will need to disable constraints for zero-field/optics/cosmic runs, etc
-bb.frontconstraintwidth_x = 0.1
-bb.frontconstraintwidth_y = 0.1
-bb.backconstraintwidth_x = 0.06
-bb.backconstraintwidth_y = 0.07
+bb.frontconstraintwidth_x = 0.2
+bb.frontconstraintwidth_y = 0.15
+bb.backconstraintwidth_x = 0.05
+bb.backconstraintwidth_y = 0.06
 
+# constraint centering from run 1681:
+
+bb.frontconstraint_x0 = 0.0
+bb.frontconstraint_y0 = -0.0136
+bb.backconstraint_x0 = 0.0056
+bb.backconstraint_y0 = 0.0010

@@ -118,16 +118,16 @@ sbs.gem.m29.apvmap = 1
 
 ############ parameters searched by SBSGEMModule::ReadDatabase() #################
 ############ offline thresholds: ############
-sbs.gem.threshold_sample = 75.
-sbs.gem.threshold_stripsum = 300.
-sbs.gem.threshold_clustersum 600.
+sbs.gem.threshold_sample = 100.0
+sbs.gem.threshold_stripsum = 400.
+sbs.gem.threshold_clustersum 800.
 
 
 sbs.gem.ADCasym_cut = 0.8 
 sbs.gem.deltat_cut = 25.0
 sbs.gem.corrcoeff_cut = 0.5
-sbs.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
-sbs.gem.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts
+sbs.gem.filterflag1D = 1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
+sbs.gem.filterflag2D = 1  # 1 = "hard" filtering: require 2D hits to pass all cuts
 
 sbs.gem.peakprominence_minsigma = 3.0 
 sbs.gem.peakprominence_minfraction = 0.15
@@ -158,11 +158,11 @@ sbs.gem.max2Dhits = 100000 # per-module
 ############### Parameters searched by SBSGEMSpectrometerTracker::ReadDatabase() ######################
 
 # parameters controlling tracking:
-sbs.gem.minhitsontrack = 4 #4
+sbs.gem.minhitsontrack = 5 #4
 
-sbs.gem.maxhitcombos = 25000 #25000 for final &  50000 for first alignments
+sbs.gem.maxhitcombos = 10000 #25000 for final &  50000 for first alignments
 sbs.gem.maxhitcombos_inner = 25000 #25000 for final & 50000 for first alignments
-sbs.gem.maxhitcombos_total = 1000000000
+sbs.gem.maxhitcombos_total = 100000000000000
 
 sbs.gem.tryfasttrack = 1  #May get errors before a good alignment. So may be help to turn off during alignment. 
 
