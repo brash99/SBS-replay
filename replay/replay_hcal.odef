@@ -31,8 +31,8 @@ th2d hAmp_vs_int 'ADC amp vs int : HCAL; pC; mV' sbs.hcal.a_p[I] sbs.hcal.a_amp_
 th2d hADCamp_vs_elem_hcal 'ADC amplitude vs module ZOOM : HCAL; channel; mV' sbs.hcal.adcelemID[I] sbs.hcal.a_amp_p[I] 288 0.5 288.5 1000 0 1000 sbs.hcal.a_time[I]>0 
 
 #Page 3: TDC vs Module
-th1d hTDC_HCAL 'TDC over all channels : HCAL; ns' sbs.hcal.tdc 250 -150 100 sbs.hcal.e>0.35
-th2d hTDC_vs_clus_ID 'TDC vs Module : HCAL; channel; ns' sbs.hcal.tdcelemID[I] sbs.hcal.tdc[I] 288 0.5 288.5 250 -150 100 sbs.hcal.e>0.35
+th1d hTDC_HCAL 'TDC over all channels : HCAL; ns' sbs.hcal.tdc 250 -150 100 sbs.hcal.tdc[I]<1000
+th2d hTDC_vs_clus_ID 'TDC vs Module : HCAL; channel; ns' sbs.hcal.tdcelemID[I] sbs.hcal.tdc[I] 288 0.5 288.5 250 -150 100 sbs.hcal.tdc[I]<1000
 
 #Page 3: HCal Trigger ADC Time
 #(macro) HCal Trigger ADC Time

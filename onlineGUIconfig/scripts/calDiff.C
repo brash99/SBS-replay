@@ -9,7 +9,7 @@ void calDiff(){
   Double_t bb_sh_nclus = 0., sbs_hcal_nclus = 0.;
   Double_t bb_tdctrig_tdc[6] = {0.}, bb_tdctrig_tdcelemID[6] = {0.};
 
-  TH1D *h1_calDiff = new TH1D("h1_calDiff","HCal/BBCal Difference; ns", 200, 700, 900);
+  TH1D *h1_calDiff = new TH1D("h1_calDiff","HCal/BBCal Difference; ns", 1000, -1000, 1000);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
@@ -34,13 +34,13 @@ void calDiff(){
 
     //if( bb_sh_nclus==0 || sbs_hcal_nclus==0 ) continue;
 
-    Double_t bbslow_time=0.; //L1A
+    Double_t bb_time=0.; //L1A
     Double_t hcal_time=0.; //Overlapping regions
     for(Int_t ihit=0; ihit<Ndata_bb_tdctrig_tdcelemID; ihit++){
       if(bb_tdctrig_tdcelemID[ihit]==0) hcal_time=bb_tdctrig_tdc[ihit];
-      if(bb_tdctrig_tdcelemID[ihit]==2) bbslow_time=bb_tdctrig_tdc[ihit];
+      if(bb_tdctrig_tdcelemID[ihit]==5) bb_time=bb_tdctrig_tdc[ihit];
     }
-    h1_calDiff->Fill(hcal_time-bbslow_time);
+    h1_calDiff->Fill(hcal_time-bb_time);
   }
   
   h1_calDiff->SetStats(0);
