@@ -160,18 +160,18 @@ sbs.gem.max2Dhits = 100000 # per-module
 # parameters controlling tracking:
 sbs.gem.minhitsontrack = 5 #4
 
-sbs.gem.maxhitcombos = 10000 #25000 for final &  50000 for first alignments
+sbs.gem.maxhitcombos = 25000 #25000 for final &  50000 for first alignments
 sbs.gem.maxhitcombos_inner = 25000 #25000 for final & 50000 for first alignments
-sbs.gem.maxhitcombos_total = 100000000000000
+sbs.gem.maxhitcombos_total = 10000000000
 
 sbs.gem.tryfasttrack = 1  #May get errors before a good alignment. So may be help to turn off during alignment. 
 
 # typical values after alignment:
- sbs.gem.gridbinwidthx = 0.01
- sbs.gem.gridbinwidthy = 0.01
- sbs.gem.gridedgetolerancex = 0.003
- sbs.gem.gridedgetolerancey = 0.003
- sbs.gem.trackchi2cut = 40.0
+ sbs.gem.gridbinwidthx = 0.02
+ sbs.gem.gridbinwidthy = 0.02
+ sbs.gem.gridedgetolerancex = 0.006
+ sbs.gem.gridedgetolerancey = 0.006
+ sbs.gem.trackchi2cut = 1000.0
 
 #For alignment with cosmics, we want to start with wider grid bins and a loose chi2 cut for tracking:
 # sbs.gem.gridbinwidthx = 0.02 #0.1
@@ -188,7 +188,7 @@ sbs.gem.tryfasttrack = 1  #May get errors before a good alignment. So may be hel
  #sbs.gem.trackchi2cut = 40.0
 
 # For initial alignment with cosmics, we want to start with no constraints on track-finding:
-sbs.gem.useconstraint = 0
+sbs.gem.useconstraint = 1
 sbs.gem.useslopeconstraint = 0
 sbs.gem.useopticsconstraint = 0
 
@@ -428,6 +428,8 @@ sbs.gem.m28.position =       0.2625706      0.00187787       0.9217889
 sbs.gem.m28.angle =       -0.236385      -0.3682797      0.05984482
 sbs.gem.m29.position =       0.7717751     0.001806546       0.8809585
 sbs.gem.m29.angle =      -0.3658416       -0.395488      0.01077841
+
+
 
 
 # # Set to nominal sizes

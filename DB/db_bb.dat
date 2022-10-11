@@ -1290,3 +1290,23 @@ bb.frontconstraint_x0 = 0.0
 bb.frontconstraint_y0 = -0.0136
 bb.backconstraint_x0 = 0.0056
 bb.backconstraint_y0 = 0.0010
+
+--------[ 2022-10-10 01:43:00 ] # zero-field runs for optics:
+
+bb.frontconstraintwidth_x = 0.75
+bb.frontconstraintwidth_y = 0.25
+
+--------[ 2022-10-10 03:30:00 ] # magnets on for multi-foil optics: front constraint back to 0.2:
+
+bb.frontconstraintwidth_x = 0.2
+bb.frontconstraintwidth_y = 0.15
+
+--------[ 2022-10-10 05:44:00 ] # more zero-field, open up constraint again:
+
+bb.frontconstraintwidth_x = 0.75
+bb.frontconstraintwidth_y = 0.25
+
+--------[ 2022-10-10 07:17:00 ] # magnets back on, use tighter constraints again:
+
+bb.frontconstraintwidth_x = 0.2
+bb.frontconstraintwidth_y = 0.15

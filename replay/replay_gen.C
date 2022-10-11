@@ -122,10 +122,10 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   sbstrig->SetStoreEmptyElements(kFALSE);
   harm->AddDetector( sbstrig );
 
-  SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gem", "Super BigBite Hall A GEM data");
+    SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gem", "Super BigBite Hall A GEM data");
   sbsgem->SetPedestalMode( pm );
   sbsgem->SetMakeCommonModePlots( cmplots );
-  if (usesbsgems != 0 ) harm->AddDetector(sbsgem);
+  if (usesbsgems != 0 ) harm->AddDetector(sbsgem); 
 
   gHaApps->Add(harm);
 
