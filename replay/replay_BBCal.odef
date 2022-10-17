@@ -42,9 +42,9 @@ variable bb.tdctrig.tdcelemID
 
 ## PS 
 th2d hped_vs_elem_ps 'Pedestal vs element ID : PS' bb.ps.adcelemID[I] bb.ps.ped[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 
-th2d hADCtime_vs_elem_ps 'ADC time vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_time[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 
+th2d hADCtime_vs_elem_ps 'ADC time vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_time[I] 52 0 52 100 0 100 bb.ps.a_time[I]>0 
 #th2d hADCamp_vs_elem_ps 'ADC amplitude(mV) vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_amp_p[I] 52 0 52 100 0 100 bb.ps.a_time[I]>0 
-th2d hADCamp_vs_elem_ps 'ADC amplitude(mV) vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_amp_p[I] 52 0 52 100 0 400 bb.ps.a_time[I]>0 
+th2d hADCamp_vs_elem_ps 'ADC amplitude(mV) vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_amp_p[I] 52 0 52 100 0 300 bb.ps.a_time[I]>0 
 #th2d hADCint_vs_elem_ps 'ADC integral(pC) vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_p[I] 52 0 52 80 0 80 bb.ps.a_time[I]>0 
 th2d hADCint_vs_elem_ps 'ADC integral(pC) vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_p[I] 52 0 52 100 0 150 bb.ps.a_time[I]>0 
 #th2d hADCeng_vs_elem_ps 'ADC integral(GeV) vs element ID : PS' bb.ps.adcelemID[I] bb.ps.a_c[I] 52 0 52 100 0 1 bb.ps.a_time[I]>0 
@@ -58,7 +58,7 @@ th2d hHEclus_pos_ps 'Position of best cluster : PS' bb.ps.colblk bb.ps.rowblk+1 
 
 ## SH
 th2d hped_vs_elem_sh 'Pedestal vs element ID : SH' bb.sh.adcelemID[I] bb.sh.ped[I] 189 0 189 200 0 200 bb.sh.a_time[I]>0 
-th2d hADCtime_vs_elem_sh 'ADC time vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_time[I] 189 0 189 200 0 200 bb.sh.a_time[I]>0 
+th2d hADCtime_vs_elem_sh 'ADC time vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_time[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
 #th2d hADCamp_vs_elem_sh 'ADC amplitude(mV) vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
 th2d hADCamp_vs_elem_sh 'ADC amplitude(mV) vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 100 0 400 bb.sh.a_time[I]>0 
 #th2d hADCint_vs_elem_sh 'ADC integral(pC) vs element ID : SH' bb.sh.adcelemID[I] bb.sh.a_p[I] 189 0 189 60 0 60 bb.sh.a_time[I]>0 
