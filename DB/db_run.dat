@@ -159,7 +159,8 @@ bb.pcentral = 1.63
 ---------[ 2022-09-01 00:00:00 ] # start of GEN-1 commissioning kinematics at 1-pass:
 
 # beam energy to be refined by HALLA:p once we start up:
-ebeam = 2.1
+# according to HALLA Tiefenback energy we actually have 2.2 GeV at one pass
+ebeam = 2.2056
 
 sbs.theta = 34.7
 sbs.pcentral = 1.6

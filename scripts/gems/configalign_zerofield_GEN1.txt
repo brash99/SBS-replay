@@ -1,0 +1,42 @@
+# list of files:
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1721_stream0_2_seg0_0.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1721_stream0_2_seg1_1.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1721_stream0_2_seg2_2.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1721_stream0_2_seg3_3.root
+#/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1721_stream0_2_seg4_4.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg0_0.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg10_10.root
+#/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg11_11.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg1_1.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg2_2.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg3_3.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg4_4.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg5_5.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg6_6.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg7_7.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg8_8.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1723_stream0_2_seg9_9.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1725_stream0_2_seg0_0.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1725_stream0_2_seg1_1.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1725_stream0_2_seg2_2.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1725_stream0_2_seg3_3.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1725_stream0_2_seg4_4.root
+/adaqfs/home/a-onl/sbs/Rootfiles/e1209016_fullreplay_1725_stream0_2_seg5_5.root
+endlist
+#configuration info:
+prefix bb.gem
+#GEMX0 -0.1614
+GEMX0 -0.206
+GEMY0 0.04
+GEMZ0 2.784
+# from survey:
+XOFFSIEVE 0.00381
+YOFFSIEVE -0.00135
+#GEMtheta 10.22
+GEMtheta 8.8
+GEMphi 180.0
+ZSIEVE 1.27
+endconfig
+# global cut:
+bb.gem.track.ntrack==1&&bb.gem.track.chi2ndf<30.&&bb.ps.e>=0.15&&bb.ps.e+bb.sh.e>=0.5&&bb.gem.track.nhits>3&&abs(bb.tr.tg_y-0.003)<=0.04
+endcut

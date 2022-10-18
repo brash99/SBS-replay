@@ -10,8 +10,8 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   TString detname="sbs.gem";
   TString detname_nodots;
 
-  int nmodules=12;
-  int nlayers=5;
+  int nmodules=30;
+  int nlayers=8;
   
   double maxlayersizeX = 2.2; //meters
   double maxlayersizeY = 0.75; //meters 
@@ -711,10 +711,8 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
     cfg_file << histcfg.Format( "hefficiency_vs_x_%s", modname_nodots[i].Data() ) << endl;
     cfg_file << histcfg.Format( "hefficiency_vs_y_%s", modname_nodots[i].Data() ) << endl;
-    cfg_file << histcfg.Format( "hefficiency_vs_xy_%s -drawopt colz -nostat", modname_nodots[i].Data() ) << endl;
-
-    cfg_file << histcfg.Format("hdidhitxy_%s -drawopt colz -nostat", modname_nodots[i].Data() ) << endl;
-    
+    cfg_file << histcfg.Format( "macro efficiency_hit_map.C(\"hdidhitxy_%s\",\"hshouldhitxy_%s\",%i,1);", modname_nodots[i].Data(),modname_nodots[i].Data(),i ) << endl;
+    cfg_file << histcfg.Format( "hdidhitxy_%s -drawopt colz -nostat", modname_nodots[i].Data() ) << endl;    
     cfg_file << histcfg.Format( "macro efficiency.C(\"hdidhitx_%s\",\"hshouldhitx_%s\",%d);", 
 				modname_nodots[i].Data(), modname_nodots[i].Data(), i ) << endl;
     cfg_file << histcfg.Format( "macro efficiency.C(\"hdidhity_%s\",\"hshouldhity_%s\",%d);", 
@@ -742,6 +740,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
     cfg_file << histcfg.Format( "hefficiency_x_%s_layer%d", detname_nodots.Data(), i ) << endl;
     cfg_file << histcfg.Format( "hefficiency_y_%s_layer%d", detname_nodots.Data(), i ) << endl;
+    cfg_file << histcfg.Format("macro efficiency_hit_map.C(\"hdidhit_xy_%s_layer%i\",\"hshouldhit_xy_%s_layer%i\",%i);",detname_nodots.Data(), i, detname_nodots.Data(), i, i ) << endl;
     cfg_file << histcfg.Format( "hefficiency_xy_%s_layer%d -drawopt colz -nostat", detname_nodots.Data(), i ) << endl;
 
 
@@ -771,31 +770,6 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
   int npages = nmodules / max_mod_per_page + 1;
 
 
-  for(int ipage = 0; ipage < npages; ipage ++){
-
-    int start_mod = ipage * max_mod_per_page;
-    int end_mod = nmodules;
-    if(npages > 1 && ipage != npages - 1) end_mod = (ipage + 1) * max_mod_per_page;
-    if(npages > 1 && ipage == npages - 1) end_mod = nmodules;
-
-    int pagediv = int(sqrt(double(end_mod - start_mod)));
-    testdiv=1;
-    while( pagediv*testdiv < end_mod - start_mod ){ testdiv++; }
-    
-    int ndivx = std::max(pagediv,testdiv);
-    int ndivy = std::min(pagediv,testdiv);
-
-    cfg_file << endl;
-    cfg_file << "newpage " << ndivx << " " << ndivy << endl;
-    if(ipage == 0) cfg_file << "title Module average efficiencies" << endl;
-    else cfg_file << "title Module average efficiencies (contd.)" << endl;
-    
-    for( int i=start_mod; i<end_mod; i++ ){
-      cfg_file << histcfg.Format( "macro efficiency.C(\"hdidhitx_%s\",\"hshouldhitx_%s\",%d);",
-				  modname_nodots[i].Data(), modname_nodots[i].Data(), i ) << endl;
-    }
-    cfg_file << endl;
-  }
   
   pagediv = int(sqrt(double(nlayers)));
   testdiv=1; 
@@ -806,9 +780,18 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
 
   cfg_file << endl;
   cfg_file << "newpage " << ndivx << " " << ndivy << endl;
+  cfg_file << "title Module average efficiencies" << endl;
+  for( int i=0; i<nlayers; i++ ){
+    cfg_file << histcfg.Format("macro efficiency_hit_map.C(\"hdidhit_xy_%s_layer%i\",\"hshouldhit_xy_%s_layer%i\",%i);",detname_nodots.Data(),i,detname_nodots.Data(),i,i) << endl;
+  }
+  cfg_file << endl;
+
+
+  cfg_file << endl;
+  cfg_file << "newpage " << ndivx << " " << ndivy << endl;
   cfg_file << "title Layer hit maps on good tracks" << endl;
   for( int i=0; i<nlayers; i++ ){
-    cfg_file << histcfg.Format("macro GEM_hit_map.C(%d);",i) << endl;
+    cfg_file << histcfg.Format("macro GEM_hit_map.C(%d,\"%s\");",i,detname.Data()) << endl;
   }
   cfg_file << endl;
   
