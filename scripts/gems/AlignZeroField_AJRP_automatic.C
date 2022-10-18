@@ -21,6 +21,7 @@
 #include "TSystem.h"
 #include "TF1.h"
 #include "TEllipse.h"
+#include "TFitResult.h"
 #include <iostream>
 #include <fstream>
 
@@ -453,36 +454,43 @@ void AlignZeroField( const char *configfilename ){
 
       goodfit_hole[ix][iy] = false;
 
-      if( hxtemp->Integral() >= 50 && hytemp->Integral() >= 50 ){
-
-	while( !goodfit ){
-	  
-	  TLine L;
-	  L.SetLineColor(2);
-	  
-	  cfit->cd(1)->SetGrid();
-	  hxtemp->Draw();
-	  //hxtemp->Fit("gaus","","",xlo,xhi);
-	  hxtemp->GetXaxis()->SetRangeUser(xs_cent[ix]-2.0*xspace,xs_cent[ix]+2.0*xspace);
-	  
+      while( !goodfit ){
+	
+	TLine L;
+	L.SetLineColor(2);
+	
+	cfit->cd(1)->SetGrid();
+	hxtemp->Draw();
+	//hxtemp->Fit("gaus","","",xlo,xhi);
+	hxtemp->GetXaxis()->SetRangeUser(xs_cent[ix]-2.0*xspace,xs_cent[ix]+2.0*xspace);
+	 
+	bool goodx = false, goody = false;
+ 
+	if( hxtemp->Integral(hxtemp->FindBin(xmin_fit),hxtemp->FindBin(xmax_fit)) >= 50 ){
+	  goodx = true;
 	  L.DrawLine( xs_cent[ix], 0, xs_cent[ix], hxtemp->GetMaximum());
 	  
-	  hxtemp->Fit("gaus","","",xmin_fit, xmax_fit);
+	  TFitResultPtr xfit = hxtemp->Fit("gaus","S","",xmin_fit, xmax_fit);
+	  goodx = xfit->IsValid();
+	}
+	cfit->cd(2)->SetGrid();
+	hytemp->Draw();
+	hytemp->GetXaxis()->SetRangeUser(ys_cent[iy]-2.0*yspace,ys_cent[iy]+2.0*yspace);
 	  
-	  cfit->cd(2)->SetGrid();
-	  hytemp->Draw();
-	  hytemp->GetXaxis()->SetRangeUser(ys_cent[iy]-2.0*yspace,ys_cent[iy]+2.0*yspace);
-	  
+	if( hytemp->Integral(hytemp->FindBin(ymin_fit),hytemp->FindBin(ymax_fit)) >= 50 ){
+	  goody = true;
 	  L.DrawLine( ys_cent[iy], 0, ys_cent[iy], hytemp->GetMaximum());
 	  
-	  hytemp->Fit("gaus","","",ymin_fit, ymax_fit);
+	  TFitResultPtr yfit = hytemp->Fit("gaus","S","",ymin_fit, ymax_fit);
+	  goody = yfit->IsValid();
+	}
+	cfit->cd(3)->SetGrid();
+	hxysieve->Draw("colz");
 	  
-	  cfit->cd(3)->SetGrid();
-	  hxysieve->Draw("colz");
+	L.DrawLine( ys_cent[iy],-0.4,ys_cent[iy], 0.4);
+	L.DrawLine( -0.2, xs_cent[ix], 0.2, xs_cent[ix] );
 	  
-	  L.DrawLine( ys_cent[iy],-0.4,ys_cent[iy], 0.4);
-	  L.DrawLine( -0.2, xs_cent[ix], 0.2, xs_cent[ix] );
-	  
+	if( goodx && goody ){
 	  double xfit = ( (TF1*) hxtemp->GetListOfFunctions()->FindObject("gaus") )->GetParameter("Mean");
 	  double yfit = ( (TF1*) hytemp->GetListOfFunctions()->FindObject("gaus") )->GetParameter("Mean");
 	  
@@ -505,7 +513,7 @@ void AlignZeroField( const char *configfilename ){
 	  ymean_hole[ix][iy] = yfit;
 	  xsigma_hole[ix][iy] = xsigma;
 	  ysigma_hole[ix][iy] = ysigma;
-	  
+ 
 	  cout << "Fit okay? (y/n/s = skip)";
 	  
 	  TString reply;
@@ -540,6 +548,10 @@ void AlignZeroField( const char *configfilename ){
 	    goodfit = true;
 	    skiphole = false;
 	  }
+	} else {
+	  goodfit = true;
+	  skiphole = true;
+	  
 	}
       }
 

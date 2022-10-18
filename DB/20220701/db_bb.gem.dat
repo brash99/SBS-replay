@@ -39,6 +39,7 @@ bb.gem.m7.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 2 # 0 = sorting, 1 = "Danning method", 2 = histogramming method cm subtraction
+bb.gem.commonmode_online_flag = 4 # 3 = Danning method during GMn, 4 = Danning method during GEn
 # commenting out definition of cm flags channel
 #bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 28
@@ -47,7 +48,7 @@ bb.gem.commonmode_niter = 3
 bb.gem.commonmode_minstrips = 20
 bb.gem.plot_common_mode = 1
 bb.gem.pedsub_online = 1 # normally this should always be set to 1
-bb.gem.dump_geometry_info = 0
+bb.gem.dump_geometry_info = 1
 bb.gem.efficiency_bin_width_1D = 0.02
 bb.gem.efficiency_bin_width_2D = 0.02
 bb.gem.commonmode_range_nsigma = 5.0
@@ -635,7 +636,7 @@ bb.gem.useopticsconstraint = 0
 
 bb.gem.sigmahitpos = 0.00015
 bb.gem.do_efficiencies = 1
-bb.gem.dump_geometry_info = 0
+bb.gem.dump_geometry_info = 1
 
 bb.gem.efficiency_bin_width_1D = 0.02
 bb.gem.efficiency_bin_width_2D = 0.04
@@ -663,7 +664,7 @@ bb.gem.ypfp_max = 0.15
 
 bb.gem.pedsub_online = 1  #special run where full readout was done
 bb.gem.suppressfirstlast = 0
-bb.gem.useconstraint = 0
+bb.gem.useconstraint = 1
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
 
@@ -707,6 +708,26 @@ bb.gem.m6.angle =     -0.01938281      -0.2853453      -0.2736628
 bb.gem.m7.position =       0.7709555     -0.01183456        1.536362
 bb.gem.m7.angle =      -0.2720498      -0.0815385      -0.2664114
 
+
+--------[ 2022-10-09 16:00:00 ] # First beam with GEn
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001813287     -0.01148825       0.1649284
+bb.gem.m1.angle =     -0.01337377      0.03778753      0.05843874
+bb.gem.m2.position =    -0.007336263     0.006543051       0.2789751
+bb.gem.m2.angle =      0.05703568      0.02887926       -0.300589
+bb.gem.m3.position =    -0.008889876     0.004795453       0.4570474
+bb.gem.m3.angle =      0.08164018      0.06866334       -0.458511
+bb.gem.m4.position =      -0.7641923     0.001900159        1.575263
+bb.gem.m4.angle =     -0.09707593      -0.1777915      -0.3084363
+bb.gem.m5.position =      -0.2523488    -0.002388624        1.534548
+bb.gem.m5.angle =       -0.142905    -0.008593625      -0.3037286
+bb.gem.m6.position =       0.2586028    -0.008230969        1.577708
+bb.gem.m6.angle =      -0.0146093      0.02256499      -0.2596993
+bb.gem.m7.position =       0.7705939     -0.01191207        1.535826
+bb.gem.m7.angle =      -0.1138798       0.2948534      -0.3205358
+
+
 #################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
 
 #################### BEGIN TIME-DEPENDENT GAIN MATCH PARAMETERS ##############################
@@ -735,4 +756,14 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run1224.dat
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run1653.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run1653.dat
 
+--------[ 2022-10-07 14:00:00 ] # new pedestal after some APVs have been fixed
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run1670.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run1670.dat
+
+
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
+
+
+bb.gem.suppressfirstlast=-1
+
+bb.gem.m5.suppressfirstlast=0

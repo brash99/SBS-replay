@@ -3,9 +3,9 @@
 
 ## track constraint widths:
 sbs.frontconstraintwidth_x = 0.75 # m
-sbs.frontconstraintwidth_y = 0.20 # m
-sbs.backconstraintwidth_x = 0.30 # m
-sbs.backconstraintwidth_y = 0.30 # m
+sbs.frontconstraintwidth_y = 0.25 # m
+sbs.backconstraintwidth_x = 0.6 # m
+sbs.backconstraintwidth_y = 0.6 # m
 sbs.backconstraint_x0 = 0.0 
 sbs.backconstraint_y0 = 0.0
 sbs.frontconstraint_x0 = 0.0
@@ -89,3 +89,4 @@ sbs.optics_parameters =
   1.5618654e-15   -9.90699e-16  4.0941642e-15 -4.1829097e-16  0 0 1 0 1
   5.1697134e-16  1.2310463e-16 -8.6493022e-16 -5.9245231e-16  0 0 0 1 1
   4.5944684e-16  6.6524697e-17  2.8352903e-16 -9.1314535e-16  0 0 0 0 2
+

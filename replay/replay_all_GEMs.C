@@ -7,8 +7,7 @@
 #include "TClonesArray.h"
 
 #include "THaEvData.h"
-#include "THaEvent.h"
-#include "THaRun.h"
+#include "MultiFileRun.h"
 #include "THaAnalyzer.h"
 #include "THaVarList.h"
 #include "THaInterface.h"
@@ -30,7 +29,8 @@
 #include "LHRSScalerEvtHandler.h"
 #include "SBSScalerEvtHandler.h"
 
-void replay_all_GEMs( int runnum=220, int firstsegment=0, int maxsegments=1, const char *fname_prefix="e1209019", long firstevent=0, long nevents=-1, int pedestalmode=0 ){
+void replay_all_GEMs(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1209016", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1, Int_t usesbsgems=1)
+{
 
   //  gSystem->Load("libsbs.so");
 
@@ -110,142 +110,94 @@ void replay_all_GEMs( int runnum=220, int firstsegment=0, int maxsegments=1, con
   // A simple event class to be output to the resulting tree.
   // Creating your own descendant of THaEvent is one way of
   // defining and controlling the output.
-  THaEvent* event = new THaEvent;
+ TString prefix = gSystem->Getenv("DATA_DIR");
 
-  TString prefix = gSystem->Getenv("DATA_DIR");
-  
-  bool segmentexists = true;
-  int segment=firstsegment; 
+  vector<string> pathlist;
+  if( !prefix.IsNull() )
+    pathlist.push_back( prefix.Data() );
 
-  int lastsegment=firstsegment;
-  
-  TClonesArray *filelist = new TClonesArray("THaRun",10);
-
-  TDatime now = TDatime();
-  
-  vector<TString> pathlist;
-  pathlist.push_back( prefix );
-
-  if( prefix != "/adaqeb1/data1" )
-    pathlist.push_back( "/adaqeb1/data1" );
+  if( prefix != "/adaqeb[1-3]/data1" )
+    pathlist.push_back( "/adaqeb[1-3]/data1" );
 
   if( prefix != "/adaq1/data1/sbs" )
     pathlist.push_back( "/adaq1/data1/sbs" );
 
+  // Do not use wildcard filenames with this directory
   if( prefix != "/cache/mss/halla/sbs/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/raw" );
 
-  for( int i=0; i<pathlist.size(); i++ ){
-    cout << "search paths = " << pathlist[i] << endl;
+  if( prefix != "/cache/mss/halla/sbs/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/GEnII/raw" );
+
+  for( const auto& path: pathlist ) {
+    cout << "search paths = " << path << endl;
   }
 
-  TDatime RunDate = TDatime(); 
-
-  int max1 = maxsegments;
-
-  int segcounter=0;
-  //New: Always add first segment even if not included in request:
-  // if( firstsegment > 0 ){
-  //   TString codafilename;
-  //   codafilename.Form( "%s_%d.evio.%d.%d", fname_prefix, runnum, stream, 0 );
-    
-  //   TString ftest(fname_prefix);
-
-  //   if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
-  //     codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, 0 );
-  //   }
-
-  //   new( (THaRun*) (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
-
-  //   ( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
-  //   //( (THaRun*) (*filelist)[segcounter] )->Init();
-  //   //Not sure if we need to call Init()
-  //   ( (THaRun*) (*filelist)[segcounter] )->Init();
-  //   RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
-
-  //   segcounter++;
-  //   max1++;
-  // }
   
-  //This loop adds all file segments found to the list of THaRuns to process:
-  while( segcounter < max1 && segment - firstsegment < maxsegments ){
+  TString ftest(fname_prefix);
+  bool test_data = ( ftest == "bbgem" || ftest == "e1209019_trigtest" );
 
-    TString codafilename;
-    //codafilename.Form( "%s/bbgem_%d.evio.%d", prefix.Data(), runnum, segment );
-    codafilename.Form("%s_%d.evio.%d.%d", fname_prefix, runnum, stream, segment );
-
-    TString ftest(fname_prefix);
-    if( ftest == "bbgem" || ftest == "e1209019_trigtest" ){
-      codafilename.Form("%s_%d.evio.%d", fname_prefix, runnum, segment );
+  // Build list of files we'd like to analyze. These are candidates. If some of them
+  // do not exist, they will be quietly skipped by the MultiFileRun class. A list of
+  // the actually found files will be printed during initialization.
+  vector<string> filenames;
+  Int_t actual_maxstream = test_data ? 0 : maxstream;
+  for( Int_t istream = 0; istream <= actual_maxstream; ++istream ) {
+    for( UInt_t iseg = 0; iseg < maxsegments; ++iseg ) {
+      TString codafilename;
+      if( test_data )
+	codafilename.Form("%s_%u.evio.%u", fname_prefix, runnum, istream);
+      else
+	codafilename.Form("%s_%u.evio.%d.%u", fname_prefix, runnum, istream, iseg);
+      cout << "codafilename = " << codafilename << endl;
+      filenames.emplace_back(codafilename.Data());
     }
-
-    segmentexists = false;
-
-    cout << "codafilename = " << codafilename << endl;
-
-    for( int ipath=0; ipath<pathlist.size(); ipath++ ){
-      TString searchname;
-      searchname.Form( "%s/%s", pathlist[ipath].Data(), codafilename.Data() );
-      
-      if( !gSystem->AccessPathName( searchname.Data() ) ){
-	segmentexists = true;
-	break;
-      }
-    }
-   
-    if( segmentexists ){
-      new( (*filelist)[segcounter] ) THaRun( pathlist, codafilename.Data(), "GMN run" );
-      cout << "Added segment " << segment << ", CODA file name = " << codafilename << endl;
-
-      //( (THaRun*) (*filelist)[segcounter] )->SetDate( now );
-
-      //if( stream == 0 && segment == 0 ){
-      //( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
-      //( (THaRun*) (*filelist)[segcounter] )->Init();
-
-      //RunDate = ( (THaRun*) (*filelist)[segcounter] )->GetDate();
-      //} else {
-      //	( (THaRun*) (*filelist)[segcounter] )->SetDataRequired(0);
-
-      //cout << "Warning: setting date to " << RunDate.AsString() << " for stream " << stream << " segment " << segment 
-      //     << endl; 
-
-      //	( (THaRun*) (*filelist)[segcounter] )->SetDate(RunDate);
-      //	( (THaRun*) (*filelist)[segcounter] )->SetNumber(UInt_t(runnum));
-      //}
-      //( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
-      //( (THaRun*) (*filelist)[segcounter] )->Init();
-    } // else {
-    //   THaRun *rtemp = ( (THaRun*) (*filelist)[segcounter-1] ); //make otherwise identical copy of previous run in all respects except coda file name:
-    //   new( (*filelist)[segcounter] ) THaRun( *rtemp );
-    //   ( (THaRun*) (*filelist)[segcounter] )->SetFilename( codafilename.Data() );
-    //   ( (THaRun*) (*filelist)[segcounter] )->SetNumber( runnum );
-    //   cout << "Added segment " << segcounter << ", CODA file name = " << codafilename << endl;
-    // }
-    if( segmentexists ){
-      segcounter++;
-      lastsegment = segment;
-    }
-    segment++;
+  }
+  if( filenames.empty() ) {
+    cout << "No files. Check your parameters." << endl;
+    return;
   }
 
-  cout << "n segments to analyze = " << segcounter << endl;
+  auto* run = new Podd::MultiFileRun(pathlist, filenames);
+  run->SetFirstSegment(firstsegment);  // Starting segment number
+  run->SetMaxSegments(maxsegments);    // Number of segments
+  run->SetMaxStreams(maxstream+1);  // Number of streams
+
+  // Count physics events sequentially, i.e. always starting at 1, for each invocation of
+  // analyzer->Process(). This count will be compared to the run's event range, so it
+  // can be specified independently of absolute event numbers. This is relevant if
+  // the analysis starts with a segment > 0. Actual (raw, CODA) physics event numbers
+  // will then start with some largish number (the first event number in the continuation
+  // segment), but the analyzer's count will still start at 1 for that analysis,
+  // so you can give the run an event range of, say, 1-50000 to analyze 50k events,
+  // regardless of what segments are being replayed. The event header written for each
+  // entry in the output ROOT tree does contain the actual CODA event number, which is
+  // what you usually want for analysis.
+
+  analyzer->SetCountMode(THaAnalyzer::kCountPhysics);
+
+  if( nevents > 0 ) run->SetLastEvent(firstevent+nevents-1);
+  run->SetFirstEvent( firstevent );
+  run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
+  Int_t st = run->Init();
+  if( st != THaRunBase::READ_OK ) {
+    cerr << "========= Error initializing run" << endl;
+    return;
+  }
+
+  cout << "n segments to analyze = " << run->GetNFiles() << endl;
 
   prefix = gSystem->Getenv("OUT_DIR");
 
   TString outfilename;
-  outfilename.Form( "%s/gem_replayed_%d_stream%d_seg%d_%d.root", prefix.Data(), runnum,
-		    stream, firstsegment, lastsegment );
-
-  // Define the run(s) that we want to analyze.
-  // We just set up one, but this could be many.
-  //  THaRun* run = new THaRun( "prod12_4100V_TrigRate25_4.dat" );
-  //THaRun* run = new THaRun( "5GEM_sample.dat" );
-  //THaRun* run = new THaRun( "/Users/puckett/WORK/GEM_ALIGNMENT/RAWDATA/gem_cleanroom_2811.evio.31" );
-  //THaRun* run = new THaRun( codafilename.Data() );
-  //THaRun* run = new THaRun( "/Users/puckett/WORK/GEM_ALIGNMENT/RAWDATA/gem_cleanroom_2805.evio.0" );
-
-  
+  UInt_t lastsegment = run->GetLastSegment();
+  if( nevents > 0 ){
+    outfilename.Form( "%s/%s_replayed_%u_stream%d_%d_seg%u_%u_firstevent%ld_nevent%ld.root", prefix.Data(), fname_prefix, runnum,
+		      0, maxstream, firstsegment, lastsegment, firstevent, nevents );
+  } else {
+    outfilename.Form( "%s/%s_fullreplay_%u_stream%d_%d_seg%u_%u.root", prefix.Data(), fname_prefix, runnum,
+		      0, maxstream, firstsegment, lastsegment );
+  }
 
   analyzer->SetVerbosity(2);
   analyzer->SetMarkInterval(100);
@@ -253,8 +205,7 @@ void replay_all_GEMs( int runnum=220, int firstsegment=0, int maxsegments=1, con
   analyzer->EnableBenchmarks();
   
   // Define the analysis parameters
-  analyzer->SetEvent( event );
-  analyzer->SetOutFile( outfilename.Data() );
+    analyzer->SetOutFile( outfilename.Data() );
   // File to record cuts accounting information
   analyzer->SetSummaryFile("replay_BBGEM.log"); // optional
 
@@ -268,25 +219,11 @@ void replay_all_GEMs( int runnum=220, int firstsegment=0, int maxsegments=1, con
   analyzer->SetOdefFile( odef_filename );
   
   //analyzer->SetCompressionLevel(0); // turn off compression
-
-  filelist->Compress();
-
-  for( int iseg=0; iseg<filelist->GetEntries(); iseg++ ){
-    THaRun *run = ( (THaRun*) (*filelist)[iseg] );
-
-    run->Init();
-
-    if( nevents > 0 ) run->SetLastEvent(nevents); //not sure if this will work as we want it to for multiple file segments chained together
-
-    run->SetFirstEvent( firstevent );
-    
-    run->SetDataRequired(THaRunBase::kDate|THaRunBase::kRunNumber);
-
-    // run->SetDataRequired(0);
-    // run->SetDate(now);
-    
-    if( run->GetSegment() >= firstsegment && run->GetSegment() - firstsegment < maxsegments ){
-      analyzer->Process(run);     // start the actual analysis
-    }
+  
+  st = analyzer->Init(run);
+  if( st != 0 ) {
+    cerr << "========= Error initializing analyzer" << endl;
+    return;
   }
+  analyzer->Process(run);     // start the actual analysis
 }
