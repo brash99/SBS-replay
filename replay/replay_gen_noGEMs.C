@@ -41,7 +41,7 @@
 
 using namespace std;
 
-void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1209016", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1, Int_t usesbsgems=1, Int_t usebbgems=1)
+void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1209016", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1, Int_t usesbsgems=1)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -107,7 +107,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   //this will override the database setting:
   bbgem->SetPedestalMode( pm );
   bbgem->SetMakeCommonModePlots( cmplots );
-  if (usebbgems != 0 ) bigbite->AddDetector(bbgem);
+  //  bigbite->AddDetector(bbgem);
   gHaApps->Add(bigbite);
 
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
@@ -122,10 +122,10 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   sbstrig->SetStoreEmptyElements(kFALSE);
   harm->AddDetector( sbstrig );
 
-    SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gem", "Super BigBite Hall A GEM data");
+  SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gem", "Super BigBite Hall A GEM data");
   sbsgem->SetPedestalMode( pm );
   sbsgem->SetMakeCommonModePlots( cmplots );
-  if (usesbsgems != 0 ) harm->AddDetector(sbsgem); 
+  //if (usesbsgems != 0 ) harm->AddDetector(sbsgem);
 
   gHaApps->Add(harm);
 

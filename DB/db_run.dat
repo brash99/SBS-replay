@@ -174,11 +174,11 @@ bb.pcentral = 1.22
 # to be refined from survey results later
 bb.magdist = 1.63
 
----------[ 2022-10-14 20:00:00 ] # start of GEN-1 commissioning kinematics at 1-pass:
+---------[ 2022-10-14 20:00:00 ] # start of GEN-2 commissioning kinematics at 2-pass:
 
 # beam energy to be refined by HALLA:p once we start up:
 # according to HALLA Tiefenback energy we actually have 2.2 GeV at one pass
-ebeam = 2.2056
+ebeam = 4.291
 
 sbs.theta = 34.7
 sbs.pcentral = 1.6
