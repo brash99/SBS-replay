@@ -239,3 +239,7 @@ bb.grinch_tdc.ypos =
 --------[ 2022-04-01 00:00:00 ]
 bb.grinch_tdc.tdc.offset = 0.0
 bb.grinch_tdc.tdc.GoodTimeCut = 900
+
+--------[ 2022-10-10 00:00:00 ]
+bb.grinch_tdc.tdc.offset = 0.0
+bb.grinch_tdc.tdc.GoodTimeCut = 200
