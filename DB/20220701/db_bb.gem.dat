@@ -633,6 +633,7 @@ bb.gem.trackchi2cut = 30.0
 bb.gem.useconstraint = 0
 bb.gem.useslopeconstraint = 0
 bb.gem.useopticsconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.sigmahitpos = 0.00015
 bb.gem.do_efficiencies = 1
