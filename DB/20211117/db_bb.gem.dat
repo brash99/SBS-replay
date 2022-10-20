@@ -48,6 +48,8 @@ bb.gem.m11.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 2 # 1 = Danning, 0 = sorting, 2 = histogramming
+bb.gem.commonmode_online_flag = 3 # 3 = Danning method during GMn, 4 = Danning \
+method during GEn
 # commenting this out as we can use the new default value of 640
 #bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 28
@@ -467,6 +469,7 @@ bb.gem.gridedgetolerancey = 0.003
 bb.gem.useconstraint = 1
 
 bb.gem.useopticsconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
 bb.gem.xptar_min = -0.25
 bb.gem.xptar_max = 0.25
 bb.gem.yptar_min = -0.08
@@ -1580,6 +1583,8 @@ bb.gem.m11.maxstrip_tcut =     23.8
 
 ##################### START WITH PARAMETERS THAT AREN'T EXPECTED TO CHANGE OFTEN #####################
 
+
+
 bb.gem.modules = m0   m1 m2 m3    m4    m5     m6 m7 m8 m9
 
 bb.gem.m0.layer = 0
@@ -2302,6 +2307,7 @@ bb.gem.trackchi2cut = 40.0
 bb.gem.useconstraint = 0
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.do_efficiencies = 1
 bb.gem.dump_geometry_info = 0 # turn this off if we are not using this run to do a new alignment!
@@ -2585,6 +2591,4 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run13089.dat
 
 #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
 
-
-=======
 # END of "V2" database

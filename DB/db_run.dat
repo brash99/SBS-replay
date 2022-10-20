@@ -174,3 +174,20 @@ bb.pcentral = 1.22
 # to be refined from survey results later
 bb.magdist = 1.63
 
+---------[ 2022-10-14 20:00:00 ] # start of GEN-2 commissioning kinematics at 2-pass:
+
+# beam energy to be refined by HALLA:p once we start up:
+# according to HALLA Tiefenback energy we actually have 2.2 GeV at one pass
+ebeam = 4.291
+
+sbs.theta = 34.7
+sbs.pcentral = 1.6
+# with tracking in SBS we will also need to add sbs magnet distance as a required parameter
+sbs.magdist = 2.80 
+# sbs.hcaldist = 17.0 
+
+bb.theta = 29.5
+bb.pcentral = 2.66
+
+# to be refined from survey results later
+bb.magdist = 1.63
