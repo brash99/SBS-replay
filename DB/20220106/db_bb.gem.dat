@@ -655,7 +655,7 @@ bb.gem.m7.threshold_sample = 103.15
 bb.gem.m7.threshold_stripsum = 495
 bb.gem.m7.threshold_clustersum = 890
 
-
+bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.ADCasym_cut = 0.75 
 bb.gem.deltat_cut = 30.0
@@ -723,7 +723,7 @@ bb.gem.minhitsontrack = 3
 
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 25000
-bb.gem.maxhitcombos_total = 10000000000
+bb.gem.maxhitcombos_total = 10000000000000000
 
 bb.gem.tryfasttrack = 1
 
@@ -817,6 +817,8 @@ bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
 
 ---------[ 2022-01-20 12:00:00 ] # cosmic data during change over
+
+
 
 bb.gem.pedsub_online = 0  #special run where full readout was done
 bb.gem.suppressfirstlast = 0
@@ -929,6 +931,17 @@ bb.xpfp_max = 0.28
 bb.ypfp_min = -0.08
 bb.ypfp_max = 0.08
 
+bb.gem.useforwardopticsconstraint = 1
+bb.gem.dxfp0 = 0
+bb.gem.dyfp0 = 0
+bb.gem.dxpfp0 = 0
+bb.gem.dypfp0 = 0
+
+bb.gem.dxfpcut = 0.004
+bb.gem.dyfpcut = 0.0002
+bb.gem.dxpfpcut = 0.0015
+bb.gem.dypfpcut = 0.0004
+
 --------[ 2022-01-30 17:05:00 ] # Full readout runs for negative pulse study
 
 bb.gem.pedsub_online = 0
@@ -940,6 +953,18 @@ bb.gem.pedsub_online = 1 # normally this should always be set to 1
 bb.gem.suppressfirstlast = -1
 
 -------[ 2022-02-01 12:00:00 ] # at start of SBS-9 kinematics, we need to adjust limits for optics and track slope constraints:
+
+bb.gem.useforwardopticsconstraint = 1
+
+bb.gem.dxfp0 = 0
+bb.gem.dyfp0 = 0
+bb.gem.dxpfp0 = 0
+bb.gem.dypfp0 = 0
+
+bb.gem.dxfpcut = 0.004
+bb.gem.dyfpcut = 0.0002
+bb.gem.dxpfpcut = 0.0015
+bb.gem.dypfpcut = 0.0004
 
 bb.gem.ytar_min = -0.08
 bb.gem.ytar_max = 0.08
