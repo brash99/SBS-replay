@@ -16,7 +16,7 @@ sbs.trig.size   =  0.595 2.295 0.37 # in meters
 ## adc channels to mV assume F250 set fot 2V for 4096
 sbs.trig.adc.conv = 0.4882
 # Threshold for pulse finding in waveform (mV)
-sbs.trig.adc.thres = 9.0 # changed to 9 from 50 to include all adc hits (2022/10/18)
+sbs.trig.adc.thres = 500 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0 9.0   # changed to 9 from 50 to include all adc hits (2022/10/18)
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 sbs.trig.adc.NPedBin = 4
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
