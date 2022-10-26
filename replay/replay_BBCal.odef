@@ -63,7 +63,7 @@ th2d hHEclus_pos_ps 'Position of best cluster in PS' bb.ps.colblk bb.ps.rowblk+1
 th2d hped_vs_elem_sh 'Pedestal vs SH blocks' bb.sh.adcelemID[I] bb.sh.ped[I] 189 0 189 200 0 200 bb.sh.a_time[I]>0 
 th2d hADCtime_vs_elem_sh 'ADC time (ns) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_time[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
 #th2d hADCamp_vs_elem_sh 'ADC amplitude (mV) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 100 0 100 bb.sh.a_time[I]>0 
-th2d hADCamp_vs_elem_sh 'ADC amplitude (mV) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 100 0 400 bb.sh.a_time[I]>0 
+th2d hADCamp_vs_elem_sh 'ADC amplitude (mV) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_amp_p[I] 189 0 189 200 0 700 bb.sh.a_time[I]>0 
 #th2d hADCint_vs_elem_sh 'ADC integral (pC) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_p[I] 189 0 189 60 0 60 bb.sh.a_time[I]>0 
 th2d hADCint_vs_elem_sh 'ADC integral (pC) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_p[I] 189 0 189 100 0 200 bb.sh.a_time[I]>0 
 #th2d hADCeng_vs_elem_sh 'ADC integral (GeV) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_c[I] 189 0 189 100 0 1 bb.sh.a_time[I]>0 
