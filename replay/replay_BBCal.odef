@@ -54,9 +54,9 @@ th2d hADCint_vs_elem_ps 'ADC integral (pC) vs PS blocks' bb.ps.adcelemID[I] bb.p
 th2d hADCeng_vs_elem_ps 'ADC integral (GeV) vs PS blocks' bb.ps.adcelemID[I] bb.ps.a_c[I] 52 0 52 100 0 2 bb.ps.a_time[I]>0 
 th1d helemID_ps 'PS blocks (total 52 of them)' bb.ps.adcelemID[I] 52 0 52 bb.ps.a_time[I]>0
 # Cluster
-th1d hclus_mult_ps 'Cluster multiplicity' bb.ps.nclus 8 0 8 bb.ps.nclus>0&&bb.ps.idblk!=-1
-th1d hHEclus_size_ps 'No. of blocks in best cluster' bb.ps.nblk 12 0 12 bb.ps.nclus>0&&bb.ps.idblk!=-1
-th1d hHEclus_eng_ps 'Energy of the best cluster (GeV)' bb.ps.e 100 0 5 bb.ps.nclus>0&&bb.ps.idblk!=-1
+th1d hclus_mult_ps 'PS cluster multiplicity' bb.ps.nclus 8 0 8 bb.ps.nclus>0&&bb.ps.idblk!=-1
+th1d hHEclus_size_ps 'No. of blocks in best PS cluster' bb.ps.nblk 12 0 12 bb.ps.nclus>0&&bb.ps.idblk!=-1
+th1d hHEclus_eng_ps 'PS cluster energy (GeV)' bb.ps.e 100 0 5 bb.ps.nclus>0&&bb.ps.idblk!=-1
 th2d hHEclus_pos_ps 'Position of best cluster in PS' bb.ps.colblk bb.ps.rowblk+1 2 0 2 26 1 27 bb.ps.nclus>0&&bb.ps.idblk!=-1 
 
 ## SH
@@ -70,15 +70,15 @@ th2d hADCint_vs_elem_sh 'ADC integral (pC) vs SH blocks' bb.sh.adcelemID[I] bb.s
 th2d hADCeng_vs_elem_sh 'ADC integral (GeV) vs SH blocks' bb.sh.adcelemID[I] bb.sh.a_c[I] 189 0 189 100 0 2 bb.sh.a_time[I]>0 
 th1d helemID_sh 'SH blocks (total 189 of them)' bb.sh.adcelemID[I] 189 0 189 bb.sh.a_time[I]>0
 # Cluster
-th1d hclus_mult_sh 'Cluster multiplicity' bb.sh.nclus 12 0 12 bb.sh.nclus>0
-th1d hHEclus_size_sh 'No. of blocks in best cluster' bb.sh.nblk 12 0 12 bb.sh.nclus>0
-th1d hHEclus_eng_sh 'Energy of the best cluster (GeV)' bb.sh.e 100 0 5 bb.sh.nclus>0
+th1d hclus_mult_sh 'SH cluster multiplicity' bb.sh.nclus 12 0 12 bb.sh.nclus>0
+th1d hHEclus_size_sh 'No. of blocks in best SH cluster' bb.sh.nblk 12 0 12 bb.sh.nclus>0
+th1d hHEclus_eng_sh 'SH cluster energy (GeV)' bb.sh.e 100 0 5 bb.sh.nclus>0
 th2d hHEclus_pos_sh 'Position of best cluster in SH' bb.sh.colblk+1 bb.sh.rowblk+1 7 1 8 27 1 28 bb.sh.nclus>0
 
 ## PS+SH Cluster
 th1d htotalClus_eng 'SH+PS Cluster Eng. (GeV)' bb.ps.e+bb.sh.e 100 0 5 bb.sh.nclus>0&&bb.ps.nclus>0&&bb.ps.idblk!=-1
-th2d hHEclus_cor_sh_ps 'PS Cluster Eng. vs SH Cluster Eng (GeV).' bb.sh.e bb.ps.e 100 0 5 100 0 5 bb.sh.nclus>0&&bb.ps.nclus>0
-th2d hps_shPlusps_e 'PS Cluster Eng. vs SH+PS Cluster Eng (GeV).' bb.ps.e+bb.sh.e bb.ps.e 100 0 3 100 0 1.5 bb.sh.nclus>0&&bb.ps.nclus>0
+th2d hHEclus_cor_sh_ps 'PS vs SH Cluster Eng (GeV).' bb.sh.e bb.ps.e 100 0 5 100 0 5 bb.sh.nclus>0&&bb.ps.nclus>0
+th2d hps_shPlusps_e 'PS vs SH+PS Cluster Eng (GeV).' bb.ps.e+bb.sh.e bb.ps.e 100 0 3 100 0 1.5 bb.sh.nclus>0&&bb.ps.nclus>0
 
 ## BBCal Resolution
 #th1d hbbcal_res 'BBCal_eng/tr_p : No cut' (bb.sh.e[I]+bb.ps.e[I])/bb.tr.p[I] 100 0 2
