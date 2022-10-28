@@ -74,6 +74,11 @@ void bbcal_corr_plots() {
   padptr->cd(4);
   //gStyle->SetOptStat(1100);
   h_coin->Draw();
+  double maxcount = h_coin->GetBinContent(h_coin->GetMaximumBin());
+  // draw lines to indicate the safe region of coincidence peak
+  TLine lb, lf;
+  lb.SetLineColor(2); lb.SetLineWidth(2); lb.SetLineStyle(9); lb.DrawLine(460,0,460,maxcount);
+  lf.SetLineColor(2); lf.SetLineWidth(2); lf.SetLineStyle(9); lf.DrawLine(580,0,580,maxcount);
 
   padptr->cd(5);
   gStyle->SetOptStat(0);
