@@ -633,6 +633,7 @@ bb.gem.trackchi2cut = 30.0
 bb.gem.useconstraint = 0
 bb.gem.useslopeconstraint = 0
 bb.gem.useopticsconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.sigmahitpos = 0.00015
 bb.gem.do_efficiencies = 1
@@ -642,24 +643,25 @@ bb.gem.efficiency_bin_width_1D = 0.02
 bb.gem.efficiency_bin_width_2D = 0.04
 
 # these should probably be tighter later on:
-bb.gem.xptar_min = -0.3
-bb.gem.xptar_max = 0.3
+bb.gem.xptar_min = -0.35
+bb.gem.xptar_max = 0.35
 
-bb.gem.yptar_min = -0.15
-bb.gem.yptar_max = 0.15
+bb.gem.yptar_min = -0.16
+bb.gem.yptar_max = 0.16
 
 # be careful with these, they are angle-dependent:
-bb.gem.ytar_min = -0.3
-bb.gem.ytar_max = 0.3
+bb.gem.ytar_min = -0.45
+bb.gem.ytar_max = 0.45
 
 # In all of the SBS-GEN experiment, the maximum electron momentum should be around 4-4.5 GeV:
-bb.gem.pmin = 0.8
-bb.gem.pmax = 4.5
+# the values below are applicable to GEN-2 kinematics:
+bb.gem.pmin = 0.6
+bb.gem.pmax = 3.5
 
-bb.gem.xpfp_min = -0.4
-bb.gem.xpfp_max = 0.4
-bb.gem.ypfp_min = -0.15
-bb.gem.ypfp_max = 0.15
+bb.gem.xpfp_min = -0.3
+bb.gem.xpfp_max = 0.3
+bb.gem.ypfp_min = -0.16
+bb.gem.ypfp_max = 0.16
 
 
 bb.gem.pedsub_online = 1  #special run where full readout was done
@@ -800,3 +802,23 @@ bb.gem.addstrip_ccor_cut = -1.1
 
 bb.gem.m1.suppressfirstlast = 0
 bb.gem.m1.maxstrip_tcut = 85.0
+
+-------[ 2022-10-14 20:00:00 ] # start GEN-2 kinematics
+
+bb.gem.useopticsconstraint = 1
+bb.gem.useslopeconstraint = 1
+
+bb.gem.constraintwidth_theta = 0.04
+bb.gem.constraintwidth_phi = 0.06
+
+bb.gem.useforwardopticsconstraint = 1
+bb.gem.dxfp0 = 0
+bb.gem.dyfp0 = 0
+bb.gem.dxpfp0 = 0
+bb.gem.dypfp0 = 0
+
+bb.gem.dxfpcut = 0.01
+bb.gem.dyfpcut = 0.002
+bb.gem.dxpfpcut = 0.004
+bb.gem.dypfpcut = 0.001
+

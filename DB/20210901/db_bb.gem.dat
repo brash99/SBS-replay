@@ -469,6 +469,7 @@ bb.gem.gridedgetolerancey = 0.003
 bb.gem.useconstraint = 1
 
 bb.gem.useopticsconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
 bb.gem.xptar_min = -0.25
 bb.gem.xptar_max = 0.25
 bb.gem.yptar_min = -0.08

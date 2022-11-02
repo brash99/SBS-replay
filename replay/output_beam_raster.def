@@ -220,3 +220,16 @@ TH1F targ_y 'y at target [mm]' targy 4000 -5. 5.
 
 # TH2F col_xy 'Postion at collimator [mm]' colx coly 4000 -5. 5. 4000 -5. 5.
 TH2F targ_xy 'Postion at target [mm]' targx targy 4000 -5. 5. 4000 -5. 5.
+
+
+FORMULA hel         scalhel.hel
+FORMULA tsettle     scalhel.lhrs.fadc.tsettle>60000
+FORMULA fadc_hel    scalhel.lhrs.fadc.hel
+FORMULA fadc_patsync    scalhel.lhrs.fadc.pat
+FORMULA fadc_tsettle    scalhel.lhrs.fadc.tsettle
+FORMULA errcode     scalhel.errcode
+FORMULA mps_number  scalhel.evtcount
+FORMULA qrt_number  scalhel.patcount
+FORMULA patphase    scalhel.patphase
+FORMULA seed        scalhel.seed
+
