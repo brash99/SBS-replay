@@ -9,7 +9,7 @@ void hcal_trigAtime(){
   Double_t bb_sh_nclus = 0., sbs_hcal_nclus = 0.;
   Double_t sbs_trig_a_time[11] = {0.}, sbs_trig_adcelemID[11] = {0.};
 
-  TH1D *h1_hcal_trigAtime = new TH1D("h1_hcal_trigAtime","HCal Trigger ADC Time; ns", 150, 100, 250);
+  TH1D *h1_hcal_trigAtime = new TH1D("h1_hcal_trigAtime","HCal Trigger ADC Time; ns", 200, 50, 250);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
