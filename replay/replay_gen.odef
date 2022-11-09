@@ -22,6 +22,12 @@ block g.*
 
 begin epics
 HALLA:p
+hac_bcm_average
+IPM1H04A.XPOS
+IPM1H04A.YPOS
+IPM1H04B.XPOS
+IPM1H04B.YPOS
+IGL1I00OD16_16 IN=1 OUT=-1
 end epics
 
 #begin epics

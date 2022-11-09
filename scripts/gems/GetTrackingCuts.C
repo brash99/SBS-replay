@@ -29,7 +29,7 @@ void GetTrackingCuts( const char *rootfilename, const char *outfilename="GMNtrac
   
   //ROOT::RDataFrame F(*C);
 
-  TCut global_cut =  "bb.tr.n==1&&abs(bb.tr.vz[0])<0.08&&bb.gem.track.chi2ndf[0]<10&&bb.gem.track.nhits[0]>3&&bb.ps.e>0.25&&abs(bb.etot_over_p-1.)<0.25";
+  TCut global_cut =  "bb.tr.n==1&&abs(bb.tr.vz[0])<0.5&&bb.gem.track.chi2ndf[0]<10&&bb.gem.track.nhits[0]>3&&bb.ps.e>0.2&&abs(bb.etot_over_p-1.)<0.25";
   
   //TCut global_cut = "bb.tr.n==1&&abs(bb.tr.vz)<0.08&&bb.gem.track.chi2ndf<10&&bb.gem.track.nhits>3&&bb.ps.e>0.25&&abs(bb.etot_over_p-1.)<0.25";
 
@@ -38,6 +38,8 @@ void GetTrackingCuts( const char *rootfilename, const char *outfilename="GMNtrac
   T->Draw(">>elist",global_cut);
 
   T->SetEventList(elist);
+
+  cout << "number of events passing global cut = " << elist->GetN() << endl;
   
   TFile *fout = new TFile( outfilename, "RECREATE" );
   
@@ -102,42 +104,51 @@ void GetTrackingCuts( const char *rootfilename, const char *outfilename="GMNtrac
     TH1D *htemp;
     fin->GetObject( histname.Data(), htemp );
 
-    int binmax = htemp->GetMaximumBin();
-    double max = htemp->GetBinContent(binmax);
-
-    int binlow=binmax, binhigh=binmax;
-
-    while( htemp->GetBinContent(binlow) >= 0.4*max && binlow > 1 ){binlow--;}
-    while( htemp->GetBinContent(binhigh) >= 0.4*max && binhigh < htemp->GetNbinsX() ){binhigh++; }
-
     double sigmaU = 20.0, sigmaV = 20.0;
-    
-    if( htemp->GetEntries() >= 100 ){
-      htemp->Fit("gaus", "", "", htemp->GetBinCenter(binlow), htemp->GetBinCenter(binhigh) );
 
-      sigmaU = ( ( (TF1*) htemp->GetListOfFunctions()->FindObject("gaus") ) )->GetParameter("Sigma");
+    int binlow, binhigh, binmax;
+
+    if( htemp ){
+
+      binmax = htemp->GetMaximumBin();
+      double max = htemp->GetBinContent(binmax);
+
+      binlow=binmax;
+      binhigh=binmax;
+
+      while( htemp->GetBinContent(binlow) >= 0.4*max && binlow > 1 ){binlow--;}
+      while( htemp->GetBinContent(binhigh) >= 0.4*max && binhigh < htemp->GetNbinsX() ){binhigh++; }
+
+      
+      if( htemp->GetEntries() >= 100 ){
+	htemp->Fit("gaus", "", "", htemp->GetBinCenter(binlow), htemp->GetBinCenter(binhigh) );
+	
+	sigmaU = ( ( (TF1*) htemp->GetListOfFunctions()->FindObject("gaus") ) )->GetParameter("Sigma");
+      }
     }
-    //
+    //}
     histname.Form("hADCpedsubV_allstrips_bb_gem_m%d", imod );
 
     TH1D *htempV;
     fin->GetObject( histname.Data(), htempV );
 
-    binmax = htempV->GetMaximumBin();
-    max = htempV->GetBinContent(binmax);
-
-    binlow=binmax;
-    binhigh=binmax;
-
-    while( htempV->GetBinContent(binlow) >= 0.4*max && binlow > 1 ){binlow--;}
-    while( htempV->GetBinContent(binhigh) >= 0.4*max && binhigh < htempV->GetNbinsX() ){binhigh++; }
-
-    if( htempV->GetEntries() >= 100 ){
-      htempV->Fit("gaus", "", "", htempV->GetBinCenter(binlow), htempV->GetBinCenter(binhigh) );
+    if( htempV ){
       
-      sigmaV = ( (TF1*) (htempV->GetListOfFunctions()->FindObject("gaus") ) )->GetParameter("Sigma");
+      binmax = htempV->GetMaximumBin();
+      double max = htempV->GetBinContent(binmax);
+      
+      binlow=binmax;
+      binhigh=binmax;
+      
+      while( htempV->GetBinContent(binlow) >= 0.4*max && binlow > 1 ){binlow--;}
+      while( htempV->GetBinContent(binhigh) >= 0.4*max && binhigh < htempV->GetNbinsX() ){binhigh++; }
+      
+      if( htempV->GetEntries() >= 100 ){
+	htempV->Fit("gaus", "", "", htempV->GetBinCenter(binlow), htempV->GetBinCenter(binhigh) );
+	
+	sigmaV = ( (TF1*) (htempV->GetListOfFunctions()->FindObject("gaus") ) )->GetParameter("Sigma");
+      }
     }
-    
     double sigma = 0.5*(sigmaU+sigmaV);
     
     threshsamp_module[imod] =  5.0*sigma;

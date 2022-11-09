@@ -22,6 +22,7 @@
 #include "TObjArray.h"
 #include "TObjString.h"
 #include "TGraph.h"
+#include "TStyle.h"
 // bunch of header files that are needed throughout the script
 
 //What is the purpose of each one of these vector variables?
@@ -99,10 +100,12 @@ void chi2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 }
 
 //Need to understand the input parameters. infilename is the file to be used to do the gain match. nmodules probably the told number of modules. fname_stripconfig will have to be modified to reflect the number  of strips of the config present for infilename. How are the rest of the variables determined?
-void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *fname_stripconfig, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4500.0){
+//void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *fname_stripconfig, const char *detname="bb.gem", double chi2cut=100.0, double ADCcut = 1500.0, double target_ADC=4500.0){
+
+void GEM_GainMatch(const char *infilename, int nmodules, const char *fname_stripconfig, const char *detname="bb.gem", double chi2cut=10.0, double ADCcut = 1000.0, double target_ADC=4500.0){
   //convert runnum to a char so that way it can be used in names
-  std::string runnum_temp = std::to_string(runnum);
-  const char *runnum_char = runnum_temp.c_str();
+  //std::string runnum_temp = std::to_string(runnum);
+  //const char *runnum_char = runnum_temp.c_str();
   //cout <<"My number " << runnum_char << endl;
 
   //setups up an input stream for the strip config file
@@ -169,19 +172,19 @@ void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *f
 
   TChain *C = new TChain("T");
 
-  //C->Add( infilename );
+  C->Add( infilename );
   //Do some file name management. This will of course need to change if you get files from not ewertz volatile
-  string input_directory = "/volatile/halla/sbs/ewertz/GMn_replays/rootfiles/Standard/"; 
-  const char *input_directory_char = input_directory.c_str();	
-  //To implement multiple files or that is replay segments use a for loop
-  for(int iseg=0; iseg<=numseg; iseg++){
-    //If the file name format changed this will of course need to change
-    std::string iseg_temp = std::to_string(iseg);
-    const char *iseg_char = iseg_temp.c_str();
-    TString inputfile = Form("%se1209019_fullreplay_%s_stream0_seg%s_%s.root",input_directory_char,runnum_char,iseg_char,iseg_char);
-    //cout << "My name " << inputfile << endl;
-    C->Add(inputfile);
-  }
+  // string input_directory = "/volatile/halla/sbs/ewertz/GMn_replays/rootfiles/Standard/"; 
+  // const char *input_directory_char = input_directory.c_str();	
+  // //To implement multiple files or that is replay segments use a for loop
+  // for(int iseg=0; iseg<=numseg; iseg++){
+  //   //If the file name format changed this will of course need to change
+  //   std::string iseg_temp = std::to_string(iseg);
+  //   const char *iseg_char = iseg_temp.c_str();
+  //   TString inputfile = Form("%se1209019_fullreplay_%s_stream0_seg%s_%s.root",input_directory_char,runnum_char,iseg_char,iseg_char);
+  //   //cout << "My name " << inputfile << endl;
+  //   C->Add(inputfile);
+  // }
 
   C->Print();
   //some variables that are useful, for some reason
@@ -311,7 +314,10 @@ void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *f
   // cout << "done." << endl;
   //Setup the output file name 
   //changed output file name to include run number for file organization
-  TString outfilename = Form("GEM_GainMatch_output/GainRatios_%s_%s.root",detname,runnum_char);
+  //  TString outfilename = Form("GEM_GainMatch_output/GainRatios_%s_%s.root",detname,runnum_char);
+  
+  TString outfilename("GainRatios_temp.root");
+  
   C->SetBranchAddress( branchnames["hit.ADCmaxsampU"].Data(), &(hit_ADCmaxsampU[0]) );
   C->SetBranchAddress( branchnames["hit.ADCmaxsampV"].Data(), &(hit_ADCmaxsampV[0]) );
   C->SetBranchAddress( branchnames["hit.ADCmaxstripU"].Data(), &(hit_ADCmaxstripU[0]) );
@@ -343,8 +349,8 @@ void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *f
 
   ofstream outfile(outfilename.Data());
   //changed output file name to include run number for file organization
-  TString dbfilename;
-  dbfilename.Form( "GEM_GainMatch_output/GEM_GainMatchResults_%s_%s.dat",detname,runnum_char );
+  TString dbfilename("GEM_GainMatchResults_temp.dat");
+  //dbfilename.Form( "GEM_GainMatch_output/GEM_GainMatchResults_%s_%s.dat",detname,runnum_char );
   
   ofstream outfile_db(dbfilename.Data());
   //what is going on here with the nAPVmaxX/Y?
@@ -422,7 +428,7 @@ void GEM_GainMatch(const int runnum, int nmodules,const int numseg,const char *f
     if( NTRACKS == 1 ){
 
       if( trackChi2NDF[itrack] < chi2cut && tracknhits[itrack] > 3 && Epreshower >= 0.25 && abs((Epreshower+Eshower)/track_p[0]-1.)<=0.25 &&
-	  abs(track_vz[0])<0.08 ){
+	  abs(track_vz[0])<0.27 ){
 	int nhits = int(ngoodhits);
 	//	cout << "nhits = " << nhits << endl;
 	
