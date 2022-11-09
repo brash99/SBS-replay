@@ -1051,7 +1051,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     else cfg_file_critical << "title BigBite GEM Time Sample Peaking (good hits) (contd.)" << endl;
     
     for( int i=start_mod; i<end_mod; i++ ){
-      cfg_file_critical << histcfg.Format("h%s_iSampMax_good_CM -nostat", modname_nodots[i].Data() ) << endl;
+      cfg_file_critical << histcfg.Format("h%s_iSampMaxU_good -nostat", modname_nodots[i].Data() ) << endl;
     }
     cfg_file_critical << endl;
   }
@@ -1076,7 +1076,7 @@ void MakeOdef_and_cfg_files( const char *configfilename ){
     else cfg_file_critical << "title BigBite GEM ADC distributions by module (contd.)" << endl;
     
     for( int i=start_mod; i<end_mod; i++ ){
-      cfg_file_critical << histcfg.Format("macro landau_fit.C(\"h%s_ADCmax_good_CM\",1000)", modname_nodots[i].Data() ) << endl;
+      cfg_file_critical << histcfg.Format("h%s_ADCmax_good_CM -logy", modname_nodots[i].Data() ) << endl;
     }
     cfg_file_critical << endl;
   }
