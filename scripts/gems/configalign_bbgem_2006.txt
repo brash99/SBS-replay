@@ -1,4 +1,4 @@
-/chafs2/work1/sbs/Rootfiles/gen_replayed_2006_50k_events.root
+/chafs2/work1/sbs/Rootfiles/gen_replayed_2506_100k_events.root
 endlist
 prefix bb.gem
 nlayers 5

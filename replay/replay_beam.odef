@@ -40,8 +40,13 @@ block Lrb.BPM*
 #TH2F frastxy2 'Fast Raster 2 X vs Y (current)' SBSrb.Raster2.rawcur.y SBSrb.Raster2.rawcur.x   500 20000 70000 500 20000 70000 
 
 # for GEN
-TH2F frastxy1 'Fast Raster 1 X vs Y (current)' SBSrb.Raster.rawcur.y SBSrb.Raster.rawcur.x     100 30000 58000 100 30000 58000
-TH2F frastxy2 'Fast Raster 2 X vs Y (current)' SBSrb.Raster2.rawcur.y SBSrb.Raster2.rawcur.x   100 30000 58000 100 30000 58000 
+TH2F frastxy1 'Fast Raster 1 X vs Y (current)' SBSrb.Raster.rawcur.y SBSrb.Raster.rawcur.x     120 25000 62000 120 25000 62000
+TH2F frastxy2 'Fast Raster 2 X vs Y (current)' SBSrb.Raster2.rawcur.y SBSrb.Raster2.rawcur.x   120 25000 62000 120 25000 62000 
+
+TH1F frastx1 'Fast Raster 1 X (current)' Lrb.Raster.rawcur.x 120 25000 62000 
+TH1F frasty1 'Fast Raster 1 Y (current)' Lrb.Raster.rawcur.y 120 25000 62000 
+TH1F frastx2 'Fast Raster 2 X (current)' Lrb.Raster2.rawcur.x 120 25000 62000 
+TH1F frasty2 'Fast Raster 2 Y (current)' Lrb.Raster2.rawcur.y 120 25000 62000 
 
 #FORMULA targx 1000.*(SBSrb.BPMB.x-SBSrb.BPMA.x)/4.083*5.969+1000.*SBSrb.BPMA.x
 #FORMULA targy 1000.*(SBSrb.BPMB.y-SBSrb.BPMA.y)/4.083*5.969+1000.*SBSrb.BPMA.y
@@ -50,7 +55,7 @@ TH2F frastxy2 'Fast Raster 2 X vs Y (current)' SBSrb.Raster2.rawcur.y SBSrb.Rast
 # for GEN
 FORMULA targx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/5.15*7.53+1000.*Lrb.BPMA.x
 FORMULA targy 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/5.15*7.53+1000.*Lrb.BPMA.y
-TH2F targ_xy 'Position at target [mm]' targx targy 200 -6. 6. 200 -6. 6.
+TH2F targ_xy 'Position at target [mm]' targx targy 200 -7. 7. 200 -7. 7.
 
 #FORMULA Lrb.BPMA.x_acc ((Lrb.BPMA.rotpos1*18.81/18.87+0.331)-(Lrb.BPMA.rotpos2*18.81/18.87+0.301))/sqrt(2)+0.25
 #FORMULA Lrb.BPMA.y_acc ((Lrb.BPMA.rotpos1*18.81/18.87+0.331)+(Lrb.BPMA.rotpos2*18.81/18.87+0.301))/sqrt(2)-0.9

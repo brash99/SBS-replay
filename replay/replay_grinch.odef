@@ -3,8 +3,9 @@
 #block bb.grinch_adc.*
 
 # for the Panguin Plots for GEn 
-th2d h_GRINCH_TDC_vs_ID 'TDC Leading Edge (LE) vs TDC Channel : GRINCH ; TDC Channel ; LE (ns)' bb.grinch_tdc.tdcelemID[I] bb.grinch_tdc.tdc[I] 510 -0.5 509.5 50 0 400
+th2d h_GRINCH_TDC_vs_ID 'TDC Leading Edge (LE) vs TDC Channel : GRINCH ; TDC Channel ; LE (ns)' bb.grinch_tdc.tdcelemID[I] bb.grinch_tdc.tdc[I] 510 -0.5 509.5 100 0 500
 th1d h_GRINCH_elemID  'TDC Channel : GRINCH' bb.grinch_tdc.tdcelemID 510 -0.5 509.5
+th1d h_GRINCH_TDC_1D 'TDC Leading Edge : GRINCH ; LE (ns)' bb.grinch_tdc.tdc 1000 0 2000 GoodElectron
 
 variable bb.grinch_tdc.ngoodhits
 variable bb.grinch_tdc.hit.pmtnum

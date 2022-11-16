@@ -748,6 +748,24 @@ bb.gem.m6.angle =       0.2061367       0.1375006      -0.2596586
 bb.gem.m7.position =       0.7703097     -0.01188029        1.534868
 bb.gem.m7.angle =     -0.04195899      0.03440736      -0.3519004
 
+----------[ 2022-11-07 00:00:00 ] # start GEN-3 kinematics:
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001931935     -0.01142927        0.165205
+bb.gem.m1.angle =      0.07756231      0.04990183      0.06161188
+bb.gem.m2.position =    -0.007540193     0.005879457       0.2790333
+bb.gem.m2.angle =       0.1309815      0.07427616      -0.2973769
+bb.gem.m3.position =    -0.009137839     0.004917223       0.4575194
+bb.gem.m3.angle =       0.2160082       0.1029109      -0.4551869
+bb.gem.m4.position =      -0.7647015       0.0020337        1.578944
+bb.gem.m4.angle =      -0.2102473      -0.2975331      -0.3461524
+bb.gem.m5.position =      -0.2523657    -0.002284228        1.535895
+bb.gem.m5.angle =      -0.2292616     -0.04278965      -0.2910578
+bb.gem.m6.position =       0.2586995    -0.008135348        1.578437
+bb.gem.m6.angle =      -0.1861139       -0.183984       -0.250579
+bb.gem.m7.position =       0.7706357     -0.01182199        1.537177
+bb.gem.m7.angle =       -0.204406      -0.0703861      -0.2781818
+
 
 #################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
 
@@ -907,4 +925,60 @@ bb.gem.m6.threshold_clustersum = 1110
 bb.gem.m7.threshold_sample = 95
 bb.gem.m7.threshold_stripsum = 435
 bb.gem.m7.threshold_clustersum = 770
+
+---------[ 2022-11-07 00:00:00 ] # start GEN-3:
+
+# disable timing cuts initially
+bb.gem.usestriptimingcut = 1
+
+# new strip time cuts reflecting latency shift for back layer:
+bb.gem.m0.maxstrip_t0 =     86.6
+bb.gem.m0.maxstrip_tcut =     25.4
+bb.gem.m1.maxstrip_t0 =     78.7
+bb.gem.m1.maxstrip_tcut =     31.4
+bb.gem.m2.maxstrip_t0 =     87.7
+bb.gem.m2.maxstrip_tcut =     24.1
+bb.gem.m3.maxstrip_t0 =     83.4
+bb.gem.m3.maxstrip_tcut =     34.3
+bb.gem.m4.maxstrip_t0 =     88.4
+bb.gem.m4.maxstrip_tcut =     25.5
+bb.gem.m5.maxstrip_t0 =     90.9
+bb.gem.m5.maxstrip_tcut =     25.1
+bb.gem.m6.maxstrip_t0 =     89.5
+bb.gem.m6.maxstrip_tcut =     26.3
+bb.gem.m7.maxstrip_t0 =     87.5
+bb.gem.m7.maxstrip_tcut =     26.6
+
+
+#bb.gem.dump_geometry_info = 0
+
+bb.gem.m0.threshold_stripsum = 300.0
+bb.gem.m1.threshold_stripsum = 300.0
+bb.gem.m2.threshold_stripsum = 300.0
+bb.gem.m3.threshold_stripsum = 300.0
+
+bb.gem.m4.threshold_stripsum = 300.0
+bb.gem.m5.threshold_stripsum = 300.0
+bb.gem.m6.threshold_stripsum = 300.0
+bb.gem.m7.threshold_stripsum = 300.0
+
+bb.gem.m0.threshold_clustersum = 600.0
+bb.gem.m1.threshold_clustersum = 600.0
+bb.gem.m2.threshold_clustersum = 600.0
+bb.gem.m3.threshold_clustersum = 600.0
+
+bb.gem.m4.threshold_clustersum = 600.0
+bb.gem.m5.threshold_clustersum = 600.0
+bb.gem.m6.threshold_clustersum = 600.0
+bb.gem.m7.threshold_clustersum = 600.0
+
+bb.gem.ADCasym_cut = 1.0
+bb.gem.deltat_cut = 60.0
+bb.gem.corrcoeff_cut = 0.4
+
+bb.gem.filterflag2D = -1
+
+bb.gem.addstrip_tcut = 100.0
+bb.gem.addstrip_ccor_cut = -1.1
+
 

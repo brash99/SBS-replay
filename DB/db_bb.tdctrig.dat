@@ -18,11 +18,9 @@ bb.tdctrig.tdc.cal = 0.0936
 #
 bb.tdctrig.tdc.offset = 0
 #
-bb.tdctrig.tdc.GoodTimeCut = 40.
+bb.tdctrig.tdc.GoodTimeCut = 910. 910. 910. 0. 0. 340.
 #
 bb.tdctrig.reftdc.cal = 0.0936
 #
 bb.tdctrig.reftdc.offset = 0
-#
-bb.tdctrig.reftdc.GoodTimeCut = 40.
                 
