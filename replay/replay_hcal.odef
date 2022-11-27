@@ -50,11 +50,11 @@ th2d hADCamp_hcalT_r 'HCal Trigger Sum r-{1-10} ADC Amplitude; mV' sbs.trig.adce
 #Page 7: Cluster Plots
 th1d hNClus_vs_elem_hcal 'Number of clusters per event : HCAL; N' sbs.hcal.nclus 20 0 20  #Multiplicity
 th1d hNBlk_per_cluster 'Number of blocks per cluster : HCAL; N' sbs.hcal.nblk 15 0 15 
-th2d hE_vs_mult_clus 'Primary Cluster E vs Multiplicity; nclus; MeV' sbs.hcal.e sbs.hcal.nclus 60 0 1.5 12 0 12
+th2d hE_vs_mult_clus 'Primary Cluster E vs Cluster Size; Number Blocks; MeV' sbs.hcal.e sbs.hcal.nblk 60 0 1.5 12 0 12
 th2d hClusE_vs_elem_hcal 'Primary Cluster Energy vs element ID : HCAL; channel; GeV' sbs.hcal.clus_blk.id[I] sbs.hcal.clus_blk.e[I] 288 0.5 288.5 100 0 0.5 sbs.hcal.clus_blk.atime[I]>0
 
 #Page 8: Cluster Heatmap
-th2d hClus_pos_hcal 'Position of best cluster : HCal; Y(m); X(m)' sbs.hcal.colblk sbs.hcal.rowblk 12 0 12 24 0 24 sbs.hcal.nclus>0
+th2d hClus_pos_hcal 'Position of best cluster : HCal; Column; Row' sbs.hcal.colblk sbs.hcal.rowblk 12 0 12 24 0 24 sbs.hcal.nclus>0
 
 #Page 9: HCal ADC Time
 #(macro) ADC Time No LED

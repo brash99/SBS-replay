@@ -53,8 +53,14 @@ TH1F frasty2 'Fast Raster 2 Y (current)' Lrb.Raster2.rawcur.y 120 25000 62000
 #TH2F targ_xy 'Position at target [mm]' targx targy 200 -2. 2. 2000 -2. 2.
 
 # for GEN
-FORMULA targx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/5.15*7.53+1000.*Lrb.BPMA.x
-FORMULA targy 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/5.15*7.53+1000.*Lrb.BPMA.y
+FORMULA ax_new  1.82-0.97*1000*Lrb.BPMA.x
+FORMULA bx_new  0.68-0.67*1000*Lrb.BPMB.x
+FORMULA targx ((0.68-0.67*1000*Lrb.BPMB.x)-(1.82-0.97*1000*Lrb.BPMA.x))/5.15*7.53+1.82-0.97*1000*Lrb.BPMA.x
+FORMULA ay_new  -0.69+0.93*1000*Lrb.BPMA.y
+FORMULA by_new  -1.44+0.67*1000*Lrb.BPMB.y
+FORMULA targy ((-1.44+0.67*1000*Lrb.BPMB.y)-(-0.69+0.93*1000*Lrb.BPMA.y))/5.15*7.53+-0.69+0.93*1000*Lrb.BPMA.y
+#FORMULA targx 1000.*(Lrb.BPMB.x-Lrb.BPMA.x)/5.15*7.53+1000.*Lrb.BPMA.x
+#FORMULA targy 1000.*(Lrb.BPMB.y-Lrb.BPMA.y)/5.15*7.53+1000.*Lrb.BPMA.y
 TH2F targ_xy 'Position at target [mm]' targx targy 200 -7. 7. 200 -7. 7.
 
 #FORMULA Lrb.BPMA.x_acc ((Lrb.BPMA.rotpos1*18.81/18.87+0.331)-(Lrb.BPMA.rotpos2*18.81/18.87+0.301))/sqrt(2)+0.25

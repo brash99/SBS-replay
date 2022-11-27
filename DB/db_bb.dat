@@ -1631,3 +1631,14 @@ bb.forwardoptics_parameters =
   4.2456074e-16 -1.1781337e-16 -9.5910586e-17 -1.6665153e-16  0 0 1 0 1
   5.4705347e-15  2.2463988e-15  1.9965456e-15  1.5388655e-15  0 0 0 1 1
   1.1130787e-16   5.573496e-16  8.6709352e-17  5.4363783e-16  0 0 0 0 2
+
+
+--------[ 2022-11-26 15:00:00 ] # start zero-field running for optics
+
+bb.frontconstraintwidth_x = 0.5
+bb.frontconstraintwidth_y = 0.2	
+
+-------[ 2022-11-27 19:07:00 ] # back to full-field running:
+
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.11	
