@@ -1574,7 +1574,11 @@ bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.11
 # no change in back constraint offsets or widths needed
 
---------[ 2022-11-07 00:00:00 ]  #start of GEN-3 kinematics, go back to 97% field strength
+--------[ 2022-11-07 00:00:00 ]  #start of GEN-3 kinematics, go back to BB 750A current
+
+bb.gemorigin_xyz = -0.208188 0.046735 2.77478
+bb.gemtheta = 8.85769 
+bb.gemphi = 178.2506
 
 bb.preconflag = 1
 
@@ -1635,11 +1639,12 @@ bb.forwardoptics_parameters =
 
 --------[ 2022-11-26 15:00:00 ] # start zero-field running for optics
 
-bb.frontconstraint_x0 = -0.125
-bb.frontconstraintwidth_x = 0.15
+bb.frontconstraint_x0 = -0.0656
+bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.2	
 
--------[ 2022-11-27 19:07:00 ] # back to full-field running:
+-------[ 2022-11-26 19:07:00 ] # back to full-field running:
 
+bb.frontconstraint_x0 = 0.0443
 bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.11	

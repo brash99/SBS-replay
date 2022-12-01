@@ -209,4 +209,5 @@ bb.theta = 36.5
 bb.pcentral = 2.78
 
 # to be refined from survey results later
-bb.magdist = 1.63
+bb.magdist = 1.625 # survey shows BigBite magnet 5 mm upstream of ideal position
+

@@ -279,8 +279,9 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   analyzer->SetOdefFile( odef_filename );
 
   //added cut list in order to have
-  //TString cdef_filename = "replay_gen_farm.cdef";
-  TString cdef_filename = "replay_gen.cdef";
+  //on the farm we only write out events with a track in BigBite
+  TString cdef_filename = "replay_gen_farm.cdef";
+  //TString cdef_filename = "replay_gen.cdef";
 
   //the above cdef file includes almost no significant cuts (basically just any hit in BigBite shower or preshower
   cdef_filename.Prepend( prefix );
