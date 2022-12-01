@@ -40,8 +40,8 @@ block Lrb.BPM*
 #TH2F frastxy2 'Fast Raster 2 X vs Y (current)' SBSrb.Raster2.rawcur.y SBSrb.Raster2.rawcur.x   500 20000 70000 500 20000 70000 
 
 # for GEN
-TH2F frastxy1 'Fast Raster 1 X vs Y (current)' SBSrb.Raster.rawcur.y SBSrb.Raster.rawcur.x     120 25000 62000 120 25000 62000
-TH2F frastxy2 'Fast Raster 2 X vs Y (current)' SBSrb.Raster2.rawcur.y SBSrb.Raster2.rawcur.x   120 25000 62000 120 25000 62000 
+TH2F frastxy1 'Fast Raster 1 Y vs X (current)' SBSrb.Raster.rawcur.x SBSrb.Raster.rawcur.y     120 25000 62000 120 25000 62000
+TH2F frastxy2 'Fast Raster 2 Y vs X (current)' SBSrb.Raster2.rawcur.x SBSrb.Raster2.rawcur.y   120 25000 62000 120 25000 62000 
 
 TH1F frastx1 'Fast Raster 1 X (current)' Lrb.Raster.rawcur.x 120 25000 62000 
 TH1F frasty1 'Fast Raster 1 Y (current)' Lrb.Raster.rawcur.y 120 25000 62000 
