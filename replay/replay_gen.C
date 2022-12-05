@@ -181,7 +181,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   if( prefix != "/cache/mss/halla/sbs/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/raw" );
 
-  if( prefix != "/cache/mss/halla/sbs/raw" )
+  if( prefix != "/cache/mss/halla/sbs/GEnII/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/GEnII/raw" );
 
   for( const auto& path: pathlist ) {
@@ -280,8 +280,8 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
 
   //added cut list in order to have
   //on the farm we only write out events with a track in BigBite
-  TString cdef_filename = "replay_gen_farm.cdef";
-  //TString cdef_filename = "replay_gen.cdef";
+  //TString cdef_filename = "replay_gen_farm.cdef";
+  TString cdef_filename = "replay_gen.cdef";
 
   //the above cdef file includes almost no significant cuts (basically just any hit in BigBite shower or preshower
   cdef_filename.Prepend( prefix );
