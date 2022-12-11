@@ -1,4 +1,4 @@
-/chafs2/work1/sbs/Rootfiles/gen_replayed_2506_100k_events.root
+/chafs2/work1/sbs/Rootfiles/gen_replayed_3118_50k_events.root
 endlist
 prefix bb.gem
 nlayers 5
@@ -26,5 +26,5 @@ offsetsonly 0
 sigma 0.15e-3
 NMAX 10000000
 endconfig
-bb.gem.track.chi2ndf<30&&bb.gem.track.ntrack==1&&bb.gem.track.nhits==5
+bb.gem.track.chi2ndf<300&&bb.gem.track.ntrack==1&&bb.gem.track.nhits==5
 endcut

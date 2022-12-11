@@ -766,6 +766,25 @@ bb.gem.m6.angle =      -0.1861139       -0.183984       -0.250579
 bb.gem.m7.position =       0.7706357     -0.01182199        1.537177
 bb.gem.m7.angle =       -0.204406      -0.0703861      -0.2781818
 
+----------[ 2022-12-07 12:00:00 ] # new alignment after touching the GEMs during a Hall access
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001942098     -0.01162443       0.1654284
+bb.gem.m1.angle =      0.02871134      0.02051214      0.06434025
+bb.gem.m2.position =    -0.007499142       0.0131656       0.2795543
+bb.gem.m2.angle =     -0.02005052      0.06742029      -0.2867994
+bb.gem.m3.position =    -0.009158106     0.004519467       0.4579391
+bb.gem.m3.angle =     0.007673261      0.05115498      -0.4546568
+bb.gem.m4.position =      -0.7650413    0.0007818384        1.581796
+bb.gem.m4.angle =      0.05602827      -0.6792865       -0.242088
+bb.gem.m5.position =      -0.2524898     -0.00324836        1.539672
+bb.gem.m5.angle =      -0.4121826      -0.1530618      -0.3019665
+bb.gem.m6.position =       0.2587498    -0.008983733        1.583229
+bb.gem.m6.angle =      -0.2319786       0.4621164      -0.2246378
+bb.gem.m7.position =       0.7705579     -0.01305438        1.539855
+bb.gem.m7.angle =       0.2554365      -0.1279409      -0.3786771
+
+
 
 #################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
 
