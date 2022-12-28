@@ -196,7 +196,7 @@ bb.magdist = 1.63
 ---------[ 2022-11-08 20:00:00 ] # start of GEN-3 production kinematics at 3-pass:
 
 # beam energy to be refined by HALLA:p once we start up:
-ebeam = 6.379
+ebeam = 6.373
 
 sbs.theta = 22.1
 # this parameter appears to be the KE from above, not the momentum. p_p = 4.435 GeV/c

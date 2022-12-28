@@ -36,6 +36,7 @@ double PI = TMath::Pi();
 
 double Mp = 0.938272;
 double Mn = 0.939565;
+double clight = 2.99792458e-1; //m/ns
 
 void MakeMomentumCalibrationTree( const char *configfilename, const char *outputfilename="NewMomentumFit.root" ){
 
@@ -438,9 +439,13 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   double xfp[MAXNTRACKS], yfp[MAXNTRACKS], thfp[MAXNTRACKS], phfp[MAXNTRACKS];
   //Also need target variables:
   double xtgt[MAXNTRACKS], ytgt[MAXNTRACKS], thtgt[MAXNTRACKS], phtgt[MAXNTRACKS];
+
+  double nhits[MAXNTRACKS];
   
-  double xHCAL, yHCAL, EHCAL;
+  double xHCAL, yHCAL, EHCAL,THCAL;
   double EPS, ESH, xSH, ySH, xPS;
+  double tHODO[MAXNTRACKS];
+  double nHODO,trackindexHODO[MAXNTRACKS];
 
   //Ignore hodo variables for meow:
   // int maxHODOclusters=100;
@@ -455,8 +460,14 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   C->SetBranchStatus("sbs.hcal.x",1);
   C->SetBranchStatus("sbs.hcal.y",1);
   C->SetBranchStatus("sbs.hcal.e",1);
+  C->SetBranchStatus("sbs.hcal.tdctimeblk",1);
+
+  C->SetBranchStatus("bb.hodotdc.nclus",1);
+  C->SetBranchStatus("bb.hodotdc.clus.trackindex",1);
+  C->SetBranchStatus("bb.hodotdc.clus.tmean",1);
 
   //BigBite track variables:
+  C->SetBranchStatus("bb.gem.track.nhits",1);
   C->SetBranchStatus("bb.tr.n",1);
   C->SetBranchStatus("bb.tr.px",1);
   C->SetBranchStatus("bb.tr.py",1);
@@ -486,6 +497,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   C->SetBranchStatus("bb.sh.y",1);
 
   C->SetBranchAddress("bb.tr.n",&ntrack);
+  C->SetBranchAddress("bb.gem.track.nhits",nhits);
   C->SetBranchAddress("bb.tr.p",p);
   C->SetBranchAddress("bb.tr.px",px);
   C->SetBranchAddress("bb.tr.py",py);
@@ -509,6 +521,11 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   C->SetBranchAddress("sbs.hcal.x",&xHCAL);
   C->SetBranchAddress("sbs.hcal.y",&yHCAL);
   C->SetBranchAddress("sbs.hcal.e",&EHCAL);
+  C->SetBranchAddress("sbs.hcal.tdctimeblk",&THCAL);
+
+  C->SetBranchAddress("bb.hodotdc.nclus",&nHODO);
+  C->SetBranchAddress("bb.hodotdc.clus.trackindex",trackindexHODO);
+  C->SetBranchAddress("bb.hodotdc.clus.tmean",tHODO);
   
   C->SetBranchAddress("bb.ps.e",&EPS);
   C->SetBranchAddress("bb.sh.e",&ESH);
@@ -617,6 +634,9 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   double T_theta_recon_n, T_phi_recon_n, T_theta_recon_p, T_phi_recon_p; //Reconstructed nucleon angles under proton and neutron hypothesis
   double T_thetapq_n, T_phipq_n, T_thetapq_p, T_phipq_p;
   double T_dx_4vect, T_dy_4vect; //Here we want to use the 4-vector momentum transfer to calculate dx/dy
+  double T_hodotime, T_hcaltime;
+  double T_Lneutron, T_nTOFexpect;
+  
   int HCALcut;
   int BBcut;
   
@@ -684,8 +704,11 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   //Tout->Branch( "phipq_p", &T_phipq_p, "phipp_n/D" );
   Tout->Branch( "deltax_4vect", &T_dx_4vect, "deltax_4vect/D" );
   Tout->Branch( "deltay_4vect", &T_dy_4vect, "deltay_4vect/D" );
-  
-  
+  Tout->Branch( "hodotime", &T_hodotime, "hodotime/D");
+  Tout->Branch( "hcaltime", &T_hcaltime, "hcaltime/D");
+  Tout->Branch( "Lneutron", &T_Lneutron, "Lneutron/D");
+  Tout->Branch( "nTOFexpect", &T_nTOFexpect, "nTOFexpect/D");
+
   long ntotal = C->GetEntries();
   
   long nevent=0;
@@ -707,8 +730,16 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 
     bool passedglobal = GlobalCut->EvalInstance(0) != 0;
 
-    if( int(ntrack) == 1 && passedglobal ){
+    T_hodotime = -1000.;
+    if( int(nHODO) > 0 && trackindexHODO[0]==0){
+      T_hodotime = tHODO[0];
+    }
+    T_hcaltime = THCAL;
+
+    if( int(ntrack) >= 1 && passedglobal ){
       //The first thing we want to do is to calculate the "true" electron momentum incident on BigBite:
+      
+
       double Ebeam_corrected = ebeam - MeanEloss;
 
       T_ebeam = Ebeam_corrected;
@@ -859,6 +890,12 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 
       double s4vect = (HCAL_origin - vertex).Dot( HCAL_zaxis )/ (qunit.Dot( HCAL_zaxis ) );
       TVector3 HCAL_intersect4 = vertex + s4vect * qunit;
+
+      T_Lneutron = (HCAL_intersect4 - vertex).Mag();
+
+      double betan_expect = T_qmag / sqrt( pow( T_qmag,2) + pow( Mn,2 ) );
+      
+      T_nTOFexpect = T_Lneutron/(betan_expect * clight); //should be in ns
 
       T_dx_4vect = xHCAL - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis );
       T_dy_4vect = yHCAL - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis );
