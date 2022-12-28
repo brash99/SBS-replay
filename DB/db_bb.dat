@@ -966,8 +966,10 @@ bb.frontconstraint_y0 = -0.013
 bb.backconstraint_x0 = 0.0031
 bb.backconstraint_y0 = 0.0007
 
-bb.frontconstraintwidth_x = 0.0718517
-bb.frontconstraintwidth_y = 0.069917
+#bb.frontconstraintwidth_x = 0.0718517
+#bb.frontconstraintwidth_y = 0.069917
+bb.frontconstraintwidth_x = 0.06
+bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
 

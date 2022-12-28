@@ -1621,8 +1621,8 @@ bb.gem.m9.apvmap = 1 # UVA X/Y
 # basic flags controlling decoding:
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 2 # 0 = sorting, 1 = "Danning method", 2 = histogramming method cm subtraction
-bb.gem.commonmode_nstriplo = 28
-bb.gem.commonmode_nstriphi = 28
+bb.gem.commonmode_nstriplo = 20
+bb.gem.commonmode_nstriphi = 20
 bb.gem.commonmode_niter = 3
 bb.gem.commonmode_minstrips = 20
 bb.gem.plot_common_mode = 1
@@ -2182,10 +2182,10 @@ bb.gem.pedestalmode = 0
 #bb.gem.threshold_stripsum = 200.
 #bb.gem.threshold_clustersum = 200.
 
-bb.gem.ADCasym_cut = 0.75 
+bb.gem.ADCasym_cut = 1.1 
 bb.gem.deltat_cut = 30.0
-bb.gem.corrcoeff_cut = 0.5
-bb.gem.filterflag1D = -1
+bb.gem.corrcoeff_cut = 0.4
+bb.gem.filterflag1D = 0
 bb.gem.filterflag2D = 0
 
 bb.gem.peakprominence_minsigma = 3.0 
@@ -2214,9 +2214,9 @@ bb.gem.max2Dhits = 10000000 # per-module
 bb.gem.usestriptimingcut = 1 
 bb.gem.useTSchi2cut = 0
 
-bb.gem.addstrip_tcut = 25.0
-bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.suppressfirstlast = -1
+bb.gem.addstrip_tcut = 75.0
+bb.gem.addstrip_ccor_cut = -1.1
+bb.gem.suppressfirstlast = 0
 
 bb.gem.m0.maxstrip_t0 =     75.3
 bb.gem.m0.maxstrip_tcut =     24.9
@@ -2290,7 +2290,7 @@ bb.gem.sigmahitpos = 0.00015
 bb.gem.minhitsontrack = 3
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 100000
-bb.gem.maxhitcombos_total = 10000000000 # 1 x 10^10
+bb.gem.maxhitcombos_total = 1.e15 # 1 x 10^10
 
 bb.gem.tryfasttrack = 1 
 
@@ -2303,11 +2303,22 @@ bb.gem.gridedgetolerancey = 0.003
 
 # start with more relaxed chi2 cut until we re-align:
 
-bb.gem.trackchi2cut = 40.0
+bb.gem.trackchi2cut = 30.0
 bb.gem.useconstraint = 0
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
-bb.gem.useforwardopticsconstraint = 0
+bb.gem.useforwardopticsconstraint = 1
+
+bb.gem.dxfp0 = 0
+bb.gem.dyfp0 = 0
+bb.gem.dxpfp0 = 0
+bb.gem.dypfp0 = 0
+
+bb.gem.dxfpcut = 0.005
+bb.gem.dyfpcut = 0.001
+bb.gem.dxpfpcut = 0.004
+bb.gem.dypfpcut = 0.0005
+
 
 bb.gem.do_efficiencies = 1
 bb.gem.dump_geometry_info = 0 # turn this off if we are not using this run to do a new alignment!
@@ -2364,7 +2375,7 @@ bb.gem.m9.angle =       0.1103163      0.02013475       -0.300051
 --------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:
 
 bb.gem.useconstraint = 1
-bb.gem.suppressfirstlast = -1
+bb.gem.suppressfirstlast = 0
 # turn off slope and optics-based constraints for zero-field runs:
 bb.gem.useslopeconstraint = 0
 bb.gem.useopticsconstraint = 0
@@ -2372,22 +2383,22 @@ bb.gem.useopticsconstraint = 0
 -------[ 2021-11-25 00:56:00 ] # turning on magnet
 
 bb.gem.useconstraint = 1
-bb.gem.suppressfirstlast = -1
+bb.gem.suppressfirstlast = 0
 
 bb.gem.useslopeconstraint = 0
-bb.gem.xpfp_min = -0.4
-bb.gem.xpfp_max = 0.4
-bb.gem.ypfp_min = -0.12
-bb.gem.ypfp_max = 0.12
+bb.gem.xpfp_min = -0.25
+bb.gem.xpfp_max = 0.25
+bb.gem.ypfp_min = -0.09
+bb.gem.ypfp_max = 0.09
 
 bb.gem.useopticsconstraint = 0
-bb.gem.xptar_min = -0.4
-bb.gem.xptar_max = 0.4
-bb.gem.yptar_min = -0.1
-bb.gem.yptar_max = 0.1
-bb.gem.ytar_min = -0.1
-bb.gem.ytar_max = 0.1
-bb.gem.pmin = 0.5
+bb.gem.xptar_min = -0.3
+bb.gem.xptar_max = 0.3
+bb.gem.yptar_min = -0.08
+bb.gem.yptar_max = 0.08
+bb.gem.ytar_min = -0.075
+bb.gem.ytar_max = 0.075
+bb.gem.pmin = 0.75
 bb.gem.pmax = 3.5
 
 -------[ 2021-11-25 04:21:00 ] # going to production:
@@ -2463,7 +2474,7 @@ bb.gem.suppressfirstlast = 0
 --------[ 2021-12-07 23:48:00 ] 
 
 bb.gem.usestriptimingcut = 1
-bb.gem.suppressfirstlast = -1
+bb.gem.suppressfirstlast = 0
 
 --------[ 2021-12-08 01:25:00 ] 
 
@@ -2473,7 +2484,7 @@ bb.gem.suppressfirstlast = 0
 --------[ 2021-12-08 01:40:00 ] 
 
 bb.gem.usestriptimingcut = 1
-bb.gem.suppressfirstlast = -1
+bb.gem.suppressfirstlast = 0
 
 --------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:
 bb.gem.useconstraint = 0
