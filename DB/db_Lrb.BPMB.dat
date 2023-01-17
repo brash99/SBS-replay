@@ -10,8 +10,8 @@ Lrb.BPMB.offsets = +0.000678 -0.001508
 Lrb.BPMB.detmap =
       10    14     9    12     1  250
 Lrb.BPMB.calib_rot = 0.01887
-Lrb.BPMB.pedestals = 46740    46820   47300   46940
-Lrb.BPMB.rotmatrix = -0.70710678 0.70710678 0.70710678 0.70710678
+Lrb.BPMB.pedestals = 46740    46820   47300   460
+-Lrb.BPMB.rotmatrix = -0.70710678 0.70710678 0.70710678 0.70710678
 Lrb.BPMB.offsets = 0.000 -0.000
 
 --------[ 2021-10-22 15:30:00 -0400 ]

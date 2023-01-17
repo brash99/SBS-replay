@@ -214,7 +214,7 @@ bb.magdist = 1.625 # survey shows BigBite magnet 5 mm upstream of ideal position
 ---------[ 2023-01-01 00:00:00 ] # start of GEN-4 production kinematics at 4-pass:
 
 # beam energy initial estimate (update when we see what we actually get): 
-ebeam = 8.456
+ebeam = 8.451
 
 sbs.theta = 18.0
 sbs.pcentral = 6.1
