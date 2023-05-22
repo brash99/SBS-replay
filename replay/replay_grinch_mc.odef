@@ -24,11 +24,13 @@ th1d h_GRINCH_nev_TDC_vs_elem_ID 'Number TDC events vs channel : Grinch' bb.grin
 #th2d h_GRINCH_Amp_vs_int 'ADC amp vs int : Grinch' bb.grinch_adc.a_p[I] bb.grinch_adc.a_amp_p[I] 700 -400 30 2600 -100 2500
 th1d h_GRINCH_mult 'TDC multiplicity : Grinch' bb.grinch.tdc_mult 10 0.5 10.5
 
-variable bb.grinch.ngoodhits
-variable bb.grinch.hit.pmtnum
-variable bb.grinch.hit.row
-variable bb.grinch.hit.col
-variable bb.grinch.hit.xhit
-variable bb.grinch.hit.yhit
-variable bb.grinch.hit.time
-variable bb.grinch.hit.amp
+# variable bb.grinch.ngoodhits
+# variable bb.grinch.hit.pmtnum
+# variable bb.grinch.hit.row
+# variable bb.grinch.hit.col
+# variable bb.grinch.hit.xhit
+# variable bb.grinch.hit.yhit
+# variable bb.grinch.hit.time
+# variable bb.grinch.hit.amp
+
+block bb.grinch*
