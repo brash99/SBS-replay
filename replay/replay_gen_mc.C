@@ -32,21 +32,19 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSSimDecoder.h"
 #endif
 
-TDatime get_datime(uint sbsconfig)
-/* Returns TDatime for a given SBS configuration */
+TDatime get_datime(uint genconfig)
+/* Returns TDatime for a given GEn configuration */
 {
-  std::unordered_map<uint,TDatime> m = {{4,  "2021-10-21 07:09:00"},
-					{7,  "2021-11-13 22:06:00"},
-					{11, "2021-11-25 12:17:00"},
-					{14, "2022-01-12 11:55:00"},
-					{8,  "2022-01-22 10:16:00"},
-					{9,  "2022-02-02 01:55:00"}};
-  if (m.find(sbsconfig)==m.end()) 
-    throw std::invalid_argument("Invalid SBS config!! Valid options are: 4,7,11,14,8,9");
-  return m[sbsconfig];
+  std::unordered_map<uint,TDatime> m = {{1, "2023-05-12 09:00:00"},
+					{2, "2023-05-12 09:00:00"},
+					{3, "2023-05-12 09:00:00"},
+					{4, "2023-05-12 09:00:00"}};
+  if (m.find(genconfig)==m.end()) 
+    throw std::invalid_argument("Invalid SBS config!! Valid options are: 1,2,3,4");
+  return m[genconfig];
 }
 
-void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString experiment="gmn")
+void replay_gen_mc(const char* filebase, uint genconfig, uint nev = -1, TString experiment="gmn")
 {
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
@@ -88,7 +86,7 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   run->SetLastEvent(nev);
   
   run->SetDataRequired(0);
-  run->SetDate(get_datime(sbsconfig));
+  run->SetDate(get_datime(genconfig));
   //run->SetDate(TDatime());
   
   TString out_dir = gSystem->Getenv("OUT_DIR");
@@ -99,7 +97,7 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   analyzer->SetOutFile( out_file.Data() );
   cout << "output file " << out_file.Data() << " set up " << endl; 
   // File to record cuts accounting information
-  analyzer->SetSummaryFile(out_file.ReplaceAll(".root",".log")); // optional
+  analyzer->SetSummaryFile("sbs_hcal_test.log"); // optional
 
   // Change the cratemap to point to the sim one
   analyzer->SetCrateMapFileName("sbssim_cratemap");
@@ -109,17 +107,17 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   TString prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
   
-  TString odef_filename = "replay_gmn_mc.odef";
+  TString odef_filename = "replay_gen_mc.odef";
   odef_filename.Prepend( prefix );
   analyzer->SetOdefFile( odef_filename );
   
   //added cut list in order to have 
-  TString cdef_filename = "replay_gmn_mc.cdef";
+  TString cdef_filename = "replay_gen_mc.cdef";
   cdef_filename.Prepend( prefix );
   analyzer->SetCutFile( cdef_filename );
 
-  //analyzer->SetCutFile( "replay_gmn.cdef" );
-  //analyzer->SetOdefFile( "replay_gmn_mc.odef" );
+  //analyzer->SetCutFile( "replay_gen.cdef" );
+  //analyzer->SetOdefFile( "replay_gen_mc.odef" );
   
   cout << "cut file and out file processed " << endl;
   
@@ -150,12 +148,12 @@ int main(int argc, char *argv[])
   string filebase; 
   uint nev = -1;
   if(argc<2 || argc>3){
-    cout << "Usage: replay_gmn filebase(char*) nev(uint)" << endl;
+    cout << "Usage: replay_gen filebase(char*) nev(uint)" << endl;
     return -1;
   }
   filebase = argv[1];
   if(argc==3) nev = atoi(argv[2]);
 
-  replay_gmn_mc(filebase.c_str(), nev);
+  replay_gen_mc(filebase.c_str(), nev);
   return 0;
 }
