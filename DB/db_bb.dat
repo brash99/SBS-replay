@@ -1441,6 +1441,10 @@ bb.frontconstraintwidth_y = 0.07077
 bb.backconstraintwidth_x = 0.0511283
 bb.backconstraintwidth_y = 0.0690686
 
+------[ 2022-09-01 00:00:00 ] # BPM settings, used for track vertex
+
+bb.BPM_separation = 5.15 # This is the distance between BPMA and BPMB
+bb.BPMA_dist_to_targ = 7.53 # This is the distance from BPMA and the nominal 0 position vertex z position in the hall
 
 ------[ 2022-09-01 00:00:00 ] # starting optics for GEN-1 kinematics from simulation with 0.97 scale factor for BB field map
 
