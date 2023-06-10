@@ -66,6 +66,8 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   TLorentzVector Pbeam(0,0,Ebeam,Ebeam);
   TLorentzVector Ptarg(0,0,0,0.5*(0.938272+0.939565));
 
+  double Mp = 0.938272;
+
   long nevent=0;
 
   double W2min = 0.88-0.4;
@@ -82,14 +84,30 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   TH1D *hEHCAL_all = new TH1D("hEHCAL_all","All events; HCAL energy sum (GeV);",250,0,0.5);
   TH1D *hEHCAL_Wcut = new TH1D("hEHCAL_Wcut","|W^{2}-0.88|<0.4;HCAL energy sum (GeV);",250,0,0.5);
 
+  TH2D *hdxdy_all_anglesonly = new TH2D("hdxdy_all_anglesonly","All events; #Deltay (m);#Deltax (m)",125,-2,2,125,-4,6);
+  TH2D *hdxdy_Wcut_anglesonly = new TH2D("hdxdy_Wcut_anglesonly","|W^{2}-0.88|<0.4; #Deltay (m);#Deltax (m)",125,-2,2,125,-4,6);
+  
   TVector3 hcal_origin( -hcaldist*sin(sbstheta), 0, hcaldist*cos(sbstheta) );
 
   TVector3 hcal_zaxis = hcal_origin.Unit();
   TVector3 hcal_xaxis(0,-1,0);
   TVector3 hcal_yaxis = hcal_zaxis.Cross( hcal_xaxis ).Unit();
+
+  TTree *Tout = new TTree("Tout", "BB-HCAL elastic selection");
+
+  double dx_4vect, dy_4vect, dx_angles, dy_angles;
+  double W2_out;
+  double Q2_out;
+
+  Tout->Branch( "W2", &W2_out, "W2/D");
+  Tout->Branch( "Q2", &Q2_out, "Q2/D");
+  Tout->Branch( "dx_4vect", &dx_4vect, "dx_4vect/D");
+  Tout->Branch( "dy_4vect", &dy_4vect, "dy_4vect/D");
+  Tout->Branch( "dx", &dx_angles, "dx/D" );
+  Tout->Branch( "dy", &dy_angles, "dy/D" );
   
   while( C->GetEntry(elist->GetEntry(nevent++) ) ){
-    if( ntrack == 1.0 ){
+    if( ntrack >= 1.0 ){
       TLorentzVector kprime( epx[0], epy[0], epz[0], ep[0] );
       TLorentzVector q = Pbeam - kprime;
 
@@ -104,6 +122,25 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
       double xhcal_expect = hcal_intersect.Dot( hcal_xaxis );
       double yhcal_expect = hcal_intersect.Dot( hcal_yaxis );
 
+      double etheta = acos( kprime.Pz()/kprime.P() );
+      double ephi = atan2( kprime.Py(), kprime.Px() );
+
+      double Eprime_eth = Ebeam/ (1.0 + Ebeam/Mp * (1.0 - cos(etheta) ) );
+      double nu = Ebeam - Eprime_eth;
+      double pp_eth = sqrt(pow(nu,2)+2.*Mp*nu);
+
+      double pth_eth = acos( (Ebeam-Eprime_eth*cos(etheta))/pp_eth );
+      double pphi_eph = ephi + TMath::Pi();
+      
+      TVector3 qdir_angles( sin(pth_eth)*cos(pphi_eph), sin(pth_eth)*sin(pphi_eph), cos(pth_eth) );
+
+      double sint_angle = (hcal_origin-vertex).Dot( hcal_zaxis )/qdir_angles.Dot( hcal_zaxis );
+
+      TVector3 hcal_intersect_angles = vertex + sintersect * qdir_angles;
+
+      double xhcal_expect_angles = hcal_intersect_angles.Dot( hcal_xaxis );
+      double yhcal_expect_angles = hcal_intersect_angles.Dot( hcal_yaxis );
+      
       hdxdy_all->Fill( yhcal - yhcal_expect, xhcal - xhcal_expect );
       double W2recon = (Ptarg + q).M2();
 
@@ -111,12 +148,21 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
 
       hEHCAL_all->Fill( ehcal );
 
+      W2_out = W2recon;
+      Q2_out = -q.M2();
+
+      dx_4vect = xhcal - xhcal_expect;
+      dy_4vect = yhcal - yhcal_expect;
+      dx_angles = xhcal - xhcal_expect_angles;
+      dy_angles = yhcal - yhcal_expect_angles;
+      
       if( W2recon > W2min && W2recon < W2max ){
 	hdxdy_Wcut->Fill( yhcal - yhcal_expect, xhcal - xhcal_expect );
 	hEHCAL_Wcut->Fill( ehcal );
       } else {
 	hdxdy_Wanticut->Fill( yhcal - yhcal_expect, xhcal - xhcal_expect );
       }
+      Tout->Fill();
     }
   }
 
