@@ -72,7 +72,7 @@ bb.gem.commonmode_danning_nsigma_cut = 3.0
 
 # histogramming-method parameters: 
 bb.gem.commonmode_binwidth_nsigma = 2.0
-bb.gem.commonmode_scanrange_nsigma = 2.5
+bb.gem.commonmode_scanrange_nsigma = 5.0
 bb.gem.commonmode_stepsize_nsigma = 0.25
 
 bb.gem.correct_common_mode = 1
@@ -435,14 +435,18 @@ bb.gem.threshold_sample = 0.0
 bb.gem.threshold_stripsum = 0.0
 bb.gem.threshold_clustersum = 0.0
 
+bb.gem.threshold_sample_deconv = 50.0
+bb.gem.threshold_maxcombo_deconv = 75.0
+bb.gem.threshold_clustersum_deconv = 150.0
+
 bb.gem.ADCasym_cut = 0.75
 bb.gem.deltat_cut = 21.0
-bb.gem.corrcoeff_cut = 0.5
+bb.gem.corrcoeff_cut = 0.4
 bb.gem.filterflag1D = -1
-bb.gem.filterflag2D = 0
+bb.gem.filterflag2D = -1
 
-bb.gem.peakprominence_minsigma = 5.0
-bb.gem.peakprominence_minfraction = 0.2
+bb.gem.peakprominence_minsigma = 3.0
+bb.gem.peakprominence_minfraction = 0.15
 
 bb.gem.maxnu_charge = 4
 bb.gem.maxnv_charge = 4
@@ -453,20 +457,35 @@ bb.gem.maxnv_pos = 2
 bb.gem.do_neg_signal_study = 0
 
 bb.gem.sigmahitshape = 0.0004 
-bb.gem.sigmahitpos = 0.00015 # 0.15 mm or 150 um
-bb.gem.trackchi2cut = 30.0
-bb.gem.onlinezerosuppression = 0
+bb.gem.sigmahitpos = 0.0001 # 0.15 mm or 150 um
+bb.gem.trackchi2cut = 50.0
+bb.gem.trackchi2cut_hitquality = 75.0
+bb.gem.use_enhanced_chi2 = 0
+bb.gem.onlinezerosuppression = 1
 bb.gem.zerosuppress_nsigma = 5.0
 bb.gem.minhitsontrack = 3
+bb.gem.minhighqualityhitsontrack = 0
+
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 25000
-bb.gem.maxhitcombos_total = 1000000000
+bb.gem.maxhitcombos_total = 1.e16
 bb.gem.tryfasttrack = 1
-bb.gem.gridbinwidthx = 0.01
-bb.gem.gridbinwidthy = 0.01
-bb.gem.gridedgetolerancex = 0.003
-bb.gem.gridedgetolerancey = 0.003
+bb.gem.gridbinwidthx = 0.005
+bb.gem.gridbinwidthy = 0.005
+bb.gem.gridedgetolerancex = 0.0015
+bb.gem.gridedgetolerancey = 0.0015
 bb.gem.useconstraint = 1
+
+bb.gem.clustering_flag = 0 # use deconvoluted ADC max combo for clustering
+bb.gem.deconvolution_flag = 0 # reject strips with max deconvoluted two-sample combo below fZeroSuppressRMS * sigma_1sample
+
+bb.gem.usetrigtime = 0
+bb.gem.trigtime_crate = 5
+bb.gem.trigtime_slot = 2
+bb.gem.trigtime_chan = 127
+bb.gem.trigtime_t0 = 368.0
+bb.gem.trigtime_calib = 0.0936
+bb.gem.maxtrigtime_correction = 15.0
 
 bb.gem.useopticsconstraint = 0
 bb.gem.useforwardopticsconstraint = 0
@@ -1187,10 +1206,14 @@ bb.gem.ytar_max = 0.08
 bb.gem.pmin = 0.5
 bb.gem.pmax = 1.5
 
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 
-bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.addstrip_tcut = 50.0
+bb.gem.addstrip_ccor_cut = 0.1
+bb.gem.addstrip_tcut = 75.0
+
+# in the new SBS-offline, "tcut" is interpreted as a number of standard deviations, not ns
+# we specify the cut value in standard deviations and the std. dev. in ns
+bb.gem.maxstrip_tsigma = 1.0
 
 bb.gem.m0.maxstrip_t0 =     84.7
 bb.gem.m0.maxstrip_tcut =     24.4
@@ -1288,6 +1311,8 @@ bb.gem.constraintwidth_phi = 0.0336563
 
 ----------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics:
 
+bb.gem.ADCasym_sigma = 0.2
+
 bb.gem.useopticsconstraint = 1
 bb.gem.xptar_min = -0.3
 bb.gem.xptar_max = 0.3
@@ -1298,10 +1323,12 @@ bb.gem.ytar_max = 0.08
 bb.gem.pmin = 0.7
 bb.gem.pmax = 2.7
 
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 
-bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.addstrip_tcut = 25.0
+bb.gem.addstrip_ccor_cut = 0.1
+bb.gem.addstrip_tcut = 75.0
+
+bb.gem.maxstrip_tsigma = 1.0
 
 bb.gem.m0.maxstrip_t0 =     83.1
 bb.gem.m0.maxstrip_tcut =     30.7
@@ -1399,10 +1426,12 @@ bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
 
 # these may need adjusting:
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 
-bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.addstrip_tcut = 25.0
+bb.gem.addstrip_ccor_cut = 0.1
+bb.gem.addstrip_tcut = 75.0
+
+bb.gem.maxstrip_tsigma = 1.0
 
 bb.gem.m0.maxstrip_t0 =     86.8
 bb.gem.m0.maxstrip_tcut =     23.9
@@ -1506,10 +1535,12 @@ bb.gem.useslopeconstraint = 1
 
 ----------[ 2021-11-13 13:55:00 ] # after re-adjusting GEM latency:
 # these may need adjusting:
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 
-bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.addstrip_tcut = 25.0
+bb.gem.addstrip_ccor_cut = 0.1
+bb.gem.addstrip_tcut = 75.0
+
+bb.gem.maxstrip_tsigma = 1.0
 
 bb.gem.m0.maxstrip_t0 =     86.8
 bb.gem.m0.maxstrip_tcut =     23.9
@@ -1540,10 +1571,12 @@ bb.gem.m11.maxstrip_tcut =     24.8
 ----------[ 2021-11-16 04:35:00 ] # additional GEM latency adjustment starting with run 12051
 
 # these may need adjusting:
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 
-bb.gem.addstrip_ccor_cut = 0.5
-bb.gem.addstrip_tcut = 25.0
+bb.gem.addstrip_ccor_cut = 0.1
+bb.gem.addstrip_tcut = 75.0
+
+bb.gem.maxstrip_tsigma = 1.0
 
 bb.gem.m0.maxstrip_t0 =     75.4
 bb.gem.m0.maxstrip_tcut =     22.3
