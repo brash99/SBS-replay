@@ -189,6 +189,8 @@ void GetTrackingCuts( const char *rootfilename, const char *outfilename="GMNtrac
     TH1D *hADCclust = new TH1D(hclustname.Data(), ";cluster ADC sum;", 1500, 0, 30000 );
     
     T->Project( hsampname.Data(), "0.5*(bb.gem.hit.ADCmaxsampU+bb.gem.hit.ADCmaxsampV)", clustercut );
+
+    if( hADCmaxsamp->GetEntries() < 300 ) continue;
     
     double fraction = 0.003;
 
