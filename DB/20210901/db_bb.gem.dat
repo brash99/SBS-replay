@@ -2082,3 +2082,47 @@ bb.gem.m9.threshold_clustersum = 0.0
 bb.gem.m10.threshold_clustersum = 0.0
 bb.gem.m11.threshold_clustersum = 0.0
 
+-------[ 2021-11-01 00:00:00 ]
+
+bb.gem.use_enhanced_chi2 = 1
+bb.gem.minhighqualityhitsontrack = 1
+
+
+bb.gem.m0.threshold_sample = 0.0
+bb.gem.m1.threshold_sample = 0.0
+bb.gem.m2.threshold_sample = 0.0
+bb.gem.m3.threshold_sample = 0.0
+bb.gem.m4.threshold_sample = 0.0
+bb.gem.m5.threshold_sample = 0.0
+bb.gem.m6.threshold_sample = 0.0
+bb.gem.m7.threshold_sample = 0.0
+bb.gem.m8.threshold_sample = 0.0
+bb.gem.m9.threshold_sample = 0.0
+bb.gem.m10.threshold_sample = 0.0
+bb.gem.m11.threshold_sample = 0.0
+
+bb.gem.m0.threshold_stripsum = 0.0
+bb.gem.m1.threshold_stripsum = 0.0
+bb.gem.m2.threshold_stripsum = 0.0
+bb.gem.m3.threshold_stripsum = 0.0
+bb.gem.m4.threshold_stripsum = 0.0
+bb.gem.m5.threshold_stripsum = 0.0
+bb.gem.m6.threshold_stripsum = 0.0
+bb.gem.m7.threshold_stripsum = 10000.0
+bb.gem.m8.threshold_stripsum = 0.0
+bb.gem.m9.threshold_stripsum = 0.0
+bb.gem.m10.threshold_stripsum = 0.0
+bb.gem.m11.threshold_stripsum = 0.0
+
+bb.gem.m0.threshold_clustersum = 0.0
+bb.gem.m1.threshold_clustersum = 0.0
+bb.gem.m2.threshold_clustersum = 0.0
+bb.gem.m3.threshold_clustersum = 0.0
+bb.gem.m4.threshold_clustersum = 0.0
+bb.gem.m5.threshold_clustersum = 0.0
+bb.gem.m6.threshold_clustersum = 0.0
+bb.gem.m7.threshold_clustersum = 0.0
+bb.gem.m8.threshold_clustersum = 0.0
+bb.gem.m9.threshold_clustersum = 0.0
+bb.gem.m10.threshold_clustersum = 0.0
+bb.gem.m11.threshold_clustersum = 0.0

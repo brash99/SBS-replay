@@ -2,6 +2,7 @@
 #include "TF1.h"
 #include "TChain.h"
 #include "TTree.h"
+#include "TCut.h"
 
 TH1D *hW2elastic;
 
@@ -87,7 +88,7 @@ void Fit_W2_inclusive( TH1D *hW2all, TH1D *hW2elastic_temp, int order_bg=4, doub
 
 }
 
-void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max = 1.4 ){
+void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max = 1.4, TCut cut="" ){
   TChain *C = new TChain("Tout");
 
   C->Add(rootfilename);
@@ -96,7 +97,7 @@ void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max 
   TH1D *hW2_HCALcut = new TH1D("hW2_HCALcut", ";W^{2} (GeV^{2});", 100, -1.0, 3.0 );
 
   C->Project("hW2_nocut", "W2");
-  C->Project("hW2_HCALcut", "W2", "HCALcut");
+  C->Project("hW2_HCALcut", "W2", cut);
 
   Fit_W2_inclusive( hW2_nocut, hW2_HCALcut, 6, 0, 1.4 );
 
