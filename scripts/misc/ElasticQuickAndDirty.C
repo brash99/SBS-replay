@@ -18,7 +18,7 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
 
   C->Add(rootfilename); 
 
-  TCut globalcut = "bb.ps.e>0.15&&abs(bb.tr.vz)<0.27&&sbs.hcal.nclus>0&&bb.tr.n==1";
+  TCut globalcut = "bb.ps.e>0.2&&abs(bb.tr.vz)<0.27&&sbs.hcal.nclus>0&&bb.tr.n>=1";
   
   TEventList *elist = new TEventList("elist","");
   
@@ -98,13 +98,24 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   double dx_4vect, dy_4vect, dx_angles, dy_angles;
   double W2_out;
   double Q2_out;
-
+  double xHCAL_out, yHCAL_out;
+  double ep_out, etheta_out, ephi_out;
+  double EHCAL_out;
+  double vz_out;
+  
   Tout->Branch( "W2", &W2_out, "W2/D");
   Tout->Branch( "Q2", &Q2_out, "Q2/D");
   Tout->Branch( "dx_4vect", &dx_4vect, "dx_4vect/D");
   Tout->Branch( "dy_4vect", &dy_4vect, "dy_4vect/D");
   Tout->Branch( "dx", &dx_angles, "dx/D" );
   Tout->Branch( "dy", &dy_angles, "dy/D" );
+  Tout->Branch( "xHCAL", &xHCAL_out, "xHCAL/D");
+  Tout->Branch( "yHCAL", &yHCAL_out, "yHCAL/D");
+  Tout->Branch( "ep", &ep_out, "ep/D");
+  Tout->Branch( "EHCAL", &EHCAL_out, "EHCAL/D");
+  Tout->Branch( "etheta", &etheta_out, "etheta/D");
+  Tout->Branch( "ephi", &ephi_out, "ephi/D");
+  Tout->Branch( "vz", &vz_out, "vz/D");
   
   while( C->GetEntry(elist->GetEntry(nevent++) ) ){
     if( ntrack >= 1.0 ){
@@ -162,6 +173,17 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
       } else {
 	hdxdy_Wanticut->Fill( yhcal - yhcal_expect, xhcal - xhcal_expect );
       }
+
+      xHCAL_out = xhcal;
+      yHCAL_out = yhcal;
+
+      ep_out = ep[0];
+      etheta_out = etheta;
+      ephi_out = ephi;
+
+      EHCAL_out = ehcal;
+      vz_out = vz[0];
+      
       Tout->Fill();
     }
   }
