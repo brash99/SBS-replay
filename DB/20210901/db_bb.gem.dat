@@ -1737,58 +1737,8 @@ bb.gem.m11.ADCasym_sigma =   0.053445
 
 bb.gem.m11.ADCratio_sigma_deconv =   0.099647
 
-
-
-bb.gem.m0.threshold_sample = 108.349
-bb.gem.m0.threshold_stripsum = 565
-bb.gem.m0.threshold_clustersum = 990
-b
-bb.gem.m1.threshold_sample = 99.7084
-bb.gem.m1.threshold_stripsum = 445
-bb.gem.m1.threshold_clustersum = 770
-
-bb.gem.m2.threshold_sample = 104.559
-bb.gem.m2.threshold_stripsum = 465
-bb.gem.m2.threshold_clustersum = 790
-
-bb.gem.m3.threshold_sample = 101.054
-bb.gem.m3.threshold_stripsum = 465
-bb.gem.m3.threshold_clustersum = 810
-
-bb.gem.m4.threshold_sample = 96.4713
-bb.gem.m4.threshold_stripsum = 535
-bb.gem.m4.threshold_clustersum = 930
-
-bb.gem.m5.threshold_sample = 100.177
-bb.gem.m5.threshold_stripsum = 455
-bb.gem.m5.threshold_clustersum = 790
-
-bb.gem.m6.threshold_sample = 102.82
-bb.gem.m6.threshold_stripsum = 455
-bb.gem.m6.threshold_clustersum = 810
-
-# module 7 doesn't work ever; set high threshold to exclude from analysis
-bb.gem.m7.threshold_sample = 10000
-bb.gem.m7.threshold_stripsum = 5
-bb.gem.m7.threshold_clustersum = 10
-
-bb.gem.m8.threshold_sample = 92.6519
-bb.gem.m8.threshold_stripsum = 545
-bb.gem.m8.threshold_clustersum = 1030
-
-bb.gem.m9.threshold_sample = 95.4921
-bb.gem.m9.threshold_stripsum = 455
-bb.gem.m9.threshold_clustersum = 810
-
-bb.gem.m10.threshold_sample = 100.459
-bb.gem.m10.threshold_stripsum = 495
-bb.gem.m10.threshold_clustersum = 870
-
-bb.gem.m11.threshold_sample = 100.052
-bb.gem.m11.threshold_stripsum = 485
-bb.gem.m11.threshold_clustersum = 850
-
-
+#bb.gem.threshold_stripsum = 0.0
+#bb.gem.threshold_clustersum = 0.0
 
 bb.gem.constraintwidth_theta = 0.0309061
 bb.gem.constraintwidth_phi = 0.0264007
@@ -2052,4 +2002,55 @@ bb.gem.pedfile = gemped/daq_ped_bb_gem_run11936.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run11936.dat
 
 #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
+
+--------[ 2021-01-01 00:00:00 ] # anything here will override earlier entries (I think), but any module-specific parameter definitions above will still supersede any global definitions below (I think)
+
+
+# zero out thresholds that control clustering behavior (only basic zero suppression is active):
+
+
+-------[ 2021-10-21 00:00:00 ]
+
+bb.gem.use_enhanced_chi2 = 1
+bb.gem.minhighqualityhitsontrack = 1
+
+
+bb.gem.m0.threshold_sample = 0.0
+bb.gem.m1.threshold_sample = 0.0
+bb.gem.m2.threshold_sample = 0.0
+bb.gem.m3.threshold_sample = 0.0
+bb.gem.m4.threshold_sample = 0.0
+bb.gem.m5.threshold_sample = 0.0
+bb.gem.m6.threshold_sample = 0.0
+bb.gem.m7.threshold_sample = 0.0
+bb.gem.m8.threshold_sample = 0.0
+bb.gem.m9.threshold_sample = 0.0
+bb.gem.m10.threshold_sample = 0.0
+bb.gem.m11.threshold_sample = 0.0
+
+bb.gem.m0.threshold_stripsum = 0.0
+bb.gem.m1.threshold_stripsum = 0.0
+bb.gem.m2.threshold_stripsum = 0.0
+bb.gem.m3.threshold_stripsum = 0.0
+bb.gem.m4.threshold_stripsum = 0.0
+bb.gem.m5.threshold_stripsum = 0.0
+bb.gem.m6.threshold_stripsum = 0.0
+bb.gem.m7.threshold_stripsum = 10000.0
+bb.gem.m8.threshold_stripsum = 0.0
+bb.gem.m9.threshold_stripsum = 0.0
+bb.gem.m10.threshold_stripsum = 0.0
+bb.gem.m11.threshold_stripsum = 0.0
+
+bb.gem.m0.threshold_clustersum = 0.0
+bb.gem.m1.threshold_clustersum = 0.0
+bb.gem.m2.threshold_clustersum = 0.0
+bb.gem.m3.threshold_clustersum = 0.0
+bb.gem.m4.threshold_clustersum = 0.0
+bb.gem.m5.threshold_clustersum = 0.0
+bb.gem.m6.threshold_clustersum = 0.0
+bb.gem.m7.threshold_clustersum = 0.0
+bb.gem.m8.threshold_clustersum = 0.0
+bb.gem.m9.threshold_clustersum = 0.0
+bb.gem.m10.threshold_clustersum = 0.0
+bb.gem.m11.threshold_clustersum = 0.0
 
