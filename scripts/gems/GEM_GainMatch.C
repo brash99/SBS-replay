@@ -174,18 +174,8 @@ void GEM_GainMatch(const char *infilename, int nmodules, const char *fname_strip
 
   C->Add( infilename );
   //Do some file name management. This will of course need to change if you get files from not ewertz volatile
-  // string input_directory = "/volatile/halla/sbs/ewertz/GMn_replays/rootfiles/Standard/"; 
-  // const char *input_directory_char = input_directory.c_str();	
-  // //To implement multiple files or that is replay segments use a for loop
-  // for(int iseg=0; iseg<=numseg; iseg++){
-  //   //If the file name format changed this will of course need to change
-  //   std::string iseg_temp = std::to_string(iseg);
-  //   const char *iseg_char = iseg_temp.c_str();
-  //   TString inputfile = Form("%se1209019_fullreplay_%s_stream0_seg%s_%s.root",input_directory_char,runnum_char,iseg_char,iseg_char);
-  //   //cout << "My name " << inputfile << endl;
-  //   C->Add(inputfile);
-  // }
 
+ 
   C->Print();
   //some variables that are useful, for some reason
   TString branchname;

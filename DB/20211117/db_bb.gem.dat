@@ -1637,7 +1637,7 @@ bb.gem.commonmode_danning_nsigma_cut = 3.0
 
 # histogramming-method parameters: 
 bb.gem.commonmode_binwidth_nsigma = 2.0
-bb.gem.commonmode_scanrange_nsigma = 2.5
+bb.gem.commonmode_scanrange_nsigma = 5.0
 bb.gem.commonmode_stepsize_nsigma = 0.25
 
 bb.gem.correct_common_mode = 1
@@ -2185,8 +2185,8 @@ bb.gem.pedestalmode = 0
 bb.gem.ADCasym_cut = 1.1 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.4
-bb.gem.filterflag1D = 0
-bb.gem.filterflag2D = 0
+bb.gem.filterflag1D = -1
+bb.gem.filterflag2D = -1
 
 bb.gem.peakprominence_minsigma = 3.0 
 bb.gem.peakprominence_minfraction = 0.15
@@ -2211,12 +2211,18 @@ bb.gem.plot_event_info = 1
 bb.gem.pedsub_online = 0
 bb.gem.max2Dhits = 10000000 # per-module
 
-bb.gem.usestriptimingcut = 1 
+bb.gem.usestriptimingcut = 0
 bb.gem.useTSchi2cut = 0
 
 bb.gem.addstrip_tcut = 75.0
 bb.gem.addstrip_ccor_cut = -1.1
 bb.gem.suppressfirstlast = 0
+
+bb.gem.maxstrip_tsigma = 1.0
+
+bb.gem.threshold_sample_deconv = 50.0
+bb.gem.threshold_stripsum_deconv = 75.0
+bb.gem.threshold_clustersum_deconv = 150.0
 
 bb.gem.m0.maxstrip_t0 =     75.3
 bb.gem.m0.maxstrip_tcut =     24.9
@@ -2286,28 +2292,33 @@ bb.gem.constraintwidth_phi = 0.033531
 ########### The following parameters are searched by SBSGEMSpectrometerTracker::ReadDatabase() #####################
 
 # parameters controlling tracking behavior:
-bb.gem.sigmahitpos = 0.00015
+bb.gem.sigmahitpos = 0.0001
 bb.gem.minhitsontrack = 3
+bb.gem.minhighqualityhitsontrack = 0
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 100000
-bb.gem.maxhitcombos_total = 1.e15 # 1 x 10^10
+bb.gem.maxhitcombos_total = 1.e16 # 1 x 10^10
 
 bb.gem.tryfasttrack = 1 
 
 # start with wider grid search bins until we get things aligned in the new setup:
 
-bb.gem.gridbinwidthx = 0.01 
-bb.gem.gridbinwidthy = 0.01
-bb.gem.gridedgetolerancex = 0.003
-bb.gem.gridedgetolerancey = 0.003
+bb.gem.gridbinwidthx = 0.005 
+bb.gem.gridbinwidthy = 0.005
+bb.gem.gridedgetolerancex = 0.0015
+bb.gem.gridedgetolerancey = 0.0015
 
 # start with more relaxed chi2 cut until we re-align:
 
-bb.gem.trackchi2cut = 30.0
+bb.gem.trackchi2cut = 50.0
+bb.gem.trackchi2cut_hitquality = 75.0
+bb.gem.use_enhanced_chi2 = 0
+bb.gem.usetrigtime = 0
+
 bb.gem.useconstraint = 0
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
-bb.gem.useforwardopticsconstraint = 1
+bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.dxfp0 = 0
 bb.gem.dyfp0 = 0
@@ -2473,7 +2484,7 @@ bb.gem.suppressfirstlast = 0
 
 --------[ 2021-12-07 23:48:00 ] 
 
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 bb.gem.suppressfirstlast = 0
 
 --------[ 2021-12-08 01:25:00 ] 
@@ -2483,7 +2494,7 @@ bb.gem.suppressfirstlast = 0
 
 --------[ 2021-12-08 01:40:00 ] 
 
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 bb.gem.suppressfirstlast = 0
 
 --------[ 2021-11-24 23:45:00 ] # turn on search region constraint with beam:

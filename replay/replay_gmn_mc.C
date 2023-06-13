@@ -1,9 +1,3 @@
-R__ADD_INCLUDE_PATH($SBS/include)
-R__ADD_LIBRARY_PATH($SBS/lib64)
-R__ADD_LIBRARY_PATH($SBS/lib)
-R__LOAD_LIBRARY(libsbs.so)
-
-#if !defined(__CLING__) || defined(__ROOTCLING__)
 #include <iostream>
 #include <unordered_map> 
 
@@ -29,8 +23,11 @@ R__LOAD_LIBRARY(libsbs.so)
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSTimingHodoscope.h"
 
+#include "THaGoldenTrack.h"
+#include "THaPrimaryKine.h"
+#include "THaRunParameters.h"
+
 #include "SBSSimDecoder.h"
-#endif
 
 TDatime get_datime(uint sbsconfig)
 /* Returns TDatime for a given SBS configuration */
@@ -55,6 +52,7 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
   //bigbite->AddDetector( new SBSGenericDetector("grinch", "GRINCH PID") );
   bigbite->AddDetector( new SBSTimingHodoscope("hodo", "timing hodo") );
+  //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );
   gHaApps->Add(bigbite);
   
@@ -62,7 +60,7 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
   gHaApps->Add(harm);
 
-  //bigbite->SetDebug(2);
+  // bigbite->SetDebug(5);
   //harm->SetDebug(2);
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -82,14 +80,19 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   THaRunBase *run = new SBSSimFile(run_file.Data(), "gmn", "");
   run->SetFirstEvent(0);
 
-  cout << "Number of events to replay (-1=all)? ";
+  //cout << "Number of events to replay (-1=all)? ";
   //if( nev > 0 )
   //run->SetFirstEvent(110);
   run->SetLastEvent(nev);
   
   run->SetDataRequired(0);
+
   run->SetDate(get_datime(sbsconfig));
   //run->SetDate(TDatime());
+ 
+
+  gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
+  gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
   
   TString out_dir = gSystem->Getenv("OUT_DIR");
   if( out_dir.IsNull() )
@@ -125,12 +128,17 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   
   analyzer->SetVerbosity(2);  // write cut summary to stdout
   analyzer->EnableBenchmarks();
-  
+
+  run->Init();
   run->Print();
+
+  run->GetParameters()->Print();
   
   cout << "about to process " << endl;
   analyzer->Process(run);
 
+  run->GetParameters()->Print();
+  
   // Clean up
 
   analyzer->Close();
