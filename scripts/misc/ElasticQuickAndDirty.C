@@ -211,7 +211,12 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
     }
   }
 
+  cout << "Event loop finished" << endl;
+  
   //  elist->Delete(); 
   fout->Write();
 
+  cout << "Output file closed" << endl;
+
+  GlobalCut->Delete();
 } 
