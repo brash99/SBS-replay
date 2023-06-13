@@ -4,10 +4,12 @@
 #include "TH1D.h"
 #include "TH2D.h"
 #include "TCut.h"
-#include "TEventList.h"
+//#include "TEventList.h"
 #include "TLorentzVector.h"
 #include "TVector3.h"
 #include "TMath.h"
+#include <iostream>
+#include "TTreeFormula.h"
 
 void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double bbtheta=29.5, double sbstheta=34.7, double sbsdist=2.8, double hcaldist=17.0, double sbsfieldscale=1.0){
 
@@ -20,9 +22,11 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
 
   TCut globalcut = "bb.ps.e>0.2&&abs(bb.tr.vz)<0.27&&sbs.hcal.nclus>0&&bb.tr.n>=1";
   
-  TEventList *elist = new TEventList("elist","");
+  //TEventList *elist = new TEventList("elist","");
   
-  C->Draw(">>elist",globalcut);
+  //  C->Draw(">>elist",globalcut);
+
+  TTreeFormula *GlobalCut = new TTreeFormula("GlobalCut",globalcut,C);
 
   int MAXNTRACKS=10;
   
@@ -116,9 +120,19 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   Tout->Branch( "etheta", &etheta_out, "etheta/D");
   Tout->Branch( "ephi", &ephi_out, "ephi/D");
   Tout->Branch( "vz", &vz_out, "vz/D");
+
+  int treenum=0, currenttreenum=0;
   
-  while( C->GetEntry(elist->GetEntry(nevent++) ) ){
-    if( ntrack >= 1.0 ){
+  while( C->GetEntry(nevent++) ){
+    currenttreenum = C->GetTreeNumber();
+    if( nevent == 1 || currenttreenum != treenum ){
+      treenum = currenttreenum;
+      GlobalCut->UpdateFormulaLeaves();
+    }
+
+    if( nevent % 10000 == 0 ) cout << nevent << endl;
+
+    if( ntrack >= 1.0 && GlobalCut->EvalInstance(0) != 0 ){
       TLorentzVector kprime( epx[0], epy[0], epz[0], ep[0] );
       TLorentzVector q = Pbeam - kprime;
 
