@@ -1,0 +1,10 @@
+------[ 2022-09-01 00:00:00 ] # BPM settings, used for track vertex
+
+BPM_separation = 5.15 # Distance between BPMA and BPMB
+BPMA_dist_to_targ = 7.53 # Distance from BPMA and the nominal 0 position vertex z position in the hall
+
+fNevents_rollingmax = 500  # Number of events used in the beam averaging
+
+Raster_curr_x_range = 29106 59225  #Raster min and max value
+Raster_curr_y_range = 29607 57139
+Raster_size = 5 #mm
