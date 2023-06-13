@@ -13,10 +13,10 @@
 
 const Int_t kNrows = 24;                 // Total number of HCal rows
 const Int_t kNcols = 12;                 // Total number of HCal columns
-const Double_t hcalblk_div_h = 0.15494;  //m, horizontal center-to-center dist.
-const Double_t hcalblk_div_v = 0.15875;  //m, vertical center-to-center dist.
-const Double_t hcal_hrange = 1.85928;    //m, total range in horizontal direction of HCal (end-to-end)
-const Double_t hcal_vrange = 3.81;       //m, total range in vertical direction of HCal (end-to-end)
+const Double_t hcalblk_div_h_mc = 0.15494;  //m, horizontal center-to-center dist. from MC database
+const Double_t hcalblk_div_v_mc = 0.15875;  //m, vertical center-to-center dist. form MC database
+const Double_t hcalblk_div_h = 0.15; //m, horizontal center-to-center dist. needed to produce flat dx vs HCALx distr.
+const Double_t hcalblk_div_v = 0.15; //m, vertical center-to-center dist. needed to produce flat dx vs HCALx distr.
 
 // Get today's date
 string getDate(){
@@ -32,9 +32,9 @@ string getDate(){
 }
 
 //v_offset should be positive for towards the sky, h_offset should be positive for away from beamline
-//v_offset for vertical offset (x, dispersive)
-//h_offset for horizontal offset (y, non-dispersive) 
-void HCal_genDBoffsets( Double_t v_offset = -1000., Double_t h_offset = -1000.){ //main
+//v_offset for vertical offset in meters (x, dispersive)
+//h_offset for horizontal offset in meters (y, non-dispersive) 
+void HCal_genDBoffsets( Double_t v_offset = -1000., Double_t h_offset = -1000., bool MC = false ){ //main
 
   //Require that user pass offsets
   if( v_offset==-1000. || h_offset==-1000. ){
@@ -59,17 +59,23 @@ void HCal_genDBoffsets( Double_t v_offset = -1000., Double_t h_offset = -1000.){
   Double_t vpos[kNrows];
   Double_t hpos[kNcols];
 
-  //Calculate positions for blocks. Each position in db refers to the center of the block
-  for( Int_t r=0; r<kNrows; r++ ){ //loop over rows
-    vpos[r] = -( ( hcal_vrange - hcalblk_div_v ) / 2 ) - v_offset + ( r * hcalblk_div_v );
+  //Switch for MC database center-to-center distance if necessary
+  Double_t hdiv = hcalblk_div_h;
+  Double_t vdiv = hcalblk_div_h;
+  if( MC ){
+    hdiv = hcalblk_div_h_mc;
+    vdiv = hcalblk_div_v_mc;
   }
 
-  for( Int_t c=0; c<kNcols; c++ ){ //loop over cols
-    hpos[c] = -( ( hcal_hrange - hcalblk_div_h ) / 2 ) - h_offset + ( c * hcalblk_div_h );
+  //Calculate positions for blocks. Each position in db refers to the center of the block
+  for( Int_t r=1; r<=kNrows; r++ ){ //loop over rows
+    vpos[r-1] = r*vdiv - (kNrows/2+0.5)*vdiv - v_offset;    
+  }
+
+  for( Int_t c=1; c<=kNcols; c++ ){ //loop over cols
+    hpos[c-1] = c*hdiv - (kNcols/2+0.5)*hdiv - h_offset;    
   }
   
-  Double_t test = -(( 3.81 - 0.15875 ) / 2 ) - 0.365;
-
   //Console/txt outs  
   std::cout << std::setprecision(7); //std::cout default precision is 5 sig figs, set to 7
   hcal_db_offsets << std::setprecision(7); //std::cout default precision is 5 sig figs, set to 7
