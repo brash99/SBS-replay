@@ -20,7 +20,7 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
 
   C->Add(rootfilename); 
 
-  TCut globalcut = "bb.ps.e>0.2&&abs(bb.tr.vz)<0.27&&sbs.hcal.nclus>0&&bb.tr.n>=1";
+  TCut globalcut = "bb.ps.e>0.2&&sbs.hcal.nclus>0&&bb.tr.n>=1&&abs(bb.etot_over_p-1.)<0.25";
   
   //TEventList *elist = new TEventList("elist","");
   
@@ -53,6 +53,11 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   C->SetBranchStatus("bb.tr.pz",1);
   C->SetBranchStatus("bb.tr.p",1);
 
+  C->SetBranchStatus("bb.ps.e",1);
+  C->SetBranchStatus("bb.sh.e",1);
+  C->SetBranchStatus("bb.etot_over_p",1);
+
+  C->SetBranchStatus("sbs.hcal.nclus",1);
   C->SetBranchStatus("sbs.hcal.x",1);
   C->SetBranchStatus("sbs.hcal.y",1);
   C->SetBranchStatus("sbs.hcal.e",1);
@@ -132,7 +137,11 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
 
     if( nevent % 10000 == 0 ) cout << nevent << endl;
 
-    if( ntrack >= 1.0 && GlobalCut->EvalInstance(0) != 0 ){
+    bool goodevent = GlobalCut->EvalInstance(0) != 0;
+
+    //cout << "goodevent = " << goodevent << endl;
+
+    if( ntrack >= 1.0 && goodevent ){
       TLorentzVector kprime( epx[0], epy[0], epz[0], ep[0] );
       TLorentzVector q = Pbeam - kprime;
 
@@ -202,7 +211,7 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
     }
   }
 
-  elist->Delete(); 
+  //  elist->Delete(); 
   fout->Write();
 
 } 
