@@ -118,7 +118,9 @@ bb.frontconstraintwidth_y = 0.0572045
 bb.backconstraintwidth_x = 0.050677
 bb.backconstraintwidth_y = 0.0633993
 
-bb.frontconstraint_x0 = 0.0529
+#bb.frontconstraint_x0 = 0.0529
+# minor adjustment to front constraint x center after updating momentum and BBCAL calibrations:
+bb.frontconstraint_x0 = 0.055
 bb.frontconstraint_y0 = -0.0154
 bb.backconstraint_x0 = 0.0041
 bb.backconstraint_y0 = 0.0002
