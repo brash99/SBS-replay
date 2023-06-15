@@ -118,7 +118,9 @@ bb.frontconstraintwidth_y = 0.0572045
 bb.backconstraintwidth_x = 0.050677
 bb.backconstraintwidth_y = 0.0633993
 
-bb.frontconstraint_x0 = 0.0529
+#bb.frontconstraint_x0 = 0.0529
+# minor adjustment to front constraint x center after updating momentum and BBCAL calibrations:
+bb.frontconstraint_x0 = 0.055
 bb.frontconstraint_y0 = -0.0154
 bb.backconstraint_x0 = 0.0041
 bb.backconstraint_y0 = 0.0002
@@ -555,9 +557,16 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.271495549
-bb.B_pth1 =      1.02274415
+#bb.A_pth1 =     0.271495549
+#bb.B_pth1 =      1.02274415
+#bb.C_pth1 = 0.0
+
+# New momentum calibration SBS-4 SBS 30-percent for pass 2:
+bb.A_pth1 =     0.272702433
+bb.B_pth1 =      1.01298458
 bb.C_pth1 = 0.0
+
+
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs4.dat
 
@@ -610,7 +619,27 @@ bb.forwardoptics_parameters =
    5.6640239e-14    -7.816445e-13    4.3366583e-14    -1.995292e-13  0 0 0 1 1
    3.0462698e-13    1.2894872e-13    1.0560976e-13    1.3326254e-14  0 0 0 0 2
 
+--------[ 2021-10-24 00:00:00 ]  #SBS field off: use zero-field calibration for momentum:
 
+
+# New Momentum calibration SBS-4 SBS 0-percent for pass 2 (also uses below optics):
+bb.A_pth1 =     0.270388074
+bb.B_pth1 =       1.0307073
+bb.C_pth1 = 0.0
+
+--------[ 2021-10-24 11:00:00 ] # SBS field to 50 percent
+
+# New Momentum calibration SBS-4 SBS 50-percent for pass 2 (also uses below optics)
+bb.A_pth1 =      0.27430735
+bb.B_pth1 =      1.01425878
+bb.C_pth1 = 0.0
+
+---------[ 2021-10-25 00:19:00 ] # SBS field back to 30 percent for rest of SBS-4:
+
+# New momentum calibration SBS-4 SBS 30-percent for pass 2:
+bb.A_pth1 =     0.272702433
+bb.B_pth1 =      1.01298458
+bb.C_pth1 = 0.0
 
 ----------[ 2021-10-24 23:10:00 ] # zero-field run for SBS-4:
 bb.frontconstraintwidth_x = 1.0 
