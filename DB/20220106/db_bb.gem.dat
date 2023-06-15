@@ -1214,7 +1214,7 @@ bb.gem.filterflag2D = -1
 
 bb.gem.clustering_flag = 0
 bb.gem.deconvolution_flag = 0
-bb.gem.usestriptimingcut = 2
+bb.gem.usestriptimingcut = 0
 
 
 --------[ 2022-01-30 17:05:00 ] # Full readout runs for negative pulse study
