@@ -93,7 +93,7 @@ bb.gem.maxstrip_t0 = 85.4
 bb.gem.maxstrip_tcut = 21.0
 bb.gem.addstrip_tcut = 21.0
 bb.gem.addstrip_ccor_cut = 0.4
-bb.gem.suppressfirstlast = -1
+bb.gem.suppressfirstlast = 0
 
 bb.gem.modulegain = 1
 
