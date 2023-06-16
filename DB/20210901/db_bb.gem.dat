@@ -1806,53 +1806,53 @@ bb.gem.m11.ADCratio_sigma_deconv =     0.096267
 
 bb.gem.m11.sigma_tcorr =       4.5731
 
+bb.gem.m0.threshold_sample =          110
+bb.gem.m0.threshold_stripsum =          440
+bb.gem.m0.threshold_clustersum =          780
 
-bb.gem.m0.threshold_sample = 50.0
-bb.gem.m0.threshold_stripsum = 200.0
-bb.gem.m0.threshold_clustersum = 400.0
+bb.gem.m1.threshold_sample =           86
+bb.gem.m1.threshold_stripsum =          350
+bb.gem.m1.threshold_clustersum =          620
 
-bb.gem.m1.threshold_sample = 50.0
-bb.gem.m1.threshold_stripsum = 200.0
-bb.gem.m1.threshold_clustersum = 400.0
+bb.gem.m2.threshold_sample =           94
+bb.gem.m2.threshold_stripsum =          370
+bb.gem.m2.threshold_clustersum =          660
 
-bb.gem.m2.threshold_sample = 50.0
-bb.gem.m2.threshold_stripsum = 200.0
-bb.gem.m2.threshold_clustersum = 400.0
+bb.gem.m3.threshold_sample =           96
+bb.gem.m3.threshold_stripsum =          390
+bb.gem.m3.threshold_clustersum =          680
 
-bb.gem.m3.threshold_sample = 50.0
-bb.gem.m3.threshold_stripsum = 200.0
-bb.gem.m3.threshold_clustersum = 400.0
+bb.gem.m4.threshold_sample =          104
+bb.gem.m4.threshold_stripsum =          430
+bb.gem.m4.threshold_clustersum =          780
 
-bb.gem.m4.threshold_sample = 50.0
-bb.gem.m4.threshold_stripsum = 200.0
-bb.gem.m4.threshold_clustersum = 400.0
+bb.gem.m5.threshold_sample =           90
+bb.gem.m5.threshold_stripsum =          370
+bb.gem.m5.threshold_clustersum =          660
 
-bb.gem.m5.threshold_sample = 50.0
-bb.gem.m5.threshold_stripsum = 200.0
-bb.gem.m5.threshold_clustersum = 400.0
+bb.gem.m6.threshold_sample =           88
+bb.gem.m6.threshold_stripsum =          370
+bb.gem.m6.threshold_clustersum =          660
 
-bb.gem.m6.threshold_sample = 50.0
-bb.gem.m6.threshold_stripsum = 200.0
-bb.gem.m6.threshold_clustersum = 400.0
+bb.gem.m8.threshold_sample =           96
+bb.gem.m8.threshold_stripsum =          360
+bb.gem.m8.threshold_clustersum =          680
 
-bb.gem.m8.threshold_sample = 50.0
-bb.gem.m8.threshold_stripsum = 200.0
-bb.gem.m8.threshold_clustersum = 400.0
+bb.gem.m9.threshold_sample =           92
+bb.gem.m9.threshold_stripsum =          350
+bb.gem.m9.threshold_clustersum =          620
 
-bb.gem.m9.threshold_sample = 50.0
-bb.gem.m9.threshold_stripsum = 200.0
-bb.gem.m9.threshold_clustersum = 400.0
+bb.gem.m10.threshold_sample =          100
+bb.gem.m10.threshold_stripsum =          390
+bb.gem.m10.threshold_clustersum =          700
 
-bb.gem.m10.threshold_sample = 50.0
-bb.gem.m10.threshold_stripsum = 200.0
-bb.gem.m10.threshold_clustersum = 400.0
+bb.gem.m11.threshold_sample =           92
+bb.gem.m11.threshold_stripsum =          360
+bb.gem.m11.threshold_clustersum =          660
 
-bb.gem.m11.threshold_sample = 50.0
-bb.gem.m11.threshold_stripsum = 200.0
-bb.gem.m11.threshold_clustersum = 400.0
+bb.gem.constraintwidth_theta = 0.030174
+bb.gem.constraintwidth_phi = 0.02651
 
-bb.gem.constraintwidth_theta = 0.0309061
-bb.gem.constraintwidth_phi = 0.0264007
 
 -----------[ 2021-10-24 23:10:00 ] # Zero-field run for SBS-4:
 bb.gem.useconstraint = 1
@@ -1904,56 +1904,54 @@ bb.gem.m10.maxstrip_tcut =     23.9
 bb.gem.m11.maxstrip_t0 =     88.7
 bb.gem.m11.maxstrip_tcut =     24.8
 
-bb.gem.constraintwidth_theta = 0.030881
-bb.gem.constraintwidth_phi = 0.0282964
+bb.gem.m0.threshold_sample =           82
+bb.gem.m0.threshold_stripsum =          320
+bb.gem.m0.threshold_clustersum =          580
 
-bb.gem.m0.threshold_sample = 118.183
-bb.gem.m0.threshold_stripsum = 555
-bb.gem.m0.threshold_clustersum = 990
+bb.gem.m1.threshold_sample =           82
+bb.gem.m1.threshold_stripsum =          320
+bb.gem.m1.threshold_clustersum =          580
 
-bb.gem.m1.threshold_sample = 103
-bb.gem.m1.threshold_stripsum = 425
-bb.gem.m1.threshold_clustersum = 750
+bb.gem.m2.threshold_sample =           84
+bb.gem.m2.threshold_stripsum =          330
+bb.gem.m2.threshold_clustersum =          580
 
-bb.gem.m2.threshold_sample = 107
-bb.gem.m2.threshold_stripsum = 435
-bb.gem.m2.threshold_clustersum = 770
+bb.gem.m3.threshold_sample =           92
+bb.gem.m3.threshold_stripsum =          360
+bb.gem.m3.threshold_clustersum =          640
 
-bb.gem.m3.threshold_sample = 105.262
-bb.gem.m3.threshold_stripsum = 445
-bb.gem.m3.threshold_clustersum = 810
+bb.gem.m4.threshold_sample =           90
+bb.gem.m4.threshold_stripsum =          350
+bb.gem.m4.threshold_clustersum =          640
 
-bb.gem.m4.threshold_sample = 110.58
-bb.gem.m4.threshold_stripsum = 535
-bb.gem.m4.threshold_clustersum = 950
+bb.gem.m5.threshold_sample =           88
+bb.gem.m5.threshold_stripsum =          350
+bb.gem.m5.threshold_clustersum =          620
 
-bb.gem.m5.threshold_sample = 106.154
-bb.gem.m5.threshold_stripsum = 435
-bb.gem.m5.threshold_clustersum = 770
+bb.gem.m6.threshold_sample =           82
+bb.gem.m6.threshold_stripsum =          340
+bb.gem.m6.threshold_clustersum =          600
 
-bb.gem.m6.threshold_sample = 109
-bb.gem.m6.threshold_stripsum = 455
-bb.gem.m6.threshold_clustersum = 790
+bb.gem.m8.threshold_sample =           88
+bb.gem.m8.threshold_stripsum =          320
+bb.gem.m8.threshold_clustersum =          580
 
-bb.gem.m7.threshold_sample = 70.9394
-bb.gem.m7.threshold_stripsum = 5
-bb.gem.m7.threshold_clustersum = 10
+bb.gem.m9.threshold_sample =           70
+bb.gem.m9.threshold_stripsum =          270
+bb.gem.m9.threshold_clustersum =          460
 
-bb.gem.m8.threshold_sample = 86.813
-bb.gem.m8.threshold_stripsum = 435
-bb.gem.m8.threshold_clustersum = 810
+bb.gem.m10.threshold_sample =           82
+bb.gem.m10.threshold_stripsum =          310
+bb.gem.m10.threshold_clustersum =          540
 
-bb.gem.m9.threshold_sample = 101.707
-bb.gem.m9.threshold_stripsum = 475
-bb.gem.m9.threshold_clustersum = 850
+bb.gem.m11.threshold_sample =           82
+bb.gem.m11.threshold_stripsum =          300
+bb.gem.m11.threshold_clustersum =          540
 
-bb.gem.m10.threshold_sample = 108.128
-bb.gem.m10.threshold_stripsum = 515
-bb.gem.m10.threshold_clustersum = 930
+bb.gem.constraintwidth_theta = 0.0313858
+bb.gem.constraintwidth_phi = 0.0292218
 
-bb.gem.m11.threshold_sample = 108.374
-bb.gem.m11.threshold_stripsum = 505
-bb.gem.m11.threshold_clustersum = 910
+
 
 -----------[ 2021-11-13 10:15:00 ] # turn on constraints after turning on BB magnet:  
 
@@ -1981,49 +1979,6 @@ bb.gem.useslopeconstraint = 1
 
 ----------[ 2021-11-13 13:55:00 ] # after re-adjusting GEM latency:
 
-bb.gem.m0.threshold_sample = 50.0
-bb.gem.m0.threshold_stripsum = 200.0
-bb.gem.m0.threshold_clustersum = 400.0
-
-bb.gem.m1.threshold_sample = 50.0
-bb.gem.m1.threshold_stripsum = 200.0
-bb.gem.m1.threshold_clustersum = 400.0
-
-bb.gem.m2.threshold_sample = 50.0
-bb.gem.m2.threshold_stripsum = 200.0
-bb.gem.m2.threshold_clustersum = 400.0
-
-bb.gem.m3.threshold_sample = 50.0
-bb.gem.m3.threshold_stripsum = 200.0
-bb.gem.m3.threshold_clustersum = 400.0
-
-bb.gem.m4.threshold_sample = 50.0
-bb.gem.m4.threshold_stripsum = 200.0
-bb.gem.m4.threshold_clustersum = 400.0
-
-bb.gem.m5.threshold_sample = 50.0
-bb.gem.m5.threshold_stripsum = 200.0
-bb.gem.m5.threshold_clustersum = 400.0
-
-bb.gem.m6.threshold_sample = 50.0
-bb.gem.m6.threshold_stripsum = 200.0
-bb.gem.m6.threshold_clustersum = 400.0
-
-bb.gem.m8.threshold_sample = 50.0
-bb.gem.m8.threshold_stripsum = 200.0
-bb.gem.m8.threshold_clustersum = 400.0
-
-bb.gem.m9.threshold_sample = 50.0
-bb.gem.m9.threshold_stripsum = 200.0
-bb.gem.m9.threshold_clustersum = 400.0
-
-bb.gem.m10.threshold_sample = 50.0
-bb.gem.m10.threshold_stripsum = 200.0
-bb.gem.m10.threshold_clustersum = 400.0
-
-bb.gem.m11.threshold_sample = 50.0
-bb.gem.m11.threshold_stripsum = 200.0
-bb.gem.m11.threshold_clustersum = 400.0
 
 # these may need adjusting:
 bb.gem.usestriptimingcut = 0
