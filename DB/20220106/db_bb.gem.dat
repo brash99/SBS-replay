@@ -1113,37 +1113,37 @@ bb.gem.m7.ADCratio_sigma_deconv =      0.12226
 
 bb.gem.m7.sigma_tcorr =       5.0552
 
-bb.gem.m0.threshold_sample = 50.0
-bb.gem.m0.threshold_stripsum = 200.0
-bb.gem.m0.threshold_clustersum = 400.0
+bb.gem.m0.threshold_sample =          100
+bb.gem.m0.threshold_stripsum =          400
+bb.gem.m0.threshold_clustersum =          720
 
-bb.gem.m1.threshold_sample = 50.0
-bb.gem.m1.threshold_stripsum = 200.0
-bb.gem.m1.threshold_clustersum = 400.0
+bb.gem.m1.threshold_sample =          106
+bb.gem.m1.threshold_stripsum =          440
+bb.gem.m1.threshold_clustersum =          780
 
-bb.gem.m2.threshold_sample = 50.0
-bb.gem.m2.threshold_stripsum = 200.0
-bb.gem.m2.threshold_clustersum = 400.0
+bb.gem.m2.threshold_sample =          102
+bb.gem.m2.threshold_stripsum =          410
+bb.gem.m2.threshold_clustersum =          760
 
-bb.gem.m3.threshold_sample = 50.0
-bb.gem.m3.threshold_stripsum = 200.0
-bb.gem.m3.threshold_clustersum = 400.0
+bb.gem.m3.threshold_sample =          138
+bb.gem.m3.threshold_stripsum =          540
+bb.gem.m3.threshold_clustersum =          960
 
-bb.gem.m4.threshold_sample = 50.0
-bb.gem.m4.threshold_stripsum = 200.0
-bb.gem.m4.threshold_clustersum = 400.0
+bb.gem.m4.threshold_sample =          108
+bb.gem.m4.threshold_stripsum =          440
+bb.gem.m4.threshold_clustersum =          780
 
-bb.gem.m5.threshold_sample = 50.0
-bb.gem.m5.threshold_stripsum = 200.0
-bb.gem.m5.threshold_clustersum = 400.0
+bb.gem.m5.threshold_sample =           92
+bb.gem.m5.threshold_stripsum =          360
+bb.gem.m5.threshold_clustersum =          620
 
-bb.gem.m6.threshold_sample = 50.0
-bb.gem.m6.threshold_stripsum = 200.0
-bb.gem.m6.threshold_clustersum = 400.0
+bb.gem.m6.threshold_sample =           98
+bb.gem.m6.threshold_stripsum =          370
+bb.gem.m6.threshold_clustersum =          660
 
-bb.gem.m7.threshold_sample = 50.0
-bb.gem.m7.threshold_stripsum = 200.0
-bb.gem.m7.threshold_clustersum = 400.0
+bb.gem.m7.threshold_sample =           90
+bb.gem.m7.threshold_stripsum =          330
+bb.gem.m7.threshold_clustersum =          620
 
 bb.gem.constraintwidth_theta = 0.0200136
 bb.gem.constraintwidth_phi = 0.0216751
@@ -1162,6 +1162,9 @@ bb.gem.useslopeconstraint = 0
 
 
 --------[ 2022-01-22 8:00:00 ] # turn on optics and track slope constraints, with loose cuts initially. Optics needs work
+
+bb.gem.use_enhanced_chi2 = 1
+bb.gem.clustering_flag = 1
 
 bb.gem.useopticsconstraint = 1
 #bb.gem.useslopeconstraint = 1
@@ -1210,7 +1213,7 @@ bb.gem.filterflag1D = -1
 bb.gem.filterflag2D = -1
 
 bb.gem.usestriptimingcut = 1
-bb.gem.clustering_flag = 0
+bb.gem.clustering_flag = 1
 bb.gem.deconvolution_flag = 0
 #bb.gem.usestriptimingcut = 0
 bb.gem.suppressfirstlast = 0
