@@ -1962,8 +1962,8 @@ bb.gem.xptar_min = -0.3
 bb.gem.xptar_max = 0.3
 bb.gem.yptar_min = -0.1
 bb.gem.yptar_max = 0.1
-bb.gem.ytar_min = -0.1
-bb.gem.ytar_max = 0.1
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
 bb.gem.pmin = 0.8
 bb.gem.pmax = 3.5
 
@@ -1975,13 +1975,14 @@ bb.gem.ypfp_max = 0.1
 
 ----------[ 2021-11-13 20:10:00 ] # turn on track slope and optics constraints when going to production
 bb.gem.useopticsconstraint = 1
-bb.gem.useslopeconstraint = 1
+bb.gem.useslopeconstraint = 0
+bb.gem.useforwardopticsconstraint = 1
 
 ----------[ 2021-11-13 13:55:00 ] # after re-adjusting GEM latency:
 
 
 # these may need adjusting:
-bb.gem.usestriptimingcut = 0
+bb.gem.usestriptimingcut = 1
 
 bb.gem.addstrip_ccor_cut = 0.1
 bb.gem.addstrip_tcut = 75.0
@@ -2342,7 +2343,7 @@ bb.gem.m11.sigma_tcorr =       5.0471
 ----------[ 2021-11-16 04:35:00 ] # additional GEM latency adjustment starting with run 12051
 
 # these may need adjusting:
-bb.gem.usestriptimingcut = 0
+bb.gem.usestriptimingcut = 1
 
 bb.gem.addstrip_ccor_cut = 0.1
 bb.gem.addstrip_tcut = 75.0
@@ -2699,6 +2700,8 @@ bb.gem.m11.ADCratio_sigma_deconv =       0.1165
 
 bb.gem.m11.sigma_tcorr =       4.6845
 
+#bb.gem.usestriptimingcut = 1
+
 
 ###############################################################################	
 
@@ -2819,6 +2822,5 @@ bb.gem.m11.threshold_clustersum = 0.0
 
 bb.gem.use_enhanced_chi2 = 1
 bb.gem.minhighqualityhitsontrack = 1
-
-
-
+bb.gem.trackchi2cut = 30.0
+bb.gem.trackchi2cut_hitquality = 40.0
