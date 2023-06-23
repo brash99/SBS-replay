@@ -487,8 +487,9 @@ bb.preconflag = 1
 #   p*thetabend = A_pth1*(1.0 + (B_pth1+C_pth1*bb.magdist)*thtgt)
 # For simulation start with, A_pth1=0.28615*s; B_pth1=0.1976; C_pth1=0.4764
 # where 's' is bbfield scale factor
-bb.A_pth1 =      0.27618452
-bb.B_pth1 =      0.93026782
+# Calibrated using updated ebeam (3.7393 GeV) - 06/23/2023
+bb.A_pth1 =     0.276128278
+bb.B_pth1 =     0.915588527
 bb.C_pth1 = 0.0
 
 bb.optics_order = 2
