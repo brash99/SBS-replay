@@ -3,7 +3,7 @@
 //
 // Requires Podd 1.7.4
 
-#if !defined(__CLING__) || defined(__ROOTCLING__)
+//#if !defined(__CLING__) || defined(__ROOTCLING__)
 #include <iostream>
 
 #include "TSystem.h"
@@ -38,7 +38,7 @@
 #include "LHRSScalerEvtHandler.h"
 #include "SBSScalerEvtHandler.h"
 #include "SBSScalerHelicity.h"
-#endif
+//#endif
 
 using namespace std;
 
@@ -171,9 +171,19 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   if( !prefix.IsNull() )
     pathlist.push_back( prefix.Data() );
 
-  //if( prefix != "/w/work5/home/garyp/sbs/data/GEn" )
-  //pathlist.push_back( "/w/work5/home/garyp/sbs/data/GEn" );
-  
+  if( prefix != "/adaqeb[1-3]/data1" )
+    pathlist.push_back( "/adaqeb[1-3]/data1" );
+
+  if( prefix != "/adaq1/data1/sbs" )
+    pathlist.push_back( "/adaq1/data1/sbs" );
+
+  // Do not use wildcard filenames with this directory
+  if( prefix != "/cache/mss/halla/sbs/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/raw" );
+
+  if( prefix != "/cache/mss/halla/sbs/GEnII/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/GEnII/raw" );
+
   for( const auto& path: pathlist ) {
     cout << "search paths = " << path << endl;
   }
