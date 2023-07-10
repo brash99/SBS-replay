@@ -708,8 +708,14 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =      0.27756646
-bb.B_pth1 =     0.928255129
+#bb.A_pth1 =      0.27756646
+#bb.B_pth1 =     0.928255129
+#bb.C_pth1 = 0.0
+
+# new results with corrected beam energy:
+
+bb.A_pth1 =      0.27777003
+bb.B_pth1 =     0.915135981
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs7.dat
