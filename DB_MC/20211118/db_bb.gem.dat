@@ -545,7 +545,7 @@ bb.gem.m7.chanmap =
       19   17  17   0   5   0  11   0    1 # Strip 1408-1535
 
 bb.gem.m8.chanmap = 
-## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1024 y-strips)
+## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1536 y-strips)
       19   17  17   0   6   0   0   0    0 # Strip    0- 127
       19   17  17   0   7   0   1   0    0 # Strip  128- 255
       19   17  17   0   8   0   2   0    0 # Strip  256- 383
@@ -570,7 +570,7 @@ bb.gem.m8.chanmap =
       19   18  18   0  11   0  11   0    1 # Strip 1408-1535
 
 bb.gem.m9.chanmap = 
-## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1024 y-strips)
+## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1536 y-strips)
       19   18  18   0  12   0   0   0    0 # Strip    0- 127
       19   18  18   0  13   0   1   0    0 # Strip  128- 255
       19   18  18   0  14   0   2   0    0 # Strip  256- 383
@@ -593,4 +593,3 @@ bb.gem.m9.chanmap =
       19   19  19   0  15   0   9   0    1 # Strip 1152-1279
       19   20  20   0   0   0  10   0    1 # Strip 1280-1407
       19   20  20   0   1   0  11   0    1 # Strip 1408-1535
-
