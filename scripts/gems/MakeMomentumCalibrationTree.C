@@ -461,6 +461,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   C->SetBranchStatus("sbs.hcal.y",1);
   C->SetBranchStatus("sbs.hcal.e",1);
   C->SetBranchStatus("sbs.hcal.tdctimeblk",1);
+  C->SetBranchStatus("sbs.hcal.atimeblk",1);
 
   C->SetBranchStatus("bb.hodotdc.nclus",1);
   C->SetBranchStatus("bb.hodotdc.clus.trackindex",1);
@@ -468,6 +469,7 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
 
   //BigBite track variables:
   C->SetBranchStatus("bb.gem.track.nhits",1);
+  C->SetBranchStatus("bb.gem.track.ngoodhits",1);
   C->SetBranchStatus("bb.tr.n",1);
   C->SetBranchStatus("bb.tr.px",1);
   C->SetBranchStatus("bb.tr.py",1);
@@ -495,6 +497,8 @@ void MakeMomentumCalibrationTree( const char *configfilename, const char *output
   C->SetBranchStatus("bb.sh.e",1);
   C->SetBranchStatus("bb.sh.x",1);
   C->SetBranchStatus("bb.sh.y",1);
+  C->SetBranchStatus("bb.sh.atimeblk",1);
+  C->SetBranchStatus("bb.ps.atimeblk",1);
 
   C->SetBranchAddress("bb.tr.n",&ntrack);
   C->SetBranchAddress("bb.gem.track.nhits",nhits);

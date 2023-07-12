@@ -34,7 +34,7 @@ string getDate(){
 //v_offset should be positive for towards the sky, h_offset should be positive for away from beamline
 //v_offset for vertical offset in meters (x, dispersive)
 //h_offset for horizontal offset in meters (y, non-dispersive) 
-void HCal_genDBoffsets( Double_t v_offset = -1000., Double_t h_offset = -1000., bool MC = false ){ //main
+void HCal_genDBoffsets( Double_t v_offset = -1000., Double_t h_offset = -1000., bool MC = true ){ //main
 
   //Require that user pass offsets
   if( v_offset==-1000. || h_offset==-1000. ){

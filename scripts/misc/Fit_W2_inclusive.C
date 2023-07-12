@@ -99,7 +99,7 @@ void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max 
   C->Project("hW2_nocut", "W2");
   C->Project("hW2_HCALcut", "W2", cut);
 
-  Fit_W2_inclusive( hW2_nocut, hW2_HCALcut, 6, 0, 1.4 );
+  Fit_W2_inclusive( hW2_nocut, hW2_HCALcut, 6, 0, 2 );
 
   double Counts,dCounts;
 
