@@ -3,6 +3,7 @@
 #include "TChain.h"
 #include "TTree.h"
 #include "TCut.h"
+#include "TCanvas.h"
 
 TH1D *hW2elastic;
 
@@ -53,7 +54,7 @@ void Fit_W2_inclusive( TH1D *hW2all, TH1D *hW2elastic_temp, int order_bg=4, doub
     hW2all->SetLineColor(1);
     hW2all->SetLineWidth(2);
     
-    hW2all->Draw();
+    hW2all->DrawCopy();
     //hW2elastic->Scale( FitFunc->GetParameter(0) );
 
     TH1D *hW2elastic_copy = new TH1D(*hW2elastic); 
@@ -79,7 +80,7 @@ void Fit_W2_inclusive( TH1D *hW2all, TH1D *hW2elastic_temp, int order_bg=4, doub
     hW2elastic_copy->SetMarkerColor(2);
     hW2elastic_copy->SetLineColor(2);
     
-    hW2elastic_copy->Draw("same");
+    hW2elastic_copy->DrawCopy("same");
 
     *hW2elastic_temp = *hW2elastic_copy;
     
@@ -88,22 +89,44 @@ void Fit_W2_inclusive( TH1D *hW2all, TH1D *hW2elastic_temp, int order_bg=4, doub
 
 }
 
-void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max = 1.4, TCut cut="" ){
+void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max = 1.4, TCut cut="", TCut fiducialcut="", double W2min_fit=0, double W2max_fit=1.4 ){
   TChain *C = new TChain("Tout");
 
   C->Add(rootfilename);
 
   TH1D *hW2_nocut = new TH1D("hW2_nocut", ";W^{2} (GeV^{2});", 100, -1.0,3.0 );
   TH1D *hW2_HCALcut = new TH1D("hW2_HCALcut", ";W^{2} (GeV^{2});", 100, -1.0, 3.0 );
+  TH1D *hW2_anticut = new TH1D("hW2_anticut", ";W^{2} (GeV^{2});", 100, -1.0, 3.0 );
 
-  C->Project("hW2_nocut", "W2");
-  C->Project("hW2_HCALcut", "W2", cut);
+  C->Project("hW2_nocut", "W2", fiducialcut);
+  C->Project("hW2_HCALcut", "W2", cut&&fiducialcut);
+  C->Project("hW2_anticut", "W2", !cut&&fiducialcut);
 
-  Fit_W2_inclusive( hW2_nocut, hW2_HCALcut, 6, 0, 2 );
+  TCanvas *c1 = new TCanvas("c1","c1",1200,750);
+  c1->Divide(2,1,.001,.001);
+
+  c1->cd(1);
+  
+  Fit_W2_inclusive( hW2_nocut, hW2_HCALcut, 6, W2min_fit, W2max_fit );
 
   double Counts,dCounts;
 
   Counts = hW2_HCALcut->IntegralAndError( hW2_HCALcut->FindBin(W2min), hW2_HCALcut->FindBin(W2max), dCounts );
 
-  cout << "Elastic yield = " << Counts << " +/- " << dCounts << endl;
+  cout << "Elastic yield (total with fiducial cut) = " << Counts << " +/- " << dCounts << endl;
+
+  double CountsAcut,dCountsAcut;
+
+  c1->cd(2);
+  
+  Fit_W2_inclusive( hW2_anticut, hW2_HCALcut, 6, W2min_fit, W2max_fit );
+
+  CountsAcut = hW2_HCALcut->IntegralAndError( hW2_HCALcut->FindBin(W2min), hW2_HCALcut->FindBin(W2max), dCountsAcut );
+
+  cout << "Elastic yield (passed fiducial cut, failed HCAL cut) = " << CountsAcut << " +/- " << dCountsAcut << endl;
+
+  double efficiency = 1.-CountsAcut/Counts;
+  double defficiency = sqrt(efficiency*(1.-efficiency)/Counts);
+  
+  cout << "HCAL effective proton efficiency = " << efficiency << " +/- " << defficiency << endl;
 }
