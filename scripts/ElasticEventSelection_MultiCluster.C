@@ -37,7 +37,7 @@ double PI = TMath::Pi();
 double Mp = 0.938272;
 double Mn = 0.939565;
 
-void ElasticEventSelectionMultiCluster( const char *configfilename, const char *outputfilename="NewMomentumFit.root" ){
+void ElasticEventSelectionMultiCluster( const char *configfilename, const char *outputfilename="ElasticTemp.root" ){
 
   gStyle->SetOptFit();
   
@@ -179,7 +179,10 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 
   int hcal_coordflag = 0; //0 = "new" HCAL coordinate system that matches transport.
                           //1 = "old" HCAL coordinate system that doesn't match transport
-  
+
+  int hcal_selectionflag = 0; //0 = choose highest-energy passing ADC coincidence time cut
+                              //1 = choose smallest thetapq (proton or neutron)
+                              //2 = choose highest-energy regardless of ADC time.
   
   while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endconfig") ){
     if( !currentline.BeginsWith("#") ){
@@ -190,14 +193,14 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
       if( ntokens >= 2 ){
 	TString skey = ( (TObjString*) (*tokens)[0] )->GetString();
 
-	if( skey == "oldcoeffs" ){ //this should be the name of a text file
-	  fname_oldcoeffs = ( (TObjString*) (*tokens)[1] )->GetString();
-	}
+	// if( skey == "oldcoeffs" ){ //this should be the name of a text file
+	//   fname_oldcoeffs = ( (TObjString*) (*tokens)[1] )->GetString();
+	// }
 	  
-	if ( skey == "order" ){
-	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
-	  order = stemp.Atoi();
-	}
+	// if ( skey == "order" ){
+	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	//   order = stemp.Atoi();
+	// }
 
 	// if( skey == "order_pth" ){
 	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
@@ -345,26 +348,26 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 	//   pthx = stemp.Atof();
 	// }
 
-	if( skey == "hcalvoff" ){
-	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
-	  hcalheight = stemp.Atof();
-	  hcalvoff = stemp.Atof();
-	}
+	// if( skey == "hcalvoff" ){
+	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	//   hcalheight = stemp.Atof();
+	//   hcalvoff = stemp.Atof();
+	// }
 
-	if( skey == "hcalxoff" ){
-	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
-	  xoff_hcal = stemp.Atof();
-	}
+	// if( skey == "hcalxoff" ){
+	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	//   xoff_hcal = stemp.Atof();
+	// }
 
-	if( skey == "hcalyoff" ){
-	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
-	  yoff_hcal = stemp.Atof();
-	}
+	// if( skey == "hcalyoff" ){
+	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	//   yoff_hcal = stemp.Atof();
+	// }
 
-	if( skey == "hcalcoordsys" ){
-	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
-	  hcal_coordflag = stemp.Atoi();
-	}
+	// if( skey == "hcalcoordsys" ){
+	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	//   hcal_coordflag = stemp.Atoi();
+	// }
 	
 	// if( skey == "fit_thtgt_min" ){
 	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
@@ -405,11 +408,23 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	  Emin_HCAL = stemp.Atof();
 	}
+
+	if( skey == "HCALselectionflag" ){
+	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	  hcal_selectionflag = stemp.Atoi();
+	}
+	  
       }
       
       tokens->Delete();
     }
   }
+  
+  hcal_coordflag = 0;
+  xoff_hcal = 0.0;
+  yoff_hcal = 0.0;
+  hcalheight = 0.0;
+  hcalvoff = 0.0;
   
   //Note that both of these calculations neglect the Aluminum end windows and cell walls:
   
@@ -430,7 +445,7 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   cout << "Mean E loss (outgoing electron) = " << MeanEloss_outgoing << endl;
   cout << "Ebeam corrected (GeV) = " << ebeam - MeanEloss << endl;
  
-					   
+  
 					   
   
   // In order to get 
@@ -453,10 +468,10 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   //Also need target variables:
   double xtgt[MAXNTRACKS], ytgt[MAXNTRACKS], thtgt[MAXNTRACKS], phtgt[MAXNTRACKS];
 
-  double nclustHCAL;
+  int nclustHCAL;
   double xHCAL[MAXHCALCLUSTERS], yHCAL[MAXHCALCLUSTERS], EHCAL[MAXHCALCLUSTERS];
   double ADCTIMEHCAL[MAXHCALCLUSTERS], TDCTIMEHCAL[MAXHCALCLUSTERS], EMAXHCAL[MAXHCALCLUSTERS], NBLKHCAL[MAXHCALCLUSTERS];
-  double EPS, ESH, xSH, ySH, xPS;
+  double EPS, ESH, xSH, ySH, xPS, TPS, TSH;
 
   int maxhodoclusters=100;
   
@@ -487,6 +502,7 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   C->SetBranchStatus("bb.hodotdc.clus.tdiff",1);
   
   //Variables for all HCAL clusters:
+  C->SetBranchStatus("Ndata.sbs.hcal.clus.e",1);
   C->SetBranchStatus("sbs.hcal.nclus",1);
   C->SetBranchStatus("sbs.hcal.clus.atime",1);
   C->SetBranchStatus("sbs.hcal.clus.e",1);
@@ -525,6 +541,8 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   C->SetBranchStatus("bb.sh.e",1);
   C->SetBranchStatus("bb.sh.x",1);
   C->SetBranchStatus("bb.sh.y",1);
+  C->SetBranchStatus("bb.sh.atimeblk",1);
+  C->SetBranchStatus("bb.ps.atimeblk",1);
 
   C->SetBranchAddress("bb.tr.n",&ntrack);
   C->SetBranchAddress("bb.tr.p",p);
@@ -547,7 +565,7 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   C->SetBranchAddress("bb.tr.tg_th",thtgt);
   C->SetBranchAddress("bb.tr.tg_ph",phtgt);
 
-  C->SetBranchAddress("sbs.hcal.nclus",&nclustHCAL);
+  C->SetBranchAddress("Ndata.sbs.hcal.clus.e",&nclustHCAL);
   C->SetBranchAddress("sbs.hcal.clus.x",xHCAL);
   C->SetBranchAddress("sbs.hcal.clus.y",yHCAL);
   C->SetBranchAddress("sbs.hcal.clus.e",EHCAL);
@@ -561,6 +579,8 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   C->SetBranchAddress("bb.ps.x",&xPS);
   C->SetBranchAddress("bb.sh.x",&xSH);
   C->SetBranchAddress("bb.sh.y",&ySH);
+  C->SetBranchAddress("bb.sh.atimeblk", &TSH );
+  C->SetBranchAddress("bb.ps.atimeblk", &TPS );
 
   C->SetBranchAddress("bb.hodotdc.clus.tmean",hodotmean);
   C->SetBranchAddress("bb.hodotdc.clus.tdiff",hodotdiff);
@@ -626,6 +646,7 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   double T_HCALdist, T_HCALtheta;
   double T_xHCAL, T_yHCAL, T_EHCAL, T_deltax, T_deltay;
   double T_xHCAL_expect, T_yHCAL_expect;
+  double T_xHCAL_expect_4vect, T_yHCAL_expect_4vect;
   double T_pp_expect, T_ptheta_expect, T_pphi_expect;
   double T_EPS, T_ESH, T_Etot;
   double T_xSH, T_ySH;
@@ -638,6 +659,7 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   double T_dt;
   double T_dta;
   double T_protondeflect;
+  int bestHCALcluster;
   int HCALcut;
   int BBcut;
   
@@ -673,6 +695,8 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   Tout->Branch( "yHCAL", &T_yHCAL, "yHCAL/D");
   Tout->Branch( "xHCAL_expect", &T_xHCAL_expect, "xHCAL_expect/D");
   Tout->Branch( "yHCAL_expect", &T_yHCAL_expect, "yHCAL_expect/D");
+  Tout->Branch( "xHCAL_expect_4vect", &T_xHCAL_expect_4vect, "xHCAL_expect_4vect/D");
+  Tout->Branch( "yHCAL_expect_4vect", &T_yHCAL_expect_4vect, "yHCAL_expect_4vect/D");
   Tout->Branch( "EHCAL", &T_EHCAL, "EHCAL/D");
   Tout->Branch( "deltax", &T_deltax, "deltax/D");
   Tout->Branch( "deltay", &T_deltay, "deltay/D");
@@ -709,6 +733,8 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   Tout->Branch( "deltay_4vect", &T_dy_4vect, "deltay_4vect/D" );
   Tout->Branch( "protondeflection", &T_protondeflect, "protondeflection/D");
 
+  Tout->Branch( "ibest_HCAL", &bestHCALcluster, "ibest_HCAL/I" );
+
   Long64_t NTOT = C->GetEntriesFast();
 
   //First pass: accumulate sums required for the fit: 
@@ -742,7 +768,7 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
     HCALcut=0;
     BBcut = 0;
     
-    if( int(ntrack) == 1 && nhodoclust > 0 && passed_global_cut ){
+    if( int(ntrack) >= 1 && passed_global_cut ){
       //The first thing we want to do is to calculate the "true" electron momentum incident on BigBite:
       double Ebeam_corrected = ebeam - MeanEloss;
 
@@ -857,32 +883,10 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
       TVector3 pNhat( sin(ptheta_expect)*cos(pphi_expect), sin(ptheta_expect)*sin(pphi_expect), cos(ptheta_expect) );
 
       TVector3 HCAL_zaxis(-sin(sbstheta),0,cos(sbstheta));
-      TVector3 HCAL_xaxis(0,1,0);
+      TVector3 HCAL_xaxis(0,-1,0);
       TVector3 HCAL_yaxis = HCAL_zaxis.Cross(HCAL_xaxis).Unit();
       
-      TVector3 HCAL_origin = hcaldist * HCAL_zaxis + hcalheight * HCAL_xaxis;
-      
-      TVector3 TopRightBlockPos_DB(xoff_hcal,yoff_hcal,0);
-      
-      TVector3 TopRightBlockPos_Hall( hcalheight + (nrows_hcal/2-0.5)*blockspace_hcal,
-				      (ncols_hcal/2-0.5)*blockspace_hcal, 0 );
-      
-      
-      //Assume that HCAL origin is at the vertical and horizontal midpoint of HCAL
-      //hcalvoff = 0.3;
-      //hcalheight = 0.0;
-      
-      if( hcal_coordflag == 0 ){ //new HCAL coordinate system:
-	HCAL_zaxis.SetXYZ( -sin(sbstheta),0,cos(sbstheta) );
-	HCAL_xaxis.SetXYZ(0, -1, 0 );
-	HCAL_yaxis = HCAL_zaxis.Cross(HCAL_xaxis).Unit();
-	HCAL_origin = hcaldist * HCAL_zaxis - hcalvoff * HCAL_xaxis; //We no longer need to offset the origin. 
-      }
-
-      // if( hcal_coordflag != 0 ){ //if we are still using the old HCAL coordinates, need to offset xHCAL, yHCAL:
-      // 	xHCAL += TopRightBlockPos_Hall.X() - TopRightBlockPos_DB.X();
-      // 	yHCAL += TopRightBlockPos_Hall.Y() - TopRightBlockPos_DB.Y();
-      // }
+      TVector3 HCAL_origin = hcaldist * HCAL_zaxis;
       
       double sintersect = (HCAL_origin - vertex ).Dot( HCAL_zaxis ) / (pNhat.Dot(HCAL_zaxis));
       //Straight-line projection to the surface of HCAL:
@@ -896,25 +900,31 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
       double s4vect = (HCAL_origin - vertex).Dot( HCAL_zaxis )/ (qunit.Dot( HCAL_zaxis ) );
       TVector3 HCAL_intersect4 = vertex + s4vect * qunit;
 
-      int nhcalclust=int(nclustHCAL);
+      T_xHCAL_expect_4vect = (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis );
+      T_yHCAL_expect_4vect = (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis );
+
+      int nhcalclust=nclustHCAL;
       
       int ibest_HCAL = -1;
 
       double minthpq = 1000.;
 
-      //choose the cluster from HCAL that is closest to the expected position of a NEUTRON 
+      double maxE = 0.0;
+      
+      //choose the best cluster from HCAL:
+      
+      //Calculate expected proton deflection using crude model:
+      double BdL = sbsfield * sbsmaxfield * Dgap;
+      
+      //thetabend = 0.3 * BdL: 
+      double proton_deflection = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
+      
+      T_protondeflect = proton_deflection;
+      T_dt = -1000.0;
       
       for( int iclust=0; iclust<nhcalclust; iclust++ ){
 	
-	TVector3 HCALpos = HCAL_origin + xHCAL[iclust] * HCAL_xaxis + yHCAL[iclust] * HCAL_yaxis;
-
-	//Calculate expected proton deflection using crude model:
-	double BdL = sbsfield * sbsmaxfield * Dgap;
-
-	//thetabend = 0.3 * BdL: 
-	double proton_deflection = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
-
-	T_protondeflect = proton_deflection;
+	TVector3 HCALpos = HCAL_origin + (xHCAL[iclust] - dx0) * HCAL_xaxis + (yHCAL[iclust]-dy0) * HCAL_yaxis;
 	
 	//cout << "Expected proton deflection = " << proton_deflection << " meters" << endl;
 	
@@ -924,14 +934,32 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 	double thpq_p_temp = acos( ProtonDirection.Dot( qvect.Unit() ) );
 	double thpq_n_temp = acos( NeutronDirection.Dot( qvect.Unit() ) );
 
-	T_dt = -1000.0;
+	double deltat_temp = ADCTIMEHCAL[iclust] - TSH;
+       
+
+	//T_dt = ADCTIMEHCAL[iclust] - 
+
+	//The following chooses the highest-energy cluster passing the coincidence time cut:
+	bool isbest = false;
 
 	
-	
-	if( EHCAL[iclust] >= Emin_HCAL && fabs(TDCTIMEHCAL[iclust]-hodotmean[0]-dt0)<=dtcut ){
-	  if( ibest_HCAL < 0 || std::min( thpq_p_temp, thpq_n_temp ) < minthpq ){
-	    ibest_HCAL = iclust;
+	if( fabs( deltat_temp - dt0 ) <= dtcut ){
+	  
+	  bool isbest = ibest_HCAL < 0 || EHCAL[iclust] > maxE;
+	  if( hcal_selectionflag == 1 ) isbest = ibest_HCAL < 0 || std::min( thpq_p_temp, thpq_n_temp ) < minthpq;
+
+	  if(  std::min(thpq_p_temp, thpq_n_temp) < minthpq ){
 	    minthpq = std::min(thpq_p_temp, thpq_n_temp);
+	  }
+
+	  if( EHCAL[iclust] > maxE ){
+	    maxE = EHCAL[iclust];
+	  }
+	  
+	  if( isbest ){
+	  //if( ibest_HCAL < 0 || std::min( thpq_p_temp, thpq_n_temp ) < minthpq ){
+	    ibest_HCAL = iclust;
+	    
 	    
 	    T_theta_recon_n = acos( NeutronDirection.Z() );
 	    T_phi_recon_n = TMath::ATan2( NeutronDirection.Y(), NeutronDirection.X() );
@@ -942,17 +970,58 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 	    T_thetapq_n = acos( NeutronDirection.Dot( qvect.Unit() ) );
 	    T_thetapq_p = acos( ProtonDirection.Dot( qvect.Unit() ) );
 	    
-	    T_dx_4vect = xHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis );
-	    T_dy_4vect = yHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis );
-	    
+	    T_dx_4vect = xHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis ) - dx0;
+	    T_dy_4vect = yHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis ) - dy0;
+
 	    T_dt = TDCTIMEHCAL[iclust] - hodotmean[0];
 
-	    T_dta = ADCTIMEHCAL[iclust] - hodotmean[0];
-	    
+	    //T_dta = ADCTIMEHCAL[iclust] - hodotmean[0];
+	    T_dta = deltat_temp;
+
 	  }
 	}
       }
-	
+
+      if( ibest_HCAL < 0 && nhcalclust > 0 ) {
+	ibest_HCAL = 0;
+
+	TVector3 HCALpos = HCAL_origin + (xHCAL[ibest_HCAL] - dx0) * HCAL_xaxis + (yHCAL[ibest_HCAL]-dy0) * HCAL_yaxis;
+      
+	//cout << "Expected proton deflection = " << proton_deflection << " meters" << endl;
+      
+	TVector3 NeutronDirection = (HCALpos - vertex).Unit();
+	TVector3 ProtonDirection = (HCALpos + proton_deflection * HCAL_xaxis - vertex).Unit();
+      
+	double thpq_p_temp = acos( ProtonDirection.Dot( qvect.Unit() ) );
+	double thpq_n_temp = acos( NeutronDirection.Dot( qvect.Unit() ) );
+      
+	double deltat_temp = ADCTIMEHCAL[ibest_HCAL] - TSH;
+
+      
+	T_theta_recon_n = acos( NeutronDirection.Z() );
+	T_phi_recon_n = TMath::ATan2( NeutronDirection.Y(), NeutronDirection.X() );
+	    
+	T_theta_recon_p = acos( ProtonDirection.Z() );
+	T_phi_recon_p = TMath::ATan2( ProtonDirection.Y(), ProtonDirection.X() );
+	    
+	T_thetapq_n = acos( NeutronDirection.Dot( qvect.Unit() ) );
+	T_thetapq_p = acos( ProtonDirection.Dot( qvect.Unit() ) );
+	    
+	T_dx_4vect = xHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis ) - dx0;
+	T_dy_4vect = yHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis ) - dy0;
+
+	T_dt = TDCTIMEHCAL[ibest_HCAL] - hodotmean[0];
+
+	//T_dta = ADCTIMEHCAL[iclust] - hodotmean[0];
+	T_dta = deltat_temp;
+      }
+      
+      bestHCALcluster = ibest_HCAL;
+      
+      
+
+
+      
       //Now we need to calculate the "true" trajectory bend angle for the electron from the reconstructed angles:
       TVector3 enhat_tgt( thtgt[0], phtgt[0], 1.0 );
       enhat_tgt = enhat_tgt.Unit();
@@ -970,6 +1039,9 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
       
       T_thetabend = thetabend;
 
+      T_xHCAL_expect = xexpect_HCAL;
+      T_yHCAL_expect = yexpect_HCAL;
+      
       HCALcut = 0;
 
       passed_HCAL_cut = true;
@@ -991,12 +1063,9 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 	T_xHCAL = xHCAL[ibest_HCAL];
 	T_yHCAL = yHCAL[ibest_HCAL];
 	T_EHCAL = EHCAL[ibest_HCAL];
-	T_deltax = xHCAL[ibest_HCAL] - xexpect_HCAL;
-	T_deltay = yHCAL[ibest_HCAL] - yexpect_HCAL;
-	  
-	T_xHCAL_expect = xexpect_HCAL;
-	T_yHCAL_expect = yexpect_HCAL;
-	  
+	T_deltax = xHCAL[ibest_HCAL] - xexpect_HCAL - dx0;
+	T_deltay = yHCAL[ibest_HCAL] - yexpect_HCAL - dy0;
+	  	  
 	if( usehcalcut != 0 ){
 	  passed_HCAL_cut = pow( (xHCAL[ibest_HCAL]-xexpect_HCAL - dx0)/dxsigma, 2 ) +
 	    pow( (yHCAL[ibest_HCAL]-yexpect_HCAL - dy0)/dysigma, 2 ) <= pow(2.5,2); 
@@ -1007,6 +1076,14 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 
 	hW2_thpq_p->Fill( T_thetapq_p*180.0/PI, W2recon );
 	hW2_thpq_n->Fill( T_thetapq_n*180.0/PI, W2recon );
+      } else {
+	T_xHCAL = -1000.;
+	T_yHCAL = -1000.;
+	T_EHCAL = 0.;
+	T_deltax = -1000.;
+	T_deltay = -1000.;
+	T_dx_4vect = -1000.;
+	T_dy_4vect = -1000.;
       }
       BBcut = Wrecon >= Wmin_fit && Wrecon <= Wmax_fit && dpel >= dpelmin_fit && dpel <= dpelmax_fit;
       
@@ -1057,188 +1134,14 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
 	  
 	}
       }
-    }
-    
-    Tout->Fill();
       
-  }
-  
-
-  //Let's also automate the determination of the momentum coefficients:
-
-  TCanvas *c1 = new TCanvas("c1","c1",1600,1200);
-
-  c1->Divide(2,2,.001,.001);
-  
-  TProfile *hptheta_thtgt = new TProfile( "hptheta_thtgt", "; #theta_{tgt} ; p_{incident}#theta_{bend} (GeV*rad)", 250,-0.25,0.25);
-  
-  
-  Tout->Project("hptheta_thtgt", "ep_incident*thetabend:thtgt", "HCALcut&&BBcut");
-
-  double lmargin = 0.16, bmargin = 0.12, rmargin = 0.12, tmargin = 0.06;
-
-  
-
-  hptheta_thtgt->SetMarkerStyle(20);
-  c1->cd(1)->SetGrid();
-  gPad->SetLeftMargin(lmargin);
-  gPad->SetBottomMargin(bmargin);
-  gPad->SetRightMargin(rmargin);
-  gPad->SetTopMargin(tmargin);
-  
-  hpthetabend_xptar_old->SetTitle("");
-  hpthetabend_xptar_old->SetXTitle("#theta_{tgt} (rad)");
-  hpthetabend_xptar_old->SetYTitle("p_{incident}#theta_{bend} (GeV/c*rad)");
-  hpthetabend_xptar_old->Draw("colz");
-  hptheta_thtgt->Draw("SAME");
-
-  
-  //  hptheta_thgt->Draw("PSAME");
-  
-  TF1 *fitfunc = new TF1("fitfunc", "[0]*(1.0 + [1]*x)", -0.2,0.2 );
-
-  hptheta_thtgt->Fit(fitfunc,"S","same",thtgtmin_fit,thtgtmax_fit);
-
-  double A_pth_fit = fitfunc->GetParameter(0);
-  double B_pth_fit = fitfunc->GetParameter(1);
-
-  TString plotexpression;
-  plotexpression.Form( "%g*(1.0+%g*thtgt)/thetabend/ep_incident-1.0", A_pth_fit, B_pth_fit );
-  
-  Tout->Project("hdpel_new", plotexpression.Data(), "HCALcut");
-  Tout->Project("hdpel_new_nocut", plotexpression.Data(), "");
-  
-  //W^2 = M^2 + 2M nu - Q2
-  //nu = E- Eprime
-  //Q2 = 2E Eprime*(1-costheta)
-  //-->W^2 = M^2 + 2M * (E-Eprime) - 2E Eprime * (1-pz/p)
-  plotexpression.Form("sqrt(pow(0.938272,2)+2.*.938272*(%g-(%g*(1.0+%g*thtgt)/thetabend))-2.0*%g*(%g*(1.0+%g*thtgt)/thetabend)*(1.0-cos(etheta)))",ebeam-MeanEloss, A_pth_fit, B_pth_fit, ebeam-MeanEloss, A_pth_fit, B_pth_fit);
-
-  Tout->Project("hW_new",plotexpression.Data(), "HCALcut");
-  Tout->Project("hW_new_nocut",plotexpression.Data(), "");
-
-  c1->cd(2)->SetGrid();
-  hdxdy_HCAL_old->Draw("colz");
-
-  TEllipse E;
-  E.SetFillStyle(0);
-  E.SetLineColor(6);
-  E.DrawEllipse(dy0,dx0,2.5*dysigma,2.5*dxsigma,0,360,0);
-
-  
-  
-  c1->cd(3)->SetGrid();
-  gPad->SetLeftMargin(lmargin);
-  gPad->SetBottomMargin(bmargin);
-  gPad->SetRightMargin(rmargin);
-  gPad->SetTopMargin(tmargin);
-
-  hdpel_new_nocut->SetLineColor( kGreen+2 );
-  //hdpel_new_nocut->SetFillColorAlpha( kGreen+1, 0.2 );
-  
-  
-  hdpel_new->SetLineColor(1);
-  hdpel_new->SetLineWidth(1);
-  hdpel_old->SetLineColor(4);
-  hdpel_old->SetLineWidth(1);
-  hdpel_new->SetFillColorAlpha(1,0.7);
-  hdpel_new->Draw();
-  hdpel_new->GetYaxis()->SetRangeUser(0,1.1*hdpel_new_nocut->GetMaximum());
-  hdpel_new_nocut->Draw("same");
-  
-  
-  hdpel_new->Fit("gaus","","",-0.02,0.03);
-  hdpel_old->Draw("SAME");
-
-  
-  
-  c1->cd(4)->SetGrid();
-  gPad->SetLeftMargin(lmargin);
-  gPad->SetBottomMargin(bmargin);
-  gPad->SetRightMargin(rmargin);
-  gPad->SetTopMargin(tmargin);
-
-  hW_new_nocut->SetLineColor( kGreen+1 );
-  hW_new_nocut->SetFillColorAlpha( kGreen+1, 0.2 );
-  hW_new_nocut->Draw();
-  
-  hW_new->SetLineColor(1);
-  hW_new->SetLineWidth(1);
-  hW_new->SetFillColorAlpha(1,0.7);
-  hW_old->SetLineColor(4);
-  hW_old->SetLineWidth(1);
-
-  TLine L;
-  L.SetLineColor(2);
-  L.SetLineWidth(2);
-  hW_new->Draw("same");
-  L.DrawLine(0.938272,0,0.938272,hW_new->GetMaximum());
-  //hW_new->GetXaxis()->SetRangeUser(0.
-
-  // hW_new_nocut->SetLineColor(kGreen+1);
-  // hW_new_nocut->Draw("SAME");
-  
-  hW_old->Draw("SAME");
-
-  
-  
-  //File containing old optics coefficients: 
-  ifstream foldcoeffs(fname_oldcoeffs.Data());
-
-  TString newcoeffs_fname = outputfilename;
-  newcoeffs_fname.ReplaceAll(".root",".dat");
-  
-  ofstream fnewcoeffs( newcoeffs_fname.Data() );
-
-  fnewcoeffs << "bb.preconflag = 1" << endl;
-  fnewcoeffs << "# NOTE on new momentum reconstruction formalism: 1st-order momentum is calculated from" << endl
-	     << "#   p*thetabend = A_pth1*(1.0 + (B_pth1+C_pth1*bb.magdist)*thtgt)" << endl
-	     << "# and momentum expansion coefficients are for delta = p(first order) * (1+delta)" << endl
-	     << "# In most of the acceptance we don't need any corrections beyond the first-order model" << endl
-	     << endl;
-  
-  currentline.Form("bb.A_pth1 = %15.9g", A_pth_fit );
-  fnewcoeffs << currentline << endl;
-  currentline.Form("bb.B_pth1 = %15.9g", B_pth_fit );
-  fnewcoeffs << currentline << endl;
-  fnewcoeffs << "bb.C_pth1 = 0.0" << endl << endl;
-
-  fnewcoeffs << "#NOTE: angle and vertex reconstruction coefficients are from " << fname_oldcoeffs << endl << endl;
-  fnewcoeffs << "bb.optics_parameters = " << endl;
-  
-  
-  //TString currentline;
-  while( currentline.ReadLine( foldcoeffs ) ){
-    std::string thisline( currentline.Data() );
-    std::istringstream sline( thisline );
-
-    double coeffs[4];
-    int expon[5];
-    for( int i=0; i<4; i++ ){
-      sline >> coeffs[i];
+      //if( ibest_HCAL >= 0 ) Tout->Fill();
+      Tout->Fill();
     }
-    for( int i=0; i<5; i++ ){
-      sline >> expon[i];
-    }
-
-    //Set all p*thetabend coefficients to zero: 
-    coeffs[3] = 0.0; 
-    TString newcoeffs;
-    newcoeffs.Form(" %15.8g %15.8g %15.8g %15.8g    %d %d %d %d %d ",
-		   coeffs[0], coeffs[1], coeffs[2], coeffs[3],
-		   expon[0], expon[1], expon[2], expon[3], expon[4] );
-
-    fnewcoeffs << newcoeffs << endl;
   }
-
-  TString plotsfilename = outputfilename;
-  plotsfilename.ReplaceAll(".root",".pdf");
-  
-  c1->Print(plotsfilename.Data(),"pdf");
-  plotsfilename.ReplaceAll(".pdf",".png");
-  c1->Print(plotsfilename.Data(),"png");
-  
-  //elist->Delete();
-
+  cout << "Event loop finished..." << endl;
+ 
   fout->Write();
+
+  cout << "output file written..." << endl;
 }
