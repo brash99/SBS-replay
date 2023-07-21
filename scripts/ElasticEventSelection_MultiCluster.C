@@ -37,7 +37,7 @@ double PI = TMath::Pi();
 double Mp = 0.938272;
 double Mn = 0.939565;
 
-void ElasticEventSelectionMultiCluster( const char *configfilename, const char *outputfilename="ElasticTemp.root" ){
+void ElasticEventSelection_MultiCluster( const char *configfilename, const char *outputfilename="ElasticTemp.root" ){
 
   gStyle->SetOptFit();
   
@@ -512,6 +512,10 @@ void ElasticEventSelectionMultiCluster( const char *configfilename, const char *
   C->SetBranchStatus("sbs.hcal.clus.x",1);
   C->SetBranchStatus("sbs.hcal.clus.y",1);
   
+  C->SetBranchStatus("e.kine.W2",1);
+  C->SetBranchStatus("e.kine.Q2",1);
+  C->SetBranchStatus("bb.etot_over_p",1);
+
   //BigBite track variables:
   C->SetBranchStatus("bb.tr.n",1);
   C->SetBranchStatus("bb.tr.px",1);
