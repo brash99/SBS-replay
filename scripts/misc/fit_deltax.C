@@ -34,9 +34,17 @@ void fit_deltax(TH1F *hdx, double Np, double Nn, double mup=-0.8, double mun=0.0
     pgaus->SetParameter( i, fitfunc->GetParameter(i) );
   }
 
-  double Nneutron = ngaus->Integral(-1,1) / hdx->GetBinWidth(10);
-  double Nproton = pgaus->Integral(-2,0) / hdx->GetBinWidth(10);
+  double xminp = mup - 10.0*fitfunc->GetParameter( 2 );
+  double xmaxp = mup + 10.0*fitfunc->GetParameter( 2 );
+  
+  double Nproton = pgaus->Integral(xminp,xmaxp) / hdx->GetBinWidth(10);
 
+  double xminn = mun - 10.0*fitfunc->GetParameter( 5 );
+  double xmaxn = mun + 10.0*fitfunc->GetParameter( 5 );
+  
+  double Nproton = pgaus->Integral(xminp,xmaxp) / hdx->GetBinWidth(10);
+  double Nneutron = ngaus->Integral(xminn, xmaxn) / hdx->GetBinWidth(10);
+  
   cout << "Number of neutrons = " << Nneutron << " +/- " << sqrt(Nneutron) << endl;
   cout << "Number of protons = " << Nproton << " +/- " << sqrt(Nproton) << endl;
 
@@ -48,7 +56,7 @@ void fit_deltax(TH1F *hdx, double Np, double Nn, double mup=-0.8, double mun=0.0
   double FFratio = sqrt(ratio) * 2.793/1.913;
   double dFFratio = dratio / (2.0*FFratio) * 2.793/1.913;
 
-  cout << "GMn/GMp = " << FFratio << " +/- " << dFFratio << endl;
+  cout << "GMn/GMp (neglect GEp, GEn) = " << FFratio << " +/- " << dFFratio << endl;
   
   //y = x^(1/2), dy = 1/(2y) dx
 
