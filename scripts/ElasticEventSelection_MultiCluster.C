@@ -489,6 +489,12 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   // double tmeanHODO[maxHODOclusters], tdiffHODO[maxHODOclusters];
   
   C->SetBranchStatus("*",0);
+
+  //Hope this works: in pass 2 we will replace with g.runnum
+  C->SetBranchStatus("fEvtHdr.fRun",1);
+  UInt_t runnumber;
+  C->SetBranchAddress("fEvtHdr.fRun",&runnumber);
+  
   //Minimal set of HCAL variables:
   C->SetBranchStatus("sbs.hcal.x",1);
   C->SetBranchStatus("sbs.hcal.y",1);
@@ -496,6 +502,42 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchStatus("sbs.hcal.atimeblk",1);
   C->SetBranchStatus("sbs.hcal.tdctimeblk",1);
 
+  // block information for best cluster:
+  C->SetBranchStatus("sbs.hcal.nblk",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.again",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.atime",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.e",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.id",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.row",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.col",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.x",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.y",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.col",1);
+  C->SetBranchStatus("sbs.hcal.clus_blk.tdctime",1);
+
+  double nblkHCAL;
+  double againHCAL[MAXHCALCLUSTERS];
+  double atimeHCAL[MAXHCALCLUSTERS];
+  double eblkHCAL[MAXHCALCLUSTERS];
+  double idblkHCAL[MAXHCALCLUSTERS];
+  double rowblkHCAL[MAXHCALCLUSTERS];
+  double colblkHCAL[MAXHCALCLUSTERS];
+  double xblkHCAL[MAXHCALCLUSTERS];
+  double yblkHCAL[MAXHCALCLUSTERS];
+  double tdctimeblkHCAL[MAXHCALCLUSTERS];
+
+  C->SetBranchAddress("sbs.hcal.nblk",&nblkHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.again",againHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.atime",atimeHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.e",eblkHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.id",idblkHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.row",rowblkHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.col",colblkHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.x",xblkHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.y",yblkHCAL);
+  C->SetBranchAddress("sbs.hcal.clus_blk.tdctime",tdctimeblkHCAL);
+  
+  
   //minimal set of hodoscope branches:
   C->SetBranchStatus("Ndata.bb.hodotdc.clus.tmean",1);
   C->SetBranchStatus("bb.hodotdc.clus.tmean",1);
@@ -666,7 +708,10 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   int bestHCALcluster;
   int HCALcut;
   int BBcut;
+
+  int T_runnum;
   
+  Tout->Branch( "runnum", &T_runnum, "runnum/I");
   
   Tout->Branch( "HCALcut", &HCALcut, "HCALcut/I");
   Tout->Branch( "BBcut", &BBcut, "BBcut/I");
@@ -739,6 +784,20 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 
   Tout->Branch( "ibest_HCAL", &bestHCALcluster, "ibest_HCAL/I" );
 
+  int T_HCALnblk;
+  //Write out all the blocks in the best HCAL cluster:
+  Tout->Branch( "nblkHCAL", &T_HCALnblk, "nblkHCAL/I" );
+  Tout->Branch( "againblkHCAL", againHCAL, "againblkHCAL[nblkHCAL]/D" );
+  Tout->Branch( "atimeblkHCAL", atimeHCAL, "atimeblkHCAL[nblkHCAL]/D" );
+  Tout->Branch( "eblkHCAL", eblkHCAL, "eblkHCAL[nblkHCAL]/D" );
+  Tout->Branch( "idblkHCAL", idblkHCAL, "idblkHCAL[nblkHCAL]/D" );
+  //these branches give us enough information to calibrate, but we should
+  //probably write out a bit more:
+  Tout->Branch( "rowblkHCAL", rowblkHCAL, "rowblkHCAL[nblkHCAL]/D" );
+  Tout->Branch( "colblkHCAL", colblkHCAL, "colblkHCAL[nblkHCAL]/D" );
+  Tout->Branch( "xblkHCAL", xblkHCAL, "xblkHCAL[nblkHCAL]/D" );
+  Tout->Branch( "yblkHCAL", yblkHCAL, "yblkHCAL[nblkHCAL]/D" );
+  
   Long64_t NTOT = C->GetEntriesFast();
 
   //First pass: accumulate sums required for the fit: 
@@ -761,6 +820,20 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
     currenttreenum = C->GetTreeNumber();
 
     if( currenttreenum != treenum || ievent == 0 ){
+
+      //Very temporary hack: extract run number from filename:
+
+      TString fname = C->GetFile()->GetName();
+
+      TString skey = "e1209019_fullreplay_";
+
+      int start = fname.Index( skey ) + skey.Length();
+
+      TString srunnum( fname( start, 5 ) );
+
+      cout << "new file name = \"" << fname << "\", run number extracted from file name = \"" << srunnum << "\"" << endl;
+      T_runnum = srunnum.Atoi();
+      
       treenum = currenttreenum;
       GlobalCut->UpdateFormulaLeaves();
     }
@@ -771,6 +844,10 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
     
     HCALcut=0;
     BBcut = 0;
+
+    T_HCALnblk = int(nblkHCAL);
+
+    //T_runnum = int(runnumber);
     
     if( int(ntrack) >= 1 && passed_global_cut ){
       //The first thing we want to do is to calculate the "true" electron momentum incident on BigBite:
