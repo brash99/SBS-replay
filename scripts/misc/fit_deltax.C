@@ -34,16 +34,18 @@ void fit_deltax(TH1F *hdx, double Np, double Nn, double mup=-0.8, double mun=0.0
     pgaus->SetParameter( i, fitfunc->GetParameter(i) );
   }
 
+  double Nproton, Nneutron;
+  
   double xminp = mup - 10.0*fitfunc->GetParameter( 2 );
   double xmaxp = mup + 10.0*fitfunc->GetParameter( 2 );
   
-  double Nproton = pgaus->Integral(xminp,xmaxp) / hdx->GetBinWidth(10);
+  //double Nproton = pgaus->Integral(xminp,xmaxp) / hdx->GetBinWidth(10);
 
   double xminn = mun - 10.0*fitfunc->GetParameter( 5 );
   double xmaxn = mun + 10.0*fitfunc->GetParameter( 5 );
   
-  double Nproton = pgaus->Integral(xminp,xmaxp) / hdx->GetBinWidth(10);
-  double Nneutron = ngaus->Integral(xminn, xmaxn) / hdx->GetBinWidth(10);
+  Nproton = pgaus->Integral(xminp,xmaxp) / hdx->GetBinWidth(10);
+  Nneutron = ngaus->Integral(xminn, xmaxn) / hdx->GetBinWidth(10);
   
   cout << "Number of neutrons = " << Nneutron << " +/- " << sqrt(Nneutron) << endl;
   cout << "Number of protons = " << Nproton << " +/- " << sqrt(Nproton) << endl;
