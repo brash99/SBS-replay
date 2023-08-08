@@ -690,12 +690,12 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double T_vx, T_vy, T_vz;
   double T_BBdist, T_BBtheta;
   double T_HCALdist, T_HCALtheta;
-  double T_xHCAL, T_yHCAL, T_EHCAL, T_deltax, T_deltay;
+  double T_xHCAL, T_yHCAL, T_EHCAL, T_THCAL_adc, T_THCAL_tdc, T_deltax, T_deltay;
   double T_xHCAL_expect, T_yHCAL_expect;
   double T_xHCAL_expect_4vect, T_yHCAL_expect_4vect;
   double T_pp_expect, T_ptheta_expect, T_pphi_expect;
-  double T_EPS, T_ESH, T_Etot;
-  double T_xSH, T_ySH;
+  double T_EPS, T_ESH, T_Etot, T_TPS, T_TSH;
+  double T_xSH, T_ySH, T_xPS;
   double T_Q2;
   double T_Q2_4vect, T_W2_4vect;
   double T_thetaq, T_phiq, T_px, T_py, T_pz, T_qx, T_qy, T_qz, T_qmag;
@@ -747,6 +747,8 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "xHCAL_expect_4vect", &T_xHCAL_expect_4vect, "xHCAL_expect_4vect/D");
   Tout->Branch( "yHCAL_expect_4vect", &T_yHCAL_expect_4vect, "yHCAL_expect_4vect/D");
   Tout->Branch( "EHCAL", &T_EHCAL, "EHCAL/D");
+  Tout->Branch( "THCAL_adc", &T_THCAL_adc, "THCAL_adc/D");
+  Tout->Branch( "THCAL_tdc", &T_THCAL_tdc, "THCAL_tdc/D");
   Tout->Branch( "deltax", &T_deltax, "deltax/D");
   Tout->Branch( "deltay", &T_deltay, "deltay/D");
   Tout->Branch( "pp_expect", &T_pp_expect, "pp_expect/D");
@@ -757,6 +759,9 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "Etot", &T_Etot, "Etot/D");
   Tout->Branch( "xSH", &T_xSH, "xSH/D");
   Tout->Branch( "ySH", &T_ySH, "ySH/D");
+  Tout->Branch( "xPS", &T_xPS, "xPS/D");
+  Tout->Branch( "TSH", &T_TSH, "TSH/D");
+  Tout->Branch( "TPS", &T_TPS, "TPS/D");
   Tout->Branch( "Q2_4vect", &T_Q2_4vect, "Q2_4vect/D");
   Tout->Branch( "W2_4vect", &T_W2_4vect, "W2_4vect/D");
   Tout->Branch( "epx", &T_px, "epx/D");
@@ -960,6 +965,9 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       T_Etot = EPS + ESH;
       T_xSH = xSH;
       T_ySH = ySH;
+      T_xPS = xPS;
+      T_TPS = TPS;
+      T_TSH = TSH;
       
       TVector3 pNhat( sin(ptheta_expect)*cos(pphi_expect), sin(ptheta_expect)*sin(pphi_expect), cos(ptheta_expect) );
 
@@ -1056,6 +1064,8 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 
 	    T_dt = TDCTIMEHCAL[iclust] - hodotmean[0];
 
+	    T_THCAL_adc = ADCTIMEHCAL[ibest_HCAL];
+	    T_THCAL_tdc = TDCTIMEHCAL[ibest_HCAL];
 	    //T_dta = ADCTIMEHCAL[iclust] - hodotmean[0];
 	    T_dta = deltat_temp;
 

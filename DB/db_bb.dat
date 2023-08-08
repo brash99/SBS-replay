@@ -858,8 +858,12 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.271919025
-bb.B_pth1 =     0.721807628
+# pass 1 values
+#bb.A_pth1 =     0.271919025
+#bb.B_pth1 =     0.721807628
+# pass 2 values calibrated with more accurate beam energy: slight increase in field integral:
+bb.A_pth1 =      0.273110
+bb.B_pth1 =      0.721663
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs11.dat
@@ -1004,9 +1008,9 @@ bb.backconstraint_y0 = 0.0007
 
 #bb.frontconstraintwidth_x = 0.0718517
 #bb.frontconstraintwidth_y = 0.069917
-bb.frontconstraintwidth_x = 0.06
+bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.06
-bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_x = 0.05
 bb.backconstraintwidth_y = 0.06
 
 
@@ -1040,8 +1044,11 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.268131453
-bb.B_pth1 =     0.970217825
+#bb.A_pth1 =     0.268131453
+#bb.B_pth1 =     0.970217825
+# new A and B coefficents calibrated from PASS-1 data with more accurate beam energy assumption:
+bb.A_pth1 = 0.268609
+bb.B_pth1 = 0.953111
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs14.dat
@@ -1156,6 +1163,16 @@ bb.frontconstraintwidth_x = 0.074377
 bb.frontconstraintwidth_y = 0.0660473
 bb.backconstraintwidth_x = 0.0528561
 bb.backconstraintwidth_y = 0.0685936
+
+# zero-field runs on LH2: 
+--------[ 2022-01-18 19:35:00 ] ## start zero-field runs on LH2
+bb.A_pth1 = 0.266377
+bb.B_pth1 = 0.956035
+
+--------[ 2022-01-18 23:23:00 ] ## end zero-field runs on LH2
+bb.A_pth1 = 0.268609
+bb.B_pth1 = 0.953111
+
 
 --------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics for GMN: 
 
