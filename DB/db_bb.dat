@@ -1226,15 +1226,11 @@ bb.preconflag = 1
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
 
+# we start with (and default to) the SBS +70% field setting:
 # the "A" and "B" parameters below were obtained with SBS +70% field setting: 
-bb.A_pth1 =     0.292223032
-bb.B_pth1 =      1.04733553
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
 bb.C_pth1 = 0.0
-
-# the "A" and "B" parameters below were obtained with SBS OFF:
-#bb.A_pth1 =     0.288855182
-#bb.B_pth1 =      1.05193488
-#bb.C_pth1 = 0.0
 
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs8.dat
@@ -1362,6 +1358,77 @@ bb.frontconstraintwidth_y = 0.1
 bb.backconstraintwidth_x = 0.0499104
 bb.backconstraintwidth_y = 0.0624532
 
+# time-dependent "A" and "B" parameters for momentum reconstruction for the various SBS-8 field settings:
+
+# OLD: the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+#bb.A_pth1 =     0.292223032
+#bb.B_pth1 =      1.04733553
+#bb.C_pth1 = 0.0
+
+# below are momentum parameters obtained with updated beam energy per Provakar:
+
+# the "A" and "B" parameters below were obtained with SBS +50% field setting: 
+#bb.A_pth1 =     0.29151395
+#bb.B_pth1 =      1.0369001
+#bb.C_pth1 = 0.0
+
+# the "A" and "B" parameters below were obtained with SBS +0% field setting: 
+#bb.A_pth1 =     0.28950467
+#bb.B_pth1 =      1.0392683
+#bb.C_pth1 = 0.0
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+#bb.A_pth1 =     0.29247624
+#bb.B_pth1 =      1.0328964
+#bb.C_pth1 = 0.0
+
+# the "A" and "B" parameters below were obtained with SBS +100% field setting: 
+#bb.A_pth1 =     0.29405736
+#bb.B_pth1 =      1.0339951
+#bb.C_pth1 = 0.0
+
+
+-----------[ 2022-01-22 16:50:00 ] # Start SBS 0-field runs (first run 13459): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +0% field setting: 
+bb.A_pth1 =     0.28950467
+bb.B_pth1 =      1.0392683
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-23 15:21:00 ] # back to +70% current (starting with run 13482): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-27 06:00:00 ] # SBS to +100% current (first run 13521): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +100% field setting: 
+bb.A_pth1 =     0.29405736
+bb.B_pth1 =      1.0339951
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-28 17:47:00 ] # back to +70% current (starting with run 13558): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-29 18:40:00 ] # SBS to +50% current (starting with run 13579): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +50% field setting: 
+bb.A_pth1 =     0.29151395
+bb.B_pth1 =      1.0369001
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-30 04:00:00 ] # back to +70% current (starting with run 13587): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
+bb.C_pth1 = 0.0
 
 
 -----------[ 2022-02-01 12:00:00 ] # starting SBS-9: gonna need some optics and some offsets:
