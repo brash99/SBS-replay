@@ -303,7 +303,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   // File to record cuts accounting information
   
   prefix = gSystem->Getenv("LOG_DIR");
-  analyzer->SetSummaryFile(Form("%s/replay_gmn_%d_stream%d_seg%d_%d.log", prefix.Data(), runnum, 
+  analyzer->SetSummaryFile(Form("%s/%s_%d_stream%d_seg%d_%d.log", prefix.Data(), fname_prefix, runnum, 
 				stream, firstsegment, lastsegment));
   prefix = gSystem->Getenv("SBS_REPLAY");
   
