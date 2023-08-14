@@ -118,7 +118,9 @@ bb.frontconstraintwidth_y = 0.0572045
 bb.backconstraintwidth_x = 0.050677
 bb.backconstraintwidth_y = 0.0633993
 
-bb.frontconstraint_x0 = 0.0529
+#bb.frontconstraint_x0 = 0.0529
+# minor adjustment to front constraint x center after updating momentum and BBCAL calibrations:
+bb.frontconstraint_x0 = 0.055
 bb.frontconstraint_y0 = -0.0154
 bb.backconstraint_x0 = 0.0041
 bb.backconstraint_y0 = 0.0002
@@ -555,9 +557,16 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.271495549
-bb.B_pth1 =      1.02274415
+#bb.A_pth1 =     0.271495549
+#bb.B_pth1 =      1.02274415
+#bb.C_pth1 = 0.0
+
+# New momentum calibration SBS-4 SBS 30-percent for pass 2:
+bb.A_pth1 =     0.272702433
+bb.B_pth1 =      1.01298458
 bb.C_pth1 = 0.0
+
+
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs4.dat
 
@@ -610,7 +619,27 @@ bb.forwardoptics_parameters =
    5.6640239e-14    -7.816445e-13    4.3366583e-14    -1.995292e-13  0 0 0 1 1
    3.0462698e-13    1.2894872e-13    1.0560976e-13    1.3326254e-14  0 0 0 0 2
 
+--------[ 2021-10-24 00:00:00 ]  #SBS field off: use zero-field calibration for momentum:
 
+
+# New Momentum calibration SBS-4 SBS 0-percent for pass 2 (also uses below optics):
+bb.A_pth1 =     0.270388074
+bb.B_pth1 =       1.0307073
+bb.C_pth1 = 0.0
+
+--------[ 2021-10-24 11:00:00 ] # SBS field to 50 percent
+
+# New Momentum calibration SBS-4 SBS 50-percent for pass 2 (also uses below optics)
+bb.A_pth1 =      0.27430735
+bb.B_pth1 =      1.01425878
+bb.C_pth1 = 0.0
+
+---------[ 2021-10-25 00:19:00 ] # SBS field back to 30 percent for rest of SBS-4:
+
+# New momentum calibration SBS-4 SBS 30-percent for pass 2:
+bb.A_pth1 =     0.272702433
+bb.B_pth1 =      1.01298458
+bb.C_pth1 = 0.0
 
 ----------[ 2021-10-24 23:10:00 ] # zero-field run for SBS-4:
 bb.frontconstraintwidth_x = 1.0 
@@ -679,8 +708,14 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =      0.27756646
-bb.B_pth1 =     0.928255129
+#bb.A_pth1 =      0.27756646
+#bb.B_pth1 =     0.928255129
+#bb.C_pth1 = 0.0
+
+# new results with corrected beam energy:
+
+bb.A_pth1 =      0.27777003
+bb.B_pth1 =     0.915135981
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs7.dat
@@ -793,7 +828,8 @@ bb.frontconstraint_y0 = -0.0163
 bb.backconstraint_x0 = 0.0039
 bb.backconstraint_y0 = -0.0011
 
-bb.frontconstraintwidth_x = 0.0659395
+#bb.frontconstraintwidth_x = 0.0659395
+bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.0612968
 bb.backconstraintwidth_x = 0.0526578
 bb.backconstraintwidth_y = 0.0656529
@@ -822,8 +858,12 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.271919025
-bb.B_pth1 =     0.721807628
+# pass 1 values
+#bb.A_pth1 =     0.271919025
+#bb.B_pth1 =     0.721807628
+# pass 2 values calibrated with more accurate beam energy: slight increase in field integral:
+bb.A_pth1 =      0.273110
+bb.B_pth1 =      0.721663
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs11.dat
@@ -968,9 +1008,9 @@ bb.backconstraint_y0 = 0.0007
 
 #bb.frontconstraintwidth_x = 0.0718517
 #bb.frontconstraintwidth_y = 0.069917
-bb.frontconstraintwidth_x = 0.06
+bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.06
-bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_x = 0.05
 bb.backconstraintwidth_y = 0.06
 
 
@@ -1004,8 +1044,11 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.268131453
-bb.B_pth1 =     0.970217825
+#bb.A_pth1 =     0.268131453
+#bb.B_pth1 =     0.970217825
+# new A and B coefficents calibrated from PASS-1 data with more accurate beam energy assumption:
+bb.A_pth1 = 0.268609
+bb.B_pth1 = 0.953111
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs14.dat
@@ -1121,6 +1164,16 @@ bb.frontconstraintwidth_y = 0.0660473
 bb.backconstraintwidth_x = 0.0528561
 bb.backconstraintwidth_y = 0.0685936
 
+# zero-field runs on LH2: 
+--------[ 2022-01-18 19:35:00 ] ## start zero-field runs on LH2
+bb.A_pth1 = 0.266377
+bb.B_pth1 = 0.956035
+
+--------[ 2022-01-18 23:23:00 ] ## end zero-field runs on LH2
+bb.A_pth1 = 0.268609
+bb.B_pth1 = 0.953111
+
+
 --------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics for GMN: 
 
 # new results for SBS-14 straight-through alignment:
@@ -1173,15 +1226,11 @@ bb.preconflag = 1
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
 
+# we start with (and default to) the SBS +70% field setting:
 # the "A" and "B" parameters below were obtained with SBS +70% field setting: 
-bb.A_pth1 =     0.292223032
-bb.B_pth1 =      1.04733553
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
 bb.C_pth1 = 0.0
-
-# the "A" and "B" parameters below were obtained with SBS OFF:
-#bb.A_pth1 =     0.288855182
-#bb.B_pth1 =      1.05193488
-#bb.C_pth1 = 0.0
 
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs8.dat
@@ -1309,6 +1358,77 @@ bb.frontconstraintwidth_y = 0.1
 bb.backconstraintwidth_x = 0.0499104
 bb.backconstraintwidth_y = 0.0624532
 
+# time-dependent "A" and "B" parameters for momentum reconstruction for the various SBS-8 field settings:
+
+# OLD: the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+#bb.A_pth1 =     0.292223032
+#bb.B_pth1 =      1.04733553
+#bb.C_pth1 = 0.0
+
+# below are momentum parameters obtained with updated beam energy per Provakar:
+
+# the "A" and "B" parameters below were obtained with SBS +50% field setting: 
+#bb.A_pth1 =     0.29151395
+#bb.B_pth1 =      1.0369001
+#bb.C_pth1 = 0.0
+
+# the "A" and "B" parameters below were obtained with SBS +0% field setting: 
+#bb.A_pth1 =     0.28950467
+#bb.B_pth1 =      1.0392683
+#bb.C_pth1 = 0.0
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+#bb.A_pth1 =     0.29247624
+#bb.B_pth1 =      1.0328964
+#bb.C_pth1 = 0.0
+
+# the "A" and "B" parameters below were obtained with SBS +100% field setting: 
+#bb.A_pth1 =     0.29405736
+#bb.B_pth1 =      1.0339951
+#bb.C_pth1 = 0.0
+
+
+-----------[ 2022-01-22 16:50:00 ] # Start SBS 0-field runs (first run 13459): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +0% field setting: 
+bb.A_pth1 =     0.28950467
+bb.B_pth1 =      1.0392683
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-23 15:21:00 ] # back to +70% current (starting with run 13482): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-27 06:00:00 ] # SBS to +100% current (first run 13521): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +100% field setting: 
+bb.A_pth1 =     0.29405736
+bb.B_pth1 =      1.0339951
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-28 17:47:00 ] # back to +70% current (starting with run 13558): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-29 18:40:00 ] # SBS to +50% current (starting with run 13579): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +50% field setting: 
+bb.A_pth1 =     0.29151395
+bb.B_pth1 =      1.0369001
+bb.C_pth1 = 0.0
+
+-----------[ 2022-01-30 04:00:00 ] # back to +70% current (starting with run 13587): adjust momentum
+
+# the "A" and "B" parameters below were obtained with SBS +70% field setting: 
+bb.A_pth1 =     0.29247624
+bb.B_pth1 =      1.0328964
+bb.C_pth1 = 0.0
 
 
 -----------[ 2022-02-01 12:00:00 ] # starting SBS-9: gonna need some optics and some offsets:
@@ -1356,8 +1476,13 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.269878955
-bb.B_pth1 =     0.893519136
+#bb.A_pth1 =     0.269878955
+#bb.B_pth1 =     0.893519136
+#bb.C_pth1 = 0.0
+
+# updated momentum parameters (only significant change is recalibration using updated beam energy):
+bb.A_pth1 =     0.27027769
+bb.B_pth1 =     0.88540651
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs9.dat
@@ -1635,28 +1760,29 @@ bb.B_pvy = -33.8073321
 
 bb.optics_order = 2
 
-bb.optics_parameters =
-    -0.0193518309 -0.000312970249  0.000407633414  0  0 0 0 0 0
-      0.493972375   0.00114235092   0.00190533572  0  1 0 0 0 0
-    -0.0324664617  -0.00726641403    0.0760449739  0  2 0 0 0 0
-   -0.00704938738    -0.053050936       1.1117798  0  0 1 0 0 0
-      0.259188707    0.0109126249    0.0426275842  0  1 1 0 0 0
-    -0.0191631168   -0.0663959044    0.0586730159  0  0 2 0 0 0
-      -0.37747196  -0.00527105278   0.00233178149  0  0 0 1 0 0
-   -0.00955114709    0.0235320238    -0.418755914  0  1 0 1 0 0
-     -0.193010924     0.139979792    -0.431746575  0  0 1 1 0 0
-     0.0795927581    0.0168357653     0.552621328  0  0 0 2 0 0
-     0.0102371965      1.05342487     -2.80715917  0  0 0 0 1 0
-     -0.690906057   -0.0296452295    -0.147912261  0  1 0 0 1 0
-      0.182145966     0.226760642   -0.0301996807  0  0 1 0 1 0
-      0.596304115    -0.129672028     0.598187029  0  0 0 1 1 0
-     -0.290810681    -0.127950838    -0.306043755  0  0 0 0 2 0
-      -0.84988972               0               0  0  0 0 0 0 1
-   -4.8338108e-16  -2.4738261e-17   3.1967331e-16  0  1 0 0 0 1
-    1.9893742e-16  -2.0513864e-16   2.2193036e-16  0  0 1 0 0 1
-    8.1869141e-17  -5.2027724e-17   1.3046838e-16  0  0 0 1 0 1
-    6.1838459e-16   1.4263362e-16  -1.9736089e-16  0  0 0 0 1 1
-    1.7656504e-16  -5.6889022e-17   6.5956198e-17  0  0 0 0 0 2
+bb.optics_parameters = 
+   -0.016348955  0.00025990275 -0.00037908329  -0.0083681187  0 0 0 0 0
+     0.50585109   0.0013285479  -0.0026817389   -0.043062623  1 0 0 0 0
+   -0.037670011   0.0030333414  -0.0052014146   -0.032931876  2 0 0 0 0
+    0.008610566   -0.050129424      1.1076118   -0.014992612  0 1 0 0 0
+    -0.23734934     0.15485456    -0.24463627     0.27828677  1 1 0 0 0
+     0.01600892   -0.024331188   0.0033614207     0.48321772  0 2 0 0 0
+    -0.40474212  -0.0024863797   0.0047643161     0.13162767  0 0 1 0 0
+    0.051001299  -0.0084942869    0.014294529     0.17648494  1 0 1 0 0
+     0.13590989    -0.18480751     0.38838741    -0.22771568  0 1 1 0 0
+   -0.016017811  -0.0056100163   0.0081050705   -0.032549849  0 0 2 0 0
+   -0.023554706      1.0285933     -2.7981763    0.040524671  0 0 0 1 0
+     0.64235607    -0.21441855      0.2083874    -0.68944897  1 0 0 1 0
+    0.021684576    0.064944296   -0.000781916    -0.79096784  0 1 0 1 0
+    -0.46954897     0.25467416    -0.41368821     0.48941407  0 0 1 1 0
+    -0.01687733   -0.053182283  -0.0089142806     0.25453706  0 0 0 2 0
+ -5.7209479e-16  4.2823891e-17  -3.356706e-16 -7.2280082e-16  0 0 0 0 1
+ -4.8338108e-16 -2.4738261e-17  3.1967331e-16   -1.16967e-16  1 0 0 0 1
+  1.9893742e-16 -2.0513864e-16  2.2193036e-16 -1.7673268e-18  0 1 0 0 1
+  8.1869141e-17 -5.2027724e-17  1.3046838e-16 -7.2244062e-17  0 0 1 0 1
+  6.1838459e-16  1.4263362e-16 -1.9736089e-16  1.7724047e-16  0 0 0 1 1
+  1.7656504e-16 -5.6889022e-17  6.5956198e-17 -3.6878398e-17  0 0 0 0 2
+
 
 bb.forwardoptics_order = 2
 

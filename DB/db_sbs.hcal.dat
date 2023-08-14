@@ -102,7 +102,7 @@ sbs.hcal.ncols = 12
 sbs.hcal.xyz = -2.190625 -0.85217 0.0 #Overridden by detailed ypos and xpos below
 ## Space between modules
 sbs.hcal.dxdydz = 0.15875 0.15494 0.0 #Overridden by detailed ypos and xpos below
-#Updated HCal position information from GMn/GEn data, range verified via physical measurement in hall. Last update 4.21.23
+#Updated HCal position information from GMn/GEn data from MC database center to center distance. Overall range verified via physical measurement in hall. Last update 6.15.23
 #Updated xpos to CAD drawing offset value of 75cm (assuming rounding error on drawing, 29.52")
 sbs.hcal.ypos =
 -0.85217  -0.69723  -0.54229  -0.38735  -0.23241  -0.07747  0.07747  0.23241  0.38735  0.54229  0.69723  0.85217  
@@ -128,7 +128,7 @@ sbs.hcal.ypos =
 -0.85217  -0.69723  -0.54229  -0.38735  -0.23241  -0.07747  0.07747  0.23241  0.38735  0.54229  0.69723  0.85217  
 -0.85217  -0.69723  -0.54229  -0.38735  -0.23241  -0.07747  0.07747  0.23241  0.38735  0.54229  0.69723  0.85217  
 -0.85217  -0.69723  -0.54229  -0.38735  -0.23241  -0.07747  0.07747  0.23241  0.38735  0.54229  0.69723  0.85217  
--0.85217  -0.69723  -0.54229  -0.38735  -0.23241  -0.07747  0.07747  0.23241  0.38735  0.54229  0.69723  0.85217  
+-0.85217  -0.69723  -0.54229  -0.38735  -0.23241  -0.07747  0.07747  0.23241  0.38735  0.54229  0.69723  0.85217 
 sbs.hcal.xpos =
 -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  -2.575625  
 -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  -2.416875  

@@ -176,7 +176,7 @@ void GEM_GainMatch(const char *infilename, int nmodules, const char *fname_strip
   //Do some file name management. This will of course need to change if you get files from not ewertz volatile
 
  
-  C->Print();
+  //C->Print();
   //some variables that are useful, for some reason
   TString branchname;
   double ngoodhits;

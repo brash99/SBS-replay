@@ -43,9 +43,18 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   double vy[MAXNTRACKS];
   double vz[MAXNTRACKS];
 
-  double xhcal,yhcal,ehcal;
+  int MAXTRIGTDCHITS = 10;
+  
+  double bb_tdctrig_tdc[MAXTRIGTDCHITS];
+  double bb_tdctrig_elemID[MAXTRIGTDCHITS];
+  
+  double xhcal,yhcal,ehcal, EPS, ESH, atimehcal, atimebbsh, atimebbps;
 
   C->SetBranchStatus("*",0);
+
+  C->SetBranchStatus("bb.tdctrig.tdc",1);
+  C->SetBranchStatus("bb.tdctrig.tdcelemID",1);
+  
   C->SetBranchStatus("bb.tr.n",1);
   C->SetBranchStatus("bb.tr.vz",1);
   C->SetBranchStatus("bb.tr.px",1);
@@ -53,6 +62,8 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   C->SetBranchStatus("bb.tr.pz",1);
   C->SetBranchStatus("bb.tr.p",1);
 
+  C->SetBranchStatus("bb.sh.atimeblk",1);
+  C->SetBranchStatus("bb.ps.atimeblk",1);
   C->SetBranchStatus("bb.ps.e",1);
   C->SetBranchStatus("bb.sh.e",1);
   C->SetBranchStatus("bb.etot_over_p",1);
@@ -62,6 +73,9 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
   C->SetBranchStatus("sbs.hcal.y",1);
   C->SetBranchStatus("sbs.hcal.e",1);
 
+  C->SetBranchAddress("bb.tdctrig.tdc",bb_tdctrig_tdc);
+  C->SetBranchAddress("bb.tdctrig.tdcelemID",bb_tdctrig_elemID);
+  
   C->SetBranchAddress("bb.tr.n",&ntrack);
   C->SetBranchAddress("bb.tr.vz",vz);
   C->SetBranchAddress("bb.tr.px",epx);
@@ -211,7 +225,12 @@ void ElasticQuickAndDirty( const char *rootfilename, double Ebeam=4.291, double 
     }
   }
 
+  cout << "Event loop finished" << endl;
+  
   //  elist->Delete(); 
   fout->Write();
 
+  cout << "Output file closed" << endl;
+
+  GlobalCut->Delete();
 } 
