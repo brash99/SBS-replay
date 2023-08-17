@@ -726,7 +726,7 @@ bb.gem.m7.maxstrip_tcut =       26 26
 
 # parameters controlling tracking:
 bb.gem.minhitsontrack = 3
-bb.gem.minhighqualityhitsontrack = 1
+bb.gem.minhighqualityhitsontrack = 3
 
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 25000
@@ -1164,11 +1164,11 @@ bb.gem.useslopeconstraint = 0
 --------[ 2022-01-22 8:00:00 ] # turn on optics and track slope constraints, with loose cuts initially. Optics needs work
 
 bb.gem.use_enhanced_chi2 = 1
-bb.gem.clustering_flag = 1
+bb.gem.clustering_flag = 0
 
-bb.gem.useopticsconstraint = 1
+bb.gem.useopticsconstraint = 0
 #bb.gem.useslopeconstraint = 1
-bb.gem.useslopeconstraint = 1
+bb.gem.useslopeconstraint = 0
 
 bb.gem.ytar_min = -0.055
 bb.gem.ytar_max = 0.055
@@ -1199,12 +1199,12 @@ bb.gem.dxpfpcut = 0.0015
 bb.gem.dypfpcut = 0.0004
 
 #bb.gem.usestriptimingcut = 1
-bb.gem.ADCasym_cut = 0.75
+bb.gem.ADCasym_cut = 0.5
 bb.gem.deltat_cut = 30.0
-bb.gem.addstrip_tcut = 50.0
-bb.gem.addstrip_ccor_cut = 0.0
+bb.gem.addstrip_tcut = 35.0
+bb.gem.addstrip_ccor_cut = 0.4
 bb.gem.suppressfirstlast = 0
-bb.gem.corrcoeff_cut = 0.2
+bb.gem.corrcoeff_cut = 0.4
 
 bb.gem.filterflag1D = -1
 bb.gem.filterflag2D = -1
@@ -1213,7 +1213,7 @@ bb.gem.filterflag1D = -1
 bb.gem.filterflag2D = -1
 
 bb.gem.usestriptimingcut = 1
-bb.gem.clustering_flag = 1
+bb.gem.clustering_flag = 0
 bb.gem.deconvolution_flag = 0
 #bb.gem.usestriptimingcut = 0
 bb.gem.suppressfirstlast = 0
