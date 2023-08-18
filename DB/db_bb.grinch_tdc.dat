@@ -257,7 +257,7 @@ bb.grinch_tdc.trackmatch_xmax = -0.45 0.1 0.6 0.85
 bb.grinch_tdc.trackmatch_nsigma_cut = 5.0
 
 bb.grinch_tdc.hit_mintime = -30
-bb.grinch_tdc.hit.maxtime = 30
+bb.grinch_tdc.hit_maxtime = 30
 
 
 ---------[ 2021-12-01 12:00:00 ] # timing shift during SBS-11:
@@ -268,7 +268,7 @@ bb.grinch_tdc.hit_maxtime =  -40
 ---------[ 2021-12-14 12:00:00 ] # second timing shift during SBS-11:
 
 bb.grinch_tdc.hit_mintime = -30
-bb.grinch_tdc.hit.maxtime = 30
+bb.grinch_tdc.hit_maxtime = 30
 
 
 
