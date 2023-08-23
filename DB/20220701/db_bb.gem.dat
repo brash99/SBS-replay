@@ -1098,9 +1098,9 @@ bb.gem.dyfp0 = 0
 bb.gem.dxpfp0 = 0
 bb.gem.dypfp0 = 0
 
-bb.gem.dxfpcut = 0.01
+bb.gem.dxfpcut = 0.015
 bb.gem.dyfpcut = 0.002
-bb.gem.dxpfpcut = 0.004
+bb.gem.dxpfpcut = 0.008
 bb.gem.dypfpcut = 0.001
 
 bb.gem.ADCasym_cut = 0.5
@@ -1234,7 +1234,7 @@ bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
-bb.gem.useforwardopticsconstraint = 1
+bb.gem.useforwardopticsconstraint = 0
 
 
 
@@ -1326,4 +1326,4 @@ bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
-bb.gem.useforwardopticsconstraint = 1
+bb.gem.useforwardopticsconstraint = 0
