@@ -754,7 +754,7 @@ bb.gem.trackchi2cut = 30.0
 #bb.gem.gridbinwidthy = 0.05
 #bb.gem.gridedgetolerancex = 0.02
 #bb.gem.gridedgetolerancey = 0.02
-#bb.gem.trackchi2cut = 3000.0
+#bb.gem.trackchi2cut = 300.0
 
 # For initial alignment with cosmics, we want to start with no constraints on track-finding:
 bb.gem.useconstraint = 0
@@ -983,6 +983,23 @@ bb.gem.m6.angle =       0.3031136      -0.3801317      -0.2626414
 bb.gem.m7.position =       0.7707365     -0.01177448        1.538892
 bb.gem.m7.angle =      -0.2068661     -0.01667648      -0.2752892
 
+----------[ 2023-08-20 12:22:00 ] # new alignment after working on layer 0
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =     -0.00193858     -0.01134524         0.16499
+bb.gem.m1.angle =      -0.0583935       0.0323442      0.05917932
+bb.gem.m2.position =    -0.007502203     0.006310194       0.2791444
+bb.gem.m2.angle =    -0.006298305      0.05156421      -0.3054064
+bb.gem.m3.position =    -0.009019618     0.004907236       0.4570785
+bb.gem.m3.angle =    -0.003106797      0.08509621      -0.4607618
+bb.gem.m4.position =       -0.764261     0.001985193        1.575809
+bb.gem.m4.angle =     -0.08000751       -0.112856      -0.3557897
+bb.gem.m5.position =      -0.2524175    -0.002413908         1.53405
+bb.gem.m5.angle =      -0.1797689      0.05900472       -0.316855
+bb.gem.m6.position =       0.2583341    -0.008525684        1.577969
+bb.gem.m6.angle =     -0.02023956      -0.3355465      -0.2649168
+bb.gem.m7.position =       0.7708554      -0.0119063        1.535161
+bb.gem.m7.angle =      -0.1956102      0.02594648      -0.3035511
 
 
 #################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
@@ -1041,6 +1058,9 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run3691.dat
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run3772.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run3772.dat
 
+--------[ 2023-08-21 0:00:00  ]
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run4739.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run4739.dat
 
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
@@ -1325,3 +1345,11 @@ bb.gem.useforwardopticsconstraint = 0
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
 bb.gem.useforwardopticsconstraint = 1
+
+--------[ 2023-08-20 12:00:00 ] # Cosmic runs during SAD
+
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
+
