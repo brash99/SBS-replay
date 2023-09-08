@@ -578,6 +578,9 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchStatus("bb.tr.tg_th",1);
   C->SetBranchStatus("bb.tr.tg_ph",1);
 
+  C->SetBranchStatus("bb.gem.track.nhits",1);
+  C->SetBranchStatus("bb.gem.track.ngoodhits",1);
+
   //We should probably add some hodoscope variables too, but not essential at this stage:
   
   //Shower and preshower variables:

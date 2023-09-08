@@ -1451,16 +1451,20 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
       //cout << dbentry << endl;
       /*  Thresholds are no longer set by this script
       dbentry.Form( "%s.m%d.threshold_sample = %g", detname.Data(), i, thresh_sample_mod );
-      outfile_db << dbentry << endl;
-      //cout << dbentry << endl;
+
+      // outfile_db << dbentry << endl;
+      // cout << dbentry << endl;
 
       dbentry.Form( "%s.m%d.threshold_stripsum = %g", detname.Data(), i, thresh_strip_mod );
-      outfile_db << dbentry << endl;
-      //cout << dbentry << endl;
+      // outfile_db << dbentry << endl;
+      // cout << dbentry << endl;
 
       dbentry.Form( "%s.m%d.threshold_clustersum = %g", detname.Data(), i, thresh_cluster_mod );
-      outfile_db << dbentry << endl;
-      //cout << dbentry << endl;
+      // // // // outfile_db << dbentry << endl;
+      // // // // cout << dbentry << endl;
+
+      // outfile_db << endl << endl;
+
       
       outfile_db << endl << endl;
       */
@@ -1475,19 +1479,20 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
       //cout << dbentry << endl;
       /*  Thresholds are no longer set by this script
       dbentry.Form( "%s.m%d.threshold_sample = %g", detname.Data(), i, thresh_sample );
-      outfile_db << dbentry << endl;
-      //cout << dbentry << endl;
+
+      // outfile_db << dbentry << endl;
+      // cout << dbentry << endl;
 
       dbentry.Form( "%s.m%d.threshold_stripsum = %g", detname.Data(), i, thresh_strip );
-      outfile_db << dbentry << endl;
-      //cout << dbentry << endl;
+      // outfile_db << dbentry << endl;
+      // cout << dbentry << endl;
 
       dbentry.Form( "%s.m%d.threshold_clustersum = %g", detname.Data(), i, thresh_cluster );
-      outfile_db << dbentry << endl;
-      //cout << dbentry << endl;
+      // outfile_db << dbentry << endl;
+      // cout << dbentry << endl;
 
-      outfile_db << endl << endl;
-      */
+      // outfile_db << endl << endl; */
+      
     }
   }
   thresh_sample_all ->Draw("AP");

@@ -254,7 +254,7 @@ bb.grinch_tdc.trackmatch_xmin = -0.8 -0.55 -0.1 0.45
 bb.grinch_tdc.trackmatch_xmax = -0.45 0.1 0.6 0.85 
 
 # wide track-matching cut until we develop a way to deal with the mirror boundaries in the x track x GRINCH correlation 
-bb.grinch_tdc.trackmatch_nsigma_cut = 5.0
+bb.grinch_tdc.trackmatch_nsigma_cut = 20.0
 
 bb.grinch_tdc.hit_mintime = -30
 bb.grinch_tdc.hit_maxtime = 30

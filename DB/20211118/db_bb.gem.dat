@@ -1329,88 +1329,38 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run13089.dat
 ---------[ 2021-11-18 00:00:00 ] 
 
 #Module internal relative gains by APV card: 
-bb.gem.m0.vgain = 1  1  1  1.11287  1.10879  1.06179  1.11183  1.15578  1.09927  1.02455  1.00471  1.11199  1.10062  1.06511  1.05945  1.03139  1.0604  0.997038  0.939241  0.955438  1.00419  0.986876  1.07407  0.950629  0.975406  0.951939  1  1  1  1  
-bb.gem.m0.ugain = 1  1  1.01568  1.07642  1.06476  0.961433  1.02778  0.995483  1.06659  0.997208  1.08711  1.03759  0.938209  0.989044  1  0.987448  0.915262  0.951435  0.897974  0.944867  0.939805  0.894394  0.878165  1.01828  1  1  1  1  1  1  
-bb.gem.m1.vgain = 2.34624  1.69589  1.66632  1.46163  1.46959  1.48984  1.49712  1  
-bb.gem.m1.ugain = 1  0.98153  1.16815  0.907294  0.969986  0.953144  0.957301  0.978759  1.00139  1  
-bb.gem.m2.vgain = 1.08244  1.01392  0.994994  0.99503  1.0065  1.02751  0.997095  1  
-bb.gem.m2.ugain = 1.10711  1.0308  1.03578  1.00923  0.998275  1  0.987663  1.06909  0.985034  1.02964  
-bb.gem.m3.vgain = 1.90041  1.62617  1.62723  1.41316  1.35375  1.25481  1.24308  1  
-bb.gem.m3.ugain = 1  1.01953  1.00212  1.11618  1.19968  1.22171  1  1  1  1  
-bb.gem.m4.vgain = 1  1  1.16143  1.1533  1.11142  1.09154  1.09655  1.11933  1.05997  1.06941  1.02287  1.06954  1.05785  1.09269  1.07372  1.04509  1.05106  1.05762  1.05153  0.965368  1.00076  1.0428  1.03002  1.03665  0.995659  0.99183  0.90822  1  1  1  
-bb.gem.m4.ugain = 1  0.73835  0.871556  0.998608  0.995877  1.04026  1.04487  0.994932  1.03888  0.984132  1.03993  1.05994  1.0571  0.99436  1  1.0421  1.02495  1.04465  0.967573  0.9846  1.02499  0.988969  0.972064  0.988713  1.01396  1  1  1  1  1  
-bb.gem.m5.vgain = 1  1  1.12908  1.22569  1.39072  1.22615  1.28057  1.20435  1.14771  1.02597  1.07741  1.07433  1.06614  0.998344  1.04645  0.963948  0.960678  1.07102  0.984387  0.94901  0.963633  0.951126  1.08864  1.00061  0.921267  0.968078  0.978537  1  1  1  
-bb.gem.m5.ugain = 1  0.95564  0.913567  1.21857  1.10327  0.989871  0.993712  0.977256  0.99761  0.984642  0.975383  0.959778  1.01765  1.05108  1  0.949284  0.99207  1.0726  0.906432  0.987402  1.00261  0.992984  0.879781  0.921439  0.898842  0.83825  1  1  1  1  
-bb.gem.m6.vgain = 1  1  0.594809  0.587028  0.633563  0.590321  0.575204  0.564898  0.639658  0.598081  0.640089  1  
-bb.gem.m6.ugain = 1  1  1  0.888791  0.812583  0.87205  0.908529  0.946824  0.944849  1  
-bb.gem.m7.vgain = 1  0.823327  0.809192  0.817536  0.810371  0.726017  0.742307  0.699592  0.703683  0.743609  0.729058  1  
-bb.gem.m7.ugain = 1.1028  1.10759  1.08558  1.09727  1.10032  1.04945  0.912653  1.07404  1  0.963266  
-bb.gem.m8.vgain = 1  0.910815  0.81771  0.837283  0.910304  0.874545  0.894844  0.843363  0.879822  0.919171  0.94605  1.18061  
-bb.gem.m8.ugain = 0.79869  1  0.997717  0.899566  0.880009  0.856015  0.861259  0.797301  0.764267  0.722884  
-bb.gem.m9.vgain = 1  1  0.732857  0.717787  0.645213  0.665315  0.691703  0.693947  0.68511  0.668455  0.74924  1  
-bb.gem.m9.ugain = 1.01255  1.04725  1  0.968858  0.939333  0.932861  0.964252  1.0079  0.937233  1.01888  
+bb.gem.m0.vgain = 1  1  1.07015  1.10859  1.12932  1.09147  1.09787  1.17602  1.12991  1.04108  1.01951  1.13061  1.11036  1.07585  1.06294  1.03043  1.06398  1.00609  0.95409  0.966548  1.00659  0.992506  1.05201  0.961168  0.968916  0.977279  0.883281  1  1  1  
+bb.gem.m0.ugain = 1  1  0.972219  1.10256  1.06731  0.957043  1.0709  1.01735  1.09917  1.01176  1.09172  1.06572  0.951621  0.993788  1  0.994817  0.928334  0.964988  0.915481  0.947816  0.941338  0.891015  0.877137  0.966364  0.854871  0.834469  1  1  1  1  
+bb.gem.m1.vgain = 2.4344  1.65892  1.56869  1.38744  1.39359  1.44409  1.5451  1  
+bb.gem.m1.ugain = 1  0.996546  1.08217  0.938153  1.00322  0.943921  0.966588  0.957464  1  0.962498  
+bb.gem.m2.vgain = 1.07748  1.01407  0.985382  0.99368  0.994357  1.02034  1.0334  1  
+bb.gem.m2.ugain = 1.10562  1.02867  1.03905  1.00891  1.0012  1  0.993431  1.0767  0.98346  1.02763  
+bb.gem.m3.vgain = 1.83933  1.59211  1.60077  1.39715  1.37237  1.26916  1.21845  1  
+bb.gem.m3.ugain = 1  1.02219  1.01649  1.08201  1.21071  1.23559  1.21648  1  1  1  
+bb.gem.m4.vgain = 1  1.04681  1.04126  1.12896  1.12973  1.08508  1.08418  1.12319  1.06373  1.07089  1.03689  1.06197  1.06512  1.08468  1.07141  1.04547  1.04178  1.05411  1.03827  0.963868  0.99122  1.03257  1.01084  1.00463  0.975297  0.966354  0.891916  0.882449  1  1  
+bb.gem.m4.ugain = 0.726218  0.756865  0.887679  0.999698  0.992621  1.04213  1.0547  0.996707  1.04981  0.991603  1.0415  1.0797  1.05306  0.992684  1  1.04428  1.02325  1.04206  0.959436  0.977552  1.01311  0.962077  0.942921  0.969695  0.931704  0.920016  0.970099  1  1  1  
+bb.gem.m5.vgain = 1  0.948927  1.03111  1.06064  1.2471  1.10166  1.24805  1.16199  1.1355  1.00561  1.06913  1.0715  1.06205  0.998326  1.06335  0.986406  0.98005  1.11264  1.01304  0.982755  0.985151  0.969483  1.0977  1.02229  0.928916  0.994011  1.00074  0.953412  1  1  
+bb.gem.m5.ugain = 0.638485  0.808424  0.852912  1.09917  0.986138  0.946011  0.950126  0.948043  0.952558  0.945809  0.94491  0.937002  0.997723  1.03697  1  0.942755  0.977159  1.09221  0.907482  0.990123  1.00615  1.01444  0.881789  0.933607  0.895149  0.848574  0.86759  1  1  1  
+bb.gem.m6.vgain = 1  0.57321  0.579753  0.558479  0.612041  0.572222  0.563368  0.552396  0.61984  0.588292  0.619407  0.596981  
+bb.gem.m6.ugain = 1  0.844447  0.86127  0.860959  0.788132  0.857596  0.891911  0.925496  0.935364  1  
+bb.gem.m7.vgain = 0.893958  0.789814  0.793011  0.796203  0.787921  0.702535  0.7238  0.673552  0.679503  0.721543  0.706771  1  
+bb.gem.m7.ugain = 1.10549  1.12089  1.08058  1.1076  1.10494  1.05297  0.907062  1.07291  1  0.958306  
+bb.gem.m8.vgain = 0.920191  0.899197  0.829083  0.843308  0.917424  0.871131  0.896305  0.83649  0.881522  0.924326  0.941767  1.29487  
+bb.gem.m8.ugain = 0.799965  1  0.994284  0.898925  0.875196  0.850594  0.854855  0.799617  0.763357  0.724479  
+bb.gem.m9.vgain = 1  0.719228  0.728924  0.703162  0.657209  0.68296  0.698367  0.692027  0.67929  0.658401  0.720617  0.820285  
+bb.gem.m9.ugain = 1.01168  1.06476  1  0.960437  0.934892  0.929013  0.971313  0.980967  0.92826  0.972461  
 
-# Module average gains relative to target ADC peak position of 4500
-bb.gem.m0.modulegain = 0.99361
-bb.gem.m0.threshold_sample = 99.7202
-bb.gem.m0.threshold_stripsum = 299.161
-bb.gem.m0.threshold_clustersum = 598.321
-
-
-bb.gem.m1.modulegain = 0.756667
-bb.gem.m1.threshold_sample = 67.7438
-bb.gem.m1.threshold_stripsum = 203.231
-bb.gem.m1.threshold_clustersum = 406.463
-
-
-bb.gem.m2.modulegain = 0.983153
-bb.gem.m2.threshold_sample = 60.0361
-bb.gem.m2.threshold_stripsum = 180.108
-bb.gem.m2.threshold_clustersum = 360.217
-
-
-bb.gem.m3.modulegain = 0.784784
-bb.gem.m3.threshold_sample = 83.8709
-bb.gem.m3.threshold_stripsum = 251.613
-bb.gem.m3.threshold_clustersum = 503.225
-
-
-bb.gem.m4.modulegain = 0.969153
-bb.gem.m4.threshold_sample = 110.767
-bb.gem.m4.threshold_stripsum = 332.302
-bb.gem.m4.threshold_clustersum = 664.603
-
-
-bb.gem.m5.modulegain = 0.994576
-bb.gem.m5.threshold_sample = 174.046
-bb.gem.m5.threshold_stripsum = 522.139
-bb.gem.m5.threshold_clustersum = 1044.28
-
-
-bb.gem.m6.modulegain = 1.29455
-bb.gem.m6.threshold_sample = 193.33
-bb.gem.m6.threshold_stripsum = 579.991
-bb.gem.m6.threshold_clustersum = 1159.98
-
-
-bb.gem.m7.modulegain = 1.12214
-bb.gem.m7.threshold_sample = 123.663
-bb.gem.m7.threshold_stripsum = 370.99
-bb.gem.m7.threshold_clustersum = 741.98
-
-
-bb.gem.m8.modulegain = 1.13086
-bb.gem.m8.threshold_sample = 128.657
-bb.gem.m8.threshold_stripsum = 385.971
-bb.gem.m8.threshold_clustersum = 771.941
-
-
-bb.gem.m9.modulegain = 1.18936
-bb.gem.m9.threshold_sample = 147.916
-bb.gem.m9.threshold_stripsum = 443.749
-bb.gem.m9.threshold_clustersum = 887.498
-
-------------[ 2021-12-01 12:00:00 ] # set all gains to 1 
+# Module average gains relative to target ADC peak position of 4000
+bb.gem.m0.modulegain = 0.981068
+bb.gem.m1.modulegain = 0.766582
+bb.gem.m2.modulegain = 0.982848
+bb.gem.m3.modulegain = 0.782657
+bb.gem.m4.modulegain = 0.968913
+bb.gem.m5.modulegain = 0.993982
+bb.gem.m6.modulegain = 1.33195
+bb.gem.m7.modulegain = 1.14365
+bb.gem.m8.modulegain = 1.13417
+bb.gem.m9.modulegain = 1.19038
 
 # override thresholds above for initial quality checks:
 bb.gem.m0.threshold_sample = 75.0
@@ -1445,40 +1395,6 @@ bb.gem.m6.threshold_clustersum = 400.0
 bb.gem.m7.threshold_clustersum = 400.0
 bb.gem.m8.threshold_clustersum = 400.0
 bb.gem.m9.threshold_clustersum = 400.0
-
-bb.gem.m0.modulegain = 1.0
-bb.gem.m1.modulegain = 1.0
-bb.gem.m2.modulegain = 1.0
-bb.gem.m3.modulegain = 1.0
-bb.gem.m4.modulegain = 1.0
-bb.gem.m5.modulegain = 1.0
-bb.gem.m6.modulegain = 1.0
-bb.gem.m7.modulegain = 1.0
-bb.gem.m8.modulegain = 1.0
-bb.gem.m9.modulegain = 1.0
-
-bb.gem.m0.ugain = 1.0
-bb.gem.m1.ugain = 1.0
-bb.gem.m2.ugain = 1.0
-bb.gem.m3.ugain = 1.0
-bb.gem.m4.ugain = 1.0
-bb.gem.m5.ugain = 1.0
-bb.gem.m6.ugain = 1.0
-bb.gem.m7.ugain = 1.0
-bb.gem.m8.ugain = 1.0
-bb.gem.m9.ugain = 1.0
-
-bb.gem.m0.vgain = 1.0
-bb.gem.m1.vgain = 1.0
-bb.gem.m2.vgain = 1.0
-bb.gem.m3.vgain = 1.0
-bb.gem.m4.vgain = 1.0
-bb.gem.m5.vgain = 1.0
-bb.gem.m6.vgain = 1.0
-bb.gem.m7.vgain = 1.0
-bb.gem.m8.vgain = 1.0
-bb.gem.m9.vgain = 1.0
-
 
 
 #################### END TIME-DEPENDENT GAIN MATCH COEFFICIENTS ################
@@ -1516,13 +1432,4 @@ bb.gem.corrcoeff_cut = 0.0
 
 # END of "V2" database
 
-#
-# How many sets of gain coefficients do we really need during SBS-11? 
-# My naive assumption is 3 or perhaps 4. One set prior to first timing shift on 12/1, 
-# one set between first and second timing shift, and a third set after second timing shift on 12/14.
-# finally, the HV is reduced by 25 V on all GEMS prior to run 12957:
-#  
-# 
-# --According to Zeke's spreadsheet, there are the following APV replacements and/or 
-# --HV changes:
-#  
+
