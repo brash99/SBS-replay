@@ -1837,8 +1837,8 @@ bb.ps.adc.gain =
 
 # Calibration done with LH2 data for 100% SBS field. GEN2
 # Run list in BBCal_replay/macros/Run_list/
-# Latest on 09/08/2023 for pass 0 (elastic cuts).
--------[ 2023-09-08 11:33:00 ]
+# Latest on 09/08/2023 for pass 0 (elastic cuts). First run is 2008
+-------[ 2022-10-17 19:55:00 ]
 bb.ps.adc.gain =
 0.0148207 0.0145066 
 0.013915 0.0151573 
@@ -1869,8 +1869,8 @@ bb.ps.adc.gain =
 
 # Calibration done with LH2 data for 30% SBS field. GEN2
 # Run list in BBCal_replay/macros/Run_list/
-# Latest on 09/08/2023 for pass 0 (elastic cuts).
--------[ 2023-09-08 11:35:00 ]
+# Latest on 09/08/2023 for pass 0 (elastic cuts). First run is 1998
+-------[ 2022-10-17 01:00:00 ]
 bb.ps.adc.gain =
 0.0113203 0.0110397 
 0.0106401 0.0113492 
@@ -1909,8 +1909,8 @@ bb.ps.adc.gain =
 
 # Calibration done with LH2 data for 100% SBS field. GEN3
 # Run list in BBCal_replay/macros/Run_list/
-# Latest on 09/08/2023 for pass 0 (elastic cuts).
--------[ 2023-09-08 11:37:00 ]
+# Latest on 09/08/2023 for pass 0 (elastic cuts). First run is 2496
+-------[ 2022-11-11 00:05:00 ]
 bb.ps.adc.gain =
 0.0148997 0.0147065 
 0.0140403 0.0151406 
