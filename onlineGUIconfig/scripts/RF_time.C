@@ -17,8 +17,10 @@ void RF_time(){
   T->SetBranchStatus("bb.tdctrig.tdc",1);
   T->SetBranchStatus("bb.sh.nclus",1);
   T->SetBranchStatus("sbs.hcal.nclus",1);
+  T->SetBranchStatus("sbs.hcal.tdctimeblk",1);
   T->SetBranchStatus("Ndata.bb.tdctrig.tdcelemID",1);
   T->SetBranchStatus("bb.tdctrig.tdcelemID",1);
+  T->SetBranchStatus("bb.hodotdc.clus.bar.tdc.meantime",1);
 
   T->SetBranchAddress("bb.tdctrig.tdc", &bb_tdctrig_tdc);
   T->SetBranchAddress("bb.tdctrig.tdcelemID", &bb_tdctrig_tdcelemID);

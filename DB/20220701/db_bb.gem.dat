@@ -747,7 +747,7 @@ bb.gem.gridbinwidthx = 0.01
 bb.gem.gridbinwidthy = 0.01
 bb.gem.gridedgetolerancex = 0.003
 bb.gem.gridedgetolerancey = 0.003
-bb.gem.trackchi2cut = 30.0
+bb.gem.trackchi2cut = 50.0
 
 # below are wider values to use if we don't have a good initial alignment:
 #bb.gem.gridbinwidthx = 0.05
@@ -762,7 +762,7 @@ bb.gem.useslopeconstraint = 0
 bb.gem.useopticsconstraint = 0
 bb.gem.useforwardopticsconstraint = 0
 
-bb.gem.sigmahitpos = 0.00015
+bb.gem.sigmahitpos = 0.0001
 bb.gem.do_efficiencies = 1
 bb.gem.dump_geometry_info = 0
 
@@ -1001,6 +1001,24 @@ bb.gem.m6.angle =     -0.02023956      -0.3355465      -0.2649168
 bb.gem.m7.position =       0.7708554      -0.0119063        1.535161
 bb.gem.m7.angle =      -0.1956102      0.02594648      -0.3035511
 
+----------[ 2023-09-13 00:00:00 ] # approximate start of fall 2023 running:
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.002060446     -0.01134932       0.1649865
+bb.gem.m1.angle =       0.1537661         0.07854      0.05764346
+bb.gem.m2.position =    -0.007707609     0.006252719       0.2789296
+bb.gem.m2.angle =       0.1384817       0.1345991      -0.3063009
+bb.gem.m3.position =    -0.009311901     0.004908867       0.4575496
+bb.gem.m3.angle =       0.1611543       0.1731637      -0.4595488
+bb.gem.m4.position =      -0.7646127     0.001913562        1.579897
+bb.gem.m4.angle =       0.1275886      -0.1623317      -0.3348091
+bb.gem.m5.position =      -0.2524839    -0.002386069        1.537319
+bb.gem.m5.angle =      -0.3484715     -0.07720465      -0.3065612
+bb.gem.m6.position =       0.2585995     -0.00834048        1.580018
+bb.gem.m6.angle =       0.5124344      -0.2019018      -0.2596834
+bb.gem.m7.position =        0.770319     -0.01202493        1.534337
+bb.gem.m7.angle =       0.1543703      -0.1288245       -0.333122
+
 
 #################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
 
@@ -1061,6 +1079,10 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run3772.dat
 --------[ 2023-08-21 0:00:00  ]
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run4739.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run4739.dat
+
+--------[ 2023-09-01 13:04:00 ]
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run4845.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run4845.dat
 
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
@@ -1354,4 +1376,79 @@ bb.gem.useconstraint = 0
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
 bb.gem.useforwardopticsconstraint = 0
+
+bb.gem.usestriptimingcut = 0
+bb.gem.filterflag1D = -1
+bb.gem.filterflag2D = -1
+
+bb.gem.use_enhanced_chi2 = 0
+bb.gem.minhighqualityhitsontrack = 0
+
+# typical values after alignment:
+bb.gem.gridbinwidthx = 0.005
+bb.gem.gridbinwidthy = 0.005
+bb.gem.gridedgetolerancex = 0.0015
+bb.gem.gridedgetolerancey = 0.0015
+bb.gem.trackchi2cut = 50.0
+
+bb.gem.minhitsontrack = 3
+
+
+bb.gem.m0.threshold_sample = 50.0
+bb.gem.m1.threshold_sample = 50.0
+bb.gem.m2.threshold_sample = 50.0
+bb.gem.m3.threshold_sample = 50.0
+bb.gem.m4.threshold_sample = 50.0
+bb.gem.m5.threshold_sample = 50.0
+bb.gem.m6.threshold_sample = 50.0
+bb.gem.m7.threshold_sample = 50.0
+
+bb.gem.m0.threshold_stripsum = 150.0
+bb.gem.m1.threshold_stripsum = 150.0
+bb.gem.m2.threshold_stripsum = 150.0
+bb.gem.m3.threshold_stripsum = 150.0
+bb.gem.m4.threshold_stripsum = 150.0
+bb.gem.m5.threshold_stripsum = 150.0
+bb.gem.m6.threshold_stripsum = 150.0
+bb.gem.m7.threshold_stripsum = 150.0
+
+bb.gem.m0.threshold_clustersum = 300.0
+bb.gem.m1.threshold_clustersum = 300.0
+bb.gem.m2.threshold_clustersum = 300.0
+bb.gem.m3.threshold_clustersum = 300.0
+bb.gem.m4.threshold_clustersum = 300.0
+bb.gem.m5.threshold_clustersum = 300.0
+bb.gem.m6.threshold_clustersum = 300.0
+bb.gem.m7.threshold_clustersum = 300.0
+
+
+
+--------[ 2023-09-12 22:22:22 ] # somewhat sensible settings which will probably give reasonably good results if/when the beam starts tonight (AJRP 9/12/2023)
+
+bb.gem.useconstraint = 1
+bb.gem.useopticsconstraint = 1 
+bb.gem.useslopeconstraint = 1
+
+bb.gem.usestriptimingcut = 1
+bb.gem.filterflag1D = -1
+bb.gem.filterflag2D = 0
+
+
+bb.gem.m0.maxsrip_t0 = 92.4
+bb.gem.m1.maxstrip_t0 = 83.1
+bb.gem.m2.maxstrip_t0 = 92.9
+bb.gem.m3.maxstrip_t0 = 88.4
+bb.gem.m4.maxstrip_t0 = 92.3
+bb.gem.m5.maxstrip_t0 = 95.7
+bb.gem.m6.maxstrip_t0 = 95.5
+bb.gem.m7.maxstrip_t0 = 92.3
+
+bb.gem.maxstrip_tsigma = 1.0
+
+bb.gem.maxstrip_tcut = 40.0
+bb.gem.m1.maxstrip_tcut = 50.0
+bb.gem.m3.maxstrip_tcut = 50.0
+bb.gem.addstrip_tcut = 45.0
+
+bb.gem.deltat_cut = 30.0
 
