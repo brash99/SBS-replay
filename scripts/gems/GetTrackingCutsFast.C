@@ -10,6 +10,8 @@
 #include <fstream>
 #include "TString.h"
 #include "TClonesArray.h"
+#include "TCanvas.h"
+#include "TPaveText.h"
 
 
 void DrawHist(TH1D *hist, vector<double> value, int flag = 0){
@@ -55,8 +57,8 @@ void FitGaus_FWHM( TH1D *htest, double thresh=0.5 ){
   while( htest->GetBinContent(binlow) >= thresh*max && binlow > 1 ){binlow--;}
   while( htest->GetBinContent(binhigh) >= thresh*max && binhigh < htest->GetNbinsX() ){ binhigh++; }
 
-  double xlow = htest->GetBinCenter(binlow);
-  double xhigh = htest->GetBinCenter(binhigh);
+  double xlow = htest->GetBinLowEdge(binlow);
+  double xhigh = htest->GetBinLowEdge(binhigh+1);
 
   htest->Fit("gaus","q0S","",xlow, xhigh);
 }
@@ -360,20 +362,21 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
     
     if( passedcut && int(ntracks) >= 1){
 
-      hdxfcp->Fill( xfp[0] - xfcp[0] );
-      hdyfcp->Fill( yfp[0] - yfcp[0] );
-      hdxbcp->Fill( xfp[0]+thfp[0]*(zbcp[0]-zfcp[0]) - xbcp[0] );
-      hdybcp->Fill( yfp[0]+phfp[0]*(zbcp[0]-zfcp[0]) - ybcp[0] );
-
-      hdxdyfcp->Fill( yfp[0]-yfcp[0], xfp[0]-xfcp[0] );
-      hdxdybcp->Fill( yfp[0]+phfp[0]*(zbcp[0]-zfcp[0]) - ybcp[0],
-		      xfp[0]+thfp[0]*(zbcp[0]-zfcp[0]) - xbcp[0] );
-      
       double thcp = (xbcp[0]-xfcp[0])/(zbcp[0]-zfcp[0]);
       double phcp = (ybcp[0]-yfcp[0])/(zbcp[0]-zfcp[0]);
+      if( EPS >= 0.2 ){ //tracking constraint histos always require preshower regardless what the user defined?
+	hdxfcp->Fill( xfp[0] - xfcp[0] );
+	hdyfcp->Fill( yfp[0] - yfcp[0] );
+	hdxbcp->Fill( xfp[0]+thfp[0]*(zbcp[0]-zfcp[0]) - xbcp[0] );
+	hdybcp->Fill( yfp[0]+phfp[0]*(zbcp[0]-zfcp[0]) - ybcp[0] );
 
-      hdthcp->Fill( thfp[0]-thcp );
-      hdphcp->Fill( phfp[0]-phcp );
+	hdxdyfcp->Fill( yfp[0]-yfcp[0], xfp[0]-xfcp[0] );
+	hdxdybcp->Fill( yfp[0]+phfp[0]*(zbcp[0]-zfcp[0]) - ybcp[0],
+			xfp[0]+thfp[0]*(zbcp[0]-zfcp[0]) - xbcp[0] );
+       	
+	hdthcp->Fill( thfp[0]-thcp );
+	hdphcp->Fill( phfp[0]-phcp );
+      }
       
       for( int ihit=0; ihit<int(ngoodhits); ihit++ ){
 	if( int(trackindex[ihit]) == 0 && nstripu[ihit]>1&&nstripv[ihit]>1 ){
@@ -384,6 +387,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
 	  hADCclust_vs_module->Fill( module[ihit], ADCavg[ihit] );
 
+	  //For timing cuts we require hits to pass higher ADC thresholds:
 	  if( ADCavg[ihit] >= 1500.0 ){
 	    hADCasym_mod->Fill( module[ihit], ADCasym[ihit] );
 	    hADCasym_deconv_mod->Fill( module[ihit], ADCasymDeconv[ihit] );
@@ -395,7 +399,10 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 	    hdeltat_fit_mod->Fill( module[ihit], deltatFit[ihit] );
 	  }
 
-	  if( ADCavg[ihit] >= 750.0 ){
+	  if( ADCmaxsampU[ihit] >= 100. && ADCmaxsampV[ihit] >= 100. &&
+	      ADCmaxstripU[ihit] >= 250. && ADCmaxstripV[ihit] >= 250. &&
+	      ADCU[ihit] >= 600. && ADCV[ihit] >= 600. &&
+	      ADCavg[ihit] >= 750. ){
 	    hmaxstrip_tU_mod->Fill( module[ihit], UtimeMaxStrip[ihit] );
 	    hmaxstrip_tV_mod->Fill( module[ihit], VtimeMaxStrip[ihit] );
 	    

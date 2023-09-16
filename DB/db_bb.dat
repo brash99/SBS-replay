@@ -1110,7 +1110,8 @@ bb.frontconstraint_y0 = -0.0167
 bb.backconstraint_x0 = 0.0044
 bb.backconstraint_y0 = 0.0021
 
-bb.frontconstraintwidth_x = 0.074377
+bb.frontconstraintwidth_x = 0.15
+#bb.frontconstraintwidth_x = 0.074377
 bb.frontconstraintwidth_y = 0.0660473
 bb.backconstraintwidth_x = 0.0528561
 bb.backconstraintwidth_y = 0.0685936
@@ -1134,7 +1135,8 @@ bb.frontconstraint_y0 = -0.0167
 bb.backconstraint_x0 = 0.0044
 bb.backconstraint_y0 = 0.0021
 
-bb.frontconstraintwidth_x = 0.074377
+#bb.frontconstraintwidth_x = 0.074377
+bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.0660473
 bb.backconstraintwidth_x = 0.0528561
 bb.backconstraintwidth_y = 0.0685936
@@ -1159,7 +1161,8 @@ bb.frontconstraint_y0 = -0.0167
 bb.backconstraint_x0 = 0.0044
 bb.backconstraint_y0 = 0.0021
 
-bb.frontconstraintwidth_x = 0.074377
+bb.frontconstraintwidth_x = 0.15
+#bb.frontconstraintwidth_x = 0.074377
 bb.frontconstraintwidth_y = 0.0660473
 bb.backconstraintwidth_x = 0.0528561
 bb.backconstraintwidth_y = 0.0685936
