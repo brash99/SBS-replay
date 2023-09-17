@@ -274,6 +274,9 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
 
   TString odef_filename = "replay_gen.odef";
 
+  //no need to define SBS GEM output if we aren't analyzing the data
+  if( usesbsgems == 0 ) odef_filename = "replay_gen_noSBSGEMs.odef";
+
   odef_filename.Prepend( prefix );
 
   analyzer->SetOdefFile( odef_filename );
