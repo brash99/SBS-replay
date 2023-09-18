@@ -63,7 +63,7 @@ void FitGaus_FWHM( TH1D *htest, double thresh=0.5 ){
   htest->Fit("gaus","q0S","",xlow, xhigh);
 }
 
-void GetTrackingCutsFast( const char *configfilename, const char *outfilename="GENtrackingcuts.root", int nmodules=8 ){
+void GetTrackingCutsFast( const char *configfilename, const char *outfilename="GENtrackingcuts.root", int nmodules=8, double thresh=0.003 ){
 
   ifstream infile(configfilename);
   
@@ -484,7 +484,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
       int binlow=1;
 
-      while( hADCtemp->Integral(1,binlow) < 0.001*hADCtemp->GetEntries() ){binlow++;}
+      while( hADCtemp->Integral(1,binlow) < thresh*hADCtemp->GetEntries() ){binlow++;}
 
       vector<double> threshsamp;
       threshsamp.push_back(hADCtemp->GetBinLowEdge(binlow));
@@ -505,7 +505,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
     if( hADCtemp->GetEntries() >= 300 ){
       int binlow=1;
       
-      while( hADCtemp->Integral(1,binlow) < 0.001*hADCtemp->GetEntries() ){binlow++;}
+      while( hADCtemp->Integral(1,binlow) < thresh*hADCtemp->GetEntries() ){binlow++;}
       
       vector<double> threshstrip;
       threshstrip.push_back(hADCtemp->GetBinLowEdge(binlow));
@@ -526,7 +526,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
     if( hADCtemp->GetEntries() >= 300 ){
       int binlow=1;
       
-      while( hADCtemp->Integral(1,binlow) < 0.001*hADCtemp->GetEntries() ){binlow++;}
+      while( hADCtemp->Integral(1,binlow) < thresh*hADCtemp->GetEntries() ){binlow++;}
       
       vector<double> thresh;
       thresh.push_back(hADCtemp->GetBinLowEdge(binlow));
