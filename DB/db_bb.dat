@@ -3,6 +3,7 @@
 bb.A_pvy = 0
 bb.B_pvy = 0
 
+bb.use_beampos = 0
 
 #bb.magdist = 1.8
 #bb.tracker_pitch_angle = 10.
@@ -1641,7 +1642,7 @@ bb.B_pth1 = 0.999237626
 bb.C_pth1 = 0.0
 bb.A_pvy = -0.0147632089
 bb.B_pvy = -15.893095
-
+bb.use_beampos = 1
 
 bb.optics_parameters = 
    -0.016265428  0.00017064242 -0.00045654972   0  0 0 0 0 0
@@ -1790,6 +1791,8 @@ bb.C_pth1 = 0.0
 bb.A_pvy = 0.0175826672
 bb.B_pvy = -33.8073321
 
+bb.use_beampos = 1
+
 bb.optics_order = 2
 
 bb.optics_parameters = 
@@ -1869,6 +1872,8 @@ bb.gemphi = 178.2506
 bb.optics_order = 2
 
 bb.preconflag = 1
+
+bb.use_beampos = 0
 
 bb.A_pth1 =       0.2775655
 bb.B_pth1 =        0.974132
