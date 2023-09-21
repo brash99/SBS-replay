@@ -244,17 +244,19 @@ bb.grinch_tdc.ypos =
 bb.grinch_tdc.maxsep = 0.07 # this is twice the separation between neighboring PMTs in the matrix, to account for clusters with "holes"
 
 bb.grinch_tdc.nmirror = 4
-bb.grinch_tdc.trackmatch_xslope = 0.71 0.71 0.71 0.71
-bb.grinch_tdc.trackmatch_x0 = -0.158 -0.0193 -0.0047 0.1968 
-bb.grinch_tdc.trackmatch_xsigma = 0.016 0.014 0.015 0.016 
-bb.grinch_tdc.trackmatch_yslope = 1.57 2.02 2.36 1.36
-bb.grinch_tdc.trackmatch_y0 = 0.04 -0.038 -0.031 -0.0878
-bb.grinch_tdc.trackmatch_ysigma = 0.08 0.026 0.036 0.023
-bb.grinch_tdc.trackmatch_xmin = -0.8 -0.55 -0.1 0.45
-bb.grinch_tdc.trackmatch_xmax = -0.45 0.1 0.6 0.85 
+
+bb.grinch_tdc.trackmatch_pslope = 0.1715
+bb.grinch_tdc.trackmatch_xslope = 0.74 0.7353 0.7515 0.7456 
+bb.grinch_tdc.trackmatch_x0 = -0.2 -0.0765 -0.0827 0.1127 
+bb.grinch_tdc.trackmatch_xsigma = 0.015 0.009 0.01 0.01 
+bb.grinch_tdc.trackmatch_yslope = 0.42 0.48 0.173 0.56 
+bb.grinch_tdc.trackmatch_y0 = -0.017 0.018 0.014 0.046 
+bb.grinch_tdc.trackmatch_ysigma = 0.022 0.015 0.022 0.023 
+bb.grinch_tdc.trackmatch_xmin = -0.8 -0.65 -0.1 0.45
+bb.grinch_tdc.trackmatch_xmax = -0.5 0.1 0.55 0.8 
 
 # wide track-matching cut until we develop a way to deal with the mirror boundaries in the x track x GRINCH correlation 
-bb.grinch_tdc.trackmatch_nsigma_cut = 20.0
+bb.grinch_tdc.trackmatch_nsigma_cut = 5.0
 
 bb.grinch_tdc.hit_mintime = -30
 bb.grinch_tdc.hit_maxtime = 30
