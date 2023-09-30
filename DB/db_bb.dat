@@ -1772,7 +1772,7 @@ bb.frontconstraint_x0 = 0.0443
 bb.frontconstraint_y0 = -0.0136
 bb.backconstraintwidth_x = 0.05
 bb.backconstraintwidth_y = 0.06
-bb.frontconstraintwidth_x = 0.08
+bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.11
 # no change in back constraint offsets or widths needed
 
@@ -1854,9 +1854,15 @@ bb.frontconstraintwidth_y = 0.2
 
 -------[ 2022-11-26 19:07:00 ] # back to full-field running:
 
-bb.frontconstraint_x0 = 0.0443
-bb.frontconstraintwidth_x = 0.15
-bb.frontconstraintwidth_y = 0.11	
+bb.frontconstraint_x0 = 0.055
+bb.frontconstraint_y0 = -0.004
+bb.backconstraint_x0 = 0.00114813
+bb.backconstraint_y0 = 0.00225662
+
+bb.frontconstraintwidth_x = 0.08
+bb.frontconstraintwidth_y = 0.15
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.09	
 
 
 --------[ 2023-01-01 00:00:00 ] # start GEN-4:
@@ -1929,6 +1935,17 @@ bb.forwardoptics_parameters =
       0.96992468       0.28111294      -0.72876774       0.18088207  0 0 1 0 1
      -0.34886017      0.070426927      -0.44995393      0.024582746  0 0 0 1 1
        1.1328192      -0.23611212        1.6597674      -0.13326304  0 0 0 0 2
+
+
+bb.frontconstraint_x0 = 0.054
+bb.frontconstraint_y0 = -0.009
+bb.backconstraint_x0 = 0.003
+bb.backconstraint_y0 = 0.002
+
+bb.frontconstraintwidth_x = 0.07
+bb.frontconstraintwidth_y = 0.15
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.08
 
 
 --------[ 2023-02-27 22:55:00 ] # start zero-field running for optics-Holly to update tonight
