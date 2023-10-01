@@ -348,7 +348,8 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
   // For the GEM time versus trigger time correlation, we want a TClonesArray(TH2D):
   TClonesArray *htavg_corr_vs_ttrig_by_module = new TClonesArray("TH2D",nmodules);
-  
+ 
+
   for( int imod=0; imod<nmodules; imod++ ){
     TString hname,htitle;
     new( (*htavg_corr_vs_ttrig_by_module)[imod] ) TH2D( hname.Format("hTavg_corr_vs_ttrig_mod%d",imod), htitle.Format("Module %d;t_{trig} (ns);t_{GEM} (ns)",imod), 300,200,500, 300,-75,75); 
