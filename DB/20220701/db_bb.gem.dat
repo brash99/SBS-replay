@@ -1019,6 +1019,24 @@ bb.gem.m6.angle =       0.5124344      -0.2019018      -0.2596834
 bb.gem.m7.position =        0.770319     -0.01202493        1.534337
 bb.gem.m7.angle =       0.1543703      -0.1288245       -0.333122
 
+----------[ 2023-10-05 20:00:00 ] # after working on layer 2
+
+bb.gem.m0.position =               0               0               0
+bb.gem.m0.angle =               0               0               0
+bb.gem.m1.position =    -0.001944807     -0.01137309       0.1646421
+bb.gem.m1.angle =       0.1277139      0.04179052      0.05324231
+bb.gem.m2.position =       -0.007505     0.005352609       0.2783303
+bb.gem.m2.angle =       0.1461723      0.05426488      -0.3113272
+bb.gem.m3.position =    -0.008982012     0.004854915       0.4565449
+bb.gem.m3.angle =       0.1901333      0.06292248      -0.4674243
+bb.gem.m4.position =      -0.7641676     0.002198854        1.576011
+bb.gem.m4.angle =      -0.2970232      0.05928018      -0.4015076
+bb.gem.m5.position =      -0.2515506     -0.00283137        1.532427
+bb.gem.m5.angle =      -0.7232566      0.07099211      -0.2519372
+bb.gem.m6.position =       0.2600601    -0.008812006        1.587475
+bb.gem.m6.angle =        2.150863      -0.9955862      -0.2454232
+bb.gem.m7.position =       0.7719042     -0.01264669        1.535455
+bb.gem.m7.angle =      -0.2715125    -0.006344476       -0.140722
 
 #################### END TIME-DEPENDENT ALIGNMENT PARAMETERS ##############################
 
@@ -1083,6 +1101,14 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run4739.dat
 --------[ 2023-09-01 13:04:00 ]
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run4845.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run4845.dat
+
+--------[ 2023-09-20 19:00:00 ] #new pedestal after replacing a backplane
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run5228.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run5228.dat
+
+--------[ 2023-10-05 15:35:00 ] #new pedestal after replacing layer2 backplane in BigBite
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run5566.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run5566.dat
 
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
@@ -1736,4 +1762,9 @@ bb.gem.m7.threshold_clustersum =          540
 
 bb.gem.constraintwidth_theta = 0.045
 bb.gem.constraintwidth_phi = 0.1
+
+#--------[ 2023-10-05 20:00:00 ] 
+#bb.gem.dump_geometry_info = 1
+
+
 
