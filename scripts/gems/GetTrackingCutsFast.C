@@ -63,7 +63,7 @@ void FitGaus_FWHM( TH1D *htest, double thresh=0.5 ){
   htest->Fit("gaus","q0S","",xlow, xhigh);
 }
 
-void GetTrackingCutsFast( const char *configfilename, const char *outfilename="GENtrackingcuts.root", int nmodules=8 ){
+void GetTrackingCutsFast( const char *configfilename, const char *outfilename="GENtrackingcuts.root", int nmodules=8, double thresh=0.003 ){
 
   ifstream infile(configfilename);
   
@@ -92,7 +92,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
   //int nhits=0;
   const int MAXNHITS = 1000;
   const int MAXNCLUST = 1;
-
+  const int MAXNTRIG = 10;
 
   C->SetBranchStatus("*",0);
   
@@ -115,6 +115,20 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
   double dxfp[MAXNTRACKS], dyfp[MAXNTRACKS], dthfp[MAXNTRACKS], dphfp[MAXNTRACKS];
   double p[MAXNTRACKS],px[MAXNTRACKS],py[MAXNTRACKS],pz[MAXNTRACKS],vz[MAXNTRACKS]; 
   double xfcp[MAXNCLUST],yfcp[MAXNCLUST],zfcp[MAXNCLUST],xbcp[MAXNCLUST],ybcp[MAXNCLUST],zbcp[MAXNCLUST];
+
+  int Ntrig;
+  double trig_elemID[MAXNTRIG];
+  double trig_tdc[MAXNTRIG];
+
+  //Set up trigger branches:
+  C->SetBranchStatus("Ndata.bb.tdctrig.tdc",1);
+  C->SetBranchStatus("bb.tdctrig.tdc",1);
+  C->SetBranchStatus("bb.tdctrig.tdcelemID",1);
+
+  C->SetBranchAddress("Ndata.bb.tdctrig.tdc",&Ntrig);
+  C->SetBranchAddress("bb.tdctrig.tdcelemID",trig_elemID);
+  C->SetBranchAddress("bb.tdctrig.tdc",trig_tdc);
+ 
 
   C->SetBranchStatus("bb.gem.track.nhits",1);
   C->SetBranchStatus("bb.gem.track.ngoodhits",1);
@@ -329,6 +343,19 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
   TH2D *htV_fit_mod = new TH2D("htV_fit_mod", "V clusters;module; fit time (ns)", nmodules,-0.5,nmodules-0.5, 150,-100,200);
 
   TH2D *hdt_corr_mod = new TH2D("hdt_corr_mod", "Hit average corrected time minus track t0;T_{corr}-t_{0}^{track} (ns);", nmodules,-0.5,nmodules-0.5, 100,-50,50);
+
+  TH2D *htavg_corr_vs_ttrig_allhits = new TH2D("hTavg_corr_vs_ttrig_allhits", "All hits; t_{trig} (ns); t_{GEM} (ns)", 300, 200, 500, 300,-75,75);
+
+  // For the GEM time versus trigger time correlation, we want a TClonesArray(TH2D):
+  TClonesArray *htavg_corr_vs_ttrig_by_module = new TClonesArray("TH2D",nmodules);
+ 
+
+  for( int imod=0; imod<nmodules; imod++ ){
+    TString hname,htitle;
+    new( (*htavg_corr_vs_ttrig_by_module)[imod] ) TH2D( hname.Format("hTavg_corr_vs_ttrig_mod%d",imod), htitle.Format("Module %d;t_{trig} (ns);t_{GEM} (ns)",imod), 300,200,500, 300,-75,75); 
+  }
+
+
   
   TString fname_db = outfilename;
   fname_db.ReplaceAll(".root",".dat");
@@ -344,7 +371,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
   int treenum=0, currenttreenum=0;
 
-  while( C->GetEntry( nevent++ ) ){
+  while( C->GetEntry( nevent++ ) && nevent){
     currenttreenum = C->GetTreeNumber();
     if( nevent == 1 || currenttreenum != treenum ){
       treenum = currenttreenum;
@@ -352,7 +379,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
     }
 
     if( nevent % 100000 == 0 ) cout << nevent << endl;
-
+    
     bool passedcut = GlobalCut->EvalInstance(0) != 0;
 
     // cout << "passed cut, ntracks, ngoodhits = " << passedcut << ", "
@@ -361,6 +388,14 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
     
     if( passedcut && int(ntracks) >= 1){
+
+      //Grab trigger TDC time: 
+      double ttrig = 0.0;
+      for( int itrig=0; itrig<Ntrig; itrig++ ){
+	if( int(trig_elemID[itrig]) == 5 ){
+	  ttrig = trig_tdc[itrig];
+	}
+      }
 
       double thcp = (xbcp[0]-xfcp[0])/(zbcp[0]-zfcp[0]);
       double phcp = (ybcp[0]-yfcp[0])/(zbcp[0]-zfcp[0]);
@@ -380,7 +415,9 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
       
       for( int ihit=0; ihit<int(ngoodhits); ihit++ ){
 	if( int(trackindex[ihit]) == 0 && nstripu[ihit]>1&&nstripv[ihit]>1 ){
-	  
+	  htavg_corr_vs_ttrig_allhits->Fill( ttrig, HitTavg_corr[ihit] );
+
+	  ( (TH2D *) (*htavg_corr_vs_ttrig_by_module)[module[ihit]] )->Fill( ttrig, HitTavg_corr[ihit] );
 	  
 	  hADCmaxsamp_vs_module->Fill( module[ihit], 0.5*(ADCmaxsampU[ihit]+ADCmaxsampV[ihit]) );
 	  hADCmaxstrip_vs_module->Fill( module[ihit], 0.5*(ADCmaxstripU[ihit]+ADCmaxstripV[ihit]) );
@@ -393,7 +430,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 	    hADCasym_deconv_mod->Fill( module[ihit], ADCasymDeconv[ihit] );
 	    hADCratio_mod->Fill( module[ihit], ADCV[ihit]/ADCU[ihit] );
 	    hADCratio_deconv_mod->Fill( module[ihit], DeconvADCV[ihit]/DeconvADCU[ihit] );
-
+	    
 	    hdeltat_mod->Fill( module[ihit], deltat[ihit] );
 	    hdeltat_deconv_mod->Fill( module[ihit], deltatDeconv[ihit] );
 	    hdeltat_fit_mod->Fill( module[ihit], deltatFit[ihit] );
@@ -408,7 +445,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 	    
 	    hmaxstrip_tU_deconv_mod->Fill( module[ihit], UtimeMaxStripDeconv[ihit] );
 	    hmaxstrip_tV_deconv_mod->Fill( module[ihit], VtimeMaxStripDeconv[ihit] );
-	    
+
 	    hmaxstrip_tU_fit_mod->Fill( module[ihit], UtimeMaxStripFit[ihit] );
 	    hmaxstrip_tV_fit_mod->Fill( module[ihit], VtimeMaxStripFit[ihit] );
 	    
@@ -484,7 +521,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
       int binlow=1;
 
-      while( hADCtemp->Integral(1,binlow) < 0.001*hADCtemp->GetEntries() ){binlow++;}
+      while( hADCtemp->Integral(1,binlow) < thresh*hADCtemp->GetEntries() ){binlow++;}
 
       vector<double> threshsamp;
       threshsamp.push_back(hADCtemp->GetBinLowEdge(binlow));
@@ -505,7 +542,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
     if( hADCtemp->GetEntries() >= 300 ){
       int binlow=1;
       
-      while( hADCtemp->Integral(1,binlow) < 0.001*hADCtemp->GetEntries() ){binlow++;}
+      while( hADCtemp->Integral(1,binlow) < thresh*hADCtemp->GetEntries() ){binlow++;}
       
       vector<double> threshstrip;
       threshstrip.push_back(hADCtemp->GetBinLowEdge(binlow));
@@ -526,7 +563,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
     if( hADCtemp->GetEntries() >= 300 ){
       int binlow=1;
       
-      while( hADCtemp->Integral(1,binlow) < 0.001*hADCtemp->GetEntries() ){binlow++;}
+      while( hADCtemp->Integral(1,binlow) < thresh*hADCtemp->GetEntries() ){binlow++;}
       
       vector<double> thresh;
       thresh.push_back(hADCtemp->GetBinLowEdge(binlow));
@@ -1024,6 +1061,9 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
   dbfile << "bb.gem.constraintwidth_phi = " << hdphcp->GetRMS() * 4.5 << endl;
   
   //hdeltat_mod->Draw("colz");
+
+  //Is this line necessary? NO: it leads to duplicate copies of these histograms
+  //htavg_corr_vs_ttrig_by_module->Write();
 
   fout->Write();
 

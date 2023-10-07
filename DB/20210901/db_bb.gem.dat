@@ -485,7 +485,8 @@ bb.gem.trigtime_slot = 2
 bb.gem.trigtime_chan = 127
 bb.gem.trigtime_t0 = 368.0
 bb.gem.trigtime_calib = 0.0936
-bb.gem.maxtrigtime_correction = 15.0
+bb.gem.trigtime_slope = 0.5
+bb.gem.maxtrigtime_correction = 25.0
 
 bb.gem.useopticsconstraint = 0
 bb.gem.useforwardopticsconstraint = 0

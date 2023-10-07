@@ -104,15 +104,15 @@ void FitForwardOptics( const char *configfilename, const char *outfilename="fopt
   TFile *fout = new TFile(outfilename,"RECREATE");
   
    //Histograms of "recon" versions of fp track parameters:
-  TH1D *hxfpdiff = new TH1D("hxfpdiff", "", nbins, -0.005, 0.005);
+  TH1D *hxfpdiff = new TH1D("hxfpdiff", "", nbins, -0.01, 0.01);
   TH1D *hyfpdiff = new TH1D("hyfpdiff", "", nbins, -0.005, 0.005);
-  TH1D *hthfpdiff = new TH1D("hthfpdiff", "", nbins, -0.001, 0.001 );
+  TH1D *hthfpdiff = new TH1D("hthfpdiff", "", nbins, -0.01, 0.01 );
   TH1D *hphfpdiff = new TH1D("hphfpdiff", "", nbins, -0.001, 0.001 );
 
-  TH2D *hdxfp_xfp = new TH2D("hdxfp_xfp", ";x_{fp};x_{fp}(fit-true)", nbins, -0.75, 0.75, 250, -0.005, 0.005 );
-  TH2D *hdxfp_yfp = new TH2D("hdxfp_yfp", ";y_{fp};x_{fp}(fit-true)", nbins, -0.2, 0.2, 250, -0.005, 0.005 );
-  TH2D *hdxfp_thfp = new TH2D("hdxfp_thfp", ";#theta_{fp};x_{fp}(fit-true)", nbins, -0.5, 0.5, 250, -0.005, 0.005 );
-  TH2D *hdxfp_phfp = new TH2D("hdxfp_phfp", ";#phi_{fp};x_{fp}(fit-true)", nbins, -0.15, 0.15, 250, -0.005, 0.005 );
+  TH2D *hdxfp_xfp = new TH2D("hdxfp_xfp", ";x_{fp};x_{fp}(fit-true)", nbins, -0.75, 0.75, 250, -0.01, 0.01 );
+  TH2D *hdxfp_yfp = new TH2D("hdxfp_yfp", ";y_{fp};x_{fp}(fit-true)", nbins, -0.2, 0.2, 250, -0.01, 0.01 );
+  TH2D *hdxfp_thfp = new TH2D("hdxfp_thfp", ";#theta_{fp};x_{fp}(fit-true)", nbins, -0.5, 0.5, 250, -0.01, 0.01 );
+  TH2D *hdxfp_phfp = new TH2D("hdxfp_phfp", ";#phi_{fp};x_{fp}(fit-true)", nbins, -0.15, 0.15, 250, -0.01, 0.01 );
 
   TH2D *hdyfp_xfp = new TH2D("hdyfp_xfp", ";x_{fp};y_{fp}(fit-true)", nbins, -0.75, 0.75, 250, -0.005, 0.005 );
   TH2D *hdyfp_yfp = new TH2D("hdyfp_yfp", ";y_{fp};y_{fp}(fit-true)", nbins, -0.2, 0.2, 250, -0.005, 0.005 );
@@ -120,10 +120,10 @@ void FitForwardOptics( const char *configfilename, const char *outfilename="fopt
   TH2D *hdyfp_phfp = new TH2D("hdyfp_phfp", ";#phi_{fp};y_{fp}(fit-true)", nbins, -0.15, 0.15, 250, -0.005, 0.005 );
 
 
-  TH2D *hdthfp_xfp = new TH2D("hdthfp_xfp", ";x_{fp};#theta_{fp}(fit-true)", nbins, -0.75, 0.75, 250, -0.002, 0.002);
-  TH2D *hdthfp_yfp = new TH2D("hdthfp_yfp", ";y_{fp};#theta_{fp}(fit-true)", nbins, -0.2, 0.2, 250, -0.002, 0.002 );
-  TH2D *hdthfp_thfp = new TH2D("hdthfp_thfp", ";#theta_{fp};#theta_{fp}(fit-true)", nbins, -0.5, 0.5, 250, -0.002, 0.002 );
-  TH2D *hdthfp_phfp = new TH2D("hdthfp_phfp", ";#phi_{fp};#theta_{fp}(fit-true)", nbins, -0.15, 0.15, 250, -0.002, 0.002 );
+  TH2D *hdthfp_xfp = new TH2D("hdthfp_xfp", ";x_{fp};#theta_{fp}(fit-true)", nbins, -0.75, 0.75, 250, -0.01, 0.01);
+  TH2D *hdthfp_yfp = new TH2D("hdthfp_yfp", ";y_{fp};#theta_{fp}(fit-true)", nbins, -0.2, 0.2, 250, -0.01, 0.01 );
+  TH2D *hdthfp_thfp = new TH2D("hdthfp_thfp", ";#theta_{fp};#theta_{fp}(fit-true)", nbins, -0.5, 0.5, 250, -0.01, 0.01 );
+  TH2D *hdthfp_phfp = new TH2D("hdthfp_phfp", ";#phi_{fp};#theta_{fp}(fit-true)", nbins, -0.15, 0.15, 250, -0.01, 0.01 );
 
   TH2D *hdphfp_xfp = new TH2D("hdphfp_xfp", ";x_{fp};#phi_{fp}(fit-true)", nbins, -0.75, 0.75, 250, -0.002, 0.002);
   TH2D *hdphfp_yfp = new TH2D("hdphfp_yfp", ";y_{fp};#phi_{fp}(fit-true)", nbins, -0.2, 0.2, 250, -0.002, 0.002 );
