@@ -105,3 +105,14 @@ sbs.frontconstraint_x0 = 0.2
 sbs.frontconstraint_y0 = 0
 sbs.frontconstraintwidth_x = 0.4 # m
 sbs.frontconstraintwidth_y = 0.3 # m
+
+------[ 2023-09-01 00:00:00 ] # reverting to old constraint centering: 
+
+sbs.frontconstraintwidth_x = 1.0 # m
+sbs.frontconstraintwidth_y = 0.3 # m
+sbs.backconstraintwidth_x = 0.22 # m
+sbs.backconstraintwidth_y = 0.21 # m
+sbs.backconstraint_x0 = 0.50286
+sbs.backconstraint_y0 = 0.11554
+sbs.frontconstraint_x0 = 0.0
+sbs.frontconstraint_y0 = 0.0

@@ -752,10 +752,10 @@ bb.gem.maxhitcombos_total = 1000000000000000
 bb.gem.tryfasttrack = 1
 
 # typical values after alignment:
-bb.gem.gridbinwidthx = 0.005
-bb.gem.gridbinwidthy = 0.005
-bb.gem.gridedgetolerancex = 0.0015
-bb.gem.gridedgetolerancey = 0.0015
+bb.gem.gridbinwidthx = 0.01
+bb.gem.gridbinwidthy = 0.01
+bb.gem.gridedgetolerancex = 0.0025
+bb.gem.gridedgetolerancey = 0.0025
 bb.gem.trackchi2cut = 50.0
 
 # below are wider values to use if we don't have a good initial alignment:
@@ -2236,7 +2236,7 @@ bb.gem.useforwardopticsconstraint = 0
 
 --------[ 2023-08-20 12:00:00 ] # Cosmic runs during SAD
 
-bb.gem.useconstraint = 0
+bb.gem.useconstraint = 1
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
 bb.gem.useforwardopticsconstraint = 0

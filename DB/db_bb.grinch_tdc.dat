@@ -256,6 +256,7 @@ bb.grinch_tdc.trackmatch_xmin = -0.8 -0.65 -0.1 0.45
 bb.grinch_tdc.trackmatch_xmax = -0.5 0.1 0.55 0.8 
 
 # wide track-matching cut until we develop a way to deal with the mirror boundaries in the x track x GRINCH correlation 
+# 4.5-sigma cut seems sufficiently loose for now:
 bb.grinch_tdc.trackmatch_nsigma_cut = 4.5
 
 bb.grinch_tdc.hit_mintime = -30
@@ -283,8 +284,8 @@ bb.grinch_tdc.tdc.GoodTimeCut = 900
 bb.grinch_tdc.tdc.offset = 71.0
 bb.grinch_tdc.tdc.GoodTimeCut = 0.0
 
-bb.grinch_tdc.hit_mintime = -40.0
-bb.grinch_tdc.hit_maxtime = 40.0
+bb.grinch_tdc.hit_mintime = -50.0
+bb.grinch_tdc.hit_maxtime = 50.0
 
 -------[ 2022-11-10 00:00:00 ] # GEN-3: good GRINCH times shifted to about 200 ns
 
@@ -296,7 +297,7 @@ bb.grinch_tdc.hit_maxtime = 50.0
 
 -------[ 2023-01-11 00:00:00 ] # GEN-4: open up the cuts and find the good hits:
 
-bb.grinch_tdc.tdc.offset = 214.0
+bb.grinch_tdc.tdc.offset = 205.0
 bb.grinch_tdc.tdc.GoodTimeCut = 0.0
 bb.grinch_tdc.hit_mintime = -50.0 
 bb.grinch_tdc.hit_maxtime = 50.0

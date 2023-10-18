@@ -5,7 +5,7 @@
 # #include "replay_hcal.cdef"
 # #include "replay_hodo.cdef"
 
-# cut file for "standard" GMN replay
+# cut file for "standard" GEN replay
 
 Block: RawDecode 
 RawDecode_master 1
@@ -27,4 +27,4 @@ GoodHCAL      sbs.hcal.nclus>0
 GoodSBSTrack  sbs.gem.track.ntrack>0
 #Physics_master GoodBBCAL
 #Physics_master 1
-Physics_master GoodTrack
+Physics_master 1
