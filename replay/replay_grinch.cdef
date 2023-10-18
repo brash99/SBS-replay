@@ -10,6 +10,11 @@ Block: Decode
 Decode_master   1
 
 Block: CoarseReconstruct
-HitsGrinch          bb.grinch_tdc.nhits>0
+HitsGrinch          bb.grinch_tdc.ngoodhits>0
 CoarseReconstruct_master HitsGrinch
+
+Block: Reconstruct
+HitsGrinchAndTrack  bb.grinch_tdc.ngoodhits>0&&bb.tr.n>=1.
+HitsGrinchAndElectron bb.grinch_tdc.ngoodhits>0&&bb.tr.n>=1.&&bb.ps.e>0.2
+Reconstruct_master 1
 

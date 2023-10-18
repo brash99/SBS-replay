@@ -25,6 +25,8 @@ GoodTrack BB.gold.index>-1
 GoodElectron  GoodTrack&&CutPreShower
 GoodHCAL      sbs.hcal.nclus>0
 GoodSBSTrack  sbs.gem.track.ntrack>0
+HitsGrinchAndTrack bb.grinch_tdc.ngoodhits>0&&bb.tr.n>=1.
+HitsGrinchAndElectron bb.grinch_tdc.ngoodhits>0&&bb.tr.n>=1.&&bb.ps.e>0.2
 #Physics_master GoodBBCAL
-#Physics_master 1
-Physics_master GoodTrack
+Physics_master 1
+#Physics_master GoodTrack
