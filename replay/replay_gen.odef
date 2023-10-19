@@ -9,6 +9,7 @@
 #include "replay_bb.odef"
 #include "replay_sbs.odef"
 #include "replay_SBSGEM.odef"
+##include "replay_SBSGEM_light.odef"
 #include "replay_helicity.odef"
 
 
