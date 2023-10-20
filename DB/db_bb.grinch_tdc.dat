@@ -279,6 +279,8 @@ bb.grinch_tdc.hit_maxtime = 30
 bb.grinch_tdc.tdc.offset = 0.0
 bb.grinch_tdc.tdc.GoodTimeCut = 900
 
+bb.grinch_tdc.trackmatch_nsigma_cut = 10.0
+
 --------[ 2022-10-10 00:00:00 ] # GEN-2: good GRINCH times are clustered near 70 ns 
 
 bb.grinch_tdc.tdc.offset = 71.0
@@ -301,3 +303,4 @@ bb.grinch_tdc.tdc.offset = 205.0
 bb.grinch_tdc.tdc.GoodTimeCut = 0.0
 bb.grinch_tdc.hit_mintime = -50.0 
 bb.grinch_tdc.hit_maxtime = 50.0
+

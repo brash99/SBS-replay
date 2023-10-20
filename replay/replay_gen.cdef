@@ -30,5 +30,6 @@ GoodSBSTrack  sbs.gem.track.ntrack>0
 HitsGrinchAndTrack bb.grinch_tdc.ngoodhits>0&&bb.tr.n>=1.
 HitsGrinchAndElectron bb.grinch_tdc.ngoodhits>0&&bb.tr.n>=1.&&bb.ps.e>0.2
 #Physics_master GoodBBCAL
-Physics_master (BigBiteSingles||Coincidence)
+#Physics_master (BigBiteSingles||Coincidence)
+Physics_master 1
 #Physics_master GoodTrack
