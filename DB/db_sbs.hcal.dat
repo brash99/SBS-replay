@@ -160,12 +160,6 @@ sbs.hcal.xpos =
 0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  
 1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625
 
-## TOF vs proton momentum pol4 fit correction to time
-sbs.hcal.tofcorr_p = 1 0 0 0
-
-## TOF vs neutron momentum pol4 fit correction to time
-sbs.hcal.tofcorr_n = 0 0 0 0
-
 ## Mininum energy for a cluster element, set to 5 MeV
 sbs.hcal.emin = 0.005
 
