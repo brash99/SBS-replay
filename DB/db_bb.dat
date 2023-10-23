@@ -111,27 +111,6 @@ bb.frontconstraint_y0 = -0.0141
 bb.backconstraint_x0 = 0.0061
 bb.backconstraint_y0 = 0.0004
 
---------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics: 
-
-#bb.frontconstraintwidth_x = 0.1 # m
-#bb.frontconstraintwidth_y = 0.06 # m
-#bb.backconstraintwidth_x = 0.06 # m
-#bb.backconstraintwidth_y = 0.06 # m
-
-bb.frontconstraintwidth_x = 0.0655003
-bb.frontconstraintwidth_y = 0.0572045
-bb.backconstraintwidth_x = 0.050677
-bb.backconstraintwidth_y = 0.0633993
-
-#bb.frontconstraint_x0 = 0.0529
-# minor adjustment to front constraint x center after updating momentum and BBCAL calibrations:
-bb.frontconstraint_x0 = 0.055
-bb.frontconstraint_y0 = -0.0154
-bb.backconstraint_x0 = 0.0041
-bb.backconstraint_y0 = 0.0002
-
-
-
 --------[ 2021-01-01 00:00:00 ]
 
 bb.ecalo_fudgefactor = 1.0
@@ -511,9 +490,18 @@ bb.forwardoptics_parameters =
    1.3414592e-12    4.4593626e-13    2.9641838e-13    1.0860713e-13  0 0 0 1 1
    3.5591917e-13    1.0168499e-13    1.6015734e-13    2.3118863e-14  0 0 0 0 2
 
+--------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics: 
 
+bb.frontconstraintwidth_x = 0.0665084
+bb.frontconstraintwidth_y = 0.0571508
+bb.backconstraintwidth_x = 0.0503008
+bb.backconstraintwidth_y = 0.064012
 
---------[ 2021-10-21 00:00:00 ]
+bb.frontconstraint_x0 = 0.052
+bb.frontconstraint_y0 = -0.0154
+bb.backconstraint_x0 = 0.0041
+bb.backconstraint_y0 = 0.0002
+
 # 2nd-order g4sbs optics model for SBS-4 kinematics with BB at 1.80 m, 750 A, angle = 36 degrees. We will update again soon after detailed optics analysis:
 
 #bb.tracker_pitch_angle = 10.22
@@ -653,13 +641,11 @@ bb.backconstraintwidth_x = 0.08
 bb.backconstraintwidth_y = 0.08
 
 ----------[ 2021-10-25 00:18:00 ] 
-bb.frontconstraintwidth_x = 0.1 
-bb.frontconstraintwidth_y = 0.06
-bb.backconstraintwidth_x = 0.06
-bb.backconstraintwidth_y = 0.06
-bb.frontconstraint_x0 = 0.055
-bb.frontconstraint_y0 = -0.014
 
+bb.frontconstraintwidth_x = 0.0665084
+bb.frontconstraintwidth_y = 0.0571508
+bb.backconstraintwidth_x = 0.0503008
+bb.backconstraintwidth_y = 0.064012
 
 ----------[ 2021-11-12 00:00:00 ]  # start of SBS-7 kinematics:
 # re-using SBS-1 optics initially until I have time to generate new SBS-7 optics(they should be more or less the same since magnet distance is the same)
@@ -679,43 +665,18 @@ bb.preconflag = 1
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
 
-bb.A_pth1 =     0.277542448
-bb.B_pth1 =     0.926999692
-bb.C_pth1 = 0.0
+# I believe these are pass 1 values
+#bb.A_pth1 =     0.277542448
+#bb.B_pth1 =     0.926999692
+#bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs7.dat
 
-bb.optics_parameters = 
-    -0.018501398  -6.7399972e-05   0.00051113736               0    0 0 0 0 0 
-      0.43806034   -0.0023926575    0.0045009461               0    1 0 0 0 0 
-    -0.020722233    0.0034615225    -0.012662051               0    2 0 0 0 0 
-     0.015320724    -0.045600421       1.1058649               0    0 1 0 0 0 
-     -0.26764984      0.11312445     -0.22326626               0    1 1 0 0 0 
-     0.012835836    -0.044965034     0.049439064               0    0 2 0 0 0 
-     -0.32424517    0.0061390671    -0.011105304               0    0 0 1 0 0 
-    -0.018702796   -0.0047125082     0.064590279               0    1 0 1 0 0 
-      0.16398927     -0.16899269      0.37757206               0    0 1 1 0 0 
-     0.067573257  -0.00043834694    -0.087371113               0    0 0 2 0 0 
-    -0.039041417       1.0260013      -2.9822304               0    0 0 0 1 0 
-       0.7420103     -0.15498262      0.30890089               0    1 0 0 1 0 
-    -0.099567929     -0.12153484      0.13542661               0    0 1 0 1 0 
-     -0.49758931      0.16939045     -0.78056765               0    0 0 1 1 0 
-      0.27744977      0.43693015     -0.69362856               0    0 0 0 2 0 
-  -9.6140311e-16   -1.357631e-15   9.2605663e-17               0    0 0 0 0 1 
-  -2.1436212e-16   2.1026365e-16   1.9389511e-16               0    1 0 0 0 1 
-   2.2572645e-16   1.5761084e-16  -3.5722312e-17               0    0 1 0 0 1 
-  -4.6911865e-17   1.5525669e-16   -2.405119e-18               0    0 0 1 0 1 
-   3.8674907e-16   1.4831082e-16    8.137218e-17               0    0 0 0 1 1 
-   4.5026307e-17  -8.6377048e-17   5.8408047e-17               0    0 0 0 0 2 
 bb.preconflag = 1
 # NOTE on new momentum reconstruction formalism: 1st-order momentum is calculated from
 #   p*thetabend = A_pth1*(1.0 + (B_pth1+C_pth1*bb.magdist)*thtgt)
 # and momentum expansion coefficients are for delta = p(first order) * (1+delta)
 # In most of the acceptance we don't need any corrections beyond the first-order model
-
-#bb.A_pth1 =      0.27756646
-#bb.B_pth1 =     0.928255129
-#bb.C_pth1 = 0.0
 
 # new results with corrected beam energy:
 
@@ -774,70 +735,15 @@ bb.forwardoptics_parameters =
    2.7030922e-15   -7.4934769e-15   -8.2866716e-16   -1.7422587e-15  0 0 0 0 2
 
 
-
-#    -0.0185013985 -6.73999723e-05  0.000511137356      0.27014683  0 0 0 0 0
-#      0.438060342  -0.00239265752   0.00450094615      0.12263747  1 0 0 0 0
-#     -0.020722233   0.00346152246   -0.0126620506    -0.019948636  2 0 0 0 0
-#     0.0153207243    -0.045600421      1.10586487    0.0035087727  0 1 0 0 0
-#     -0.267649839     0.113124448     -0.22326626    0.0016165883  1 1 0 0 0
-#     0.0128358363   -0.0449650341    0.0494390641     0.099444276  0 2 0 0 0
-#     -0.324245168   0.00613906706   -0.0111053035    -0.067598058  0 0 1 0 0
-#    -0.0187027957   -0.0047125082    0.0645902788     0.059928015  1 0 1 0 0
-#      0.163989272    -0.168992687     0.377572061   -0.0047219173  0 1 1 0 0
-#     0.0675732572 -0.000438346942   -0.0873711125    0.0028185913  0 0 2 0 0
-#     -0.039041417      1.02600126     -2.98223036   -0.0054259747  0 0 0 1 0
-#      0.742010296    -0.154982623      0.30890089      0.00139445  1 0 0 1 0
-#    -0.0995679293    -0.121534843     0.135426612   -0.0068146927  0 1 0 1 0
-#      -0.49758931     0.169390452    -0.780567653    0.0068090428  0 0 1 1 0
-#      0.277449773     0.436930147    -0.693628561     -0.15213115  0 0 0 2 0
-#   -9.6140311e-16   -1.357631e-15   9.2605663e-17  -1.0943194e-14  0 0 0 0 1
-#   -2.1436212e-16   2.1026365e-16   1.9389511e-16   3.8920755e-15  1 0 0 0 1
-#    2.2572645e-16   1.5761084e-16  -3.5722312e-17  -3.6675353e-15  0 1 0 0 1
-#   -4.6911865e-17   1.5525669e-16   -2.405119e-18    1.333243e-15  0 0 1 0 1
-#    3.8674907e-16   1.4831082e-16    8.137218e-17  -5.2351365e-15  0 0 0 1 1
-#    4.5026307e-17  -8.6377048e-17   5.8408047e-17  -1.5141878e-15  0 0 0 0 2
-
-#   -0.014610131  0.00017530728 -0.00039557259     0.27014683  0 0 0 0 0
-#     0.45492532   0.0013420436  -0.0031322852     0.12263747  1 0 0 0 0
-#   -0.033084639   0.0019269196   -0.003110492   -0.019948636  2 0 0 0 0
-#   0.0075938232   -0.031607257      1.0732355   0.0035087727  0 1 0 0 0
-#    -0.17425312     0.11658231    -0.21478622   0.0016165883  1 1 0 0 0
-#  -0.0059229514   -0.027663009    0.036262367    0.099444276  0 2 0 0 0
-#    -0.36418362  -0.0024062888   0.0057744968   -0.067598058  0 0 1 0 0
-#    0.045826096  -0.0068087258   0.0095609702    0.059928015  1 0 1 0 0
-#     0.12277724    -0.16990165     0.40416301  -0.0047219173  0 1 1 0 0
-#  -0.0093677811   0.0038706949  -0.0036022512   0.0028185913  0 0 2 0 0
-#   -0.019564786     0.99289825     -2.9372276  -0.0054259747  0 0 0 1 0
-#     0.48668258    -0.26638183     0.43247601     0.00139445  1 0 0 1 0
-#    0.083491151      0.1370397    -0.16982932  -0.0068146927  0 1 0 1 0
-#    -0.36371334     0.52513737     -1.2019374   0.0068090428  0 0 1 1 0
-#   -0.082600543    -0.16508635      0.1785205    -0.15213115  0 0 0 2 0
-# -9.6140311e-16  9.2605663e-17  -1.357631e-15 -1.0943194e-14  0 0 0 0 1
-# -2.1436212e-16  1.9389511e-16  2.1026365e-16  3.8920755e-15  1 0 0 0 1
-#  2.2572645e-16 -3.5722312e-17  1.5761084e-16 -3.6675353e-15  0 1 0 0 1
-# -4.6911865e-17  -2.405119e-18  1.5525669e-16   1.333243e-15  0 0 1 0 1
-#  3.8674907e-16   8.137218e-17  1.4831082e-16 -5.2351365e-15  0 0 0 1 1
-#  4.5026307e-17  5.8408047e-17 -8.6377048e-17 -1.5141878e-15  0 0 0 0 2
-
-#bb.frontconstraintwidth_x = 0.1 # m
-#bb.frontconstraintwidth_y = 0.05 # m
-#bb.backconstraintwidth_x = 0.05 #m
-#bb.backconstraintwidth_y = 0.05 #m
-#bb.frontconstraint_x0 = 0.058
-#bb.frontconstraint_y0 = -0.017
-#bb.backconstraint_x0 = 0.0039
-#bb.backconstraint_y0 = -0.0015
-
-bb.frontconstraint_x0 = 0.0531
+bb.frontconstraint_x0 = 0.050
 bb.frontconstraint_y0 = -0.0163
 bb.backconstraint_x0 = 0.0039
 bb.backconstraint_y0 = -0.0011
 
-#bb.frontconstraintwidth_x = 0.0659395
-bb.frontconstraintwidth_x = 0.15
-bb.frontconstraintwidth_y = 0.0612968
-bb.backconstraintwidth_x = 0.0526578
-bb.backconstraintwidth_y = 0.0656529
+bb.frontconstraintwidth_x = 0.0649419
+bb.frontconstraintwidth_y = 0.0606855
+bb.backconstraintwidth_x = 0.0491358
+bb.backconstraintwidth_y = 0.0639173
 
 bb.ecalo_fudgefactor = 1.0
 
