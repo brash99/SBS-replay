@@ -156,10 +156,12 @@ sbs.hcal.xpos =
 1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625
 
 ## Mininum energy for a cluster element, set to 5 MeV
-sbs.hcal.emin = 0.005
+sbs.hcal.emin_clTotal = 0.005
+sbs.hcal.emin = 0.001 
+sbs.hcal.emin_clSeed = 0.0025
 
 ## Maximum time difference between cluster seed and additional clusters, set to 1000 ns by default
-sbs.hcal.tmax = 1000.0
+sbs.hcal.tmax = 20.0
 
 ## Maximum distance difference between cluster seed and additional clusters, set to 0.3 m
 sbs.hcal.Rmax_dis = 0.3
@@ -322,8 +324,9 @@ sbs.hcal.emin = 0.005
 --------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics 
 ## Minimum energy for a cluster center: we use the same threshold for SBS-8/9 since they have pretty much the same nucleon energy:
 #sbs.hcal.emin_clSeed = 0.016
-sbs.hcal.emin_clSeed = 0.005
-sbs.hcal.emin = 0.005
+sbs.hcal.emin_clSeed = 0.0025
+sbs.hcal.emin = 0.001
+sbs.hcal.emin_clTotal = 0.005
 
 
 --------[ 2022-07-26 00:00:00 ] ## Switch to HCAL VTP

@@ -626,7 +626,7 @@ bb.gem.constraintwidth_phi = 0.030921
 
 bb.gem.useforwardopticsconstraint = 1
 
-bb.gem.ADCasym_cut = 0.75 
+bb.gem.ADCasym_cut = 0.5 
 bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression, 0 = "soft" filtering
@@ -657,13 +657,13 @@ bb.gem.plot_event_info = 1
 
 # when zero suppression is enabled again we will turn this to 1: 
 bb.gem.pedsub_online = 1 # under normal conditions, this should always be 1, unless running normal data taking in pedestal mode:
-bb.gem.max2Dhits = 10000000 # per-module
+bb.gem.max2Dhits = 100000 # per-module
 
 bb.gem.usestriptimingcut = 0
 bb.gem.useTSchi2cut = 0
 
-bb.gem.addstrip_tcut = 75.0
-bb.gem.addstrip_ccor_cut = -1.1
+bb.gem.addstrip_tcut = 35.0
+bb.gem.addstrip_ccor_cut = 0.4
 bb.gem.suppressfirstlast = -1
 
 ############### Parameters searched by SBSGEMSpectrometerTracker::ReadDatabase() ######################
@@ -679,10 +679,10 @@ bb.gem.maxhitcombos_total = 1.e17
 bb.gem.tryfasttrack = 1
 
 # typical values after alignment:
-bb.gem.gridbinwidthx = 0.005
-bb.gem.gridbinwidthy = 0.005
-bb.gem.gridedgetolerancex = 0.0015
-bb.gem.gridedgetolerancey = 0.0015
+bb.gem.gridbinwidthx = 0.01
+bb.gem.gridbinwidthy = 0.01
+bb.gem.gridedgetolerancex = 0.0025
+bb.gem.gridedgetolerancey = 0.0025
 bb.gem.trackchi2cut = 30.0
 bb.gem.trackchi2cut_hitquality = 50.0
 #bb.gem.trackchi2cut = 30.0
@@ -1006,10 +1006,10 @@ bb.gem.m7.sigma_tcorr =       4.0594
 
 ---------[ 2022-01-11 00:00:00 ] # for optics running with sieve in, we will disable suppression of strips peaking in first or last time sample for now: 
 # also disable timing cuts, as the optics data had a different latency setting:
-bb.gem.usestriptimingcut = 0
-bb.gem.use_enhanced_chi2 = 0
-bb.gem.minhighqualityhitsontrack = 0
-bb.gem.minhitsontrack = 4
+bb.gem.usestriptimingcut = 1
+bb.gem.use_enhanced_chi2 = 1
+bb.gem.minhighqualityhitsontrack = 2
+bb.gem.minhitsontrack = 3
 
 bb.gem.suppressfirstlast = 0
 
@@ -1353,262 +1353,262 @@ bb.gem.m6.angle =       0.0780439      -0.0352653      -0.2700927
 bb.gem.m7.position =       0.7706319     -0.01153047        1.534709
 bb.gem.m7.angle =      -0.1816598      -0.1142634      -0.3129444
 
-# New timing cuts SBS-8:
-bb.gem.m0.maxstrip_t0 =      87.16      86.63
-bb.gem.m0.maxstrip_tsigma =      6.665      6.655
+bb.gem.m0.maxstrip_t0 =      87.43      86.91
+bb.gem.m0.maxstrip_tsigma =      5.551      5.684
 bb.gem.m0.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m0.maxstrip_t0_deconv =      48.86      46.24
-bb.gem.m0.maxstrip_tsigma_deconv =      10.85      11.17
+bb.gem.m0.maxstrip_t0_deconv =      48.95      46.39
+bb.gem.m0.maxstrip_tsigma_deconv =      11.81      12.13
 bb.gem.m0.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m0.maxstrip_t0_fit =      19.62      18.93
-bb.gem.m0.maxstrip_tsigma_fit =      8.841      8.974
+bb.gem.m0.maxstrip_t0_fit =      19.39      18.67
+bb.gem.m0.maxstrip_tsigma_fit =      9.223      9.486
 bb.gem.m0.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m0.deltat_sigma =       2.5671
-bb.gem.m0.deltat_cut =       25.671
-bb.gem.m0.deltat_sigma_deconv =       7.9768
-bb.gem.m0.deltat_cut_deconv =       79.768
-bb.gem.m0.deltat_sigma_fit =       3.2222
-bb.gem.m0.deltat_cut_fit =       32.222
+bb.gem.m0.deltat_sigma =       2.3767
+bb.gem.m0.deltat_cut =       23.767
+bb.gem.m0.deltat_sigma_deconv =       6.6679
+bb.gem.m0.deltat_cut_deconv =       66.679
+bb.gem.m0.deltat_sigma_fit =        2.811
+bb.gem.m0.deltat_cut_fit =        28.11
 
-bb.gem.m0.HitTimeMean =       84.571       84.477
-bb.gem.m0.HitTimeSigma =       6.7408       6.6732
-bb.gem.m0.HitTimeMeanDeconv =       42.006       40.592
-bb.gem.m0.HitTimeSigmaDeconv =       11.532       11.536
-bb.gem.m0.HitTimeMeanFit =       15.477       15.854
-bb.gem.m0.HitTimeSigmaFit =       8.6005       8.5982
+bb.gem.m0.HitTimeMean =       85.319       85.479
+bb.gem.m0.HitTimeSigma =       5.3593       5.4648
+bb.gem.m0.HitTimeMeanDeconv =       43.217       42.745
+bb.gem.m0.HitTimeSigmaDeconv =       11.633       11.747
+bb.gem.m0.HitTimeMeanFit =       16.544       17.014
+bb.gem.m0.HitTimeSigmaFit =       8.1627       8.5373
 
-bb.gem.m0.ADCasym_sigma =     0.053879
-bb.gem.m0.ADCratio_sigma =     0.097752
-bb.gem.m0.ADCratio_sigma_deconv =     0.098192
+bb.gem.m0.ADCasym_sigma =     0.055982
+bb.gem.m0.ADCratio_sigma =      0.10635
+bb.gem.m0.ADCratio_sigma_deconv =      0.10493
 
-bb.gem.m0.sigma_tcorr =       4.6457
+bb.gem.m0.sigma_tcorr =       4.4307
 
-bb.gem.m1.maxstrip_t0 =      79.47      78.99
-bb.gem.m1.maxstrip_tsigma =      10.44      10.51
+bb.gem.m1.maxstrip_t0 =      79.56      78.95
+bb.gem.m1.maxstrip_tsigma =      9.731      9.925
 bb.gem.m1.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m1.maxstrip_t0_deconv =       39.1      37.49
-bb.gem.m1.maxstrip_tsigma_deconv =      21.07      20.89
+bb.gem.m1.maxstrip_t0_deconv =      39.13      37.46
+bb.gem.m1.maxstrip_tsigma_deconv =      21.61      21.35
 bb.gem.m1.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m1.maxstrip_t0_fit =      8.778      7.713
-bb.gem.m1.maxstrip_tsigma_fit =      15.56      15.38
+bb.gem.m1.maxstrip_t0_fit =      8.712       7.68
+bb.gem.m1.maxstrip_tsigma_fit =       14.9      14.54
 bb.gem.m1.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m1.deltat_sigma =        2.257
-bb.gem.m1.deltat_cut =        22.57
-bb.gem.m1.deltat_sigma_deconv =       7.7428
-bb.gem.m1.deltat_cut_deconv =       77.428
-bb.gem.m1.deltat_sigma_fit =       3.7486
-bb.gem.m1.deltat_cut_fit =       37.486
+bb.gem.m1.deltat_sigma =        2.268
+bb.gem.m1.deltat_cut =        22.68
+bb.gem.m1.deltat_sigma_deconv =       7.0299
+bb.gem.m1.deltat_cut_deconv =       70.299
+bb.gem.m1.deltat_sigma_fit =       3.4502
+bb.gem.m1.deltat_cut_fit =       34.502
 
-bb.gem.m1.HitTimeMean =       77.683       77.836
-bb.gem.m1.HitTimeSigma =       10.446       10.262
-bb.gem.m1.HitTimeMeanDeconv =       35.494       34.729
-bb.gem.m1.HitTimeSigmaDeconv =       20.586       19.434
-bb.gem.m1.HitTimeMeanFit =       6.2105       6.3638
-bb.gem.m1.HitTimeSigmaFit =       15.424       15.326
+bb.gem.m1.HitTimeMean =       78.362       78.587
+bb.gem.m1.HitTimeSigma =       9.8663       10.013
+bb.gem.m1.HitTimeMeanDeconv =       36.093       36.048
+bb.gem.m1.HitTimeSigmaDeconv =        20.78       20.583
+bb.gem.m1.HitTimeMeanFit =       7.6179       7.6645
+bb.gem.m1.HitTimeSigmaFit =       14.876       14.937
 
-bb.gem.m1.ADCasym_sigma =     0.054804
-bb.gem.m1.ADCratio_sigma =      0.10038
-bb.gem.m1.ADCratio_sigma_deconv =      0.10197
+bb.gem.m1.ADCasym_sigma =     0.060695
+bb.gem.m1.ADCratio_sigma =      0.11328
+bb.gem.m1.ADCratio_sigma_deconv =      0.11379
 
-bb.gem.m1.sigma_tcorr =       8.0649
+bb.gem.m1.sigma_tcorr =       8.2633
 
-bb.gem.m2.maxstrip_t0 =      88.33      88.15
-bb.gem.m2.maxstrip_tsigma =      6.694       6.69
+bb.gem.m2.maxstrip_t0 =      88.58      88.47
+bb.gem.m2.maxstrip_tsigma =      5.632      5.667
 bb.gem.m2.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m2.maxstrip_t0_deconv =       51.2      49.81
-bb.gem.m2.maxstrip_tsigma_deconv =      10.72      10.89
+bb.gem.m2.maxstrip_t0_deconv =      51.37      49.81
+bb.gem.m2.maxstrip_tsigma_deconv =      11.62      11.77
 bb.gem.m2.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m2.maxstrip_t0_fit =      21.37      21.14
-bb.gem.m2.maxstrip_tsigma_fit =       9.36       9.49
+bb.gem.m2.maxstrip_t0_fit =      21.25      21.04
+bb.gem.m2.maxstrip_tsigma_fit =      9.766       9.96
 bb.gem.m2.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m2.deltat_sigma =       2.4218
-bb.gem.m2.deltat_cut =       24.218
-bb.gem.m2.deltat_sigma_deconv =       7.3249
-bb.gem.m2.deltat_cut_deconv =       73.249
-bb.gem.m2.deltat_sigma_fit =       3.0726
-bb.gem.m2.deltat_cut_fit =       30.726
+bb.gem.m2.deltat_sigma =       2.2379
+bb.gem.m2.deltat_cut =       22.379
+bb.gem.m2.deltat_sigma_deconv =       6.2307
+bb.gem.m2.deltat_cut_deconv =       62.307
+bb.gem.m2.deltat_sigma_fit =       2.6756
+bb.gem.m2.deltat_cut_fit =       26.756
 
-bb.gem.m2.HitTimeMean =       85.935       86.198
-bb.gem.m2.HitTimeSigma =       6.7707       6.7504
-bb.gem.m2.HitTimeMeanDeconv =       44.838       44.492
-bb.gem.m2.HitTimeSigmaDeconv =       11.456       11.213
-bb.gem.m2.HitTimeMeanFit =       17.445       18.308
-bb.gem.m2.HitTimeSigmaFit =       9.0383       9.0394
+bb.gem.m2.HitTimeMean =       86.559       87.098
+bb.gem.m2.HitTimeSigma =       5.4591       5.4546
+bb.gem.m2.HitTimeMeanDeconv =       45.805       46.326
+bb.gem.m2.HitTimeSigmaDeconv =       11.572       11.338
+bb.gem.m2.HitTimeMeanFit =       18.167       19.113
+bb.gem.m2.HitTimeSigmaFit =       8.8987       9.2166
 
-bb.gem.m2.ADCasym_sigma =     0.051539
-bb.gem.m2.ADCratio_sigma =     0.096347
-bb.gem.m2.ADCratio_sigma_deconv =       0.0981
+bb.gem.m2.ADCasym_sigma =     0.054553
+bb.gem.m2.ADCratio_sigma =      0.10399
+bb.gem.m2.ADCratio_sigma_deconv =      0.10355
 
-bb.gem.m2.sigma_tcorr =       4.6796
+bb.gem.m2.sigma_tcorr =       4.4432
 
-bb.gem.m3.maxstrip_t0 =      83.11      82.29
-bb.gem.m3.maxstrip_tsigma =      10.29      10.63
+bb.gem.m3.maxstrip_t0 =      83.36      82.52
+bb.gem.m3.maxstrip_tsigma =      9.678      10.12
 bb.gem.m3.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m3.maxstrip_t0_deconv =       46.1      43.66
-bb.gem.m3.maxstrip_tsigma_deconv =      21.49      22.28
+bb.gem.m3.maxstrip_t0_deconv =      46.24      43.84
+bb.gem.m3.maxstrip_tsigma_deconv =      22.05      22.69
 bb.gem.m3.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m3.maxstrip_t0_fit =      13.56      11.87
-bb.gem.m3.maxstrip_tsigma_fit =      16.19      16.19
+bb.gem.m3.maxstrip_t0_fit =      13.31      11.71
+bb.gem.m3.maxstrip_tsigma_fit =      15.68       15.6
 bb.gem.m3.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m3.deltat_sigma =       2.2703
-bb.gem.m3.deltat_cut =       22.703
-bb.gem.m3.deltat_sigma_deconv =       7.0357
-bb.gem.m3.deltat_cut_deconv =       70.357
-bb.gem.m3.deltat_sigma_fit =       3.3792
-bb.gem.m3.deltat_cut_fit =       33.792
+bb.gem.m3.deltat_sigma =       2.2561
+bb.gem.m3.deltat_cut =       22.561
+bb.gem.m3.deltat_sigma_deconv =       6.3809
+bb.gem.m3.deltat_cut_deconv =       63.809
+bb.gem.m3.deltat_sigma_fit =       3.1034
+bb.gem.m3.deltat_cut_fit =       31.034
 
-bb.gem.m3.HitTimeMean =       81.426       81.184
-bb.gem.m3.HitTimeSigma =       10.499       10.559
-bb.gem.m3.HitTimeMeanDeconv =       41.458       40.177
-bb.gem.m3.HitTimeSigmaDeconv =       22.285       21.642
-bb.gem.m3.HitTimeMeanFit =       10.912       10.976
-bb.gem.m3.HitTimeSigmaFit =       16.077       15.869
+bb.gem.m3.HitTimeMean =        82.08       82.201
+bb.gem.m3.HitTimeSigma =       9.5886       9.9454
+bb.gem.m3.HitTimeMeanDeconv =       42.173       41.897
+bb.gem.m3.HitTimeSigmaDeconv =       22.269       22.122
+bb.gem.m3.HitTimeMeanFit =       12.348       12.221
+bb.gem.m3.HitTimeSigmaFit =       15.051        15.37
 
-bb.gem.m3.ADCasym_sigma =     0.051486
-bb.gem.m3.ADCratio_sigma =      0.09426
-bb.gem.m3.ADCratio_sigma_deconv =      0.09536
+bb.gem.m3.ADCasym_sigma =     0.054563
+bb.gem.m3.ADCratio_sigma =      0.10335
+bb.gem.m3.ADCratio_sigma_deconv =      0.10127
 
-bb.gem.m3.sigma_tcorr =       8.2504
+bb.gem.m3.sigma_tcorr =       8.3012
 
-bb.gem.m4.maxstrip_t0 =      88.56      89.34
-bb.gem.m4.maxstrip_tsigma =       6.95      6.953
+bb.gem.m4.maxstrip_t0 =      88.32      89.44
+bb.gem.m4.maxstrip_tsigma =      5.548       5.13
 bb.gem.m4.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m4.maxstrip_t0_deconv =      51.59      57.07
-bb.gem.m4.maxstrip_tsigma_deconv =      10.89      9.396
+bb.gem.m4.maxstrip_t0_deconv =      50.73      56.56
+bb.gem.m4.maxstrip_tsigma_deconv =      11.18      9.422
 bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m4.maxstrip_t0_fit =      21.44      22.24
-bb.gem.m4.maxstrip_tsigma_fit =      9.831       9.76
+bb.gem.m4.maxstrip_t0_fit =      20.33      21.12
+bb.gem.m4.maxstrip_tsigma_fit =      9.829      9.856
 bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m4.deltat_sigma =       2.0882
-bb.gem.m4.deltat_cut =       20.882
-bb.gem.m4.deltat_sigma_deconv =       6.2335
-bb.gem.m4.deltat_cut_deconv =       62.335
-bb.gem.m4.deltat_sigma_fit =       2.9519
-bb.gem.m4.deltat_cut_fit =       29.519
+bb.gem.m4.deltat_sigma =       1.9814
+bb.gem.m4.deltat_cut =       19.814
+bb.gem.m4.deltat_sigma_deconv =        5.198
+bb.gem.m4.deltat_cut_deconv =        51.98
+bb.gem.m4.deltat_sigma_fit =       2.7794
+bb.gem.m4.deltat_cut_fit =       27.794
 
-bb.gem.m4.HitTimeMean =       86.071       87.055
-bb.gem.m4.HitTimeSigma =       6.8843       6.7758
-bb.gem.m4.HitTimeMeanDeconv =       44.887       50.492
-bb.gem.m4.HitTimeSigmaDeconv =       11.161        9.862
-bb.gem.m4.HitTimeMeanFit =       17.536       17.784
-bb.gem.m4.HitTimeSigmaFit =       9.1745       9.1278
+bb.gem.m4.HitTimeMean =       86.746       87.378
+bb.gem.m4.HitTimeSigma =       5.2121       5.2283
+bb.gem.m4.HitTimeMeanDeconv =       46.616       50.463
+bb.gem.m4.HitTimeSigmaDeconv =       10.568       9.6828
+bb.gem.m4.HitTimeMeanFit =       18.123       18.111
+bb.gem.m4.HitTimeSigmaFit =       8.8053       8.6064
 
-bb.gem.m4.ADCasym_sigma =     0.051925
-bb.gem.m4.ADCratio_sigma =     0.097976
-bb.gem.m4.ADCratio_sigma_deconv =     0.097651
+bb.gem.m4.ADCasym_sigma =     0.051685
+bb.gem.m4.ADCratio_sigma =     0.097692
+bb.gem.m4.ADCratio_sigma_deconv =      0.10012
 
-bb.gem.m4.sigma_tcorr =       4.5025
+bb.gem.m4.sigma_tcorr =       4.6911
 
-bb.gem.m5.maxstrip_t0 =       90.3      91.69
-bb.gem.m5.maxstrip_tsigma =      6.848      6.809
+bb.gem.m5.maxstrip_t0 =      90.55      91.98
+bb.gem.m5.maxstrip_tsigma =      5.664        5.3
 bb.gem.m5.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m5.maxstrip_t0_deconv =      55.59      61.01
-bb.gem.m5.maxstrip_tsigma_deconv =      11.11      9.954
+bb.gem.m5.maxstrip_t0_deconv =      55.61      61.09
+bb.gem.m5.maxstrip_tsigma_deconv =      11.84      10.45
 bb.gem.m5.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m5.maxstrip_t0_fit =      24.92      27.07
-bb.gem.m5.maxstrip_tsigma_fit =      10.16      10.16
+bb.gem.m5.maxstrip_t0_fit =      24.73      26.96
+bb.gem.m5.maxstrip_tsigma_fit =      10.66      10.57
 bb.gem.m5.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m5.deltat_sigma =       2.6005
-bb.gem.m5.deltat_cut =       26.005
-bb.gem.m5.deltat_sigma_deconv =       8.1399
-bb.gem.m5.deltat_cut_deconv =       81.399
-bb.gem.m5.deltat_sigma_fit =       3.9337
-bb.gem.m5.deltat_cut_fit =       39.337
+bb.gem.m5.deltat_sigma =       2.3051
+bb.gem.m5.deltat_cut =       23.051
+bb.gem.m5.deltat_sigma_deconv =       6.2472
+bb.gem.m5.deltat_cut_deconv =       62.472
+bb.gem.m5.deltat_sigma_fit =       3.2948
+bb.gem.m5.deltat_cut_fit =       32.948
 
-bb.gem.m5.HitTimeMean =        87.36       89.094
-bb.gem.m5.HitTimeSigma =       6.9773       6.8429
-bb.gem.m5.HitTimeMeanDeconv =       47.828       54.553
-bb.gem.m5.HitTimeSigmaDeconv =       12.346       10.926
-bb.gem.m5.HitTimeMeanFit =       20.146       22.108
-bb.gem.m5.HitTimeSigmaFit =       9.8816       9.9457
+bb.gem.m5.HitTimeMean =       88.645        89.72
+bb.gem.m5.HitTimeSigma =       5.4108       5.1767
+bb.gem.m5.HitTimeMeanDeconv =       51.144       55.569
+bb.gem.m5.HitTimeSigmaDeconv =        11.42       10.768
+bb.gem.m5.HitTimeMeanFit =       21.711       23.332
+bb.gem.m5.HitTimeSigmaFit =       10.002        9.702
 
-bb.gem.m5.ADCasym_sigma =     0.064742
-bb.gem.m5.ADCratio_sigma =      0.12137
-bb.gem.m5.ADCratio_sigma_deconv =      0.12385
+bb.gem.m5.ADCasym_sigma =     0.062557
+bb.gem.m5.ADCratio_sigma =       0.1206
+bb.gem.m5.ADCratio_sigma_deconv =      0.12762
 
-bb.gem.m5.sigma_tcorr =       4.5098
+bb.gem.m5.sigma_tcorr =       4.3043
 
-bb.gem.m6.maxstrip_t0 =      90.94      91.25
-bb.gem.m6.maxstrip_tsigma =      6.794      6.742
+bb.gem.m6.maxstrip_t0 =      91.25      91.54
+bb.gem.m6.maxstrip_tsigma =      5.721      5.497
 bb.gem.m6.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m6.maxstrip_t0_deconv =      56.07      58.21
-bb.gem.m6.maxstrip_tsigma_deconv =      11.16      10.59
+bb.gem.m6.maxstrip_t0_deconv =      56.24       58.4
+bb.gem.m6.maxstrip_tsigma_deconv =      11.73      11.35
 bb.gem.m6.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m6.maxstrip_t0_fit =      25.71      26.38
-bb.gem.m6.maxstrip_tsigma_fit =      10.26      9.971
+bb.gem.m6.maxstrip_t0_fit =      25.51      26.35
+bb.gem.m6.maxstrip_tsigma_fit =      10.98      10.57
 bb.gem.m6.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m6.deltat_sigma =       2.6701
-bb.gem.m6.deltat_cut =       26.701
-bb.gem.m6.deltat_sigma_deconv =       7.6152
-bb.gem.m6.deltat_cut_deconv =       76.152
-bb.gem.m6.deltat_sigma_fit =       3.8316
-bb.gem.m6.deltat_cut_fit =       38.316
+bb.gem.m6.deltat_sigma =       2.5035
+bb.gem.m6.deltat_cut =       25.035
+bb.gem.m6.deltat_sigma_deconv =       6.4023
+bb.gem.m6.deltat_cut_deconv =       64.023
+bb.gem.m6.deltat_sigma_fit =       3.2336
+bb.gem.m6.deltat_cut_fit =       32.336
 
-bb.gem.m6.HitTimeMean =       88.529       88.672
-bb.gem.m6.HitTimeSigma =       6.8401       6.8991
-bb.gem.m6.HitTimeMeanDeconv =       49.614       51.567
-bb.gem.m6.HitTimeSigmaDeconv =       11.842       11.673
-bb.gem.m6.HitTimeMeanFit =       21.788       21.752
-bb.gem.m6.HitTimeSigmaFit =       9.8402       9.8626
+bb.gem.m6.HitTimeMean =       89.595       89.288
+bb.gem.m6.HitTimeSigma =       5.4342       5.4414
+bb.gem.m6.HitTimeMeanDeconv =       52.152       52.586
+bb.gem.m6.HitTimeSigmaDeconv =       11.353        11.65
+bb.gem.m6.HitTimeMeanFit =       23.185       22.717
+bb.gem.m6.HitTimeSigmaFit =       10.003       9.7811
 
-bb.gem.m6.ADCasym_sigma =     0.060555
-bb.gem.m6.ADCratio_sigma =      0.11782
-bb.gem.m6.ADCratio_sigma_deconv =      0.11474
+bb.gem.m6.ADCasym_sigma =     0.061305
+bb.gem.m6.ADCratio_sigma =      0.12159
+bb.gem.m6.ADCratio_sigma_deconv =      0.12061
 
-bb.gem.m6.sigma_tcorr =       4.6926
+bb.gem.m6.sigma_tcorr =       4.4966
 
-bb.gem.m7.maxstrip_t0 =      87.39      87.79
-bb.gem.m7.maxstrip_tsigma =      7.405      6.514
+bb.gem.m7.maxstrip_t0 =      87.61      88.07
+bb.gem.m7.maxstrip_tsigma =      6.512      5.367
 bb.gem.m7.maxstrip_tcut =        4.5        4.5
 
-bb.gem.m7.maxstrip_t0_deconv =      48.04      50.21
-bb.gem.m7.maxstrip_tsigma_deconv =       13.1      10.21
+bb.gem.m7.maxstrip_t0_deconv =      48.21      50.32
+bb.gem.m7.maxstrip_tsigma_deconv =      13.85      11.13
 bb.gem.m7.maxstrip_tcut_deconv =        4.5        4.5
 
-bb.gem.m7.maxstrip_t0_fit =      19.97      20.64
-bb.gem.m7.maxstrip_tsigma_fit =      10.29      9.006
+bb.gem.m7.maxstrip_t0_fit =      19.92      20.41
+bb.gem.m7.maxstrip_tsigma_fit =      10.64      9.513
 bb.gem.m7.maxstrip_tcut_fit =        4.5        4.5
 
-bb.gem.m7.deltat_sigma =       2.3828
-bb.gem.m7.deltat_cut =       23.828
-bb.gem.m7.deltat_sigma_deconv =       7.6702
-bb.gem.m7.deltat_cut_deconv =       76.702
-bb.gem.m7.deltat_sigma_fit =       3.2644
-bb.gem.m7.deltat_cut_fit =       32.644
+bb.gem.m7.deltat_sigma =       2.2903
+bb.gem.m7.deltat_cut =       22.903
+bb.gem.m7.deltat_sigma_deconv =       6.6572
+bb.gem.m7.deltat_cut_deconv =       66.572
+bb.gem.m7.deltat_sigma_fit =       2.8694
+bb.gem.m7.deltat_cut_fit =       28.694
 
-bb.gem.m7.HitTimeMean =       85.041       85.096
-bb.gem.m7.HitTimeSigma =       6.8842       6.5963
-bb.gem.m7.HitTimeMeanDeconv =       41.916       43.007
-bb.gem.m7.HitTimeSigmaDeconv =       12.281       11.028
-bb.gem.m7.HitTimeMeanFit =       16.429       16.119
-bb.gem.m7.HitTimeSigmaFit =       9.0256       8.6788
+bb.gem.m7.HitTimeMean =       86.177       85.775
+bb.gem.m7.HitTimeSigma =       5.7507       5.2403
+bb.gem.m7.HitTimeMeanDeconv =       44.622       44.095
+bb.gem.m7.HitTimeSigmaDeconv =       12.357       11.012
+bb.gem.m7.HitTimeMeanFit =       17.846        17.27
+bb.gem.m7.HitTimeSigmaFit =        9.267       8.4749
 
-bb.gem.m7.ADCasym_sigma =     0.052993
-bb.gem.m7.ADCratio_sigma =      0.10211
-bb.gem.m7.ADCratio_sigma_deconv =      0.10083
+bb.gem.m7.ADCasym_sigma =     0.054932
+bb.gem.m7.ADCratio_sigma =      0.10806
+bb.gem.m7.ADCratio_sigma_deconv =      0.10471
 
-bb.gem.m7.sigma_tcorr =       4.7694
+bb.gem.m7.sigma_tcorr =       4.5828
+
 
 bb.gem.m0.threshold_sample =           94
 bb.gem.m0.threshold_stripsum =          360
@@ -1697,7 +1697,7 @@ bb.gem.dxpfpcut = 0.0015
 bb.gem.dypfpcut = 0.0004
 
 #bb.gem.usestriptimingcut = 1
-bb.gem.ADCasym_cut = 0.4
+bb.gem.ADCasym_cut = 0.5
 bb.gem.addstrip_tcut = 30.0
 bb.gem.addstrip_ccor_cut = 0.25
 bb.gem.m1.addstrip_tcut = 40.0
@@ -1731,29 +1731,29 @@ bb.gem.suppressfirstlast = 0
 
 -------[ 2022-02-01 12:00:00 ] # at start of SBS-9 kinematics, we need to adjust limits for optics and track slope constraints:
 
-bb.gem.trackchi2cut = 50.0
+bb.gem.use_enhanced_chi2 = 1
+bb.gem.trackchi2cut_hitquality = 50.0
+bb.gem.trackchi2cut = 25.0
 
-bb.gem.ADCasym_cut = 0.75
-bb.gem.deltat_cut = 30.0
-bb.gem.corrcoeff_cut = -0.4
+bb.gem.suppressfirstlast = 0
+bb.gem.usestriptimingcut = 1
+bb.gem.clustering_flag = 0
+bb.gem.deconvolution_flag = 0
+
+bb.gem.ADCasym_cut = 0.5
+#bb.gem.deltat_cut = 30.0
+bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1
 bb.gem.filterflag2D = -1
 
-bb.gem.usestriptimingcut = 0
+bb.gem.usestriptimingcut = 1
 
-bb.gem.addstrip_tcut = 1000.0
-bb.gem.addstrip_ccor_cut = 0.1
+bb.gem.addstrip_tcut = 35.0
+bb.gem.addstrip_ccor_cut = 0.4
 
-# set prominence thresholds to zero to disable peak "erasing" in 1D clustering
-#bb.gem.peakprominence_minsigma = 0.0 
-#bb.gem.peakprominence_minfraction = 0.0
-
-bb.gem.clustering_flag = 0 # 0 = default (clustering based on strip ADC sums), 1 = clustering based on max. deconvoluted two-sample combo
-bb.gem.deconvolution_flag = 0 # 0 = default (keep strip flag based on time sample peaking depending on suppressfirstlast), 1 = keep strip flag set based on threshold for deconvoluted max two-sample combo
-
-bb.gem.useopticsconstraint = 0
-bb.gem.useslopeconstraint = 0
-bb.gem.useforwardopticsconstraint = 0
+bb.gem.useopticsconstraint = 1
+bb.gem.useslopeconstraint = 1
+bb.gem.useforwardopticsconstraint = 1
 
 bb.gem.dxfp0 = 0
 bb.gem.dyfp0 = 0
@@ -1802,293 +1802,266 @@ bb.gem.m6.angle =       0.1179524     -0.07008177      -0.2695913
 bb.gem.m7.position =        0.770547     -0.01169766        1.535663
 bb.gem.m7.angle =      -0.1405529       -0.192024       -0.325355
 
-# strip time cuts applicable to SBS-9:
-#bb.gem.m0.maxstrip_t0 =     87.1
-#bb.gem.m0.maxstrip_tcut =     27.3
-#bb.gem.m1.maxstrip_t0 =     81.6
-#bb.gem.m1.maxstrip_tcut =     34.1
-#bb.gem.m2.maxstrip_t0 =     88.9
-#bb.gem.m2.maxstrip_tcut =     26.9
-#bb.gem.m3.maxstrip_t0 =       85
-#bb.gem.m3.maxstrip_tcut =     34.1
-#bb.gem.m4.maxstrip_t0 =     90.2
-#bb.gem.m4.maxstrip_tcut =     27.2
-#bb.gem.m5.maxstrip_t0 =     91.6
-#bb.gem.m5.maxstrip_tcut =     27.4
-#bb.gem.m6.maxstrip_t0 =     91.4
-#bb.gem.m6.maxstrip_tcut =     28.2
-#bb.gem.m7.maxstrip_t0 =     88.7
-#bb.gem.m7.maxstrip_tcut =     27.5
-
-bb.gem.m0.maxstrip_t0 =     88.59     88.22
-bb.gem.m0.maxstrip_tsigma =     6.875     6.708
-bb.gem.m0.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m0.maxstrip_t0_deconv =     51.51     48.79
-bb.gem.m0.maxstrip_tsigma_deconv =     11.12     11.14
-bb.gem.m0.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m0.maxstrip_t0_fit =     22.14     21.52
-bb.gem.m0.maxstrip_tsigma_fit =     9.024     9.076
-bb.gem.m0.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m0.HitTimeMean =     86.514     86.845
-bb.gem.m0.HitTimeSigma =     6.8972      6.811
-bb.gem.m0.HitTimeMeanDeconv =     45.226      45.05
-bb.gem.m0.HitTimeSigmaDeconv =     11.894     11.523
-bb.gem.m0.HitTimeMeanFit =     19.122      19.54
-bb.gem.m0.HitTimeSigmaFit =     8.6719     8.5382
-
-bb.gem.m0.deltat_sigma =       2.54
-bb.gem.m0.deltat_sigma_deconv =     7.3997
-bb.gem.m0.deltat_sigma_fit =     3.0323
-
-bb.gem.m0.deltat_cut =     8.8901
-bb.gem.m0.deltat_cut_deconv =     25.899
-bb.gem.m0.deltat_cut_fit =     10.613
-
-bb.gem.m0.ADCratio_sigma =    0.11649
-bb.gem.m0.ADCasym_sigma =   0.061322
-
-bb.gem.m0.ADCratio_sigma_deconv =    0.11042
-
-bb.gem.m1.maxstrip_t0 =     81.26     81.02
-bb.gem.m1.maxstrip_tsigma =     10.41      10.4
-bb.gem.m1.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m1.maxstrip_t0_deconv =     42.11     40.35
-bb.gem.m1.maxstrip_tsigma_deconv =     20.76     20.55
-bb.gem.m1.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m1.maxstrip_t0_fit =     11.58      11.6
-bb.gem.m1.maxstrip_tsigma_fit =     15.75     15.66
-bb.gem.m1.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m1.HitTimeMean =     80.271     80.464
-bb.gem.m1.HitTimeSigma =     10.316     10.358
-bb.gem.m1.HitTimeMeanDeconv =       38.7     38.861
-bb.gem.m1.HitTimeSigmaDeconv =     19.693     19.642
-bb.gem.m1.HitTimeMeanFit =     10.864     11.133
-bb.gem.m1.HitTimeSigmaFit =     15.421     15.781
-
-bb.gem.m1.deltat_sigma =     2.3633
-bb.gem.m1.deltat_sigma_deconv =     5.5318
-bb.gem.m1.deltat_sigma_fit =     3.5792
-
-bb.gem.m1.deltat_cut =     8.2715
-bb.gem.m1.deltat_cut_deconv =     19.361
-bb.gem.m1.deltat_cut_fit =     12.527
-
-bb.gem.m1.ADCratio_sigma =    0.11006
-bb.gem.m1.ADCasym_sigma =   0.071574
-
-bb.gem.m1.ADCratio_sigma_deconv =    0.12293
-
-bb.gem.m2.maxstrip_t0 =     90.11     89.99
-bb.gem.m2.maxstrip_tsigma =     6.779     6.742
-bb.gem.m2.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m2.maxstrip_t0_deconv =     54.33     52.86
-bb.gem.m2.maxstrip_tsigma_deconv =     10.94     11.01
-bb.gem.m2.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m2.maxstrip_t0_fit =     24.44     24.33
-bb.gem.m2.maxstrip_tsigma_fit =     9.697     9.672
-bb.gem.m2.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m2.HitTimeMean =     88.202     88.568
-bb.gem.m2.HitTimeSigma =     6.7511     6.7658
-bb.gem.m2.HitTimeMeanDeconv =     48.543     49.028
-bb.gem.m2.HitTimeSigmaDeconv =     11.338     10.815
-bb.gem.m2.HitTimeMeanFit =     21.372     22.268
-bb.gem.m2.HitTimeSigmaFit =     9.3029     9.0852
-
-bb.gem.m2.deltat_sigma =     2.3264
-bb.gem.m2.deltat_sigma_deconv =     6.0959
-bb.gem.m2.deltat_sigma_fit =     2.6553
-
-bb.gem.m2.deltat_cut =     8.1426
-bb.gem.m2.deltat_cut_deconv =     21.336
-bb.gem.m2.deltat_cut_fit =     9.2934
-
-bb.gem.m2.ADCratio_sigma =    0.10286
-bb.gem.m2.ADCasym_sigma =   0.058372
-
-bb.gem.m2.ADCratio_sigma_deconv =   0.096394
-
-bb.gem.m3.maxstrip_t0 =     85.16      84.8
-bb.gem.m3.maxstrip_tsigma =     9.655     10.22
-bb.gem.m3.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m3.maxstrip_t0_deconv =     50.26     48.24
-bb.gem.m3.maxstrip_tsigma_deconv =     22.22     22.15
-bb.gem.m3.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m3.maxstrip_t0_fit =     18.12     16.28
-bb.gem.m3.maxstrip_tsigma_fit =      17.3     17.95
-bb.gem.m3.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m3.HitTimeMean =     83.904     84.211
-bb.gem.m3.HitTimeSigma =     9.7148     10.126
-bb.gem.m3.HitTimeMeanDeconv =      46.56     46.507
-bb.gem.m3.HitTimeSigmaDeconv =      22.29     22.066
-bb.gem.m3.HitTimeMeanFit =     15.983     16.858
-bb.gem.m3.HitTimeSigmaFit =     16.853     17.453
-
-bb.gem.m3.deltat_sigma =     2.3746
-bb.gem.m3.deltat_sigma_deconv =     6.0532
-bb.gem.m3.deltat_sigma_fit =     3.2665
-
-bb.gem.m3.deltat_cut =     8.3112
-bb.gem.m3.deltat_cut_deconv =     21.186
-bb.gem.m3.deltat_cut_fit =     11.433
-
-bb.gem.m3.ADCratio_sigma =    0.10251
-bb.gem.m3.ADCasym_sigma =   0.056579
-
-bb.gem.m3.ADCratio_sigma_deconv =    0.10879
-
-bb.gem.m4.maxstrip_t0 =     90.24     90.44
-bb.gem.m4.maxstrip_tsigma =     6.159     6.665
-bb.gem.m4.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m4.maxstrip_t0_deconv =     54.68      59.4
-bb.gem.m4.maxstrip_tsigma_deconv =     11.71     8.552
-bb.gem.m4.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m4.maxstrip_t0_fit =     23.85     24.59
-bb.gem.m4.maxstrip_tsigma_fit =     10.29     9.556
-bb.gem.m4.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m4.HitTimeMean =     88.377     88.947
-bb.gem.m4.HitTimeSigma =     5.3997     5.9964
-bb.gem.m4.HitTimeMeanDeconv =     49.857     54.374
-bb.gem.m4.HitTimeSigmaDeconv =     9.5696     9.1169
-bb.gem.m4.HitTimeMeanFit =      22.17     21.132
-bb.gem.m4.HitTimeSigmaFit =     8.5787     8.8868
-
-bb.gem.m4.deltat_sigma =        2.1
-bb.gem.m4.deltat_sigma_deconv =     5.6
-bb.gem.m4.deltat_sigma_fit =     3.3
-
-bb.gem.m4.deltat_cut =    10.0
-bb.gem.m4.deltat_cut_deconv =    20.0
-bb.gem.m4.deltat_cut_fit =     15.0
-
-bb.gem.m4.ADCratio_sigma =    0.098
-bb.gem.m4.ADCasym_sigma =   0.050744
-
-bb.gem.m4.ADCratio_sigma_deconv =   0.055831
-
-bb.gem.m5.maxstrip_t0 =     91.53     93.25
-bb.gem.m5.maxstrip_tsigma =     6.817     6.751
-bb.gem.m5.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m5.maxstrip_t0_deconv =      58.2     63.68
-bb.gem.m5.maxstrip_tsigma_deconv =     11.91     10.45
-bb.gem.m5.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m5.maxstrip_t0_fit =     27.61        30
-bb.gem.m5.maxstrip_tsigma_fit =      10.6     10.59
-bb.gem.m5.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m5.HitTimeMean =      89.64     90.967
-bb.gem.m5.HitTimeSigma =     6.7214     6.7142
-bb.gem.m5.HitTimeMeanDeconv =     52.808     58.175
-bb.gem.m5.HitTimeSigmaDeconv =     10.762     10.472
-bb.gem.m5.HitTimeMeanFit =     24.384     25.871
-bb.gem.m5.HitTimeSigmaFit =     9.7412     9.9449
-
-bb.gem.m5.deltat_sigma =     2.4403
-bb.gem.m5.deltat_sigma_deconv =     6.4823
-bb.gem.m5.deltat_sigma_fit =     3.6689
-
-bb.gem.m5.deltat_cut =    10.0
-bb.gem.m5.deltat_cut_deconv =     22.688
-bb.gem.m5.deltat_cut_fit =     12.841
-
-bb.gem.m5.ADCratio_sigma =    0.10777
-bb.gem.m5.ADCasym_sigma =   0.055935
-
-bb.gem.m5.ADCratio_sigma_deconv =    0.10673
-
-bb.gem.m6.maxstrip_t0 =     91.97      92.2
-bb.gem.m6.maxstrip_tsigma =     6.587     6.304
-bb.gem.m6.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m6.maxstrip_t0_deconv =     58.57     60.69
-bb.gem.m6.maxstrip_tsigma_deconv =     10.77     10.38
-bb.gem.m6.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m6.maxstrip_t0_fit =     28.04     28.46
-bb.gem.m6.maxstrip_tsigma_fit =     10.19     10.03
-bb.gem.m6.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m6.HitTimeMean =     90.334     89.988
-bb.gem.m6.HitTimeSigma =     6.6503     6.1887
-bb.gem.m6.HitTimeMeanDeconv =     53.946     54.313
-bb.gem.m6.HitTimeSigmaDeconv =     10.874     10.907
-bb.gem.m6.HitTimeMeanFit =     25.388     24.524
-bb.gem.m6.HitTimeSigmaFit =     9.4319     9.2441
-
-bb.gem.m6.deltat_sigma =     2.1798
-bb.gem.m6.deltat_sigma_deconv =     6.6162
-bb.gem.m6.deltat_sigma_fit =     3.4252
-
-bb.gem.m6.deltat_cut =     7.6293
-bb.gem.m6.deltat_cut_deconv =     23.157
-bb.gem.m6.deltat_cut_fit =     11.988
-
-bb.gem.m6.ADCratio_sigma =    0.10075
-bb.gem.m6.ADCasym_sigma =   0.060961
-
-bb.gem.m6.ADCratio_sigma_deconv =   0.089721
-
-bb.gem.m7.maxstrip_t0 =     88.32      88.3
-bb.gem.m7.maxstrip_tsigma =     6.422     5.554
-bb.gem.m7.maxstrip_tcut =       4.5       4.5
-
-bb.gem.m7.maxstrip_t0_deconv =     50.21     51.47
-bb.gem.m7.maxstrip_tsigma_deconv =     10.13     9.219
-bb.gem.m7.maxstrip_tcut_deconv =       4.5       4.5
-
-bb.gem.m7.maxstrip_t0_fit =     21.65     21.59
-bb.gem.m7.maxstrip_tsigma_fit =     9.221     8.417
-bb.gem.m7.maxstrip_tcut_fit =       4.5       4.5
-
-bb.gem.m7.HitTimeMean =     86.436     85.872
-bb.gem.m7.HitTimeSigma =     5.7277     6.0966
-bb.gem.m7.HitTimeMeanDeconv =     45.548     45.063
-bb.gem.m7.HitTimeSigmaDeconv =     12.293     9.3718
-bb.gem.m7.HitTimeMeanFit =     19.682     18.759
-bb.gem.m7.HitTimeSigmaFit =     8.2719     7.3939
-
-bb.gem.m7.deltat_sigma =     2.2388
-bb.gem.m7.deltat_sigma_deconv =     5.4786
-bb.gem.m7.deltat_sigma_fit =     3.5
-
-bb.gem.m7.deltat_cut =     7.8359
-bb.gem.m7.deltat_cut_deconv =     19.175
-bb.gem.m7.deltat_cut_fit =    12.0
-
-bb.gem.m7.ADCratio_sigma =   0.1
-bb.gem.m7.ADCasym_sigma =   0.063
-
-bb.gem.m7.ADCratio_sigma_deconv =   0.1
-
-
+bb.gem.m0.maxstrip_t0 =      88.94      88.37
+bb.gem.m0.maxstrip_tsigma =      5.265       5.44
+bb.gem.m0.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m0.maxstrip_t0_deconv =      51.96      49.22
+bb.gem.m0.maxstrip_tsigma_deconv =      11.08      11.56
+bb.gem.m0.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m0.maxstrip_t0_fit =      21.75      21.08
+bb.gem.m0.maxstrip_tsigma_fit =      9.349      9.238
+bb.gem.m0.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m0.deltat_sigma =       2.1352
+bb.gem.m0.deltat_cut =       21.352
+bb.gem.m0.deltat_sigma_deconv =       6.1026
+bb.gem.m0.deltat_cut_deconv =       61.026
+bb.gem.m0.deltat_sigma_fit =       2.5122
+bb.gem.m0.deltat_cut_fit =       25.122
+
+bb.gem.m0.HitTimeMean =       86.952       87.038
+bb.gem.m0.HitTimeSigma =       5.1217       5.3754
+bb.gem.m0.HitTimeMeanDeconv =       46.423       45.847
+bb.gem.m0.HitTimeSigmaDeconv =       11.119       11.177
+bb.gem.m0.HitTimeMeanFit =       18.793        19.19
+bb.gem.m0.HitTimeSigmaFit =       8.3644        8.696
+
+bb.gem.m0.ADCasym_sigma =     0.053135
+bb.gem.m0.ADCratio_sigma =      0.10185
+bb.gem.m0.ADCratio_sigma_deconv =     0.096591
+
+bb.gem.m0.sigma_tcorr =       4.5109
+
+bb.gem.m1.maxstrip_t0 =      81.48      80.83
+bb.gem.m1.maxstrip_tsigma =      9.409      9.839
+bb.gem.m1.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m1.maxstrip_t0_deconv =      43.12      40.97
+bb.gem.m1.maxstrip_tsigma_deconv =      20.66      20.65
+bb.gem.m1.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m1.maxstrip_t0_fit =      11.08      9.912
+bb.gem.m1.maxstrip_tsigma_fit =      15.71      15.36
+bb.gem.m1.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m1.deltat_sigma =       2.0959
+bb.gem.m1.deltat_cut =       20.959
+bb.gem.m1.deltat_sigma_deconv =       6.0181
+bb.gem.m1.deltat_cut_deconv =       60.181
+bb.gem.m1.deltat_sigma_fit =       3.1413
+bb.gem.m1.deltat_cut_fit =       31.413
+
+bb.gem.m1.HitTimeMean =       80.257       80.582
+bb.gem.m1.HitTimeSigma =       9.5062       9.6103
+bb.gem.m1.HitTimeMeanDeconv =       39.557        39.48
+bb.gem.m1.HitTimeSigmaDeconv =       20.122       20.088
+bb.gem.m1.HitTimeMeanFit =        10.11       10.262
+bb.gem.m1.HitTimeSigmaFit =       14.931       15.375
+
+bb.gem.m1.ADCasym_sigma =     0.053475
+bb.gem.m1.ADCratio_sigma =     0.098757
+bb.gem.m1.ADCratio_sigma_deconv =      0.10163
+
+bb.gem.m1.sigma_tcorr =       8.0979
+
+bb.gem.m2.maxstrip_t0 =      90.27      89.91
+bb.gem.m2.maxstrip_tsigma =      5.458       5.55
+bb.gem.m2.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m2.maxstrip_t0_deconv =      54.74      52.88
+bb.gem.m2.maxstrip_tsigma_deconv =      11.01      11.31
+bb.gem.m2.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m2.maxstrip_t0_fit =      23.74      23.41
+bb.gem.m2.maxstrip_tsigma_fit =      10.14      10.18
+bb.gem.m2.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m2.deltat_sigma =       2.0151
+bb.gem.m2.deltat_cut =       20.151
+bb.gem.m2.deltat_sigma_deconv =       5.6909
+bb.gem.m2.deltat_cut_deconv =       56.909
+bb.gem.m2.deltat_sigma_fit =       2.4956
+bb.gem.m2.deltat_cut_fit =       24.956
+
+bb.gem.m2.HitTimeMean =       88.337       88.715
+bb.gem.m2.HitTimeSigma =       5.2281       5.3046
+bb.gem.m2.HitTimeMeanDeconv =       49.315       49.538
+bb.gem.m2.HitTimeSigmaDeconv =       10.975       10.974
+bb.gem.m2.HitTimeMeanFit =       20.915       21.518
+bb.gem.m2.HitTimeSigmaFit =       9.1918       9.4884
+
+bb.gem.m2.ADCasym_sigma =     0.051854
+bb.gem.m2.ADCratio_sigma =      0.10077
+bb.gem.m2.ADCratio_sigma_deconv =     0.099124
+
+bb.gem.m2.sigma_tcorr =       4.3579
+
+bb.gem.m3.maxstrip_t0 =       85.5       84.9
+bb.gem.m3.maxstrip_tsigma =       9.23      9.601
+bb.gem.m3.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m3.maxstrip_t0_deconv =      50.82      48.68
+bb.gem.m3.maxstrip_tsigma_deconv =       20.8      20.95
+bb.gem.m3.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m3.maxstrip_t0_fit =      16.35      15.31
+bb.gem.m3.maxstrip_tsigma_fit =         15      16.31
+bb.gem.m3.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m3.deltat_sigma =       2.1029
+bb.gem.m3.deltat_cut =       21.029
+bb.gem.m3.deltat_sigma_deconv =       5.7234
+bb.gem.m3.deltat_cut_deconv =       57.234
+bb.gem.m3.deltat_sigma_fit =       2.9928
+bb.gem.m3.deltat_cut_fit =       29.928
+
+bb.gem.m3.HitTimeMean =       84.325       84.558
+bb.gem.m3.HitTimeSigma =       9.0575       9.2659
+bb.gem.m3.HitTimeMeanDeconv =       46.487       46.538
+bb.gem.m3.HitTimeSigmaDeconv =       21.921       20.996
+bb.gem.m3.HitTimeMeanFit =       15.059       16.101
+bb.gem.m3.HitTimeSigmaFit =       15.495       16.612
+
+bb.gem.m3.ADCasym_sigma =     0.048918
+bb.gem.m3.ADCratio_sigma =     0.091246
+bb.gem.m3.ADCratio_sigma_deconv =     0.092986
+
+bb.gem.m3.sigma_tcorr =       7.8623
+
+bb.gem.m4.maxstrip_t0 =      90.54      91.53
+bb.gem.m4.maxstrip_tsigma =      6.024      5.298
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      54.58      60.65
+bb.gem.m4.maxstrip_tsigma_deconv =      11.85      8.976
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      24.21      25.29
+bb.gem.m4.maxstrip_tsigma_fit =      10.58      10.22
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       1.8869
+bb.gem.m4.deltat_cut =       18.869
+bb.gem.m4.deltat_sigma_deconv =        4.933
+bb.gem.m4.deltat_cut_deconv =        49.33
+bb.gem.m4.deltat_sigma_fit =       2.7482
+bb.gem.m4.deltat_cut_fit =       27.482
+
+bb.gem.m4.HitTimeMean =       88.777       89.492
+bb.gem.m4.HitTimeSigma =       5.1316       5.0222
+bb.gem.m4.HitTimeMeanDeconv =       50.384       54.884
+bb.gem.m4.HitTimeSigmaDeconv =       9.6508         9.07
+bb.gem.m4.HitTimeMeanFit =       21.177       21.403
+bb.gem.m4.HitTimeSigmaFit =       9.1091       9.0613
+
+bb.gem.m4.ADCasym_sigma =     0.043364
+bb.gem.m4.ADCratio_sigma =     0.092352
+bb.gem.m4.ADCratio_sigma_deconv =      0.07845
+
+bb.gem.m4.sigma_tcorr =        3.699
+
+bb.gem.m5.maxstrip_t0 =      91.87      93.36
+bb.gem.m5.maxstrip_tsigma =      5.479      5.205
+bb.gem.m5.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m5.maxstrip_t0_deconv =      58.01      63.51
+bb.gem.m5.maxstrip_tsigma_deconv =      11.66      10.24
+bb.gem.m5.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m5.maxstrip_t0_fit =      26.79      29.36
+bb.gem.m5.maxstrip_tsigma_fit =      10.94      10.77
+bb.gem.m5.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m5.deltat_sigma =       2.1694
+bb.gem.m5.deltat_cut =       21.694
+bb.gem.m5.deltat_sigma_deconv =       5.5604
+bb.gem.m5.deltat_cut_deconv =       55.604
+bb.gem.m5.deltat_sigma_fit =       3.0376
+bb.gem.m5.deltat_cut_fit =       30.376
+
+bb.gem.m5.HitTimeMean =       89.972       91.136
+bb.gem.m5.HitTimeSigma =       5.3212       4.9664
+bb.gem.m5.HitTimeMeanDeconv =       53.587       57.962
+bb.gem.m5.HitTimeSigmaDeconv =       11.322       10.288
+bb.gem.m5.HitTimeMeanFit =        23.84       25.724
+bb.gem.m5.HitTimeSigmaFit =       10.087       9.7975
+
+bb.gem.m5.ADCasym_sigma =     0.049397
+bb.gem.m5.ADCratio_sigma =      0.09482
+bb.gem.m5.ADCratio_sigma_deconv =      0.09968
+
+bb.gem.m5.sigma_tcorr =       4.1553
+
+bb.gem.m6.maxstrip_t0 =      92.62       92.7
+bb.gem.m6.maxstrip_tsigma =      5.339      5.172
+bb.gem.m6.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m6.maxstrip_t0_deconv =      58.77      60.65
+bb.gem.m6.maxstrip_tsigma_deconv =      10.74      10.44
+bb.gem.m6.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m6.maxstrip_t0_fit =      27.61      28.14
+bb.gem.m6.maxstrip_tsigma_fit =      10.66      10.12
+bb.gem.m6.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m6.deltat_sigma =       2.1583
+bb.gem.m6.deltat_cut =       21.583
+bb.gem.m6.deltat_sigma_deconv =         5.66
+bb.gem.m6.deltat_cut_deconv =         56.6
+bb.gem.m6.deltat_sigma_fit =       3.0829
+bb.gem.m6.deltat_cut_fit =       30.829
+
+bb.gem.m6.HitTimeMean =       90.988       90.473
+bb.gem.m6.HitTimeSigma =       5.2215       5.0059
+bb.gem.m6.HitTimeMeanDeconv =       54.717       54.858
+bb.gem.m6.HitTimeSigmaDeconv =       10.647       10.555
+bb.gem.m6.HitTimeMeanFit =       25.235       24.489
+bb.gem.m6.HitTimeSigmaFit =       9.8682       9.3739
+
+bb.gem.m6.ADCasym_sigma =     0.053077
+bb.gem.m6.ADCratio_sigma =      0.10718
+bb.gem.m6.ADCratio_sigma_deconv =      0.10358
+
+bb.gem.m6.sigma_tcorr =        4.195
+
+bb.gem.m7.maxstrip_t0 =       89.3      89.43
+bb.gem.m7.maxstrip_tsigma =      6.016      4.878
+bb.gem.m7.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m7.maxstrip_t0_deconv =       51.6      52.86
+bb.gem.m7.maxstrip_tsigma_deconv =      11.98      11.33
+bb.gem.m7.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m7.maxstrip_t0_fit =      22.25      21.94
+bb.gem.m7.maxstrip_tsigma_fit =       10.9       9.91
+bb.gem.m7.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m7.deltat_sigma =       1.8107
+bb.gem.m7.deltat_cut =       18.107
+bb.gem.m7.deltat_sigma_deconv =       5.7182
+bb.gem.m7.deltat_cut_deconv =       57.182
+bb.gem.m7.deltat_sigma_fit =       2.3663
+bb.gem.m7.deltat_cut_fit =       23.663
+
+bb.gem.m7.HitTimeMean =       87.825       87.113
+bb.gem.m7.HitTimeSigma =       5.6278       4.8891
+bb.gem.m7.HitTimeMeanDeconv =       47.953       47.041
+bb.gem.m7.HitTimeSigmaDeconv =       12.003       11.026
+bb.gem.m7.HitTimeMeanFit =       19.966       19.001
+bb.gem.m7.HitTimeSigmaFit =        9.884       8.9908
+
+bb.gem.m7.ADCasym_sigma =     0.044953
+bb.gem.m7.ADCratio_sigma =     0.091066
+bb.gem.m7.ADCratio_sigma_deconv =     0.089729
+
+bb.gem.m7.sigma_tcorr =       3.9339
 
 bb.gem.constraintwidth_theta = 0.0431165
 bb.gem.constraintwidth_phi = 0.0345523
 
-bb.gem.suppressfirstlast = 0
-#bb.gem.m1.maxstrip_tcut = 100.0
-#bb.gem.m3.maxstrip_tcut = 100.0
-#bb.gem.addstrip_tcut = 100.0
-#bb.gem.addstrip_ccor_cut = -1.1
-bb.gem.usestriptimingcut = 0
-bb.gem.clustering_flag = 0
-bb.gem.deconvolution_flag = 0
+
 
 -------[ 2022-02-02 17:25:00 ] # start zero-field running for optics
 
@@ -2131,10 +2104,10 @@ bb.gem.usestriptimingcut = 0
 bb.gem.suppressfirstlast = 0
 bb.gem.useconstraint = 1
 bb.gem.useopticsconstraint = 1
-bb.gem.useforwardopticsconstraint = 0
+bb.gem.useforwardopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
 
-bb.gem.usestriptimingcut = 0
+bb.gem.usestriptimingcut = 1
 
 --------[ 2022-02-07 20:20:00 ] # Full readout runs for high current study
 
@@ -2245,32 +2218,64 @@ bb.gem.m7.modulegain = 1.17576
 --------[ 2022-01-21 16:00:00 ] # SBS-8
 
 # uncomment these entries to set zero thresholds for "unbiased" tracking cut estimation
-bb.gem.m0.threshold_sample = 0.0
-bb.gem.m1.threshold_sample = 0.0
-bb.gem.m2.threshold_sample = 0.0
-bb.gem.m3.threshold_sample = 0.0
-bb.gem.m4.threshold_sample = 0.0
-bb.gem.m5.threshold_sample = 0.0
-bb.gem.m6.threshold_sample = 0.0
-bb.gem.m7.threshold_sample = 0.0
+#bb.gem.m0.threshold_sample = 0.0
+#bb.gem.m1.threshold_sample = 0.0
+#bb.gem.m2.threshold_sample = 0.0
+#bb.gem.m3.threshold_sample = 0.0
+#bb.gem.m4.threshold_sample = 0.0
+#bb.gem.m5.threshold_sample = 0.0
+#bb.gem.m6.threshold_sample = 0.0
+#bb.gem.m7.threshold_sample = 0.0
 
-bb.gem.m0.threshold_stripsum = 0.0
-bb.gem.m1.threshold_stripsum = 0.0
-bb.gem.m2.threshold_stripsum = 0.0
-bb.gem.m3.threshold_stripsum = 0.0
-bb.gem.m4.threshold_stripsum = 0.0
-bb.gem.m5.threshold_stripsum = 0.0
-bb.gem.m6.threshold_stripsum = 0.0
-bb.gem.m7.threshold_stripsum = 0.0
+#bb.gem.m0.threshold_stripsum = 0.0
+#bb.gem.m1.threshold_stripsum = 0.0
+#bb.gem.m2.threshold_stripsum = 0.0
+#bb.gem.m3.threshold_stripsum = 0.0
+#bb.gem.m4.threshold_stripsum = 0.0
+#bb.gem.m5.threshold_stripsum = 0.0
+#bb.gem.m6.threshold_stripsum = 0.0
+#bb.gem.m7.threshold_stripsum = 0.0
 
-bb.gem.m0.threshold_clustersum = 0.0
-bb.gem.m1.threshold_clustersum = 0.0
-bb.gem.m2.threshold_clustersum = 0.0
-bb.gem.m3.threshold_clustersum = 0.0
-bb.gem.m4.threshold_clustersum = 0.0
-bb.gem.m5.threshold_clustersum = 0.0
-bb.gem.m6.threshold_clustersum = 0.0
-bb.gem.m7.threshold_clustersum = 0.0
+#bb.gem.m0.threshold_clustersum = 0.0
+#bb.gem.m1.threshold_clustersum = 0.0
+#bb.gem.m2.threshold_clustersum = 0.0
+#bb.gem.m3.threshold_clustersum = 0.0
+#bb.gem.m4.threshold_clustersum = 0.0
+#bb.gem.m5.threshold_clustersum = 0.0
+#bb.gem.m6.threshold_clustersum = 0.0
+#bb.gem.m7.threshold_clustersum = 0.0
+
+bb.gem.m0.threshold_sample =          120
+bb.gem.m0.threshold_stripsum =          470
+bb.gem.m0.threshold_clustersum =          840
+
+bb.gem.m1.threshold_sample =          126
+bb.gem.m1.threshold_stripsum =          530
+bb.gem.m1.threshold_clustersum =          940
+
+bb.gem.m2.threshold_sample =          122
+bb.gem.m2.threshold_stripsum =          480
+bb.gem.m2.threshold_clustersum =          880
+
+bb.gem.m3.threshold_sample =          162
+bb.gem.m3.threshold_stripsum =          660
+bb.gem.m3.threshold_clustersum =         1180
+
+bb.gem.m4.threshold_sample =          120
+bb.gem.m4.threshold_stripsum =          480
+bb.gem.m4.threshold_clustersum =          860
+
+bb.gem.m5.threshold_sample =          104
+bb.gem.m5.threshold_stripsum =          390
+bb.gem.m5.threshold_clustersum =          700
+
+bb.gem.m6.threshold_sample =          114
+bb.gem.m6.threshold_stripsum =          420
+bb.gem.m6.threshold_clustersum =          760
+
+bb.gem.m7.threshold_sample =          102
+bb.gem.m7.threshold_stripsum =          400
+bb.gem.m7.threshold_clustersum =          720
 
 #Module internal relative gains by APV card: 
 bb.gem.m0.vgain = 1  1  1.00944  1.09189  1.13723  1.11707  1.11111  1.16735  1.14738  1.06852  1.04998  1.15576  1.10505  1.08063  1.10845  1.05448  1.11708  1.09527  1.03323  1.01956  1.06423  1.02371  1.05612  1.01539  1.01973  1.04295  0.94884  1  1  1  
@@ -2307,32 +2312,64 @@ bb.gem.m7.modulegain = 1.17586
 --------[ 2022-02-01 13:00:00 ] # SBS-9:
 
 # uncomment these entries to set zero thresholds for "unbiased" tracking cut estimation
-bb.gem.m0.threshold_sample = 0.0
-bb.gem.m1.threshold_sample = 0.0
-bb.gem.m2.threshold_sample = 0.0
-bb.gem.m3.threshold_sample = 0.0
-bb.gem.m4.threshold_sample = 0.0
-bb.gem.m5.threshold_sample = 0.0
-bb.gem.m6.threshold_sample = 0.0
-bb.gem.m7.threshold_sample = 0.0
+#bb.gem.m0.threshold_sample = 0.0
+#bb.gem.m1.threshold_sample = 0.0
+#bb.gem.m2.threshold_sample = 0.0
+#bb.gem.m3.threshold_sample = 0.0
+#bb.gem.m4.threshold_sample = 0.0
+#bb.gem.m5.threshold_sample = 0.0
+#bb.gem.m6.threshold_sample = 0.0
+#bb.gem.m7.threshold_sample = 0.0
 
-bb.gem.m0.threshold_stripsum = 0.0
-bb.gem.m1.threshold_stripsum = 0.0
-bb.gem.m2.threshold_stripsum = 0.0
-bb.gem.m3.threshold_stripsum = 0.0
-bb.gem.m4.threshold_stripsum = 0.0
-bb.gem.m5.threshold_stripsum = 0.0
-bb.gem.m6.threshold_stripsum = 0.0
-bb.gem.m7.threshold_stripsum = 0.0
+#bb.gem.m0.threshold_stripsum = 0.0
+#bb.gem.m1.threshold_stripsum = 0.0
+#bb.gem.m2.threshold_stripsum = 0.0
+#bb.gem.m3.threshold_stripsum = 0.0
+#bb.gem.m4.threshold_stripsum = 0.0
+#bb.gem.m5.threshold_stripsum = 0.0
+#bb.gem.m6.threshold_stripsum = 0.0
+#bb.gem.m7.threshold_stripsum = 0.0
 
-bb.gem.m0.threshold_clustersum = 0.0
-bb.gem.m1.threshold_clustersum = 0.0
-bb.gem.m2.threshold_clustersum = 0.0
-bb.gem.m3.threshold_clustersum = 0.0
-bb.gem.m4.threshold_clustersum = 0.0
-bb.gem.m5.threshold_clustersum = 0.0
-bb.gem.m6.threshold_clustersum = 0.0
-bb.gem.m7.threshold_clustersum = 0.0
+#bb.gem.m0.threshold_clustersum = 0.0
+#bb.gem.m1.threshold_clustersum = 0.0
+#bb.gem.m2.threshold_clustersum = 0.0
+#bb.gem.m3.threshold_clustersum = 0.0
+#bb.gem.m4.threshold_clustersum = 0.0
+#bb.gem.m5.threshold_clustersum = 0.0
+#bb.gem.m6.threshold_clustersum = 0.0
+#bb.gem.m7.threshold_clustersum = 0.0
+
+bb.gem.m0.threshold_sample =          108
+bb.gem.m0.threshold_stripsum =          420
+bb.gem.m0.threshold_clustersum =          780
+
+bb.gem.m1.threshold_sample =          122
+bb.gem.m1.threshold_stripsum =          500
+bb.gem.m1.threshold_clustersum =          920
+
+bb.gem.m2.threshold_sample =          108
+bb.gem.m2.threshold_stripsum =          410
+bb.gem.m2.threshold_clustersum =          760
+
+bb.gem.m3.threshold_sample =          142
+bb.gem.m3.threshold_stripsum =          580
+bb.gem.m3.threshold_clustersum =         1020
+
+bb.gem.m4.threshold_sample =          100
+bb.gem.m4.threshold_stripsum =          450
+bb.gem.m4.threshold_clustersum =          820
+
+bb.gem.m5.threshold_sample =           94
+bb.gem.m5.threshold_stripsum =          340
+bb.gem.m5.threshold_clustersum =          580
+
+bb.gem.m6.threshold_sample =           98
+bb.gem.m6.threshold_stripsum =          370
+bb.gem.m6.threshold_clustersum =          680
+
+bb.gem.m7.threshold_sample =          104
+bb.gem.m7.threshold_stripsum =          310
+bb.gem.m7.threshold_clustersum =          720
 
 #Module internal relative gains by APV card: 
 bb.gem.m0.vgain = 1  1  0.992917  1.04859  1.10007  1.06389  1.0764  1.12776  1.10947  1.04335  1.01628  1.11338  1.08382  1.05204  1.07789  1.03075  1.10099  1.06808  1.02256  1.00717  1.0489  1.01194  1.03874  1.02374  1.0104  1.0317  0.947052  1  1  1  
@@ -2455,3 +2492,5 @@ bb.gem.trigtime_slot = 2
 bb.gem.trigtime_chan = 127
 bb.gem.trigtime_t0 = 368.0
 bb.gem.trigtime_calib = 0.0936
+
+bb.gem.trigtime_slope = 0.5
