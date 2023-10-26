@@ -318,8 +318,9 @@ sbs.hcal.emin = 0.005
 --------[ 2022-01-06 12:00:00 ] ## starting SBS-14 kinematics for GMN:
 ## Minimum energy for a cluster center
 #sbs.hcal.emin_clSeed = 0.027
-sbs.hcal.emin_clSeed = 0.005
-sbs.hcal.emin = 0.005
+sbs.hcal.emin_clSeed = 0.01 # cluster seed threshold
+sbs.hcal.emin = 0.005 # hit threshold
+sbs.hcal.emin_clTotal = 0.02 # cluster total threshold
 
 --------[ 2022-01-21 12:00:00 ] ## starting SBS-8 kinematics 
 ## Minimum energy for a cluster center: we use the same threshold for SBS-8/9 since they have pretty much the same nucleon energy:
