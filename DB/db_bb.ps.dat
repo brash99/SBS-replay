@@ -172,10 +172,11 @@ bb.ps.trigtoFADCratio = 1.00 0.94 0.99 1.06 0.92 0.86 0.93 0.90 0.82 0.85 0.81 0
 			0.90 0.90 0.92 0.91 0.87 0.97 0.97 0.96 0.95 0.93
 
 ## Minimum cluster energy
-bb.ps.emin = 0.02 #GeV
+bb.ps.emin = 0.01 #GeV
 
 ## Maximum time difference between cluster seed and additional clusters, set to 1000 ns by default
-bb.ps.tmax = 1000.0
+# this doesn't actually get used; instead the tmax value for the total shower class gets used (see db_bb.ts.dat)
+bb.ps.tmax = 10.0
 
 #ADCtime offsets w.r.t. bbhodo time
 bb.ps.adc.timeoffset =

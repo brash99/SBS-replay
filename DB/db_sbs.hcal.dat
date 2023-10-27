@@ -161,10 +161,12 @@ sbs.hcal.xpos =
 1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625
 
 ## Mininum energy for a cluster element, set to 5 MeV
-sbs.hcal.emin = 0.005
+sbs.hcal.emin_clTotal = 0.005
+sbs.hcal.emin = 0.001 
+sbs.hcal.emin_clSeed = 0.0025
 
 ## Maximum time difference between cluster seed and additional clusters, set to 1000 ns by default
-sbs.hcal.tmax = 1000.0
+sbs.hcal.tmax = 20.0
 
 ## Maximum distance difference between cluster seed and additional clusters, set to 0.3 m
 sbs.hcal.Rmax_dis = 0.3
@@ -836,10 +838,11 @@ sbs.hcal.tdc.offset =
 -781.402 -788.582 -638.322 -651.895 -730.938 -717.288 -895.491 -914.01 -627.514 -640.756 -629.796 -613.191
 
 #Reset parameters for GEN
-sbs.hcal.emin_clSeed = 0.005
-sbs.hcal.emin = 0.005
 sbs.hcal.tdc.tw = 0.46 0.50
 sbs.hcal.tmax = 1000.0
+sbs.hcal.emin_clSeed = 0.0025
+sbs.hcal.emin = 0.001
+sbs.hcal.emin_clTotal = 0.005
 
 ##########
 ## END GMN
