@@ -492,10 +492,15 @@ bb.forwardoptics_parameters =
 
 --------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics: 
 
-bb.frontconstraintwidth_x = 0.0665084
-bb.frontconstraintwidth_y = 0.0571508
-bb.backconstraintwidth_x = 0.0503008
-bb.backconstraintwidth_y = 0.064012
+#bb.frontconstraintwidth_x = 0.0665084
+#bb.frontconstraintwidth_y = 0.0571508
+#bb.backconstraintwidth_x = 0.0503008
+#bb.backconstraintwidth_y = 0.064012
+
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.06
+bb.backconstraintwidth_x = 0.055
+bb.backconstraintwidth_y = 0.065
 
 bb.frontconstraint_x0 = 0.052
 bb.frontconstraint_y0 = -0.0154
@@ -642,10 +647,10 @@ bb.backconstraintwidth_y = 0.08
 
 ----------[ 2021-10-25 00:18:00 ] 
 
-bb.frontconstraintwidth_x = 0.0665084
-bb.frontconstraintwidth_y = 0.0571508
-bb.backconstraintwidth_x = 0.0503008
-bb.backconstraintwidth_y = 0.064012
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.06
+bb.backconstraintwidth_x = 0.055
+bb.backconstraintwidth_y = 0.065
 
 ----------[ 2021-11-12 00:00:00 ]  # start of SBS-7 kinematics:
 # re-using SBS-1 optics initially until I have time to generate new SBS-7 optics(they should be more or less the same since magnet distance is the same)
@@ -735,15 +740,15 @@ bb.forwardoptics_parameters =
    2.7030922e-15   -7.4934769e-15   -8.2866716e-16   -1.7422587e-15  0 0 0 0 2
 
 
-bb.frontconstraint_x0 = 0.050
+bb.frontconstraint_x0 = 0.057
 bb.frontconstraint_y0 = -0.0163
 bb.backconstraint_x0 = 0.0039
 bb.backconstraint_y0 = -0.0011
 
-bb.frontconstraintwidth_x = 0.0649419
-bb.frontconstraintwidth_y = 0.0606855
-bb.backconstraintwidth_x = 0.0491358
-bb.backconstraintwidth_y = 0.0639173
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.06
+bb.backconstraintwidth_x = 0.055
+bb.backconstraintwidth_y = 0.065
 
 bb.ecalo_fudgefactor = 1.0
 

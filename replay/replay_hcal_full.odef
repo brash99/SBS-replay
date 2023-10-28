@@ -1,0 +1,4 @@
+#HCAL full output definition file for use with replay_hcal_GMn.C
+
+block sbs.hcal.*
+
