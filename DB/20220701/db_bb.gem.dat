@@ -1121,6 +1121,14 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run5228.dat
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run5566.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run5566.dat
 
+--------[ 2023-10-05 15:35:00 ] #new pedestal after replacing layer2 backplane in BigBite
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run5566.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run5566.dat
+
+--------[ 2023-10-25 20:15:00 ] 
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run5963.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run5963.dat
+
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
 -------[ 2022-01-01 00:00:00 ]
@@ -2695,7 +2703,20 @@ bb.gem.m5.modulegain = 1.08298
 bb.gem.m6.modulegain = 0.931452
 bb.gem.m7.modulegain = 1.20195
 
-
+#bb.gem.useslopeconstraint=0
 
 #--------[ 2023-10-05 20:00:00 ] 
-#bb.gem.dump_geometry_info = 1
+#bb.gem.dump_geometry_info
+
+---------[ 2023-10-19 14:36:00 ] # getting ready for straight-through, zero-field running:
+
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
+
+---------[ 2023-10-19 15:38:00 ] # Back to full field running
+
+bb.gem.useopticsconstraint = 1
+bb.gem.useslopeconstraint = 1
+bb.gem.useforwardopticsconstraint = 1
+

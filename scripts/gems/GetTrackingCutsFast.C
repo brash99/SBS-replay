@@ -103,6 +103,8 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
   C->SetBranchAddress("bb.ps.e",&EPS);
   C->SetBranchAddress("bb.sh.e",&ESH);
 
+  C->SetBranchStatus("bb.grinch_tdc.clus.*",1);
+
   double ntracks;
   double tracknhits[MAXNTRACKS];
   double trackngoodhits[MAXNTRACKS];
