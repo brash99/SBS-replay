@@ -1971,7 +1971,27 @@ bb.frontconstraintwidth_y = 0.25
 
 -------[ 2023-09-01 00:00:00 ] # fall 2023 running
 
+# new zero-field alignment run 5802:
+bb.gemorigin_xyz = -0.20834 0.04382 2.76918
+bb.gemtheta = 8.8862
+bb.gemphi = 178.185
+# NOTE: ZSIEVE from fit = 1.2475 m
+# NOTE: mag dist from fit = 1.6166 m
+
 bb.frontconstraint_x0 = 0.05766
 
-bb.frontconstraintwidth_x = 0.08
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.11	
+
+-------[ 2023-10-19 14:36:00 ] # getting ready for zero-field, straight-through running:
+
+#bb.frontconstraintwidth_x = 0.75
+bb.frontconstraint_x0 = -0.09
+bb.frontconstraintwidth_x = 0.25
+bb.frontconstraintwidth_y = 0.15
+
+--------[ 2023-10-19 15:38:00 ] # back to full field
+
+bb.frontconstraint_x0 = 0.05766
+bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.11	
