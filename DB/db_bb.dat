@@ -1898,8 +1898,8 @@ bb.preconflag = 1
 
 bb.use_beampos = 0
 
-bb.A_pth1 =       0.2775655
-bb.B_pth1 =        0.974132
+bb.A_pth1 = 0.287186374
+bb.B_pth1 = 0.798543608
 bb.C_pth1 = 0.0
 bb.A_pvy = 0
 bb.B_pvy = 0
