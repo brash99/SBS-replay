@@ -621,7 +621,8 @@ bb.gem.m7.chanmap =
 ############ offline thresholds and angle constraints: ############
 
 
-bb.gem.constraintwidth_theta = 0.0383693
+#bb.gem.constraintwidth_theta = 0.0383693
+bb.gem.constraintwidth_theta = 0.08
 bb.gem.constraintwidth_phi = 0.030921
 
 bb.gem.useforwardopticsconstraint = 1
@@ -664,13 +665,15 @@ bb.gem.useTSchi2cut = 0
 
 bb.gem.addstrip_tcut = 35.0
 bb.gem.addstrip_ccor_cut = 0.4
-bb.gem.suppressfirstlast = -1
+bb.gem.suppressfirstlast = 0
 
 ############### Parameters searched by SBSGEMSpectrometerTracker::ReadDatabase() ######################
 
 # parameters controlling tracking:
 bb.gem.minhitsontrack = 3
 bb.gem.minhighqualityhitsontrack = 2
+
+bb.gem.use_enhanced_chi2 = 1
 
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 25000
@@ -679,10 +682,10 @@ bb.gem.maxhitcombos_total = 1.e17
 bb.gem.tryfasttrack = 1
 
 # typical values after alignment:
-bb.gem.gridbinwidthx = 0.01
-bb.gem.gridbinwidthy = 0.01
-bb.gem.gridedgetolerancex = 0.0025
-bb.gem.gridedgetolerancey = 0.0025
+bb.gem.gridbinwidthx = 0.005
+bb.gem.gridbinwidthy = 0.005
+bb.gem.gridedgetolerancex = 0.0015
+bb.gem.gridedgetolerancey = 0.0015
 bb.gem.trackchi2cut = 30.0
 bb.gem.trackchi2cut_hitquality = 50.0
 #bb.gem.trackchi2cut = 30.0
@@ -712,21 +715,21 @@ bb.gem.efficiency_bin_width_2D = 0.04
 bb.gem.xptar_min = -0.3
 bb.gem.xptar_max = 0.3
 
-bb.gem.yptar_min = -0.09
-bb.gem.yptar_max = 0.09
+bb.gem.yptar_min = -0.1
+bb.gem.yptar_max = 0.1
 
 # be careful with these, they are angle-dependent:
 bb.gem.ytar_min = -0.1
 bb.gem.ytar_max = 0.1
 
 # central electron momentum for SBS-14 is p ~= 2.0 GeV
-bb.gem.pmin = 0.8
-bb.gem.pmax = 2.6
+bb.gem.pmin = 0.6
+bb.gem.pmax = 3.0
 
-bb.gem.xpfp_min = -0.3
+bb.gem.xpfp_min = -0.35
 bb.gem.xpfp_max = 0.3
 bb.gem.ypfp_min = -0.1
-bb.gem.ypfp_max = 0.1
+bb.gem.ypfp_max = 0.12
 
 # Timing cuts SBS-14:
 
