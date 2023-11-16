@@ -641,7 +641,7 @@ bb.gem.plot_event_info = 1
 
 # when zero suppression is enabled again we will turn this to 1: 
 bb.gem.pedsub_online = 0
-bb.gem.max2Dhits = 250000 # per-module
+bb.gem.max2Dhits = 25000 # per-module
 
 bb.gem.usestriptimingcut = 1
 bb.gem.useTSchi2cut = 0
@@ -989,7 +989,7 @@ bb.gem.constraintwidth_phi = 0.03
 # parameters controlling tracking behavior:
 bb.gem.sigmahitpos = 0.0001
 bb.gem.minhitsontrack = 3
-bb.gem.minhighqualityhitsontrack = 3
+bb.gem.minhighqualityhitsontrack = 2
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 100000
 bb.gem.maxhitcombos_total = 1.e16 # 1 x 10^10
@@ -1429,11 +1429,11 @@ bb.gem.corrceoff_cut = 0.0
 
 bb.gem.trigtime_t0 = 369.0
 
----------[ 2021-12-08 01:25:00 ] # low-current run 12654: analyze without timing cuts
-bb.gem.usestriptimingcut = 0
-bb.gem.ADCasym_cut = 1.1
-bb.gem.use_enhanced_chi2 = 0
-bb.gem.corrcoeff_cut = 0.0
+#---------[ 2021-12-08 01:25:00 ] # low-current run 12654: analyze without timing cuts
+#bb.gem.usestriptimingcut = 0
+#bb.gem.ADCasym_cut = 1.1
+#bb.gem.use_enhanced_chi2 = 0
+#bb.gem.corrcoeff_cut = 0.0
 
 
 
