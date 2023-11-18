@@ -178,7 +178,7 @@ bb.ps.emin_clTotal = 0.01 GeV
 
 ## Maximum time difference between cluster seed and additional clusters, set to 1000 ns by default
 # keep this cut wider until we more fully understand its effect:
-bb.ps.tmax = 50.0
+bb.ps.tmax = 10.0
 
 #ADCtime offsets w.r.t. bbhodo time
 bb.ps.adc.timeoffset =
