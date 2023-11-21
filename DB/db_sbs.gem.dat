@@ -172,7 +172,7 @@ sbs.gem.tryfasttrack = 1  #May get errors before a good alignment. So may be hel
  sbs.gem.gridbinwidthy = 0.01
  sbs.gem.gridedgetolerancex = 0.0025
  sbs.gem.gridedgetolerancey = 0.0025
- sbs.gem.trackchi2cut = 15.0
+ sbs.gem.trackchi2cut = 30
 
 #For alignment with cosmics, we want to start with wider grid bins and a loose chi2 cut for tracking:
 # sbs.gem.gridbinwidthx = 0.02 #0.1
@@ -1621,5 +1621,31 @@ sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run5228.dat
 sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run5963.dat
 sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run5963.dat
 
+--------[ 2023-11-03 12:00:00 ]
+sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run6124.dat
+sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run6124.dat
+
+--------[ 2023-11-09 20:30:00 ]
+sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run6187.dat
+sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run6187.dat
+
+--------[ 2023-11-13 17:00:00 ] #L5G0 troubleshooting, should be good now
+sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run6215.dat
+sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run6215.dat
 
 # # #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
+
+
+---------[ 2023-11-02 00:00:00 ] # Cosmic Data before A_LL
+
+sbs.gem.useopticsconstraint = 0
+sbs.gem.useslopeconstraint = 0
+sbs.gem.useconstraint = 0
+#sbs.gem.dump_geometry_info = 1
+
+---------[ 2023-11-16 14:30:00 ] # Back to Beam A_LL
+
+sbs.gem.useopticsconstraint = 1
+sbs.gem.useslopeconstraint = 1
+sbs.gem.useconstraint = 0
+

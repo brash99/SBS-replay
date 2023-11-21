@@ -7,7 +7,7 @@ void hcal_timing(){
 
   Double_t sbs_hcal_clus_blk_tdctime[30] = {0.}, sbs_hcal_clus_blk_atime[30] = {0.}, sbs_hcal_nclus = 0.; 
 
-  TH2D *h2_hcal_cluster_tdc_vs_adc = new TH2D("h2_hcal_cluster_tdc_vs_adc","HCal Timing Check; HCal TDC; HCal ADC time",300,-300,300,80,0,160);
+  TH2D *h2_hcal_cluster_tdc_vs_adc = new TH2D("h2_hcal_cluster_tdc_vs_adc","HCal Timing Check >> Stop run and Reset DAQ if data scatters everywhere; HCal TDC time [ns]; HCal ADC time [ns]",500,-250,250,250,0,250);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");

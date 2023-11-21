@@ -20,7 +20,7 @@
 double PI = TMath::Pi();
 
 int nlayers=4;
-int nmodules=12;
+int nmodules=8;
 
 //Make these global for chi^2 function for numerical minimization:
 

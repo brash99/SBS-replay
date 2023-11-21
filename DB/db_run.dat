@@ -239,3 +239,17 @@ sbs.hcaldist = 17.0
 bb.theta = 35.0
 bb.pcentral = 3.21
 bb.magdist = 1.63
+
+---------[ 2023-11-01 00:00:00 ] # start of pion A_LL 
+
+ebeam = 6.37
+
+sbs.theta = -32.0
+sbs.pcentral = 2.5
+sbs.magdist = 2.80
+sbs.hcaldist = 11.0
+
+bb.theta = 32.0
+bb.pcentral = 2.0
+bb.magdist = 1.63
+
