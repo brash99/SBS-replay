@@ -468,7 +468,7 @@ bb.gem.minhighqualityhitsontrack = 0
 
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 100000
-bb.gem.maxhitcombos_total = 1.e16
+bb.gem.maxhitcombos_total = 1.e20
 bb.gem.tryfasttrack = 1
 bb.gem.gridbinwidthx = 0.005
 bb.gem.gridbinwidthy = 0.005
@@ -1421,21 +1421,28 @@ bb.gem.useopticsconstraint = 0
 ---------[ 2021-10-15 08:21:00 ] # turn on optics constraint after sieve is removed:
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
+bb.gem.useforwardopticsconstraint = 1
 
 bb.gem.constraintwidth_theta = 0.0543298
 bb.gem.constraintwidth_phi = 0.0336563
 
 ----------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics:
 
-bb.gem.dxfp0 = 0
+bb.gem.use_enhanced_chi2 = 1
+bb.gem.trackchi2cut_hitquality = 50.0
+bb.gem.trackchi2cut = 50.0
+bb.gem.minhighqualityhitsontrack = 0
+
+bb.gem.useforwardopticsconstraint = 1
+bb.gem.dxfp0 = -0.0007
 bb.gem.dyfp0 = 0
-bb.gem.dxpfp0 = 0
+bb.gem.dxpfp0 = -0.00085
 bb.gem.dypfp0 = 0
 
 bb.gem.dxfpcut = 0.004
-bb.gem.dyfpcut = 0.0002
-bb.gem.dxpfpcut = 0.0015
-bb.gem.dypfpcut = 0.0004
+bb.gem.dyfpcut = 0.0005
+bb.gem.dxpfpcut = 0.004
+bb.gem.dypfpcut = 0.0005
 
 bb.gem.useopticsconstraint = 1
 bb.gem.xptar_min = -0.3
@@ -1864,9 +1871,17 @@ bb.gem.m11.threshold_sample =           94
 bb.gem.m11.threshold_stripsum =          400
 bb.gem.m11.threshold_clustersum =          680
 
-bb.gem.constraintwidth_theta = 0.08
+bb.gem.constraintwidth_theta = 0.075
 bb.gem.constraintwidth_phi = 0.03
 
+bb.gem.useslopeconstraint = 1
+bb.gem.useopticsconstraint = 1
+bb.gem.useforwardopticsconstraint = 1
+
+bb.gem.gridbinwidthx = 0.005
+bb.gem.gridbinwidthy = 0.005
+bb.gem.gridedgetolerancex = 0.0015
+bb.gem.gridedgetolerancey = 0.0015
 
 -----------[ 2021-10-24 23:10:00 ] # Zero-field run for SBS-4:
 bb.gem.useconstraint = 1
@@ -1877,6 +1892,8 @@ bb.gem.useforwardopticsconstraint = 0
 -----------[ 2021-10-25 00:18:00 ] # Optics runs with field-on for SBS-4:
 bb.gem.useconstraint = 1
 bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
 
 ----------[ 2021-10-25 04:52:00 ] # for production turn on optics and track slope constraints
 
@@ -1888,9 +1905,20 @@ bb.gem.useslopeconstraint = 1
 
 bb.gem.use_enhanced_chi2 = 1
 bb.gem.trackchi2cut_hitquality = 50.0
-bb.gem.trackchi2cut = 30.0
+bb.gem.trackchi2cut = 50.0
 
-bb.gem.minhighqualityhitsontrack = 2
+bb.gem.useforwardopticsconstraint = 1
+bb.gem.dxfp0 = 0.0
+bb.gem.dyfp0 = 0.0
+bb.gem.dxpfp0 = 0.0
+bb.gem.dypfp0 = 0.0
+
+bb.gem.dxfpcut = 0.004
+bb.gem.dyfpcut = 0.001
+bb.gem.dxpfpcut = 0.004
+bb.gem.dypfpcut = 0.001
+
+bb.gem.minhighqualityhitsontrack = 0
 
 # trigger time was different during SBS-7:
 bb.gem.trigtime_t0 = 296.5

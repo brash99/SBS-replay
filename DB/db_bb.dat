@@ -497,10 +497,10 @@ bb.forwardoptics_parameters =
 #bb.backconstraintwidth_x = 0.0503008
 #bb.backconstraintwidth_y = 0.064012
 
-bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_x = 0.12
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.055
-bb.backconstraintwidth_y = 0.065
+bb.backconstraintwidth_y = 0.06
 
 bb.frontconstraint_x0 = 0.052
 bb.frontconstraint_y0 = -0.0154
