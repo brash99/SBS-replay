@@ -834,87 +834,6 @@ bb.forwardoptics_parameters =
   -2.3821982e-14    3.3449074e-14   -6.3295719e-15    1.5233745e-14  0 0 0 0 2
 
 
-
-# initial guesses for SBS-11:
-#bb.frontconstraintwidth_x = 0.045 # m
-#bb.frontconstraintwidth_y = 0.05 # m
-#bb.backconstraintwidth_x = 0.04 #m
-#bb.backconstraintwidth_y = 0.045 #m
-#bb.frontconstraint_x0 = 0.048
-#bb.frontconstraint_y0 = -0.013
-#bb.backconstraint_x0 = 0.0033
-#bb.backconstraint_y0 = 0.0
-
-# for second round of SBS-11 quality checks:
-
-bb.frontconstraint_x0 = 0.060
-bb.frontconstraint_y0 = -0.013
-bb.backconstraint_x0 = 0.0031
-bb.backconstraint_y0 = 0.0007
-
-bb.frontconstraintwidth_x = 0.0718517
-bb.frontconstraintwidth_y = 0.069917
-bb.backconstraintwidth_x = 0.06
-bb.backconstraintwidth_y = 0.06
-
-bb.ecalo_fudgefactor = 1.0
-
-# for single C foil runs use a wider cut in X: 
-----------[ 2021-11-24 23:59:00 ] 
-bb.backconstraintwidth_x = 0.06 
-bb.backconstraintwidth_y = 0.06
-bb.frontconstraintwidth_x = 0.75 # m
-bb.frontconstraintwidth_y = 0.25 # basically set wide open at the front, so that we still enforce calo constraint at the back but not at the front
-
-----------[ 2021-11-25 00:56:00 ] # turn BB magnet on starting run 12279:
-
-bb.backconstraintwidth_x = 0.06 # m 
-bb.backconstraintwidth_y = 0.06 # m
-bb.frontconstraintwidth_x = 0.75 # m 
-bb.frontconstraintwidth_y = 0.2 # m
-
-----------[ 2021-11-25 04:21:00 ] # going to production here, assuming we can get the constraints right
-#bb.frontconstraintwidth_x = 0.06 # m 
-#bb.frontconstraintwidth_y = 0.06 # m
-# for second round of SBS-11 quality checks:
-
-bb.frontconstraint_x0 = 0.060
-bb.frontconstraint_y0 = -0.013
-bb.backconstraint_x0 = 0.0031
-bb.backconstraint_y0 = 0.0007
-
-bb.frontconstraintwidth_x = 0.0718517
-bb.frontconstraintwidth_y = 0.069917
-bb.backconstraintwidth_x = 0.06
-bb.backconstraintwidth_y = 0.06
-
-
-------[ 2021-11-25 09:29:00 ] # attempt to analyze low-current LH2 run without constraints:
-bb.frontconstraintwidth_x = 0.75 # m 
-bb.frontconstraintwidth_y = 0.2 # m
-# set offsets to zero to minimize confusion when we optimize
-#bb.frontconstraint_x0 = 0.0
-#bb.frontconstraint_y0 = 0.0
-
-------[ 2021-11-25 10:10:00 ] # LH2 runs at 5-15 uA we need to use the optics and slope constraints as well:
-# for second round of SBS-11 quality checks:
-
-bb.frontconstraint_x0 = 0.060
-bb.frontconstraint_y0 = -0.013
-bb.backconstraint_x0 = 0.0031
-bb.backconstraint_y0 = 0.0007
-
-bb.frontconstraintwidth_x = 0.0718517
-bb.frontconstraintwidth_y = 0.069917
-bb.backconstraintwidth_x = 0.06
-bb.backconstraintwidth_y = 0.06
-
-------[ 2021-11-25 11:40:00 ] # back to 1 uA: attempt to analyze low-current LH2 run without constraints:
-bb.frontconstraintwidth_x = 0.75 # m 
-bb.frontconstraintwidth_y = 0.2 # m
-
-
-----------[ 2021-11-25 12:15:00 ] # now really going to production; may need to adjust constraints
 # for second round of SBS-11 quality checks:
 
 bb.frontconstraint_x0 = 0.060
@@ -926,7 +845,69 @@ bb.backconstraint_y0 = 0.0007
 #bb.frontconstraintwidth_y = 0.069917
 bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.06
-bb.backconstraintwidth_x = 0.05
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.06
+
+bb.ecalo_fudgefactor = 1.0
+
+# for single C foil runs use a wider front constraint cut in X: 
+----------[ 2021-11-24 23:45:00 ] 
+bb.backconstraintwidth_x = 0.06 
+bb.backconstraintwidth_y = 0.06
+bb.frontconstraintwidth_x = 0.75 # m
+bb.frontconstraintwidth_y = 0.25 # basically set wide open at the front, so that we still enforce calo constraint at the back but not at the front
+
+----------[ 2021-11-25 00:56:00 ] # turn BB magnet on starting run 12279:
+
+bb.backconstraintwidth_x = 0.06 # m 
+bb.backconstraintwidth_y = 0.06 # m
+bb.frontconstraintwidth_x = 0.15 # m 
+bb.frontconstraintwidth_y = 0.06 # m
+
+----------[ 2021-11-25 04:21:00 ] # going to production here, assuming we can get the constraints right
+
+bb.frontconstraint_x0 = 0.060
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0031
+bb.backconstraint_y0 = 0.0007
+
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.06
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.06
+
+------[ 2021-11-25 09:29:00 ] # attempt to analyze low-current LH2 runs (12307-12308) with wider constraints:
+bb.frontconstraintwidth_x = 0.5 # m 
+bb.frontconstraintwidth_y = 0.2 # m
+
+------[ 2021-11-25 10:10:00 ] # LH2 runs at 5-15 uA we need to use the optics and slope constraints as well:
+# for second round of SBS-11 quality checks:
+
+bb.frontconstraint_x0 = 0.060
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0031
+bb.backconstraint_y0 = 0.0007
+
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.06
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.06
+
+------[ 2021-11-25 11:40:00 ] # back to 1 uA: attempt to analyze low-current LH2 run without constraints:
+bb.frontconstraintwidth_x = 0.5 # m 
+bb.frontconstraintwidth_y = 0.2 # m
+
+----------[ 2021-11-25 12:15:00 ] # now really going to production; may need to adjust constraints
+# for second round of SBS-11 quality checks:
+
+bb.frontconstraint_x0 = 0.060
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0031
+bb.backconstraint_y0 = 0.0007
+
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.06
+bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
 
 

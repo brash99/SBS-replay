@@ -35,6 +35,7 @@ bb.pcentral = 2.11
 bb.magdist = 1.7988 # from survey
 
 sbs.magdist = 2.25
+sbs.hcaldist = 11.0
 
 
 --------[ 2021-11-12 00:00:00 ] ## Starting SBS-7 kinematics for GMN:
@@ -44,6 +45,7 @@ ebeam = 7.9308  # from good run list
 sbs.pcentral = 6.2
 sbs.theta = -16.1
 sbs.magdist = 2.25
+sbs.hcaldist = 14.0
 
 bb.theta = 40.0 
 bb.pcentral = 2.67
@@ -57,6 +59,7 @@ ebeam = 9.889  # from good run list
 sbs.theta = -13.3 
 sbs.pcentral = 8.1
 sbs.magdist = 2.25
+sbs.hcaldist = 14.5
 
 bb.theta = 42.0
 #bb.magdist = 1.55 # meters, nominal
@@ -70,6 +73,7 @@ ebeam = 5.9828  # from good run list
 sbs.theta = -17.3 # degrees
 sbs.pcentral = 4.8 # GeV
 sbs.magdist = 2.25
+sbs.hcaldist = 14.0
 
 # note: SBS distance = 2.25 m
 # note also: HCAL distance = 14.0 meters 
@@ -86,6 +90,7 @@ ebeam = 5.9826  # from good run list
 sbs.theta = -29.9
 sbs.pcentral = 3.22
 sbs.magdist = 2.25
+sbs.hcaldist = 11.0
 
 # note HCAL distance = 11 m
 
@@ -103,6 +108,7 @@ ebeam = 4.0268  # from good run list
 sbs.theta = -22.5
 sbs.pcentral = 3.22
 sbs.magdist = 2.25
+sbs.hcaldist = 11.0
 
 # note HCAL distance = 11 m
 
