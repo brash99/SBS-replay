@@ -1,0 +1,44 @@
+bb.gem.m0.threshold_sample =          204
+bb.gem.m0.threshold_stripsum =          760
+bb.gem.m0.threshold_clustersum =         1400
+
+bb.gem.m1.threshold_sample =          166
+bb.gem.m1.threshold_stripsum =          670
+bb.gem.m1.threshold_clustersum =         1220
+
+bb.gem.m2.threshold_sample =          170
+bb.gem.m2.threshold_stripsum =          640
+bb.gem.m2.threshold_clustersum =         1160
+
+bb.gem.m3.threshold_sample =          292
+bb.gem.m3.threshold_stripsum =         1150
+bb.gem.m3.threshold_clustersum =         2140
+
+bb.gem.m4.threshold_sample =          158
+bb.gem.m4.threshold_stripsum =          590
+bb.gem.m4.threshold_clustersum =         1060
+
+bb.gem.m5.threshold_sample =          144
+bb.gem.m5.threshold_stripsum =          500
+bb.gem.m5.threshold_clustersum =          900
+
+bb.gem.m6.threshold_sample =          178
+bb.gem.m6.threshold_stripsum =          600
+bb.gem.m6.threshold_clustersum =         1120
+
+bb.gem.m7.threshold_sample =          118
+bb.gem.m7.threshold_stripsum =          440
+bb.gem.m7.threshold_clustersum =          800
+
+bb.frontconstraint_x0 = -0.00302178
+bb.frontconstraint_y0 = 0.0110284
+bb.backconstraint_x0 = -0.000123554
+bb.backconstraint_y0 = 0.000945726
+
+bb.frontconstraintwidth_x = 0.0578788
+bb.frontconstraintwidth_y = 0.136109
+bb.backconstraintwidth_x = 0.0496415
+bb.backconstraintwidth_y = 0.0701009
+
+bb.gem.constraintwidth_theta = 0.0280443
+bb.gem.constraintwidth_phi = 0.065234

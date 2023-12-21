@@ -30,7 +30,7 @@
 //#include "SBSCherenkovDetector.h"
 #include "SBSEArm.h"
 #include "SBSHCal.h"
-#include "SBSGEMStand.h"
+//#include "SBSGEMStand.h"
 #include "SBSTimingHodoscope.h"
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMTrackerBase.h"
@@ -123,7 +123,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   sbstrig->SetStoreEmptyElements(kFALSE);
   harm->AddDetector( sbstrig );
 
-    SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gem", "Super BigBite Hall A GEM data");
+  SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gem", "Super BigBite Hall A GEM data");
   sbsgem->SetPedestalMode( pm );
   sbsgem->SetMakeCommonModePlots( cmplots );
   if (usesbsgems != 0 ) harm->AddDetector(sbsgem); 
@@ -266,13 +266,16 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
 
   // File to record cuts accounting information
   prefix = gSystem->Getenv("LOG_DIR");
-  analyzer->SetSummaryFile(Form("%s/replay_gen_%d_stream%d_%d_seg%d_%d.log", prefix.Data(), runnum,
+  analyzer->SetSummaryFile(Form("%s/%s_%d_stream%d_%d_seg%d_%d.log", prefix.Data(), fname_prefix, runnum,
 				0, maxstream, firstsegment, lastsegment));
 
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
   TString odef_filename = "replay_gen.odef";
+
+  //no need to define SBS GEM output if we aren't analyzing the data
+  if( usesbsgems == 0 ) odef_filename = "replay_gen_noSBSGEMs.odef";
 
   odef_filename.Prepend( prefix );
 

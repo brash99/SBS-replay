@@ -88,8 +88,8 @@ bb.grinch_tdc.tdc.offset =
 # after defining individual TDC channel offsets, we set "GoodTimeCut" to zero for GRINCH TDC hits:
 bb.grinch_tdc.tdc.GoodTimeCut = 0.0
 # set a somewhat looser software window for GRINCH TDC hits:
-bb.grinch_tdc.hit_mintime = -20.0
-bb.grinch_tdc.hit_maxtime = 20.0
+bb.grinch_tdc.hit_mintime = -25.0
+bb.grinch_tdc.hit_maxtime = 25.0
 #bb.grinch_tdc.reftdcGoodTimeCut = 50
 
 
@@ -240,14 +240,69 @@ bb.grinch_tdc.ypos =
 0.124 0.093 0.062 0.031 0 -0.031 -0.062 -0.093 -0.124 
 1.0 -1.0
 
+# max separation between PMTs for grouping into clusters:
+bb.grinch_tdc.maxsep = 0.07 # this is twice the separation between neighboring PMTs in the matrix, to account for clusters with "holes"
+
+bb.grinch_tdc.nmirror = 4
+
+# commenting these out for testing new cuts based on Maria's parametrizations:
+
+#bb.grinch_tdc.trackmatch_pslope = 0.1715
+#bb.grinch_tdc.trackmatch_xslope = 0.74 0.7353 0.7515 0.7456 
+#bb.grinch_tdc.trackmatch_x0 = -0.2 -0.0765 -0.0827 0.1127 
+#bb.grinch_tdc.trackmatch_xsigma = 0.015 0.009 0.01 0.01 
+#bb.grinch_tdc.trackmatch_yslope = 0.42 0.48 0.173 0.56 
+#bb.grinch_tdc.trackmatch_y0 = -0.017 0.018 0.014 0.046 
+#bb.grinch_tdc.trackmatch_ysigma = 0.022 0.015 0.022 0.023 
+#bb.grinch_tdc.trackmatch_xmin = -0.8 -0.65 -0.1 0.45
+#bb.grinch_tdc.trackmatch_xmax = -0.5 0.1 0.55 0.8 
+
+# wide track-matching cut until we develop a way to deal with the mirror boundaries in the x track x GRINCH correlation 
+# 4.5-sigma cut seems sufficiently loose for now:
+bb.grinch_tdc.trackmatch_nsigma_cut = 5.0
+
+bb.grinch_tdc.hit_mintime = -30
+bb.grinch_tdc.hit_maxtime = 30
+
+
+---------[ 2021-12-01 12:00:00 ] # timing shift during SBS-11:
+
+bb.grinch_tdc.hit_mintime = -100
+bb.grinch_tdc.hit_maxtime =  -40
+
+---------[ 2021-12-14 12:00:00 ] # second timing shift during SBS-11:
+
+bb.grinch_tdc.hit_mintime = -30
+bb.grinch_tdc.hit_maxtime = 30
+
+
+
 --------[ 2022-04-01 00:00:00 ]
 bb.grinch_tdc.tdc.offset = 0.0
 bb.grinch_tdc.tdc.GoodTimeCut = 900
 
---------[ 2022-10-10 00:00:00 ]
-bb.grinch_tdc.tdc.offset = 0.0
-bb.grinch_tdc.tdc.GoodTimeCut = 200.0
+bb.grinch_tdc.trackmatch_nsigma_cut = 10.0
 
-bb.grinch_tdc.hit_mintime = 100.0
-bb.grinch_tdc.hit_maxtime = 300.0
+--------[ 2022-10-10 00:00:00 ] # GEN-2: good GRINCH times are clustered near 70 ns 
+
+bb.grinch_tdc.tdc.offset = 71.0
+bb.grinch_tdc.tdc.GoodTimeCut = 0.0
+
+bb.grinch_tdc.hit_mintime = -50.0
+bb.grinch_tdc.hit_maxtime = 50.0
+
+-------[ 2022-11-10 00:00:00 ] # GEN-3: good GRINCH times shifted to about 200 ns
+
+bb.grinch_tdc.tdc.offset = 205.0
+bb.grinch_tdc.tdc.GoodTimeCut = 0.0
+
+bb.grinch_tdc.hit_mintime = -50.0
+bb.grinch_tdc.hit_maxtime = 50.0
+
+-------[ 2023-01-11 00:00:00 ] # GEN-4: open up the cuts and find the good hits:
+
+bb.grinch_tdc.tdc.offset = 205.0
+bb.grinch_tdc.tdc.GoodTimeCut = 0.0
+bb.grinch_tdc.hit_mintime = -50.0 
+bb.grinch_tdc.hit_maxtime = 50.0
 
