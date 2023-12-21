@@ -1840,6 +1840,7 @@ bb.gem.m7.ADCratio_sigma_deconv =      0.14513
 bb.gem.m7.sigma_tcorr =       5.2412
 
 
+
 --------[ 2023-01-01 00:00:00 ] #start of GEN-4
 
 bb.gem.addstrip_tcut = 35.0
@@ -2100,6 +2101,387 @@ bb.gem.m7.ADCratio_sigma =      0.12516
 bb.gem.m7.ADCratio_sigma_deconv =      0.10899
 
 bb.gem.m7.sigma_tcorr =       4.8908
+
+--------[ 2023-01-21 18:00:00 ] #Shift in module 1 starting run 3708
+
+bb.gem.m1.maxstrip_t0 =       88.9      89.11
+bb.gem.m1.maxstrip_tsigma =      9.002      8.896
+bb.gem.m1.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m1.maxstrip_t0_deconv =      54.84      54.45
+bb.gem.m1.maxstrip_tsigma_deconv =      20.11      19.93
+bb.gem.m1.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m1.maxstrip_t0_fit =      21.91      22.21
+bb.gem.m1.maxstrip_tsigma_fit =      16.08      15.52
+bb.gem.m1.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m1.deltat_sigma =       3.3625
+bb.gem.m1.deltat_cut =       33.625
+bb.gem.m1.deltat_sigma_deconv =       8.3495
+bb.gem.m1.deltat_cut_deconv =       83.495
+bb.gem.m1.deltat_sigma_fit =       4.3641
+bb.gem.m1.deltat_cut_fit =       43.641
+
+bb.gem.m1.HitTimeMean =       87.824       88.515
+bb.gem.m1.HitTimeSigma =       8.7996       8.6139
+bb.gem.m1.HitTimeMeanDeconv =       51.582       52.504
+bb.gem.m1.HitTimeSigmaDeconv =       19.917       19.126
+bb.gem.m1.HitTimeMeanFit =       20.991        21.45
+bb.gem.m1.HitTimeSigmaFit =       15.042       15.776
+
+bb.gem.m1.ADCasym_sigma =     0.085441
+bb.gem.m1.ADCratio_sigma =      0.15898
+bb.gem.m1.ADCratio_sigma_deconv =       0.1543
+
+bb.gem.m1.sigma_tcorr =       7.9402
+
+
+--------[ 2023-01-30 01:45:00 ] #Shift in module 4 starting run 3868-4037
+
+bb.gem.m4.maxstrip_t0 =      86.22      92.94
+bb.gem.m4.maxstrip_tsigma =      6.437      5.604
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      44.63      61.61
+bb.gem.m4.maxstrip_tsigma_deconv =      13.96      11.66
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      16.07      26.17
+bb.gem.m4.maxstrip_tsigma_fit =      9.244      11.47
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       2.2696
+bb.gem.m4.deltat_cut =       22.696
+bb.gem.m4.deltat_sigma_deconv =       7.0605
+bb.gem.m4.deltat_cut_deconv =       70.605
+bb.gem.m4.deltat_sigma_fit =       3.0423
+bb.gem.m4.deltat_cut_fit =       30.423
+
+bb.gem.m4.HitTimeMean =       85.106       90.951
+bb.gem.m4.HitTimeSigma =       5.8946        5.725
+bb.gem.m4.HitTimeMeanDeconv =       41.587       55.826
+bb.gem.m4.HitTimeSigmaDeconv =       12.996       11.595
+bb.gem.m4.HitTimeMeanFit =       14.909       23.116
+bb.gem.m4.HitTimeSigmaFit =       9.0061       10.357
+
+bb.gem.m4.ADCasym_sigma =     0.069044
+bb.gem.m4.ADCratio_sigma =     0.080293
+bb.gem.m4.ADCratio_sigma_deconv =      0.13159
+
+bb.gem.m4.sigma_tcorr =       4.9199
+
+
+--------[ 2023-02-10 03:00:00 ] #Module 4 returns back to normal starting run 4038
+
+bb.gem.m4.maxstrip_t0 =      85.99      87.31
+bb.gem.m4.maxstrip_tsigma =      6.292       5.84
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      50.11      56.86
+bb.gem.m4.maxstrip_tsigma_deconv =       12.3      10.43
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      19.34      21.01
+bb.gem.m4.maxstrip_tsigma_fit =      11.77      11.38
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       1.8941
+bb.gem.m4.deltat_cut =       18.941
+bb.gem.m4.deltat_sigma_deconv =       4.9393
+bb.gem.m4.deltat_cut_deconv =       49.393
+bb.gem.m4.deltat_sigma_fit =       2.5929
+bb.gem.m4.deltat_cut_fit =       25.929
+
+bb.gem.m4.HitTimeMean =       84.514       85.563
+bb.gem.m4.HitTimeSigma =       5.9559       5.7145
+bb.gem.m4.HitTimeMeanDeconv =       46.021       51.478
+bb.gem.m4.HitTimeSigmaDeconv =       11.925         10.8
+bb.gem.m4.HitTimeMeanFit =       17.016       17.836
+bb.gem.m4.HitTimeSigmaFit =       10.431       10.257
+
+bb.gem.m4.ADCasym_sigma =       0.0518
+bb.gem.m4.ADCratio_sigma =      0.10239
+bb.gem.m4.ADCratio_sigma_deconv =      0.10985
+
+bb.gem.m4.sigma_tcorr =       4.4097
+
+
+--------[ 2023-02-16 01:45:00 ] # Shift in Module 4 starting run 4186-4204
+
+bb.gem.m4.maxstrip_t0 =      87.41         93
+bb.gem.m4.maxstrip_tsigma =      5.986      5.035
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      50.89      65.15
+bb.gem.m4.maxstrip_tsigma_deconv =      12.72      10.43
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      20.24      30.13
+bb.gem.m4.maxstrip_tsigma_fit =      11.63      11.66
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       2.6172
+bb.gem.m4.deltat_cut =       26.172
+bb.gem.m4.deltat_sigma_deconv =       5.4423
+bb.gem.m4.deltat_cut_deconv =       54.423
+bb.gem.m4.deltat_sigma_fit =       2.5851
+bb.gem.m4.deltat_cut_fit =       25.851
+
+bb.gem.m4.HitTimeMean =       85.731       91.095
+bb.gem.m4.HitTimeSigma =       6.0401       5.8449
+bb.gem.m4.HitTimeMeanDeconv =       46.361       59.855
+bb.gem.m4.HitTimeSigmaDeconv =       12.856       12.447
+bb.gem.m4.HitTimeMeanFit =       17.303       26.581
+bb.gem.m4.HitTimeSigmaFit =       9.7593       11.926
+
+bb.gem.m4.ADCasym_sigma =     0.062873
+bb.gem.m4.ADCratio_sigma =       0.1126
+bb.gem.m4.ADCratio_sigma_deconv =      0.10644
+
+bb.gem.m4.sigma_tcorr =       4.6322
+
+--------[ 2023-02-17 11:05:00 ] # Module 4 returns back to normal starting run 4214
+
+bb.gem.m4.maxstrip_t0 =      85.99      87.31
+bb.gem.m4.maxstrip_tsigma =      6.292       5.84
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      50.11      56.86
+bb.gem.m4.maxstrip_tsigma_deconv =       12.3      10.43
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      19.34      21.01
+bb.gem.m4.maxstrip_tsigma_fit =      11.77      11.38
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       1.8941
+bb.gem.m4.deltat_cut =       18.941
+bb.gem.m4.deltat_sigma_deconv =       4.9393
+bb.gem.m4.deltat_cut_deconv =       49.393
+bb.gem.m4.deltat_sigma_fit =       2.5929
+bb.gem.m4.deltat_cut_fit =       25.929
+
+bb.gem.m4.HitTimeMean =       84.514       85.563
+bb.gem.m4.HitTimeSigma =       5.9559       5.7145
+bb.gem.m4.HitTimeMeanDeconv =       46.021       51.478
+bb.gem.m4.HitTimeSigmaDeconv =       11.925         10.8
+bb.gem.m4.HitTimeMeanFit =       17.016       17.836
+bb.gem.m4.HitTimeSigmaFit =       10.431       10.257
+
+bb.gem.m4.ADCasym_sigma =       0.0518
+bb.gem.m4.ADCratio_sigma =      0.10239
+bb.gem.m4.ADCratio_sigma_deconv =      0.10985
+
+bb.gem.m4.sigma_tcorr =       4.4097
+
+
+--------[ 2023-02-18 00:28:00 ] # Shift in Module 4 starting run 4230-4236
+
+bb.gem.m4.maxstrip_t0 =      86.51      93.84
+bb.gem.m4.maxstrip_tsigma =      5.993      5.012
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      49.27      67.19
+bb.gem.m4.maxstrip_tsigma_deconv =      12.62      9.285
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      18.81       32.4
+bb.gem.m4.maxstrip_tsigma_fit =      10.36      11.23
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       2.4988
+bb.gem.m4.deltat_cut =       24.988
+bb.gem.m4.deltat_sigma_deconv =       5.8383
+bb.gem.m4.deltat_cut_deconv =       58.383
+bb.gem.m4.deltat_sigma_fit =       3.9369
+bb.gem.m4.deltat_cut_fit =       39.369
+
+bb.gem.m4.HitTimeMean =       84.701       92.249
+bb.gem.m4.HitTimeSigma =       5.3641       5.5923
+bb.gem.m4.HitTimeMeanDeconv =       44.835       62.766
+bb.gem.m4.HitTimeSigmaDeconv =       12.588       11.218
+bb.gem.m4.HitTimeMeanFit =       16.651       28.493
+bb.gem.m4.HitTimeSigmaFit =       9.3648       11.162
+
+bb.gem.m4.ADCasym_sigma =     0.047927
+bb.gem.m4.ADCratio_sigma =     0.090434
+bb.gem.m4.ADCratio_sigma_deconv =      0.11272
+
+bb.gem.m4.sigma_tcorr =       4.9084
+
+
+--------[ 2023-02-18 20:00:00 ] # Module 4 returns back to normal starting run 4251
+
+bb.gem.m4.maxstrip_t0 =      85.99      87.31
+bb.gem.m4.maxstrip_tsigma =      6.292       5.84
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      50.11      56.86
+bb.gem.m4.maxstrip_tsigma_deconv =       12.3      10.43
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      19.34      21.01
+bb.gem.m4.maxstrip_tsigma_fit =      11.77      11.38
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       1.8941
+bb.gem.m4.deltat_cut =       18.941
+bb.gem.m4.deltat_sigma_deconv =       4.9393
+bb.gem.m4.deltat_cut_deconv =       49.393
+bb.gem.m4.deltat_sigma_fit =       2.5929
+bb.gem.m4.deltat_cut_fit =       25.929
+
+bb.gem.m4.HitTimeMean =       84.514       85.563
+bb.gem.m4.HitTimeSigma =       5.9559       5.7145
+bb.gem.m4.HitTimeMeanDeconv =       46.021       51.478
+bb.gem.m4.HitTimeSigmaDeconv =       11.925         10.8
+bb.gem.m4.HitTimeMeanFit =       17.016       17.836
+bb.gem.m4.HitTimeSigmaFit =       10.431       10.257
+
+bb.gem.m4.ADCasym_sigma =       0.0518
+bb.gem.m4.ADCratio_sigma =      0.10239
+bb.gem.m4.ADCratio_sigma_deconv =      0.10985
+
+bb.gem.m4.sigma_tcorr =       4.4097
+
+
+--------[ 2023-02-23 05:10:00 ] # Shift in Module 4 starting run 4315-4341
+
+bb.gem.m4.maxstrip_t0 =      86.59       85.8
+bb.gem.m4.maxstrip_tsigma =       6.47      6.005
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      49.42      52.75
+bb.gem.m4.maxstrip_tsigma_deconv =      13.34      11.02
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      19.42      17.58
+bb.gem.m4.maxstrip_tsigma_fit =      11.15      10.35
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       2.8519
+bb.gem.m4.deltat_cut =       28.519
+bb.gem.m4.deltat_sigma_deconv =        6.747
+bb.gem.m4.deltat_cut_deconv =        67.47
+bb.gem.m4.deltat_sigma_fit =       3.5929
+bb.gem.m4.deltat_cut_fit =       35.929
+
+bb.gem.m4.HitTimeMean =       85.082       83.975
+bb.gem.m4.HitTimeSigma =       6.0129        5.886
+bb.gem.m4.HitTimeMeanDeconv =       46.123       47.017
+bb.gem.m4.HitTimeSigmaDeconv =       13.205       11.189
+bb.gem.m4.HitTimeMeanFit =       17.313       14.281
+bb.gem.m4.HitTimeSigmaFit =       10.151       9.2202
+
+bb.gem.m4.ADCasym_sigma =     0.073311
+bb.gem.m4.ADCratio_sigma =      0.13742
+bb.gem.m4.ADCratio_sigma_deconv =      0.12722
+
+bb.gem.m4.sigma_tcorr =       4.9201
+
+--------[ 2023-02-25 11:20:00 ] # Shift in Module 4 starting run 4343-4357
+
+bb.gem.m4.maxstrip_t0 =      86.13      89.46
+bb.gem.m4.maxstrip_tsigma =      6.031      5.884
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      48.67      58.99
+bb.gem.m4.maxstrip_tsigma_deconv =      13.51      11.16
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      18.16       22.6
+bb.gem.m4.maxstrip_tsigma_fit =      10.35      10.21
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       2.0676
+bb.gem.m4.deltat_cut =       20.676
+bb.gem.m4.deltat_sigma_deconv =       5.8101
+bb.gem.m4.deltat_cut_deconv =       58.101
+bb.gem.m4.deltat_sigma_fit =       3.4994
+bb.gem.m4.deltat_cut_fit =       34.994
+
+bb.gem.m4.HitTimeMean =       84.334       87.431
+bb.gem.m4.HitTimeSigma =       6.5333        5.581
+bb.gem.m4.HitTimeMeanDeconv =       45.132       53.283
+bb.gem.m4.HitTimeSigmaDeconv =       11.696       11.205
+bb.gem.m4.HitTimeMeanFit =       16.136       19.808
+bb.gem.m4.HitTimeSigmaFit =       9.5778       10.124
+
+bb.gem.m4.ADCasym_sigma =     0.064506
+bb.gem.m4.ADCratio_sigma =     0.095417
+bb.gem.m4.ADCratio_sigma_deconv =     0.065875
+
+bb.gem.m4.sigma_tcorr =       4.9049
+
+
+--------[ 2023-02-25 23:00:00 ] # Shift in Module 4 starting run 4359-4379
+
+bb.gem.m4.maxstrip_t0 =      85.61       83.6
+bb.gem.m4.maxstrip_tsigma =      6.582      5.878
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      47.87      48.38
+bb.gem.m4.maxstrip_tsigma_deconv =      12.34      10.38
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      18.52       13.4
+bb.gem.m4.maxstrip_tsigma_fit =      11.31       9.59
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       2.5358
+bb.gem.m4.deltat_cut =       25.358
+bb.gem.m4.deltat_sigma_deconv =       7.2694
+bb.gem.m4.deltat_cut_deconv =       72.694
+bb.gem.m4.deltat_sigma_fit =       2.8848
+bb.gem.m4.deltat_cut_fit =       28.848
+
+bb.gem.m4.HitTimeMean =       84.427       81.839
+bb.gem.m4.HitTimeSigma =       6.2991       5.9025
+bb.gem.m4.HitTimeMeanDeconv =       44.878       43.434
+bb.gem.m4.HitTimeSigmaDeconv =       13.116       10.488
+bb.gem.m4.HitTimeMeanFit =       16.523       11.435
+bb.gem.m4.HitTimeSigmaFit =       10.203       8.3469
+
+bb.gem.m4.ADCasym_sigma =      0.06912
+bb.gem.m4.ADCratio_sigma =      0.11715
+bb.gem.m4.ADCratio_sigma_deconv =      0.13044
+
+bb.gem.m4.sigma_tcorr =       5.1387
+
+--------[ 2023-03-08 20:30:00 ] # Module 4 returns back to normal starting run 4470
+
+bb.gem.m4.maxstrip_t0 =      85.99      87.31
+bb.gem.m4.maxstrip_tsigma =      6.292       5.84
+bb.gem.m4.maxstrip_tcut =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_deconv =      50.11      56.86
+bb.gem.m4.maxstrip_tsigma_deconv =       12.3      10.43
+bb.gem.m4.maxstrip_tcut_deconv =        4.5        4.5
+
+bb.gem.m4.maxstrip_t0_fit =      19.34      21.01
+bb.gem.m4.maxstrip_tsigma_fit =      11.77      11.38
+bb.gem.m4.maxstrip_tcut_fit =        4.5        4.5
+
+bb.gem.m4.deltat_sigma =       1.8941
+bb.gem.m4.deltat_cut =       18.941
+bb.gem.m4.deltat_sigma_deconv =       4.9393
+bb.gem.m4.deltat_cut_deconv =       49.393
+bb.gem.m4.deltat_sigma_fit =       2.5929
+bb.gem.m4.deltat_cut_fit =       25.929
+
+bb.gem.m4.HitTimeMean =       84.514       85.563
+bb.gem.m4.HitTimeSigma =       5.9559       5.7145
+bb.gem.m4.HitTimeMeanDeconv =       46.021       51.478
+bb.gem.m4.HitTimeSigmaDeconv =       11.925         10.8
+bb.gem.m4.HitTimeMeanFit =       17.016       17.836
+bb.gem.m4.HitTimeSigmaFit =       10.431       10.257
+
+bb.gem.m4.ADCasym_sigma =       0.0518
+bb.gem.m4.ADCratio_sigma =      0.10239
+bb.gem.m4.ADCratio_sigma_deconv =      0.10985
+
+bb.gem.m4.sigma_tcorr =       4.4097
 
 
 --------[ 2023-09-12 22:22:22 ] # start of GEN-4b
