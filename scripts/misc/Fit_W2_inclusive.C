@@ -48,7 +48,7 @@ double fitfunc_dx( double *x, double *par ){
   double dxpeak = par[0];
   double dxsigma = par[1];
 
-  if( fabs( dx - dxpeak ) < 5.0*dxsigma ) TF1::RejectPoint();
+  if( fabs( dx - dxpeak ) < 3.5*dxsigma ) TF1::RejectPoint();
   
   double poly = 0.0;
   for( int i=0; i<5; i++ ){
@@ -125,7 +125,7 @@ void Fit_W2_inclusive( TH1D *hW2all, TH1D *hW2elastic_temp, int order_bg=4, doub
 
 }
 
-void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max = 1.4, TCut cut="", TCut fiducialcut="", double W2min_fit=0, double W2max_fit=1.4 ){
+void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max = 1.4, TCut cut="", TCut fiducialcut="", double W2min_fit=0, double W2max_fit=1.4, double dymin=-0.75, double dymax=0.3 ){
   TChain *C = new TChain("Tout");
 
   C->Add(rootfilename);
@@ -143,7 +143,7 @@ void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max 
  
   TString cutstring; 
 
-  cutstring.Form("%g<W2&&W2<%g",W2min,W2max);
+  cutstring.Form("%g<W2&&W2<%g&&%g<deltay&&deltay<%g",W2min,W2max, dymin, dymax);
 
   TCut Wcut = cutstring.Data();
 
@@ -185,7 +185,7 @@ void GetElasticCounts( const char *rootfilename, double W2min=0.4, double W2max 
   c1->cd(3);
   hdx_Wcut->Draw();
 
-  FitGaus_FWHM( hdx_Wcut, 0.3 );
+  FitGaus_FWHM( hdx_Wcut, 0.5 );
   
   double dxmean = ( (TF1*) hdx_Wcut->GetListOfFunctions()->FindObject("gaus") )->GetParameter("Mean");
   double dxsigma = ( (TF1*) hdx_Wcut->GetListOfFunctions()->FindObject("gaus") )->GetParameter("Sigma");

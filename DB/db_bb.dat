@@ -1065,11 +1065,11 @@ bb.backconstraintwidth_x = 0.0528561
 bb.backconstraintwidth_y = 0.0685936
 
 # zero-field runs on LH2: 
---------[ 2022-01-18 19:35:00 ] ## start zero-field runs on LH2
+--------[ 2022-01-18 18:53:20 ] ## start zero-field runs on LH2
 bb.A_pth1 = 0.266377
 bb.B_pth1 = 0.956035
 
---------[ 2022-01-18 23:23:00 ] ## end zero-field runs on LH2
+--------[ 2022-01-18 23:22:00 ] ## end zero-field runs on LH2
 bb.A_pth1 = 0.268609
 bb.B_pth1 = 0.953111
 

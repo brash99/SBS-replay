@@ -468,6 +468,9 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   //Also need target variables:
   double xtgt[MAXNTRACKS], ytgt[MAXNTRACKS], thtgt[MAXNTRACKS], phtgt[MAXNTRACKS];
 
+  double bbtrchi2[MAXNTRACKS], bbtrchi2hits[MAXNTRACKS], bbtrnhits[MAXNTRACKS], 
+    bbtrngoodhits[MAXNTRACKS];
+
   int nclustHCAL;
   double xHCAL[MAXHCALCLUSTERS], yHCAL[MAXHCALCLUSTERS], EHCAL[MAXHCALCLUSTERS];
   double ADCTIMEHCAL[MAXHCALCLUSTERS], TDCTIMEHCAL[MAXHCALCLUSTERS], EMAXHCAL[MAXHCALCLUSTERS], NBLKHCAL[MAXHCALCLUSTERS];
@@ -601,6 +604,8 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 
   C->SetBranchStatus("bb.gem.track.nhits",1);
   C->SetBranchStatus("bb.gem.track.ngoodhits",1);
+  C->SetBranchStatus("bb.gem.track.chi2ndf",1);
+  C->SetBranchStatus("bb.gem.track.chi2ndf_hitquality",1);
 
   //We should probably add some hodoscope variables too, but not essential at this stage:
   
@@ -634,6 +639,12 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchAddress("bb.tr.tg_y",ytgt);
   C->SetBranchAddress("bb.tr.tg_th",thtgt);
   C->SetBranchAddress("bb.tr.tg_ph",phtgt);
+
+  C->SetBranchAddress("bb.gem.track.nhits",bbtrnhits);
+  C->SetBranchAddress("bb.gem.track.ngoodhits",bbtrngoodhits);
+  C->SetBranchAddress("bb.gem.track.chi2ndf",bbtrchi2);
+  C->SetBranchAddress("bb.gem.track.chi2ndf_hitquality",bbtrchi2hits);
+  
 
   C->SetBranchAddress("Ndata.sbs.hcal.clus.e",&nclustHCAL);
   C->SetBranchAddress("sbs.hcal.clus.x",xHCAL);
@@ -711,6 +722,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double T_pincident;
   double T_xfp, T_yfp, T_thfp, T_phfp;
   double T_thtgt, T_phtgt, T_ytgt, T_xtgt;
+  double T_bbtrchi2, T_bbtrchi2hits, T_bbtrnhits, T_bbtrngoodhits;
   double T_vx, T_vy, T_vz;
   double T_BBdist, T_BBtheta;
   double T_HCALdist, T_HCALtheta;
@@ -764,6 +776,10 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "phtgt", &T_phtgt, "phtgt/D");
   Tout->Branch( "ytgt", &T_ytgt, "ytgt/D");
   Tout->Branch( "xtgt", &T_xtgt, "xtgt/D");
+  Tout->Branch( "bbtrchi2", &T_bbtrchi2, "bbtrchi2/D");
+  Tout->Branch( "bbtrchi2hits", &T_bbtrchi2hits, "bbtrchi2hits/D");
+  Tout->Branch( "bbtrnhits", &T_bbtrnhits, "bbtrnhits/D");
+  Tout->Branch( "bb.trngoodhits", &T_bbtrngoodhits, "bbtrngoodhits/D");
   Tout->Branch( "vx", &T_vx, "vx/D");
   Tout->Branch( "vy", &T_vy, "vy/D");
   Tout->Branch( "vz", &T_vz, "vz/D");
@@ -1275,6 +1291,11 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       T_grinch_xmean = GRINCH_xmean;
       T_grinch_ymean = GRINCH_ymean;
       T_grinch_adc = GRINCH_adc;
+
+      T_bbtrchi2 = bbtrchi2[0];
+      T_bbtrchi2hits = bbtrchi2hits[0];
+      T_bbtrnhits = bbtrnhits[0];
+      T_bbtrngoodhits = bbtrngoodhits[0];
   
       //if( ibest_HCAL >= 0 ) Tout->Fill();
       Tout->Fill();
