@@ -1840,8 +1840,8 @@ bb.gem.dyfpcut = 0.001
 bb.gem.dxpfpcut = 0.004
 bb.gem.dypfpcut = 0.0005
 
-bb.gem.constraintwidth_theta = 0.07
-bb.gem.constraintwidth_phi = 0.035
+bb.gem.constraintwidth_theta = 0.035
+bb.gem.constraintwidth_phi = 0.03
 
 #all optics, calorimeter, and slope-related constraints ON by default.
 bb.gem.useconstraint = 1

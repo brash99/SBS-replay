@@ -465,11 +465,16 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 
   //Use "rotated" versions of the focal plane variables:
   double xfp[MAXNTRACKS], yfp[MAXNTRACKS], thfp[MAXNTRACKS], phfp[MAXNTRACKS];
+  double xfp0[MAXNTRACKS], yfp0[MAXNTRACKS], thfp0[MAXNTRACKS], phfp0[MAXNTRACKS];
   //Also need target variables:
   double xtgt[MAXNTRACKS], ytgt[MAXNTRACKS], thtgt[MAXNTRACKS], phtgt[MAXNTRACKS];
 
   double bbtrchi2[MAXNTRACKS], bbtrchi2hits[MAXNTRACKS], bbtrnhits[MAXNTRACKS], 
     bbtrngoodhits[MAXNTRACKS];
+
+  int MAXNCP = 2;
+  double xfcp[MAXNCP],yfcp[MAXNCP],zfcp[MAXNCP];
+  double xbcp[MAXNCP],ybcp[MAXNCP],zbcp[MAXNCP];
 
   int nclustHCAL;
   double xHCAL[MAXHCALCLUSTERS], yHCAL[MAXHCALCLUSTERS], EHCAL[MAXHCALCLUSTERS];
@@ -596,11 +601,24 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchStatus("bb.tr.r_y",1);
   C->SetBranchStatus("bb.tr.r_th",1);
   C->SetBranchStatus("bb.tr.r_ph",1);
+
+  C->SetBranchStatus("bb.tr.x",1);
+  C->SetBranchStatus("bb.tr.y",1);
+  C->SetBranchStatus("bb.tr.th",1);
+  C->SetBranchStatus("bb.tr.ph",1);
   
   C->SetBranchStatus("bb.tr.tg_x",1);
   C->SetBranchStatus("bb.tr.tg_y",1);
   C->SetBranchStatus("bb.tr.tg_th",1);
   C->SetBranchStatus("bb.tr.tg_ph",1);
+
+  C->SetBranchStatus("bb.x_fcp",1);
+  C->SetBranchStatus("bb.y_fcp",1);
+  C->SetBranchStatus("bb.z_fcp",1);
+  C->SetBranchStatus("bb.x_bcp",1);
+  C->SetBranchStatus("bb.y_bcp",1);
+  C->SetBranchStatus("bb.z_bcp",1);
+  
 
   C->SetBranchStatus("bb.gem.track.nhits",1);
   C->SetBranchStatus("bb.gem.track.ngoodhits",1);
@@ -634,11 +652,24 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchAddress("bb.tr.r_th",thfp);
   C->SetBranchAddress("bb.tr.r_ph",phfp);
 
+  C->SetBranchAddress("bb.tr.x",xfp0);
+  C->SetBranchAddress("bb.tr.y",yfp0);
+  C->SetBranchAddress("bb.tr.th",thfp0);
+  C->SetBranchAddress("bb.tr.ph",phfp0);
+
   //Target track variables (other than momentum):
   C->SetBranchAddress("bb.tr.tg_x",xtgt);
   C->SetBranchAddress("bb.tr.tg_y",ytgt);
   C->SetBranchAddress("bb.tr.tg_th",thtgt);
   C->SetBranchAddress("bb.tr.tg_ph",phtgt);
+
+  C->SetBranchAddress("bb.x_fcp",xfcp);
+  C->SetBranchAddress("bb.y_fcp",yfcp);
+  C->SetBranchAddress("bb.z_fcp",zfcp);
+
+  C->SetBranchAddress("bb.x_bcp",xbcp);
+  C->SetBranchAddress("bb.y_bcp",ybcp);
+  C->SetBranchAddress("bb.z_bcp",zbcp);
 
   C->SetBranchAddress("bb.gem.track.nhits",bbtrnhits);
   C->SetBranchAddress("bb.gem.track.ngoodhits",bbtrngoodhits);
@@ -721,7 +752,9 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double T_ebeam, T_etheta, T_ephi, T_precon, T_pelastic, T_thetabend, T_dpel, T_W2;
   double T_pincident;
   double T_xfp, T_yfp, T_thfp, T_phfp;
+  double T_xfp0, T_yfp0, T_thfp0, T_phfp0;
   double T_thtgt, T_phtgt, T_ytgt, T_xtgt;
+  double T_xfcp, T_yfcp, T_zfcp, T_xbcp, T_ybcp, T_zbcp;
   double T_bbtrchi2, T_bbtrchi2hits, T_bbtrnhits, T_bbtrngoodhits;
   double T_vx, T_vy, T_vz;
   double T_BBdist, T_BBtheta;
@@ -772,10 +805,21 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "yfp", &T_yfp, "yfp/D");
   Tout->Branch( "thfp", &T_thfp, "thfp/D");
   Tout->Branch( "phfp", &T_phfp, "phfp/D");
+  Tout->Branch( "xfp0", &T_xfp0, "xfp0/D");
+  Tout->Branch( "yfp0", &T_yfp0, "yfp0/D");
+  Tout->Branch( "thfp0", &T_thfp0, "thfp0/D");
+  Tout->Branch( "phfp0", &T_phfp0, "phfp0/D");
   Tout->Branch( "thtgt", &T_thtgt, "thtgt/D");
   Tout->Branch( "phtgt", &T_phtgt, "phtgt/D");
   Tout->Branch( "ytgt", &T_ytgt, "ytgt/D");
   Tout->Branch( "xtgt", &T_xtgt, "xtgt/D");
+  Tout->Branch( "xfcp", &T_xfcp, "xfcp/D");
+  Tout->Branch( "yfcp", &T_yfcp, "yfcp/D");
+  Tout->Branch( "zfcp", &T_zfcp, "zfcp/D");
+  Tout->Branch( "xbcp", &T_xbcp, "xbcp/D");
+  Tout->Branch( "ybcp", &T_ybcp, "ybcp/D");
+  Tout->Branch( "zbcp", &T_zbcp, "zbcp/D");
+  
   Tout->Branch( "bbtrchi2", &T_bbtrchi2, "bbtrchi2/D");
   Tout->Branch( "bbtrchi2hits", &T_bbtrchi2hits, "bbtrchi2hits/D");
   Tout->Branch( "bbtrnhits", &T_bbtrnhits, "bbtrnhits/D");
@@ -916,6 +960,20 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
     if( int(ntrack) >= 1 && passed_global_cut ){
       //The first thing we want to do is to calculate the "true" electron momentum incident on BigBite:
       double Ebeam_corrected = ebeam - MeanEloss;
+
+      T_xfcp = xfcp[0];
+      T_yfcp = yfcp[0];
+      T_zfcp = zfcp[0];
+
+      T_xbcp = xbcp[0];
+      T_ybcp = ybcp[0];
+      T_zbcp = zbcp[0];
+
+      T_xfp0 = xfp0[0];
+      T_yfp0 = yfp0[0];
+      T_thfp0 = thfp0[0];
+      T_phfp0 = phfp0[0];
+      
 
       T_ebeam = Ebeam_corrected;
       
@@ -1090,10 +1148,9 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	//The following chooses the highest-energy cluster passing the coincidence time cut:
 	bool isbest = false;
 
-	
-	if( fabs( deltat_temp - dt0 ) <= dtcut ){
+	if( fabs( deltat_temp - dt0 ) <= dtcut || hcal_selectionflag >= 2 ){ //ignore time cut if selection flag > 1
 	  
-	  bool isbest = ibest_HCAL < 0 || EHCAL[iclust] > maxE;
+	  isbest = ibest_HCAL < 0 || EHCAL[iclust] > maxE;
 	  if( hcal_selectionflag == 1 ) isbest = ibest_HCAL < 0 || std::min( thpq_p_temp, thpq_n_temp ) < minthpq;
 
 	  if(  std::min(thpq_p_temp, thpq_n_temp) < minthpq ){
@@ -1167,10 +1224,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       }
       
       bestHCALcluster = ibest_HCAL;
-      
-      
-
-
       
       //Now we need to calculate the "true" trajectory bend angle for the electron from the reconstructed angles:
       TVector3 enhat_tgt( thtgt[0], phtgt[0], 1.0 );
