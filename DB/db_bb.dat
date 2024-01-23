@@ -497,7 +497,7 @@ bb.forwardoptics_parameters =
 #bb.backconstraintwidth_x = 0.0503008
 #bb.backconstraintwidth_y = 0.064012
 
-bb.frontconstraintwidth_x = 0.12
+bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.055
 bb.backconstraintwidth_y = 0.06
@@ -647,7 +647,7 @@ bb.backconstraintwidth_y = 0.08
 
 ----------[ 2021-10-25 00:18:00 ] 
 
-bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.055
 bb.backconstraintwidth_y = 0.065
@@ -740,12 +740,12 @@ bb.forwardoptics_parameters =
    2.7030922e-15   -7.4934769e-15   -8.2866716e-16   -1.7422587e-15  0 0 0 0 2
 
 
-bb.frontconstraint_x0 = 0.057
+bb.frontconstraint_x0 = 0.065
 bb.frontconstraint_y0 = -0.0163
 bb.backconstraint_x0 = 0.0039
 bb.backconstraint_y0 = -0.0011
 
-bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_x = 0.12
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.055
 bb.backconstraintwidth_y = 0.065
@@ -836,10 +836,11 @@ bb.forwardoptics_parameters =
 
 # for second round of SBS-11 quality checks:
 
-bb.frontconstraint_x0 = 0.053
-bb.frontconstraint_y0 = -0.0149
-bb.backconstraint_x0 = 0.0018
-bb.backconstraint_y0 = -0.0015
+bb.frontconstraint_x0 = 0.060
+bb.frontconstraint_y0 = -0.013
+bb.backconstraint_x0 = 0.0031
+bb.backconstraint_y0 = 0.0007
+
 
 #bb.frontconstraintwidth_x = 0.0718517
 #bb.frontconstraintwidth_y = 0.069917
@@ -861,7 +862,7 @@ bb.frontconstraintwidth_y = 0.25 # basically set wide open at the front, so that
 
 bb.backconstraintwidth_x = 0.06 # m 
 bb.backconstraintwidth_y = 0.06 # m
-bb.frontconstraintwidth_x = 0.15 # m 
+bb.frontconstraintwidth_x = 0.075 # m 
 bb.frontconstraintwidth_y = 0.06 # m
 
 ----------[ 2021-11-25 04:21:00 ] # going to production here, assuming we can get the constraints right
@@ -871,7 +872,7 @@ bb.frontconstraint_y0 = -0.013
 bb.backconstraint_x0 = 0.0031
 bb.backconstraint_y0 = 0.0007
 
-bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_x = 0.075
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
@@ -888,7 +889,7 @@ bb.frontconstraint_y0 = -0.013
 bb.backconstraint_x0 = 0.0031
 bb.backconstraint_y0 = 0.0007
 
-bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_x = 0.075
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
@@ -905,7 +906,7 @@ bb.frontconstraint_y0 = -0.013
 bb.backconstraint_x0 = 0.0031
 bb.backconstraint_y0 = 0.0007
 
-bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_x = 0.075
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
@@ -1002,16 +1003,15 @@ bb.forwardoptics_parameters =
 
 
 # constraint parameters: 
-bb.frontconstraint_x0 = 0.0538
+bb.frontconstraint_x0 = 0.0638
 bb.frontconstraint_y0 = -0.0167
 bb.backconstraint_x0 = 0.0044
 bb.backconstraint_y0 = 0.0021
 
-bb.frontconstraintwidth_x = 0.15
-#bb.frontconstraintwidth_x = 0.074377
-bb.frontconstraintwidth_y = 0.0660473
-bb.backconstraintwidth_x = 0.0528561
-bb.backconstraintwidth_y = 0.0685936
+bb.frontconstraintwidth_x = 0.1
+bb.frontconstraintwidth_y = 0.07
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.07
 
 
 # time-dependent entries for SBS-14 optics data:
@@ -1027,16 +1027,16 @@ bb.frontconstraintwidth_y = 0.25
 ---------[ 2022-01-11 9:13:00 ] # field-on, five-foil optics:
 
 # constraint parameters: 
-bb.frontconstraint_x0 = 0.0538
+bb.frontconstraint_x0 = 0.0638
 bb.frontconstraint_y0 = -0.0167
 bb.backconstraint_x0 = 0.0044
 bb.backconstraint_y0 = 0.0021
 
-#bb.frontconstraintwidth_x = 0.074377
-bb.frontconstraintwidth_x = 0.15
-bb.frontconstraintwidth_y = 0.0660473
-bb.backconstraintwidth_x = 0.0528561
-bb.backconstraintwidth_y = 0.0685936
+bb.frontconstraintwidth_x = 0.1
+bb.frontconstraintwidth_y = 0.07
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.07
+
 
 ---------[ 2022-01-11 10:09:00 ] # zero-field, 1-foil optics: 
 
@@ -1049,20 +1049,17 @@ bb.frontconstraintwidth_y = 0.25
 
 ---------[ 2022-01-11 10:35:00 ] # presumably going to production after this:
 
-
-#bb.gem.useopticsconstraint = 1
-#bb.gem.useslopeconstraint = 1
-
-bb.frontconstraint_x0 = 0.0538
+# constraint parameters: 
+bb.frontconstraint_x0 = 0.0638
 bb.frontconstraint_y0 = -0.0167
 bb.backconstraint_x0 = 0.0044
 bb.backconstraint_y0 = 0.0021
 
-bb.frontconstraintwidth_x = 0.15
-#bb.frontconstraintwidth_x = 0.074377
-bb.frontconstraintwidth_y = 0.0660473
-bb.backconstraintwidth_x = 0.0528561
-bb.backconstraintwidth_y = 0.0685936
+bb.frontconstraintwidth_x = 0.1
+bb.frontconstraintwidth_y = 0.07
+bb.backconstraintwidth_x = 0.06
+bb.backconstraintwidth_y = 0.07
+
 
 # zero-field runs on LH2: 
 --------[ 2022-01-18 18:53:20 ] ## start zero-field runs on LH2
@@ -1474,17 +1471,15 @@ bb.downbendoptics_parameters =
 
 
 # we have to start with more open cuts until we know what we have:
-bb.frontconstraint_x0 = 0.0436
-bb.frontconstraint_y0 = -0.0136
+bb.frontconstraint_x0 = 0.0582
+bb.frontconstraint_y0 = -0.0127
 bb.backconstraint_x0 = 0.0056
 bb.backconstraint_y0 = 0.0010
 
-bb.frontconstraintwidth_x = 0.0854875
-bb.frontconstraintwidth_y = 0.07077
-#bb.frontconstraintwidth_x = 0.75
-#bb.frontconstraintwidth_y = 0.1
-bb.backconstraintwidth_x = 0.0511283
-bb.backconstraintwidth_y = 0.0690686
+bb.frontconstraintwidth_x = 0.1
+bb.frontconstraintwidth_y = 0.072
+bb.backconstraintwidth_x = 0.054
+bb.backconstraintwidth_y = 0.072
 
 
 -------[ 2022-02-02 17:25:00 ] # start zero-field running for optics
@@ -1495,10 +1490,10 @@ bb.frontconstraintwidth_y = 0.25 # m
 
 ------[ 2022-02-02 18:30:00 ] # turn field back on for optics running and production:
 
-bb.frontconstraintwidth_x = 0.0854875
-bb.frontconstraintwidth_y = 0.07077
-bb.backconstraintwidth_x = 0.0511283
-bb.backconstraintwidth_y = 0.0690686
+bb.frontconstraintwidth_x = 0.1
+bb.frontconstraintwidth_y = 0.072
+bb.backconstraintwidth_x = 0.054
+bb.backconstraintwidth_y = 0.072
 
 
 ------[ 2022-09-01 00:00:00 ] # BPM settings, used for track vertex

@@ -470,7 +470,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double xtgt[MAXNTRACKS], ytgt[MAXNTRACKS], thtgt[MAXNTRACKS], phtgt[MAXNTRACKS];
 
   double bbtrchi2[MAXNTRACKS], bbtrchi2hits[MAXNTRACKS], bbtrnhits[MAXNTRACKS], 
-    bbtrngoodhits[MAXNTRACKS];
+    bbtrngoodhits[MAXNTRACKS], bbtrt0[MAXNTRACKS];
 
   int MAXNCP = 2;
   double xfcp[MAXNCP],yfcp[MAXNCP],zfcp[MAXNCP];
@@ -620,6 +620,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchStatus("bb.z_bcp",1);
   
 
+  C->SetBranchStatus("bb.gem.track.t0",1);
   C->SetBranchStatus("bb.gem.track.nhits",1);
   C->SetBranchStatus("bb.gem.track.ngoodhits",1);
   C->SetBranchStatus("bb.gem.track.chi2ndf",1);
@@ -671,6 +672,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchAddress("bb.y_bcp",ybcp);
   C->SetBranchAddress("bb.z_bcp",zbcp);
 
+  C->SetBranchAddress("bb.gem.track.t0",bbtrt0);
   C->SetBranchAddress("bb.gem.track.nhits",bbtrnhits);
   C->SetBranchAddress("bb.gem.track.ngoodhits",bbtrngoodhits);
   C->SetBranchAddress("bb.gem.track.chi2ndf",bbtrchi2);
@@ -755,7 +757,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double T_xfp0, T_yfp0, T_thfp0, T_phfp0;
   double T_thtgt, T_phtgt, T_ytgt, T_xtgt;
   double T_xfcp, T_yfcp, T_zfcp, T_xbcp, T_ybcp, T_zbcp;
-  double T_bbtrchi2, T_bbtrchi2hits, T_bbtrnhits, T_bbtrngoodhits;
+  double T_bbtrchi2, T_bbtrchi2hits, T_bbtrnhits, T_bbtrngoodhits, T_bbtrt0;
   double T_vx, T_vy, T_vz;
   double T_BBdist, T_BBtheta;
   double T_HCALdist, T_HCALtheta;
@@ -823,7 +825,8 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "bbtrchi2", &T_bbtrchi2, "bbtrchi2/D");
   Tout->Branch( "bbtrchi2hits", &T_bbtrchi2hits, "bbtrchi2hits/D");
   Tout->Branch( "bbtrnhits", &T_bbtrnhits, "bbtrnhits/D");
-  Tout->Branch( "bb.trngoodhits", &T_bbtrngoodhits, "bbtrngoodhits/D");
+  Tout->Branch( "bbtrngoodhits", &T_bbtrngoodhits, "bbtrngoodhits/D");
+  Tout->Branch( "bbtrt0", &T_bbtrt0, "bbtrt0/D");
   Tout->Branch( "vx", &T_vx, "vx/D");
   Tout->Branch( "vy", &T_vy, "vy/D");
   Tout->Branch( "vz", &T_vz, "vz/D");
@@ -1122,7 +1125,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       //Calculate expected proton deflection using crude model:
       double BdL = sbsfield * sbsmaxfield * Dgap;
       
-      //thetabend = 0.3 * BdL: 
+      //thetabend = 0.3 * BdL/p: 
       double proton_deflection = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
       
       T_protondeflect = proton_deflection;
@@ -1349,6 +1352,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       T_bbtrchi2hits = bbtrchi2hits[0];
       T_bbtrnhits = bbtrnhits[0];
       T_bbtrngoodhits = bbtrngoodhits[0];
+      T_bbtrt0 = bbtrt0[0];
   
       //if( ibest_HCAL >= 0 ) Tout->Fill();
       Tout->Fill();

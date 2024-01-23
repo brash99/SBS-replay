@@ -63,7 +63,7 @@ void FitGaus_FWHM( TH1D *htest, double thresh=0.5 ){
   htest->Fit("gaus","q0S","",xlow, xhigh);
 }
 
-void GetTrackingCutsFast( const char *configfilename, const char *outfilename="GENtrackingcuts.root", int nmodules=8, double thresh=0.003 ){
+void GetTrackingCutsFast( const char *configfilename, const char *outfilename="GENtrackingcuts.root", int nmodules=8, double thresh=0.003, double nsig_tstrip=4.5, double nsig_dt=5.0 ){
 
   ifstream infile(configfilename);
   
@@ -497,7 +497,7 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
   c1->Print(outfilepdf + "(");  //Open the pdf and make the first page
 
   ///////////////////////////////////////////////////////////////////
-  double nsigma = 4.5;
+  double nsigma = nsig_tstrip;
   
   double maxstrip_t0[nmodules][2];
   double maxstrip_tsigma[nmodules][2];
@@ -740,9 +740,9 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
       TString dbline;
       dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_sigma = %12.5g", imod, sigma ) << endl;
-      dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_cut = %12.5g", imod, 10.0*sigma ) << endl;
+      dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_cut = %12.5g", imod, nsig_dt*sigma ) << endl;
 
-      vector<double> results = {10.0*sigma};
+      vector<double> results = {nsig_dt*sigma};
 
       TH1D *hplot = htemp;
       hplot->SetName(Form("hdeltat_m%i",imod));
@@ -764,9 +764,9 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
       TString dbline;
       dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_sigma_deconv = %12.5g", imod, sigma ) << endl;
-      dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_cut_deconv = %12.5g", imod, 10.0*sigma ) << endl;
+      dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_cut_deconv = %12.5g", imod, nsig_dt*sigma ) << endl;
 
-      vector<double> results = {10.0*sigma};
+      vector<double> results = {nsig_dt*sigma};
 
       TH1D *hplot = htemp;
       hplot->SetName(Form("hdeltatdeconv_m%i",imod));
@@ -788,9 +788,9 @@ void GetTrackingCutsFast( const char *configfilename, const char *outfilename="G
 
       TString dbline;
       dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_sigma_fit = %12.5g", imod, sigma ) << endl;
-      dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_cut_fit = %12.5g", imod, 10.0*sigma ) << endl << endl;
+      dbfile_tcuts << dbline.Format("bb.gem.m%d.deltat_cut_fit = %12.5g", imod, nsig_dt*sigma ) << endl << endl;
 
-      vector<double> results = {10.0*sigma};
+      vector<double> results = {nsig_dt*sigma};
 
       TH1D *hplot = htemp;
       hplot->SetName(Form("hdeltatfit_m%i",imod));

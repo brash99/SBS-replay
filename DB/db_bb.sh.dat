@@ -496,6 +496,8 @@ bb.sh.adc.gain =
 
 # Configuration Change [SBS-1 -> SBS-4]
 -------[ 2021-10-18 05:30:00 ]
+
+bb.sh.emin_clTotal = 0.2
 # # ADCtime offsets w.r.t TH using all SBS4 LH2 & LD2 data
 # # Latest on 08/24/2023 for pass2 readiness. https://logbooks.jlab.org/entry/4170774
 # bb.sh.adc.timeoffset =
@@ -815,6 +817,9 @@ bb.sh.adc.timeoffset =
 
 # Configuration Change [SBS-4 -> SBS-7]
 -------[ 2021-11-08 17:00:00 ]
+
+bb.sh.emin_clTotal = 0.3
+
 # ADCtime offsets w.r.t TH using all SBS7 LH2 & LD2 data
 # Latest on 08/24/2023 for pass2 readiness. https://logbooks.jlab.org/entry/4170774
 bb.sh.adc.timeoffset =
@@ -947,6 +952,9 @@ bb.sh.adc.gain =
 
 # Configuration Change [SBS-7 -> SBS-11]
 -------[ 2021-11-17 08:00:00 ]
+
+bb.sh.emin_clTotal = 0.4
+
 # ADCtime offsets w.r.t TH using all SBS11 LH2 & LD2 data
 # Latest on 08/25/2023 for pass2 readiness. We noticed a time
 # shift of ~5ns during run. Two sets of ADC time offsets (Set 1 & Set 2)
@@ -1177,6 +1185,9 @@ bb.sh.adc.gain =
 
 # Configuration Change [SBS-11 -> SBS-14]
 -------[ 2022-01-10 22:30:00 ]
+
+bb.sh.emin_clTotal = 0.3
+
 # ADCtime offsets w.r.t TH using all SBS14 LH2 & LD2 data
 # Latest on 08/25/2023 for pass2 readiness. We noticed a time
 # shift of ~12ns during run. Two sets of ADC time offsets (Set 1 & Set 2)
@@ -1408,6 +1419,9 @@ bb.sh.adc.gain =
 
 # Configuration Change [SBS-14 -> SBS-8]
 -------[ 2022-01-20 07:30:00 ]
+
+bb.sh.emin_clTotal = 0.3
+
 # ADCtime offsets w.r.t TH using all SBS8 LH2 & LD2 data
 # Latest on 08/25/2023 for pass2 readiness. https://logbooks.jlab.org/entry/4170774
 bb.sh.adc.timeoffset =
@@ -1738,6 +1752,9 @@ bb.sh.adc.gain =
 
 # Configuration Change [SBS-8 -> SBS-9]
 -------[ 2022-02-01 17:42:00 ]
+
+bb.sh.emin_clTotal = 0.2
+
 # ADCtime offsets w.r.t TH using all SBS9 LH2 & LD2 data
 # Latest on 08/25/2023 for pass2 readiness. https://logbooks.jlab.org/entry/4170774
 bb.sh.adc.timeoffset =

@@ -1739,7 +1739,7 @@ bb.gem.commonmode_danning_nsigma_cut = 3.0
 
 # histogramming-method parameters: 
 bb.gem.commonmode_binwidth_nsigma = 2.0
-bb.gem.commonmode_scanrange_nsigma = 5.0
+bb.gem.commonmode_scanrange_nsigma = 10.0
 bb.gem.commonmode_stepsize_nsigma = 0.25
 
 # common-mode corrections (mainly applicable to GMN):
@@ -1760,7 +1760,9 @@ bb.gem.deltat_cut = 30.0
 bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1
 bb.gem.filterflag2D = -1
-bb.gem.suppressfirstlast = 0
+
+bb.gem.suppressfirstlast = -1
+bb.gem.m5.suppressfirstlast = 0
 
 bb.gem.addstrip_tcut = 35.0
 bb.gem.addstrip_ccor_cut = 0.4
@@ -1795,7 +1797,7 @@ bb.gem.deconvolution_flag = 0
 
 bb.gem.sigmahitpos = 0.0001
 bb.gem.minhitsontrack = 3
-bb.gem.minhighqualityhitsontrack = 0
+bb.gem.minhighqualityhitsontrack = 3 2 2
 bb.gem.maxhitcombos = 25000
 bb.gem.maxhitcombos_inner = 100000
 bb.gem.maxhitcombos_total = 1.e19
@@ -1809,8 +1811,8 @@ bb.gem.gridedgetolerancey = 0.0015
 
 bb.gem.use_enhanced_chi2 = 1
 
-bb.gem.trackchi2cut = 50.0
-bb.gem.trackchi2cut_hitquality = 50.0
+bb.gem.trackchi2cut = 15.0 30.0 50.0
+bb.gem.trackchi2cut_hitquality = 10.0 30.0 30.0
 
 bb.gem.dxfp0 = -0.00064
 bb.gem.dyfp0 = 0
@@ -1828,7 +1830,7 @@ bb.gem.dump_geometry_info = 0
 bb.gem.efficiency_bin_width_1D = 0.02
 bb.gem.efficiency_bin_width_2D = 0.02
 
-
+bb.gem.cuttrackt0 = 20.0
 
 bb.gem.dxfp0 = 0
 bb.gem.dyfp0 = 0
