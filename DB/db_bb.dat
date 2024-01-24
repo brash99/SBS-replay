@@ -740,7 +740,7 @@ bb.forwardoptics_parameters =
    2.7030922e-15   -7.4934769e-15   -8.2866716e-16   -1.7422587e-15  0 0 0 0 2
 
 
-bb.frontconstraint_x0 = 0.065
+bb.frontconstraint_x0 = 0.057
 bb.frontconstraint_y0 = -0.0163
 bb.backconstraint_x0 = 0.0039
 bb.backconstraint_y0 = -0.0011
@@ -844,7 +844,7 @@ bb.backconstraint_y0 = 0.0007
 
 #bb.frontconstraintwidth_x = 0.0718517
 #bb.frontconstraintwidth_y = 0.069917
-bb.frontconstraintwidth_x = 0.075
+bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.055
 bb.backconstraintwidth_y = 0.06
@@ -862,7 +862,7 @@ bb.frontconstraintwidth_y = 0.25 # basically set wide open at the front, so that
 
 bb.backconstraintwidth_x = 0.06 # m 
 bb.backconstraintwidth_y = 0.06 # m
-bb.frontconstraintwidth_x = 0.075 # m 
+bb.frontconstraintwidth_x = 0.1 # m 
 bb.frontconstraintwidth_y = 0.06 # m
 
 ----------[ 2021-11-25 04:21:00 ] # going to production here, assuming we can get the constraints right
@@ -872,7 +872,7 @@ bb.frontconstraint_y0 = -0.013
 bb.backconstraint_x0 = 0.0031
 bb.backconstraint_y0 = 0.0007
 
-bb.frontconstraintwidth_x = 0.075
+bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
@@ -889,7 +889,7 @@ bb.frontconstraint_y0 = -0.013
 bb.backconstraint_x0 = 0.0031
 bb.backconstraint_y0 = 0.0007
 
-bb.frontconstraintwidth_x = 0.075
+bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
@@ -906,7 +906,7 @@ bb.frontconstraint_y0 = -0.013
 bb.backconstraint_x0 = 0.0031
 bb.backconstraint_y0 = 0.0007
 
-bb.frontconstraintwidth_x = 0.075
+bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.06
 bb.backconstraintwidth_y = 0.06
