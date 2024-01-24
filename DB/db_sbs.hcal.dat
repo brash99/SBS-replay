@@ -765,6 +765,11 @@ sbs.hcal.tdc.offset =
 ## Starting SBS-9 kinematics for GMN:
 
 --------[ 2022-02-01 17:42:00 ]
+
+sbs.hcal.emin_clTotal = 0.005
+sbs.hcal.emin = 0.001
+sbs.hcal.emin_clSeed = 0.0025
+
 sbs.hcal.tdc.tw = 0.55 0.50
 sbs.hcal.tmax = 12.0
 

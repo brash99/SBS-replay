@@ -21,12 +21,13 @@ block g.*
 
 begin epics
 HALLA:p
+hac_bcm_average
+IPM1H04A.XPOS
+IPM1H04A.YPOS
+IPM1H04B.XPOS
+IPM1H04B.YPOS
 end epics
 
 #begin epics
-#   hac_bcm_average
-#   IPM1H04A.XPOS
-#   IPM1H04A.YPOS
-#   IPM1H04B.XPOS
-#   IPM1H04B.YPOS
+#
 #end epics
