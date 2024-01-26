@@ -1926,7 +1926,7 @@ bb.gem.minhighqualityhitsontrack = 3 2 2
 # trigger time was different during SBS-7:
 bb.gem.trigtime_t0 = 296.5
 
-bb.gem.useconstraint = 0 # start with no constraint for zero-field runs
+bb.gem.useconstraint = 1 # start with no optics or slope constraint for zero-field runs; but keep back constraint
 bb.gem.useopticsconstraint = 0
 bb.gem.useslopeconstraint = 0
 
