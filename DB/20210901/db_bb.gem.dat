@@ -1935,7 +1935,7 @@ bb.gem.usestriptimingcut = 0
 
 bb.gem.addstrip_ccor_cut = 0.4
 bb.gem.addstrip_tcut = 40.0
-
+bb.gem.useforwardopticsconstraint = 0
 
 bb.gem.maxstrip_tsigma = 1.0
 
@@ -2012,7 +2012,12 @@ bb.gem.m11.threshold_clustersum =          800
 bb.gem.constraintwidth_theta = 0.05
 bb.gem.constraintwidth_phi = 0.03
 
+-----------[ 2021-11-13 00:09:00 ] # zero-field:
 
+bb.gem.suppressfirstlast = 0
+bb.gem.use_enhanced_chi2 = 0
+bb.gem.usestriptimingcut = 0
+bb.gem.minhighqualityhitsontrack = 0 0 0 
 
 -----------[ 2021-11-13 10:15:00 ] # turn on constraints after turning on BB magnet:  
 
@@ -2041,8 +2046,12 @@ bb.gem.useforwardopticsconstraint = 1
 
 ----------[ 2021-11-13 13:55:00 ] # after re-adjusting GEM latency:
 
+bb.gem.suppressfirstlast = -1
+
 # these may need adjusting:
 bb.gem.usestriptimingcut = 1
+bb.gem.use_enhanced_chi2 = 1
+bb.gem.minhighqualityhitsontrack = 3 2 2 
 
 bb.gem.ADCasym_cut = 0.5
 bb.gem.corrcoeff_cut = 0.5
