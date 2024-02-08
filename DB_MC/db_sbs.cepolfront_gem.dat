@@ -104,15 +104,14 @@ sbs.cepolfront_gem.m9.layer = 3
 sbs.cepolfront_gem.m0.apvmap = 3
 
 sbs.cepolfront_gem.m1.apvmap = 3
+
 sbs.cepolfront_gem.m2.apvmap = 3
 sbs.cepolfront_gem.m3.apvmap = 3
-
 sbs.cepolfront_gem.m4.apvmap = 3
-
 sbs.cepolfront_gem.m5.apvmap = 3
+
 sbs.cepolfront_gem.m6.apvmap = 3
 sbs.cepolfront_gem.m7.apvmap = 3
-
 sbs.cepolfront_gem.m8.apvmap = 3
 sbs.cepolfront_gem.m9.apvmap = 3
 
@@ -135,17 +134,17 @@ sbs.cepolfront_gem.m9.size = 0.512 0.6144 0.001
 #positions #m0 and m4 have a temporary offset
 sbs.cepolfront_gem.m0.position = 0.0 0.0 0.0
 
-sbs.cepolfront_gem.m1.position = 0.0 0.0 0.0
+sbs.cepolfront_gem.m1.position = 0.0 0.0 0.1
 
-sbs.cepolfront_gem.m2.position = -0.768 0.0 1.5517
-sbs.cepolfront_gem.m3.position = -0.256 0.0 1.5517
-sbs.cepolfront_gem.m4.position =  0.256 0.0 1.5517
-sbs.cepolfront_gem.m5.position =  0.768 0.0 1.5517
+sbs.cepolfront_gem.m2.position = -0.768 0.0 0.2
+sbs.cepolfront_gem.m3.position = -0.256 0.0 0.2
+sbs.cepolfront_gem.m4.position =  0.256 0.0 0.2
+sbs.cepolfront_gem.m5.position =  0.768 0.0 0.2
 
-sbs.cepolfront_gem.m6.position = -0.768 0.0 1.5517
-sbs.cepolfront_gem.m7.position = -0.256 0.0 1.5517
-sbs.cepolfront_gem.m8.position =  0.256 0.0 1.5517
-sbs.cepolfront_gem.m9.position =  0.768 0.0 1.5517
+sbs.cepolfront_gem.m6.position = -0.768 0.0 0.3
+sbs.cepolfront_gem.m7.position = -0.256 0.0 0.3
+sbs.cepolfront_gem.m8.position =  0.256 0.0 0.3
+sbs.cepolfront_gem.m9.position =  0.768 0.0 0.3
 
 sbs.cepolfront_gem.m0.angle = 0.0 0.0 0.0
 
@@ -234,7 +233,7 @@ sbs.cepolfront_gem.filterflag1D = 1
 sbs.cepolfront_gem.filterflag2D = 0
 
 sbs.cepolfront_gem.m0.chanmap = 
-## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1024 y-strips)
+## Crate Slot mpd gem adc i2c pos inv axis # (3840 x-strips, 3840 y-strips)
       20    0   0   0   0   0   0   0    0 # Strip    0- 127
       20    0   0   0   1   0   1   0    0 # Strip  128- 255
       20    0   0   0   2   0   2   0    0 # Strip  256- 383
@@ -358,7 +357,7 @@ sbs.cepolfront_gem.m1.chanmap =
       20    7   7   0   4   0  26   0    1 # Strip 3328-3455
       20    7   7   0   5   0  27   0    1 # Strip 3456-3583
       20    7   7   0   6   0  28   0    1 # Strip 3584-3711
-      20    7   7   0   7   0  28   0    1 # Strip 3712-3839
+      20    7   7   0   7   0  29   0    1 # Strip 3712-3839
 
 
 sbs.cepolfront_gem.m2.chanmap = 
@@ -448,7 +447,7 @@ sbs.cepolfront_gem.m5.chanmap =
       20   12  12   0   0   0   6   0    0 # Strip 
       20   12  12   0   1   0   7   0    0 # Strip 
       20   12  12   0   2   0   8   0    0 # Strip 
-      20   12  12   0   3   0   9   0    0 # Strip 
+      20   12  12   0   3   0   9   0    0 # Strip 1152-1279
       20   12  12   0   4   0   0   0    1 # Strip 
       20   12  12   0   5   0   1   0    1 # Strip 
       20   12  12   0   6   0   2   0    1 # Strip 
@@ -458,109 +457,109 @@ sbs.cepolfront_gem.m5.chanmap =
       20   12  12   0  10   0   6   0    1 # Strip 
       20   12  12   0  11   0   7   0    1 # Strip 
       20   12  12   0  12   0   8   0    1 # Strip 
-      20   12  12   0  13   0   9   0    1 # Strip 
+      20   12  12   0  13   0   9   0    1 # Strip 1152-1279
       20   12  12   0  14   0  10   0    1 # Strip 
       20   12  12   0  15   0  11   0    1 # Strip 
 
 
 sbs.cepolfront_gem.m6.chanmap = 
 ## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1024 y-strips)
-      20   13  13   0   0   0   0   0    0 # Strip  768- 895
-      20   13  13   0   1   0   1   0    0 # Strip  896-1023
-      20   13  13   0   2   0   2   0    0 # Strip    0- 127
-      20   13  13   0   3   0   3   0    0 # Strip  128- 255
-      20   13  13   0   4   0   4   0    0 # Strip  256- 383
-      20   13  13   0   5   0   5   0    0 # Strip  384- 511
-      20   13  13   0   6   0   6   0    0 # Strip  512- 639
-      20   13  13   0   7   0   7   0    0 # Strip  640- 767
-      20   13  13   0   8   0   8   0    0 # Strip  768- 895
-      20   13  13   0   9   0   9   0    0 # Strip  896-1023
-      20   13  13   0  10   0   0   0    0 # Strip 1024-1151
-      20   13  13   0  11   0   1   0    0 # Strip 1152-1279
-      20   13  13   0  12   0   2   0    1 # Strip    0- 127
-      20   13  13   0  13   0   3   0    1 # Strip  128- 255
-      20   13  13   0  14   0   4   0    1 # Strip  256- 383
-      20   13  13   0  15   0   5   0    1 # Strip  384- 511
-      20   14  14   0   0   0   6   0    1 # Strip  512- 639
-      20   14  14   0   1   0   7   0    1 # Strip  640- 767
-      20   14  14   0   2   0   8   0    1 # Strip  768- 895
-      20   14  14   0   3   0   9   0    1 # Strip  896-1023
-      20   14  14   0   4   0  10   0    1 # Strip    0- 127
-      20   14  14   0   5   0  11   0    1 # Strip  128- 255
+      20   13  13   0   0   0   0   0    0 # Strip 
+      20   13  13   0   1   0   1   0    0 # Strip 
+      20   13  13   0   2   0   2   0    0 # Strip 
+      20   13  13   0   3   0   3   0    0 # Strip 
+      20   13  13   0   4   0   4   0    0 # Strip 
+      20   13  13   0   5   0   5   0    0 # Strip 
+      20   13  13   0   6   0   6   0    0 # Strip 
+      20   13  13   0   7   0   7   0    0 # Strip 
+      20   13  13   0   8   0   8   0    0 # Strip 
+      20   13  13   0   9   0   9   0    0 # Strip 1152-1279
+      20   13  13   0  10   0   0   0    1 # Strip 
+      20   13  13   0  11   0   1   0    1 # Strip 
+      20   13  13   0  12   0   2   0    1 # Strip 
+      20   13  13   0  13   0   3   0    1 # Strip 
+      20   13  13   0  14   0   4   0    1 # Strip 
+      20   13  13   0  15   0   5   0    1 # Strip 
+      20   14  14   0   0   0   6   0    1 # Strip 
+      20   14  14   0   1   0   7   0    1 # Strip 
+      20   14  14   0   2   0   8   0    1 # Strip 
+      20   14  14   0   3   0   9   0    1 # Strip 1152-1279
+      20   14  14   0   4   0  10   0    1 # Strip 
+      20   14  14   0   5   0  11   0    1 # Strip 
 
 sbs.cepolfront_gem.m7.chanmap = 
 ## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1024 y-strips)
-      20   14  14   0   6   0   0   0    0 # Strip  256- 383
-      20   14  14   0   7   0   1   0    0 # Strip  384- 511
-      20   14  14   0   8   0   2   0    0 # Strip  512- 639
-      20   14  14   0   9   0   3   0    0 # Strip  640- 767
-      20   14  14   0  10   0   4   0    0 # Strip  768- 895
-      20   14  14   0  11   0   5   0    0 # Strip  896-1023
-      20   14  14   0  12   0   6   0    0 # Strip 1024-1151
-      20   14  14   0  13   0   7   0    0 # Strip 1152-1279
-      20   14  14   0  14   0   8   0    0 # Strip    0- 127
-      20   14  14   0  15   0   9   0    0 # Strip  128- 255
-      20   15  15   0   0   0   0   0    1 # Strip  256- 383
-      20   15  15   0   1   0   1   0    1 # Strip  384- 511
-      20   15  15   0   2   0   2   0    1 # Strip  512- 639
-      20   15  15   0   3   0   3   0    1 # Strip  640- 767
-      20   15  15   0   4   0   4   0    1 # Strip  768- 895
-      20   15  15   0   5   0   5   0    1 # Strip  896-1023
-      20   15  15   0   6   0   6   0    1 # Strip 1024-1151
-      20   15  15   0   7   0   7   0    1 # Strip 1152-1279
-      20   15  15   0   8   0   8   0    1 # Strip 1280-1407
-      20   15  15   0   9   0   9   0    1 # Strip 1408-1535
-      20   15  15   0  10   0  10   0    1 # Strip    0- 127
-      20   15  15   0  11   0  11   0    1 # Strip  128- 255
+      20   14  14   0   6   0   0   0    0 # Strip 
+      20   14  14   0   7   0   1   0    0 # Strip 
+      20   14  14   0   8   0   2   0    0 # Strip 
+      20   14  14   0   9   0   3   0    0 # Strip 
+      20   14  14   0  10   0   4   0    0 # Strip 
+      20   14  14   0  11   0   5   0    0 # Strip 
+      20   14  14   0  12   0   6   0    0 # Strip 
+      20   14  14   0  13   0   7   0    0 # Strip 
+      20   14  14   0  14   0   8   0    0 # Strip 
+      20   14  14   0  15   0   9   0    0 # Strip 1152-1279
+      20   15  15   0   0   0   0   0    1 # Strip 
+      20   15  15   0   1   0   1   0    1 # Strip 
+      20   15  15   0   2   0   2   0    1 # Strip 
+      20   15  15   0   3   0   3   0    1 # Strip 
+      20   15  15   0   4   0   4   0    1 # Strip 
+      20   15  15   0   5   0   5   0    1 # Strip 
+      20   15  15   0   6   0   6   0    1 # Strip 
+      20   15  15   0   7   0   7   0    1 # Strip 
+      20   15  15   0   8   0   8   0    1 # Strip 
+      20   15  15   0   9   0   9   0    1 # Strip 1152-1279
+      20   15  15   0  10   0  10   0    1 # Strip 
+      20   15  15   0  11   0  11   0    1 # Strip 
 
 
 sbs.cepolfront_gem.m8.chanmap = 
 ## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1024 y-strips)
-      20   15  15   0  12   0   0   0    0 # Strip  256- 383
-      20   15  15   0  13   0   1   0    0 # Strip  384- 511
-      20   15  15   0  14   0   2   0    0 # Strip  512- 639
-      20   15  15   0  15   0   3   0    0 # Strip  640- 767
-      20   16  16   0   0   0   4   0    0 # Strip  768- 895
-      20   16  16   0   1   0   5   0    0 # Strip  896-1023
-      20   16  16   0   2   0   6   0    0 # Strip 1024-1151
-      20   16  16   0   3   0   7   0    0 # Strip 1152-1279
-      20   16  16   0   4   0   8   0    0 # Strip    0- 127
-      20   16  16   0   5   0   9   0    0 # Strip  128- 255
-      20   16  16   0   6   0   0   0    1 # Strip  256- 383
-      20   16  16   0   7   0   1   0    1 # Strip  384- 511
-      20   16  16   0   8   0   2   0    1 # Strip  512- 639
-      20   16  16   0   9   0   3   0    1 # Strip  640- 767
-      20   16  16   0  10   0   4   0    1 # Strip  768- 895
-      20   16  16   0  11   0   5   0    1 # Strip  896-1023
-      20   16  16   0  12   0   6   0    1 # Strip 1024-1151
-      20   16  16   0  13   0   7   0    1 # Strip 1152-1279
-      20   16  16   0  14   0   8   0    1 # Strip 1280-1407
-      20   16  16   0  15   0   9   0    1 # Strip 1408-1535
-      20   17  17   0   0   0  10   0    1 # Strip    0- 127
-      20   17  17   0   1   0  11   0    1 # Strip  128- 255
+      20   15  15   0  12   0   0   0    0 # Strip    0- 127
+      20   15  15   0  13   0   1   0    0 # Strip  128- 255
+      20   15  15   0  14   0   2   0    0 # Strip  384- 511
+      20   15  15   0  15   0   3   0    0 # Strip 
+      20   16  16   0   0   0   4   0    0 # Strip 
+      20   16  16   0   1   0   5   0    0 # Strip 
+      20   16  16   0   2   0   6   0    0 # Strip 
+      20   16  16   0   3   0   7   0    0 # Strip 
+      20   16  16   0   4   0   8   0    0 # Strip 1024-1151
+      20   16  16   0   5   0   9   0    0 # Strip 1152-1279
+      20   16  16   0   6   0   0   0    1 # Strip 
+      20   16  16   0   7   0   1   0    1 # Strip 
+      20   16  16   0   8   0   2   0    1 # Strip 
+      20   16  16   0   9   0   3   0    1 # Strip 
+      20   16  16   0  10   0   4   0    1 # Strip 
+      20   16  16   0  11   0   5   0    1 # Strip 
+      20   16  16   0  12   0   6   0    1 # Strip 
+      20   16  16   0  13   0   7   0    1 # Strip 
+      20   16  16   0  14   0   8   0    1 # Strip 1024-1151
+      20   16  16   0  15   0   9   0    1 # Strip 1152-1279
+      20   17  17   0   0   0  10   0    1 # Strip 
+      20   17  17   0   1   0  11   0    1 # Strip 1408-1535
 
 
 sbs.cepolfront_gem.m9.chanmap = 
 ## Crate Slot mpd gem adc i2c pos inv axis # (1280 x-strips, 1024 y-strips)
-      20   17  17   0   2   0   0   0    0 # Strip  256- 383
-      20   17  17   0   3   0   1   0    0 # Strip  384- 511
-      20   17  17   0   4   0   2   0    0 # Strip  512- 639
-      20   17  17   0   5   0   3   0    0 # Strip  640- 767
-      20   17  17   0   6   0   4   0    0 # Strip  768- 895
-      20   17  17   0   7   0   5   0    0 # Strip  896-1023
-      20   17  17   0   8   0   6   0    0 # Strip 1024-1151
-      20   17  17   0   9   0   7   0    0 # Strip 1152-1279
-      20   17  17   0  10   0   8   0    0 # Strip    0- 127
-      20   17  17   0  11   0   9   0    0 # Strip  128- 255
-      20   17  17   0  12   0   0   0    1 # Strip  256- 383
-      20   17  17   0  13   0   1   0    1 # Strip  384- 511
-      20   17  17   0  14   0   2   0    1 # Strip  512- 639
-      20   17  17   0  15   0   3   0    1 # Strip  640- 767
-      20   18  18   0   0   0   4   0    1 # Strip  768- 895
-      20   18  18   0   1   0   5   0    1 # Strip  896-1023
-      20   18  18   0   2   0   6   0    1 # Strip 1024-1151
-      20   18  18   0   3   0   7   0    1 # Strip 1152-1279
-      20   18  18   0   4   0   8   0    1 # Strip 1280-1407
-      20   18  18   0   5   0   9   0    1 # Strip 1408-1535
-      20   18  18   0   6   0  10   0    1 # Strip    0- 127
-      20   18  18   0   7   0  11   0    1 # Strip  128- 255
+      20   17  17   0   2   0   0   0    0 # Strip    0- 127
+      20   17  17   0   3   0   1   0    0 # Strip  128- 255
+      20   17  17   0   4   0   2   0    0 # Strip 
+      20   17  17   0   5   0   3   0    0 # Strip 
+      20   17  17   0   6   0   4   0    0 # Strip 
+      20   17  17   0   7   0   5   0    0 # Strip 
+      20   17  17   0   8   0   6   0    0 # Strip 
+      20   17  17   0   9   0   7   0    0 # Strip 
+      20   17  17   0  10   0   8   0    0 # Strip 
+      20   17  17   0  11   0   9   0    0 # Strip 1152-1279
+      20   17  17   0  12   0   0   0    1 # Strip    0- 127
+      20   17  17   0  13   0   1   0    1 # Strip  128- 255
+      20   17  17   0  14   0   2   0    1 # Strip 
+      20   17  17   0  15   0   3   0    1 # Strip 
+      20   18  18   0   0   0   4   0    1 # Strip 
+      20   18  18   0   1   0   5   0    1 # Strip 
+      20   18  18   0   2   0   6   0    1 # Strip 
+      20   18  18   0   3   0   7   0    1 # Strip 
+      20   18  18   0   4   0   8   0    1 # Strip 
+      20   18  18   0   5   0   9   0    1 # Strip 1152-1279
+      20   18  18   0   6   0  10   0    1 # Strip 1280-1407
+      20   18  18   0   7   0  11   0    1 # Strip 1408-1535
