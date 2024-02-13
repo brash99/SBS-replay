@@ -37,7 +37,7 @@ TDatime get_datime(uint genconfig)
   return m[genconfig];
 }
 
-void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="gen")
+void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="genrp")
 {
   SBSBigBite* bigbite = new SBSBigBite("bb", "BigBite spectrometer" );
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
@@ -104,12 +104,12 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
   TString prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
   
-  TString odef_filename = "replay_gen_mc.odef";
+  TString odef_filename = "replay_genrp_mc.odef";
   odef_filename.Prepend( prefix );
   analyzer->SetOdefFile( odef_filename );
   
   //added cut list in order to have 
-  TString cdef_filename = "replay_gen_mc.cdef";
+  TString cdef_filename = "replay_genrp_mc.cdef";
   cdef_filename.Prepend( prefix );
   analyzer->SetCutFile( cdef_filename );
 
