@@ -739,7 +739,6 @@ bb.forwardoptics_parameters =
    5.9044282e-14   -4.0077642e-14    2.1577349e-14   -2.2880732e-14  0 0 0 1 1
    2.7030922e-15   -7.4934769e-15   -8.2866716e-16   -1.7422587e-15  0 0 0 0 2
 
-
 bb.frontconstraint_x0 = 0.057
 bb.frontconstraint_y0 = -0.0163
 bb.backconstraint_x0 = 0.0039
@@ -749,6 +748,16 @@ bb.frontconstraintwidth_x = 0.12
 bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.055
 bb.backconstraintwidth_y = 0.065
+
+-----------[ 2021-11-13 09:00:00 ] # zero-field run for SBS-7, open up front constraint
+
+bb.frontconstraintwidth_x = 0.75
+bb.frontconstraintwidth_y = 0.2
+
+-----------[ 2021-11-13 09:45:00 ] # magnet on, back to normal constraint width:
+
+bb.frontconstraintwidth_x = 0.12
+bb.frontconstraintwidth_y = 0.06
 
 bb.ecalo_fudgefactor = 1.0
 
