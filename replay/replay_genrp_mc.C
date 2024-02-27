@@ -119,7 +119,7 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
   
   cout << "cut file and out file processed " << endl;
   
-  analyzer->SetVerbosity(20);  // write cut summary to stdout
+  analyzer->SetVerbosity(2);  // write cut summary to stdout
   analyzer->EnableBenchmarks();
   
   run->Print();
