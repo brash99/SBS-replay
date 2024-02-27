@@ -47,7 +47,7 @@
  4    -3201  5
 
 ==== Crate 8 type vme
-## TDCs for Active Ana, PRpol scintillator, CDET (VETROC) - still stuck with something that is not VETROC
+## TDCs for CDET (VETROC)
 ## slot model clear header mask     nchan ndata
  1    -3201  5
  2    -3201  5
@@ -72,10 +72,12 @@
 ## do we need a crate 9 ???  
 
 ==== Crate 9 type vme
-## TDCs for Active Ana, PRpol scintillator, CDET (VETROC) - still stuck with something that is not VETROC
+## TDCs for PRpol scintillator
+## ADCs for active analyzer
 ## slot model clear header mask     nchan ndata
- 1    -3201  5
- 2    -3201  5
+ 1    -1190  8
+ 2    -250   3
+ 3    -250   3
 
 
 ## Proposed crates (16-17) for SBS side (HCal + CDet + Hadron arm GEMs, etc...)

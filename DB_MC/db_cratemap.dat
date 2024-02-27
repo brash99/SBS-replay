@@ -36,6 +36,8 @@
   19     250     3
   20     250     3
 
+
+
 ==== Crate 7 type vme
 ## TDCs for GRINCH (VETROC) - still stuck with something that is not VETROC
 ## slot model clear header mask     nchan ndata
@@ -43,6 +45,39 @@
  2    3201  5
  3    3201  5
  4    3201  5
+
+==== Crate 8 type vme
+## TDCs for CDET (VETROC)
+## slot model clear header mask     nchan ndata
+ 1    3201  5
+ 2    3201  5
+ 3    3201  5
+ 4    3201  5
+ 5    3201  5
+ 6    3201  5
+ 7    3201  5
+ 8    3201  5
+ 9    3201  5
+10    3201  5
+11    3201  5
+12    3201  5
+13    3201  5
+14    3201  5
+15    3201  5
+16    3201  5
+17    3201  5
+18    3201  5
+19    3201  5
+20    3201  5
+## do we need a crate 9 ???  
+
+==== Crate 9 type vme
+## TDCs for PRpol scintillator
+## ADCs for active analyzer
+## slot model clear header mask     nchan ndata
+ 1    1190  8
+ 2    250   3
+ 3    250   3
 
 ## LHRS crate (includes beam line signals) 
 ==== Crate 10 type vme
@@ -116,3 +151,5 @@
 
 ====Crate 20 type vme
 11 3561 3561 cfg: chan_cmflags=512
+
+

@@ -5,7 +5,7 @@ sbs.prpolscint_farside.is_mc = 1
 ## crate slot start_channel end_channel refindex
 sbs.prpolscint_farside.detmap = 
 ## Detmap for the TDCs
-  9     2     1     48     0 ## 90 channels (Left  PMTs) with reference index
+  9     1     1     48     0 ## 90 channels (Left  PMTs) with reference index
 
 #sbs.prpolscint_farside.start_chanmap = 0
 sbs.prpolscint_farside.chanmap =  0  1  2  3  4  5  6  7 
@@ -31,11 +31,16 @@ sbs.prpolscint_farside.nbars = 24
 sbs.prpolscint_farside.nrows = 2
 sbs.prpolscint_farside.ncols = 24
 
-sbs.prpolscint_farside.position = 0 0 0 # Just a test, but should be the origin of this detector
-sbs.prpolscint_farside.xyz  =  0.000 0.0 0.000 ## Spacing between modules in local coordinates
-sbs.prpolscint_farside.dxdydz  =  0.000 0.0 0.000 ## Spacing between modules in local coordinates
-sbs.prpolscint_farside.size = 0.0 0.0  0.0 ## Taken from an old talk where I used 90x25 mm for y
-#sbs.prpolscint_farside.angle = 0.0 0.0 0.0 ## Seems optional, otherwise it assumes no additional angle
+sbs.prpolscint_farside.position = -0.765 0 5.269636 # Just a test, but should be the origin of this detector
+sbs.prpolscint_farside.size = 0.03 2.064 0.50 
+sbs.prpolscint_farside.xyz  =  -0.765 -0.989 5.269636
+## The following assumes an hypothetical coordinate system 
+## centered on the active analyzer pointing towards the hodoscope 
+sbs.prpolscint_farside.position = 0 0 0.765 # Just a test, but should be the origin of this detector
+# sbs.prpolscint_farside.angle = 0.0 -90.0 0.0 ## Seems optional, otherwise it assumes no additional angle
+# sbs.prpolscint_farside.xyz  =  0.0 -0.989 0.765
+# sbs.prpolscint_farside.size = 0.5 2.064 0.03 
+sbs.prpolscint_farside.dxdydz  =  0.0 0.086 0.0 ## Spacing between modules in local coordinates
 
 #sbs.prpolscint_farside.ypos = 
 
@@ -54,7 +59,11 @@ sbs.prpolscint_farside.attenuation = 0.0 ## Attenuation length. Code defaults to
 ## for each bar are specified]
 sbs.prpolscint_farside.bar_geom =
 ## x       y      z      wx     wy     wz
-  0.000  0.0  0.000  0.0  0.0  0.0
+-0.765  -0.989  5.269636  0.03  0.086  0.5
+## The following assumes an hypothetical coordinate system 
+## centered on the active analyzer pointing towards the hodoscope 
+# sbs.prpolscint_farside.bar_geom =
+#  0.0  -0.989 0.765  0.5  0.086  0.03
 
 ## Reference channel calibrations
 sbs.prpolscint_farside.ref_ch_res = 1.0   # Resolution of 1 for all channels

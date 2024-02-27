@@ -4,42 +4,37 @@ sbs.active_ana.is_mc = 1
 ## Detector map, format:
 ## crate slot start_channel end_channel refindex
 sbs.active_ana.detmap = 
-  9     1     1     32     0 ## 32 channels (Left  PMTs) with reference index
+  9     2     0     15     0  
+  9     3     0     15     0 
 
 #sbs.active_ana.start_chanmap = 0
 sbs.active_ana.chanmap =  0  1  2  3  4  5  6  7 
-		          8  9 10 11 12 13 14 15 
+			  8  9 10 11 12 13 14 15 
 			 16 17 18 19 20 21 22 23 
 			 24 25 26 27 28 29 30 31
 
-sbs.active_ana.horizposbarcut = 3.0
-sbs.active_ana.timeref = 80.0
-sbs.active_ana.timebarcut = 10000.0
-
 sbs.active_ana.maxclussize = 5
-sbs.active_ana.maxyposdiff_clus = 0.05
-sbs.active_ana.maxtimediff_clus = 10.0
-
-sbs.active_ana.trackmatchcutX = 0.05
-sbs.active_ana.trackmatchcutY = 0.6
-
-#sbs.active_ana.xpos = 
-#sbs.active_ana.ypos = 
-#sbs.active_ana.zpos = 
-
+#sbs.active_ana.maxyposdiff_clus = 0.05
+#sbs.active_ana.maxtimediff_clus = 10.0
 
 
 
 ## Specify the number of bars
-sbs.active_ana.nrows = 4
-sbs.active_ana.ncols = 8
+sbs.active_ana.nrows = 8
+sbs.active_ana.ncols = 4
 
 
-sbs.active_ana.position = 0 0 0.0 0.0 # Just a test, but should be the origin of this detector
-sbs.active_ana.xyz  =  0.0 0.0 0.0 ## Spacing between modules in local coordinates
-sbs.active_ana.dxdydz  =  0.0 0.0 0.0 ## Spacing between modules in local coordinates
-sbs.active_ana.size = 0.0 0.0 0.0 ## Taken from an old talk where I used 90x25 mm for y
-#sbs.active_ana.angle = 0.0 0.0 0.0 ## Seems optional, otherwise it assumes no additional angle
+sbs.active_ana.position = 0.0 0.0 5.129636 # Just a test, but should be the origin of this detector
+sbs.active_ana.xyz  = -0.06 0.0 -0.014 ## Spacing between modules in local coordinates
+sbs.active_ana.dxdydz  = 0.04 0.0 0.04 ## Spacing between modules in local coordinates
+sbs.active_ana.size = 0.16 0.25 0.32 
+sbs.active_ana.angle = 0.0 0.0 0.0 ## Seems optional, otherwise it assumes no additional angle
+
+
+#in transport coordinates
+#sbs.active_ana.size = 0.328 0.16 0.25 
+#sbs.active_ana.angle = 0.0 90.0 0.0 ## Seems optional, otherwise it assumes no additional angle
+
 
 
 
@@ -47,43 +42,3 @@ sbs.active_ana.size = 0.0 0.0 0.0 ## Taken from an old talk where I used 90x25 m
 ## So I chose 42 for fun, but they should probably be changed to
 ## their real values.
 sbs.active_ana.hit_acceptance = 42 42
-
-sbs.active_ana.speed_of_light = 2e8 ## Speed of light in each bar
-sbs.active_ana.attenuation = 0.0 ## Attenuation length. Code defaults to 0 for some reason...
-
-
-## Since it's only one entry, the dimensions will apply to all blocks.
-## But the code will increment the center positions based on dx dy dz
-## defined above.  [Note, this will not be automatically done if all positions
-## for each bar are specified]
-sbs.active_ana.bar_geom =
-## x       y      z      wx     wy     wz
-  0.0  0.0  0.000  0.0  0.0 0.0
-
-## Reference channel calibrations
-sbs.active_ana.ref_ch_res = 1.0   # Resolution of 1 for all channels
-
-## PMT Specific calibration values
-sbs.active_ana.tdc.offset = 
-		   0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
-		   0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
-		   0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
-		   0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
-sbs.active_ana.tdc.cal = 
-		   0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
-		   0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
-		   0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
-		   0.1 0.1 0.1 0.1 0.1 0.1 0.1 0.1 
-
-sbs.active_ana.timewalk0map =
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
-
-sbs.active_ana.timewalk1map =
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
- 0.0 0.0 0.0 0.0 0.0 0.0 0.0 0.0 
-

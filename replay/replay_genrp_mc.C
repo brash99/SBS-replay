@@ -26,15 +26,15 @@
 #include "SBSSimDecoder.h"
 
 
-TDatime get_datime(uint genconfig)
+TDatime get_datime()
 /* Returns TDatime for a given GEn configuration */
 {
-  std::unordered_map<uint,TDatime> m = {{2, "2022-10-06 00:00:00"},
-					{3, "2022-11-15 00:00:00"},
-					{4, "2023-01-10 00:00:00"}};
-  if (m.find(genconfig)==m.end()) 
-    throw std::invalid_argument("Invalid SBS config!! Valid options are: 2,3,4");
-  return m[genconfig];
+  //std::unordered_map<uint,TDatime> m = {{2, "2022-10-06 00:00:00"},
+  //					{3, "2022-11-15 00:00:00"},
+  //					{4, "2023-01-10 00:00:00"}};
+  //if (m.find(genconfig)==m.end()) 
+  //  throw std::invalid_argument("Invalid SBS config!! Valid options are: 2,3,4");
+  return("2024-01-01 00:00:00");//m[genconfig];
 }
 
 void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="genrp")
@@ -50,11 +50,12 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
   gHaApps->Add(bigbite);
   
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
-  harm->AddDetector( new SBSTimingHodoscope("prpolscint_farside","side scintillator") );
-  harm->AddDetector( new SBSGEMSpectrometerTracker("prpolgem_farside", "side gem") );
-  harm->AddDetector( new SBSTimingHodoscope("active_ana","active analyzer") );
-  harm->AddDetector( new SBSGEMSpectrometerTracker("cepolfront_gem", "charge exchange front GEMs") );
-  harm->AddDetector( new SBSGEMSpectrometerTracker("cepolrear_gem", "charge exchange rear GEMs") );
+  harm->AddDetector( new SBSTimingHodoscope("prpolscint_farside","side scintillator") );// OK? 
+  harm->AddDetector( new SBSGEMSpectrometerTracker("prpolgem_farside", "side gem") );// placeholder
+  harm->AddDetector( new SBSCalorimeter("active_ana","active analyzer") );// OK? PlaceHolder?
+  harm->AddDetector( new SBSGEMSpectrometerTracker("cepolfront_gem", "charge exchange front GEMs") );// OK
+  harm->AddDetector( new SBSGEMSpectrometerTracker("cepolrear_gem", "charge exchange rear GEMs") );// placeholder
+  harm->AddDetector( new SBSHCal("hcal","HCAL") );
   gHaApps->Add(harm);
 
   //bigbite->SetDebug(2);
@@ -74,7 +75,7 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
     exit(-1);
   }
   
-  THaRunBase *run = new SBSSimFile(run_file.Data(), "gmn", "");
+  THaRunBase *run = new SBSSimFile(run_file.Data(), experiment, "");
   run->SetFirstEvent(0);
 
   cout << "Number of events to replay (-1=all)? ";
@@ -83,8 +84,8 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
   run->SetLastEvent(nev);
   
   run->SetDataRequired(0);
-  //run->SetDate(get_datime(genconfig));
-  //run->SetDate(TDatime());
+  run->SetDate(get_datime());
+  run->SetDate(TDatime());
   
   TString out_dir = gSystem->Getenv("OUT_DIR");
   if( out_dir.IsNull() )
@@ -113,12 +114,12 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
   cdef_filename.Prepend( prefix );
   analyzer->SetCutFile( cdef_filename );
 
-  //analyzer->SetCutFile( "replay_gen.cdef" );
-  //analyzer->SetOdefFile( "replay_gen_mc.odef" );
+  //analyzer->SetCutFile( "replay_genrp.cdef" );
+  //analyzer->SetOdefFile( "replay_genrp_mc.odef" );
   
   cout << "cut file and out file processed " << endl;
   
-  analyzer->SetVerbosity(2);  // write cut summary to stdout
+  analyzer->SetVerbosity(20);  // write cut summary to stdout
   analyzer->EnableBenchmarks();
   
   run->Print();
@@ -151,6 +152,6 @@ int main(int argc, char *argv[])
   filebase = argv[1];
   if(argc==3) nev = atoi(argv[2]);
 
-  replay_gen_mc(filebase.c_str(), nev);
+  replay_genrp_mc(filebase.c_str(), nev);
   return 0;
 }
