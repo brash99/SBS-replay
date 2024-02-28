@@ -85,7 +85,7 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
   
   run->SetDataRequired(0);
   run->SetDate(get_datime());
-  run->SetDate(TDatime());
+  //run->SetDate(TDatime());
   
   TString out_dir = gSystem->Getenv("OUT_DIR");
   if( out_dir.IsNull() )

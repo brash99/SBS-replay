@@ -184,6 +184,7 @@ bb.magdist = 1.63
 --------[ 2024-01-01 00:00:00 ] 
 
 ebeam = 4.4
+experiment = genrp
 
 sbs.theta = -24.7
 sbs.pcentral = 2.0
