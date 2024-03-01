@@ -1,15 +1,15 @@
-bb.grinch.nchan = 510
-bb.grinch.is_mc = 1
+bb.grinch_tdc.nchan = 510
+bb.grinch_tdc.is_mc = 1
 
-#grinch detector map
+#grinch_tdc detector map
 ## crate slot start_channel end_channel
-bb.grinch.detmap =
+bb.grinch_tdc.detmap =
   7     1     0   127   0
   7     2     0   127   0
   7     3     0   127   0
   7     4     0   125   0
 
-bb.grinch.chanmap =
+bb.grinch_tdc.chanmap =
         0  1   2   3   4   5   6   7   8   9  10  11  12  13  14  15
         16 17  18  18  20  21  22  23  24  25  26  27  28  29  30 31
         32 33  34  35  36  37  38  39  40  41  42  43  44  45  46 47
@@ -43,22 +43,22 @@ bb.grinch.chanmap =
         480 481 482 483 484 485 486 487 488 489 490 491 492 493 494 495
         496 497 498 499 500 501 502 503 504 505 506 507 508 509 
 
-bb.grinch.position = 0 0 0.4824  ## z of entrance window, m
-bb.grinch.size =  2.47015 1.1480 0.889 ## tank size, m
-bb.grinch.xyz = -0.9145 -0.124 1.0 ## position of PMT 0, m (we don't really need z)
-bb.grinch.dxdydz = 0.031 0.031 1.0 ## distance between PMTs, m (we don't really need z)
+bb.grinch_tdc.position = 0 0 0.4824  ## z of entrance window, m
+bb.grinch_tdc.size =  2.47015 1.1480 0.889 ## tank size, m
+bb.grinch_tdc.xyz = -0.9145 -0.124 1.0 ## position of PMT 0, m (we don't really need z)
+bb.grinch_tdc.dxdydz = 0.031 0.031 1.0 ## distance between PMTs, m (we don't really need z)
 
-bb.grinch.tdc.GoodTimeCut = 10.0
+bb.grinch_tdc.tdc.GoodTimeCut = 10.0
 
-#grinch geometry info
-bb.grinch.nrows = 60
-bb.grinch.ncols =
+#grinch_tdc geometry info
+bb.grinch_tdc.nrows = 60
+bb.grinch_tdc.ncols =
         8 9 8 9 8 9 8 9 8 9 8 9
         8 9 8 9 8 9 8 9 8 9 8 9
         8 9 8 9 8 9 8 9 8 9 8 9
         8 9 8 9 8 9 8 9 8 9 8 9
         8 9 8 9 8 9 8 9 8 9 8 9
 
-bb.grinch.nlayers = 1
+bb.grinch_tdc.nlayers = 1
 
-bb.grinch.amp_tot_coeffs = 1.
+bb.grinch_tdc.amp_tot_coeffs = 1.
