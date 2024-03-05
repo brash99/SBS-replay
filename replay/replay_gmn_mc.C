@@ -49,7 +49,7 @@ void replay_gmn_mc(const char* filebase, uint sbsconfig, uint nev = -1, TString 
   //bigbite->AddDetector( new SBSBBShower("ps", "BigBite preshower") );
   //bigbite->AddDetector( new SBSBBShower("sh", "BigBite shower") );
   bigbite->AddDetector( new SBSBBTotalShower("ts", "sh", "ps", "BigBite shower") );
-  bigbite->AddDetector( new SBSGRINCH("grinch", "GRINCH PID") );
+  bigbite->AddDetector( new SBSGRINCH("grinch_tdc", "GRINCH PID") );
   //bigbite->AddDetector( new SBSGenericDetector("grinch", "GRINCH PID") );
   bigbite->AddDetector( new SBSTimingHodoscope("hodo", "timing hodo") );
   //bigbite->AddDetector( new SBSGEMSpectrometerTracker("gem", "GEM tracker") );

@@ -1,0 +1,44 @@
+sbs.active_ana.nchan = 32
+sbs.active_ana.is_mc = 1
+
+## Detector map, format:
+## crate slot start_channel end_channel refindex
+sbs.active_ana.detmap = 
+  9     2     0     15     0  
+  9     3     0     15     0 
+
+#sbs.active_ana.start_chanmap = 0
+sbs.active_ana.chanmap =  0  1  2  3  4  5  6  7 
+			  8  9 10 11 12 13 14 15 
+			 16 17 18 19 20 21 22 23 
+			 24 25 26 27 28 29 30 31
+
+sbs.active_ana.maxclussize = 5
+#sbs.active_ana.maxyposdiff_clus = 0.05
+#sbs.active_ana.maxtimediff_clus = 10.0
+
+
+
+## Specify the number of bars
+sbs.active_ana.nrows = 8
+sbs.active_ana.ncols = 4
+
+
+sbs.active_ana.position = 0.0 0.0 5.129636 # Just a test, but should be the origin of this detector
+sbs.active_ana.xyz  = -0.06 0.0 -0.014 ## Spacing between modules in local coordinates
+sbs.active_ana.dxdydz  = 0.04 0.0 0.04 ## Spacing between modules in local coordinates
+sbs.active_ana.size = 0.16 0.25 0.32 
+sbs.active_ana.angle = 0.0 0.0 0.0 ## Seems optional, otherwise it assumes no additional angle
+
+
+#in transport coordinates
+#sbs.active_ana.size = 0.328 0.16 0.25 
+#sbs.active_ana.angle = 0.0 90.0 0.0 ## Seems optional, otherwise it assumes no additional angle
+
+
+
+
+## Not sure what the units are for this (I'm guessing radians?
+## So I chose 42 for fun, but they should probably be changed to
+## their real values.
+sbs.active_ana.hit_acceptance = 42 42
