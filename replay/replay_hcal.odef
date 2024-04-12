@@ -22,6 +22,8 @@ variable sbs.trig.a_time
 variable sbs.trig.a_p
 variable sbs.trig.a_amp_p
 
+block sbs.hcal.Ref.*
+
 ############
 #Histograms#
 ############ 

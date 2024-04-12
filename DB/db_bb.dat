@@ -1213,6 +1213,33 @@ bb.forwardoptics_parameters =
 #   1.4942779e-15   -2.4690167e-16    2.8475773e-15   -8.2995769e-17  0 0 0 1 1
 #  -1.7204785e-15    -1.484712e-15    8.8518138e-16   -5.2137558e-16  0 0 0 0 2
 
+# Average TOF to hodoscope based on BigBite magnet distance
+bb.etof_avg =      16.5313333
+
+bb.etof_order = 2
+
+bb.etof_parameters = 
+    -0.14152803  0 0 0 0 0
+     0.47832855  1 0 0 0 0
+       0.474596  2 0 0 0 0
+      6.2608333  0 1 0 0 0
+     -3.6583731  1 1 0 0 0
+       3.716205  0 2 0 0 0
+    -0.39279241  0 0 1 0 0
+     -0.3166402  1 0 1 0 0
+      11.779961  0 1 1 0 0
+      4.3615227  0 0 2 0 0
+     -17.713085  0 0 0 1 0
+      10.856032  1 0 0 1 0
+     -31.805144  0 1 0 1 0
+     -38.053632  0 0 1 1 0
+      66.654814  0 0 0 2 0
+  1.6462312e-13  0 0 0 0 1
+ -1.7313006e-13  1 0 0 0 1
+ -1.5319477e-14  0 1 0 0 1
+ -4.7447058e-14  0 0 1 0 1
+   6.525802e-15  0 0 0 1 1
+   3.968649e-15  0 0 0 0 2
 
 
 # below is the result of the SBS-8 g4sbs optics for bigbite distance 2.00 m
@@ -1477,6 +1504,34 @@ bb.downbendoptics_parameters =
   -3.662556e-16  5.9932607e-16 -6.5170893e-16  1.0592023e-16  0 0 0 1 1
  -1.3352603e-17  1.6760317e-16 -3.8307558e-16 -1.0338358e-17  0 0 0 0 2
 
+bb.etof_order = 2
+
+# electron TOF 
+# Average TOF to hodoscope based on BigBite magnet distance
+bb.etof_avg =      15.1666667
+
+bb.etof_parameters = 
+    -0.13676866  0 0 0 0 0
+     0.49708292  1 0 0 0 0
+     0.50543847  2 0 0 0 0
+      2.8420205  0 1 0 0 0
+     -2.8961366  1 1 0 0 0
+      1.6230121  0 2 0 0 0
+    -0.41663386  0 0 1 0 0
+    0.029448068  1 0 1 0 0
+      7.9201497  0 1 1 0 0
+      3.2818619  0 0 2 0 0
+     -7.0572936  0 0 0 1 0
+      6.6643704  1 0 0 1 0
+     -9.8332031  0 1 0 1 0
+     -18.975032  0 0 1 1 0
+       19.94515  0 0 0 2 0
+ -5.3306198e-15  0 0 0 0 1
+ -1.0273912e-15  1 0 0 0 1
+ -4.2591164e-15  0 1 0 0 1
+ -1.7580584e-15  0 0 1 0 1
+ -6.5926827e-16  0 0 0 1 1
+ -4.1230571e-15  0 0 0 0 2
 
 
 # we have to start with more open cuts until we know what we have:
@@ -1489,7 +1544,6 @@ bb.frontconstraintwidth_x = 0.1
 bb.frontconstraintwidth_y = 0.072
 bb.backconstraintwidth_x = 0.054
 bb.backconstraintwidth_y = 0.072
-
 
 -------[ 2022-02-02 17:25:00 ] # start zero-field running for optics
 
