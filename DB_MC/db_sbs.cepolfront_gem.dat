@@ -1,4 +1,5 @@
 950101
+-------[ 2023-12-31 00:00:00 ]
 
 ## A chamber is a "Tracker-Plane" composed of vertically stacked modules
 sbs.cepolfront_gem.is_mc = 1
@@ -7,7 +8,7 @@ sbs.cepolfront_gem.pedestalmode = 0
 sbs.cepolfront_gem.commonmode_flag = -1
 sbs.cepolfront_gem.modules = m0     m1     m2 m3 m4 m5     m6 m7 m8 m9
 
-sbs.cepolfront_gem.useconstraint = 0
+sbs.cepolfront_gem.useconstraint = 1
 
 sbs.cepolfront_gem.gridbinwidthx = 0.01
 sbs.cepolfront_gem.gridbinwidthy = 0.01

@@ -1,13 +1,15 @@
-950101
+-------[ 2023-12-31 23:59:59 ]
 
 ## A chamber is a "Tracker-Plane" composed of vertically stacked modules
+sbs.cepolrear_gem.modules = m0 m1 m2 m3  m4 m5 m6 m7  m8 m9 m10 m11  m12 m13 m14 m15
+
 sbs.cepolrear_gem.is_mc = 1
 sbs.cepolrear_gem.onlinezerosuppress = 0
 sbs.cepolrear_gem.pedestalmode = 0
 sbs.cepolrear_gem.commonmode_flag = -1
-sbs.cepolrear_gem.modules = m0 m1 m2 m3  m4 m5 m6 m7  m8 m9 m10 m11  m12 m13 m14 m15
 
-sbs.cepolrear_gem.useconstraint = 0
+
+sbs.cepolrear_gem.useconstraint = 1
 
 sbs.cepolrear_gem.gridbinwidthx = 0.01
 sbs.cepolrear_gem.gridbinwidthy = 0.01
@@ -181,25 +183,25 @@ sbs.cepolrear_gem.m15.size = 0.512 0.6144 0.001
 
 
 #positions #m0 and m4 have a temporary offset
-sbs.cepolrear_gem.m0.position = -0.768 0.0 0.0
-sbs.cepolrear_gem.m1.position = -0.256 0.0 0.0
-sbs.cepolrear_gem.m2.position =  0.256 0.0 0.0
-sbs.cepolrear_gem.m3.position =  0.768 0.0 0.0
+sbs.cepolrear_gem.m0.position = -0.768 0.0 0.589
+sbs.cepolrear_gem.m1.position = -0.256 0.0 0.589
+sbs.cepolrear_gem.m2.position =  0.256 0.0 0.589
+sbs.cepolrear_gem.m3.position =  0.768 0.0 0.589
 
-sbs.cepolrear_gem.m4.position = -0.768 0.0 0.1
-sbs.cepolrear_gem.m5.position = -0.256 0.0 0.1
-sbs.cepolrear_gem.m6.position =  0.256 0.0 0.1
-sbs.cepolrear_gem.m7.position =  0.768 0.0 0.1
+sbs.cepolrear_gem.m4.position = -0.768 0.0 0.689
+sbs.cepolrear_gem.m5.position = -0.256 0.0 0.689
+sbs.cepolrear_gem.m6.position =  0.256 0.0 0.689
+sbs.cepolrear_gem.m7.position =  0.768 0.0 0.689
 
-sbs.cepolrear_gem.m8.position = -0.768 0.0 0.2
-sbs.cepolrear_gem.m9.position = -0.256 0.0 0.2
-sbs.cepolrear_gem.m10.position =  0.256 0.0 0.2
-sbs.cepolrear_gem.m11.position =  0.768 0.0 0.2
+sbs.cepolrear_gem.m8.position = -0.768 0.0 0.789
+sbs.cepolrear_gem.m9.position = -0.256 0.0 0.789
+sbs.cepolrear_gem.m10.position =  0.256 0.0 0.789
+sbs.cepolrear_gem.m11.position =  0.768 0.0 0.789
 
-sbs.cepolrear_gem.m12.position = -0.768 0.0 0.3
-sbs.cepolrear_gem.m13.position = -0.256 0.0 0.3
-sbs.cepolrear_gem.m14.position =  0.256 0.0 0.3
-sbs.cepolrear_gem.m15.position =  0.768 0.0 0.3
+sbs.cepolrear_gem.m12.position = -0.768 0.0 0.889
+sbs.cepolrear_gem.m13.position = -0.256 0.0 0.889
+sbs.cepolrear_gem.m14.position =  0.256 0.0 0.889
+sbs.cepolrear_gem.m15.position =  0.768 0.0 0.889
 
 
 sbs.cepolrear_gem.m0.angle = 0.0 0.0 0.0
@@ -717,3 +719,4 @@ sbs.cepolrear_gem.m15.chanmap =
       22   13  13   0   9   0   9   0    1 # Strip 
       22   13  13   0  10   0  10   0    1 # Strip 
       22   13  13   0  11   0  11   0    1 # Strip 
+

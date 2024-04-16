@@ -21,6 +21,7 @@
 #include "SBSEArm.h"
 #include "SBSHCal.h"
 #include "SBSGEMSpectrometerTracker.h"
+#include "SBSGEMPolarimeterTracker.h"
 #include "SBSTimingHodoscope.h"
 
 #include "SBSSimDecoder.h"
@@ -54,8 +55,9 @@ void replay_genrp_mc(const char* filebase, uint nev = -1, TString experiment="ge
   harm->AddDetector( new SBSGEMSpectrometerTracker("prpolgem_farside", "side gem") );// placeholder
   harm->AddDetector( new SBSCalorimeter("active_ana","active analyzer") );// OK? PlaceHolder?
   harm->AddDetector( new SBSGEMSpectrometerTracker("cepolfront_gem", "charge exchange front GEMs") );// OK
-  harm->AddDetector( new SBSGEMSpectrometerTracker("cepolrear_gem", "charge exchange rear GEMs") );// placeholder
+  harm->AddDetector( new SBSGEMPolarimeterTracker("cepolrear_gem", "charge exchange rear GEMs") );// placeholder
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
+  
   gHaApps->Add(harm);
 
   //bigbite->SetDebug(2);
