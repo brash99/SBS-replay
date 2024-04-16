@@ -1,6 +1,6 @@
 void coinBBDiff(){
 
-  cout << "Processing coinBBDiff.." << endl;
+  cout << "Processing coinBBDiff macro.." << endl;
 
   TStopwatch *st = new TStopwatch();
   st->Start(kTRUE);

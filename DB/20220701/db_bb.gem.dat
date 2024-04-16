@@ -1161,6 +1161,15 @@ bb.gem.cmfile = gemped/db_cmr_bb_gem_run6187.dat
 bb.gem.pedfile = gemped/daq_ped_bb_gem_run6215.dat
 bb.gem.cmfile = gemped/db_cmr_bb_gem_run6215.dat
 
+
+--------[ 2024-04-01 00:00:00 ] #after hv upgrades
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run6916.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run6916.dat
+
+--------[ 2024-04-08 18:30:00 ] #after replacing Layer 1 backplane
+bb.gem.pedfile = gemped/daq_ped_bb_gem_run7096.dat
+bb.gem.cmfile = gemped/db_cmr_bb_gem_run7096.dat
+
 ######################  END TIME-DEPENDENT PEDESTAL FILES #####################
 
 -------[ 2022-01-01 00:00:00 ]
@@ -3226,7 +3235,7 @@ bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
 
 bb.gem.useforwardopticsconstraint = 1
-bb.gem.useconstraint = 0
+bb.gem.useconstraint = 1
 
 ---------[ 2023-11-02 00:00:00 ] # Cosmic data before A_LL
 
@@ -3237,10 +3246,50 @@ bb.gem.useforwardopticsconstraint = 0
 
 ---------[ 2023-11-16 14:30:00 ] # Back to Beam A_LL
 
+bb.gem.gridbinwidthx = 0.02
+bb.gem.gridbinwidthy = 0.02
+
+bb.gem.gridedgetolerancex = 0.005
+bb.gem.gridedgetolerancey = 0.005
+
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
-bb.gem.useforwardopticsconstraint = 1
+bb.gem.useforwardopticsconstraint = 0
 bb.gem.useconstraint = 1
 
 
+bb.gem.constraintwidth_theta = 0.2
+bb.gem.constraintwidth_phi = 0.1
+
+bb.gem.xpfp_min = -0.6
+bb.gem.xpfp_max = 0.4
+
+bb.gem.ypfp_min = -0.15
+bb.gem.ypfp_max = 0.15
+
+bb.gem.pmin = 0.1 
+bb.gem.pmax = 4.5
+
+bb.gem.xptar_min = -0.35
+bb.gem.xptar_max = 0.35
+
+
+bb.gem.yptar_min = -0.15
+bb.gem.yptar_max = 0.15
+
+bb.gem.ytar_min = -0.25
+bb.gem.ytar_max = 0.25
+
+bb.gem.trackchi2cut = 150.0
+
+bb.gem.use_enhanced_chi2 = 0
+bb.gem.minhighqualityhitsontrack = 0
+bb.gem.trackchi2cut_hitquality = 100.0
+
+---------[ 2024-04-01 00:00:00 ] # Cosmic data before GEN-RP
+
+bb.gem.useconstraint = 0
+bb.gem.useopticsconstraint = 0
+bb.gem.useslopeconstraint = 0
+bb.gem.useforwardopticsconstraint = 0
 

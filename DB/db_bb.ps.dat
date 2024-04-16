@@ -2355,6 +2355,7 @@ bb.ps.adc.gain =
 0.0211409 0.0202212 
 0.0209293 0.0181311
 
+
 ########################################################
 ########################################################
 
@@ -2365,7 +2366,8 @@ bb.ps.adc.gain =
 
 ## Preparing for beam. Amplitudes at trigger aligned to 20mV with cosmic.
 ## Starting from run 
--------[ 2024-03-30 23:00:00 ]
+
+-------[ 2024-04-04 23:00:00 ]
 
 ##ADCtime offsets w.r.t. bbhodo time
 #bb.ps.adc.timeoffset =
@@ -2424,6 +2426,7 @@ bb.ps.adc.AmpToIntRatio =
 2.85223 2.9891 
 3.00756 2.84445 
 2.98272 2.82997
+
 
 ## Asuming trigger amplitudes are aligned to 15mV (Run 6948)
 bb.ps.adc.gain =

@@ -8,11 +8,11 @@ void hcal_ADCTime_NoLED(){
   TPad *pads = (TPad*) gPad;
   pads->Divide(1,2);
 
-  Double_t sbs_hcal_clus_blk_e[30] = {0.}, sbs_hcal_clus_blk_atime[30] = {0.}, sbs_hcal_clus_blk_id[30]={0.}, sbs_hcal_nclus = 0., sbs_hcal_ledbit = -2.; 
+  Double_t sbs_hcal_clus_blk_e[290] = {0.}, sbs_hcal_clus_blk_atime[290] = {0.}, sbs_hcal_clus_blk_id[290]={0.}, sbs_hcal_nclus = 0., sbs_hcal_ledbit = -2.; 
   UInt_t fEvtHdr_fTrigBits = -1;
 
-  TH1D *h1_hcal_adctime_noled = new TH1D("h1_hcal_adctime","HCal ADC Clus Time; ns",250,0,250);
-  TH2D *h2_hcal_adctime_vs_elemID = new TH2D("adctime_vs_elemID","HCAL ADC Clus Time vs ElemID; ElemID; adc time [ns]",289,0,289,250,0,250);
+  TH1D *h1_hcal_adctime_noled = new TH1D("h1_hcal_adctime","HCal ADC Clus Time; ns",250,0.,250.);
+  TH2D *h2_hcal_adctime_vs_elemID = new TH2D("h2_adctime_vs_elemID","HCAL ADC Clus Time vs ElemID; ElemID; adc time [ns]",289,0.,289.,250,0.,250.);
 
   // Declare branches
   TTree *T = (TTree*) gDirectory->Get("T");
@@ -41,7 +41,8 @@ void hcal_ADCTime_NoLED(){
     //sbs_hcal_clus_blk_e[0]<0.35
     if( sbs_hcal_clus_blk_atime[0]<1 || fEvtHdr_fTrigBits==32 || sbs_hcal_nclus==0 ) continue;
     
-    h1_hcal_adctime_noled->Fill( sbs_hcal_clus_blk_atime[0] );
+    h1_hcal_adctime_noled->Fill(sbs_hcal_clus_blk_atime[0]);
+
     h2_hcal_adctime_vs_elemID->Fill(sbs_hcal_clus_blk_id[0],sbs_hcal_clus_blk_atime[0]);
 
   }
@@ -51,12 +52,14 @@ void hcal_ADCTime_NoLED(){
   h1_hcal_adctime_noled->SetStats(0);
   h1_hcal_adctime_noled->Draw();
 
-  pads->cd(2);
-  h2_hcal_adctime_vs_elemID->SetStats(0);
-  h2_hcal_adctime_vs_elemID->Draw("colz");
   //TH2D *hATIME_HCAL_VS_ID; hATIME_HCAL_VS_ID = (TH2D*)gDirectory->Get("hATIME_HCAL_VS_ID");
   //hATIME_HCAL_VS_ID->Draw("colz");
   //hATIME_HCAL_VS_ID->SetStats(0);
+
+  pads->cd(2);
+  //gStyle->SetPalette(53);
+  h2_hcal_adctime_vs_elemID->SetStats(0);
+  h2_hcal_adctime_vs_elemID->Draw("colz");
 
   cout << "Processed macro with " << nevents << " entries." << endl;
   

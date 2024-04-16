@@ -1,11 +1,13 @@
 void hcal_timing(){
 
-  cout << "Processing macro.." << endl;
+  cout << "Processing hcal_timing macro.." << endl;
 
   TStopwatch *st = new TStopwatch();
   st->Start(kTRUE);
 
-  Double_t sbs_hcal_clus_blk_tdctime[30] = {0.}, sbs_hcal_clus_blk_atime[30] = {0.}, sbs_hcal_nclus = 0.; 
+  //TPad *pads = (TPad*) gPad;
+
+  Double_t sbs_hcal_clus_blk_tdctime[290] = {0.}, sbs_hcal_clus_blk_atime[290] = {0.}, sbs_hcal_nclus = 0.; 
 
   TH2D *h2_hcal_cluster_tdc_vs_adc = new TH2D("h2_hcal_cluster_tdc_vs_adc","HCal Timing Check >> Stop run and Reset DAQ if data scatters everywhere; HCal TDC time [ns]; HCal ADC time [ns]",500,-250,250,250,0,250);
 
@@ -29,11 +31,13 @@ void hcal_timing(){
     T->GetEntry(nevent);
     
     if( sbs_hcal_clus_blk_atime[0]<1 || sbs_hcal_clus_blk_tdctime[0]>1000 || sbs_hcal_nclus==0 ) continue;
+    //if( sbs_hcal_clus_blk_atime[0]<1 || sbs_hcal_clus_blk_tdctime[0]==-1000 || sbs_hcal_clus_blk_tdctime[0]>1000 || sbs_hcal_nclus==0 ) continue;
     
     h2_hcal_cluster_tdc_vs_adc->Fill( sbs_hcal_clus_blk_tdctime[0], sbs_hcal_clus_blk_atime[0] );
 
   }
   
+  //pads->cd();
   gStyle->SetPalette(53);
   h2_hcal_cluster_tdc_vs_adc->SetMinimum(-0.1);
   h2_hcal_cluster_tdc_vs_adc->SetStats(0);

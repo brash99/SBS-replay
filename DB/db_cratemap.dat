@@ -1,5 +1,7 @@
 # Date/Time = Tue Aug  23 11:00:00 2005
 
+ TSROC 21
+
 #==== Crate 4 type fastbus
 # ADCs (And optional TDCs) for BBPS, BBSH
 # slot  model   clear   header  mask    nchan   ndata
@@ -14,6 +16,7 @@
 # TDCs for BBTH (+ADCs for )
   2    1190  	1190
   3    1190  	1190
+  4    1190  	1190
  14    250 	250
  15    250 	250
  16    250 	250
@@ -59,10 +62,12 @@
 #  4    792  1 0x000 0xffffffff 32  2048
 #  17    792  792
 #  18    792  792
-  13    250     250  # GRINCH FADC
-  14    250     250  # GRINCH FADC
-  15    250     250  # GRINCH FADC
-  16    250     250  # GRINCH FADC
+#  13    250     250  # GRINCH FADC
+  14    250     250  # GEnRP FADC
+  15    250     250  # GEnRP FADC
+  16    250     250  # GEnRP FADC
+  17    250     250  # GEnRP FADC
+  18    250     250  # GEnRP FADC
 
 # LHRS crate (includes beam line signals) 
 ==== Crate 10 type vme
