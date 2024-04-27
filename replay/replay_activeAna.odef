@@ -1,63 +1,27 @@
 # Sample outout definition file
 
-#ADC from calorimeter
 block sbs.activeAna_tdc.*
 block sbs.activeAna_adc.*
-#block *
-#block g.*
-#block bb.grinchtdc.*
-#block bb.grinch*
-#block bb.*trig.*
-#block bb.sh.e
-#block bb.ps.e
-#block bb.sh.x
-#block bb.sh.y
-#block bb.sh.nblk
-#block bb.sh.atimeblk
-#block bb.ps.atimeblk
-#block bb.sh.rowblk
-#block bb.sh.colblk
-#block bb.ps.rowblk
-#block bb.ps.colblk
-#block bb.sh.idblk
-#block bb.sh.nblk
-#block bb.sh.idblk
-#block bb.ps.nblk
-#block bb.ps.idblk
-#block bb.sh.y
-#block bb.sh.nclus
-#block bb.sh.nclus
-#block bb.ps.*clus*
-#block bb.sh.*clus*
-#block sbs.hcal.e
-#block sbs.hcal.x
-#block sbs.hcal.y
-#block sbs.hcal.*clus*
-#block sbs.hcal.atimeblk
-#block sbs.hcal.nblk
-#block sbs.hcal.rowblk
-#block sbs.hcal.colblk
-#block sbs.hcal.idblk
-#block sbs.*trig*.*
-#block bb.tr.*
-##block sbs.hcal.*
-#block *.gold.*
-#variable bb.eps_over_etot
-#variable bb.etot_over_p
 
-#variable bb.x_fcp
-#variable bb.y_fcp
-#variable bb.x_bcp
-#variable bb.y_bcp
-#block *grinch_tdc*
-begin epics
-   hac_bcm_average
-   IPM1H04A.XPOS
-   IPM1H04A.YPOS
-   IPM1H04B.XPOS
-   IPM1H04B.YPOS
-   haBBTrig
-   haHCALTrig
-   haCOINTrig
-   haLHRSTrig
-end epics
+#-----------------------------------------------------------------------------
+# 2D FADC histograms
+#-----------------------------------------------------------------------------
+TH2D activeAna_fadc_int_id  'Active Analyzer FADC Pulse Integral' sbs.activeAna_adc.adcelemID[I] sbs.activeAna_adc.a_p[I] 32 -0.5 31.5 50 0.1 300
+TH2D activeAna_fadc_amp_id  'Active Analyzer FADC Amplitude' sbs.activeAna_adc.adcelemID[I] sbs.activeAna_adc.a_amp_p[I] 32 -0.5 31.5 50 0.1 400
+TH2D activeAna_fadc_ped_id  'Active Analyzer FADC Pedestal' sbs.activeAna_adc.adcelemID[I] sbs.activeAna_adc.ped[I] 32 -0.5 31.5 25 0.1 50
+TH2D activeAna_fadc_mult_id 'Active Analyzer FADC Multiplicity' sbs.activeAna_adc.adcelemID[I] sbs.activeAna_adc.a_mult[I] 32 -0.5 31.5 5 -0.5 4.5
+
+TH1D activeAna_fadc_hits_int  'Active Analyzer FADC All Hits Pulse Integral' sbs.activeAna_adc.hits.a[I] 50 0.1 300
+TH1D activeAna_fadc_hits_amp  'Active Analyzer FADC All Hits Pulse Amplitude' sbs.activeAna_adc.hits.a_amp[I] 50 0.1 400
+TH1D activeAna_fadc_hits_time  'Active Analyzer FADC All Hits Pulse Time' sbs.activeAna_adc.hits.a_time[I] 100 0.1 1600
+TH1D activeAna_fadc_elemid  'Active Analyzer FADC Good Hits; Element ID' sbs.activeAna_adc.adcelemID[I] 32 -.5 31.5
+
+TH1D activeAna_fadc_nhits  'Active Analyzer FADC Hits' sbs.activeAna_adc.nhits 50 0.1 50
+TH1D activeAna_tdc_nhits  'Active Analyzer TDC Hits' sbs.activeAna_tdc.nhits 50 0.1 50
+
+TH1D activeAna_tdc_hits_time  'Active Analyzer TDC All Hits Time; time (ns)' sbs.activeAna_tdc.hits.t[I] 100 0.1 1600
+TH1D activeAna_tdc_elemid  'Active Analyzer TDC All Hits; Element ID' sbs.activeAna_tdc.hits.TDCelemID[I] 32 -.5 31.5
+
+
+
+

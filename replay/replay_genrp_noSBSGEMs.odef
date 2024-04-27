@@ -8,7 +8,8 @@
 #include "replay_hodo.odef"
 #include "replay_bb.odef"
 #include "replay_helicity.odef"
-
+#include "replay_activeAna.odef"
+#include "replay_hodoPR.odef"
 
 # # eg 
 # variable 1 4 1  TSbcmu1  BCM x1 counts

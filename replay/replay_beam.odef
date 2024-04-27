@@ -48,16 +48,16 @@ TH1F frasty1 'Fast Raster 1 Y (current)' Lrb.Raster.rawcur.y 120 25000 62000
 TH1F frastx2 'Fast Raster 2 X (current)' Lrb.Raster2.rawcur.x 120 25000 62000 
 TH1F frasty2 'Fast Raster 2 Y (current)' Lrb.Raster2.rawcur.y 120 25000 62000 
 
-FORMULA rast12x (Lrb.Raster.rawcur.x-Lrb.Raster2.rawcur.x)
-FORMULA rast12y (Lrb.Raster.rawcur.y-Lrb.Raster2.rawcur.y)
+#FORMULA rast12x (Lrb.Raster.rawcur.x-Lrb.Raster2.rawcur.x)
+#FORMULA rast12y (Lrb.Raster.rawcur.y-Lrb.Raster2.rawcur.y)
 
-FORMULA rast12xmm (Lrb.Raster.rawcur.x-Lrb.Raster2.rawcur.x)/7131.
-FORMULA rast12ymm (Lrb.Raster.rawcur.y-Lrb.Raster2.rawcur.y)/6364.
+#FORMULA rast12xmm (Lrb.Raster.rawcur.x-Lrb.Raster2.rawcur.x)/7131.
+#FORMULA rast12ymm (Lrb.Raster.rawcur.y-Lrb.Raster2.rawcur.y)/6364.
 
-TH2F frastxy12 'Fast Raster 1+2 Y vs X (current)' rast12x rast12y  60 -20000 -20000 60 20000 20000
-TH2F frastxy12mm 'Fast Raster 1+2 Y vs X (mm)' rast12xmm rast12ymm  60 -3 3 60 -3 3
-TH1F frastx12 'Fast Raster 2 X (current)' rast12x 120 -20000 20000 
-TH1F frasty12 'Fast Raster 2 Y (current)' rast12y 120 -20000 20000 
+#TH2F frastxy12 'Fast Raster 1+2 Y vs X (current)' rast12x rast12y  60 -20000 -20000 60 20000 20000
+#TH2F frastxy12mm 'Fast Raster 1+2 Y vs X (mm)' rast12xmm rast12ymm  60 -3 3 60 -3 3
+#TH1F frastx12 'Fast Raster 2 X (current)' rast12x 120 -20000 20000 
+#TH1F frasty12 'Fast Raster 2 Y (current)' rast12y 120 -20000 20000 
 
 # FORMULA targx 1000.*(SBSrb.BPMB.x-SBSrb.BPMA.x)/4.083*5.969+1000.*SBSrb.BPMA.x
 # FORMULA targy 1000.*(SBSrb.BPMB.y-SBSrb.BPMA.y)/4.083*5.969+1000.*SBSrb.BPMA.y

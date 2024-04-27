@@ -15,8 +15,10 @@
 # Layer 5: UVa (L5)
 # Layer 6: UVa (L6)
 # Layer 7: UVa (L7)
+# Layer 8: UVa (PolR0)
+# Layer 9: UVa (PolR1)
 
-sbs.gemCeF.modules = m0  m1  m2 m3 m4 m5  m6 m7 m8 m9	
+sbs.gemCeF.modules = m0 m1  m2 m3 m4 m5  m6 m7 m8 m9  
      
 sbs.gemCeF.m0.layer = 0
 
@@ -31,7 +33,6 @@ sbs.gemCeF.m6.layer  = 3
 sbs.gemCeF.m7.layer  = 3
 sbs.gemCeF.m8.layer  = 3
 sbs.gemCeF.m9.layer  = 3
-
 
 # # APV mapping configurations: 0 = INFN, 1 = UVA X/Y, 2 = UVA U/V
 sbs.gemCeF.m0.apvmap = 2
@@ -48,65 +49,29 @@ sbs.gemCeF.m7.apvmap  = 1
 sbs.gemCeF.m8.apvmap  = 1
 sbs.gemCeF.m9.apvmap  = 1
 
+sbs.gemCeF.m0.position =    -9.92407e-05       -0.014948    0.0003420129
+sbs.gemCeF.m0.angle =     0.005658904      0.01042058    -0.004514711
+sbs.gemCeF.m1.position =    -0.001061648     -0.01446964      0.06811108
+sbs.gemCeF.m1.angle =       0.1325731       0.1762888     -0.06239812
+sbs.gemCeF.m2.position =      -0.7624573    -0.001271015       0.2356521
+sbs.gemCeF.m2.angle =       0.2270892       0.2584273       0.1090848
+sbs.gemCeF.m3.position =      -0.2508357   -0.0006584436       0.1906687
+sbs.gemCeF.m3.angle =     -0.05872572       0.1978049      0.05618522
+sbs.gemCeF.m4.position =       0.2606494   -0.0005340597       0.2317297
+sbs.gemCeF.m4.angle =      0.06049594        0.360975      0.05054842
+sbs.gemCeF.m5.position =       0.7717895   -0.0002166842       0.1853052
+sbs.gemCeF.m5.angle =      -0.3132894        1.420928       0.1609721
+sbs.gemCeF.m6.position =        -0.76477    -0.001015872       0.3147848
+sbs.gemCeF.m6.angle =       0.1239778      0.08877692       0.1177193
+sbs.gemCeF.m7.position =      -0.2524952    0.0008989072       0.2801908
+sbs.gemCeF.m7.angle =      0.04667416       0.1759578     -0.01086156
+sbs.gemCeF.m8.position =       0.2595003    -0.001088016       0.3119233
+sbs.gemCeF.m8.angle =       0.0609877     -0.02824871       0.3061187
+sbs.gemCeF.m9.position =       0.7692914     0.001290643       0.2788542
+sbs.gemCeF.m9.angle =      -0.5812668      -0.2095559      0.08682803
 
 
-# # Initial guess values for the position and angle.
 
-# in the UVA X/Y layer, the "GEMPOS" index that defines the global module number runs from top to bottom
-
-# Z coordinate offset between 2 consecutive GEM modules within a UVA-XY GEM layer is found to be 0.032 meters -> Anu on Dec 2nd 2021 after referring engineering drawings.
-# Andrew has taken this value to be 0.036 meters in his initial guess values for SBS.
-
-# #### Inline Frame ####
-# ## First railing - XW double (back-to-back) - Z coordinate of the railing = 0.07 m (from measurement using a tape measure on Jul 29,2022)
-# ## Layer 0
-##sbs.gemCeF.m0.position = 0.535 0 0
-##sbs.gemCeF.m1.position = 0 0 0
-##sbs.gemCeF.m2.position = -0.535 0 0 
-# ## Layer 1 # Measured to be roughly 8.3 cm above (-x direction) the INFN Layer 0
-##sbs.gemCeF.m3.position = 0.452 0 0.13 
-##sbs.gemCeF.m4.position = -0.083 0 0.13 
-##sbs.gemCeF.m5.position = -0.618 0 0.13
-
-## Layer 0 # XW-layer0; let's make this module/layer the origin of the internal cordinate system of the GEn-RP inline GEMs
-sbs.gemCeF.m0.position = 0 0 0
-
-## Layer 1 # The Z position of the Layer 1 (XW-layer1).
-sbs.gemCeF.m1.position = 0 0 0.05
-
-# ## Second railing - UVA double - Z coordinate of the railing = 0.025 m + 0.267 m (from the drawing) = 0.292 m
-# ## Layer 2: Type B layer
-sbs.gemCeF.m2.position = -0.748 0 0.248
-sbs.gemCeF.m3.position = -0.236 0 0.216
-sbs.gemCeF.m4.position =  0.276 0 0.248
-sbs.gemCeF.m5.position =  0.788 0 0.216
-# ## Layer 3: Type A layer
-sbs.gemCeF.m6.position = -0.748 0 0.292
-sbs.gemCeF.m7.position = -0.236 0 0.260
-sbs.gemCeF.m8.position =  0.276 0 0.292
-sbs.gemCeF.m9.position =  0.788 0 0.260
-
-
-####### ANGLES  #######
-# ##First setting --- assuming all to be All ZERO
-sbs.gemCeF.m0.angle = 0 0 0
-
-sbs.gemCeF.m1.angle = 0 0 0
-
-sbs.gemCeF.m2.angle = 0 0 0
-sbs.gemCeF.m3.angle = 0 0 0
-sbs.gemCeF.m4.angle = 0 0 0
-sbs.gemCeF.m5.angle = 0 0 0
-
-sbs.gemCeF.m6.angle = 0 0 0
-sbs.gemCeF.m7.angle = 0 0 0
-sbs.gemCeF.m8.angle = 0 0 0
-sbs.gemCeF.m9.angle = 0 0 0
-
-#######
-
-# # Set to nominal sizes
-# Module sizes: INFN XY = (0.512 0.4096 0.001) , UVA XY = (0.512 0.6144 0.001)
 
 sbs.gemCeF.m0.size = 1.5 0.4 0.001
 
@@ -123,17 +88,13 @@ sbs.gemCeF.m8.size  = 0.512 0.6144 0.001
 sbs.gemCeF.m9.size  = 0.512 0.6144 0.001
 
 
-# ## strip angles (as measured wrt +X direction of transport coordinate system):
-
-# For the UVA X/Y modules the "X" axis coincides with the direction of transport coordinates "X" axis. For GEM layers that are oriented so that the beam is hitting the R/O board first, "Y" axis is rotaed by -90 degrees w.r.t transport coordinates "X" axis and for the GEM layers that are oriented so that the beam is hitting the gas window first, "Y" axis is rotaded by +90 degrees w.r.t transport coordinates "X" axis (GEM layer "Y" axis and transport coordinate "Y" axis coincides with each other).
-
 #Layer 0 and 1 needs to be confirmed 
 # Layer 0 (UVAXW) - beam hits gas window first 
-sbs.gemCeF.m0.uangle = 0.0
+sbs.gemCeF.m0.uangle = 180.0
 sbs.gemCeF.m0.vangle = 135.0
 
 # Layer 1 (UVAXW) - beam hits r/o board first
-sbs.gemCeF.m1.uangle = 0.0
+sbs.gemCeF.m1.uangle = 180.0
 sbs.gemCeF.m1.vangle = -135.0
 
 # Layer 2 (UVA) - beam hits gas window first
@@ -146,23 +107,21 @@ sbs.gemCeF.m4.vangle = 90.0
 sbs.gemCeF.m5.uangle = 0.0
 sbs.gemCeF.m5.vangle = 90.0
 
-sbs.gemCeF.m6.uangle  = 0.0
-sbs.gemCeF.m6.vangle  = 90.0
-sbs.gemCeF.m7.uangle  = 0.0
-sbs.gemCeF.m7.vangle  = 90.0
+# Layer 3 (UVA) - beam hits r/o board first
+sbs.gemCeF.m6.uangle = 0.0
+sbs.gemCeF.m6.vangle = -90.0
+sbs.gemCeF.m7.uangle = 0.0
+sbs.gemCeF.m7.vangle = -90.0
 sbs.gemCeF.m8.uangle = 0.0
-sbs.gemCeF.m8.vangle = 90.0
+sbs.gemCeF.m8.vangle = -90.0
 sbs.gemCeF.m9.uangle = 0.0
-sbs.gemCeF.m9.vangle = 90.0
-
-# # U/V strip offsets: for X/Y GEMS, INFN and UVA alike, we are probably safe to stick with (0,0).
-# # for U/V strip GEMs, the needed offsets are non-zero:
+sbs.gemCeF.m9.vangle = -90.0
 
 # # U offsets:
 #This may need to be checked
-sbs.gemCeF.m0.uoffset = 0.0
+sbs.gemCeF.m0.uoffset = 0.0176
 #This may need to be checked
-sbs.gemCeF.m1.uoffset = 0.0
+sbs.gemCeF.m1.uoffset = 0.0176
 
 sbs.gemCeF.m2.uoffset = 0.0
 sbs.gemCeF.m3.uoffset = 0.0
@@ -173,6 +132,7 @@ sbs.gemCeF.m6.uoffset = 0.0
 sbs.gemCeF.m7.uoffset = 0.0
 sbs.gemCeF.m8.uoffset  = 0.0
 sbs.gemCeF.m9.uoffset  = 0.0
+
 
 # # V offsets:
 #This may need to be checked
@@ -192,13 +152,11 @@ sbs.gemCeF.m8.voffset = 0.0
 sbs.gemCeF.m9.voffset = 0.0
 
 
-# # strip counts: 
+sbs.gemCeF.m0.nstripsu = 3968
+sbs.gemCeF.m0.nstripsv = 3456
 
-sbs.gemCeF.m0.nstripsu = 1280
-sbs.gemCeF.m0.nstripsv = 1024
-
-sbs.gemCeF.m1.nstripsu = 1280
-sbs.gemCeF.m1.nstripsv = 1024
+sbs.gemCeF.m1.nstripsu = 3968
+sbs.gemCeF.m1.nstripsv = 3456
 
 sbs.gemCeF.m2.nstripsu = 1280
 sbs.gemCeF.m2.nstripsv = 1536
@@ -218,12 +176,9 @@ sbs.gemCeF.m8.nstripsv = 1536
 sbs.gemCeF.m9.nstripsu = 1280
 sbs.gemCeF.m9.nstripsv = 1536
 
-
-
 # # all modules have the same strip pitch along both dimensions, 0.4 mm:
 sbs.gemCeF.upitch = 0.0004
 sbs.gemCeF.vpitch = 0.0004
-
 
 # # Module average gains relative to target ADC peak position of 4000
 #U strips
@@ -236,9 +191,9 @@ sbs.gemCeF.m5.ugain = 1  1  1  1  1  1  1  1  1  1
 sbs.gemCeF.m6.ugain = 1  1  1  1  1  1  1  1  1  1 
 sbs.gemCeF.m7.ugain = 1  1  1  1  1  1  1  1  1  1 
 sbs.gemCeF.m8.ugain = 1  1  1  1  1  1  1  1  1  1 
-sbs.gemCeF.m9.ugain = 1  1  1  1  1  1  1  1  1  1 
+sbs.gemCeF.m9.ugain = 1  1  1  1  1  1  1  1  1  1
 
-#V Strips
+
 sbs.gemCeF.m0.vgain = 1  1  1  1  1  1  1  1  1  1 
 sbs.gemCeF.m1.vgain = 1  1  1  1  1  1  1  1  1  1 
 sbs.gemCeF.m2.vgain = 1  1  1  1  1  1  1  1  1  1 
@@ -248,42 +203,21 @@ sbs.gemCeF.m5.vgain = 1  1  1  1  1  1  1  1  1  1
 sbs.gemCeF.m6.vgain = 1  1  1  1  1  1  1  1  1  1 
 sbs.gemCeF.m7.vgain = 1  1  1  1  1  1  1  1  1  1 
 sbs.gemCeF.m8.vgain = 1  1  1  1  1  1  1  1  1  1 
-sbs.gemCeF.m9.vgain = 1  1  1  1  1  1  1  1  1  1 
+sbs.gemCeF.m9.vgain = 1  1  1  1  1  1  1  1  1  1
 
-
-
-# ###################### BEGIN TIME-DEPENDENT CLUSTERING PARAMETERS #############
-
-##SUGGESTED INITIAL VALUES:
-# gridbinwidthx = 0.01
-# gridbinwidthy = 0.01
-# gridedgetolerancex = 0.003
-# gridedgetolerancey = 0.003
-# threshold_sample = 75.
-# threshold_stripsum = 300.
-# threshold_clustersum = 600.
-# maxhitcombos = 25000
-# maxhitcombos_inner = 25000
-# maxhitcombos_total = 1,000,000,000 (this is not actually the most relevant limit for the tracking algorithm and I am using an even higher limit for BigBite analysis)
-# max2Dhits = 100,000
-# filterflag1D = 0
-# filterflag2D = 1
-# ADCasym_cut = 0.8
-# deltat_cut = 25.0
-# corrcoeff_cut = 0.5 
 
 ############ parameters searched by SBSGEMModule::ReadDatabase() #################
 ############ offline thresholds: ############
 sbs.gemCeF.threshold_sample = 100.0
-sbs.gemCeF.threshold_stripsum = 400.
-sbs.gemCeF.threshold_clustersum 800.
+sbs.gemCeF.threshold_stripsum = 300.
+sbs.gemCeF.threshold_clustersum 600.
 
 
 sbs.gemCeF.ADCasym_cut = 0.8 
 sbs.gemCeF.deltat_cut = 25.0
 sbs.gemCeF.corrcoeff_cut = 0.5
 sbs.gemCeF.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
-sbs.gemCeF.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts
+sbs.gemCeF.filterflag2D = -1  # 1 = "hard" filtering: require 2D hits to pass all cuts
 
 sbs.gemCeF.peakprominence_minsigma = 3.0 
 sbs.gemCeF.peakprominence_minfraction = 0.15
@@ -310,40 +244,23 @@ sbs.gemCeF.pedsub_online = 1 # under normal conditions, this should always be 1,
 sbs.gemCeF.max2Dhits = 25000 # per-module
 
 
-
-############### Parameters searched by SBSGEMSpectrometerTracker::ReadDatabase() ######################
-
-# parameters controlling tracking:
-sbs.gemCeF.minhitsontrack = 4 #4
+sbs.gemCeF.minhitsontrack = 3
 
 sbs.gemCeF.maxhitcombos = 10000 #25000 for final &  50000 for first alignments
 sbs.gemCeF.maxhitcombos_inner = 25000 #25000 for final & 50000 for first alignments
-sbs.gemCeF.maxhitcombos_total = 1.e20
+sbs.gemCeF.maxhitcombos_total = 1.e16
 
-sbs.gemCeF.tryfasttrack = 1  #May get errors before a good alignment. So may be help to turn off during alignment. 
+sbs.gemCeF.tryfasttrack = 1  #May get errors before a good alignment. So may be help to turn off during alignment.
 
-# typical values after alignment:
-#sbs.gemCeF.gridbinwidthx = 0.01
-#sbs.gemCeF.gridbinwidthy = 0.01
-#sbs.gemCeF.gridedgetolerancex = 0.0025
-#sbs.gemCeF.gridedgetolerancey = 0.0025
-#sbs.gemCeF.trackchi2cut = 30
-
-#For alignment with cosmics, we want to start with wider grid bins and a loose chi2 cut for tracking:
-# sbs.gemCeF.gridbinwidthx = 0.02 #0.1
-# sbs.gemCeF.gridbinwidthy = 0.02 #0.1
-# sbs.gemCeF.gridedgetolerancex = 0.006 #0.02
-# sbs.gemCeF.gridedgetolerancey = 0.006 #0.02
-# sbs.gemCeF.trackchi2cut = 40 #3000.0
 
 # Adjust the grid bins and chi2 here:
- sbs.gemCeF.gridbinwidthx = 0.02
- sbs.gemCeF.gridbinwidthy = 0.02
- sbs.gemCeF.gridedgetolerancex = 0.005
- sbs.gemCeF.gridedgetolerancey = 0.005
- sbs.gemCeF.trackchi2cut = 50.0
+ sbs.gemCeF.gridbinwidthx = 0.005
+ sbs.gemCeF.gridbinwidthy = 0.005
+ sbs.gemCeF.gridedgetolerancex = 0.0015
+ sbs.gemCeF.gridedgetolerancey = 0.0015
+ sbs.gemCeF.trackchi2cut = 30.0
 
-# For initial alignment with cosmics, we want to start with no constraints on track-finding:
+
 sbs.gemCeF.useconstraint = 1
 sbs.gemCeF.useslopeconstraint = 0
 sbs.gemCeF.useopticsconstraint = 0
@@ -354,24 +271,6 @@ sbs.gemCeF.dump_geometry_info = 0
 
 sbs.gemCeF.efficiency_bin_width_1D = 0.02
 sbs.gemCeF.efficiency_bin_width_2D = 0.04
-
-# these should probably be tighter later on:
-sbs.gemCeF.xptar_min = -0.24
-sbs.gemCeF.xptar_max = 0.24
-
-sbs.gemCeF.yptar_min = -0.12
-sbs.gemCeF.yptar_max = 0.12
-
-sbs.gemCeF.ytar_min = -0.25
-sbs.gemCeF.ytar_max = 0.25
-
-sbs.gemCeF.pmin = 0.8
-sbs.gemCeF.pmax = 11.0
-
-sbs.gemCeF.xpfp_min = -0.35
-sbs.gemCeF.xpfp_max = 0.2
-sbs.gemCeF.ypfp_min = -0.12
-sbs.gemCeF.ypfp_max = 0.12
 
 # # basic flags controlling decoding:
 sbs.gemCeF.pedestalmode = 0
@@ -384,7 +283,7 @@ sbs.gemCeF.commonmode_minstrips = 20
 
 # histogramming-method parameters: 
 sbs.gemCeF.commonmode_binwidth_nsigma = 2.0
-sbs.gemCeF.commonmode_scanrange_nsigma = 2.5
+sbs.gemCeF.commonmode_scanrange_nsigma = 5.0
 sbs.gemCeF.commonmode_stepsize_nsigma = 0.25
 
 # attempt to correct common-mode for negative bias:
@@ -397,7 +296,7 @@ sbs.gemCeF.commonmode_nevents_lookback = 10
 
 sbs.gemCeF.plot_common_mode = 0
 sbs.gemCeF.pedsub_online = 1 # normally this should always be set to 1
-sbs.gemCeF.dump_geometry_info = 0
+sbs.gemCeF.dump_geometry_info = 1
 sbs.gemCeF.efficiency_bin_width_1D = 0.02
 sbs.gemCeF.efficiency_bin_width_2D = 0.02
 sbs.gemCeF.commonmode_range_nsigma = 5.0
@@ -406,92 +305,18 @@ sbs.gemCeF.commonmode_range_nsigma = 5.0
 # these may need adjusting:
 sbs.gemCeF.usestriptimingcut = 1
 sbs.gemCeF.useTSchi2cut = 0
-sbs.gemCeF.maxstrip_t0 = 80.0
-sbs.gemCeF.maxstrip_tsigma = 1.0
-sbs.gemCeF.maxstrip_tcut = 40.0
+sbs.gemCeF.maxstrip_t0 = 75.0
+sbs.gemCeF.maxstrip_tsigma = 8.0
+sbs.gemCeF.HitTimeMean = 75.0
+sbs.gemCeF.HitTimeSigma = 8.0
+sbs.gemCeF.maxstrip_tcut = 3.5
 sbs.gemCeF.addstrip_tcut = 35.0
 sbs.gemCeF.addstrip_ccor_cut = 0.4
-sbs.gemCeF.suppressfirstlast = 0
+sbs.gemCeF.suppressfirstlast = -1
 
 sbs.gemCeF.modulegain = 1
 
 sbs.gemCeF.plot_event_info = 0
-
-
-# Alignment after chi2 40
-#sbs.gemCeF.m0.position =               0               0               0
-#sbs.gemCeF.m0.angle =               0               0               0
-#sbs.gemCeF.m1.position =        0.463498      -0.00157892    -0.152659
-#sbs.gemCeF.m1.angle =       -0.1736784     -0.179349      -0.09099257
-#sbs.gemCeF.m2.position =      -0.5372868    0.0003735703    -0.001918614
-#sbs.gemCeF.m2.angle =      -0.2110887      -0.2326176      -0.1388633
-#sbs.gemCeF.m3.position =       0.4634978    -0.001578925       0.1526585
-#sbs.gemCeF.m3.angle =      -0.1736797      -0.1799027     -0.09099347
-#sbs.gemCeF.m4.position =      -0.0726951    -0.001436657        0.150708
-#sbs.gemCeF.m4.angle =      -0.1984305      -0.2007298       0.1075617
-#sbs.gemCeF.m5.position =      -0.6083074    -0.001046005       0.1474166
-#sbs.gemCeF.m5.angle =      -0.2075192      -0.5288797      -0.2270465
-#sbs.gemCeF.m6.position =      -0.7846505    -0.001508583       0.2768335
-#sbs.gemCeF.m6.angle =        -0.17146      -0.2454972     -0.02560937
-#sbs.gemCeF.m7.position =      -0.2753438    -0.002195403       0.2374986
-#sbs.gemCeF.m7.angle =      -0.2248298      -0.3330456     -0.03943421
-#sbs.gemCeF.m8.position =       0.2381732    -0.002409123       0.2819204
-#sbs.gemCeF.m8.angle =     -0.03492949      -0.1363746     -0.02161862
-#sbs.gemCeF.m9.position =       0.7471455    -0.003229248       0.2412632
-#sbs.gemCeF.m9.angle =      -0.1810249      -0.3279095      0.04508918
-#sbs.gemCeF.m10.position =      -0.7831765   -0.0009911551       0.3564045
-#sbs.gemCeF.m10.angle =       -0.305266      -0.2524874      0.01318631
-#sbs.gemCeF.m11.position =      -0.2724617   -5.092704e-05       0.3259518
-#sbs.gemCeF.m11.angle =      -0.1495507      -0.2804575     -0.07591168
-#sbs.gemCeF.m12.position =       0.2409447    -0.002097339        0.361031
-#sbs.gemCeF.m12.angle =      -0.2229843      -0.2020404       0.2685719
-#sbs.gemCeF.m13.position =       0.7488594    -0.000713429       0.3303187
-#sbs.gemCeF.m13.angle =      -0.1528582      -0.1889174     -0.05254339
-#sbs.gemCeF.m14.position =      -0.7725119    -0.001744007       0.5845172
-#sbs.gemCeF.m14.angle =      -0.2306639       -0.495937      0.02053453
-#sbs.gemCeF.m15.position =      -0.2615518   -0.0006883923       0.5524094
-#sbs.gemCeF.m15.angle =      -0.1778804      -0.5140036       0.1788793
-#sbs.gemCeF.m16.position =        0.250754     0.000443014       0.5903507
-#sbs.gemCeF.m16.angle =      -0.1234516      -0.5190474      0.09118659
-#sbs.gemCeF.m17.position =       0.7599085    0.0002937557       0.5605311
-#sbs.gemCeF.m17.angle =      -0.0672784      -0.4705384      0.02486386
-#sbs.gemCeF.m18.position =      -0.7694405   -0.0009808008       0.6665076
-#sbs.gemCeF.m18.angle =      -0.2005919      -0.5634977       0.0126898
-#sbs.gemCeF.m19.position =      -0.2599499    -0.001554618       0.6293624
-#sbs.gemCeF.m19.angle =      -0.2328775      -0.4081877     -0.03620725
-#sbs.gemCeF.m20.position =       0.2532819    2.584934e-05         0.67704
-#sbs.gemCeF.m20.angle =      -0.1533822       -0.440692      0.03625809
-#sbs.gemCeF.m21.position =       0.7619748   -0.0004080341       0.6375848
-#sbs.gemCeF.m21.angle =       -0.213483      -0.4341106      0.03921945
-#sbs.gemCeF.m22.position =      -0.7620814   -4.986055e-05       0.7961825
-#sbs.gemCeF.m22.angle =       -0.351212      -0.3376964    -0.006837592
-#sbs.gemCeF.m23.position =      -0.2541025   -0.0005014531       0.7579465
-#sbs.gemCeF.m23.angle =      -0.2488561      -0.3228679     -0.02736413
-#sbs.gemCeF.m24.position =       0.2607315    0.0009997289       0.8030369
-#sbs.gemCeF.m24.angle =      -0.3886149        -0.35754     -0.08875549
-#sbs.gemCeF.m25.position =       0.7682218    -0.001729283       0.7638991
-#sbs.gemCeF.m25.angle =      -0.3312622      -0.3273019     -0.03308135
-
-
-
-
-
-################### DECODE INFO ########################################################################
-## Channel maps for decoding explained                                                                ##
-## Each entry corresponds to one APV card                                                             ## 
-## Crate = ROC ID = 2 and 4  for SBS VTP                                                              ##
-## Slot = 11 for BigBite VTP                                                                          ##
-## fiber/mpd is fiber number for an MPD module, this is unique for each module within a VTP/SSP       ##
-## gemid is unique "production ID" of a GEM module, not currently used by analysis but useful         ##
-## for bookkeeping/tracking                                                                           ##
-## adc_ch is the unique adc channel of this APV card within its associated MPD                        ##
-## i2c is the "i2c address" of this APV card (not currently used by analysis)                         ##
-## pos maps APV cards to physical locations on the detector                                           ##
-## invert specifies whether strip index runs from "right-to-left" or "left-to-right" within an APV    ##
-## axis specifies which strip orientation/dimension of the readout strips connected to this APV       ##
-## ORDER of entries in the maps is:                                                                   ##
-## crate   slot   fiber/mpd  gemid  adc_ch   i2c   pos     invert   axis                              ##
-########################################################################################################
 
 
 #Sun Mar 27 17:41:50 2022
@@ -830,67 +655,96 @@ sbs.gemCeF.m9.chanmap =
       24      11      13      16      11       9       3       0       0 
       24      11      13      16      12       8       4       0       0
 
+#--------[ 2024-04-01 00:00:00 ] #GEn-RP actual
+sbs.gemCeF.pedfile = gemped/daq_ped_sbs_gem_run7150.dat
+sbs.gemCeF.cmfile = gemped/db_cmr_sbs_gem_run7150.dat
 
-# ###################### TIME-DEPENDENT PEDESTAL FILES ##########################
-
-# time-dependent entries:
-# default value from the beginning of time:
-
-# pedestals during downtime before GEn
-
-sbs.gemCeF.pedfile = gemped/daq_ped_sbs_gem_run6408.dat
-sbs.gemCeF.cmfile = gemped/db_cmr_sbs_gem_run6408.dat
-
---------[ 2024-01-23 17:00:00 ] #GEn-RP Testing
-sbs.gemCeF.pedfile = gemped/daq_ped_sbs_gem_run6417.dat
-sbs.gemCeF.cmfile = gemped/db_cmr_sbs_gem_run6417.dat
-
-# # #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
+#--------[ 2024-04-01 00:00:00 ] #GEn-RP actual
+sbs.gemCeF.pedfile = gemped/daq_ped_sbs_gem_run361.dat
+sbs.gemCeF.cmfile = gemped/db_cmr_sbs_gem_run361.dat
 
 
----------[ 2023-11-02 00:00:00 ] # Cosmic Data before A_LL
+sbs.gemCeF.pmin = 0.5
+sbs.gemCeF.pmax = 4.0
+sbs.gemCeF.xptar_min = -0.2
+sbs.gemCeF.xptar_max = 0.4
 
-sbs.gemCeF.useopticsconstraint = 0
-sbs.gemCeF.useslopeconstraint = 0
-sbs.gemCeF.useconstraint = 0
-#sbs.gemCeF.dump_geometry_info = 1
+sbs.gemCeF.yptar_min = -0.12
+sbs.gemCeF.yptar_max = 0.12
 
----------[ 2023-11-16 14:30:00 ] # Back to Beam A_LL
+sbs.gemCeF.ytar_min = -0.12
+sbs.gemCeF.ytar_max = 0.12
 
-sbs.gemCeF.useopticsconstraint = 0
-sbs.gemCeF.useslopeconstraint = 0
-sbs.gemCeF.useconstraint = 1
-sbs.gemCeF.dump_geometry_info = 0
+sbs.gemCeF.gridbinwidthx = 0.005
+sbs.gemCeF.gridbinwidthy = 0.005
+sbs.gemCeF.gridedgetolerancex = 0.0015
+sbs.gemCeF.gridedgetolerancey = 0.0015
 
-sbs.gemCeF.use_enhanced_chi2 = 0
+sbs.gemCeF.maxhitcombos_total = 1.e20
+
+sbs.gemCeF.suppressfirstlast = -1
+
+#sbs.gemCeF.m*.maxstrip_t0 = 75.0
+#sbs.gemCeF.m*.maxstrip_tsigma 8.0
+#sbs.gemCeF.m*.maxstrip_tcut = 3.5 
+
+sbs.gemCeF.deltat_sigma = 4.0 
+#sbs.gemCeF.deltat_cut = 20.0 
+
+#sbs.gemCeF.HitTimeMean = 75.0 75.0
+#sbs.gemCeF.HitTimeSigma = 8.0 8.0
+
+sbs.gemCeF.ADCasym_sigma = 0.1
+
+sbs.gemCeF.sigma_tcorr = 7.0
+sbs.gemCeF.sigmatrackt0 = 5.0
+#sbs.gemCeF.cuttrackt0 = 25.0
+
+sbs.gemCeF.filterflag1D = -1
+sbs.gemCeF.filterflag2D = -1
+
+-------[ 2024-04-19 16:00:00 ]
+
+sbs.gemCeF.usestriptimingcut = 1
+sbs.gemCeF.suppressfirstlast = -1
+
+sbs.gemCeF.useopticsconstraint = 1
+
+sbs.gemCeF.pmin = 0.5
+sbs.gemCeF.pmax = 4.0
+sbs.gemCeF.xptar_min = -0.2
+sbs.gemCeF.xptar_max = 0.4
+
+sbs.gemCeF.yptar_min = -0.12
+sbs.gemCeF.yptar_max = 0.12
+
+sbs.gemCeF.ytar_min = -0.12
+sbs.gemCeF.ytar_max = 0.12
+
+sbs.gemCeF.zerosuppress_nsigma = 3.0
+sbs.gemCeF.threshold_sample = 40.0
+sbs.gemCeF.threshold_stripsum = 120.0
+sbs.gemCeF.threshold_clustersum = 240.0
+
+sbs.gemCeF.maxstrip_t0 = 84.3 84.0
+sbs.gemCeF.maxstrip_tsigma = 12.1 12.3
+sbs.gemCeF.maxstrip_tcut = 4.5 4.5
+
+
 sbs.gemCeF.minhighqualityhitsontrack = 0
 
+sbs.gemCeF.HitTimeMean = 83.4  83.8
+sbs.gemCeF.HitTimeSigma = 12.4 12.7
 
-# UPDATED SBS GEM alignment 11/22/2023 AJRP: now complete with L6 G0 alignment:
+sbs.gemCeF.deltat_sigma = 11.0
+sbs.gemCeF.deltat_cut = 30.0
 
-sbs.gemCeF.m0.position =        0.535829     -0.00162772      0.00380026
-sbs.gemCeF.m0.angle =      -0.1935199      -0.5373932      -0.1451548
-sbs.gemCeF.m1.position =               0               0               0
-sbs.gemCeF.m1.angle =               0               0               0
-sbs.gemCeF.m2.position =       -0.537287      0.00037357     -0.00191861
-sbs.gemCeF.m2.angle =      -0.2110851      -0.2315895      -0.1388609
-sbs.gemCeF.m3.position =        0.463498     -0.00157892        0.152659
-sbs.gemCeF.m3.angle =      -0.1736784       -0.179349     -0.09099257
-sbs.gemCeF.m4.position =      -0.0726951     -0.00143666        0.150708
-sbs.gemCeF.m4.angle =      -0.1984279      -0.2014714       0.1075602
-sbs.gemCeF.m5.position =       -0.608307     -0.00104601        0.147417
-sbs.gemCeF.m5.angle =      -0.2075018      -0.5272197      -0.2270271
-sbs.gemCeF.m6.position =      -0.7845996    -0.001936556       0.2773505
-sbs.gemCeF.m6.angle =     -0.04167078      -0.0435482     -0.02274097
-sbs.gemCeF.m7.position =      -0.2752569    -0.002478759       0.2375947
-sbs.gemCeF.m7.angle =      -0.1786483      -0.1750239     -0.02832382
-sbs.gemCeF.m8.position =        0.238173     -0.00240912         0.28192
-sbs.gemCeF.m8.angle =     -0.03492928      -0.1363485      -0.0216185
-sbs.gemCeF.m9.position =       0.7473765    -0.003505213       0.2427864
-sbs.gemCeF.m9.angle =      -0.2850874      -0.5575327      0.04768997
+sbs.gemCeF.sigmatrackt0 = 7.1
+sbs.gemCeF.cuttrackt0 = 35.0
 
+sbs.gemCeF.minhighqualityhitsontrack = 0
 
-
+sbs.gemCeF.trackchi2cut = 15.0
 
 
 

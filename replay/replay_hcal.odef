@@ -39,7 +39,7 @@ th2d hADCamp_vs_elem_hcal 'HCAL ADC amp. vs module: ZOOM >> Consult expert if no
 # th2d hADCamp_vs_elem_hcal_cut 'HCAL ADC amplitude vs module (missing TDC info); channel; Amplitude [mV]' sbs.hcal.adcelemID[I] sbs.hcal.a_amp_p[I] 289 0. 289. 500 0 500 sbs.hcal.tdc[I]==1e38&&sbs.hcal.a_time[I]>0 
 
 th1d hATIME_HCAL 'HCAL AdcTime over all channels; ns' sbs.hcal.a_time 250 1 251
-th2d hATIME_HCAL_VS_ID 'HCAL adcTime vs module >> Consult expert if no data in few channels; channel; atime [ns]' sbs.hcal.adcelemID[I] sbs.hcal.a_time[I] 289 0. 289. 250 0. 250. sbs.hcal.a_time[I]>0
+th2d hATIME_HCAL_VS_ID 'HCAL adcTime vs module >> Consult expert if no data in few channels; channel; atime [ns]' sbs.hcal.adcelemID[I] sbs.hcal.a_time[I] 289 0. 289. 200 0. 200. sbs.hcal.a_time[I]>0
 th1d hATIME_HCAL_Clus 'AdcTime HCAL Clus; ns' sbs.hcal.clus_blk.atime 250 1 251 
 
 # Page 3: TDC vs Module
@@ -51,10 +51,10 @@ th2d hTDC_vs_clus_ID 'HCAL TDC vs Module >> Consult expert if no data in few cha
 # (macro) HCal Trigger ADC Time
 
 # Page 4: HCal Trigger ADC Time (Individual Sums)
-th2d hADCt_hcalT_r 'HCal Trigger Sum r-{1-10} ADC Time; ns' sbs.trig.adcelemID[I] sbs.trig.a_time[I] 11 0. 11. 240 0 240
+th2d hADCt_hcalT_r 'HCal Trigger Sum r-{1-10} ADC Time; hcal trig ch; time [ns]' sbs.trig.adcelemID[I] sbs.trig.a_time[I] 11 0. 11. 240 0 240
 
 # Page 6: HCal Trigger ADC Amplitude (Individual Sums)
-th2d hADCamp_hcalT_r 'HCal Trigger Sum r-{1-10} ADC Amplitude; mV' sbs.trig.adcelemID[I] sbs.trig.a_amp_p[I] 10 0.5 10.5 500 0 500
+th2d hADCamp_hcalT_r 'HCal Trigger Sum r-{1-10} ADC Amplitude; hcal trig Ch; amplitude [mV]' sbs.trig.adcelemID[I] sbs.trig.a_amp_p[I] 10 0.5 10.5 500 0 500
 
 # Page 7: Cluster Plots
 th1d hNClus_vs_elem_hcal 'Number of clusters per event : HCAL; N' sbs.hcal.nclus 20 0 20  #Multiplicity

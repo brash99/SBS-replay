@@ -34,6 +34,7 @@
 //#include "SBSGEMStand.h"
 #include "SBSTimingHodoscope.h"
 #include "SBSGEMSpectrometerTracker.h"
+#include "SBSGEMPolarimeterTracker.h"
 #include "SBSGEMTrackerBase.h"
 #include "SBSRasteredBeam.h"
 #include "LHRSScalerEvtHandler.h"
@@ -44,7 +45,7 @@
 
 using namespace std;
 
-void replay_genrp_aonl1(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1217004", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=0, Int_t usesbsgems=0)
+void replay_genrp_aonl1(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1217004", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=0, Int_t usesbsgems=1)
 {
 
   THaAnalyzer* analyzer = new THaAnalyzer;
@@ -120,33 +121,44 @@ void replay_genrp_aonl1(UInt_t runnum=10491, Long_t nevents=-1, Long_t firsteven
   harm->AddDetector(hcal);
 
   SBSGenericDetector* activeAna_adc =  new SBSGenericDetector("activeAna_adc","HAll A gen rp active analyzer");
-  //SBSCalorimeter* activeAna_adc =  new SBSCalorimeter("activeAna_adc","HAll A gen rp active analyzer");
+  //SBSCalorimeter* activeAna_adc =  new SBSCalorimeter("activeAna_adc","HAll A gen rp active analyzer")
+  activeAna_adc->SetDisableRefADC(kTRUE);//haven't implemented reference time yet
   activeAna_adc->SetModeADC(SBSModeADC::kWaveform);
+  //  activeAna_adc->SetModeADC(SBSModeADC::kADC);  
   activeAna_adc->SetModeTDC(SBSModeTDC::kNone);
-  //activeAna_adc->SetStoreRawHits(kTRUE);
-  //activeAna_adc->SetStoreEmptyElements(kFALSE);
+  activeAna_adc->SetStoreRawHits(kTRUE);
+  activeAna_adc->SetStoreEmptyElements(kFALSE);
   harm->AddDetector(activeAna_adc);
 
   SBSGenericDetector* hodoPR_adc =  new SBSGenericDetector("hodoPR_adc","HAll A gen rp side hodoscope");
   //SBSCalorimeter* hodoPR_adc =  new SBSCalorimeter("hodoPR_adc","HAll A gen rp side hodoscope");
+  hodoPR_adc->SetDisableRefADC(kTRUE);//haven't implemented reference time yet
   hodoPR_adc->SetModeADC(SBSModeADC::kWaveform);
+  //hodoPR_adc->SetModeADC(SBSModeADC::kADC);  
   hodoPR_adc->SetModeTDC(SBSModeTDC::kNone);
-  //hodoPR_adc->SetStoreRawHits(kTRUE);
+  hodoPR_adc->SetStoreRawHits(kTRUE);
   hodoPR_adc->SetStoreEmptyElements(kFALSE);
   harm->AddDetector(hodoPR_adc);
 
-  //SBSGenericDetector* activeAna_tdc =  new SBSGenericDetector("activeAna_tdc","HAll A gen rp active analyzer");
+  SBSGenericDetector* activeAna_tdc =  new SBSGenericDetector("activeAna_tdc","HAll A gen rp active analyzer");
   //SBSCalorimeter* activeAna_tdc =  new SBSCalorimeter("activeAna_tdc","HAll A gen rp active analyzer");
-  //activeAna_tdc->SetStoreRawHits(kTRUE);
-  //activeAna_tdc->SetStoreEmptyElements(kFALSE);
-  //harm->AddDetector(activeAna_tdc);
+  activeAna_tdc->SetModeTDC(SBSModeTDC::kTDC);
+  //activeAna_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
+  activeAna_tdc->SetModeADC(SBSModeADC::kNone);
+  activeAna_tdc->SetDisableRefTDC(true);
+  activeAna_tdc->SetStoreRawHits(kTRUE);
+  activeAna_tdc->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector(activeAna_tdc);
 
-  //SBSGenericDetector* hodoPR_tdc =  new SBSGenericDetector("hodoPR_tdc","HAll A gen rp side hodoscope");
+  SBSGenericDetector* hodoPR_tdc =  new SBSGenericDetector("hodoPR_tdc","HAll A gen rp side hodoscope");
   //SBSCalorimeter* hodoPR_tdc =  new SBSCalorimeter("hodoPR_tdc","HAll A gen rp side hodoscope");
-  //hodoPR_tdc->SetStoreRawHits(kTRUE);
-  //hodoPR_tdc->SetStoreEmptyElements(kFALSE);
-  //harm->AddDetector(hodoPR_tdc);
-
+  hodoPR_tdc->SetModeTDC(SBSModeTDC::kTDC);
+  //hodoPR_tdc->SetModeTDC(SBSModeTDC::kCommonStartTDC);
+  hodoPR_tdc->SetModeADC(SBSModeADC::kNone);
+  hodoPR_tdc->SetDisableRefTDC(true);
+  hodoPR_tdc->SetStoreRawHits(kTRUE);
+  hodoPR_tdc->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector(hodoPR_tdc);  
 
   SBSGenericDetector* sbstrig = new SBSGenericDetector("trig","HCal trigs");
   sbstrig->SetModeADC(SBSModeADC::kWaveform);
@@ -155,15 +167,28 @@ void replay_genrp_aonl1(UInt_t runnum=10491, Long_t nevents=-1, Long_t firsteven
   harm->AddDetector( sbstrig );
 
 
-  //SBSGEMSpectrometerTracker *gemCeF = new SBSGEMSpectrometerTracker("gemCeF", "Super BigBite Hall A inline front GEM data");
-  //gemCeF->SetPedestalMode( pm );
-  //gemCeF->SetMakeCommonModePlots( cmplots );
-  //if (usesbsgems != 0 ) harm->AddDetector(gemCeF);
+  harm->SetPolarimeterMode( false );
+
+  SBSGEMSpectrometerTracker *gemCeF = new SBSGEMSpectrometerTracker("gemCeF", "Super BigBite Hall A inline front GEM data");
+  gemCeF->SetPedestalMode( pm );
+  gemCeF->SetMakeCommonModePlots( cmplots );
+  if (usesbsgems != 0 ){
+    harm->AddDetector(gemCeF);
+    if( usesbsgems < 0 ){
+      gemCeF->SetNonTrackingMode( 1 );
+    }
+  }
+  SBSGEMPolarimeterTracker *gemCeR = new SBSGEMPolarimeterTracker("gemCeR", "Super BigBite Hall A inline rear GEM data");
+  gemCeR->SetPedestalMode( pm );
+  gemCeR->SetMakeCommonModePlots( cmplots );
+  if (usesbsgems != 0 ){
+    harm->AddDetector(gemCeR);
+    if( usesbsgems < 0 ){
+      gemCeR->SetNonTrackingMode( 1 );
+    }
+  }
   
-  //SBSGEMSpectrometerTracker *gemCeR = new SBSGEMSpectrometerTracker("gemCeR", "Super BigBite Hall A inline rear GEM data");
-  //gemCeR->SetPedestalMode( pm );
-  //gemCeR->SetMakeCommonModePlots( cmplots );
-  //if (usesbsgems != 0 ) harm->AddDetector(gemCeR);
+
 
   //SBSGEMSpectrometerTracker *gemPR = new SBSGEMSpectrometerTracker("gemPR", "Super BigBite Hall A side GEM data for genrp");
   //gemPR->SetPedestalMode( pm );

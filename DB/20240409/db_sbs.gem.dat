@@ -132,59 +132,103 @@ sbs.gem.m33.apvmap = 1
 sbs.gem.m0.position = 0 0 0
 
 ## Layer 1 # The Z position of the Layer 1 (XW-layer1).
-sbs.gem.m1.position = 0 0 0.05
+sbs.gem.m1.position = 0 0 0.057
 
  ## Second railing - UVA double - Z coordinate of the railing = 0.025 m + 0.267 m (from the drawing) = 0.292 m
  ## Layer 2: Type B layer
-sbs.gem.m2.position = -0.748 0 0.248
-sbs.gem.m3.position = -0.236 0 0.216
-sbs.gem.m4.position =  0.276 0 0.248
-sbs.gem.m5.position =  0.788 0 0.216
- ## Layer 3: Type A layer
-sbs.gem.m6.position = -0.748 0 0.292
-sbs.gem.m7.position = -0.236 0 0.260
-sbs.gem.m8.position =  0.276 0 0.292
-sbs.gem.m9.position =  0.788 0 0.260
+#sbs.gem.m2.position = -0.748 0 0.248
+#sbs.gem.m3.position = -0.236 0 0.216
+#sbs.gem.m4.position =  0.276 0 0.248
+#sbs.gem.m5.position =  0.788 0 0.216
 
+sbs.gem.m2.position = -0.766 0.0 0.237
+sbs.gem.m3.position = -0.257 0.0 0.198
+sbs.gem.m4.position =  0.257 0.0 0.242
+sbs.gem.m5.position =  0.766 0.0 0.203
+
+
+ ## Layer 3: Type A layer
+#sbs.gem.m6.position = -0.748 0 0.292
+#sbs.gem.m7.position = -0.236 0 0.260
+#sbs.gem.m8.position =  0.276 0 0.292
+#sbs.gem.m9.position =  0.788 0 0.260
+
+sbs.gem.m6.position = -0.767 0 0.316
+sbs.gem.m7.position = -0.256 0 0.286
+sbs.gem.m8.position =  0.257 0 0.320
+sbs.gem.m9.position =  0.765 0 0.292
 
  # Third railing - UVA double - Z coordinate of the railing = 0.025 m + 0.593 m (from the drawing) = 0.618 m
  ## Layer 4: Type B layer
-sbs.gem.m10.position = -0.748 0 0.574
-sbs.gem.m11.position = -0.236 0 0.542
-sbs.gem.m12.position =  0.276 0 0.574
-sbs.gem.m13.position =  0.788 0 0.542
+#sbs.gem.m10.position = -0.748 0 0.574
+#sbs.gem.m11.position = -0.236 0 0.542
+#sbs.gem.m12.position =  0.276 0 0.574
+#sbs.gem.m13.position =  0.788 0 0.542
+
+sbs.gem.m10.position = -0.767 0 0.543
+sbs.gem.m11.position = -0.256 0 0.512
+sbs.gem.m12.position =  0.257 0 0.549
+sbs.gem.m13.position =  0.766 0 0.522
+
  ## Layer 5: Type A layer
-sbs.gem.m14.position = -0.748 0 0.618
-sbs.gem.m15.position = -0.236 0 0.586
-sbs.gem.m16.position =  0.276 0 0.618
-sbs.gem.m17.position =  0.788 0 0.586
+#sbs.gem.m14.position = -0.748 0 0.618
+#sbs.gem.m15.position = -0.236 0 0.586
+#sbs.gem.m16.position =  0.276 0 0.618
+#sbs.gem.m17.position =  0.788 0 0.586
+
+sbs.gem.m14.position = -0.766 0 0.6264
+sbs.gem.m15.position = -0.257 0 0.5892
+sbs.gem.m16.position =  0.257 0 0.6369
+sbs.gem.m17.position =  0.766 0 0.5991
 
  # Fourth railing - UVA single - Z coordinate of the railing = 0.025 m + 0.721 m (from the drawing) = 0.746 m
  ## Layer 6: Type A layer
-sbs.gem.m18.position = -0.748 0 0.746
-sbs.gem.m19.position = -0.236 0 0.714
-sbs.gem.m20.position =  0.276 0 0.746
-sbs.gem.m21.position =  0.788 0 0.714
+#sbs.gem.m18.position = -0.748 0 0.746
+#sbs.gem.m19.position = -0.236 0 0.714
+#sbs.gem.m20.position =  0.276 0 0.746
+#sbs.gem.m21.position =  0.788 0 0.714
+
+sbs.gem.m18.position = -0.767   0 0.7566
+sbs.gem.m19.position = -0.257   0 0.7178
+sbs.gem.m20.position =  0.258  0 0.7628
+sbs.gem.m21.position =  0.766  0 0.7249
 
  # Fifth raling - UVA single - Z coordinate of the raling = 0.025 m + 0.849 m (from the drawing) = 0.874 m
  ## Layer 7: Type A layer
-sbs.gem.m22.position = -0.748 0 0.874
-sbs.gem.m23.position = -0.236 0 0.842
-sbs.gem.m24.position =  0.276 0 0.874
-sbs.gem.m25.position =  0.788 0 0.842
+#sbs.gem.m22.position = -0.748 0 0.874
+#sbs.gem.m23.position = -0.236 0 0.842
+#sbs.gem.m24.position =  0.276 0 0.874
+#sbs.gem.m25.position =  0.788 0 0.842
+
+sbs.gem.m22.position = -0.766 0.0 0.8730
+sbs.gem.m23.position = -0.256 0.0 0.8357
+sbs.gem.m24.position =  0.256 0.0 0.8822
+sbs.gem.m25.position =  0.765 0.0 0.8432
 
 coppied from inline layer Third railing of the inline stack
  ## Layer 8: Type B layer
-sbs.gem.m26.position = -0.748 0 0.574
-sbs.gem.m27.position = -0.236 0 0.542
-sbs.gem.m28.position =  0.276 0 0.574
-sbs.gem.m29.position =  0.788 0 0.542
+#sbs.gem.m26.position = -0.748 0 0.574
+#sbs.gem.m27.position = -0.236 0 0.542
+#sbs.gem.m28.position =  0.276 0 0.574
+#sbs.gem.m29.position =  0.788 0 0.542
  ## Layer 9: Type A layer
-sbs.gem.m30.position = -0.748 0 0.618
-sbs.gem.m31.position = -0.236 0 0.586
-sbs.gem.m32.position =  0.276 0 0.618
-sbs.gem.m33.position =  0.788 0 0.586
+#sbs.gem.m30.position = -0.748 0 0.618
+#sbs.gem.m31.position = -0.236 0 0.586
+#sbs.gem.m32.position =  0.276 0 0.618
+#sbs.gem.m33.position =  0.788 0 0.586
 
+# I'm introducing some dummy positions that are outside the acceptance for the PR
+# layers so they don't accidentally affect tracking in the inline stack:
+
+sbs.gem.m26.position = -0.766 -2.0 2.8730
+sbs.gem.m27.position = -0.256 -2.0 2.8357
+sbs.gem.m28.position =  0.256 -2.0 2.8822
+sbs.gem.m29.position =  0.765 -2.0 2.8432
+
+sbs.gem.m30.position = -0.766 -2.0 2.9730
+sbs.gem.m31.position = -0.256 -2.0 2.9357
+sbs.gem.m32.position =  0.256 -2.0 2.9822
+sbs.gem.m33.position =  0.765 -2.0 2.9432
 
 ####### ANGLES  #######
 # ##First setting --- assuming all to be All ZERO
@@ -222,15 +266,17 @@ sbs.gem.m23.angle = 0 0 0
 sbs.gem.m24.angle = 0 0 0
 sbs.gem.m25.angle = 0 0 0
 
-sbs.gem.m26.angle = 0 0 0
-sbs.gem.m27.angle = 0 0 0
-sbs.gem.m28.angle = 0 0 0
-sbs.gem.m29.angle = 0 0 0
+# These GEMs are going to be rotated by 90 degrees about the X axis (not sure
+# what the sign should be)
+sbs.gem.m26.angle = 90 0 0
+sbs.gem.m27.angle = 90 0 0
+sbs.gem.m28.angle = 90 0 0
+sbs.gem.m29.angle = 90 0 0
 
-sbs.gem.m30.angle = 0 0 0
-sbs.gem.m31.angle = 0 0 0
-sbs.gem.m32.angle = 0 0 0
-sbs.gem.m33.angle = 0 0 0
+sbs.gem.m30.angle = 90 0 0
+sbs.gem.m31.angle = 90 0 0
+sbs.gem.m32.angle = 90 0 0
+sbs.gem.m33.angle = 90 0 0
 
 #######
 
@@ -287,11 +333,11 @@ sbs.gem.m33.size = 0.512 0.6144 0.001
 
 #Layer 0 and 1 needs to be confirmed 
 # Layer 0 (UVAXW) - beam hits gas window first 
-sbs.gem.m0.uangle = 0.0
+sbs.gem.m0.uangle = 180.0
 sbs.gem.m0.vangle = 135.0
 
 # Layer 1 (UVAXW) - beam hits r/o board first
-sbs.gem.m1.uangle = 0.0
+sbs.gem.m1.uangle = 180.0
 sbs.gem.m1.vangle = -135.0
 
 # Layer 2 (UVA) - beam hits gas window first
@@ -380,9 +426,9 @@ sbs.gem.m33.vangle = -90.0
 
 # # U offsets:
 #This may need to be checked
-sbs.gem.m0.uoffset = 0.0
+sbs.gem.m0.uoffset = 0.0176
 #This may need to be checked
-sbs.gem.m1.uoffset = 0.0
+sbs.gem.m1.uoffset = 0.0176
 
 sbs.gem.m2.uoffset = 0.0
 sbs.gem.m3.uoffset = 0.0
@@ -652,15 +698,15 @@ sbs.gem.m33.vgain = 1  1  1  1  1  1  1  1  1  1
 ############ parameters searched by SBSGEMModule::ReadDatabase() #################
 ############ offline thresholds: ############
 sbs.gem.threshold_sample = 100.0
-sbs.gem.threshold_stripsum = 400.
-sbs.gem.threshold_clustersum 800.
+sbs.gem.threshold_stripsum = 300.
+sbs.gem.threshold_clustersum 600.
 
 
 sbs.gem.ADCasym_cut = 0.8 
 sbs.gem.deltat_cut = 25.0
 sbs.gem.corrcoeff_cut = 0.5
-sbs.gem.filterflag1D = -1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
-sbs.gem.filterflag2D = 0  # 1 = "hard" filtering: require 2D hits to pass all cuts
+sbs.gem.filterflag1D = 1 # -1 = no filtering: don't require 1D hits to pass any cuts other than basic zero suppression
+sbs.gem.filterflag2D = -1  # 1 = "hard" filtering: require 2D hits to pass all cuts
 
 sbs.gem.peakprominence_minsigma = 3.0 
 sbs.gem.peakprominence_minfraction = 0.15
@@ -695,7 +741,7 @@ sbs.gem.minhitsontrack = 4 #4
 
 sbs.gem.maxhitcombos = 10000 #25000 for final &  50000 for first alignments
 sbs.gem.maxhitcombos_inner = 25000 #25000 for final & 50000 for first alignments
-sbs.gem.maxhitcombos_total = 1.e20
+sbs.gem.maxhitcombos_total = 1.e22
 
 sbs.gem.tryfasttrack = 1  #May get errors before a good alignment. So may be help to turn off during alignment. 
 
@@ -714,10 +760,10 @@ sbs.gem.tryfasttrack = 1  #May get errors before a good alignment. So may be hel
 # sbs.gem.trackchi2cut = 40 #3000.0
 
 # Adjust the grid bins and chi2 here:
- sbs.gem.gridbinwidthx = 0.02
- sbs.gem.gridbinwidthy = 0.02
- sbs.gem.gridedgetolerancex = 0.005
- sbs.gem.gridedgetolerancey = 0.005
+ sbs.gem.gridbinwidthx = 0.005
+ sbs.gem.gridbinwidthy = 0.005
+ sbs.gem.gridedgetolerancex = 0.0015
+ sbs.gem.gridedgetolerancey = 0.0015
  sbs.gem.trackchi2cut = 50.0
 
 # For initial alignment with cosmics, we want to start with no constraints on track-finding:
@@ -727,7 +773,7 @@ sbs.gem.useopticsconstraint = 0
 
 sbs.gem.sigmahitpos = 0.0001
 sbs.gem.do_efficiencies = 1
-sbs.gem.dump_geometry_info = 0
+sbs.gem.dump_geometry_info = 1
 
 sbs.gem.efficiency_bin_width_1D = 0.02
 sbs.gem.efficiency_bin_width_2D = 0.04
@@ -761,7 +807,7 @@ sbs.gem.commonmode_minstrips = 20
 
 # histogramming-method parameters: 
 sbs.gem.commonmode_binwidth_nsigma = 2.0
-sbs.gem.commonmode_scanrange_nsigma = 2.5
+sbs.gem.commonmode_scanrange_nsigma = 5.0
 sbs.gem.commonmode_stepsize_nsigma = 0.25
 
 # attempt to correct common-mode for negative bias:
@@ -774,7 +820,7 @@ sbs.gem.commonmode_nevents_lookback = 10
 
 sbs.gem.plot_common_mode = 0
 sbs.gem.pedsub_online = 1 # normally this should always be set to 1
-sbs.gem.dump_geometry_info = 0
+sbs.gem.dump_geometry_info = 1
 sbs.gem.efficiency_bin_width_1D = 0.02
 sbs.gem.efficiency_bin_width_2D = 0.02
 sbs.gem.commonmode_range_nsigma = 5.0
@@ -783,12 +829,14 @@ sbs.gem.commonmode_range_nsigma = 5.0
 # these may need adjusting:
 sbs.gem.usestriptimingcut = 1
 sbs.gem.useTSchi2cut = 0
-sbs.gem.maxstrip_t0 = 80.0
-sbs.gem.maxstrip_tsigma = 1.0
-sbs.gem.maxstrip_tcut = 40.0
+sbs.gem.maxstrip_t0 = 75.0
+sbs.gem.maxstrip_tsigma = 8.0
+sbs.gem.HitTimeMean = 75.0
+sbs.gem.HitTimeSigma = 8.0
+sbs.gem.maxstrip_tcut = 3.5
 sbs.gem.addstrip_tcut = 35.0
 sbs.gem.addstrip_ccor_cut = 0.4
-sbs.gem.suppressfirstlast = 0
+sbs.gem.suppressfirstlast = 1
 
 sbs.gem.modulegain = 1
 
@@ -1421,7 +1469,34 @@ sbs.gem.m18.chanmap =
       24      11      33      23       1       3       1       0       0 
       24      11      33      23       2       2       2       0       0 
       24      11      33      23       3       1       3       0       0 
-      24      11      33      23       4       0       4       0       0 
+      24      11      33      23       4       0       4       0       0
+# AJRP: testing whether cable swap from A_LL persisted into GEN-RP:
+#Seventh Layer (L6 - m18, m19, m20, m21): UVa (vtp2)
+## vtpcrate  slot  fiber  gemid  adc_ch   i2c   pos     invert   axis       
+#sbs.gem.m18.chanmap = 
+#      24      11      28      23       0      15       0       1       1 
+#      24      11      28      23       1      14       1       1       1 
+#      24      11      28      23       2      13       2       1       1 
+#      24      11      28      23       3      12       3       1       1 
+#      24      11      28      23       8      11       4       1       1 
+#      24      11      28      23       9      10       5       1       1 
+#      24      11      28      23      10       9       6       1       1 
+#      24      11      28      23      11       8       7       1       1 
+#      24      11      28      23       4       7       8       1       1 
+#      24      11      28      23       5       6       9       1       1 
+#      24      11      28      23       6       5      10       1       1 
+#      24      11      28      23       7       4      11       1       1 
+#      24      11      32      23      10       4       9       1       0 
+#      24      11      32      23      11       3       8       1       0 
+#      24      11      32      23      12       2       7       1       0 
+#      24      11      32      23      13       1       6       1       0 
+#      24      11      32      23      14       0       5       1       0 
+#      24      11      33      23       0       4       0       0       0 
+#      24      11      33      23       1       3       1       0       0 
+#      24      11      33      23       2       2       2       0       0 
+#      24      11      33      23       3       1       3       0       0 
+#      24      11      33      23       4       0       4       0       0 
+
 sbs.gem.m19.chanmap = 
       24      11      29      89       0      15       0       1       1 
       24      11      29      89       1      14       1       1       1 
@@ -1845,6 +1920,15 @@ sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run6408.dat
 sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run6417.dat
 sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run6417.dat
 
+--------[ 2024-04-01 00:00:00 ] #GEn-RP actual
+sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run7150.dat
+sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run7150.dat
+
+--------[ 2024-04-23 18:30:00 ] #GEn-RP actual
+sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run361.dat
+sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run361.dat
+
+
 # # #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
 
 
@@ -1866,68 +1950,6 @@ sbs.gem.use_enhanced_chi2 = 0
 sbs.gem.minhighqualityhitsontrack = 0
 
 
-# UPDATED SBS GEM alignment 11/22/2023 AJRP: now complete with L6 G0 alignment:
-
-#sbs.gem.m0.position =        0.535829     -0.00162772      0.00380026
-#sbs.gem.m0.angle =      -0.1935199      -0.5373932      -0.1451548
-#sbs.gem.m1.position =               0               0               0
-#sbs.gem.m1.angle =               0               0               0
-#sbs.gem.m2.position =       -0.537287      0.00037357     -0.00191861
-#sbs.gem.m2.angle =      -0.2110851      -0.2315895      -0.1388609
-#sbs.gem.m3.position =        0.463498     -0.00157892        0.152659
-#sbs.gem.m3.angle =      -0.1736784       -0.179349     -0.09099257
-#sbs.gem.m4.position =      -0.0726951     -0.00143666        0.150708
-#sbs.gem.m4.angle =      -0.1984279      -0.2014714       0.1075602
-#sbs.gem.m5.position =       -0.608307     -0.00104601        0.147417
-#sbs.gem.m5.angle =      -0.2075018      -0.5272197      -0.2270271
-#sbs.gem.m6.position =      -0.7845996    -0.001936556       0.2773505
-#sbs.gem.m6.angle =     -0.04167078      -0.0435482     -0.02274097
-#sbs.gem.m7.position =      -0.2752569    -0.002478759       0.2375947
-#sbs.gem.m7.angle =      -0.1786483      -0.1750239     -0.02832382
-#sbs.gem.m8.position =        0.238173     -0.00240912         0.28192
-#sbs.gem.m8.angle =     -0.03492928      -0.1363485      -0.0216185
-#sbs.gem.m9.position =       0.7473765    -0.003505213       0.2427864
-#sbs.gem.m9.angle =      -0.2850874      -0.5575327      0.04768997
-#sbs.gem.m10.position =      -0.7829861    -0.001370464       0.3560467
-#sbs.gem.m10.angle =      -0.1707759       -0.337697       0.0158596
-#sbs.gem.m11.position =      -0.2724055    -0.000374213       0.3260666
-#sbs.gem.m11.angle =     -0.09574264      -0.1611593     -0.06774987
-#sbs.gem.m12.position =       0.2409345    -0.002189476       0.3604147
-#sbs.gem.m12.angle =      -0.1082267       -0.259379       0.2681444
-#sbs.gem.m13.position =       0.7490447    -0.001012907       0.3320339
-#sbs.gem.m13.angle =      -0.1478788      -0.9211822     -0.06432794
-#sbs.gem.m14.position =      -0.7725845   -0.0009273999        0.583436
-#sbs.gem.m14.angle =      -0.1329824      -0.4844043      0.01631282
-#sbs.gem.m15.position =      -0.2617183     0.000110063       0.5518181
-#sbs.gem.m15.angle =      -0.1861275      -0.3897951       0.1657526
-#sbs.gem.m16.position =       0.2505901      0.00125903       0.5896189
-#sbs.gem.m16.angle =      -0.1513712      -0.3818696      0.08374733
-#sbs.gem.m17.position =       0.7598014    0.0008582009       0.5615675
-#sbs.gem.m17.angle =      -0.1709679      -0.9827283      -0.0082399
-#sbs.gem.m18.position =      -0.7695312   -8.227657e-05       0.6663535
-#sbs.gem.m18.angle =     -0.08060524      -0.5624105     0.004279126
-#sbs.gem.m19.position =       -0.260174   -0.0007655132       0.6292135
-#sbs.gem.m19.angle =      -0.1797691      -0.3697323     -0.05032089
-#sbs.gem.m20.position =       0.2530745     0.000795464        0.676873
-#sbs.gem.m20.angle =       -0.082201       -0.424238      0.02439955
-#sbs.gem.m21.position =       0.7619387    0.0001375218       0.6391206
-#sbs.gem.m21.angle =      -0.2726974        -1.09396     0.001541127
-#sbs.gem.m22.position =      -0.7637424    -0.001588395       0.7966356
-#sbs.gem.m22.angle =      -0.2661056     -0.09595333    -0.006062482
-#sbs.gem.m23.position =      -0.2540109   -0.0008710075       0.7578174
-#sbs.gem.m23.angle =      -0.1908758      -0.2610323     -0.02385383
-#sbs.gem.m24.position =       0.2608666    0.0006371736       0.8027534
-#sbs.gem.m24.angle =      -0.2993821      -0.1781088     -0.08664618
-#sbs.gem.m25.position =       0.7685541    -0.002231925       0.7648642
-#sbs.gem.m25.angle =      -0.3558432      -0.7825635     -0.06132051
-#sbs.gem.m26.position =      -0.7587378     0.002154687       0.9130307
-#sbs.gem.m26.angle =      -0.2065765      -0.4610528      0.01973053
-#sbs.gem.m27.position =       -0.248809     0.001846625       0.8757062
-#sbs.gem.m27.angle =      -0.3037154      -0.4041205       0.1597391
-#sbs.gem.m28.position =        0.262707      0.00127872       0.9221615
-#sbs.gem.m28.angle =      -0.1573127      -0.1207558      0.05528102
-#sbs.gem.m29.position =       0.7721285     0.001269686       0.8831937
-#sbs.gem.m29.angle =      -0.3201829       -0.610923     -0.02947599
 
 
 sbs.gem.m22.usestriptimingcut = 0
@@ -1963,4 +1985,124 @@ sbs.gem.m22.chanmap =
 
 
 
+---------[ 2024-04-10 00:00:00 ] # initial alignment (positions only)
 
+sbs.gem.trackchi2cut = 20.0
+
+sbs.gem.m0.position =    -9.92407e-05       -0.014948    0.0003420129
+sbs.gem.m0.angle =     0.005658904      0.01042058    -0.004514711
+sbs.gem.m1.position =    -0.001061648     -0.01446964      0.06811108
+sbs.gem.m1.angle =       0.1325731       0.1762888     -0.06239812
+sbs.gem.m2.position =      -0.7624573    -0.001271015       0.2356521
+sbs.gem.m2.angle =       0.2270892       0.2584273       0.1090848
+sbs.gem.m3.position =      -0.2508357   -0.0006584436       0.1906687
+sbs.gem.m3.angle =     -0.05872572       0.1978049      0.05618522
+sbs.gem.m4.position =       0.2606494   -0.0005340597       0.2317297
+sbs.gem.m4.angle =      0.06049594        0.360975      0.05054842
+sbs.gem.m5.position =       0.7717895   -0.0002166842       0.1853052
+sbs.gem.m5.angle =      -0.3132894        1.420928       0.1609721
+sbs.gem.m6.position =        -0.76477    -0.001015872       0.3147848
+sbs.gem.m6.angle =       0.1239778      0.08877692       0.1177193
+sbs.gem.m7.position =      -0.2524952    0.0008989072       0.2801908
+sbs.gem.m7.angle =      0.04667416       0.1759578     -0.01086156
+sbs.gem.m8.position =       0.2595003    -0.001088016       0.3119233
+sbs.gem.m8.angle =       0.0609877     -0.02824871       0.3061187
+sbs.gem.m9.position =       0.7692914     0.001290643       0.2788542
+sbs.gem.m9.angle =      -0.5812668      -0.2095559      0.08682803
+sbs.gem.m10.position =      -0.7656478   -0.0002207102       0.5435579
+sbs.gem.m10.angle =       0.2026364     -0.09702295      0.08877064
+sbs.gem.m11.position =      -0.2530167     0.001278206       0.5076592
+sbs.gem.m11.angle =      -0.0324446     -0.05242059       0.1352442
+sbs.gem.m12.position =        0.257696     0.002031102       0.5423379
+sbs.gem.m12.angle =     -0.01780759      0.07955732      0.08478424
+sbs.gem.m13.position =       0.7690253     0.002342126       0.5058875
+sbs.gem.m13.angle =      -0.4373366      0.07501141       0.1203856
+sbs.gem.m14.position =      -0.7667773    0.0002796752       0.6267418
+sbs.gem.m14.angle =       0.3196519      -0.1408276      0.06295581
+sbs.gem.m15.position =       -0.255304     5.86233e-05        0.585546
+sbs.gem.m15.angle =     -0.01031857     -0.06555382      -0.0737156
+sbs.gem.m16.position =       0.2557933    0.0008322721       0.6299071
+sbs.gem.m16.angle =      0.09677174     -0.09350466      0.01356885
+sbs.gem.m17.position =       0.7673998    0.0008827222       0.5820235
+sbs.gem.m17.angle =      -0.2351517     0.001494413       0.1377411
+sbs.gem.m18.position =      -0.7686239    -0.002505885       0.7594452
+sbs.gem.m18.angle =      0.07243406       0.2462728     -0.04271415
+sbs.gem.m19.position =      -0.2557452    -0.002021459       0.7149934
+sbs.gem.m19.angle =     -0.01380435      0.06974578     -0.09351213
+sbs.gem.m20.position =       0.2570204    -0.001673405       0.7570816
+sbs.gem.m20.angle =     -0.05212533       0.2142305      -0.1499371
+sbs.gem.m21.position =       0.7677144    -0.004364798       0.7094717
+sbs.gem.m21.angle =      -0.2859208       -0.824831      0.05057759
+sbs.gem.m22.position =      -0.7687598     0.002016637       0.8747686
+sbs.gem.m22.angle =       0.3372698     -0.04461827     0.009284924
+sbs.gem.m23.position =       -0.256615      0.00141197        0.833545
+sbs.gem.m23.angle =      -0.1093407      -0.0316357      0.05759261
+sbs.gem.m24.position =       0.2526902   -0.0005595826       0.8773625
+sbs.gem.m24.angle =       0.0886665       0.2449412     -0.03232909
+sbs.gem.m25.position =       0.7654679   -0.0007645815       0.8276217
+sbs.gem.m25.angle =      -0.3214451       -1.228375      0.08598936
+sbs.gem.m26.position =          -0.766              -2           2.873
+sbs.gem.m26.angle =        89.99964               0               0
+sbs.gem.m27.position =          -0.256              -2          2.8357
+sbs.gem.m27.angle =        89.99964               0               0
+sbs.gem.m28.position =           0.256              -2          2.8822
+sbs.gem.m28.angle =        89.99964               0               0
+sbs.gem.m29.position =           0.765              -2          2.8432
+sbs.gem.m29.angle =        89.99964               0               0
+sbs.gem.m30.position =          -0.766              -2           2.973
+sbs.gem.m30.angle =        89.99964               0               0
+sbs.gem.m31.position =          -0.256              -2          2.9357
+sbs.gem.m31.angle =        89.99964               0               0
+sbs.gem.m32.position =           0.256              -2          2.9822
+sbs.gem.m32.angle =        89.99964               0               0
+sbs.gem.m33.position =           0.765              -2          2.9432
+sbs.gem.m33.angle =        89.99964               0               0
+
+#sbs.gem.m18.usestriptimingcut = 0
+#sbs.gem.m18.suppressfirstlast = 0
+
+
+#                 nhits = 4    5    6    7    8    9   10       
+sbs.gem.trackchi2cut = 10.0 25.0 25.0 25.0 25.0 25.0 25.0 
+
+sbs.gem.minhitsontrack = 4
+
+sbs.gem.useopticsconstraint = 1
+
+sbs.gem.pmin = 0.5
+sbs.gem.pmax = 4.0
+sbs.gem.xptar_min = -0.2
+sbs.gem.xptar_max = 0.4
+
+sbs.gem.yptar_min = -0.12
+sbs.gem.yptar_max = 0.12
+
+sbs.gem.ytar_min = -0.12
+sbs.gem.ytar_max = 0.12
+
+sbs.gem.gridbinwidthx = 0.005
+sbs.gem.gridbinwidthy = 0.005
+sbs.gem.gridedgetolerancex = 0.0015
+sbs.gem.gridedgetolerancey = 0.0015
+
+sbs.gem.maxhitcombos_total = 1.e20
+
+sbs.gem.suppressfirstlast = 1
+
+#sbs.gem.m*.maxstrip_t0 = 75.0
+#sbs.gem.m*.maxstrip_tsigma 8.0
+#sbs.gem.m*.maxstrip_tcut = 3.5 
+
+sbs.gem.deltat_sigma = 4.0 
+#sbs.gem.deltat_cut = 20.0 
+
+#sbs.gem.HitTimeMean = 75.0 75.0
+#sbs.gem.HitTimeSigma = 8.0 8.0
+
+sbs.gem.ADCasym_sigma = 0.1
+
+sbs.gem.sigma_tcorr = 7.0
+sbs.gem.sigmatrackt0 = 5.0
+sbs.gem.cuttrackt0 = 25.0
+
+sbs.gem.filterflag1D = 1

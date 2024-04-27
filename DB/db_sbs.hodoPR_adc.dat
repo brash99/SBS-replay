@@ -24,7 +24,7 @@ sbs.hodoPR_adc.ncols = 24
 sbs.hodoPR_adc.adc.conv = 0.24414
 
 # Threshold for pulse finding in waveform (mV)
-sbs.hodoPR_adc.adc.thres = 25.
+sbs.hodoPR_adc.adc.thres = 10.
 
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 sbs.hodoPR_adc.adc.NPedBin = 4

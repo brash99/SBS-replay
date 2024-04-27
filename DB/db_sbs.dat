@@ -130,11 +130,29 @@ sbs.optics_origin = 0.0 0.0 4.105
 # so we estimate that the actual first GEN-RP GEM layer in Hall A is about 4.33 m from the target
 # this is probably not a great guess! But anyway,
 # for an initial guess at the ACTUAL position of the SBS GEMs in the hall, we go with:
-sbs.gemorigin_xyz = 0.0 0.0 4.329
+#sbs.gemorigin_xyz = 0.0 0.0 4.329
+#sbs.gemtheta = 0.0
+#sbs.gemphi = 0.0
+
+# AJRP 4/17/2024: Let's update these numbers from the survey report: according to the survey, the CE polarimeter fiducial point is
+# 2.64 mm to beam left, 6.35 mm high, and 4.6 mm DOWNSTREAM of the "ideal" position which I assume is (0,0,4.760 m).
+# assuming X/W layer 0,1 readout boards are symmetrically offset wrt the railing mount and 5.7 cm apart, then
+# the first layer is essentially 0.428 m upstream of the fiducial point, which puts it at about 4.324 m 
+# But wait! according to the survey, the magnet itself is also about 6.2 mm high and about 1.7 mm to beam left and about 1.2 mm upstream of ideal! so in fact,
+# relative to the ideal optics coordinate system, the detector active area center is something like the following (to within a mm or so, not accounting for
+# any mispointing or anything like that.
+sbs.gemorigin_xyz = 0.0 0.0 4.324
 sbs.gemtheta = 0.0
 sbs.gemphi = 0.0
 
-# GEN-RP optics model (4th-order) from g4sbs for 100% field, calculated using
+# the following lines enable use of the "polarimeter mode" analysis:
+sbs.polarimetermode = 1
+# z of detector center line looks like it's more or less at the downstream edge of the analyzer, implying the downstream edge of the analyzer will
+# about 0.428 m downstream of the X/W layer 0. Subtract half the analyzer thickness and we get that the center of the analyzer is about 39.7 cm
+# downstream of the first GEM layer, which seems in the right ballpark.
+sbs.z0analyzer = 0.397
+
+# GEN-RP optics model (4th-order) from g4sbs for 100% SBS field, calculated using
 # Bogdan's field map:
 sbs.optics_order = 4
 
@@ -265,3 +283,62 @@ sbs.optics_parameters =
  -3.1428353e-14 -9.6739951e-14  5.4645474e-13  2.7588539e-13  0 0 1 0 3
   8.3196382e-15   5.290163e-15 -1.1429391e-14 -2.6771796e-14  0 0 0 1 3
   -1.504642e-15  1.4170687e-15 -3.1702403e-15 -5.0905681e-16  0 0 0 0 4
+
+
+# these constraints should be okay to start with for "straight through" tracking with all SBS GEMs treated
+# together as a single tracking unit
+
+#sbs.backconstraintwidth_x = 0.3
+#sbs.backconstraintwidth_y = 0.26
+#sbs.backconstraint_x0 = 0.033 
+#sbs.backconstraint_y0 = 0.0
+
+# use these front constraint widths with "dynamic" constraint calculation in db_sbs.gem.dat
+#sbs.frontconstraintwidth_x = 0.25
+#sbs.frontconstraintwidth_y = 0.2
+#sbs.frontconstraint_x0 = 0.0 
+#sbs.frontconstraint_y0 = 0.0 
+
+
+sbs.usedynamicconstraint = 1
+# theta = xbcp * slope + th0
+sbs.dynamicthslope = 0.11
+sbs.dynamicth0 = -0.051
+
+sbs.dynamicphslope = 0.106
+sbs.dynamicph0 = 0.0
+
+sbs.usedynamicconstraint = 0
+
+sbs.polarimetermode = 1
+
+sbs.backconstraintwidth_x = 0.03 0.3
+sbs.backconstraintwidth_y = 0.03 0.26
+sbs.backconstraint_x0 = 0.0 0.033
+sbs.backconstraint_y0 = 0.0 0.0
+
+sbs.frontconstraintwidth_x = 0.1 1.2
+sbs.frontconstraintwidth_y = 0.1 0.3
+sbs.frontconstraint_x0 = 0.0 0.0
+sbs.frontconstraint_y0 = 0.0 0.0
+
+
+------------[ 2024-04-19 07:30:00 ] # analyzer installed
+
+sbs.polarimetermode = 1
+
+# the constraints to be used in "polarimeter mode" are below. Uncomment after the analyzer is installed
+
+sbs.usedynamicconstraint = 0
+
+sbs.backconstraintwidth_x = 0.006 0.3
+sbs.backconstraintwidth_y = 0.006 0.26
+sbs.backconstraint_x0 = 0.0 0.033
+sbs.backconstraint_y0 = 0.0 0.0
+
+# front constraint width should accommodate polar scattering angles up to
+# about 20 degrees: 0.4 m * tan ( 20 deg ) ~= 0.23
+sbs.frontconstraintwidth_x = 0.13 1.2
+sbs.frontconstraintwidth_y = 0.13 0.3
+sbs.frontconstraint_x0 = 0.0 0.0
+sbs.frontconstraint_y0 = 0.0 0.0

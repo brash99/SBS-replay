@@ -7,7 +7,7 @@
 #include "replay_hcal.odef"
 #include "replay_hodo.odef"
 #include "replay_bb.odef"
-# #include "replay_sbs.odef"
+#include "replay_sbs_genrp.odef"
 # #include "replay_SBSGEM.odef"
 #include "replay_SBSGEM_genrp.odef"
 #include "replay_activeAna.odef"

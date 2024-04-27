@@ -1657,7 +1657,7 @@ sbs.gem.useconstraint = 0
 sbs.gem.useopticsconstraint = 0
 sbs.gem.useslopeconstraint = 0
 sbs.gem.useconstraint = 1
-sbs.gem.dump_geometry_info = 0
+sbs.gem.dump_geometry_info = 1
 
 sbs.gem.use_enhanced_chi2 = 0
 sbs.gem.minhighqualityhitsontrack = 0
