@@ -3259,22 +3259,26 @@ bb.gem.trackchi2cut = 300.0
 
 ---------[ 2024-04-16 18:00:00 ] # Before Beam Checkout before GEN-RP
 bb.gem.usetrigtime = 1
-#bb.gem.trigtime_slope = 1.0
-bb.gem.trigtime_slope = 0.5
-bb.gem.clustering_flag = 0
-bb.gem.deconvolution_flag = 0
+bb.gem.trigtime_slope = 1.0
+#bb.gem.trigtime_slope = 0.5
+bb.gem.clustering_flag = 1
+bb.gem.deconvolution_flag = 1
 
-bb.gem.threshold_sample_deconv = 50.0
-bb.gem.threshold_stripsum_deconv = 100.0
-bb.gem.threshold_clustersum_deconv = 150.0
+bb.gem.threshold_sample_deconv = 40.0
+bb.gem.threshold_stripsum_deconv = 60.0
+bb.gem.threshold_clustersum_deconv = 120.0
 
 bb.gem.corrcoeff_cut_deconv = 0.4
 
 # same cuts used by standard and deconvolution-based clustering:
 # the values below are appropriate when using deconvolution:
 # the following cuts are appropriate for "standard" clustering:
-bb.gem.addstrip_tcut = 35.0
-bb.gem.addstrip_ccor_cut = 0.4
+#bb.gem.addstrip_tcut = 35.0
+#bb.gem.addstrip_ccor_cut = 0.4
+
+# the following values are appropriate for clustering with deconvolution:
+bb.gem.addstrip_tcut = 60.0
+bb.gem.addstrip_ccor_cut = 0.2
 
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
@@ -3304,8 +3308,8 @@ bb.gem.yptar_min = -0.1
 bb.gem.yptar_max = 0.1
 
 # be careful with these, they are angle-dependent:
-bb.gem.ytar_min = -0.12
-bb.gem.ytar_max = 0.12
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
 
 # In all of the SBS-GEN experiment, the maximum electron momentum should be around 4-4.5 GeV:
 # the values below are applicable to GEN-2 kinematics:
@@ -3332,8 +3336,8 @@ bb.gem.usestriptimingcut = 1
 bb.gem.m1.usestriptimingcut = 1
 bb.gem.m3.usestriptimingcut = 1
 bb.gem.suppressfirstlast = -1
-bb.gem.m1.suppressfirstlast = 0
-bb.gem.m3.suppressfirstlast = 0
+bb.gem.m1.suppressfirstlast = -1
+bb.gem.m3.suppressfirstlast = -1
 
 bb.gem.m0.maxstrip_t0 =      87.47       86.7
 bb.gem.m0.maxstrip_tsigma =      6.277      6.283
@@ -3595,21 +3599,21 @@ bb.gem.m7.sigma_tcorr =       5.1923
 
 # cuts appropriate for deconvoluted case:
 
-#bb.gem.m0.sigma_tcorr = 15.
-#bb.gem.m1.sigma_tcorr = 15.
-#bb.gem.m2.sigma_tcorr = 15.
-#bb.gem.m3.sigma_tcorr = 15.
-#bb.gem.m4.sigma_tcorr = 15.
-#bb.gem.m5.sigma_tcorr = 15.
-#bb.gem.m6.sigma_tcorr = 15.
-#bb.gem.m7.sigma_tcorr = 15.
+bb.gem.m0.sigma_tcorr = 15.
+bb.gem.m1.sigma_tcorr = 15.
+bb.gem.m2.sigma_tcorr = 15.
+bb.gem.m3.sigma_tcorr = 15.
+bb.gem.m4.sigma_tcorr = 15.
+bb.gem.m5.sigma_tcorr = 15.
+bb.gem.m6.sigma_tcorr = 15.
+bb.gem.m7.sigma_tcorr = 15.
 
-bb.gem.sigmatrackt0 = 3.55
-bb.gem.cuttrackt0 = 20.0
+#bb.gem.sigmatrackt0 = 3.55
+#bb.gem.cuttrackt0 = 20.0
 
 # use these values for tracking with deconvolution:
-#bb.gem.sigmatrackt0 =       8.0
-#bb.gem.cuttrackt0 = 30.0
+bb.gem.sigmatrackt0 =       8.0
+bb.gem.cuttrackt0 = 35.0
 
 bb.gem.ADCasym_cut = 0.7
 
@@ -3688,6 +3692,14 @@ bb.gem.useslopeconstraint = 0
 
 bb.gem.useopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
+
+# need wider ytarget cuts for 5-foil optics analysis:
+bb.gem.ytar_min = -0.12
+bb.gem.ytar_max = 0.12
+
+--------[ 2024-04-22 17:00:00 ] # back to production, use tighter ytarget cut for cryotarget:
+bb.gem.ytar_min = -0.08
+bb.gem.ytar_max = 0.08
 
 ---------[ 2024-04-24 00:00:00 ] # new GEM alignment after work in Hall on 4/23:
 

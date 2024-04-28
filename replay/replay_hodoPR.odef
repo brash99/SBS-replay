@@ -21,9 +21,13 @@ TH1D hodoPR_fadc_elemid  'Recoil Pol Hodo FADC Good Hits; Element ID' sbs.hodoPR
 TH1D hodoPR_fadc_nhits  'Recoil Pol Hodo FADC Hits' sbs.hodoPR_adc.nhits 50 0.5 50.5
 TH1D hodoPR_tdc_nhits  'Recoil Pol Hodo TDC Hits' sbs.hodoPR_tdc.nhits 50 0.5 50.5
 
-TH1D hodoPR_tdc_hits_time  'Recoil Pol Hodo TDC All Hits Time; time (ns)' sbs.hodoPR_tdc.hits.t[I] 100 0.1 1600
+TH1D hodoPR_tdc_hits_time  'Recoil Pol Hodo TDC All Hits Time; time (ns)' sbs.hodoPR_tdc.hits.t[I] 100 0.1 13000
 TH1D hodoPR_tdc_elemid  'Recoil Pol Hodo TDC All Hits; Element ID' sbs.hodoPR_tdc.hits.TDCelemID[I] 48 -.5 47.5
 
+TH1D hodoPR_h1_int  'Recoil Pol Hodo FADC Pulse Integral' sbs.hodoPR_adc.a_p[I] 50 0.1 300
+TH1D hodoPR_h1_amp  'Recoil Pol Hodo FADC Amplitude' sbs.hodoPR_adc.a_amp_p[I] 50 0.1 400
+TH1D hodoPR_h1_ped  'Recoil Pol Hodo FADC Pedestal' sbs.hodoPR_adc.ped[I]  25 0.1 50
+TH1D hodoPR_h1_mult 'Recoil Pol Hodo FADC Multiplicity' sbs.hodoPR_adc.a_mult[I] 5 -0.5 4.5
 
 begin epics
    hac_bcm_average
