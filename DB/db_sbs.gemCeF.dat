@@ -296,7 +296,7 @@ sbs.gemCeF.commonmode_nevents_lookback = 10
 
 sbs.gemCeF.plot_common_mode = 0
 sbs.gemCeF.pedsub_online = 1 # normally this should always be set to 1
-sbs.gemCeF.dump_geometry_info = 1
+sbs.gemCeF.dump_geometry_info = 0
 sbs.gemCeF.efficiency_bin_width_1D = 0.02
 sbs.gemCeF.efficiency_bin_width_2D = 0.02
 sbs.gemCeF.commonmode_range_nsigma = 5.0
@@ -795,7 +795,6 @@ sbs.gemCeF.m8.maxstrip_tcut = 3.5 3.5
 sbs.gemCeF.m9.maxstrip_t0 = 85 85 
 sbs.gemCeF.m9.maxstrip_tsigma = 10 10
 sbs.gemCeF.m9.maxstrip_tcut = 3.5 3.5
-
 
 
 -------[ 2024-05-02 00:00:00 ] # new alignment after work in hall:

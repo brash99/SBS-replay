@@ -958,6 +958,8 @@ sbs.gemCeR.maxstrip_tcut = 3.5 3.5
 sbs.gemCeR.usestriptimingcut = 1
 sbs.gemCeR.suppressfirstlast = -1
 
+
+sbs.gemCeR.maxhitcombos_total = 1.e16
 sbs.gemCeR.zerosuppress_nsigma = 3.0
 sbs.gemCeR.threshold_sample = 0.0
 sbs.gemCeR.threshold_stripsum = 0.0
@@ -973,6 +975,7 @@ sbs.gemCeR.deltat_cut = 30.0
 
 sbs.gemCeR.sigmatrackt0 = 8.2
 sbs.gemCeR.cuttrackt0 = 24.0
+
 
 sbs.gemCeR.zerosuppress_nsigma = 3.0
 
