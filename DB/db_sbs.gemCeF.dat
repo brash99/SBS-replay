@@ -314,10 +314,20 @@ sbs.gemCeF.addstrip_tcut = 35.0
 sbs.gemCeF.addstrip_ccor_cut = 0.4
 sbs.gemCeF.suppressfirstlast = -1
 
+
+
 sbs.gemCeF.modulegain = 1
 
 sbs.gemCeF.plot_event_info = 0
 
+sbs.gemCeF.usetrigtime = 1
+sbs.gemCeF.trigtime_crate = 5
+sbs.gemCeF.trigtime_slot = 2
+sbs.gemCeF.trigtime_chan = 127
+sbs.gemCeF.trigtime_t0 = 345.0
+sbs.gemCeF.trigtime_calib = 0.0936
+sbs.gemCeF.trigtime_slope = 0.4
+sbs.gemCeF.maxtrigtime_correction = 50.0
 
 #Sun Mar 27 17:41:50 2022
 # Copy the contents of this file into $DB_DIR/db_sbs.gemCeF.dat to use these pedestals for analysis
@@ -722,9 +732,9 @@ sbs.gemCeF.ytar_min = -0.12
 sbs.gemCeF.ytar_max = 0.12
 
 sbs.gemCeF.zerosuppress_nsigma = 3.0
-sbs.gemCeF.threshold_sample = 40.0
-sbs.gemCeF.threshold_stripsum = 120.0
-sbs.gemCeF.threshold_clustersum = 240.0
+sbs.gemCeF.threshold_sample = 50.0
+sbs.gemCeF.threshold_stripsum = 140.0
+sbs.gemCeF.threshold_clustersum = 250.0
 
 sbs.gemCeF.maxstrip_t0 = 84.3 84.0
 sbs.gemCeF.maxstrip_tsigma = 12.1 12.3
@@ -744,7 +754,69 @@ sbs.gemCeF.cuttrackt0 = 35.0
 
 sbs.gemCeF.minhighqualityhitsontrack = 0
 
-sbs.gemCeF.trackchi2cut = 15.0
+sbs.gemCeF.trackchi2cut = 15.0 30.0
+
+sbs.gemCeF.m0.maxstrip_t0 = 84.9379 85.1889
+sbs.gemCeF.m0.maxstrip_tsigma = 9.98572 9.7668
+sbs.gemCeF.m0.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m1.maxstrip_t0 = 82.8748 83.8373
+sbs.gemCeF.m1.maxstrip_tsigma = 8.84247 8.8703
+sbs.gemCeF.m1.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m2.maxstrip_t0 = 85 85 
+sbs.gemCeF.m2.maxstrip_tsigma = 10 10
+sbs.gemCeF.m2.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m3.maxstrip_t0 = 84.3027 82.7546
+sbs.gemCeF.m3.maxstrip_tsigma = 10.3379 9.64996
+sbs.gemCeF.m3.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m4.maxstrip_t0 = 87.4867 87.9687
+sbs.gemCeF.m4.maxstrip_tsigma = 9.50175 9.81817
+sbs.gemCeF.m4.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m5.maxstrip_t0 = 84.0818 88.7727
+sbs.gemCeF.m5.maxstrip_tsigma = 10.3655 11.7372
+sbs.gemCeF.m5.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m6.maxstrip_t0 = 78.381 80.5238
+sbs.gemCeF.m6.maxstrip_tsigma = 8.21787 8.81689
+sbs.gemCeF.m6.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m7.maxstrip_t0 = 84.8892 80.752
+sbs.gemCeF.m7.maxstrip_tsigma = 10.4658 9.85788
+sbs.gemCeF.m7.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m8.maxstrip_t0 = 88.0523 86.8523
+sbs.gemCeF.m8.maxstrip_tsigma = 10.2677 9.66691
+sbs.gemCeF.m8.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeF.m9.maxstrip_t0 = 85 85 
+sbs.gemCeF.m9.maxstrip_tsigma = 10 10
+sbs.gemCeF.m9.maxstrip_tcut = 3.5 3.5
 
 
 
+-------[ 2024-05-02 00:00:00 ] # new alignment after work in hall:
+
+sbs.gemCeF.m0.position =    -9.92407e-05       -0.014948     0.000342013
+sbs.gemCeF.m0.angle =     0.005658904      0.01042015    -0.004514713
+sbs.gemCeF.m1.position =    -0.001047631     -0.01445626      0.06792325
+sbs.gemCeF.m1.angle =       0.1953582       0.1476062     -0.06625662
+sbs.gemCeF.m2.position =       -0.762457     -0.00127101        0.235652
+sbs.gemCeF.m2.angle =       0.2270867       0.2588572       0.1090837
+sbs.gemCeF.m3.position =      -0.2508659   -0.0006618624       0.1909425
+sbs.gemCeF.m3.angle =     -0.01404823       0.2029981      0.05579472
+sbs.gemCeF.m4.position =       0.2606402    -0.000554088       0.2320156
+sbs.gemCeF.m4.angle =      0.03674197       0.4747771       0.0536695
+sbs.gemCeF.m5.position =         0.77179    -0.000216684        0.185305
+sbs.gemCeF.m5.angle =      -0.3131931        1.420019       0.1609226
+sbs.gemCeF.m6.position =        -0.76477     -0.00101587        0.314785
+sbs.gemCeF.m6.angle =       0.1239778      0.08903134       0.1177193
+sbs.gemCeF.m7.position =      -0.2525002    0.0009156538       0.2801965
+sbs.gemCeF.m7.angle =       0.1078735       0.2193887     -0.01058684
+sbs.gemCeF.m8.position =       0.2595009    -0.001085367       0.3118105
+sbs.gemCeF.m8.angle =      -0.0184238      0.03654023       0.3148139
+sbs.gemCeF.m9.position =        0.769291      0.00129064        0.278854
+sbs.gemCeF.m9.angle =      -0.5812657      -0.2104256      0.08682717

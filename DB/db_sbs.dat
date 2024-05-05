@@ -288,16 +288,10 @@ sbs.optics_parameters =
 # these constraints should be okay to start with for "straight through" tracking with all SBS GEMs treated
 # together as a single tracking unit
 
-#sbs.backconstraintwidth_x = 0.3
-#sbs.backconstraintwidth_y = 0.26
-#sbs.backconstraint_x0 = 0.033 
-#sbs.backconstraint_y0 = 0.0
-
-# use these front constraint widths with "dynamic" constraint calculation in db_sbs.gem.dat
-#sbs.frontconstraintwidth_x = 0.25
-#sbs.frontconstraintwidth_y = 0.2
-#sbs.frontconstraint_x0 = 0.0 
-#sbs.frontconstraint_y0 = 0.0 
+sbs.backconstraintwidth_x = 0.3
+sbs.backconstraintwidth_y = 0.26
+sbs.backconstraint_x0 = 0.033 
+sbs.backconstraint_y0 = 0.0
 
 
 sbs.usedynamicconstraint = 1
@@ -308,19 +302,14 @@ sbs.dynamicth0 = -0.051
 sbs.dynamicphslope = 0.106
 sbs.dynamicph0 = 0.0
 
-sbs.usedynamicconstraint = 0
+sbs.usedynamicconstraint = 1
 
-sbs.polarimetermode = 1
+sbs.polarimetermode = 0
 
-sbs.backconstraintwidth_x = 0.03 0.3
-sbs.backconstraintwidth_y = 0.03 0.26
-sbs.backconstraint_x0 = 0.0 0.033
-sbs.backconstraint_y0 = 0.0 0.0
-
-sbs.frontconstraintwidth_x = 0.1 1.2
-sbs.frontconstraintwidth_y = 0.1 0.3
-sbs.frontconstraint_x0 = 0.0 0.0
-sbs.frontconstraint_y0 = 0.0 0.0
+sbs.frontconstraintwidth_x = 0.16
+sbs.frontconstraintwidth_y = 0.15
+sbs.frontconstraint_x0 = 0.0
+sbs.frontconstraint_y0 = 0.0
 
 
 ------------[ 2024-04-19 07:30:00 ] # analyzer installed
@@ -337,7 +326,7 @@ sbs.backconstraint_x0 = 0.0 0.033
 sbs.backconstraint_y0 = 0.0 0.0
 
 # front constraint width should accommodate polar scattering angles up to
-# about 20 degrees: 0.4 m * tan ( 20 deg ) ~= 0.23
+# about 18 degrees: 0.4 m * tan ( 18 deg ) ~= 0.13
 sbs.frontconstraintwidth_x = 0.13 1.2
 sbs.frontconstraintwidth_y = 0.13 0.3
 sbs.frontconstraint_x0 = 0.0 0.0

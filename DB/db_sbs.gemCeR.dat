@@ -16,6 +16,15 @@
 # Layer 6: UVa (L6)
 # Layer 7: UVa (L7)
 
+sbs.gemCeR.usetrigtime = 1
+sbs.gemCeR.trigtime_crate = 5
+sbs.gemCeR.trigtime_slot = 2
+sbs.gemCeR.trigtime_chan = 127
+sbs.gemCeR.trigtime_t0 = 345.0
+sbs.gemCeR.trigtime_calib = 0.0936
+sbs.gemCeR.trigtime_slope = 0.4
+sbs.gemCeR.maxtrigtime_correction = 50.0
+
 sbs.gemCeR.modules = m0 m1 m2 m3  m4 m5 m6 m7  m8 m9 m10 m11  m12 m13 m14 m15
      
 sbs.gemCeR.m0.layer  = 0
@@ -940,7 +949,7 @@ sbs.gemCeR.m15.angle =      -0.3214451       -1.228375      0.08598936
 
 sbs.gemCeR.corrcoeff_cut = 0.5
 
-sbs.gemCeR.trackchi2cut = 15.0
+sbs.gemCeR.trackchi2cut = 15.0 30.0
 
 sbs.gemCeR.maxstrip_t0 = 88.1 87.5
 sbs.gemCeR.maxstrip_tsigma = 11.7 11.1
@@ -965,7 +974,108 @@ sbs.gemCeR.deltat_cut = 30.0
 sbs.gemCeR.sigmatrackt0 = 8.2
 sbs.gemCeR.cuttrackt0 = 24.0
 
-sbs.gemCeR.threshold_sample = 40.0
-sbs.gemCeR.threshold_stripsum = 120.0
-sbs.gemCeR.threshold_clustersum = 240.0
+sbs.gemCeR.zerosuppress_nsigma = 3.0
 
+sbs.gemCeR.threshold_sample = 50.0
+sbs.gemCeR.threshold_stripsum = 140.0
+sbs.gemCeR.threshold_clustersum = 250.0
+
+sbs.gemCeR.m0.maxstrip_t0 = 88 88
+sbs.gemCeR.m0.maxstrip_tsigma = 10 10
+sbs.gemCeR.m0.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m1.maxstrip_t0 = 86.0208 86.6916
+sbs.gemCeR.m1.maxstrip_tsigma = 9.87721 8.93886
+sbs.gemCeR.m1.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m2.maxstrip_t0 = 89.2511 88.5504
+sbs.gemCeR.m2.maxstrip_tsigma = 8.48664 8.20794
+sbs.gemCeR.m2.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m3.maxstrip_t0 = 84.8838 87.2454
+sbs.gemCeR.m3.maxstrip_tsigma = 10.8777 9.40978
+sbs.gemCeR.m3.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m4.maxstrip_t0 = 89.2 89.6333
+sbs.gemCeR.m4.maxstrip_tsigma = 12.1577 12.2658
+sbs.gemCeR.m4.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m5.maxstrip_t0 = 91.0162 88.8586
+sbs.gemCeR.m5.maxstrip_tsigma = 9.85031 9.16064
+sbs.gemCeR.m5.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m6.maxstrip_t0 = 90.615 88.1064
+sbs.gemCeR.m6.maxstrip_tsigma = 9.02575 9.0377
+sbs.gemCeR.m6.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m7.maxstrip_t0 = 88.3924 82.0721
+sbs.gemCeR.m7.maxstrip_tsigma = 10.8237 10.469
+sbs.gemCeR.m7.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m8.maxstrip_t0 = 88 88
+sbs.gemCeR.m8.maxstrip_tsigma = 10 10
+sbs.gemCeR.m8.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m9.maxstrip_t0 = 86.6248 88.0255
+sbs.gemCeR.m9.maxstrip_tsigma = 9.21592 8.22159
+sbs.gemCeR.m9.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m10.maxstrip_t0 = 89.0808 87.6461
+sbs.gemCeR.m10.maxstrip_tsigma = 8.01907 7.97745
+sbs.gemCeR.m10.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m11.maxstrip_t0 = 86.0956 84.7445
+sbs.gemCeR.m11.maxstrip_tsigma = 10.6557 9.10147
+sbs.gemCeR.m11.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m12.maxstrip_t0 = 86.5548 89.3082
+sbs.gemCeR.m12.maxstrip_tsigma = 11.3329 11.8016
+sbs.gemCeR.m12.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m13.maxstrip_t0 = 90.1327 90.7335
+sbs.gemCeR.m13.maxstrip_tsigma = 9.13395 8.33002
+sbs.gemCeR.m13.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m14.maxstrip_t0 = 88.5317 89.0041
+sbs.gemCeR.m14.maxstrip_tsigma = 8.42119 7.85882
+sbs.gemCeR.m14.maxstrip_tcut = 3.5 3.5
+
+sbs.gemCeR.m15.maxstrip_t0 = 90.3926 87.9793
+sbs.gemCeR.m15.maxstrip_tsigma = 11.6277 10.4479
+sbs.gemCeR.m15.maxstrip_tcut = 3.5 3.5
+
+
+-------[ 2024-05-02 00:00:00 ] # new alignment after work in hall:
+
+sbs.gemCeR.m0.position =       -0.765648     -0.00022071        0.543558
+sbs.gemCeR.m0.angle =       0.2026363      -0.0967084      0.08877064
+sbs.gemCeR.m1.position =      -0.2530695       0.0014015       0.5078376
+sbs.gemCeR.m1.angle =     -0.06355564     -0.03215087       0.1226419
+sbs.gemCeR.m2.position =        0.257696       0.0020311        0.542338
+sbs.gemCeR.m2.angle =     -0.01780759      0.07953113        0.084784
+sbs.gemCeR.m3.position =       0.7689324     0.002375821       0.5056554
+sbs.gemCeR.m3.angle =      -0.4637434      0.08352798       0.1181055
+sbs.gemCeR.m4.position =      -0.7667954    0.0001880287        0.627878
+sbs.gemCeR.m4.angle =      0.06938859      -0.3152493       0.1041899
+sbs.gemCeR.m5.position =      -0.2552948    2.397107e-05       0.5855337
+sbs.gemCeR.m5.angle =     -0.03623653     -0.04286199     -0.07259402
+sbs.gemCeR.m6.position =       0.2558358    0.0007580124       0.6299928
+sbs.gemCeR.m6.angle =       0.0941574      0.02325485      0.01274312
+sbs.gemCeR.m7.position =       0.7674131    0.0008361241       0.5822294
+sbs.gemCeR.m7.angle =      -0.2035867     0.004349024       0.1223879
+sbs.gemCeR.m8.position =      -0.7686623     -0.00225542       0.7595463
+sbs.gemCeR.m8.angle =      -0.6714704       0.1935356      -0.1808968
+sbs.gemCeR.m9.position =      -0.2557419    -0.002315846       0.7151266
+sbs.gemCeR.m9.angle =     0.004271973      0.07279585     -0.08843804
+sbs.gemCeR.m10.position =       0.2570747    -0.001963229       0.7569258
+sbs.gemCeR.m10.angle =     -0.03237683       0.2397592      -0.1482076
+sbs.gemCeR.m11.position =       0.7679207    -0.004582554       0.7089152
+sbs.gemCeR.m11.angle =      -0.0761861      -0.3367485      0.03445271
+sbs.gemCeR.m12.position =      -0.7690591     0.002274762        0.874519
+sbs.gemCeR.m12.angle =      -0.2063755       -0.548215     -0.05386812
+sbs.gemCeR.m13.position =      -0.2566768     0.001605645       0.8337153
+sbs.gemCeR.m13.angle =     -0.09275172     -0.04489734       0.0617193
+sbs.gemCeR.m14.position =       0.2526673   -0.0003620614       0.8773215
+sbs.gemCeR.m14.angle =      0.09842006       0.2813914     -0.03726813
+sbs.gemCeR.m15.position =       0.7656332   -0.0005901842       0.8272888
+sbs.gemCeR.m15.angle =      -0.1719173      -0.7612839      0.05911807

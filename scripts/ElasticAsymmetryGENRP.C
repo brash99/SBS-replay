@@ -37,6 +37,32 @@ double PI = TMath::Pi();
 double Mp = 0.938272;
 double Mn = 0.939565;
 
+void CalcScatParams( TVector3 FrontTrackPos, TVector3 FrontTrackDir, TVector3 BackTrackPos, TVector3 BackTrackDir, double &theta, double &phi, double &sclose, double &zclose ){
+  //make the direction vectors unit vectors in case they aren't already:
+  FrontTrackDir = FrontTrackDir.Unit();
+  BackTrackDir = BackTrackDir.Unit();
+  theta = acos( FrontTrackDir.Unit().Dot(BackTrackDir.Unit()) );
+  TVector3 xaxis(1,0,0);
+  TVector3 yaxis = (FrontTrackDir.Cross(xaxis)).Unit();
+  xaxis = (yaxis.Cross(FrontTrackDir)).Unit();
+
+  phi = atan2( BackTrackDir.Dot( yaxis ), BackTrackDir.Dot( xaxis ) );
+  double xpfront = FrontTrackDir.X()/FrontTrackDir.Z();
+  double ypfront = FrontTrackDir.Y()/FrontTrackDir.Z();
+  double xfront = FrontTrackPos.X() - xpfront * FrontTrackPos.Z();
+  double yfront = FrontTrackPos.Y() - ypfront * FrontTrackPos.Z();
+
+  double xpback = BackTrackDir.X()/BackTrackDir.Z();
+  double ypback = BackTrackDir.Y()/BackTrackDir.Z();
+  double xback = BackTrackPos.X() - xpback * BackTrackPos.Z();
+  double yback = BackTrackPos.Y() - ypback * BackTrackPos.Z();
+  
+  double a = 1.0 + pow(xpfront,2) + pow(ypfront,2);
+  double c = 1.0 + pow(xpback,2) + pow(ypback,2);
+  double b = 1.0 + xpfront*xpback + ypfront*ypback;
+
+}
+
 void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilename="ElasticTemp.root" ){
 
   gStyle->SetOptFit();
@@ -183,6 +209,20 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
   int hcal_selectionflag = 0; //0 = choose highest-energy passing ADC coincidence time cut
                               //1 = choose smallest thetapq (proton or neutron)
                               //2 = choose highest-energy regardless of ADC time.
+  // We need a mechanism to enforce the desired IHWP state: run number is probably the best. How about read a list of starting runs after each IHWP change and the state: 
+  double GEMdistSBS = 4.324;
+  double z0analyzer = 0.397;
+  double analyzerdist = GEMdistSBS + z0analyzer; //about 4.72 meters
+
+  //These are for the ones calculated from BigBite info only:
+  double xpana_slope_p=0.229, xpana_offset_p=0.0338, xpana_pslope_p=-0.586; //theta = slope*x + pslope /p - offset
+  double ypana_slope_p=0.211, ypana_offset_p=0.0028, ypana_zslope_p=-0.0862;
+
+  double xpana_slope_pFPP=1.0684, xpana_offset_pFPP=0.0327, xpana_pslope_pFPP = -0.3931;
+  double ypana_slope_pFPP=0.996, ypana_offset_pFPP=0.0;
+  
+
+  std::map<int,int> IHWPstate;
   
   while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endconfig") ){
     if( !currentline.BeginsWith("#") ){
@@ -206,7 +246,24 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
 	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	//   order_ptheta = stemp.Atoi();
 	// }
+
+	if( skey == "GEMdistSBS" ){
+	  TString sval = ( (TObjString*) (*tokens)[1] )->GetString();
+	  GEMdistSBS = sval.Atof();
+	}
+
+	if( skey == "z0analyzer" ){
+	  TString sval = ( (TObjString*) (*tokens)[1] )->GetString();
+	  z0analyzer = sval.Atof();
+	}
 	
+	if( skey == "IHWP" && ntokens >= 3 ){ 
+	  //first is run number, then IHWP state:
+	  TString sfirstrun = ( (TObjString*) (*tokens)[1] )->GetString();
+	  TString sIHWPstate = ( (TObjString*) (*tokens)[2] )->GetString();
+	  IHWPstate[sfirstrun.Atoi()] = sIHWPstate.Atoi();
+	}
+
 	if( skey == "dEdx" ){ //assumed to be given in GeV/(g/cm^2)
 	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	  dEdx_tgt = stemp.Atof();
@@ -419,6 +476,8 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
       tokens->Delete();
     }
   }
+
+  analyzerdist = GEMdistSBS + z0analyzer;
   
   hcal_coordflag = 0;
   xoff_hcal = 0.0;
@@ -509,9 +568,14 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
   //C->SetBranchAddress("fEvtHdr.fRun",&runnumber);
   
   C->SetBranchStatus("g.runnum",1);
+
   double runnumber;
   C->SetBranchAddress("g.runnum", &runnumber);
 
+  double helicity = 0.0;
+  C->SetBranchStatus("scalhel.hel",1);
+  C->SetBranchAddress("scalhel.hel",&helicity);
+  
   C->SetBranchStatus("MC.mc_nucl",1);
   C->SetBranchStatus("MC.mc_fnucl",1);
   
@@ -702,7 +766,68 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
   C->SetBranchAddress("bb.hodotdc.clus.tmean",hodotmean);
   C->SetBranchAddress("bb.hodotdc.clus.tdiff",hodotdiff);
   C->SetBranchAddress("Ndata.bb.hodotdc.clus.tmean",&nhodoclust);
+
+  //SBS GEM variables:
+  C->SetBranchStatus("sbs.gemCeR.*",1);
+  C->SetBranchStatus("Ndata.sbs.gemCeR.track.theta",1);
+  C->SetBranchStatus("sbs.tr.*",1);
+  C->SetBranchStatus("sbs.gemCeF.*",1);
   
+  //Set branch addresses for sbs-specific variables:
+
+  int ngoodFPP; //number of events with both front and back track
+  
+  //We want x,y,th,ph for all the rear gem tracks. 
+  int MAXNSBSTRACKS=30;
+  double ntrackFPP;
+  double xFPP[MAXNSBSTRACKS],yFPP[MAXNSBSTRACKS],xpFPP[MAXNSBSTRACKS],ypFPP[MAXNSBSTRACKS];
+  double nhitFPP[MAXNSBSTRACKS];
+  double chi2ndfFPP[MAXNSBSTRACKS];
+  double thetaFPP[MAXNSBSTRACKS],phiFPP[MAXNSBSTRACKS],scloseFPP[MAXNSBSTRACKS],zcloseFPP[MAXNSBSTRACKS];
+
+  double ntrackFT;
+  double xFT[MAXNSBSTRACKS],yFT[MAXNSBSTRACKS],xpFT[MAXNSBSTRACKS], ypFT[MAXNSBSTRACKS];
+  double nhitFT[MAXNSBSTRACKS];
+  double chi2ndfFT[MAXNSBSTRACKS];
+  double SBSthtar[MAXNSBSTRACKS],SBSphtar[MAXNSBSTRACKS],SBSytar[MAXNSBSTRACKS],SBSp[MAXNSBSTRACKS],SBSpx[MAXNSBSTRACKS],SBSpy[MAXNSBSTRACKS],SBSpz[MAXNSBSTRACKS],SBSvz[MAXNSBSTRACKS];
+  double SBSthfp[MAXNSBSTRACKS],SBSphfp[MAXNSBSTRACKS],SBSyfp[MAXNSBSTRACKS],SBSxfp[MAXNSBSTRACKS];
+  double SBSthetaFPP[MAXNSBSTRACKS],SBSphiFPP[MAXNSBSTRACKS],SBSsclose[MAXNSBSTRACKS],SBSzclose[MAXNSBSTRACKS];
+
+  C->SetBranchAddress("Ndata.sbs.gemCeR.track.theta",&ngoodFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.ntrack",&ntrackFPP);
+  C->SetBranchAddress("sbs.gemCeF.track.ntrack",&ntrackFT);
+  C->SetBranchAddress("sbs.gemCeR.track.x",xFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.y",yFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.xp",xpFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.yp",ypFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.chi2ndf",chi2ndfFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.nhits",nhitFPP);
+
+  C->SetBranchAddress("sbs.gemCeR.track.theta",SBSthetaFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.phi",SBSphiFPP);
+  C->SetBranchAddress("sbs.gemCeR.track.sclose",SBSsclose);
+  C->SetBranchAddress("sbs.gemCeR.track.zclose",SBSzclose);
+
+  C->SetBranchAddress("sbs.gemCeF.track.x",xFT);
+  C->SetBranchAddress("sbs.gemCeF.track.y",yFT);
+  C->SetBranchAddress("sbs.gemCeF.track.xp",xpFT);
+  C->SetBranchAddress("sbs.gemCeF.track.yp",ypFT);
+  C->SetBranchAddress("sbs.gemCeF.track.chi2ndf",chi2ndfFT);
+  C->SetBranchAddress("sbs.gemCeF.track.nhits",nhitFT);
+
+  C->SetBranchAddress("sbs.tr.r_th",SBSthfp);
+  C->SetBranchAddress("sbs.tr.r_ph",SBSphfp);
+  C->SetBranchAddress("sbs.tr.r_x", SBSxfp);
+  C->SetBranchAddress("sbs.tr.r_y", SBSyfp);
+  
+  C->SetBranchAddress("sbs.tr.tg_th",SBSthtar);
+  C->SetBranchAddress("sbs.tr.tg_ph",SBSphtar);
+  C->SetBranchAddress("sbs.tr.tg_y",SBSytar);
+  C->SetBranchAddress("sbs.tr.p",SBSp);
+  C->SetBranchAddress("sbs.tr.px",SBSpx);
+  C->SetBranchAddress("sbs.tr.py",SBSpy);
+  C->SetBranchAddress("sbs.tr.pz",SBSpz);
+  C->SetBranchAddress("sbs.tr.vz",SBSvz);
 
   double pcentral = ebeam/(1.+ebeam/Mp*(1.-cos(bbtheta)));
 
@@ -910,7 +1035,140 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
   Tout->Branch( "grinch_ymean", &T_grinch_ymean, "grinch_ymean/D");
   Tout->Branch( "grinch_adc", &T_grinch_adc, "grinch_adc/D");
 
+  double T_SBSthfp, T_SBSphfp, T_SBSxfp, T_SBSyfp;
+  double T_SBSthtar, T_SBSphtar, T_SBSytar, T_SBSp;
+  double T_SBS_px, T_SBS_py, T_SBS_pz;
+  double T_SBS_vz;
+  double T_SBS_thetaFPP, T_SBS_phiFPP, T_SBS_sclose, T_SBS_zclose;
+  double T_xFPP, T_yFPP, T_xpFPP, T_ypFPP;
+
+  int T_ngoodFPP,T_ntrackFPP, T_ntrackFT;
+
+  int T_hel_IHWP_corr;
+
+  int T_IHWP;
   
+  //helicity corrected for IHWP state
+  Tout->Branch( "helicity", &T_hel_IHWP_corr);
+  Tout->Branch( "IHWP", &T_IHWP );
+  Tout->Branch( "thtgt_SBS", &T_SBSthtar );
+  Tout->Branch( "phtgt_SBS", &T_SBSphtar );
+  Tout->Branch( "ytgt_SBS", &T_SBSytar );
+  Tout->Branch( "p_SBS", &T_SBSp );
+  Tout->Branch( "thfp_SBS", &T_SBSthfp);
+  Tout->Branch( "phfp_SBS", &T_SBSphfp);
+  Tout->Branch( "xfp_SBS", &T_SBSxfp);
+  Tout->Branch( "yfp_SBS", &T_SBSyfp);
+  Tout->Branch( "px_SBS",&T_SBS_px );
+  Tout->Branch( "py_SBS",&T_SBS_py );
+  Tout->Branch( "pz_SBS",&T_SBS_pz );
+  Tout->Branch( "vz_SBS", &T_SBS_vz );
+  Tout->Branch( "ngoodFPP", &T_ngoodFPP);
+  Tout->Branch( "ntrackFPP", &T_ntrackFPP);
+  Tout->Branch( "ntrackFT", &T_ntrackFT);
+  Tout->Branch( "thetaFPP", &T_SBS_thetaFPP);
+  Tout->Branch( "phiFPP", &T_SBS_phiFPP);
+  Tout->Branch( "scloseFPP", &T_SBS_sclose);
+  Tout->Branch( "zcloseFPP", &T_SBS_zclose);
+
+  Tout->Branch( "xFPP", &T_xFPP );
+  Tout->Branch( "yFPP", &T_yFPP );
+  Tout->Branch( "xpFPP", &T_xpFPP );
+  Tout->Branch( "ypFPP", &T_ypFPP );
+
+  // angles reconstructed for hypothetical neutron
+  // from rear GEM intersection with analyzer and BigBite vertex 
+  // (straight-line projection), useful for ChEx analysis
+  double T_thtgtFPP, T_phtgtFPP;
+  double T_qxFPP, T_qyFPP, T_qzFPP;
+  double T_thqFPP, T_phqFPP;
+  double T_xana_expect, T_yana_expect;
+  double T_xana_expect_4vect, T_yana_expect_4vect;
+
+  Tout->Branch("thtgtFPP",&T_thtgtFPP);
+  Tout->Branch("phtgtFPP",&T_phtgtFPP);
+  Tout->Branch("qxFPP",&T_qxFPP);
+  Tout->Branch("qyFPP",&T_qyFPP);
+  Tout->Branch("qzFPP",&T_qzFPP);
+  Tout->Branch("thqFPP", &T_thqFPP);
+  Tout->Branch("phqFPP", &T_phqFPP);
+  Tout->Branch("xana_expect", &T_xana_expect);
+  Tout->Branch("yana_expect", &T_yana_expect);
+  Tout->Branch("xana_expect_4vect", &T_xana_expect_4vect);
+  Tout->Branch("yana_expect_4vect", &T_yana_expect_4vect);
+
+  double T_xana_expect_p, T_yana_expect_p;
+  double T_xana_expect_4vect_p, T_yana_expect_4vect_p;
+
+  double T_xpana_expect_p, T_ypana_expect_p;
+  double T_xpana_expect_n, T_ypana_expect_n;
+
+  double T_xpana_expect_4vect_p, T_ypana_expect_4vect_p;
+  double T_xpana_expect_4vect_n, T_ypana_expect_4vect_n;
+
+  //FPP reconstruction withing Front Tracking, but with back tracking:
+  double T_thetaFPP_noFT_p, T_phiFPP_noFT_p, T_scloseFPP_noFT_p, T_zcloseFPP_noFT_p;
+  double T_thetaFPP_noFT_n, T_phiFPP_noFT_n, T_scloseFPP_noFT_n, T_zcloseFPP_noFT_n;
+  double T_thetaFPP_noFT_4vect_p, T_phiFPP_noFT_4vect_p, T_scloseFPP_noFT_4vect_p, T_zcloseFPP_noFT_4vect_p;
+  double T_thetaFPP_noFT_4vect_n, T_phiFPP_noFT_4vect_n, T_scloseFPP_noFT_4vect_n, T_zcloseFPP_noFT_4vect_n;
+
+  //FPP reconstruction using NO SBS GEM information, only BigBite and HCAL:
+  //In this case it isn't meaningful to talk about closest-approach reconstruction since there are no "tracks" to speak of. 
+  //But we can do this with both the "angles-only" and 4-vector methods:
+  double T_thetaFPP_HCAL_p, T_phiFPP_HCAL_p;
+  double T_thetaFPP_HCAL_n, T_phiFPP_HCAL_n;
+
+  double T_thetaFPP_HCAL_p_4vect, T_phiFPP_HCAL_p_4vect;
+  double T_thetaFPP_HCAL_n_4vect, T_phiFPP_HCAL_n_4vect;
+
+  // In the y direction, there shouldn't really be a difference between proton and neutron,
+  // so those branches are probably redundant.
+  Tout->Branch("xana_expect_p", &T_xana_expect_p);
+  Tout->Branch("yana_expect_p", &T_yana_expect_p);
+  Tout->Branch("xana_expect_4vect_p", &T_xana_expect_4vect_p);
+  Tout->Branch("yana_expect_4vect_p", &T_yana_expect_4vect_p);
+
+  Tout->Branch("xpana_expect_p", &T_xpana_expect_p );
+  Tout->Branch("ypana_expect_p", &T_ypana_expect_p );
+  Tout->Branch("xpana_expect_n", &T_xpana_expect_n );
+  Tout->Branch("ypana_expect_n", &T_ypana_expect_n );
+
+  Tout->Branch("xpana_expect_4vect_p", &T_xpana_expect_4vect_p );
+  Tout->Branch("ypana_expect_4vect_p", &T_ypana_expect_4vect_p );
+  Tout->Branch("xpana_expect_4vect_n", &T_xpana_expect_4vect_n );
+  Tout->Branch("ypana_expect_4vect_n", &T_ypana_expect_4vect_n );
+
+  Tout->Branch("thetaFPP_noFT_p", &T_thetaFPP_noFT_p);
+  Tout->Branch("phiFPP_noFT_p", &T_phiFPP_noFT_p);
+  Tout->Branch("scloseFPP_noFT_p", &T_scloseFPP_noFT_p);
+  Tout->Branch("zcloseFPP_noFT_p", &T_zcloseFPP_noFT_p);
+
+  Tout->Branch("thetaFPP_noFT_n", &T_thetaFPP_noFT_n);
+  Tout->Branch("phiFPP_noFT_n", &T_phiFPP_noFT_n);
+  Tout->Branch("scloseFPP_noFT_n", &T_scloseFPP_noFT_n);
+  Tout->Branch("zcloseFPP_noFT_n", &T_zcloseFPP_noFT_n);
+
+  Tout->Branch("thetaFPP_noFT_4vect_p", &T_thetaFPP_noFT_4vect_p);
+  Tout->Branch("phiFPP_noFT_4vect_p", &T_phiFPP_noFT_4vect_p);
+  Tout->Branch("scloseFPP_noFT_4vect_p", &T_scloseFPP_noFT_4vect_p);
+  Tout->Branch("zcloseFPP_noFT_4vect_p", &T_zcloseFPP_noFT_4vect_p);
+
+  Tout->Branch("thetaFPP_noFT_4vect_n", &T_thetaFPP_noFT_4vect_n);
+  Tout->Branch("phiFPP_noFT_4vect_n", &T_phiFPP_noFT_4vect_n);
+  Tout->Branch("scloseFPP_noFT_4vect_n", &T_scloseFPP_noFT_4vect_n);
+  Tout->Branch("zcloseFPP_noFT_4vect_n", &T_zcloseFPP_noFT_4vect_n);
+
+  Tout->Branch("thetaFPP_HCAL_p", &T_thetaFPP_HCAL_p);
+  Tout->Branch("phiFPP_HCAL_p", &T_phiFPP_HCAL_p);
+  Tout->Branch("thetaFPP_HCAL_n", &T_thetaFPP_HCAL_n);
+  Tout->Branch("phiFPP_HCAL_n", &T_phiFPP_HCAL_n);
+
+  Tout->Branch("thetaFPP_HCAL_p_4vect", &T_thetaFPP_HCAL_p_4vect);
+  Tout->Branch("phiFPP_HCAL_p_4vect", &T_phiFPP_HCAL_p_4vect);
+  Tout->Branch("thetaFPP_HCAL_n_4vect", &T_thetaFPP_HCAL_n_4vect);
+  Tout->Branch("phiFPP_HCAL_n_4vect", &T_phiFPP_HCAL_n_4vect);
+ 
+
   Long64_t NTOT = C->GetEntriesFast();
 
   //First pass: accumulate sums required for the fit: 
@@ -921,10 +1179,12 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
   
   //for( Long64_t ievent=0; ievent<NTOT; ievent++ ){
 
+  //default IHWP state to 0 (OUT):
+
   long ievent = 0;
   while( C->GetEntry(ievent) ){
   
-    if( ievent % 100000 == 0 ) {
+    if( ievent % 10000 == 0 ) {
       cout << ievent << ", run number = " << runnumber << endl;
     }
     //Long64_t chainEntry = ievent;
@@ -955,6 +1215,22 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
     }
 
     T_runnum = runnumber;
+
+    int IHWP_state = 0; //default to out:
+    //Find the largest run number less than or equal to runnumber:
+    for( auto irun : IHWPstate ){ 
+      int rnumtemp = irun.first;
+      if( rnumtemp < int(runnumber) ){
+	IHWP_state = irun.second;
+      }
+    }
+
+    T_IHWP = IHWP_state;
+
+    helicity *= pow(-1,IHWP_state);
+
+    // std::cout << "run number, IHWP state = " << int(runnumber) << ", "
+    // 	      << IHWP_state << std::endl;
 
     ievent++;
     
@@ -1006,8 +1282,59 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
       double Q2recon = 2.0*Ebeam_corrected*precon*(1.0-cos(etheta));
       double W2recon = pow(Mp,2) + 2.0*Mp*nu_recon - Q2recon;
 
+      T_hel_IHWP_corr = int(helicity);
+
       T_Q2 = Q2recon;
       T_W2 = W2recon;
+
+      T_ngoodFPP = ngoodFPP;
+
+      T_ntrackFPP = int(ntrackFPP);
+      T_ntrackFT = int(ntrackFT);
+
+      //Initialize SBS tracking variables to nonsense values to avoid 
+      //confusion
+      T_SBSthfp = -1000.;
+      T_SBSphfp = -1000.;
+      T_SBSxfp = -1000.;
+      T_SBSyfp = -1000.;
+      T_SBSthtar = -1000.;
+      T_SBSphtar = -1000.;
+      T_SBSytar = -1000.;
+      T_SBSp = -1000.;
+      T_SBS_px = -1000.;
+      T_SBS_py = -1000.;
+      T_SBS_pz = -1000.;
+      T_SBS_vz = -1000.;
+
+      T_SBS_thetaFPP = -1000.;
+      T_SBS_phiFPP = -1000.;
+      T_SBS_sclose = -1000.;
+      T_SBS_zclose = -1000.;
+      
+      if( ntrackFT > 0 ){ // Set SBS spectrometer variables:
+	T_SBSthfp = SBSthfp[0];
+	T_SBSphfp = SBSphfp[0];
+	T_SBSxfp = SBSxfp[0];
+	T_SBSyfp = SBSyfp[0];
+
+	T_SBSthtar = SBSthtar[0];
+	T_SBSphtar = SBSphtar[0];
+	T_SBSytar = SBSytar[0];
+	T_SBSp = SBSp[0];
+	
+	T_SBS_px = SBSpx[0];
+	T_SBS_py = SBSpy[0];
+	T_SBS_pz = SBSpz[0];
+	T_SBS_vz = SBSvz[0];
+      }
+      if( ngoodFPP > 0 ){
+	T_SBS_thetaFPP = SBSthetaFPP[0];
+	T_SBS_phiFPP = SBSphiFPP[0];
+	T_SBS_sclose = SBSsclose[0];
+	T_SBS_zclose = SBSzclose[0];
+      }
+
 
       //1 + nu^2 / Q^2 = 1 + Q^4/(4M^2 Q^2) = 1 + tau
       
@@ -1141,9 +1468,96 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
       //thetabend = 0.3 * BdL/p: 
       double proton_deflection = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
       
+      //We can play basically the same kind of game with projecting to the analyzer; assume that the deflection takes place at the midpoint of the magnet gap: 
+      double pdeflect_analyzer_4vect = tan( 0.3* BdL / qvect.Mag() ) * (analyzerdist - (sbsdist + Dgap/2.0) );
+      double pdeflect_analyzer = tan( 0.3 * BdL / pp_expect ) * (analyzerdist - (sbsdist + Dgap/2.0) );
+
       T_protondeflect = proton_deflection;
       T_dt = -1000.0;
+
+      T_thtgtFPP = -1000.;
+      T_phtgtFPP = -1000.;
+      T_qxFPP = -1000.;
+      T_qyFPP = -1000.;
+      T_qzFPP = -1000.;
+      T_thqFPP = -1000.;
+      T_phqFPP = -1000.;
+
+      TVector3 AnaOrigin = analyzerdist * HCAL_zaxis; //This turns out 
+      // to only matter if we want to project to the analyzer:
+
+      double sint_ana = (AnaOrigin - vertex).Dot(HCAL_zaxis)/(pNhat.Dot(HCAL_zaxis));
+      double sint_ana4 = (AnaOrigin - vertex).Dot(HCAL_zaxis)/(qunit.Dot(HCAL_zaxis));
+
+      TVector3 AnaIntersect = vertex + sint_ana * pNhat;
+      TVector3 AnaIntersect4 = vertex + sint_ana4 * qunit;
+      T_xana_expect = (AnaIntersect - AnaOrigin).Dot(HCAL_xaxis);
+      T_yana_expect = (AnaIntersect - AnaOrigin).Dot(HCAL_yaxis);
+      T_xana_expect_4vect = (AnaIntersect4 - AnaOrigin).Dot(HCAL_xaxis);
+      T_yana_expect_4vect = (AnaIntersect4 - AnaOrigin).Dot(HCAL_yaxis);
+
+      T_xana_expect_p = T_xana_expect - pdeflect_analyzer;
+      T_yana_expect_p = T_yana_expect;
+
+      T_xana_expect_4vect_p = T_xana_expect_4vect - pdeflect_analyzer_4vect;
+      T_yana_expect_4vect_p = T_yana_expect_4vect;
+
+      T_xpana_expect_p = xpana_slope_p * T_xana_expect + xpana_pslope_p/pp_expect - xpana_offset_p;
+      T_ypana_expect_p = ypana_slope_p * T_yana_expect + ypana_zslope_p*vz - ypana_offset_p;
       
+      T_xpana_expect_4vect_p = xpana_slope_p * T_xana_expect_4vect + xpana_pslope_p/pp_expect - xpana_offset_p;
+      T_ypana_expect_4vect_p = ypana_slope_p * T_yana_expect_4vect + ypana_zslope_p*vz - ypana_offset_p;
+
+      T_xpana_expect_n = pNhat.Dot(HCAL_xaxis)/pNhat.Dot(HCAL_zaxis);
+      T_ypana_expect_n = pNhat.Dot(HCAL_yaxis)/pNhat.Dot(HCAL_zaxis);
+
+      T_xpana_expect_4vect_n = qunit.Dot(HCAL_xaxis)/qunit.Dot(HCAL_zaxis);
+      T_ypana_expect_4vect_n = qunit.Dot(HCAL_yaxis)/qunit.Dot(HCAL_zaxis);
+
+      if( ntrackFPP > 0 ){ //Calculate neutron polarimetry stuff:
+	
+	TVector3 FPPintersect_local(xFPP[0] + xpFPP[0]*z0analyzer,
+				    yFPP[0] + ypFPP[0]*z0analyzer, 
+				    analyzerdist);
+
+	TVector3 FPPintersect_global = FPPintersect_local.X() * HCAL_xaxis +
+	  FPPintersect_local.Y() * HCAL_yaxis + 
+	  FPPintersect_local.Z() * HCAL_zaxis; 
+
+	TVector3 pNhat_nFPP = (FPPintersect_global - vertex).Unit();
+	
+	T_qxFPP = qvect.Mag()*pNhat_nFPP.X();
+	T_qyFPP = qvect.Mag()*pNhat_nFPP.Y();
+	T_qzFPP = qvect.Mag()*pNhat_nFPP.Z();
+
+	T_thqFPP = pNhat_nFPP.Theta();
+	T_phqFPP = pNhat_nFPP.Phi();
+	
+	T_thtgtFPP = pNhat_nFPP.Dot(HCAL_xaxis)/pNhat_nFPP.Dot(HCAL_zaxis);
+	T_phtgtFPP = pNhat_nFPP.Dot(HCAL_yaxis)/pNhat_nFPP.Dot(HCAL_zaxis);
+
+	//If we have a back track, we can do an even better prediction of the front angles:
+	T_xpana_expect_p = xpana_slope_pFPP * T_thtgtFPP + xpana_pslope_pFPP/pp_expect + xpana_offset_pFPP;
+	T_ypana_expect_p = ypana_slope_pFPP * T_phtgtFPP + ypana_offset_pFPP;
+
+	T_xpana_expect_n = T_thtgtFPP;
+	T_ypana_expect_n = T_phtgtFPP;
+
+	//If we have the back track, the distinction between the "4vector" method and the "angles-only" method doesn't exist: 
+	T_xpana_expect_4vect_p = T_xpana_expect_p;
+	T_ypana_expect_4vect_p = T_ypana_expect_p;
+	T_xpana_expect_4vect_n = T_thtgtFPP;
+	T_ypana_expect_4vect_n = T_phtgtFPP;
+
+	T_xFPP = xFPP[0];
+	T_yFPP = yFPP[0];
+	T_xpFPP = xpFPP[0];
+	T_ypFPP = ypFPP[0];
+
+	//now calculate scattering angles/etc without Front Track info:
+      }
+
+
       for( int iclust=0; iclust<nhcalclust; iclust++ ){
 	
 	TVector3 HCALpos = HCAL_origin + (xHCAL[iclust] - dx0) * HCAL_xaxis + (yHCAL[iclust]-dy0) * HCAL_yaxis;

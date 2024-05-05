@@ -4,7 +4,7 @@
 // Requires Podd 1.7.4
 
 //#if !defined(__CLING__) || defined(__ROOTCLING__)
-R__LOAD_LIBRARY($SBSOFFLINE/lib64/libsbs.so);
+//R__LOAD_LIBRARY($SBSOFFLINE/lib64/libsbs.so);
 #include <iostream>
 
 #include "TSystem.h"
@@ -348,7 +348,7 @@ void replay_genrp_StraightThrough(UInt_t runnum=10491, Long_t nevents=-1, Long_t
   //added cut list in order to have
   //on the farm we only write out events with a track in BigBite
   //TString cdef_filename = "replay_gen_farm.cdef";
-  TString cdef_filename = "replay_genrp.cdef";
+  TString cdef_filename = "replay_genrp_full.cdef";
 
   //the above cdef file includes almost no significant cuts (basically just any hit in BigBite shower or preshower
   cdef_filename.Prepend( prefix );
