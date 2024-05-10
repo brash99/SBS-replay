@@ -61,6 +61,33 @@ void CalcScatParams( TVector3 FrontTrackPos, TVector3 FrontTrackDir, TVector3 Ba
   double c = 1.0 + pow(xpback,2) + pow(ypback,2);
   double b = 1.0 + xpfront*xpback + ypfront*ypback;
 
+  double det = a*c - b*b;
+  
+  TMatrixD Mlhs(2,2);
+  Mlhs(0,0) = c/det;
+  Mlhs(0,1) = b/det;
+  Mlhs(1,0) = b/det;
+  Mlhs(1,1) = a/det;
+
+  TVectorD brhs(2);
+  brhs(0) = -xpfront * (xfront-xback) - ypfront*(yfront-yback);
+  brhs(1) = xpback * (xfront-xback) + ypback * (yfront-yback);
+  
+  TVectorD solution = Mlhs*brhs;
+
+  double z1 = solution(0);
+  double z2 = solution(1);
+
+  zclose = 0.5*(z1+z2);
+  double x1 = xfront + xpfront*z1;
+  double y1 = yfront + ypfront*z1; 
+  double x2 = xback + xpback*z2; 
+  double y2 = yback + ypback*z2; 
+
+  double s2 = pow(x1-x2,2)+pow(y1-y2,2)+pow(z1-z2,2);
+  sclose = sqrt(s2);
+  
+  return;
 }
 
 void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilename="ElasticTemp.root" ){
@@ -1503,16 +1530,29 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
       T_yana_expect_4vect_p = T_yana_expect_4vect;
 
       T_xpana_expect_p = xpana_slope_p * T_xana_expect + xpana_pslope_p/pp_expect - xpana_offset_p;
-      T_ypana_expect_p = ypana_slope_p * T_yana_expect + ypana_zslope_p*vz - ypana_offset_p;
+      T_ypana_expect_p = ypana_slope_p * T_yana_expect + ypana_zslope_p*vz[0] - ypana_offset_p;
       
       T_xpana_expect_4vect_p = xpana_slope_p * T_xana_expect_4vect + xpana_pslope_p/pp_expect - xpana_offset_p;
-      T_ypana_expect_4vect_p = ypana_slope_p * T_yana_expect_4vect + ypana_zslope_p*vz - ypana_offset_p;
+      T_ypana_expect_4vect_p = ypana_slope_p * T_yana_expect_4vect + ypana_zslope_p*vz[0] - ypana_offset_p;
 
       T_xpana_expect_n = pNhat.Dot(HCAL_xaxis)/pNhat.Dot(HCAL_zaxis);
       T_ypana_expect_n = pNhat.Dot(HCAL_yaxis)/pNhat.Dot(HCAL_zaxis);
 
       T_xpana_expect_4vect_n = qunit.Dot(HCAL_xaxis)/qunit.Dot(HCAL_zaxis);
       T_ypana_expect_4vect_n = qunit.Dot(HCAL_yaxis)/qunit.Dot(HCAL_zaxis);
+
+      TVector3 FrontPos_p(T_xana_expect_p, T_yana_expect_p, z0analyzer);
+      TVector3 FrontPos_n(T_xana_expect, T_yana_expect, z0analyzer);
+      
+      TVector3 FrontPos_p4(T_xana_expect_4vect_p, T_yana_expect_4vect_p, z0analyzer);
+      TVector3 FrontPos_n4(T_xana_expect_4vect, T_yana_expect_4vect, z0analyzer);
+
+      TVector3 FrontDir_p(T_xpana_expect_p, T_ypana_expect_p, 1.0 );
+      TVector3 FrontDir_n(T_xpana_expect_n, T_ypana_expect_n, 1.0 );
+      
+      TVector3 FrontDir_p4(T_xpana_expect_4vect_p, T_ypana_expect_4vect_p, 1.0 );
+      TVector3 FrontDir_n4(T_xpana_expect_4vect_n, T_ypana_expect_4vect_n, 1.0 );
+
 
       if( ntrackFPP > 0 ){ //Calculate neutron polarimetry stuff:
 	
@@ -1549,13 +1589,33 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
 	T_xpana_expect_4vect_n = T_thtgtFPP;
 	T_ypana_expect_4vect_n = T_phtgtFPP;
 
+	FrontDir_p.SetXYZ( T_xpana_expect_p, T_ypana_expect_p, 1.0 );
+	FrontDir_n.SetXYZ( T_xpana_expect_n, T_ypana_expect_n, 1.0 );
+	FrontDir_p4.SetXYZ( T_xpana_expect_4vect_p, T_ypana_expect_4vect_p, 1.0 );
+	FrontDir_n4.SetXYZ( T_xpana_expect_4vect_n, T_ypana_expect_4vect_n, 1.0 );
+
 	T_xFPP = xFPP[0];
 	T_yFPP = yFPP[0];
 	T_xpFPP = xpFPP[0];
 	T_ypFPP = ypFPP[0];
 
 	//now calculate scattering angles/etc without Front Track info:
+
+	//sclose and zclose not as meaningful for 
+
+	TVector3 BackPos(T_xFPP, T_yFPP, z0analyzer);
+	TVector3 BackDir(T_xpFPP, T_ypFPP, 1.0);
+
+
+	CalcScatParams( FrontPos_p, FrontDir_p, BackPos, BackDir, T_thetaFPP_noFT_p, T_phiFPP_noFT_p, T_scloseFPP_noFT_p, T_zcloseFPP_noFT_p );
+	CalcScatParams( FrontPos_n, FrontDir_n, BackPos, BackDir, T_thetaFPP_noFT_n, T_phiFPP_noFT_n, T_scloseFPP_noFT_n, T_zcloseFPP_noFT_n );
+	
+	CalcScatParams( FrontPos_p4, FrontDir_p4, BackPos, BackDir, T_thetaFPP_noFT_4vect_p, T_phiFPP_noFT_4vect_p, T_scloseFPP_noFT_4vect_p, T_zcloseFPP_noFT_4vect_p );
+	CalcScatParams( FrontPos_n4, FrontDir_n4, BackPos, BackDir, T_thetaFPP_noFT_4vect_n, T_phiFPP_noFT_4vect_n, T_scloseFPP_noFT_4vect_n, T_zcloseFPP_noFT_4vect_n );
+
       }
+
+      
 
 
       for( int iclust=0; iclust<nhcalclust; iclust++ ){
@@ -1698,7 +1758,24 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
 	T_EHCAL = EHCAL[ibest_HCAL];
 	T_deltax = xHCAL[ibest_HCAL] - xexpect_HCAL - dx0;
 	T_deltay = yHCAL[ibest_HCAL] - yexpect_HCAL - dy0;
-	  	  
+
+	//Finally, let's calculate azimuthal theta and phi angles using 
+	// BigBite and HCAL information only
+	TVector3 HCALpos(T_xHCAL-dx0, T_yHCAL-dy0, hcaldist - analyzerdist+z0analyzer );
+
+	TVector3 HCALdir_p = (HCALpos-FrontPos_p).Unit();
+	TVector3 HCALdir_n = (HCALpos-FrontPos_n).Unit();
+	
+	TVector3 HCALdir_p4 = (HCALpos-FrontPos_p4).Unit();
+	TVector3 HCALdir_n4 = (HCALpos-FrontPos_n4).Unit();
+
+	double sdummy, zdummy;
+
+	CalcScatParams( FrontPos_p, FrontDir_p, HCALpos, HCALdir_p, T_thetaFPP_HCAL_p, T_phiFPP_HCAL_p, sdummy, zdummy );
+	CalcScatParams( FrontPos_n, FrontDir_n, HCALpos, HCALdir_n, T_thetaFPP_HCAL_n, T_phiFPP_HCAL_n, sdummy, zdummy );
+	CalcScatParams( FrontPos_p4, FrontDir_p4, HCALpos, HCALdir_p4, T_thetaFPP_HCAL_p_4vect, T_phiFPP_HCAL_p_4vect, sdummy, zdummy );
+	CalcScatParams( FrontPos_n4, FrontDir_n4, HCALpos, HCALdir_n4, T_thetaFPP_HCAL_n_4vect, T_phiFPP_HCAL_n_4vect, sdummy, zdummy );
+ 	  
 	if( usehcalcut != 0 ){
 	  passed_HCAL_cut = pow( (xHCAL[ibest_HCAL]-xexpect_HCAL - dx0)/dxsigma, 2 ) +
 	    pow( (yHCAL[ibest_HCAL]-yexpect_HCAL - dy0)/dysigma, 2 ) <= pow(2.5,2); 

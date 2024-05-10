@@ -3285,7 +3285,7 @@ bb.gem.useslopeconstraint = 1
 bb.gem.useforwardopticsconstraint = 0
 bb.gem.useconstraint = 1
 
-bb.gem.dump_geometry_info = 1
+bb.gem.dump_geometry_info = 0
 
 # typical values after alignment:
 
