@@ -819,3 +819,7 @@ sbs.gemCeF.m8.position =       0.2595009    -0.001085367       0.3118105
 sbs.gemCeF.m8.angle =      -0.0184238      0.03654023       0.3148139
 sbs.gemCeF.m9.position =        0.769291      0.00129064        0.278854
 sbs.gemCeF.m9.angle =      -0.5812657      -0.2104256      0.08682717
+
+#sbs.gemCeF.dump_geometry_info = 1
+
+#sbs.gemCeF.trackchi2cut = 20.0 40.0

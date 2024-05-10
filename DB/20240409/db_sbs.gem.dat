@@ -1565,6 +1565,9 @@ sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run7150.dat
 sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run361.dat
 sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run361.dat
 
+#--------[ 2024-05-09 16:00:00 ] #After Hall Work
+#sbs.gem.pedfile = gemped/daq_ped_sbs_gem_run967.dat
+#sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run967.dat
 
 # # #################### END OF TIME-DEPENDENT PEDESTAL FILES #########################
 

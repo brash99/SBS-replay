@@ -949,7 +949,7 @@ sbs.gemCeR.m15.angle =      -0.3214451       -1.228375      0.08598936
 
 sbs.gemCeR.corrcoeff_cut = 0.5
 
-sbs.gemCeR.trackchi2cut = 15.0 30.0
+sbs.gemCeR.trackchi2cut = 50.0 100.0
 
 sbs.gemCeR.maxstrip_t0 = 88.1 87.5
 sbs.gemCeR.maxstrip_tsigma = 11.7 11.1
@@ -1082,3 +1082,6 @@ sbs.gemCeR.m14.position =       0.2526673   -0.0003620614       0.8773215
 sbs.gemCeR.m14.angle =      0.09842006       0.2813914     -0.03726813
 sbs.gemCeR.m15.position =       0.7656332   -0.0005901842       0.8272888
 sbs.gemCeR.m15.angle =      -0.1719173      -0.7612839      0.05911807
+
+sbs.gemCeR.dump_geometry_info = 1
+
