@@ -2283,3 +2283,6 @@ bb.frontconstraint_x0 = 0.047
 bb.frontconstraintwidth_y = 0.075
 bb.frontconstraintwidth_x = 0.09
 
+---------[ 2024-05-14 18:00:00 ] # start pion-KLL: widen front constraint for charged pion tracking
+
+bb.frontconstraintwidth_x = 0.2
