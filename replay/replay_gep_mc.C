@@ -39,10 +39,10 @@ TDatime get_datime(uint gepconfig)
 
 void replay_gen_mc(const char* filebase, uint genconfig, uint nev = -1, TString experiment="gen")
 {
-  SBSEarm* electronarm = new SBSEarm("earm", "GEP electron arm" );
-  bigbite->AddDetector( new SBSCalorimeter("ecal", "ECal") );
-  bigbite->AddDetector( new SBSCDet("cdet", "coordinate detector") );
-  gHaApps->Add(bigbite);
+  SBSEarm* earm = new SBSEarm("earm", "GEP electron arm" );
+  earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );
+  earm->AddDetector( new SBSCDet("cdet", "coordinate detector") );
+  gHaApps->Add(earm);
   
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
