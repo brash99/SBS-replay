@@ -32,22 +32,22 @@ TDatime get_datime(uint gepconfig)
   std::unordered_map<uint,TDatime> m = {{1, "2024-10-01 00:00:00"},
 					{2, "2024-10-01 00:00:00"},
 					{3, "2024-10-01 00:00:00"}};
-  if (m.find(genconfig)==m.end()) 
+  if (m.find(gepconfig)==m.end()) 
     throw std::invalid_argument("Invalid SBS config!! Valid options are: 1,2,3");
-  return m[genconfig];
+  return m[gepconfig];
 }
 
-void replay_gen_mc(const char* filebase, uint genconfig, uint nev = -1, TString experiment="gen")
+void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString experiment="gep")
 {
-  SBSEarm* earm = new SBSEarm("earm", "GEP electron arm" );
-  earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );
-  earm->AddDetector( new SBSCDet("cdet", "coordinate detector") );
-  gHaApps->Add(earm);
+  //SBSEArm* earm = new SBSEArm("earm", "GEP electron arm" );
+  //earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );
+  //earm->AddDetector( new SBSCDet("cdet", "coordinate detector") );
+  //gHaApps->Add(earm);
   
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
   harm->AddDetector( new SBSGEMSpectrometerTracker("ft", "Front tracker") );
-  harm->AddDetector( new SBSGEMSpectrometerTracker("fpp", "Focal Plane Polarimeter") );
+  //harm->AddDetector( new SBSGEMSpectrometerTracker("fpp", "Focal Plane Polarimeter") );
   gHaApps->Add(harm);
 
   //bigbite->SetDebug(2);
@@ -76,7 +76,7 @@ void replay_gen_mc(const char* filebase, uint genconfig, uint nev = -1, TString 
   run->SetLastEvent(nev);
   
   run->SetDataRequired(0);
-  run->SetDate(get_datime(genconfig));
+  run->SetDate(get_datime(gepconfig));
   //run->SetDate(TDatime());
   
   TString out_dir = gSystem->Getenv("OUT_DIR");
@@ -97,17 +97,17 @@ void replay_gen_mc(const char* filebase, uint genconfig, uint nev = -1, TString 
   TString prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
   
-  TString odef_filename = "replay_gen_mc.odef";
+  TString odef_filename = "replay_gep_mc.odef";
   odef_filename.Prepend( prefix );
   analyzer->SetOdefFile( odef_filename );
   
   //added cut list in order to have 
-  TString cdef_filename = "replay_gen_mc.cdef";
+  TString cdef_filename = "replay_gep_mc.cdef";
   cdef_filename.Prepend( prefix );
   analyzer->SetCutFile( cdef_filename );
 
-  //analyzer->SetCutFile( "replay_gen.cdef" );
-  //analyzer->SetOdefFile( "replay_gen_mc.odef" );
+  //analyzer->SetCutFile( "replay_gep.cdef" );
+  //analyzer->SetOdefFile( "replay_gep_mc.odef" );
   
   cout << "cut file and out file processed " << endl;
   
@@ -144,6 +144,6 @@ int main(int argc, char *argv[])
   filebase = argv[1];
   if(argc==3) nev = atoi(argv[2]);
 
-  replay_gen_mc(filebase.c_str(), nev);
+  replay_gep_mc(filebase.c_str(), nev);
   return 0;
 }

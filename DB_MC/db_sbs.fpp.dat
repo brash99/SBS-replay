@@ -1,12 +1,12 @@
+950101
 -------[ 2024-10-01 23:59:59 ]
 
 ## A chamber is a "Tracker-Plane" composed of vertically stacked modules
-sbs.fpp.modules = m0 m1 m2 m3  m4 m5 m6 m7  m8 m9 m10 m11  m12 m13 m14 m15  m16 m17 m18 m19  m20 m21 m22 m23  m24 m25 m26 m27  m28 m29 m30 m31
-
 sbs.fpp.is_mc = 1
 sbs.fpp.onlinezerosuppress = 0
 sbs.fpp.pedestalmode = 0
 sbs.fpp.commonmode_flag = -1
+sbs.fpp.modules = m0 m1 m2 m3  m4 m5 m6 m7  m8 m9 m10 m11  m12 m13 m14 m15  m16 m17 m18 m19  m20 m21 m22 m23  m24 m25 m26 m27  m28 m29 m30 m31
 
 sbs.fpp.useconstraint = 1
 

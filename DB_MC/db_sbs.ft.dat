@@ -6,7 +6,7 @@ sbs.ft.is_mc = 1
 sbs.ft.onlinezerosuppress = 0
 sbs.ft.pedestalmode = 0
 sbs.ft.commonmode_flag = -1
-sbs.ft.modules = m0   m1   m2   m3   m4   m5   m6 m7 m8 m9   m10 m11 m12 m13
+sbs.ft.modules = m0  m1  m2  m3  m4  m5  m6 m7 m8 m9  m10 m11 m12 m13
 
 sbs.ft.useconstraint = 1
 
