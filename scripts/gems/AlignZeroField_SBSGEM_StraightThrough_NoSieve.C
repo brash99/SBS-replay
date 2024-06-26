@@ -552,6 +552,7 @@ void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, 
     dbfile << rotout.Data() << endl;
     
   } else {
+    cout << "Can't open input file, fix" << endl;
     return;
   }
 }

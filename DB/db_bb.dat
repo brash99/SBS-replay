@@ -2195,9 +2195,14 @@ bb.optics_parameters =
 
 # New Zero-field alignment result from runs 301,302 in GEN-RP:
 # Implied ZSIEVE and magnet distance from fit = 1.1734 and 1.5426 m, respectively
-bb.gemorigin_xyz = -0.207972 0.028746 2.690211
-bb.gemtheta = 8.8432
-bb.gemphi = 180.6652
+#bb.gemorigin_xyz = -0.207972 0.028746 2.690211
+#bb.gemtheta = 8.8432
+#bb.gemphi = 180.6652
+
+# Newer Zero-field alignment results from runs 301,302 with new yaw,pitch,roll
+# formalism; ZSIEVE = 1.169 m
+bb.gemorigin_xyz = -0.208814 0.028182 2.6881
+bb.gemangles_xyz = 0.124 -8.86855 -0.1044
 
 # initial guesses at BigBite GEM constraint centering and widths:
 #bb.frontconstraint_x0 = 0.033
