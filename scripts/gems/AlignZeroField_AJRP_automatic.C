@@ -36,7 +36,8 @@ const double PI = TMath::Pi();
 //known dimensions and hole spacings of sieve and known dimensions and internal alignments of GEMs:
 //We are going to be lazy and use MINUIT even though this problem could easily be linearized:
 
-const double sigma_pos = 0.0001; //0.1 mm (wild guess)
+const double sigma_targpos = 0.002; //assume 2 mm resolution on track projection to target
+const double sigma_pos = 0.002; //we really need to account for sieve hole size in the resolution here
 const double sigma_slope = sigma_pos/1.6; //0.1 mm/1.6 m ~= 6e-5 gives rough order of magnitude for slope uncertainty, of course multiple scattering might invalidate that.
 
 int NTRACKS;
@@ -103,12 +104,16 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 
     //Track direction 
     TVector3 TrackDirGlobal = TrackSievePos.Unit();
+    TVector3 TrackPosLocal( XTRACK[i], YTRACK[i], 0.0 );
 
+    TVector3 TrackPosGlobal = Rtot * TrackPosLocal + GEMPOS;
+    
     //Now compute track intersection with plane of first GEM:
     //Since all tracks start at origin, 
     //Equation is: ( s * TrackDir - GEMPOS ) dot GEM_zaxis = 0
     // OR: s = (GEMPOS dot GEM_zaxis)/(TrackDir dot GEM_zaxis)
     
+    //the calculation below ASSUMES that the track originates from the origin:
     double sintersect = GEMPOS.Dot( GEM_zaxis )/(TrackDirGlobal.Dot( GEM_zaxis ) );
 
     TVector3 TrackIntersect_FirstGEMplane = sintersect * TrackDirGlobal;
@@ -118,8 +123,17 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
     double xpfp_expect = TrackDirGlobal.Dot( GEM_xaxis )/TrackDirGlobal.Dot( GEM_zaxis );
     double ypfp_expect = TrackDirGlobal.Dot( GEM_yaxis )/TrackDirGlobal.Dot( GEM_zaxis );
 
+    //Let's also add target x and target y to the chi2 calculation:
+    //Project back to the origin:
+    // equation is ( r + nhat * s ) dot zglobal = 0;
+    sintersect = -TrackPosGlobal.Dot( Global_zaxis ) / TrackDirGlobal.Dot( Global_zaxis );
+    TVector3 TrackIntersect_Origin = TrackPosGlobal + sintersect * TrackDirGlobal;
+    double xtar = TrackIntersect_Origin.X();
+    double ytar = TrackIntersect_Origin.Y();
+    
     chi2 += ( pow( xfp_expect - XTRACK[i], 2 ) + pow( yfp_expect - YTRACK[i], 2 ) ) / (sigma_pos*sigma_pos) +
-      ( pow( xpfp_expect - XPTRACK[i], 2 ) + pow( ypfp_expect - YPTRACK[i], 2 ) ) / (sigma_slope*sigma_slope);
+      ( pow( xpfp_expect - XPTRACK[i], 2 ) + pow( ypfp_expect - YPTRACK[i], 2 ) ) / (sigma_slope*sigma_slope) +
+      ( pow( xtar/sigma_targpos, 2 ) + pow( ytar/sigma_targpos, 2 ) );
     
   }
   
