@@ -42,11 +42,11 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   SBSEArm* earm = new SBSEArm("earm", "GEP electron arm" );
   //earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );
   //earm->AddDetector( new SBSCDet("cdet", "coordinate detector") );
-  gHaApps->Add(earm);
+  //gHaApps->Add(earm);
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
   harm->AddDetector( new SBSGEMSpectrometerTracker("gemFT", "Front tracker") );
-  //harm->AddDetector( new SBSGEMSpectrometerTracker("gemFPP", "Focal Plane Polarimeter") );
+  harm->AddDetector( new SBSGEMSpectrometerTracker("gemFPP", "Focal Plane Polarimeter") );
   gHaApps->Add(harm);
 
   //bigbite->SetDebug(2);
