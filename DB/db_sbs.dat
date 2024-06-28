@@ -141,9 +141,14 @@ sbs.optics_origin = 0.0 0.0 4.105
 # But wait! according to the survey, the magnet itself is also about 6.2 mm high and about 1.7 mm to beam left and about 1.2 mm upstream of ideal! so in fact,
 # relative to the ideal optics coordinate system, the detector active area center is something like the following (to within a mm or so, not accounting for
 # any mispointing or anything like that.
-sbs.gemorigin_xyz = 0.0 0.0 4.324
-sbs.gemtheta = 0.0
-sbs.gemphi = 0.0
+#sbs.gemorigin_xyz = 0.0 0.0 4.324
+#sbs.gemtheta = 0.0
+#sbs.gemphi = 0.0
+
+# new GEM origin coordinates based on straight-through alignment, run 121:
+# angles are given in degrees and positions in meters
+sbs.gemorigin_xyz =  -0.00644053   0.00102861      4.10979
+sbs.gemangles_xyz =     0.132415    -0.222712    -0.803711
 
 # the following lines enable use of the "polarimeter mode" analysis:
 sbs.polarimetermode = 1
@@ -290,26 +295,26 @@ sbs.optics_parameters =
 
 sbs.backconstraintwidth_x = 0.3
 sbs.backconstraintwidth_y = 0.26
-sbs.backconstraint_x0 = 0.033 
+sbs.backconstraint_x0 = -0.031
 sbs.backconstraint_y0 = 0.0
 
 
 sbs.usedynamicconstraint = 1
 # theta = xbcp * slope + th0
-sbs.dynamicthslope = 0.11
+sbs.dynamicthslope = 0.111
 sbs.dynamicth0 = -0.051
 
-sbs.dynamicphslope = 0.106
-sbs.dynamicph0 = 0.0
+sbs.dynamicphslope = 0.0947
+sbs.dynamicph0 = 0.002
 
 sbs.usedynamicconstraint = 1
 
 sbs.polarimetermode = 0
 
-sbs.frontconstraintwidth_x = 0.16
+sbs.frontconstraintwidth_x = 0.45
 sbs.frontconstraintwidth_y = 0.15
 sbs.frontconstraint_x0 = 0.0
-sbs.frontconstraint_y0 = 0.0
+sbs.frontconstraint_y0 = -0.012
 
 ------------[ 2024-04-18 23:51:00 ] # zero-field running, single foil. Target is front constraint:
 sbs.dynamicth0 = 0.0
@@ -322,7 +327,7 @@ sbs.frontconstraint_y0 = 0.0
 
 
 ------------[ 2024-04-19 3:30:00 ] # back to full-field running
-sbs.dynamicth0 = -0.051
+sbs.dynamicth0 = -0.06845
 
 ------------[ 2024-04-19 07:30:00 ] # analyzer installed
 
@@ -344,7 +349,7 @@ sbs.frontconstraintwidth_y = 0.13 0.3
 sbs.frontconstraint_x0 = 0.0 0.0
 sbs.frontconstraint_y0 = 0.0 0.0
 
-----------[ 2024-05-15 16:00 ] # reduce sbs field setting to 70% of maximum
+----------[ 2024-05-15 16:00:00 ] # reduce sbs field setting to 70% of maximum
 
 sbs.optics_order = 2
 

@@ -1096,6 +1096,10 @@ bb.gemorigin_xyz = -0.21323 0.03872 3.11940
 bb.gemtheta = 8.81847
 bb.gemphi = 179.534
 
+# new straight-track results using x,y,z angles instead of theta,phi:
+bb.gemorigin_xyz = -0.21364 0.03929 3.119995
+bb.gemangles_xyz = -0.09598 -8.82304 0.23577
+
 # NOTE: ZSIEVE = 1.59074
 
 # starting model for SBS-8 from g4sbs: updated with scale factor 0.9644 for BB field map in simulation and also distance 1.9594 m
@@ -1374,10 +1378,13 @@ bb.C_pth1 = 0.0
 #bb.gemphi = 179.534
 
 # new straight-track alignment:
-bb.gemorigin_xyz = -0.20603 0.04289 2.70386
+#bb.gemorigin_xyz = -0.20603 0.04289 2.70386
 # note: ZSIEVE = 1.18572
-bb.gemtheta = 8.7696
-bb.gemphi = 178.704
+#bb.gemtheta = 8.7696
+#bb.gemphi = 178.704
+
+bb.gemorigin_xyz = -0.19821 0.03879 2.69704
+bb.gemangles_xyz = -0.11286 -8.61695 0.09501
 
 bb.optics_order = 2
 #bb.optics_parameters = 
@@ -2188,9 +2195,14 @@ bb.optics_parameters =
 
 # New Zero-field alignment result from runs 301,302 in GEN-RP:
 # Implied ZSIEVE and magnet distance from fit = 1.1734 and 1.5426 m, respectively
-bb.gemorigin_xyz = -0.207972 0.028746 2.690211
-bb.gemtheta = 8.8432
-bb.gemphi = 180.6652
+#bb.gemorigin_xyz = -0.207972 0.028746 2.690211
+#bb.gemtheta = 8.8432
+#bb.gemphi = 180.6652
+
+# Newer Zero-field alignment results from runs 301,302 with new yaw,pitch,roll
+# formalism; ZSIEVE = 1.169 m
+bb.gemorigin_xyz = -0.208814 0.028182 2.6881
+bb.gemangles_xyz = 0.124 -8.86855 -0.1044
 
 # initial guesses at BigBite GEM constraint centering and widths:
 #bb.frontconstraint_x0 = 0.033
