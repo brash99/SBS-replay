@@ -2086,7 +2086,7 @@ sbs.gem.trackchi2cut = 20.0
 
 sbs.gem.minhitsontrack = 4
 
-sbs.gem.useopticsconstraint = 1
+sbs.gem.useopticsconstraint = 0
 
 sbs.gem.pmin = 0.5
 sbs.gem.pmax = 4.0
@@ -2132,4 +2132,4 @@ sbs.gem.useopticsconstraint = 0
 #sbs.gem.usestriptimingcut = 0
 
 --------[ 2024-04-19 3:30:00 ] # back to full field
-sbs.gem.useopticsconstraint = 1
+sbs.gem.useopticsconstraint = 0
