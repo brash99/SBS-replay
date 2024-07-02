@@ -1082,7 +1082,9 @@ void Optics_BigBite_automatic( const char *configfilename, const char *outfilena
   zvertex_histos->Write();
   xysieve_histos->Write();
  
+  Tout->Write();
 
+  fout->Close();
   
  
 }//end program

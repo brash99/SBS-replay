@@ -256,7 +256,9 @@ bb.magdist = 1.63
 --------[ 2024-04-01 00:00:00 ] # start of GEN-RP:
 
 # initial guess at beam energy from HALLA:p
-ebeam = 4.287
+#ebeam = 4.287
+# 1.003 * 4.287 = 4.2999, might as well round to 4.3
+ebeam = 4.300
 
 # nominal kinematics:
 sbs.theta = -24.7

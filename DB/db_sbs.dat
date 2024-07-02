@@ -147,8 +147,13 @@ sbs.optics_origin = 0.0 0.0 4.105
 
 # new GEM origin coordinates based on straight-through alignment, run 121:
 # angles are given in degrees and positions in meters
-sbs.gemorigin_xyz =  -0.00644053   0.00102861      4.10979
-sbs.gemangles_xyz =     0.132415    -0.222712    -0.803711
+#sbs.gemorigin_xyz =  -0.00644053   0.00102861      4.10979
+#sbs.gemangles_xyz =     0.132415    -0.222712    -0.803711
+
+# even better alignment after cutting the pathological region of track X
+# where X/W strip offsets are wrong
+sbs.gemorigin_xyz =  -0.00403358  0.000297287       4.1218
+sbs.gemangles_xyz =     0.117299    -0.264845    -0.814373
 
 # the following lines enable use of the "polarimeter mode" analysis:
 sbs.polarimetermode = 1
