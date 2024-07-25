@@ -769,7 +769,7 @@ sbs.gem.tryfasttrack = 1  #May get errors before a good alignment. So may be hel
 # For initial alignment with cosmics, we want to start with no constraints on track-finding:
 sbs.gem.useconstraint = 1
 sbs.gem.useslopeconstraint = 0
-sbs.gem.useopticsconstraint = 0
+sbs.gem.useopticsconstraint = 1
 
 sbs.gem.sigmahitpos = 0.0001
 sbs.gem.do_efficiencies = 1
@@ -779,22 +779,22 @@ sbs.gem.efficiency_bin_width_1D = 0.02
 sbs.gem.efficiency_bin_width_2D = 0.04
 
 # these should probably be tighter later on:
-sbs.gem.xptar_min = -0.24
-sbs.gem.xptar_max = 0.24
+sbs.gem.xptar_min = -0.2
+sbs.gem.xptar_max = 0.3
 
-sbs.gem.yptar_min = -0.12
-sbs.gem.yptar_max = 0.12
+sbs.gem.yptar_min = -0.1
+sbs.gem.yptar_max = 0.1
 
-sbs.gem.ytar_min = -0.25
-sbs.gem.ytar_max = 0.25
+sbs.gem.ytar_min = -0.1
+sbs.gem.ytar_max = 0.1
 
-sbs.gem.pmin = 0.8
-sbs.gem.pmax = 11.0
+sbs.gem.pmin = 0.5
+sbs.gem.pmax = 4.5
 
-sbs.gem.xpfp_min = -0.35
+sbs.gem.xpfp_min = -0.45
 sbs.gem.xpfp_max = 0.2
-sbs.gem.ypfp_min = -0.12
-sbs.gem.ypfp_max = 0.12
+sbs.gem.ypfp_min = -0.1
+sbs.gem.ypfp_max = 0.1
 
 # # basic flags controlling decoding:
 sbs.gem.pedestalmode = 0
@@ -2086,18 +2086,25 @@ sbs.gem.trackchi2cut = 20.0
 
 sbs.gem.minhitsontrack = 4
 
-sbs.gem.useopticsconstraint = 0
+sbs.gem.useopticsconstraint = 1
+
+# these should probably be tighter later on:
+sbs.gem.xptar_min = -0.2
+sbs.gem.xptar_max = 0.3
+
+sbs.gem.yptar_min = -0.1
+sbs.gem.yptar_max = 0.1
+
+sbs.gem.ytar_min = -0.1
+sbs.gem.ytar_max = 0.1
 
 sbs.gem.pmin = 0.5
-sbs.gem.pmax = 4.0
-sbs.gem.xptar_min = -0.2
-sbs.gem.xptar_max = 0.4
+sbs.gem.pmax = 4.5
 
-sbs.gem.yptar_min = -0.12
-sbs.gem.yptar_max = 0.12
-
-sbs.gem.ytar_min = -0.12
-sbs.gem.ytar_max = 0.12
+sbs.gem.xpfp_min = -0.45
+sbs.gem.xpfp_max = 0.2
+sbs.gem.ypfp_min = -0.1
+sbs.gem.ypfp_max = 0.1
 
 sbs.gem.gridbinwidthx = 0.005
 sbs.gem.gridbinwidthy = 0.005
@@ -2131,5 +2138,12 @@ sbs.gem.useopticsconstraint = 0
 #sbs.gem.suppressfirstlast = 0
 #sbs.gem.usestriptimingcut = 0
 
+# let's use a looser chi2 cut in case we need a different alignment for the zero-field data:
+sbs.gem.trackchi2cut = 100.0
+sbs.gem.minhitsontrack = 5
+
 --------[ 2024-04-19 3:30:00 ] # back to full field
-sbs.gem.useopticsconstraint = 0
+sbs.gem.useopticsconstraint = 1
+sbs.gem.minhitsontrack = 4
+sbs.gem.trackchi2cut = 20.0
+

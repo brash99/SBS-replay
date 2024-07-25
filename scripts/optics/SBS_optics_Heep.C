@@ -38,14 +38,25 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 
     TCut globalcut = "";
     
-    while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endcut") ){
+    while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endglobalcut") ){
       if( !currentline.BeginsWith("#") ){
 	globalcut += currentline.Data();
       }
     }
 
+    TCut elasticcut = "";
+
+    while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endelasticcut") ){
+      if( !currentline.BeginsWith("#") ){
+	elasticcut += currentline.Data();
+      }
+    }
+    
+
     TTreeFormula *GlobalCut = new TTreeFormula("GlobalCut",globalcut,C);
 
+    TTreeFormula *ElasticCut = new TTreeFormula("ElasticCut",elasticcut,C);
+    
     double ebeam=4.287, bbtheta=42.5, sbstheta=24.7, bbdist=1.55, sbsdist=2.25, hcaldist=9.0;
     double dx0=0.0, dy0=0.0, dxsigma=0.2, dysigma=0.1;
     int usedxdycut = 0;
@@ -286,9 +297,11 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
     C->SetBranchStatus("sbs.tr.tg_y",1);
     C->SetBranchStatus("sbs.tr.tg_th",1);
     C->SetBranchStatus("sbs.tr.tg_ph",1);
+    //These branches should only be used for cuts. The above branches are suitable for all other purposes for either the straight-through or polarimeter cases:
     C->SetBranchStatus("sbs.gem.track.nhits",1);
     C->SetBranchStatus("sbs.gem.track.chi2ndf",1);
-
+    
+    
     double SBS_ntrack;
     double SBS_vz[MAXNTRACKS];
     double SBS_px[MAXNTRACKS], SBS_py[MAXNTRACKS], SBS_pz[MAXNTRACKS];
@@ -454,9 +467,18 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
     Tout->Branch( "deltax", &T_dx );
     Tout->Branch( "deltay", &T_dy );
     Tout->Branch( "deltat", &T_dt );
+    
     int T_HCALcut;
     Tout->Branch( "HCALcut", &T_HCALcut );
-    
+
+    double T_xHCAL, T_yHCAL, T_EHCAL, T_deltat;
+    double T_dx4vect, T_dy4vect;
+    Tout->Branch("xHCAL", &T_xHCAL);
+    Tout->Branch("yHCAL", &T_yHCAL);
+    Tout->Branch("EHCAL", &T_EHCAL);
+
+    Tout->Branch("deltax_4vect", &T_dx4vect);
+    Tout->Branch("deltay_4vect", &T_dy4vect);
     
     
     int treenum=0, currenttreenum=0;
@@ -469,11 +491,14 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 
       if( nevent == 1 || currenttreenum != treenum ){
 	GlobalCut->UpdateFormulaLeaves();
+	ElasticCut->UpdateFormulaLeaves();
 	treenum = currenttreenum;
       }
 
       bool passedglobal = GlobalCut->EvalInstance(0) != 0;
 
+      bool passedelastic = ElasticCut->EvalInstance(0) != 0;
+      
       if( passedglobal && int(BB_ntrack) >= 1 && int(SBS_ntrack)>=1 ){
 	TVector3 ep( BB_px[0], BB_py[0], BB_pz[0] );
 	TVector3 ephat = ep.Unit();
@@ -551,7 +576,12 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	bool passedtime = abs( THCAL-TSH-dt0 ) <= 3.5*dtsigma;
 
 	bool passedHCAL = (passedxy || usedxdycut == 0 ) && (passedtime || usedtcut == 0);
-
+	double sint_4vect = (HCAL_center - vertexBB).Dot( SBS_zaxis ) / (q4vect.Vect().Unit().Dot( SBS_zaxis ) );
+	TVector3 HCAL_int4vect = vertexBB + q4vect.Vect().Unit() * sint_4vect;
+	double xHCAL_expect_4vect = (HCAL_int4vect - HCAL_center).Dot(SBS_xaxis);
+	double yHCAL_expect_4vect = (HCAL_int4vect - HCAL_center).Dot(SBS_yaxis);
+	
+	
 	if( passedHCAL ){
 	  //hW2cut->Fill( W2recon );
 	  //hdpBBcut->Fill( BB_p[0]/eprime_etheta-1. );
@@ -565,7 +595,7 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	  //hdeltat->Fill( THCAL - TSH );
 	  //hdxdy->Fill( yHCAL - yHCAL_expect, xHCAL - xHCAL_expect );
 
-	  if( passedHCAL ){
+	  if( passedelastic && passedHCAL ){
 	    //hdthtar->Fill( SBS_thtar[0]-sbsthtar_expect );
 	    //hdphtar->Fill( SBS_phtar[0]-sbsphtar_expect );
 	    //hdytar->Fill( SBS_ytar[0]-sbsytar_expect );
@@ -638,7 +668,14 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	T_W2 = W2recon;
 	T_dx = xHCAL - xHCAL_expect;
 	T_dy = yHCAL - yHCAL_expect;
+	T_dx4vect = xHCAL - xHCAL_expect_4vect;
+	T_dy4vect = yHCAL - yHCAL_expect_4vect;
+	
 	T_dt = THCAL-TSH;
+	T_xHCAL = xHCAL;
+	T_yHCAL = yHCAL;
+	T_EHCAL = EHCAL;
+	
 	T_HCALcut = passedHCAL;
 	//T_thetabendSBS = SBS_thtar[0] - SBS_rth[0];
 	//T_ethetabendSBS = sbsthtar_expect - SBS_rth[0];
@@ -705,6 +742,16 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 
     double T_ptheta_fit, T_pphi_fit;
     double T_pp_ptheta_fit, T_pp_ptheta;
+
+    double T_pmissx, T_pmissy, T_pmissz;
+    double T_Emiss;
+    double T_pmiss;
+
+    Tout->Branch( "pmissx", &T_pmissx );
+    Tout->Branch( "pmissy", &T_pmissy );
+    Tout->Branch( "pmissz", &T_pmissz );
+    Tout->Branch( "Emiss", &T_Emiss );
+    Tout->Branch( "pmiss", &T_pmiss );
     
     Tout->Branch( "ytarSBSfit", &T_ytarSBS_fit );
     Tout->Branch( "thtarSBSfit", &T_thtarSBS_fit );
@@ -747,15 +794,20 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 
       if( nevent == 1 || currenttreenum != treenum ){
 	GlobalCut->UpdateFormulaLeaves();
+	ElasticCut->UpdateFormulaLeaves();
 	treenum = currenttreenum;
       }
 
       bool passedglobal = GlobalCut->EvalInstance(0) != 0;
-
+      bool passedelastic = ElasticCut->EvalInstance(0) != 0;
+      
       if( passedglobal && int(BB_ntrack) >= 1 && int(SBS_ntrack)>=1 ){
 	TVector3 ep( BB_px[0], BB_py[0], BB_pz[0] );
 	TVector3 ephat = ep.Unit();
 
+	TVector3 pp( SBS_px[0], SBS_py[0], SBS_pz[0] );
+	TLorentzVector Pproton_4vect( pp, sqrt(pow(pp.Mag(),2)+pow(Mp,2)) );
+	
 	//Calculate BigBite bend angle:
 	TVector3 ephat_fp_BB( BB_thfp[0], BB_phfp[0], 1.0 );
 	TVector3 ephat_tgt_BB( BB_thtar[0], BB_phtar[0], 1.0 );
@@ -776,6 +828,14 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	TLorentzVector Pbeam(0,0,ebeam,ebeam);
 	TLorentzVector q4vect = Pbeam - ep4vect;
 
+	TLorentzVector Pmiss_4vect = Pbeam + Ptarg - (ep4vect + Pproton_4vect);
+
+	T_Emiss = Pmiss_4vect.E();
+	T_pmiss = Pmiss_4vect.P();
+	T_pmissx = Pmiss_4vect.Px();
+	T_pmissy = Pmiss_4vect.Py();
+	T_pmissz = Pmiss_4vect.Pz();
+	
 	double W2recon = (Ptarg + q4vect).M2();
 	double Q2recon = -q4vect.M2();
 	
@@ -825,6 +885,11 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	double xHCAL_expect = (HCAL_intersect - HCAL_center).Dot( SBS_xaxis );
 	double yHCAL_expect = (HCAL_intersect - HCAL_center).Dot( SBS_yaxis );
 
+	double sint_4vect = (HCAL_center - vertexBB).Dot( SBS_zaxis ) / (q4vect.Vect().Unit().Dot( SBS_zaxis ) );
+	TVector3 HCAL_int4vect = vertexBB + q4vect.Vect().Unit() * sint_4vect;
+	double xHCAL_expect_4vect = (HCAL_int4vect - HCAL_center).Dot(SBS_xaxis);
+	double yHCAL_expect_4vect = (HCAL_int4vect - HCAL_center).Dot(SBS_yaxis);
+	
 	bool passedxy = sqrt(pow( (xHCAL-xHCAL_expect-dx0)/dxsigma, 2 ) + pow( (yHCAL-yHCAL_expect-dy0)/dysigma, 2 ) ) <= 3.5;
 	bool passedtime = abs( THCAL-TSH-dt0 ) <= 3.5*dtsigma;
 
@@ -940,6 +1005,11 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	T_W2 = W2recon;
 	T_dx = xHCAL - xHCAL_expect;
 	T_dy = yHCAL - yHCAL_expect;
+	T_dx4vect = xHCAL - xHCAL_expect_4vect;
+	T_dy4vect = yHCAL - yHCAL_expect_4vect;
+	T_xHCAL = xHCAL;
+	T_yHCAL = yHCAL;
+	T_EHCAL = EHCAL;
 	T_dt = THCAL-TSH;
 	T_HCALcut = passedHCAL;
 	//T_thetabendSBS = SBS_thtar[0] - SBS_rth[0];
