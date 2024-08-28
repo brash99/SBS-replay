@@ -179,7 +179,7 @@ earm.cdet.chanmap =     0    1    2    3    4    5    6    7    8    9   10   11
 
 ## Specify the number of bars
 earm.cdet.nrows = 2
-earm.cdet.ncols = 588
+earm.cdet.ncols = 1176
 
 earm.cdet.xpos = 
 -0.00251188 0.00251188 -0.00753566 0.00753566 -0.0125594 0.0125594 -0.0175832 0.0175832 -0.022607 0.022607 -0.0276308 0.0276308 -0.0326546 0.0326546 -0.0376785 0.0376785 
@@ -491,8 +491,9 @@ earm.cdet.maxtimediff_clus = 10.0
 earm.cdet.trackmatchcutX = 0.05
 earm.cdet.trackmatchcutY = 0.6
 
-earm.cdet.position =  # Just a test, but should be the origin of this detector
-earm.cdet.xyz  = 0.00502376  ## Spacing between modules in local coordinates
+earm.cdet.position = 0 0 1
+# Just a test, but should be the origin of this detector
+earm.cdet.xyz  = 0.1 0.1 0.00502376  ## Spacing between modules in local coordinates
 earm.cdet.dxdydz  =  0.000 0.025 0.000 ## Spacing between modules in local coordinates
 earm.cdet.size = 2.97398 0.659866 0.05 ## Taken from an old talk where I used 90x25 mm for y
 #earm.cdet.angle = 0.0 0.0 0.0 ## Seems optional, otherwise it assumes no additional angle
