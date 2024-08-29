@@ -179,7 +179,9 @@ earm.cdet.chanmap =     0    1    2    3    4    5    6    7    8    9   10   11
 
 ## Specify the number of bars
 earm.cdet.nrows = 2
-earm.cdet.ncols = 1176
+earm.cdet.ncols = 588
+earm.cdet.nlayers = 2
+
 
 earm.cdet.xpos = 
 -0.00251188 0.00251188 -0.00753566 0.00753566 -0.0125594 0.0125594 -0.0175832 0.0175832 -0.022607 0.022607 -0.0276308 0.0276308 -0.0326546 0.0326546 -0.0376785 0.0376785 
