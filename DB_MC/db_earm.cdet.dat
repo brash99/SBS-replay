@@ -493,10 +493,10 @@ earm.cdet.maxtimediff_clus = 10.0
 earm.cdet.trackmatchcutX = 0.05
 earm.cdet.trackmatchcutY = 0.6
 
-earm.cdet.position = 0 0 1
+earm.cdet.position = 0 0 -0.5104
 # Just a test, but should be the origin of this detector
-earm.cdet.xyz  = 0.1 0.1 0.00502376  ## Spacing between modules in local coordinates
-earm.cdet.dxdydz  =  0.000 0.025 0.000 ## Spacing between modules in local coordinates
+earm.cdet.xyz  = -0.00251188 -0.305003 0.0  ## Spacing between modules in local coordinates
+earm.cdet.dxdydz  = 0.00515 0.5849360 0.18415 ## Spacing between modules in local coordinates
 earm.cdet.size = 2.97398 0.659866 0.05 ## Taken from an old talk where I used 90x25 mm for y
 #earm.cdet.angle = 0.0 0.0 0.0 ## Seems optional, otherwise it assumes no additional angle
 
@@ -513,9 +513,9 @@ earm.cdet.attenuation = 0.0 ## Attenuation length. Code defaults to 0 for some r
 ## But the code will increment the center positions based on dx dy dz
 ## defined above.  [Note, this will not be automatically done if all positions
 ## for each bar are specified]
-earm.cdet.bar_geom =
+##earm.cdet.bar_geom =
 ## x       y      z      wx     wy     wz
-  0.000  -1.1125  0.000  0.600  0.025  0.025
+##  0.000  -1.1125  0.000  0.600  0.025  0.025
 
 ## Reference channel calibrations
 earm.cdet.ref_ch_res = 1.0   # Resolution of 1 for all channels
