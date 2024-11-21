@@ -187,6 +187,14 @@ void replay_genrp(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, c
       gemCeR->SetNonTrackingMode( 1 );
     }
   }
+
+  SBSGenericDetector *tdctrig_sbs = new SBSGenericDetector("tdctrig", "SBS trigger TDCs");
+  tdctrig_sbs->SetModeADC(SBSModeADC::kNone);
+  //  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDCSimple);
+  tdctrig_sbs->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector( tdctrig_sbs );
+  
   //SBSGEMSpectrometerTracker *gemPR = new SBSGEMSpectrometerTracker("gemPR", "Super BigBite Hall A side GEM data for genrp");
   //gemPR->SetPedestalMode( pm );
   //gemPR->SetMakeCommonModePlots( cmplots );

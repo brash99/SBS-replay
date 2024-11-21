@@ -39,10 +39,19 @@ sbs.hcal.detmap =
   17    7     0    31 2 # 32 channels
   17    7     32   63 2 # 32 channels
   17    8     0    31 2 # 32 channels
-  17    8     32   32 2 # 1 channel. Sum module trigger copy (logical). sbs.hcal.Ref.tdc[0]
+  17    8     32   32 2 # 1 channel. Sum module trigger copy (logical). sbs.hcal.Ref.tdc[0] 
   17    8     34   34 2 # 1 channel. Copy of DVCS pulser EDTM signal (logical). sbs.hcal.Ref.tdc[1]
   17    8     35   35 2 # 1 channel. Copy of BB trigger (logical). TDC reference channel. sbs.hcal.Ref.tdc[2]
   17    8     36   36 2 # 1 channel. RF (logical). sbs.hcal.Ref.tdc[3]
+
+# define crate, slot, channel for RF time and trigger time (copy of BB trigger recorded in F1, NOT the F1 low-res trigger time itself):
+sbs.hcal.crate_rftime = 17
+sbs.hcal.slot_rftime = 8
+sbs.hcal.chan_rftime = 36
+
+sbs.hcal.crate_trigtime = 17
+sbs.hcal.slot_trigtime = 8
+sbs.hcal.chan_trigtime = 35
 
 sbs.hcal.ledmap = 16 30
 
@@ -72,7 +81,7 @@ sbs.hcal.chanmap =
 	217 223 218 224 219 225 220 226 221 227 222 228 233 239 234 240   #fADC 15
 	241 247 242 248 243 249 244 250 245 251 246 252 277 283 278 284   #fADC 16
 	253 259 254 260 255 261 256 262 257 263 258 264 279 285 280 286   #fADC 17
-	265 271 266 272 267 273 268 274 269 275 270 276 281 287 282 288  #-1000  #fADC 18
+	265 271 266 272 267 273 268 274 269 275 270 276 281 287 282 288   #fADC 18
 #F1TDC Logical Mapping
 ##   Ch33  34  35  36  37  38  39  40  41  42  43  44  45  46  47  48  49  50  51  52  53  54  55  56  57  58  59  60  61  62  63  64 #
 ##----------------------------------------------------------------
@@ -244,7 +253,12 @@ sbs.hcal.tdc.offset =
 -1758.6 -885.693 -890.215 -898.504 -998.993 -984.162 -1014.18 -1011.86 -884.503 -895.387 -901.453 -889.406 
 -1054.51 -1067.66 -911.912 -924.176 -1000.81 -987.347 -1161.1 -1189.58 -894.14 -906.497 -905.533 -904.125
  
-sbs.hcal.tdc.calib = 0.112
+#sbs.hcal.reftdc.calib = 0.112
+#sbs.hcal.tdc.calib = 0.112
+
+# slight refinement of F1 TDC calibration constants based on spacing of consecutive RF hits:
+sbs.hcal.reftdc.calib = 0.11186
+sbs.hcal.tdc.calib = 0.11186
 
 # Convert adc integral in pC to GeV
 sbs.hcal.adc.gain =
@@ -272,6 +286,11 @@ sbs.hcal.adc.gain =
 0.00265122  0.00206662  0.00425977  0.00410225  0.00414255  0.00434093  0.00423807  0.0039372  0.0037356  0.00286016  0.00336968  0.00348861  
 0.00175  0.00403728  0.00294341  0.00330931  0.00363808  0.00412496  0.00338298  0.00353562  0.00400934  0.00339857  0.00421954  0.0049172  
 0.00731553  0.00733844  0.00269888  0.00320651  0.00473551  0.00355762  0.00560185  0.00256847  0.00319719  0.0035297  0.003072  0.00416878
+
+sbs.hcal.adctime_min_clusterselect = -20.0
+sbs.hcal.adctime_max_clusterselect = 20.0
+
+sbs.hcal.requireTDC_clusterselect = 0
 
 ## Add kinematics-dependent clustering thresholds (these may need some work)
 
@@ -741,6 +760,11 @@ sbs.hcal.tdc.offset =
 
 --------[ 2022-02-01 17:42:00 ]
 
+sbs.hcal.adctime_min_clusterselect = -30.0
+sbs.hcal.adctime_max_clusterselect = 30.0
+
+#sbs.hcal.requireTDC_clusterselect = 0
+
 sbs.hcal.emin_clTotal = 0.005
 sbs.hcal.emin = 0.001
 sbs.hcal.emin_clSeed = 0.0025
@@ -859,6 +883,11 @@ sbs.hcal.tdc.offset =
 
 --------[ 2022-07-26 00:00:00 ] ## Switch to HCAL VTP
 
+sbs.hcal.adctime_min_clusterselect = -1000.0
+sbs.hcal.adctime_max_clusterselect = 1000.0
+
+sbs.hcal.requireTDC_clusterselect = 0
+
 #Reset parameters for GEN
 sbs.hcal.tdc.tw = 0.46 0.50
 sbs.hcal.tmax = 1000.0
@@ -900,6 +929,8 @@ sbs.hcal.detmap =
   17    8     34   34 2 # 1 channel. Copy of DVCS pulser EDTM signal (logical). sbs.hcal.Ref.tdc[1]
   17    8     35   35 2 # 1 channel. Copy of BB trigger (logical). TDC reference channel. sbs.hcal.Ref.tdc[2]
   17    8     36   36 2 # 1 channel. RF (logical). sbs.hcal.Ref.tdc[3]
+
+
 sbs.hcal.tdc.offset =
 -255.089 -416.532 -393.487 -402.913 -535.913 -530.18 -521.514 -543.425 -432.352 -420.028 -406.365 -289.242 
 -243.437 -383.583 -393.023 -379.848 -514.825 -371.881 -529.954 -400.384 -241.362 -403.64 -435.75 -629.603 
@@ -956,7 +987,12 @@ sbs.hcal.adc.gain =
 
 
 --------[ 2022-10-17 00:00:00 ]
-sbs.hcal.tdc.calib = 0.112
+
+# slight refinement of F1 TDC calibration constants based on spacing of consecutive RF hits:
+sbs.hcal.reftdc.calib = 0.11186
+sbs.hcal.tdc.calib = 0.11186
+
+#sbs.hcal.tdc.calib = 0.112
 
 sbs.hcal.adc.gain =
 0.00175  0.00266867  0.00263163  0.00180382  0.00381368  0.00185798  0.0024062  0.00332779  0.00145959  0.00145491  0.00222524  0.00374568
@@ -1166,5 +1202,6 @@ sbs.hcal.position = 0 0 6.175
 # this information goes into the back constraint point for tracking
 sbs.hcal.position = 0 0 4.897
 
+sbs.hcal.tmax = 100.0
 
 sbs.hcal.adc.timeoffset = 0.0

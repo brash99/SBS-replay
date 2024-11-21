@@ -775,10 +775,11 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double T_thetaq, T_phiq, T_px, T_py, T_pz, T_qx, T_qy, T_qz, T_qmag;
   double T_theta_recon_n, T_phi_recon_n, T_theta_recon_p, T_phi_recon_p; //Reconstructed nucleon angles under proton and neutron hypothesis
   double T_thetapq_n, T_phipq_n, T_thetapq_p, T_phipq_p;
+  double T_thetapq_n_4vect, T_thetapq_p_4vect, T_thetapq_p_exact, T_thetapq_p_exact_4vect;
   double T_dx_4vect, T_dy_4vect; //Here we want to use the 4-vector momentum transfer to calculate dx/dy
   double T_dt;
   double T_dta;
-  double T_protondeflect;
+  double T_protondeflect, T_protondeflect_4vect, T_protondeflect_exact, T_protondeflect_exact_4vect;
   int T_grinch_tridx;
   int T_grinch_clustersize;
   double T_grinch_tmean;
@@ -800,7 +801,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "Ebeam", &T_ebeam, "Ebeam/D" );
   Tout->Branch( "Q2", &T_Q2, "Q2/D");
   Tout->Branch( "epsilon", &T_epsilon, "epsilon/D");
-  Tout->Branch( "epsilon_inel", &T_epsilon_inel, "epsilon/D");
+  Tout->Branch( "epsilon_inel", &T_epsilon_inel, "epsilon_inel/D");
   Tout->Branch( "etheta", &T_etheta, "etheta/D");
   Tout->Branch( "ephi", &T_ephi, "ephi/D");
   Tout->Branch( "ep_recon", &T_precon, "ep_recon/D");
@@ -878,7 +879,12 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "thetarecon_p", &T_theta_recon_p, "thetarecon_p/D" );
   Tout->Branch( "phirecon_p", &T_phi_recon_p, "phirecon_p/D" );
   Tout->Branch( "thetapq_n", &T_thetapq_n, "thetapq_n/D" );
-  Tout->Branch( "thetapq_p", &T_thetapq_p, "thetapp_n/D" );
+  Tout->Branch( "thetapq_p", &T_thetapq_p, "thetapq_p/D" );
+  Tout->Branch( "thetapq_n_4vect", &T_thetapq_n_4vect, "thetapq_n_4vect/D" );
+  Tout->Branch( "thetapq_p_4vect", &T_thetapq_p_4vect, "thetapq_p_4vect/D" );
+  Tout->Branch( "thetapq_p_exact", &T_thetapq_p_exact, "thetapq_p_exact/D" );
+  Tout->Branch( "thetapq_p_exact_4vect", &T_thetapq_p_exact_4vect, "thetapq_p_exact_4vect/D" );
+  
   Tout->Branch( "deltat", &T_dt, "deltat/D");
   Tout->Branch( "deltat_adc", &T_dta, "deltat_ADC/D");
   //Tout->Branch( "phipq_n", &T_phipq_n, "phipq_n/D" );
@@ -886,7 +892,9 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "deltax_4vect", &T_dx_4vect, "deltax_4vect/D" );
   Tout->Branch( "deltay_4vect", &T_dy_4vect, "deltay_4vect/D" );
   Tout->Branch( "protondeflection", &T_protondeflect, "protondeflection/D");
-
+  Tout->Branch( "protondeflection_exact", &T_protondeflect_exact, "protondeflection_exact/D");
+  Tout->Branch( "protondeflection_4vect", &T_protondeflect, "protondeflection_4vect/D");
+  Tout->Branch( "protondeflection_exact_4vect", &T_protondeflect_exact, "protondeflection_exact_4vect/D");
   Tout->Branch( "ibest_HCAL", &bestHCALcluster, "ibest_HCAL/I" );
 
   int T_HCALnblk;
@@ -925,7 +933,8 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   while( C->GetEntry(ievent) ){
   
     if( ievent % 100000 == 0 ) {
-      cout << ievent << ", run number = " << runnumber << endl;
+      cout << ievent << ", run number = " << runnumber << ", file = \""
+	   << C->GetFile()->GetName() << "\"" << endl;
     }
     //Long64_t chainEntry = ievent;
 
@@ -1137,11 +1146,64 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       
       //Calculate expected proton deflection using crude model:
       double BdL = sbsfield * sbsmaxfield * Dgap;
+
+      
+      double R_cyclotron = pp_expect / 0.3 / (sbsfield * sbsmaxfield);
+      
+      double thtarSBS_expect = atan( pNhat.Dot( HCAL_xaxis )/ pNhat.Dot(HCAL_zaxis) );
+      //x and z where the proton track enters the SBS effective field boundary:
+      double x_in = ( sbsdist - vertex.Dot(HCAL_zaxis) ) * tan(thtarSBS_expect);
+      double z_in = sbsdist;
+      //Center coordinates of the circle:
+      double x_center = x_in - R_cyclotron * cos(thtarSBS_expect);
+      double z_center = z_in + R_cyclotron * sin(thtarSBS_expect);
+      double z_out = sbsdist + Dgap;
+      //equation is (x_out - x_center)^2 + (z_out - z_center)^2 = R^2
+      // A * x^2 + B * x + C = 0, where:
+      // A = 1
+      // B = -2 x_center
+      // C = x_center^2 + (z_out - z_center)^2 - R^2 
+      double Atemp = 1.0;
+      double Btemp = -2.0*x_center;
+      double Ctemp = pow(x_center,2) + pow( z_out - z_center, 2 ) - pow(R_cyclotron,2);
+      double x_out_plus = (-Btemp + sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp);
+      //double x_out_minus = (-Btemp - sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp); 
+      //In virtually all PHYSICAL cases, we are interested in the + solution:
+      double theta_out = asin( (z_center - z_out)/R_cyclotron );
+
+      //now we project to HCAL and get:
+      double xHCAL_expect_proton = x_out_plus + tan(theta_out) * (hcaldist - z_out);
+
+      bool goodpcalc = pow( R_cyclotron, 2 ) > pow( z_out - z_center, 2 );
+      // this leads to a negative discriminant
+      
+      double R_cyclotron_4vect = qvect.Mag() / 0.3 / (sbsfield * sbsmaxfield);
+
+      thtarSBS_expect = atan( qunit.Dot(HCAL_xaxis)/qunit.Dot(HCAL_zaxis) );
+      x_in = ( sbsdist - vertex.Dot(HCAL_zaxis) ) * tan(thtarSBS_expect);
+      x_center = x_in - R_cyclotron_4vect * cos(thtarSBS_expect);
+      z_center = z_in + R_cyclotron_4vect * sin(thtarSBS_expect);
+
+      Btemp = -2.0*x_center;
+      Ctemp = pow(x_center,2) + pow( z_out - z_center, 2 ) - pow(R_cyclotron_4vect,2);
+      x_out_plus = (-Btemp + sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp);
+      theta_out = asin( (z_center-z_out)/R_cyclotron_4vect );
+
+      double xHCAL_expect_proton_4vect = x_out_plus + tan(theta_out) * (hcaldist - z_out);
+
+      bool goodpcalc_4vect = pow( R_cyclotron_4vect, 2 ) > pow( z_out - z_center, 2 );
       
       //thetabend = 0.3 * BdL/p: 
-      double proton_deflection = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
+      double proton_deflection_4vect = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
+
+      double proton_deflection = tan( 0.3 * BdL / pp_expect ) * (hcaldist - (sbsdist + Dgap/2.0) );
       
       T_protondeflect = proton_deflection;
+      T_protondeflect_4vect = proton_deflection_4vect;
+
+      T_protondeflect_exact = goodpcalc ? xexpect_HCAL - xHCAL_expect_proton : -1000.0;
+      T_protondeflect_exact_4vect = goodpcalc_4vect ? T_xHCAL_expect_4vect - xHCAL_expect_proton_4vect : -1000.0;
+      
       T_dt = -1000.0;
       
       for( int iclust=0; iclust<nhcalclust; iclust++ ){
@@ -1152,9 +1214,18 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	
 	TVector3 NeutronDirection = (HCALpos - vertex).Unit();
 	TVector3 ProtonDirection = (HCALpos + proton_deflection * HCAL_xaxis - vertex).Unit();
+	TVector3 ProtonDirection_4vect = (HCALpos + proton_deflection_4vect * HCAL_xaxis - vertex).Unit();
+	TVector3 ProtonDirection_exact = (HCALpos + T_protondeflect_exact * HCAL_xaxis - vertex).Unit();
+	TVector3 ProtonDirection_exact_4vect = (HCALpos + T_protondeflect_exact_4vect * HCAL_xaxis - vertex).Unit();
+	
+	double thpq_p_temp = acos( ProtonDirection.Dot( pNhat.Unit() ) );
+	double thpq_n_temp = acos( NeutronDirection.Dot( pNhat.Unit() ) );
+	double thpq_p_temp_4vect = acos( ProtonDirection_4vect.Dot( qvect.Unit() ) );
+	double thpq_n_temp_4vect = acos( NeutronDirection.Dot( qvect.Unit() ) );
 
-	double thpq_p_temp = acos( ProtonDirection.Dot( qvect.Unit() ) );
-	double thpq_n_temp = acos( NeutronDirection.Dot( qvect.Unit() ) );
+	double thpq_p_temp_exact = acos( ProtonDirection_exact.Dot( pNhat.Unit() ) );
+	double thpq_p_temp_exact_4vect = acos( ProtonDirection_exact_4vect.Dot( qvect.Unit() ) );
+
 
 	double deltat_temp = ADCTIMEHCAL[iclust] - TSH;
        
@@ -1188,8 +1259,15 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	    T_theta_recon_p = acos( ProtonDirection.Z() );
 	    T_phi_recon_p = TMath::ATan2( ProtonDirection.Y(), ProtonDirection.X() );
 	    
-	    T_thetapq_n = acos( NeutronDirection.Dot( qvect.Unit() ) );
-	    T_thetapq_p = acos( ProtonDirection.Dot( qvect.Unit() ) );
+	    //T_thetapq_n = acos( NeutronDirection.Dot( qvect.Unit() ) );
+	    //T_thetapq_p = acos( ProtonDirection.Dot( qvect.Unit() ) );
+
+	    T_thetapq_n = thpq_n_temp;
+	    T_thetapq_p = thpq_p_temp;
+	    T_thetapq_n_4vect = thpq_n_temp_4vect;
+	    T_thetapq_p_4vect = thpq_p_temp_4vect;
+	    T_thetapq_p_exact = thpq_p_temp_exact;
+	    T_thetapq_p_exact_4vect = thpq_p_temp_exact_4vect;
 	    
 	    T_dx_4vect = xHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis ) - dx0;
 	    T_dy_4vect = yHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis ) - dy0;
@@ -1209,14 +1287,22 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	ibest_HCAL = 0;
 
 	TVector3 HCALpos = HCAL_origin + (xHCAL[ibest_HCAL] - dx0) * HCAL_xaxis + (yHCAL[ibest_HCAL]-dy0) * HCAL_yaxis;
-      
+	
 	//cout << "Expected proton deflection = " << proton_deflection << " meters" << endl;
-      
+	
 	TVector3 NeutronDirection = (HCALpos - vertex).Unit();
 	TVector3 ProtonDirection = (HCALpos + proton_deflection * HCAL_xaxis - vertex).Unit();
-      
-	double thpq_p_temp = acos( ProtonDirection.Dot( qvect.Unit() ) );
-	double thpq_n_temp = acos( NeutronDirection.Dot( qvect.Unit() ) );
+	TVector3 ProtonDirection_4vect = (HCALpos + proton_deflection_4vect * HCAL_xaxis - vertex).Unit();
+	TVector3 ProtonDirection_exact = (HCALpos + T_protondeflect_exact * HCAL_xaxis - vertex).Unit();
+	TVector3 ProtonDirection_exact_4vect = (HCALpos + T_protondeflect_exact_4vect * HCAL_xaxis - vertex).Unit();
+	
+	double thpq_p_temp = acos( ProtonDirection.Dot( pNhat.Unit() ) );
+	double thpq_n_temp = acos( NeutronDirection.Dot( pNhat.Unit() ) );
+	double thpq_p_temp_4vect = acos( ProtonDirection_4vect.Dot( qvect.Unit() ) );
+	double thpq_n_temp_4vect = acos( NeutronDirection.Dot( qvect.Unit() ) );
+
+	double thpq_p_temp_exact = acos( ProtonDirection_exact.Dot( pNhat.Unit() ) );
+	double thpq_p_temp_exact_4vect = acos( ProtonDirection_exact_4vect.Dot( qvect.Unit() ) );
       
 	double deltat_temp = ADCTIMEHCAL[ibest_HCAL] - TSH;
 
@@ -1226,9 +1312,13 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	    
 	T_theta_recon_p = acos( ProtonDirection.Z() );
 	T_phi_recon_p = TMath::ATan2( ProtonDirection.Y(), ProtonDirection.X() );
-	    
-	T_thetapq_n = acos( NeutronDirection.Dot( qvect.Unit() ) );
-	T_thetapq_p = acos( ProtonDirection.Dot( qvect.Unit() ) );
+
+	T_thetapq_n = thpq_n_temp;
+	T_thetapq_p = thpq_p_temp;
+	T_thetapq_n_4vect = thpq_n_temp_4vect;
+	T_thetapq_p_4vect = thpq_p_temp_4vect;
+	T_thetapq_p_exact = thpq_p_temp_exact;
+	T_thetapq_p_exact_4vect = thpq_p_temp_exact_4vect;
 	    
 	T_dx_4vect = xHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_xaxis ) - dx0;
 	T_dy_4vect = yHCAL[ibest_HCAL] - (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis ) - dy0;

@@ -140,6 +140,7 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 
   long nevent=0;
 
+  
   while( T->GetEntry(nevent) ){
 
     if( nevent % 1000 == 0 ){
@@ -156,11 +157,29 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 
     if( passed_global_cut ){ //do the things:
 
+      //Grab reference time and RF time for calibration:
+      bool goodRF = false, goodTRIG = false;
+
+      //We'll use bb.tdctrig branches for now; later we'll use the new convenience variables:
+      double RFtime, TrigTime;
+      for( int ihit=0; ihit<T->Ndata_bb_tdctrig_tdc; ihit++ ){
+	if( T->bb_tdctrig_tdcelemID[ihit] == 4 ){ // RF Time:
+	  goodRF = true;
+	  RFtime = T->bb_tdctrig_tdc[ihit];
+	}
+
+	if( T->bb_tdctrig_tdcelemID[ihit] == 5 ){ //Trigger/reference time:
+	  goodTRIG = true;
+	  TrigTime = T->bb_tdctrig_tdc[ihit];
+	}
+      }
+      
       //grab needed track parameters:
       double vz = T->bb_tr_vz[0];
       double pathl = T->bb_tr_pathl[0];
       double etof = pathl/0.299792458; //electron TOF from vertex to hodo.
 
+      //These are "raw" leading-edge times and TOT values:
       double tleft = T->bb_hodotdc_clus_tleft[0];
       double tright = T->bb_hodotdc_clus_tright[0];
       double totleft = T->bb_hodotdc_clus_totleft[0];

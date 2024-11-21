@@ -4,7 +4,7 @@
 // Requires Podd 1.7.4
 
 //#if !defined(__CLING__) || defined(__ROOTCLING__)
-R__LOAD_LIBRARY($SBSOFFLINE/lib64/libsbs.so);
+//R__LOAD_LIBRARY($SBSOFFLINE/lib64/libsbs.so);
 #include <iostream>
 
 #include "TSystem.h"
@@ -129,6 +129,13 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
   sbsgem->SetMakeCommonModePlots( cmplots );
   if (usesbsgems != 0 ) harm->AddDetector(sbsgem); 
 
+  SBSGenericDetector *tdctrig_sbs = new SBSGenericDetector("tdctrig", "SBS trigger TDCs");
+  tdctrig_sbs->SetModeADC(SBSModeADC::kNone);
+  //  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDCSimple);
+  tdctrig_sbs->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector( tdctrig_sbs );
+  
   gHaApps->Add(harm);
 
   // add decoder
