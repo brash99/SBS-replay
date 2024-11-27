@@ -66,7 +66,7 @@ void stripmult( int layer=0, int axis=0, int nstrips=3840, const char *detname="
 
   p->AddText( text.Data() );
   
-  text.Form( "Raw occupancy = %6.2f %s", occupancy * 100.0, "\%");
+  text.Form( "Raw occupancy = %6.2f%%", occupancy * 100.0);
 
   p->AddText( text.Data() );
 
