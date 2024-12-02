@@ -178,7 +178,7 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
 
   if( nevents > 0 ){ 
 
-    outfilebase.Form( "%s_replayed_gepFTGEMs%d_seg%d_%d_firstevent%d_nevent%d", fname_prefix, runnum, firstsegment, lastsegment, firstevent, nevents );
+    outfilebase.Form( "%s_replayed_gepFTGEMs_%d_seg%d_%d_firstevent%d_nevent%d", fname_prefix, runnum, firstsegment, lastsegment, firstevent, nevents );
     outfilename.Form( "%s/%s.root", prefix.Data(), outfilebase.Data());
   }
   else {
