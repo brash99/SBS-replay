@@ -1,0 +1,25 @@
+# HCAL output definition file Current 10.21.22
+
+variable earm.ecal.e
+variable earm.ecal.eblk
+variable earm.ecal.againblk
+variable earm.ecal.rowblk
+variable earm.ecal.colblk
+variable earm.ecal.x
+variable earm.ecal.y
+variable earm.ecal.nblk
+variable earm.ecal.idblk
+variable earm.ecal.atimeblk
+variable earm.ecal.tdctimeblk
+variable earm.ecal.index
+block earm.ecal.clus.*
+variable earm.ecal.nclus
+block earm.ecal.clus_blk.*
+block earm.ecal.goodblock.*
+variable earm.ecal.ngoodADChits
+variable earm.trig.adcelemID
+variable earm.trig.a_time
+variable earm.trig.a_p
+variable earm.trig.a_amp_p
+
+block earm.ecal.Ref.*
