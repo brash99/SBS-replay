@@ -1,6 +1,7 @@
 -------[ 2021-01-01 00:00:00 ]
 
-bb.tracker_pitch_angle = 10.
+# this parameter is not used and has no effect. Commenting out to avoid confusion.
+#bb.tracker_pitch_angle = 10.
 
 ## optics parameters:
 bb.optics_order = 2
@@ -750,11 +751,11 @@ bb.forwardoptics_parameters =
 # NEW: Downbending optics: Uncomment to reconstruct downbending tracks instead of upbending:
 bb.preconflag = 1
 
-bb.A_pth1 =          0.2885
-bb.B_pth1 =           0.994
-bb.C_pth1 = 0.0
+#bb.A_pth1 =          0.2885
+#bb.B_pth1 =           0.994
+#bb.C_pth1 = 0.0
 
-bb.downbending_mode = 1
+bb.downbending_mode = 0
 bb.downbendoptics_order = 2
 
 bb.downbendoptics_parameters = 

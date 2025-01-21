@@ -1,0 +1,37 @@
+---------[ 2021-09-01 00:00:00 ] # beginning of (SBS) time
+
+sbs.tdctrig.detmap =
+17 8 32 34 0
+17 8 35 35 -1
+17 8 36 36 0
+
+# elemID 0 = HCAL sum trigger
+# elemID 1 = undefined?
+# elemID 2 = EDTM
+# elemID 3 = RF
+# REF = BB trig.
+
+sbs.tdctrig.chanmap = 0 1 2 -1000 3
+
+
+sbs.tdctrig.ncols = 4
+sbs.tdctrig.nrows = 1
+
+sbs.tdctrig.position = 0 0 0
+
+sbs.tdctrig.xyz = 0.0 0.0 0.0
+sbs.tdctrig.dxdydz = 1.0 1.0 0.0
+sbs.tdctrig.size = 1.0 1.0 1.0
+
+sbs.tdctrig.tdc.calib = 0.11186
+sbs.tdctrig.reftdc.calib = 0.11186
+
+sbs.tdctrig.crate_rftime = 17
+sbs.tdctrig.slot_rftime = 8
+sbs.tdctrig.chan_rftime = 36
+
+sbs.tdctrig.crate_trigtime = 17
+sbs.tdctrig.slot_trigtime = 8
+sbs.tdctrig.chan_trigtime = 35
+
+

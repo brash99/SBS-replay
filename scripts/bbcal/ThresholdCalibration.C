@@ -10,7 +10,7 @@
 #include "TF1.h"
 
 //Simple macro to loop on gmn ROOT trees and determine a rough constant of proportionality between trigger sum amplitudes and calibrated preshower and shower energies:
-void ThresholdCalibration( const char *rootfilename, const char *outputfilename="BBthresholdcalibtemp.root", double Atrigmin=0.2, double t0trig=176.5,double t0PS=-3.5, double t0SH=-1.0, double tcut=10.0){
+void ThresholdCalibration( const char *rootfilename, const char *outputfilename="BBthresholdcalibtemp.root", double Atrigmin=0.2, double t0trig=176.5,double t0PS=0.0, double t0SH=0.0, double tcut=10.0){
   
   TChain *C = new TChain("T");
 
@@ -78,7 +78,7 @@ void ThresholdCalibration( const char *rootfilename, const char *outputfilename=
       }
     }
 
-    if( itrigmax >= 0 && Atrigmax/1000. > Atrigmin ){
+    if( itrigmax >= 0 && Atrigmax/1000. > Atrigmin && Eps > 0.2 ){
       hAtime_trig->Fill( Atime_bbtrig[itrigmax] );
       hAtime_trig_vs_PS->Fill( Atime_ps, Atime_bbtrig[itrigmax] );
       hAtime_trig_vs_SH->Fill( Atime_sh, Atime_bbtrig[itrigmax] );

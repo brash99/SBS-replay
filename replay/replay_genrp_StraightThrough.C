@@ -176,6 +176,13 @@ void replay_genrp_StraightThrough(UInt_t runnum=10491, Long_t nevents=-1, Long_t
     }
   }
   harm->SetPolarimeterMode( false );
+
+  SBSGenericDetector *tdctrig_sbs = new SBSGenericDetector("tdctrig", "SBS trigger TDCs");
+  tdctrig_sbs->SetModeADC(SBSModeADC::kNone);
+  //  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDCSimple);
+  tdctrig_sbs->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector( tdctrig_sbs );
   
   // SBSGEMSpectrometerTracker *gemCeF = new SBSGEMSpectrometerTracker("gemCeF", "Super BigBite Hall A inline front GEM data");
   // gemCeF->SetPedestalMode( pm );

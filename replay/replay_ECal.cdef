@@ -1,0 +1,10 @@
+# Sample cut definition file
+Block: RawDecode
+RawDecode_master        1
+
+Block: Decode
+Decode_master   1
+
+Block: CoarseReconstruct
+CoarseReconstruct_master 1
+

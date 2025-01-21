@@ -40,7 +40,7 @@ void HCAL_p_eff_uniformity(const char *setupfilename, const char *outfilename){
   // two is a W cut
   // three is a "good hcal" cut (dx, dy, possibly also dt, EHCAL)
   // four is a set of "fiducial" cuts in x and y 
-  // since cuts 2 and 4 are generally going to be rectangular in nature, we can specify lower and upper limits for these via command-line arguments:
+  // since cuts 2 and 4 are generally going to be rectangular in nature, we can specify lower and upper limits for these via command-line/config file arguments:
 
   TCut globalcut = "";
   
@@ -130,6 +130,19 @@ void HCAL_p_eff_uniformity(const char *setupfilename, const char *outfilename){
   TH2D *hxyHCAL_expect_cut = new TH2D("hxyHCAL_expect_cut","Global+HCAL cuts; Expected y_{HCAL} (m); Expected x_{HCAL} (m)", 125,-1.25,1.25,125,-3.25,1.75);
   TH2D *hxyHCAL_expect_acut = new TH2D("hxyHCAL_expect_acut","Global+HCAL cuts; Expected y_{HCAL} (m); Expected x_{HCAL} (m)", 125,-1.25,1.25,125,-3.25,1.75);
 
+  int nbinsycoarse = 32; //8*2*2
+  int nbinsxcoarse = 56; //14*2*2
+
+  double xmin_coarse = -0.75-14.0*0.159;
+  double xmax_coarse = -0.75+14.0*0.159;
+  double ymin_coarse = -8.0*0.159;
+  double ymax_coarse = 8.0*0.159;
+  
+  TH2D *hxyHCAL_expect_all_coarse = new TH2D("hxyHCAL_expect_all_coarse","Global cut; Expected y (m); Expected x (m)", nbinsycoarse, ymin_coarse, ymax_coarse, nbinsxcoarse, xmin_coarse, xmax_coarse );
+  TH2D *hxyHCAL_expect_cut_coarse = new TH2D("hxyHCAL_expect_cut_coarse","Global cut; Expected y (m); Expected x (m)", nbinsycoarse, ymin_coarse, ymax_coarse, nbinsxcoarse, xmin_coarse, xmax_coarse );
+  TH2D *hxyHCAL_expect_acut_coarse = new TH2D("hxyHCAL_expect_acut_coarse","Global cut; Expected y (m); Expected x (m)", nbinsycoarse, ymin_coarse, ymax_coarse, nbinsxcoarse, xmin_coarse, xmax_coarse );
+  
+
   TH1D *hxHCAL_all = new TH1D("hxHCAL_all","Global cut; Observed x_{HCAL} (m);", 500,-3,2);
   TH1D *hyHCAL_all = new TH1D("hyHCAL_all","Global cut; Observed y_{HCAL} (m);", 250,-1.25,1.25);  
   TH2D *hxyHCAL_all = new TH2D("hxyHCAL_all", "Global cut; y_{HCAL} (m); x_{HCAL} (m)", 125,-1.25,1.25,250,-3,2);
@@ -175,7 +188,7 @@ void HCAL_p_eff_uniformity(const char *setupfilename, const char *outfilename){
   TH1D *hEHCALacut = new TH1D("hEHCALacut", "Global +!HCAL cuts; E_{HCAL} (GeV);", 500, 0.0, 2.5);
   
   TH2D *hEHCAL_vs_idblk = new TH2D("hEHCAL_vs_idblk", "Global + HCAL cuts; HCAL block ID; HCAL energy", 288, -0.5,287.5, 500,0.0,2.5);
-
+  
   gmn_elastic_tree *T = new gmn_elastic_tree(C);
 
   //If this doesn't work, we can use "C" instead of "T":
@@ -209,7 +222,11 @@ void HCAL_p_eff_uniformity(const char *setupfilename, const char *outfilename){
     if( protondeflectionflag == 1 ){
       protondeflection = T->protondeflection;
     } else if ( protondeflectionflag == 2 ){
-      protondeflection = pdeflectmean;
+      protondeflection = T->protondeflection_4vect;
+    } else if (protondeflectionflag == 3 ){
+      protondeflection = T->protondeflection_exact;
+    } else if (protondeflectionflag == 4 ){
+      protondeflection = T->protondeflection_exact_4vect;
     }
     
     bool fidcutx = T->xHCAL_expect - protondeflection >= fid_xmin && T->xHCAL_expect - protondeflection <= fid_xmax;
@@ -259,10 +276,13 @@ void HCAL_p_eff_uniformity(const char *setupfilename, const char *outfilename){
 	}
 
 	hxyHCAL_expect_all->Fill(T->yHCAL_expect, T->xHCAL_expect - protondeflection );
+	hxyHCAL_expect_all_coarse->Fill( T->yHCAL_expect, T->xHCAL_expect - protondeflection );
 	if( passed_hcalcut ){
 	  hxyHCAL_expect_cut->Fill( T->yHCAL_expect, T->xHCAL_expect - protondeflection );
+	  hxyHCAL_expect_cut_coarse->Fill( T->yHCAL_expect, T->xHCAL_expect - protondeflection );
 	} else {
 	  hxyHCAL_expect_acut->Fill( T->yHCAL_expect, T->xHCAL_expect - protondeflection );
+	  hxyHCAL_expect_acut_coarse->Fill( T->yHCAL_expect, T->xHCAL_expect - protondeflection );
 	}
 	//Fill xHCAL, yHCAL, and row and column histograms only for events passing fiducial cut:
 
@@ -338,7 +358,7 @@ void HCAL_p_eff_uniformity(const char *setupfilename, const char *outfilename){
   TH2D *heff_vs_xyexpect = new TH2D( *hxyHCAL_expect_cut );
   heff_vs_xyexpect->SetName("heff_vs_xyexpect" );
   heff_vs_xyexpect->Divide( hxyHCAL_expect_cut, hxyHCAL_expect_all );
-
+  
   for( int i=1; i<=heff_vs_xyexpect->GetNbinsX(); i++ ){
     for( int j=1; j<=heff_vs_xyexpect->GetNbinsY(); j++ ){
 
@@ -347,6 +367,21 @@ void HCAL_p_eff_uniformity(const char *setupfilename, const char *outfilename){
       double eff = heff_vs_xyexpect->GetBinContent(bin);
       double N = std::max(1.0,hxyHCAL_expect_all->GetBinContent(bin));
       heff_vs_xyexpect->SetBinError(bin,sqrt(eff*(1.0-eff)/N));
+    }
+  }
+
+  TH2D *heff_vs_xyexpect_coarse = new TH2D( *hxyHCAL_expect_cut_coarse );
+  heff_vs_xyexpect_coarse->SetName("heff_vs_xyexpect_coarse");
+  heff_vs_xyexpect_coarse->Divide( hxyHCAL_expect_cut_coarse, hxyHCAL_expect_all_coarse );
+
+  for( int i=1; i<=heff_vs_xyexpect_coarse->GetNbinsX(); i++ ){
+    for( int j=1; j<=heff_vs_xyexpect_coarse->GetNbinsY(); j++ ){
+
+      int bin = heff_vs_xyexpect_coarse->GetBin(i,j);
+      
+      double eff = heff_vs_xyexpect_coarse->GetBinContent(bin);
+      double N = std::max(1.0,hxyHCAL_expect_all_coarse->GetBinContent(bin));
+      heff_vs_xyexpect_coarse->SetBinError(bin,sqrt(eff*(1.0-eff)/N));
     }
   }
 

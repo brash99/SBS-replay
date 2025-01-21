@@ -45,6 +45,10 @@ variable bb.bbtrig.tdcelemID
 variable bb.tdctrig.tdc
 variable bb.tdctrig.tdcelemID
 
+variable bb.tdctrig.rftime
+variable bb.tdctrig.trigtime
+
+
 # # PS 
 th2d hped_vs_elem_ps 'Pedestal vs PS blocks' bb.ps.adcelemID[I] bb.ps.ped[I] 52 0 52 200 0 200 bb.ps.a_time[I]>0 
 th2d hADCtime_vs_elem_ps 'ADC time (ns) vs PS blocks' bb.ps.adcelemID[I] bb.ps.a_time[I] 52 0 52 100 0 100 bb.ps.a_time[I]>0 

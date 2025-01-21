@@ -12,6 +12,14 @@ variable sbs.hcal.idblk
 variable sbs.hcal.atimeblk
 variable sbs.hcal.tdctimeblk
 variable sbs.hcal.index
+variable sbs.hcal.tdctime
+variable sbs.hcal.adctime
+variable sbs.hcal.e_goodtdc
+variable sbs.hcal.eblk_goodtdc
+variable sbs.hcal.nblk_goodtdc
+variable sbs.hcal.rowblk_goodtdc
+variable sbs.hcal.colblk_goodtdc
+variable sbs.hcal.idblk_goodtdc
 block sbs.hcal.clus.*
 variable sbs.hcal.nclus
 block sbs.hcal.clus_blk.*
@@ -22,7 +30,13 @@ variable sbs.trig.a_time
 variable sbs.trig.a_p
 variable sbs.trig.a_amp_p
 
+variable sbs.hcal.rftime
+variable sbs.hcal.trigtime
+
 block sbs.hcal.Ref.*
+
+
+
 
 ############
 #Histograms#

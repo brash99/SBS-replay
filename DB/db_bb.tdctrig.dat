@@ -14,13 +14,24 @@ bb.tdctrig.position = 0 0 2.5319 ## Need to re-check this number
 ## Size
 bb.tdctrig.size   =  0.595 2.295 0.37 # in meters
 #
-bb.tdctrig.tdc.calib = 0.0936
+#bb.tdctrig.tdc.calib = 0.0936
+# slight refinement of 1190 calibration using spacing of consecutive RF hits (assuming exactly 249.5 MHz RF frequency)
+bb.tdctrig.tdc.calib = 0.09376  
 #
 bb.tdctrig.tdc.offset = 0
 #
 bb.tdctrig.tdc.GoodTimeCut = 910. 910. 910. 0. 0. 340.
 #
-bb.tdctrig.reftdc.calib = 0.0936
+#bb.tdctrig.reftdc.calib = 0.0936
+bb.tdctrig.reftdc.calib = 0.09376
 #
 bb.tdctrig.reftdc.offset = 0
                 
+bb.tdctrig.crate_rftime = 5
+bb.tdctrig.slot_rftime = 2
+bb.tdctrig.chan_rftime = 126
+
+bb.tdctrig.crate_trigtime = 5
+bb.tdctrig.slot_trigtime = 2
+bb.tdctrig.chan_trigtime = 127
+

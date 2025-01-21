@@ -61,6 +61,7 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   tdctrig->SetModeTDC(SBSModeTDC::kTDCSimple);
   tdctrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( tdctrig );
+
   
   //SBSGenericDetector *grinch_tdc = new SBSGenericDetector("grinch_tdc","GRINCH TDC data");
   //SBSCherenkovDetector *grinch_tdc = new SBSCherenkovDetector("grinch_tdc","GRINCH TDC data");
@@ -115,6 +116,13 @@ void replay_gmn(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=0, con
   //sbstrig->SetStoreRawHits(kTRUE);
   sbstrig->SetStoreEmptyElements(kFALSE);
   harm->AddDetector( sbstrig );  
+
+  SBSGenericDetector *tdctrig_sbs = new SBSGenericDetector("tdctrig", "SBS trigger TDCs");
+  tdctrig_sbs->SetModeADC(SBSModeADC::kNone);
+  //  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDCSimple);
+  tdctrig_sbs->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector( tdctrig_sbs );
   
   gHaApps->Add(harm);
 

@@ -14,3 +14,4 @@ variable sbs.HCALdir_x
 variable sbs.HCALdir_y
 variable sbs.HCALdir_z
 
+block sbs.tdctrig.*

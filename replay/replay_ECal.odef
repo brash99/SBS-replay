@@ -1,0 +1,37 @@
+# ADC from calorimeter
+variable earm.ecal.e
+# variable earm.ecal.e_c
+variable earm.ecal.againblk
+variable earm.ecal.eblk
+# variable earm.ecal.eblk_c
+variable earm.ecal.rowblk
+variable earm.ecal.colblk
+variable earm.ecal.x
+variable earm.ecal.y
+variable earm.ecal.nblk
+variable earm.ecal.idblk
+variable earm.ecal.atimeblk
+variable earm.ecal.index
+block earm.ecal.clus*
+variable earm.ecal.nclus
+block earm.ecal.clus_blk.*
+variable earm.ecal.ngoodADChits
+
+#
+variable earm.ecal.a_time
+variable earm.ecal.a_amp_p
+variable earm.ecal.a_p
+variable earm.ecal.ped
+variable earm.ecal.adcrow
+variable earm.ecal.adccol
+variable earm.ecal.adcelemID
+
+## ECal
+th1d helemID 'ECal blocks in column 12' earm.ecal.adcelemID[I] 68 0 68 earm.ecal.a_time[I]>0
+th2d hped_vs_elem 'Pedestal vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12
+#th2d hped_vs_elem 'Pedestal vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.adccol==12
+th2d hADCtime_vs_elem 'ADC time (ns) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
+th2d hADCamp_vs_elem 'ADC amplitude (mV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
+th2d hADCint_vs_elem 'ADC integral (pC) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
+th2d hADCeng_vs_elem 'ADC integral (GeV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
+th1d helemID 'ECal blocks (total 1656 of them)' earm.ecal.adcelemID[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12

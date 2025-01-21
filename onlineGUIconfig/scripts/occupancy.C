@@ -1,6 +1,6 @@
 #include <algorithm>
 
-void occupancy( int module, double Lx, double Ly, int axis=0,  double dt_ns = 150.0 ){
+void occupancy( int module, double Lx, double Ly, int axis=0,  double dt_ns = 150.0, const char* spectrometer = "bb", const char* db_append = "gem" ){
   //TTree *T = (TTree*) gFile->Get("T");
 
   //gStyle->SetPalette(kRainBow);
@@ -16,9 +16,9 @@ void occupancy( int module, double Lx, double Ly, int axis=0,  double dt_ns = 15
 
   TString histname;
   if( axis == 0 ){
-    histname.Form("hClusterMultiplicity_bb_gem_m%d_U", module);
+    histname.Form("hClusterMultiplicity_%s_%s_m%d_U", spectrometer, db_append, module);
   } else {
-    histname.Form("hClusterMultiplicity_bb_gem_m%d_V", module);
+    histname.Form("hClusterMultiplicity_%s_%s_m%d_V", spectrometer, db_append, module);
   }
 
   TH1D *htemp;
@@ -48,6 +48,10 @@ void occupancy( int module, double Lx, double Ly, int axis=0,  double dt_ns = 15
   p->SetBorderSize(0);
 
   TString text;
+
+  text.Form("Module: %i", module);
+
+  p->AddText( text.Data() );
 
   double rate = mean / area_cm2 / dt_ns * 1.e6;
   

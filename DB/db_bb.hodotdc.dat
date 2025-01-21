@@ -21,9 +21,9 @@ bb.hodotdc.chanmap =
 	154 155 156 157 158 159 160 161 162 163 164 165 166 167 168   169
 	170 171 172 173 174 175 176 177 178 179  -1  -1  -1  -1  -1    -1 
          -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1    -1 
-         -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1 -1000
+         -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1  -1000
 
-	 
+
 ## Positions in [m] where +z is roated by bb.theta
 ##
 ## surface of hodoscope from 1st GEM: (90.88-17.87)"x 0.0254 m = 1.854454 cm 
@@ -93,7 +93,7 @@ bb.hodotdc.dxdydz =  0.025  0.600  0.000
 bb.hodotdc.tdcwindowmin = -20
 bb.hodotdc.tdcwindowmax = 20
 bb.hodotdc.tdctotmin = 7
-bb.hodotdc.tdctotmax = 30
+bb.hodotdc.tdctotmax = 50
 
 bb.hodotdc.horizposbarcut = 0.3
 #bb.hodotdc.timeref = -80.0
@@ -107,10 +107,13 @@ bb.hodotdc.trackmatchcutX = 0.05
 
 bb.hodotdc.reftdc.GoodTimeCut = 368.0
 bb.hodotdc.reftdc.offset = 0.0
-bb.hodotdc.reftdc.calib = 0.0936 #time res per v1190 channel
+#bb.hodotdc.reftdc.calib = 0.0936 #time res per v1190 channel
+# slight refinement of TDC calibration using spacing of consecutive RF time hits:
+bb.hodotdc.reftdc.calib = 0.09376
 
 bb.hodotdc.tdc.GoodTimeCut = 0.0
-bb.hodotdc.tdc.calib = 0.0936 #time res per v1190 channel
+#bb.hodotdc.tdc.calib = 0.0936 #time res per v1190 channel
+bb.hodotdc.tdc.calib = 0.09376
 bb.hodotdc.tdc.offset = 
 -963.531 -913.813 -922.126 -926.845 -919.128
 -947.006 -951.755 -972.511 -948.612 -943.82 -921.676 -939.301 -937.673

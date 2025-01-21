@@ -596,7 +596,7 @@ bb.gem.maxnv_pos = 2
 
 bb.gem.sigmahitshape = 0.0004
 bb.gem.zerosuppress = 1
-bb.gem.zerosuppress_nsigma = 5.0
+bb.gem.zerosuppress_nsigma = 3.0
 
 bb.gem.onlinezerosuppress = 1
 

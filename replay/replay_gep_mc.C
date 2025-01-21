@@ -20,7 +20,9 @@
 #include "SBSGRINCH.h"
 #include "SBSEArm.h"
 #include "SBSGEPEArm.h"
+#include "SBSCDet.h"
 #include "SBSHCal.h"
+#include "SBSECal.h"
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSTimingHodoscope.h"
 
@@ -43,8 +45,9 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   SBSCalorimeter* ecal = new SBSCalorimeter("ecal", "ECal");
   ecal->SetModeADC(SBSModeADC::kWaveform);
   SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm" );
-  earm->AddDetector( ecal );
-  //earm->AddDetector( new SBSCDet("cdet", "coordinate detector") );
+  earm->AddDetector( new SBSECal("ecal", "ECal") );
+  // earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );  
+  earm->AddDetector( new SBSCDet("cdet", "coordinate detector") );
   gHaApps->Add(earm);
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
