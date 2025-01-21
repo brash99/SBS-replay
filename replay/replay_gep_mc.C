@@ -42,8 +42,6 @@ TDatime get_datime(uint gepconfig)
 
 void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString experiment="gep")
 {
-  SBSCalorimeter* ecal = new SBSCalorimeter("ecal", "ECal");
-  ecal->SetModeADC(SBSModeADC::kWaveform);
   SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm" );
   earm->AddDetector( new SBSECal("ecal", "ECal") );
   // earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );  
@@ -54,8 +52,6 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   harm->AddDetector( new SBSGEMSpectrometerTracker("gemFT", "Front tracker") );
   harm->AddDetector( new SBSGEMSpectrometerTracker("gemFPP", "Focal Plane Polarimeter") );
   gHaApps->Add(harm);
-  
-  
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
