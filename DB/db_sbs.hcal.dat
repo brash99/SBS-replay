@@ -260,6 +260,8 @@ sbs.hcal.tdc.offset =
 sbs.hcal.reftdc.calib = 0.11186
 sbs.hcal.tdc.calib = 0.11186
 
+
+
 # Convert adc integral in pC to GeV
 sbs.hcal.adc.gain =
 0.00175  0.00266867  0.00263163  0.00180382  0.00263728  0.00388418  0.0032729  0.00332779  0.00145959  0.00145491  0.00222524  0.00374568  
@@ -1197,10 +1199,10 @@ sbs.hcal.position = 0 0 6.175
 
 
 --------[ 2024-04-01 00:00:00 ] 
-# GEN-RP: HCAL is at 9.007 m, while front GEM layer is at 4.324 m
-# so relative to internal detector coordinates we should put HCAL at 4.683 m
+# GEN-RP: HCAL is at 9.007 m, while front GEM layer is at 4.12 m (roughly)
+# so relative to internal detector coordinates we should put HCAL at 4
 # this information goes into the back constraint point for tracking
-sbs.hcal.position = 0 0 4.897
+sbs.hcal.position = 0 0 4.887
 
 sbs.hcal.tmax = 100.0
 

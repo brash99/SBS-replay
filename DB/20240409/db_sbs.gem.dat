@@ -2,7 +2,9 @@
 
 # Date/Time = Tue April 9 00:00:00 2024
 # start database a few days before the start of the GEn-RP experiment.
--------[ 2024-04-09 00:00:00 ] 
+-------[ 2024-04-09 00:00:00 ]
+
+
 # database format: the tracker consists of a collection of modules: 
 # database properties will be organized by module, not by "plane" as in old SBS-offline
  
@@ -17,6 +19,15 @@
 # Layer 7: UVa (L7)
 # Layer 8: UVa (PolR0)
 # Layer 9: UVa (PolR1)
+
+sbs.gem.usetrigtime = 1
+sbs.gem.trigtime_crate = 5
+sbs.gem.trigtime_slot = 2
+sbs.gem.trigtime_chan = 127
+sbs.gem.trigtime_t0 = 339.4
+sbs.gem.trigtime_calib = 0.0936
+sbs.gem.trigtime_slope = 0.4
+sbs.gem.maxtrigtime_correction = 50.0
 
 sbs.gem.modules = m0 m1  m2 m3 m4 m5  m6 m7 m8 m9  m10 m11 m12 m13  m14 m15 m16 m17  m18 m19 m20 m21  m22 m23 m24 m25  m26 m27 m28 m29  m30 m31 m32 m33
      
@@ -700,7 +711,6 @@ sbs.gem.m33.vgain = 1  1  1  1  1  1  1  1  1  1
 sbs.gem.threshold_sample =   75.0
 sbs.gem.threshold_stripsum = 250.
 sbs.gem.threshold_clustersum 500.
-
 
 sbs.gem.ADCasym_cut = 0.8 
 sbs.gem.deltat_cut = 25.0
@@ -2131,7 +2141,10 @@ sbs.gem.sigma_tcorr = 7.0
 sbs.gem.sigmatrackt0 = 5.0
 sbs.gem.cuttrackt0 = 25.0
 
-sbs.gem.filterflag1D = -1
+sbs.gem.filterflag1D = 0
+sbs.gem.filterflag2D = 0
+
+
 
 --------[ 2024-04-18 23:51:00 ] # zero field:
 sbs.gem.useopticsconstraint = 0
@@ -2139,11 +2152,127 @@ sbs.gem.useopticsconstraint = 0
 #sbs.gem.usestriptimingcut = 0
 
 # let's use a looser chi2 cut in case we need a different alignment for the zero-field data:
-sbs.gem.trackchi2cut = 100.0
+sbs.gem.trackchi2cut = 25.0
 sbs.gem.minhitsontrack = 5
+
+sbs.gem.filterflag1D = -1
+sbs.gem.filterflag2D = -1
 
 --------[ 2024-04-19 3:30:00 ] # back to full field
 sbs.gem.useopticsconstraint = 1
 sbs.gem.minhitsontrack = 4
 sbs.gem.trackchi2cut = 20.0
+
+
+# filtering criteria for straight-through runs (until we get better timing cuts/gain matching/etc)
+
+--------[ 2024-04-18 00:00:00 ] # start with run 82 (5 uA): "soft" filtering on both criteria 
+sbs.gem.filterflag1D = 0
+sbs.gem.filterflag2D = 0
+
+--------[ 2024-04-18 15:53:00 ] # low-current runs 83-84: no filtering 
+sbs.gem.filterflag1D = -1
+sbs.gem.filterflag2D = -1
+
+--------[ 2024-04-18 16:45:00 ] # 5-15 uA runs 86, etc
+
+sbs.gem.filterflag1D = 0
+sbs.gem.filterflag2D = 0
+
+--------[ 2024-04-18 21:00:00 ] # back to no filtering for 5-uA runs 113-115:
+sbs.gem.filterflag1D = -1
+sbs.gem.filterflag2D = -1
+
+--------[ 2024-04-18 22:10:00 ] # turn filtering back on for runs 116-117 (10-15 uA)
+sbs.gem.filterflag1D = 0
+sbs.gem.filterflag2D = 0
+
+--------[ 2024-04-19 04:00:00 ] # turn filtering back on for runs 122+ (10-15 uA LH2, 8 uA LD2)
+sbs.gem.filterflag1D = 0
+sbs.gem.filterflag2D = 0
+
+-------[ 2024-04-18 00:00:00 ] # Gain-Match coefficiencts for straight-through running:
+
+
+#Module internal relative gains by APV card: 
+sbs.gem.m0.vgain = 1  1  1  1.00577  1.10624  1.18326  1.25934  1.23622  1.27868  1.20192  1.15598  1.13476  1.14916  1.17803  1.2301  1.19133  1.25542  1.2782  1.31569  1.31602  1.3665  1.25279  1.12558  1.00217  1.01041  0.845655  1  
+sbs.gem.m0.ugain = 1  1  1.00161  0.973514  0.991903  0.992378  0.983841  1.08948  0.976895  0.98567  1.0254  1.0826  1  0.996355  0.984139  1.9962  1.63974  2.20296  2.26497  1.77894  1.18537  1.16389  0.994754  1.04356  1.01851  0.99463  1.08149  1.04444  1.0808  1  1  
+sbs.gem.m1.vgain = 1  1  1.32048  1.36219  1.44311  1.50267  1.45128  1.46846  1.47547  1.47907  1.31541  1.27849  1.28826  1.32917  1.30817  1.26044  1.19198  1.19798  1.27545  1.2663  1.30994  1  1.10061  0.885768  0.910199  0.813293  1  
+sbs.gem.m1.ugain = 1  1  1.4531  1.4179  1.23  1.30144  1.30662  1.23745  1.2351  1.17043  1.20173  1.19903  1.11867  1.17199  1.35542  2.8863  3.16453  2.12531  1  0.945296  0.935737  1.05867  1.08123  1.04333  1.00336  0.974012  1.013  0.985723  0.987107  1  1  
+sbs.gem.m2.vgain = 1  1.12087  1.03699  0.913106  0.843306  0.848878  0.90272  0.866412  0.91627  0.926019  0.935449  0.850461  
+sbs.gem.m2.ugain = 1  1  1  1.07491  4.67896  0.974595  0.960467  1.0012  0.994648  1  
+sbs.gem.m3.vgain = 1.12469  0.926062  0.884961  0.848397  0.863628  0.90664  0.886946  0.87034  0.805786  0.856492  1.04241  0.770763  
+sbs.gem.m3.ugain = 1.12272  0.986908  1.07773  1.03332  1  1.01322  1.06751  1.0466  0.981906  1.12647  
+sbs.gem.m4.vgain = 0.939839  0.967308  0.996793  0.902524  0.9254  0.975789  0.948348  0.98821  0.944151  0.96927  0.962192  1.06482  
+sbs.gem.m4.ugain = 1.05722  1.08988  1  1.57238  0.976336  1.0789  1.21578  1.08111  1.14267  1.05619  
+sbs.gem.m5.vgain = 1  1  1  1  0.918451  0.839285  0.881558  0.837715  0.940558  0.902383  1.13268  1  
+sbs.gem.m5.ugain = 1  1.16793  0.970431  1  1  1  1  1  1  1  
+sbs.gem.m6.vgain = 5.14327  1.0007  0.951642  1.05637  0.925735  0.883722  0.855946  0.884095  0.913419  0.936728  0.951502  0.926705  
+sbs.gem.m6.ugain = 1  1  1.01512  0.979824  0.974389  1.04957  1.06063  1.02057  1  0.876102  
+sbs.gem.m7.vgain = 1.18424  0.94908  1.00357  0.848252  0.862009  0.84274  0.867626  0.816543  1.022  1.01938  1.0248  0.976442  
+sbs.gem.m7.ugain = 0.914487  1.03759  1.02703  0.9427  1.0189  1  0.972552  1.0788  0.922838  0.897977  
+sbs.gem.m8.vgain = 0.886959  0.850248  1.00528  0.995177  0.861505  0.912944  0.92295  0.96096  1.27549  0.960761  1.01999  1.36706  
+sbs.gem.m8.ugain = 0.999491  0.973779  1  1.01623  1.04854  1.01083  1.01521  0.892858  0.940602  1  
+sbs.gem.m9.vgain = 1  0.555818  0.547237  0.464491  0.643032  0.767708  0.832405  0.878136  1  1  1  1  
+sbs.gem.m9.ugain = 1  1.10017  1.11617  1  1  1  1  1  1  1  
+sbs.gem.m10.vgain = 0.920612  0.838165  0.78281  0.87199  0.77243  0.818129  0.815074  0.753394  0.786171  0.784766  0.790105  0.866574  
+sbs.gem.m10.ugain = 1  0.90419  0.84109  0.89559  0.906671  0.968485  1.01462  0.892223  0.943592  1  
+sbs.gem.m11.vgain = 1.70335  1.19582  1.18089  1.06021  1.03259  1.01849  1.08883  1.0486  1.07802  1.00687  1.04453  1.06682  
+sbs.gem.m11.ugain = 1.03862  1.00674  0.98321  0.946448  0.957225  1  1.02166  1.14589  1.96151  2.39154  
+sbs.gem.m12.vgain = 1.06821  1.0448  1.0823  1.03029  1.07478  1.00981  1.12293  1.07763  1.13336  1.04119  1.12889  1.43891  
+sbs.gem.m12.ugain = 0.998169  1  0.979862  0.956498  0.966588  0.982707  1.05922  1.07374  0.975604  0.959859  
+sbs.gem.m13.vgain = 1  1  1  1  1  0.516991  0.535355  0.573359  0.655199  0.662861  0.720059  0.744339  
+sbs.gem.m13.ugain = 1  1.17448  1.20071  1  1  1  1  1  1  1  
+sbs.gem.m14.vgain = 0.739178  0.745008  0.747947  0.742968  0.841222  0.842126  0.822331  0.796749  0.810134  0.840865  0.782423  0.798461  
+sbs.gem.m14.ugain = 0.889289  0.83543  0.946825  0.922015  0.982537  0.95669  0.866262  0.901713  0.951868  1  
+sbs.gem.m15.vgain = 1.05358  0.949458  0.989538  0.913764  0.976543  0.960041  0.969984  0.93962  0.94596  1.01423  0.989875  1.07839  
+sbs.gem.m15.ugain = 0.999202  1.11398  1.10426  2.16601  1.09863  1  0.915164  0.940409  0.947284  1.1202  
+sbs.gem.m16.vgain = 0.876731  0.847658  0.934782  0.812691  0.834385  0.838259  0.793623  0.795594  0.682506  0.69453  0.755305  0.749598  
+sbs.gem.m16.ugain = 1.47233  1  0.985588  0.910748  0.868063  0.861087  0.853103  0.854902  0.86893  1.03195  
+sbs.gem.m17.vgain = 0.780663  0.761718  0.766354  0.830993  0.694799  0.852382  0.794409  1  1  1  1  1  
+sbs.gem.m17.ugain = 1  0.870834  0.953006  1  1  1  1  1  1  1  
+sbs.gem.m18.vgain = 0.698489  0.636961  0.642428  0.661553  1  1  1  1  1  1  1  1  
+sbs.gem.m18.ugain = 1  1  1  1  1.04582  1  0.953478  0.928675  0.935685  0.946877  
+sbs.gem.m19.vgain = 1.10118  0.967676  0.883147  0.870877  0.923176  0.911337  0.855162  0.93664  0.863836  0.894072  0.887641  0.911713  
+sbs.gem.m19.ugain = 2.29923  1.21715  1.34948  1.22837  1.13095  1  1.07166  1.00203  1.0047  0.981842  
+sbs.gem.m20.vgain = 0.94627  0.905254  0.904922  0.903553  0.907602  0.886099  0.931794  0.948311  0.878261  0.981579  1.01004  1.07626  
+sbs.gem.m20.ugain = 0.953456  1  1.03228  0.933454  0.98971  0.925319  1.02148  0.922211  1.09038  0.910502  
+sbs.gem.m21.vgain = 0.596793  0.614044  0.555424  0.589017  0.558371  0.568981  0.512938  0.475956  1  1  1  1  
+sbs.gem.m21.ugain = 1  0.696174  0.737072  1  1  1  1  1  1  1  
+sbs.gem.m22.vgain = 0.522879  0.443347  0.439036  0.427311  0.425795  0.404215  0.389112  0.415256  0.38589  0.407178  0.397152  0.416029  
+sbs.gem.m22.ugain = 0.445747  0.506378  0.577718  0.752563  0.793479  0.989829  1.0398  1.20528  1  0.739167  
+sbs.gem.m23.vgain = 0.980576  0.880287  1.0004  0.921027  0.96709  0.992507  0.933226  0.966877  0.98777  1.04449  0.938903  1.16118  
+sbs.gem.m23.ugain = 0.903819  1.00584  0.92565  0.979271  1  1.3263  1.20447  1.37217  1.33623  1.26913  
+sbs.gem.m24.vgain = 1.08819  1.05521  1.01609  1.09588  1.01434  1.1059  1.06899  1.06592  1.03107  1.03265  1.05207  1.01097  
+sbs.gem.m24.ugain = 1.01078  1  1.00632  0.986093  1.029  1.34983  3.45242  1.48145  1.37236  1.5093  
+sbs.gem.m25.vgain = 1.16543  1.12479  0.979083  1.05073  1  1  1  1  1  1  1  1  
+sbs.gem.m25.ugain = 7.97164  1  0.931796  1  1  1  1  1  1  1  
+
+# Module average gains relative to target ADC peak position of 4000
+sbs.gem.m0.modulegain = 0.828211
+sbs.gem.m1.modulegain = 0.80797
+sbs.gem.m2.modulegain = 1.03754
+sbs.gem.m3.modulegain = 1.04547
+sbs.gem.m4.modulegain = 0.971327
+sbs.gem.m5.modulegain = 1
+sbs.gem.m6.modulegain = 1.00627
+sbs.gem.m7.modulegain = 1.04857
+sbs.gem.m8.modulegain = 1.01476
+sbs.gem.m9.modulegain = 1
+sbs.gem.m10.modulegain = 1.14263
+sbs.gem.m11.modulegain = 0.883764
+sbs.gem.m12.modulegain = 0.9618
+sbs.gem.m13.modulegain = 1
+sbs.gem.m14.modulegain = 1.15563
+sbs.gem.m15.modulegain = 0.960548
+sbs.gem.m16.modulegain = 1.1262
+sbs.gem.m17.modulegain = 1
+sbs.gem.m18.modulegain = 1
+sbs.gem.m19.modulegain = 0.969358
+sbs.gem.m20.modulegain = 1.04879
+sbs.gem.m21.modulegain = 1
+sbs.gem.m22.modulegain = 1.52037
+sbs.gem.m23.modulegain = 0.967579
+sbs.gem.m24.modulegain = 0.905004
+sbs.gem.m25.modulegain = 1
 
