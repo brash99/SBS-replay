@@ -76,6 +76,12 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
     double sbsfield = 1.0; //fraction of maximum
     double sbsmaxfield = 1.27; //maximum field, tesla
 
+    double Dgap = 48.0*2.54/100.0;
+    
+    //Fix zero-order matrix elements to avoid overfitting:
+    double xptar0 = 0.0, yptar0 = 0.0, pth0 = 0.3*sbsfield*sbsmaxfield*Dgap;
+    double ytar0 = 0.0;
+    
     TString oldcoeffs_fname = "";
     
     while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endconfig") ){
@@ -179,12 +185,34 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	  if( skey == "oldcoeffsfname" ){
 	    oldcoeffs_fname = sval;
 	  }
+
+	  if( skey == "sbsfield" ){
+	    sbsfield = sval.Atof();
+	  }
+	  if( skey == "sbsmaxfield" ){
+	    sbsmaxfield = sval.Atof();
+	  }
+
+	  if( skey == "ytar0" ){
+	    ytar0 = sval.Atof();
+	  }
+	  
+	  if( skey == "xp0" ){
+	    xptar0 = sval.Atof();
+	  }
+
+	  if( skey == "yp0" ){
+	    yptar0 = sval.Atof();
+	  }
+
 	}
 	
 	
       }
     }
 
+    pth0 = 0.3*sbsfield*sbsmaxfield*Dgap; //0.3 *( BdL)
+    
     int nterms = 0;
 
     vector<int> xtar_expon;
@@ -377,7 +405,7 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
     TVector3 HCAL_center = hcaldist * SBS_zaxis;
 
     TH1D *hdeltat = new TH1D("hdeltat",";t_{HCAL}-t_{SH} (ns);", 600,-150,150);
-    TH2D *hdxdy = new TH2D("hdxdy",";y_{HCAL}-y_{BB} (m); x_{HCAL}-x_{BB} (m)", 250,-1.25,1.25, 500,-5,0);
+    TH2D *hdxdy = new TH2D("hdxdy",";y_{HCAL}-y_{BB} (m); x_{HCAL}-x_{BB} (m)", 250,-1.25,1.25, 500,-4,1);
     TH1D *hdthtar = new TH1D("hdthtar", ";#theta_{tgt} (SBS) - #theta_{tgt} (BB) (rad);", 150, -0.1,0.1);
     TH1D *hdphtar = new TH1D("hdphtar", ";#phi_{tgt} (SBS) - #phi_{tgt} (BB) (rad);", 150, -0.1, 0.1 );
     TH1D *hdytar = new TH1D("hdytar", ";y_{tgt} (SBS) - y_{tgt} (BB) (m);", 150, -0.1, 0.1 );
@@ -419,10 +447,17 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
     //q-vector components for BB:
     double T_qx, T_qy, T_qz;
 
+    double T_x0SBS, T_y0SBS, T_th0SBS, T_ph0SBS;
+    
     Tout->Branch( "xSBS", &T_xSBS );
     Tout->Branch( "ySBS", &T_ySBS );
     Tout->Branch( "thSBS", &T_thSBS );
     Tout->Branch( "phSBS", &T_phSBS );
+    Tout->Branch( "x0SBS", &T_x0SBS );
+    Tout->Branch( "y0SBS", &T_y0SBS );
+    Tout->Branch( "th0SBS", &T_th0SBS );
+    Tout->Branch( "ph0SBS", &T_ph0SBS );
+    
     Tout->Branch( "xtarSBS", &T_xtarSBS );
     Tout->Branch( "ytarSBS", &T_ytarSBS );
     Tout->Branch( "thtarSBS", &T_thtarSBS );
@@ -643,6 +678,11 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	T_thSBS = SBS_rth[0];
 	T_phSBS = SBS_rph[0];
 
+	T_x0SBS = SBS_x[0];
+	T_y0SBS = SBS_y[0];
+	T_th0SBS = SBS_th[0];
+	T_ph0SBS = SBS_ph[0];
+	
 	T_xtarSBS = 0.0;
 	T_ytarSBS = SBS_ytar[0];
 	T_thtarSBS = SBS_thtar[0];
@@ -703,7 +743,7 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
       }
     }
 
-    for( int ipar=0; ipar<nterms; ipar++ ){
+    for( int ipar=0; ipar<nterms; ipar++ ){ 
       if( xtar_expon[ipar] != 0 ){
 	Moptics(ipar,ipar)=1.0;
 	b_ytar(ipar) = 0.0;
@@ -718,6 +758,19 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	}
       }
 
+      //fix the constant terms:
+      if( ipar == 0 ){
+	Moptics(ipar,ipar) = 1.0;
+	for( int jpar=1; jpar<nterms; jpar++ ){
+	  Moptics(ipar,jpar) = 0.0;
+	  Moptics(jpar,ipar) = 0.0;
+	}
+	b_ytar(ipar) = ytar0;
+	b_thtar(ipar) = xptar0;
+	b_phtar(ipar) = yptar0;
+	b_pth(ipar) = pth0;
+      }
+      
     }
     
     TDecompSVD A_ytar( Moptics );
@@ -779,9 +832,9 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
     outfile << currentline.Format( "sbs.optics_order = %d", optics_order ) << endl;
     outfile << "sbs.optics_parameters = " << endl;
     for( int i=0; i<nterms; i++ ){
-      cout << currentline.Format( "%16.9g %16.9g %16.9g %16.9g  %d %d %d %d %d", b_thtar(i), b_phtar(i), b_ytar(i), 0.0,
+      cout << currentline.Format( "%16.9g %16.9g %16.9g %16.9g  %d %d %d %d %d", b_thtar(i), b_phtar(i), b_ytar(i), b_pth(i),
 				  xfp_expon[i], yfp_expon[i], thfp_expon[i], phfp_expon[i], xtar_expon[i] ) << endl;
-      outfile << currentline.Format( "%16.9g %16.9g %16.9g %16.9g  %d %d %d %d %d", b_thtar(i), b_phtar(i), b_ytar(i), 0.0,
+      outfile << currentline.Format( "%16.9g %16.9g %16.9g %16.9g  %d %d %d %d %d", b_thtar(i), b_phtar(i), b_ytar(i), b_pth(i),
 				     xfp_expon[i], yfp_expon[i], thfp_expon[i], phfp_expon[i], xtar_expon[i] ) << endl;
     }
     
@@ -978,6 +1031,11 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	T_ySBS = SBS_ry[0];
 	T_thSBS = SBS_rth[0];
 	T_phSBS = SBS_rph[0];
+
+	T_x0SBS = SBS_x[0];
+	T_y0SBS = SBS_y[0];
+	T_th0SBS = SBS_th[0];
+	T_ph0SBS = SBS_ph[0];
 
 	T_pxSBS = SBS_px[0];
 	T_pySBS = SBS_py[0];

@@ -268,7 +268,7 @@ sbs.hcaldist = 9.007 # from survey
 
 bb.theta = 42.5
 bb.pcentral = 2.0
-bb.magdist = 1.55
+bb.magdist = 1.5515 # from survey
 
 --------[ 2024-05-14 18:00:00 ] # start of Pion-K_LL
 
@@ -283,7 +283,7 @@ sbs.hcaldist = 9.007 # from survey
 
 bb.theta = 42.5
 bb.pcentral = 2.0
-bb.magdist = 1.55
+bb.magdist = 1.5515
 
 
 ###############################################################################
