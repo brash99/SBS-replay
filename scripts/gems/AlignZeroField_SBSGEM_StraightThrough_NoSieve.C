@@ -54,7 +54,10 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
   TVector3 Global_yaxis(0,1,0);
   TVector3 Global_xaxis(1,0,0);
   TVector3 Global_zaxis(0,0,1);
-  
+
+  //  | RXX RXY RXZ |   | 0 | = | RXZ | 
+  //  | RYX RYY RYZ | * | 0 | = | RYZ |
+  //  | RZX RZY RZZ | * | 1 | = | RZZ |
   TVector3 GEM_zaxis = Rtot * Global_zaxis;
   //TVector3 GEM_xaxis = (Global_yaxis.Cross(GEM_zaxis)).Unit();
   //TVector3 GEM_yaxis = (GEM_zaxis.Cross(GEM_xaxis)).Unit();
@@ -65,7 +68,7 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
   //Here our goal is to assume that all tracks come from the origin, 
   // (xtar,ytar,ztar=0)=(0,0,0)
 
-  TVector3 BeamPos(0.0,0,0); //This should not be hard-coded, but for now based on survey results for GEN-RP, we take the beam to be 6 mm below the SBS magnet center and the SBS GEM center.
+  TVector3 BeamPos(par[9],par[10],par[11]); //This should not be hard-coded, but for now based on survey results for GEN-RP, we take the beam to be at (0,0,0)
   
   chi2 = 0.0;
   for( int i=0; i<NTRACKS; i++ ){
@@ -76,7 +79,7 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
     //  TrackDirLocal.Y() * GEM_yaxis + 
     //  TrackDirLocal.Z() * GEM_zaxis;
 
-    TVector3 TrackDirGlobal = Rinv * TrackDirLocal;
+    //TVector3 TrackDirGlobal = Rinv * TrackDirLocal;
     //For the direction we need to apply the INVERSE of the total rotation:
     // Why? because it seems to work, but it "feels" wrong
     //                   | RXX RYX RZX |   | X' |   | RXX X' + RYX Y' + RZX Z' |   
@@ -91,47 +94,86 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 
     //Let's ASSUME track originates at the origin:
     // (BeamPos + s * nhatg - GEMPOS ) dot GEMzaxis = 0
-    double sint = (GEMPOS-BeamPos).Dot( GEM_zaxis ) / TrackDirGlobal.Dot( GEM_zaxis );
+    //double sint = (GEMPOS-BeamPos).Dot( GEM_zaxis ) / TrackDirGlobal.Dot( GEM_zaxis );
 
-    TVector3 TrackIntersect_GEM = BeamPos + sint * TrackDirGlobal;
+    //TVector3 TrackIntersect_GEM = BeamPos + sint * TrackDirGlobal;
 
-    double xfp_expect = (TrackIntersect_GEM - GEMPOS).Dot( GEM_xaxis );
-    double yfp_expect = (TrackIntersect_GEM - GEMPOS).Dot( GEM_yaxis );
+    //double xfp_expect = (TrackIntersect_GEM - GEMPOS).Dot( GEM_xaxis );
+    //double yfp_expect = (TrackIntersect_GEM - GEMPOS).Dot( GEM_yaxis );
     
     TVector3 TrackPosLocal(XTRACK[i], YTRACK[i], 0.0 );
-    TVector3 TrackPosGlobal = GEMPOS + Rtot * TrackPosLocal;
-    //  TVector3 TrackPosGlobal = GEMPOS + TrackPosLocal.X() * GEM_xaxis + TrackPosLocal.Y() * GEM_yaxis + TrackPosLocal.Z() * GEM_zaxis;
+    //TVector3 TrackPosGlobal = GEMPOS + Rtot* TrackPosLocal;
+    TVector3 TrackPosGlobal = GEMPOS + TrackPosLocal.X() * GEM_xaxis + TrackPosLocal.Y() * GEM_yaxis + TrackPosLocal.Z() * GEM_zaxis;
 
-    double sint_target = -TrackPosGlobal.Z() / TrackDirGlobal.Z();
+    //Now ASSUMING the track starts at the origin and is a straight-line, then the direction is defined by the position 
+    TVector3 TrackDirGlobal = (TrackPosGlobal - BeamPos).Unit(); 
 
-    TVector3 TrackIntersect_target = TrackPosGlobal + sint_target * TrackDirGlobal;
+    double sint = (GEMPOS-BeamPos).Dot( GEM_zaxis )/ TrackDirGlobal.Dot( GEM_zaxis );
 
+    
+    
+    // TVector3 TrackIntersect_GEM = BeamPos + sint * TrackDirGlobal; //Is the logic circular here?
+    // TrackIntersect_GEM = BeamPos + (GEMPOS-BeamPos) dot GEMzaxis / ( (TrackPos-BeamPos).Unit() dot GEMzaxis ) * (TrackPos-BeamPos).Unit();
+    // Not YET circular, but once we calculate "expected" xfp and yfp and compare it to the measured ones, the logic may BECOME circular
+    //double xfp_expect = (TrackIntersect_GEM - GEMPOS).Dot( GEM_xaxis );
+    //double yfp_expect = (TrackIntersect_GEM - GEMPOS).Dot( GEM_yaxis );
+
+    // Is it circular? x expect = [ beampos + (gempos-beampos) dot GEMzaxis / [(trackpos-beampos).Unit() dot GEMzaxis ] * (TrackPos-BeamPos).Unit();
+    // But trackpos = gempos + x * GEMxaxis + y * GEMyaxis
+    // Let's simply TRY it
+    
+    TVector3 TrackDirLocal_expect( TrackDirGlobal.Dot( GEM_xaxis ),
+				   TrackDirGlobal.Dot( GEM_yaxis ),
+				   TrackDirGlobal.Dot( GEM_zaxis ) );
+
+    double xpfp_expect = TrackDirLocal_expect.X() / TrackDirLocal_expect.Z();
+    double ypfp_expect = TrackDirLocal_expect.Y() / TrackDirLocal_expect.Z();
+
+    TVector3 TrackDirGlobal_gem = TrackDirLocal.X() * GEM_xaxis + TrackDirLocal.Y() * GEM_yaxis + TrackDirLocal.Z() * GEM_zaxis;
+
+    //Project back to target (z = 0):
+   
+    double sint_target = -TrackPosGlobal.Z() / TrackDirGlobal_gem.Z();
+
+    TVector3 TrackIntersect_target = TrackPosGlobal + sint_target * TrackDirGlobal_gem;
+
+    //ALSO require the tracks to point back to the origin:
+    
     double ytarget = TrackIntersect_target.Y();
     double xtarget = TrackIntersect_target.X();
+
+    double ytarget_expect = BeamPos.Y() - TrackDirGlobal.Y()/TrackDirGlobal.Z()*BeamPos.Z();
+    double xtarget_expect = BeamPos.X() - TrackDirGlobal.X()/TrackDirGlobal.Z()*BeamPos.Z();
     
     //Here let's not use the measured track direction but define the global track direction according to to the global position,
     //reflecting the assumption that the track starts from the origin!
-    //TVector3 TrackDirGlobal_pos = TrackPosGlobal.Unit(); //However, this will FORCE the track to point exactly at the origin. 
+    //TVector3 TrackDirGlobal_pos = TrackPosGlobal.Unit(); //However, this will FORCE the track to point exactly at the origin! 
     
     //Now calculate track intersection with the xy plane: 
 
     //double sint_HCAL = (HCALPOS - TrackPosGlobal).Dot( Global_zaxis ) / TrackDirGlobal.Dot( Global_zaxis );
 
-    double sint_HCAL = HCALPOS.Z() / TrackDirGlobal.Z(); 
+    double sint_HCAL = (HCALPOS-BeamPos).Z()/ TrackDirGlobal.Z(); 
     
-    TVector3 TrackIntersectHCAL = sint_HCAL * TrackDirGlobal;
+    TVector3 TrackIntersectHCAL = BeamPos + sint_HCAL * TrackDirGlobal;
 
     double thHCAL = (xHCAL[i]+HCALPOS.X()-BeamPos.X())/HCALPOS.Z();
     double phHCAL = (yHCAL[i]+HCALPOS.Y()-BeamPos.Y())/HCALPOS.Z();
-    double thGEM = TrackDirGlobal.X()/TrackDirGlobal.Z();
-    double phGEM = TrackDirGlobal.Y()/TrackDirGlobal.Z();
+    double thGEM_trackpos = TrackDirGlobal.X()/TrackDirGlobal.Z();
+    double phGEM_trackpos = TrackDirGlobal.Y()/TrackDirGlobal.Z();
 
+    double thGEM_trackdir = TrackDirGlobal_gem.X()/TrackDirGlobal_gem.Z();
+    double phGEM_trackdir = TrackDirGlobal_gem.Y()/TrackDirGlobal_gem.Z();
+    
     //double thGEM_pos = TrackDirGlobal_pos.X()/TrackDirGlobal_pos.Z();
     //double phGEM_pos = TrackDirGlobal_pos.Y()/TrackDirGlobal_pos.Z();
 
     //   chi2 += pow( (TrackPosLocal.X() - xfp_expect)/0.002, 2 ) + pow( (TrackPosLocal.Y() - yfp_expect)/0.002, 2 );
-    chi2 += pow( (TrackPosLocal.X() - xfp_expect)/0.002, 2 ) + pow( (TrackPosLocal.Y() - yfp_expect)/0.002, 2 ) +
-      pow( (thGEM - thHCAL)/0.006,2 ) + pow( (phGEM - phHCAL)/0.005, 2 ) + pow( (TrackIntersectHCAL.X()-(xHCAL[i]+HCALPOS.X()))/0.055,2) + pow( (TrackIntersectHCAL.Y()-(yHCAL[i]+HCALPOS.Y()))/0.05,2) + pow( (xtarget-BeamPos.X())/.002, 2) + pow( (ytarget-BeamPos.Y())/.002,2 );
+    
+    chi2 += pow( (ytarget-ytarget_expect)/0.002,2 ) + pow( (xtarget-xtarget_expect)/0.002,2) + pow( xpfp_expect - XPTRACK[i], 2 ) + pow( ypfp_expect - YPTRACK[i], 2 ) + pow( (TrackIntersectHCAL.X() - (HCALPOS.X()+xHCAL[i]))/0.055,2 ) + pow( (TrackIntersectHCAL.Y() - (HCALPOS.Y()+yHCAL[i]))/0.05,2) + pow( (thGEM_trackpos-thHCAL)/0.006,2) + pow( (phGEM_trackpos-phHCAL)/0.005,2);
+    
+    //chi2 += pow( (TrackPosLocal.X() - xfp_expect)/0.002, 2 ) + pow( (TrackPosLocal.Y() - yfp_expect)/0.002, 2 ) +
+    //  pow( (thGEM - thHCAL)/0.006,2 ) + pow( (phGEM - phHCAL)/0.005, 2 ) + pow( (TrackIntersectHCAL.X()-(xHCAL[i]+HCALPOS.X()))/0.055,2) + pow( (TrackIntersectHCAL.Y()-(yHCAL[i]+HCALPOS.Y()))/0.05,2) + pow( (xtarget-BeamPos.X())/.002, 2) + pow( (ytarget-BeamPos.Y())/.002,2 );
     // chi2 += pow( TrackIntersectGlobal.X()/0.002, 2 ) + pow(TrackIntersectGlobal.Y()/0.002, 2 ) + pow( (TrackIntersectHCAL.X()-(xHCAL[i]+HCALPOS.X()))/0.055,2) + pow( (TrackIntersectHCAL.Y()-(yHCAL[i]+HCALPOS.Y()))/0.05,2) +
     //   pow( (thGEM-thHCAL)/0.006, 2 ) + pow( (phGEM-phHCAL)/0.005, 2 ) +
     //   pow( (thGEM-thGEM_pos)/0.002, 2 ) + pow( (phGEM-phGEM_pos)/0.002, 2 );
@@ -144,7 +186,9 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag ){
 void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, const char *outfilename = "ZeroFieldAlign_SBS_nosieve_temp.root" ){
   TChain *C = new TChain("T");
 
-  double GEMX0=0.0, GEMY0=0.0, GEMZ0=4.11;
+  double BeamX0 = 0.0, BeamY0 = 0.0, BeamZ0 = 0.0;
+  
+  double GEMX0=-0.006, GEMY0=0.0, GEMZ0=4.11;
   double GEMtheta = 0.0;
   double GEMphi = 0.0;
   double GEMax=0.0, GEMay=0.0, GEMaz=0.0; //need to work in terms of yaw, pitch, roll angles for sufficient degrees of freedom:
@@ -228,6 +272,18 @@ void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, 
 
 	  if( skey == "NMAX" ){
 	    NMAX = sval.Atoi();
+	  }
+
+	  if( skey == "BEAMX0" ){
+	    BeamX0 = sval.Atof();
+	  }
+
+	  if( skey == "BEAMY0" ){
+	    BeamY0 = sval.Atof();
+	  }
+
+	  if( skey == "BEAMZ0" ){
+	    BeamZ0 = sval.Atof();
 	  }
 	}
       }
@@ -317,6 +373,14 @@ void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, 
     TH2D *hytar_y_new = new TH2D("hytar_y_new","New alignment; track y (m); target y (m)", 250, -0.3,0.3,250,-0.2,0.2);
     TH2D *hytar_th_new = new TH2D("hytar_th_new","New alignment; track dx/dz; target y (m)", 250, -0.5,0.5,250,-0.2,0.2);
     TH2D *hytar_ph_new = new TH2D("hytar_ph_new","New alignment; track dy/dz; target y (m)", 250, -0.125,0.125,250,-0.2,0.2);
+
+    TTree *Tout = new TTree("Tout","SBS GEM zero-field alignment");
+
+    double T_xfp, T_yfp, T_xpfp, T_ypfp;
+    double T_xtar_old, T_ytar_old;
+    double T_xHCAL, T_yHCAL;
+
+    double T_rxfp, T_ryfp, T_rxpfp, T_rypfp; 
     
     TTreeFormula *GlobalCut = new TTreeFormula("GlobalCut",globalcut,C);
 
@@ -423,7 +487,7 @@ void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, 
 	    -(GEMZ0 * trackXp[0] + trackYp[0]*trackX[0]),
 	    -GEMZ0 * trackXp[0] };
 
-	double xRHS = trackX[0] - trackXp[0]*GEMZ0 - 0.006;
+	double xRHS = trackX[0] - trackXp[0]*GEMZ0;
 	double yRHS = trackY[0] - trackYp[0]*GEMZ0;
 
 	for( int ipar=0; ipar<6; ipar++ ){
@@ -435,14 +499,14 @@ void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, 
 	
 	TVector3 TrackPosLocal(trackX[0],trackY[0],0.0);
 	
-	//TVector3 TrackPosGlobal = GEMPOS + xaxis_gem * TrackPosLocal.X() + yaxis_gem * TrackPosLocal.Y() + GEMdir * TrackPosLocal.Z();
-	TVector3 TrackPosGlobal = GEMPOS + R * TrackPosLocal;
+	TVector3 TrackPosGlobal = GEMPOS + xaxis_gem * TrackPosLocal.X() + yaxis_gem * TrackPosLocal.Y() + GEMdir * TrackPosLocal.Z();
+	//TVector3 TrackPosGlobal = GEMPOS + Rinverse * TrackPosLocal;
 	
 	TVector3 TrackDirLocal(trackXp[0],trackYp[0],1.0);
 	TrackDirLocal = TrackDirLocal.Unit();
 	  
-	TVector3 TrackDirGlobal = Rinverse * TrackDirLocal;
-	//TVector3 TrackDirGlobal = TrackDirLocal.X() * xaxis_gem + TrackDirLocal.Y() * yaxis_gem + TrackDirLocal.Z() * GEMdir;
+	//TVector3 TrackDirGlobal = Rinverse * TrackDirLocal;
+	TVector3 TrackDirGlobal = TrackDirLocal.X() * xaxis_gem + TrackDirLocal.Y() * yaxis_gem + TrackDirLocal.Z() * GEMdir;
 	
 	//   | Rxx Ryx Rzx |   | X' |   | Rxx * X' + Ryx * Y' + Rzx * Z' |   | dirlocal dot xaxisglobal |
 	// = | Rxy Ryy Rzy | * | Y' | = | Rxy * X' + Ryy * Y' + Rzy * Z' | = | dirlocal dot yaxisglobal | = ? 
@@ -492,11 +556,19 @@ void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, 
     FitFunc->mnparm( 6, "HCALX0", HCALX0, 0.001,0,0,ierflg);
     FitFunc->mnparm( 7, "HCALY0", HCALY0, 0.001,0,0,ierflg);
     FitFunc->mnparm( 8, "HCALZ0", HCALZ0, 0.001,0,0,ierflg);
-
+    FitFunc->mnparm( 9, "BEAMX0", BeamX0, 0.001,0,0,ierflg);
+    FitFunc->mnparm( 10, "BEAMY0", BeamY0, 0.001,0,0,ierflg);
+    FitFunc->mnparm( 11, "BEAMZ0", BeamZ0, 0.001,0,0,ierflg);
+    
     //Fix HCAL position
     FitFunc->FixParameter(6);
     FitFunc->FixParameter(7);
     FitFunc->FixParameter(8);
+
+    FitFunc->FixParameter(9);
+    FitFunc->FixParameter(10);
+    FitFunc->FixParameter(11);
+    
 
     //Fix orientation angles. Comment out to fit rotational offsets
     //FitFunc->FixParameter(3);
@@ -642,17 +714,17 @@ void AlignZeroField_SBSGEM_StraightThrough_NoSieve( const char *configfilename, 
 	TVector3 TrackPosLocal( trackX[0], trackY[0], 0.0 );
 
 	//	TVector3 TrackPosGlobal = GEMPOS + Rtot * TrackPosLocal;
-	//TVector3 TrackPosGlobal = GEMPOS + TrackPosLocal.X() * xaxis_gem +
-	//  TrackPosLocal.Y() * yaxis_gem + TrackPosLocal.Z() * GEMdir;
-	TVector3 TrackPosGlobal = GEMPOS + Rtot * TrackPosLocal;
+	TVector3 TrackPosGlobal = GEMPOS + TrackPosLocal.X() * xaxis_gem +
+	  TrackPosLocal.Y() * yaxis_gem + TrackPosLocal.Z() * GEMdir;
+	//TVector3 TrackPosGlobal = GEMPOS + Rtot * TrackPosLocal;
 	//TVector3 TrackPosGlobal = GEMPOS + Rinv * TrackPosLocal;
 	TVector3 TrackDirLocal(trackXp[0],trackYp[0],1.0);
 	TrackDirLocal = TrackDirLocal.Unit();
 	//TVector3 TrackDirGlobal = Rinv * TrackDirLocal;
 
-	//TVector3 TrackDirGlobal = TrackDirLocal.X() * xaxis_gem + TrackDirLocal.Y() * yaxis_gem + TrackDirLocal.Z() * GEMdir;
+	TVector3 TrackDirGlobal = TrackDirLocal.X() * xaxis_gem + TrackDirLocal.Y() * yaxis_gem + TrackDirLocal.Z() * GEMdir;
 
-	TVector3 TrackDirGlobal = Rinv * TrackDirLocal;
+	//TVector3 TrackDirGlobal = Rinv * TrackDirLocal;
 	
 	// cout << "Local track position:" << endl;
 	// TrackPosLocal.Print();

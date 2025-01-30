@@ -20,7 +20,9 @@
 #include "SBSGRINCH.h"
 #include "SBSEArm.h"
 #include "SBSGEPEArm.h"
+#include "SBSCDet.h"
 #include "SBSHCal.h"
+#include "SBSECal.h"
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSTimingHodoscope.h"
 
@@ -41,7 +43,8 @@ TDatime get_datime(uint gepconfig)
 void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString experiment="gep")
 {
   SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm" );
-  earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );
+  earm->AddDetector( new SBSECal("ecal", "ECal") );
+  // earm->AddDetector( new SBSCalorimeter("ecal", "ECal") );  
   earm->AddDetector( new SBSCDet("cdet", "coordinate detector") );
   gHaApps->Add(earm);
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");

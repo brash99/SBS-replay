@@ -164,6 +164,8 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
   double ADCcut = 1000.0;
   double ccor_cut = 0.7;
   double deltat_cut = 25.0;
+
+  double ADCasym_cut = 1.0;
   
   //Parses stripconfigfile and gets x/u strip information
   while( currentline.ReadLine(configfile) && !currentline.BeginsWith("endconfig") ){
@@ -187,6 +189,13 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
       TObjArray *tokens = currentline.Tokenize(" ");
       if( tokens->GetEntries() >= 2 ){
 	ADCcut = ( (TObjString*) (*tokens)[1] )->GetString().Atof();
+      }
+    }
+
+    if( currentline.BeginsWith("ADCasym_cut") ){
+      TObjArray *tokens = currentline.Tokenize(" ");
+      if( tokens->GetEntries() >= 2 ){
+	ADCasym_cut = ( (TObjString*) (*tokens)[1] )->GetString().Atof();
       }
     }
 
@@ -330,7 +339,7 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
   varnames.push_back("hit.ADCavg");
   varnames.push_back("hit.ADCasym");
 
-  //Why are the branches disabled here?
+  //Why are the branches disabled here? To make it run FASTER by only activating the ones you need!
   //cout << "disabling all branches...";
   //the * applies it to all branches, the 0 disables those branches. to enable would need to make 1
 
@@ -359,12 +368,13 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
   //Populating data in the TChain branchs?
   // cout << "Setting branch addresses: ";
 
-  C->SetBranchStatus("bb.tr.n",1);
-  C->SetBranchStatus("bb.tr.vz",1);
-  C->SetBranchStatus("bb.gem.track.chi2ndf",1);
-  C->SetBranchStatus("bb.gem.track.nhits",1);
+  C->SetBranchStatus("bb.tr.*",1);
+  //C->SetBranchStatus("bb.tr.vz",1);
+  //These are redundant.
+  //C->SetBranchStatus("bb.gem.track.chi2ndf",1);
+  //C->SetBranchStatus("bb.gem.track.nhits",1);
   C->SetBranchStatus("bb.etot_over_p",1);
-  C->SetBranchStatus("bb.tr.p",1);
+  //C->SetBranchStatus("bb.tr.p",1);
   C->SetBranchStatus("bb.ps.e",1);
   C->SetBranchStatus("bb.sh.e",1);
   C->SetBranchStatus("bb.x_bcp",1);
@@ -373,8 +383,21 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
   C->SetBranchStatus("bb.x_fcp",1);
   C->SetBranchStatus("bb.y_fcp",1);
   C->SetBranchStatus("bb.z_fcp",1);
+
+
+  //For the moment, we're only activating these branches for the purpose of defining cuts. The ones used by the script will be activated below:
   
-  
+  C->SetBranchStatus("sbs.tr.*",1);
+  C->SetBranchStatus("sbs.hcal.e",1);
+  C->SetBranchStatus("sbs.x_bcp",1);
+  C->SetBranchStatus("sbs.y_bcp",1);
+  C->SetBranchStatus("sbs.z_bcp",1);
+
+  C->SetBranchStatus("sbs.x_fcp",1);
+  C->SetBranchStatus("sbs.y_fcp",1);
+  C->SetBranchStatus("sbs.z_fcp",1);
+
+  C->SetBranchStatus("e.kine.*",1);
 
   cout << "Setting branch addresses: ";
 
@@ -541,8 +564,9 @@ void GEM_GainMatch( const char *configfilename, const char *outfname="GEM_gainma
 	int tridx = int( hit_trackindex[ihit] );
 
 	//cout << "ihit, tridx = " << ihit << ", " << tridx;
-	  
-	if( 0.5*(hit_ADCU[ihit]/hit_Ugain[ihit]+hit_ADCV[ihit]/hit_Vgain[ihit]) >= ADCcut && tridx == itrack && hit_nstripu[ihit]>1 && hit_nstripv[ihit]>1 && hit_ccor_clust[ihit] >= ccor_cut && fabs(hit_deltat[ihit]) <= deltat_cut ){
+
+	
+	if( 0.5*(hit_ADCU[ihit]/hit_Ugain[ihit]+hit_ADCV[ihit]/hit_Vgain[ihit]) >= ADCcut && hit_ADCU[ihit] >= ADCcut && hit_ADCV[ihit] >= ADCcut && tridx == itrack && hit_nstripu[ihit]>1 && hit_nstripv[ihit]>1 && hit_ccor_clust[ihit] >= ccor_cut && fabs(hit_deltat[ihit]) <= deltat_cut ){
 	  // cout << ", ADCavg[ihit] = " << hit_ADCavg[ihit]
 	  // 	 << ", ADCasym[ihit] = " << hit_ADCasym[ihit]
 	  // 	 << ", (nstripu,nstripv) = (" << hit_nstripu[ihit] << ", " << hit_nstripv[ihit] << ")"
