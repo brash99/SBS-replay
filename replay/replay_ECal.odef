@@ -25,13 +25,243 @@ variable earm.ecal.ped
 variable earm.ecal.adcrow
 variable earm.ecal.adccol
 variable earm.ecal.adcelemID
+variable earm.ecal.adcxpos
+variable earm.ecal.adcypos
 
-## ECal
-th1d helemID 'ECal blocks in column 12' earm.ecal.adcelemID[I] 68 0 68 earm.ecal.a_time[I]>0
-th2d hped_vs_elem 'Pedestal vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12
-#th2d hped_vs_elem 'Pedestal vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.adccol==12
-th2d hADCtime_vs_elem 'ADC time (ns) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
-th2d hADCamp_vs_elem 'ADC amplitude (mV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
-th2d hADCint_vs_elem 'ADC integral (pC) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
-th2d hADCeng_vs_elem 'ADC integral (GeV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12 
-th1d helemID 'ECal blocks (total 1656 of them)' earm.ecal.adcelemID[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol==12
+#
+# variable earm.ecal.scinttrig.a_time
+# variable earm.ecal.scinttrig.a_amp_p
+# variable earm.ecal.scinttrig.a_p
+# variable earm.ecal.scinttrig.ped
+# variable earm.ecal.scinttrig.adcrow
+# variable earm.ecal.scinttrig.adccol
+# variable earm.ecal.scinttrig.adcelemID
+
+# Waveform data (think carefully before turning these on)
+block earm.ecal.*samp*
+
+## --- *** creating diagnostic histograms --- ***
+
+# All ECal channels
+th1d helemID_ecal 'ECal blocks (Total 1656)' earm.ecal.adcelemID[I] 1655 0 1655 earm.ecal.a_time[I]>0
+th2d hped_vs_elem_ecal 'Pedestal vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.ped[I] 1656 0 1655 200 0 200 earm.ecal.a_time[I]>0
+th2d hADCtime_vs_elem_ecal 'ADC time (ns) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_time[I] 1656 0 1655 100 0 100 earm.ecal.a_time[I]>0
+th2d hADCamp_vs_elem_ecal 'ADC amplitude (mV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_amp_p[I] 1656 0 1655 100 0 300 earm.ecal.a_time[I]>0
+th2d hADCint_vs_elem_ecal 'ADC integral (pC) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_p[I] 1656 0 1655 100 0 150 earm.ecal.a_time[I]>0
+th2d hADCeng_vs_elem_ecal 'ADC integral (GeV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_c[I] 1656 0 1655 100 0 2 earm.ecal.a_time[I]>0
+
+## ECal column 0
+th1d helemID_ecal_col0 'ECal rows in column 0' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==0
+th2d hped_vs_elem_ecal_col0 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==0
+th2d hADCtime_vs_elem_ecal_col0 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==0
+th2d hADCamp_vs_elem_ecal_col0 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==0
+th2d hADCint_vs_elem_ecal_col0 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==0
+th2d hADCeng_vs_elem_ecal_col0 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==0
+
+## ECal column 1
+th1d helemID_ecal_col1 'ECal rows in column 1' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==1
+th2d hped_vs_elem_ecal_col1 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==1
+th2d hADCtime_vs_elem_ecal_col1 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==1
+th2d hADCamp_vs_elem_ecal_col1 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==1
+th2d hADCint_vs_elem_ecal_col1 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==1
+th2d hADCeng_vs_elem_ecal_col1 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==1
+
+## ECal column 2
+th1d helemID_ecal_col2 'ECal rows in column 2' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==2
+th2d hped_vs_elem_ecal_col2 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==2
+th2d hADCtime_vs_elem_ecal_col2 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==2
+th2d hADCamp_vs_elem_ecal_col2 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==2
+th2d hADCint_vs_elem_ecal_col2 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==2
+th2d hADCeng_vs_elem_ecal_col2 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==2
+
+## ECal column 3
+th1d helemID_ecal_col3 'ECal rows in column 3' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==3
+th2d hped_vs_elem_ecal_col3 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==3
+th2d hADCtime_vs_elem_ecal_col3 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==3
+th2d hADCamp_vs_elem_ecal_col3 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==3
+th2d hADCint_vs_elem_ecal_col3 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==3
+th2d hADCeng_vs_elem_ecal_col3 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==3
+
+## ECal column 4
+th1d helemID_ecal_col4 'ECal rows in column 4' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==4
+th2d hped_vs_elem_ecal_col4 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==4
+th2d hADCtime_vs_elem_ecal_col4 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==4
+th2d hADCamp_vs_elem_ecal_col4 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==4
+th2d hADCint_vs_elem_ecal_col4 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==4
+th2d hADCeng_vs_elem_ecal_col4 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==4
+
+## ECal column 5
+th1d helemID_ecal_col5 'ECal rows in column 5' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==5
+th2d hped_vs_elem_ecal_col5 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==5
+th2d hADCtime_vs_elem_ecal_col5 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==5
+th2d hADCamp_vs_elem_ecal_col5 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==5
+th2d hADCint_vs_elem_ecal_col5 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==5
+th2d hADCeng_vs_elem_ecal_col5 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==5
+
+## ECal column 6
+th1d helemID_ecal_col6 'ECal rows in column 6' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==6
+th2d hped_vs_elem_ecal_col6 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==6
+th2d hADCtime_vs_elem_ecal_col6 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==6
+th2d hADCamp_vs_elem_ecal_col6 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==6
+th2d hADCint_vs_elem_ecal_col6 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==6
+th2d hADCeng_vs_elem_ecal_col6 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==6
+
+## ECal column 7
+th1d helemID_ecal_col7 'ECal rows in column 7' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==7
+th2d hped_vs_elem_ecal_col7 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==7
+th2d hADCtime_vs_elem_ecal_col7 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==7
+th2d hADCamp_vs_elem_ecal_col7 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==7
+th2d hADCint_vs_elem_ecal_col7 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==7
+th2d hADCeng_vs_elem_ecal_col7 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==7
+
+## ECal column 8
+th1d helemID_ecal_col8 'ECal rows in column 8' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==8
+th2d hped_vs_elem_ecal_col8 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==8
+th2d hADCtime_vs_elem_ecal_col8 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==8
+th2d hADCamp_vs_elem_ecal_col8 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==8
+th2d hADCint_vs_elem_ecal_col8 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==8
+th2d hADCeng_vs_elem_ecal_col8 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==8
+
+## ECal column 9
+th1d helemID_ecal_col9 'ECal rows in column 9' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==9
+th2d hped_vs_elem_ecal_col9 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==9
+th2d hADCtime_vs_elem_ecal_col9 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==9
+th2d hADCamp_vs_elem_ecal_col9 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==9
+th2d hADCint_vs_elem_ecal_col9 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==9
+th2d hADCeng_vs_elem_ecal_col9 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==9
+
+## ECal column 10
+th1d helemID_ecal_col10 'ECal rows in column 10' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==10
+th2d hped_vs_elem_ecal_col10 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==10
+th2d hADCtime_vs_elem_ecal_col10 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==10
+th2d hADCamp_vs_elem_ecal_col10 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==10
+th2d hADCint_vs_elem_ecal_col10 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==10
+th2d hADCeng_vs_elem_ecal_col10 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==10
+
+## ECal column 11
+th1d helemID_ecal_col11 'ECal rows in column 11' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==11
+th2d hped_vs_elem_ecal_col11 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==11
+th2d hADCtime_vs_elem_ecal_col11 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==11
+th2d hADCamp_vs_elem_ecal_col11 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==11
+th2d hADCint_vs_elem_ecal_col11 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==11
+th2d hADCeng_vs_elem_ecal_col11 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==11
+
+## ECal column 12
+th1d helemID_ecal_col12 'ECal rows in column 12' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==12
+th2d hped_vs_elem_ecal_col12 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==12
+th2d hADCtime_vs_elem_ecal_col12 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==12
+th2d hADCamp_vs_elem_ecal_col12 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==12
+th2d hADCint_vs_elem_ecal_col12 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==12
+th2d hADCeng_vs_elem_ecal_col12 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==12
+
+## ECal column 13
+th1d helemID_ecal_col13 'ECal rows in column 13' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==13
+th2d hped_vs_elem_ecal_col13 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==13
+th2d hADCtime_vs_elem_ecal_col13 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==13
+th2d hADCamp_vs_elem_ecal_col13 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==13
+th2d hADCint_vs_elem_ecal_col13 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==13
+th2d hADCeng_vs_elem_ecal_col13 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==13
+
+## ECal column 14
+th1d helemID_ecal_col14 'ECal rows in column 14' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==14
+th2d hped_vs_elem_ecal_col14 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==14
+th2d hADCtime_vs_elem_ecal_col14 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==14
+th2d hADCamp_vs_elem_ecal_col14 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==14
+th2d hADCint_vs_elem_ecal_col14 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==14
+th2d hADCeng_vs_elem_ecal_col14 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==14
+
+## ECal column 15
+th1d helemID_ecal_col15 'ECal rows in column 15' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==15
+th2d hped_vs_elem_ecal_col15 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==15
+th2d hADCtime_vs_elem_ecal_col15 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==15
+th2d hADCamp_vs_elem_ecal_col15 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==15
+th2d hADCint_vs_elem_ecal_col15 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==15
+th2d hADCeng_vs_elem_ecal_col15 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==15
+
+## ECal column 16
+th1d helemID_ecal_col16 'ECal rows in column 16' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==16
+th2d hped_vs_elem_ecal_col16 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==16
+th2d hADCtime_vs_elem_ecal_col16 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==16
+th2d hADCamp_vs_elem_ecal_col16 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==16
+th2d hADCint_vs_elem_ecal_col16 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==16
+th2d hADCeng_vs_elem_ecal_col16 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==16
+
+## ECal column 17
+th1d helemID_ecal_col17 'ECal rows in column 17' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==17
+th2d hped_vs_elem_ecal_col17 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==17
+th2d hADCtime_vs_elem_ecal_col17 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==17
+th2d hADCamp_vs_elem_ecal_col17 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==17
+th2d hADCint_vs_elem_ecal_col17 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==17
+th2d hADCeng_vs_elem_ecal_col17 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==17
+
+## ECal column 18
+th1d helemID_ecal_col18 'ECal rows in column 18' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==18
+th2d hped_vs_elem_ecal_col18 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==18
+th2d hADCtime_vs_elem_ecal_col18 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==18
+th2d hADCamp_vs_elem_ecal_col18 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==18
+th2d hADCint_vs_elem_ecal_col18 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==18
+th2d hADCeng_vs_elem_ecal_col18 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==18
+
+## ECal column 19
+th1d helemID_ecal_col19 'ECal rows in column 19' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==19
+th2d hped_vs_elem_ecal_col19 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==19
+th2d hADCtime_vs_elem_ecal_col19 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==19
+th2d hADCamp_vs_elem_ecal_col19 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==19
+th2d hADCint_vs_elem_ecal_col19 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==19
+th2d hADCeng_vs_elem_ecal_col19 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==19
+
+## ECal column 20
+th1d helemID_ecal_col20 'ECal rows in column 20' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==20
+th2d hped_vs_elem_ecal_col20 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==20
+th2d hADCtime_vs_elem_ecal_col20 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==20
+th2d hADCamp_vs_elem_ecal_col20 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==20
+th2d hADCint_vs_elem_ecal_col20 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==20
+th2d hADCeng_vs_elem_ecal_col20 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==20
+
+## ECal column 21
+th1d helemID_ecal_col21 'ECal rows in column 21' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==21
+th2d hped_vs_elem_ecal_col21 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==21
+th2d hADCtime_vs_elem_ecal_col21 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==21
+th2d hADCamp_vs_elem_ecal_col21 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==21
+th2d hADCint_vs_elem_ecal_col21 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==21
+th2d hADCeng_vs_elem_ecal_col21 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==21
+
+## ECal column 22
+th1d helemID_ecal_col22 'ECal rows in column 22' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==22
+th2d hped_vs_elem_ecal_col22 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==22
+th2d hADCtime_vs_elem_ecal_col22 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==22
+th2d hADCamp_vs_elem_ecal_col22 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==22
+th2d hADCint_vs_elem_ecal_col22 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==22
+th2d hADCeng_vs_elem_ecal_col22 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==22
+
+## ECal column 23
+th1d helemID_ecal_col23 'ECal rows in column 23' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==23
+th2d hped_vs_elem_ecal_col23 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==23
+th2d hADCtime_vs_elem_ecal_col23 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==23
+th2d hADCamp_vs_elem_ecal_col23 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==23
+th2d hADCint_vs_elem_ecal_col23 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==23
+th2d hADCeng_vs_elem_ecal_col23 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==23
+
+## ECal column 24
+th1d helemID_ecal_col24 'ECal rows in column 24' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==24
+th2d hped_vs_elem_ecal_col24 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==24
+th2d hADCtime_vs_elem_ecal_col24 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==24
+th2d hADCamp_vs_elem_ecal_col24 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==24
+th2d hADCint_vs_elem_ecal_col24 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==24
+th2d hADCeng_vs_elem_ecal_col24 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==24
+
+## ECal column 25
+th1d helemID_ecal_col25 'ECal rows in column 25' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==25
+th2d hped_vs_elem_ecal_col25 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==25
+th2d hADCtime_vs_elem_ecal_col25 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==25
+th2d hADCamp_vs_elem_ecal_col25 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==25
+th2d hADCint_vs_elem_ecal_col25 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==25
+th2d hADCeng_vs_elem_ecal_col25 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==25
+
+## ECal column 26
+th1d helemID_ecal_col26 'ECal rows in column 26' earm.ecal.adcrow[I] 68 0 68 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==26
+th2d hped_vs_elem_ecal_col26 'Pedestal vs ECal rows' earm.ecal.adcrow[I] earm.ecal.ped[I] 68 0 68 200 0 200 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==26
+th2d hADCtime_vs_elem_ecal_col26 'ADC time (ns) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_time[I] 68 0 68 100 0 100 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==26
+th2d hADCamp_vs_elem_ecal_col26 'ADC amplitude (mV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_amp_p[I] 68 0 68 100 0 300 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==26
+th2d hADCint_vs_elem_ecal_col26 'ADC integral (pC) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_p[I] 68 0 68 100 0 150 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==26
+th2d hADCeng_vs_elem_ecal_col26 'ADC integral (GeV) vs ECal rows' earm.ecal.adcrow[I] earm.ecal.a_c[I] 68 0 68 100 0 2 earm.ecal.a_time[I]>0&&earm.ecal.adccol[I]==26
