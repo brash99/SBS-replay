@@ -481,14 +481,14 @@ earm.ecal.adc.thres = 5.0
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 earm.ecal.adc.NPedBin = 4
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating
-earm.ecal.adc.NSB = 3 #3
+earm.ecal.adc.NSB = 10 #3
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
-earm.ecal.adc.NSA = 10 #10
+earm.ecal.adc.NSA = 55 #10
 # Number of bin for fixed Threshold if no Threshold Crossing is found
 earm.ecal.adc.FixThresBin = 14
 
 #Convert adc integral in pC to GeV
-earm.ecal.adc.gain = 0.001
+earm.ecal.adc.gain = 1 # 0.001
 
 ## ** Parameters related to ECAL clustering **
 ## Maximum distance difference between cluster seed and additional clusters, set to 0.3 m
