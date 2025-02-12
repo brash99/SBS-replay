@@ -32,7 +32,15 @@ void replay_ECal(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, co
   ecal->SetDataOutputLevel(1);
   earm->AddDetector(ecal);
   gHaApps->Add(earm);  
+  // enabling writing out waveform information
+  ecal->SetStoreRawHits(kTRUE);
 
+  // SBSGenericDetector* scinttrig = new SBSGenericDetector("ecal.scinttrig","HCal trigs");
+  // scinttrig->SetModeADC(SBSModeADC::kWaveform);
+  // //scinttrig->SetStoreRawHits(kTRUE);
+  // scinttrig->SetStoreEmptyElements(kFALSE);
+  // earm->AddDetector( scinttrig );   
+  
   //--- Set up the run we want to replay ---
 
   TString prefix = gSystem->Getenv("DATA_DIR");
@@ -53,6 +61,9 @@ void replay_ECal(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, co
 
   if( prefix != "/cache/mss/halla/sbs/GEnRP/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/GEnRP/raw" );
+
+  if( prefix != "/cache/mss/halla/sbs/GEp/raw" )
+    pathlist.push_back( "/cache/mss/halla/sbs/GEp/raw" );
 
   for( const auto& path: pathlist ) {
     cout << "search paths = " << path << endl;
