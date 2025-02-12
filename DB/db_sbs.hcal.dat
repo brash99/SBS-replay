@@ -44,6 +44,9 @@ sbs.hcal.detmap =
   17    8     35   35 2 # 1 channel. Copy of BB trigger (logical). TDC reference channel. sbs.hcal.Ref.tdc[2]
   17    8     36   36 2 # 1 channel. RF (logical). sbs.hcal.Ref.tdc[3]
 
+# what happens when a ref. channel (according to the chanmap) is assigned a ref. index according to the detmap?
+# Apparently nothing. If a channel is defined as ref in the chanmap by specifying index -1000,
+# Then the ref index has no effect on the decoding.
 # define crate, slot, channel for RF time and trigger time (copy of BB trigger recorded in F1, NOT the F1 low-res trigger time itself):
 sbs.hcal.crate_rftime = 17
 sbs.hcal.slot_rftime = 8

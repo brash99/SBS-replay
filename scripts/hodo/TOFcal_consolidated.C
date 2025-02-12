@@ -17,6 +17,7 @@
 #include "TVector3.h"
 #include "TLorentzVector.h"
 #include "TClonesArray.h"
+#include "TSpectrum.h"
 #include <cmath>
 #include <vector>
 #include "TCanvas.h"
@@ -24,6 +25,9 @@
 #include "TSystem.h"
 #include "TGraph.h"
 #include "TMinuit.h"
+#include "TClonesArray.h"
+#include "TGraphErrors.h"
+#include "TF1.h"
 
 const double Mp=0.938272;
 
@@ -38,7 +42,7 @@ const double Mp=0.938272;
 
 // }
 
-void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_temp.root"){
+void TOFcal_consolidated(const char *inputfilename, const char *outputfilename="TOFcal_temp.root"){
 
   ifstream configfile(inputfilename);
 
@@ -67,7 +71,7 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
   
   //Default reference PMTs for aligning all other PMTs:
   //NOTE: in the current procedure these definitions are meaningless; since we align all the corrected mean times to zero!
-  int hodorefID = 43; // reference BAR (not PMT); we'll set the LEFT PMT to the reference by convention
+  int hodorefID = 44; // reference BAR (not PMT); we'll set the LEFT PMT to the reference by convention
   int hcalrefID = 199; //row 16 column 6
 
   double zhodo = 1.854454; //meters
@@ -256,6 +260,7 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
   
   // Mean time offsets for start time:
   vector<double> RFoffsets(90,0.0);
+  vector<double> dRFoffsets(90,1.0);
 
   ifstream offsetsfile(fname_RFoffsets);
   if( offsetsfile ){
@@ -379,10 +384,6 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
   TMatrixD Mhcal(nparams_HCAL,nparams_HCAL);
   TVectorD bhodo(nparams_hodo);
   TVectorD bhcal(nparams_HCAL);
-
-  //This set of equations will determine propagation speed and walk correction slope with fixed t0 offsets:
-  TMatrixD Mhodo_t0fixed( nparams_hodo_t0fixed, nparams_hodo_t0fixed );
-  TVectorD bhodo_t0fixed( nparams_hodo_t0fixed );
   
   for( int ipar=0; ipar<nparams_hodo; ipar++ ){
     for( int jpar=0; jpar<nparams_hodo; jpar++ ){
@@ -391,12 +392,12 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
     bhodo(ipar) = 0.0;
   }
 
-  for( int ipar=0; ipar<nparams_hodo_t0fixed; ipar++ ){
-    for( int jpar=0; jpar<nparams_hodo_t0fixed; jpar++ ){
-      Mhodo_t0fixed(ipar,jpar) = 0.0;
-    }
-    bhodo_t0fixed(ipar) = 0.0;
-  }
+  // for( int ipar=0; ipar<nparams_hodo_t0fixed; ipar++ ){
+  //   for( int jpar=0; jpar<nparams_hodo_t0fixed; jpar++ ){
+  //     Mhodo_t0fixed(ipar,jpar) = 0.0;
+  //   }
+  //   bhodo_t0fixed(ipar) = 0.0;
+  // }
 
   for( int ipar=0; ipar<nparams_HCAL; ipar++ ){
     for( int jpar=0; jpar<nparams_HCAL; jpar++ ){
@@ -437,12 +438,435 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
   vector<double> nevent_vs_bar(90,0.0);
 
   TH2D *htmeancorr_vs_ID_old = new TH2D("htmeancorr_vs_ID_old", "OLD; bar ID; corrected t_{mean} (ns)", 90, -0.5, 89.5, 300,-30,30);
+
+  //Matrices for internal alignment offsets:
+  TMatrixD Minternal(90,90);
+  TVectorD binternal(90);
+  for( int i=0; i<90; i++ ){
+    for( int j=0; j<90; j++ ){
+      Minternal(i,j) = 0.0;
+    }
+    binternal(i) = 0.0;
+  }
   
+  // Loop 1: get meantime offsets to align hodoscope internally:
+  cout << "Loop 1: Internal alignment of meantime offsets" << endl;
+  while( T->GetEntry(nevent) ){
+    if( nevent % 10000 == 0 ){
+      cout << "Loop 1: nevent = " << nevent << ", run number = " << T->g_runnum << endl;
+    }
+    
+    treenum = C->GetTreeNumber();
+    if( nevent == 0 || treenum != oldtreenum ){
+      oldtreenum = treenum;
+      GlobalCut->UpdateFormulaLeaves();
+    }
+
+    bool passed_global_cut = GlobalCut->EvalInstance(0) != 0;
+
+    if( passed_global_cut ){ //do the things:
+      //grab needed track parameters:
+      double vz = T->bb_tr_vz[0];
+      double pathl = T->bb_tr_pathl[0];
+      double etof = pathl/0.299792458-etof0; //electron TOF from vertex to hodo.
+      double yhodo = T->bb_tr_y[0]+zhodo*T->bb_tr_ph[0];
+      double xhodo = T->bb_tr_x[0]+zhodo*T->bb_tr_th[0];
+      
+      double dLEFT = std::min(Lbar_hodo,std::max(0.0,Lbar_hodo/2.0 - yhodo));
+      double dRIGHT = std::min(Lbar_hodo,std::max(0.0,Lbar_hodo/2.0 + yhodo));
+      
+      double tmean0 = 0.0;
+      
+      for( int ibar=0; ibar<T->bb_hodotdc_clus_size[0]; ibar++ ){
+	//double tHODO = T->bb_hodotdc_clus_bar_tdc_meantime[ibar];
+	double tleft = T->bb_hodotdc_clus_bar_tdc_tleft[ibar];
+	double tright = T->bb_hodotdc_clus_bar_tdc_tright[ibar];
+	double totleft = T->bb_hodotdc_clus_bar_tdc_totleft[ibar];
+	double totright = T->bb_hodotdc_clus_bar_tdc_totright[ibar];
+
+	//double tmean = T->bb_hodotdc_clus_bar_tdc_meantime[ibar];
+	//double ypos = T->bb_hodotdc_clus_bar_tdc_timehitpos[ibar];
+	double xpos = T->bb_hodotdc_clus_bar_tdc_vpos[ibar];
+	double IDHODO = T->bb_hodotdc_clus_bar_tdc_id[ibar];
+
+	double tleft_corr_i = tleft - etof - MeanTimeOffsets[IDHODO] + wL_OLD[IDHODO]*totleft - dLEFT/VSCINT_OLD[IDHODO]; 
+	double tright_corr_i = tright - etof - MeanTimeOffsets[IDHODO] + wR_OLD[IDHODO]*totright - dRIGHT/VSCINT_OLD[IDHODO];
+	
+	double tmeancorr_i = 0.5*(tleft_corr_i + tright_corr_i);
+	double tdiffcorr_i = tleft_corr_i - tright_corr_i;
+	
+	double ypos = -0.5*VSCINT_OLD[IDHODO]*tdiffcorr_i;
+    
+	if( ibar == 0 ){
+	  tmean0 = tmeancorr_i;
+	}
+	
+	bool goodhit_i = totleft >= totmin && totleft <= totmax &&
+	  totright >= totmin && totright <= totmax &&
+	  fabs( totleft - totright ) <= totdiff_max &&
+	  fabs( ypos - yhodo ) <= ydiff_max &&
+	  fabs( xpos - xhodo ) <= xdiff_max &&
+	  fabs( tmeancorr_i - tmean0 ) <= tdiff_max;
+	
+	if( goodhit_i ){
+	  //apply OLD walk corrections and propagation corrections here for hit quality cuts:
+
+	  for( int jbar=ibar+1; jbar<T->bb_hodotdc_clus_size[0]; jbar++ ){
+	    double tleft_j = T->bb_hodotdc_clus_bar_tdc_tleft[jbar];
+	    double tright_j = T->bb_hodotdc_clus_bar_tdc_tright[jbar];
+	    double totleft_j = T->bb_hodotdc_clus_bar_tdc_totleft[jbar];
+	    double totright_j = T->bb_hodotdc_clus_bar_tdc_totright[jbar];
+	    
+	    //double tmean = T->bb_hodotdc_clus_bar_tdc_meantime[jbar];
+	    //double ypos = T->bb_hodotdc_clus_bar_tdc_timehitpos[jbar];
+	    double xpos_j = T->bb_hodotdc_clus_bar_tdc_vpos[jbar];
+	    double IDHODO_j = T->bb_hodotdc_clus_bar_tdc_id[jbar];
+
+	    double tleft_corr_j = tleft_j - etof - MeanTimeOffsets[IDHODO_j] + wL_OLD[IDHODO_j]*totleft_j - dLEFT/VSCINT_OLD[IDHODO_j]; 
+	    double tright_corr_j = tright_j - etof - MeanTimeOffsets[IDHODO_j] + wR_OLD[IDHODO_j]*totright_j - dRIGHT/VSCINT_OLD[IDHODO_j];
+	    
+	    double tmeancorr_j = 0.5*(tleft_corr_j + tright_corr_j);
+	    double tdiffcorr_j = tleft_corr_j - tright_corr_j;
+	    
+	    double ypos_j = -0.5*VSCINT_OLD[IDHODO_j]*tdiffcorr_j;
+	    
+	    bool goodhit_j = totleft_j >= totmin && totleft_j <= totmax &&
+	      totright_j >= totmin && totright_j <= totmax &&
+	      fabs( totleft_j - totright_j ) <= totdiff_max &&
+	      fabs( ypos_j - yhodo ) <= ydiff_max &&
+	      fabs( xpos_j - xhodo ) <= xdiff_max &&
+	      fabs( tmeancorr_j - tmean0 ) <= tdiff_max;
+
+	    if( goodhit_j ){ // Increment some matrix elements:
+	      int ipar_t0_i = IDHODO;
+	      int ipar_vinv_i = IDHODO+90;
+	      //int ipar_t0R = ID+90;
+	      int ipar_wL_i = IDHODO+180;
+	      int ipar_wR_i = IDHODO+270;
+
+	      int ipar_t0_j = IDHODO_j;
+	      int ipar_vinv_j = IDHODO_j+90;
+	      //int ipar_t0R = ID+90;
+	      int ipar_wL_j = IDHODO_j+180;
+	      int ipar_wR_j = IDHODO_j+270;
+
+	      // tL corrected = tL - tof - t0 + w * TOTL - dL/v = 0
+	      // tR corrected = tR - tof - t0 + w * TOTR - dR/v = 0
+	      double t_i = tmeancorr_i;
+	      double t_j = tmeancorr_j; 
+
+	      nevent_vs_bar[IDHODO] += 1.;
+	      nevent_vs_bar[IDHODO_j] += 1.;
+
+	      binternal(IDHODO) += (t_i - t_j);
+	      binternal(IDHODO_j) += (t_j - t_i);
+
+	      Minternal(IDHODO,IDHODO) += 1.0;
+	      Minternal(IDHODO,IDHODO_j) += -1.0;
+	      Minternal(IDHODO_j,IDHODO) += -1.0;
+	      Minternal(IDHODO_j,IDHODO_j) += 1.0;
+	    }
+	  }
+	}	      
+      }
+    }
+    nevent++;
+  }
+
+  // Get fit results for internal alignments:
+
+  for( int i=0; i<90; i++ ){
+    if( nevent_vs_bar[i] <= 100. ){
+      cout << "Warning: bar " << i << " fewer than 100 events... zeroing out offsets"
+	   << endl;
+      binternal(i) = 0.0;
+      Minternal(i,i) = 1.0;
+      for( int j=0; j<90; j++ ){
+	if( j != i ){
+	  Minternal(i,j) = Minternal(j,i) = 0.0;
+	}
+      }
+    }
+  }
+
+  TDecompSVD Ainternal(Minternal);
+  Ainternal.Solve(binternal);
+
+  binternal.Print();
   
+  // Correct all offsets so that offset for "reference" channel is not changed:
+  double corr = -(MeanTimeOffsets[hodorefID] + binternal(hodorefID));
+  for( int i=0; i<90; i++ ){
+    binternal(i) += corr;
+    MeanTimeOffsets[i] += binternal(i);
+    cout << "(i, MeanTimeOffsets[i]) = (" << i << ", "
+	 << MeanTimeOffsets[i] << endl;
+  }
+
+  nevent = 0;
+  cout << "Loop 2: Determine RF offsets after internal alignment" << endl;
+
+  treenum = -1;
+  oldtreenum = -1;
+
+  TH2D *hdT_hodo_ID = new TH2D("hdT_hodo_ID", "; hodoscope bar ID ; t_{mean}^{raw}-t_{RF} (ns)", 90,-0.5,89.5, 100, -1.5*bunch_spacing_ns, 1.5*bunch_spacing_ns);
+
   while( T->GetEntry(nevent) ){
 
     if( nevent % 10000 == 0 ){
-      cout << "nevent = " << nevent << ", run number = " << T->g_runnum << endl;
+      cout << "Loop 2: nevent = " << nevent << ", run number = " << T->g_runnum << endl;
+    }
+    
+    treenum = C->GetTreeNumber();
+    if( nevent == 0 || treenum != oldtreenum ){
+      oldtreenum = treenum;
+      GlobalCut->UpdateFormulaLeaves();
+    }
+
+    bool passed_global_cut = GlobalCut->EvalInstance(0) != 0;
+
+    if( passed_global_cut ){ //do the things:
+      
+      double RFtime = T->bb_tdctrig_rftime + T->bb_tr_vz[0]/0.299792458;
+      
+      //RFtime = fmod( RFtime, 160.321 );
+      double trigtime = T->bb_tdctrig_trigtime;
+
+      bool goodRF = fabs( RFtime ) <= 1.e5;
+      bool goodTRIG = fabs( trigtime ) <= 1.e5;
+
+      if( goodRF && goodTRIG ){
+	//grab needed track parameters:
+	double vz = T->bb_tr_vz[0];
+	double pathl = T->bb_tr_pathl[0];
+	double etof = pathl/0.299792458-etof0; //electron TOF from vertex to hodo.
+	double yhodo = T->bb_tr_y[0]+zhodo*T->bb_tr_ph[0];
+	double xhodo = T->bb_tr_x[0]+zhodo*T->bb_tr_th[0];
+	
+	double dLEFT = std::min(Lbar_hodo,std::max(0.0,Lbar_hodo/2.0 - yhodo));
+	double dRIGHT = std::min(Lbar_hodo,std::max(0.0,Lbar_hodo/2.0 + yhodo));
+
+	double tmean0 = 0.0;
+	
+	for( int ibar=0; ibar<T->bb_hodotdc_clus_size[0]; ibar++ ){
+	  //double tHODO = T->bb_hodotdc_clus_bar_tdc_meantime[ibar];
+	  double tleft = T->bb_hodotdc_clus_bar_tdc_tleft[ibar];
+	  double tright = T->bb_hodotdc_clus_bar_tdc_tright[ibar];
+	  double totleft = T->bb_hodotdc_clus_bar_tdc_totleft[ibar];
+	  double totright = T->bb_hodotdc_clus_bar_tdc_totright[ibar];
+	  
+	  double IDHODO = T->bb_hodotdc_clus_bar_tdc_id[ibar];
+	  
+	  double tleft_corr = tleft - etof + wL_OLD[IDHODO]*totleft - MeanTimeOffsets[IDHODO] - dLEFT/VSCINT_OLD[IDHODO];
+	  double tright_corr = tright - etof + wR_OLD[IDHODO]*totright - MeanTimeOffsets[IDHODO] - dRIGHT/VSCINT_OLD[IDHODO];
+	  
+	  double tHODO = 0.5*(tleft_corr + tright_corr);
+
+	  double tdiff = tleft_corr - tright_corr;
+	  double ypos = -0.5*VSCINT_OLD[IDHODO]*tdiff; 
+	  double xpos = T->bb_hodotdc_clus_bar_tdc_vpos[ibar];
+	  
+	  if( ibar == 0 ){
+	    tmean0 = tHODO;
+	  }
+	  
+	  bool goodhit = totleft >= totmin && totleft <= totmax &&
+	    totright >= totmin && totright <= totmax &&
+	    fabs( totleft - totright ) <= totdiff_max &&
+	    fabs( ypos - yhodo ) <= ydiff_max &&
+	    fabs( xpos - xhodo ) <= xdiff_max &&
+	    fabs( tHODO - tmean0 ) <= tdiff_max;
+
+	  if( goodhit ){
+	    double dtRF = tHODO - RFtime;
+	    dtRF -= bunch_spacing_ns * ( floor( dtRF/bunch_spacing_ns ) + 0.5 );
+	   
+	    hdT_hodo_ID->Fill( IDHODO, dtRF );
+	    hdT_hodo_ID->Fill( IDHODO, dtRF - bunch_spacing_ns );
+	    hdT_hodo_ID->Fill( IDHODO, dtRF + bunch_spacing_ns );
+	  }
+	}	
+      }
+    }
+    nevent++;
+  }
+
+  TCanvas *c1 = new TCanvas("c1","c1",1200,900);
+  TCanvas *c2 = new TCanvas("c2","c2",1200,900);
+
+  c1->cd();
+  hdT_hodo_ID->Draw("colz");
+
+  TString histname;
+  TClonesArray *dthodo_by_bar = new TClonesArray( "TH1D", 90 );
+  
+  for( int i=0; i<90; i++ ){
+    TH1D *htemp = hdT_hodo_ID->ProjectionY( histname.Format( "hdThodo_bar%d", i ), i+1, i+1 );
+    new( (*dthodo_by_bar)[i] ) TH1D(*htemp);
+  }
+
+  c2->cd();
+  
+  TH1D *href = ( (TH1D*) dthodo_by_bar->At(hodorefID) );
+
+  href->Draw();
+
+  TSpectrum refspec;
+  int npeaksref = refspec.Search( href );
+
+  double *peakpos = refspec.GetPositionX();
+
+  int ipeak_best = -1;
+  double mindiff = 1000.0;
+  double xpeak_best = 0.0;
+  for( int ipeak=0; ipeak<npeaksref; ipeak++ ){
+    double pos = peakpos[ipeak];
+    if( ipeak_best < 0 || fabs( pos )<mindiff ){
+      ipeak_best = ipeak;
+      mindiff = fabs( pos );
+      xpeak_best = pos;
+    }
+  }
+
+  href->Fit( "gaus", "SQ","", xpeak_best-1.0, xpeak_best+1.0);
+
+  gPad->Modified();
+  c2->Update();
+  gSystem->ProcessEvents();
+
+  TF1 *fitfunc = ( (TF1*) (href->GetListOfFunctions()->FindObject("gaus")) );
+
+  RFoffsets[hodorefID] = fitfunc->GetParameter("Mean");
+  dRFoffsets[hodorefID] = fitfunc->GetParError(fitfunc->GetParNumber("Mean"));
+
+  double xtest = RFoffsets[hodorefID];
+
+  for( int bar=hodorefID+1; bar<90; bar++ ){
+    TH1D *htemp = ( (TH1D*) dthodo_by_bar->At(bar) );
+    htemp->Draw();
+    
+    if( htemp->GetEntries() >= 500.0 ){
+      
+      gPad->Modified();
+      c2->Update();
+      gSystem->ProcessEvents();
+      
+      //double xtest = toffset_by_bar[bar-1];
+      
+      TSpectrum spectemp;
+      int npeakstemp = spectemp.Search( htemp );
+      double *xpeakstemp = spectemp.GetPositionX();
+      ipeak_best = -1;
+      mindiff = 1000.0;
+      
+      for( int ipeak=0; ipeak<npeakstemp; ipeak++ ){
+	//int bin = 1 + int(peakpos[ipeak]+0.5);
+	//double pos = htemp->GetBinCenter(bin);
+	double pos = xpeakstemp[ipeak];
+	if( ipeak_best < 0 || fabs( pos - xtest ) < mindiff ){
+	  ipeak_best = ipeak;
+	  mindiff = fabs( pos - xtest );
+	  xpeak_best = pos;
+	}
+      }
+      
+      htemp->Fit("gaus","SQ","",xpeak_best-1.0,xpeak_best+1.0);
+      gPad->Modified();
+      c2->Update();
+      gSystem->ProcessEvents();
+      
+      fitfunc = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("gaus")) );
+
+      RFoffsets[bar] = fitfunc->GetParameter("Mean");
+      dRFoffsets[bar] = fitfunc->GetParError(fitfunc->GetParNumber("Mean"));
+      
+      xtest = RFoffsets[bar];
+    }
+  }
+
+  xtest = RFoffsets[hodorefID];
+  
+  for( int bar=hodorefID-1; bar>=0; bar-- ){
+    TH1D *htemp = ( (TH1D*) dthodo_by_bar->At(bar) );
+    htemp->Draw();
+    
+    if( htemp->GetEntries() >= 500.0 ){
+      
+      gPad->Modified();
+      c2->Update();
+      gSystem->ProcessEvents();
+      
+      //double xtest = toffset_by_bar[bar-1];
+      
+      TSpectrum spectemp;
+      int npeakstemp = spectemp.Search( htemp );
+      double *xpeakstemp = spectemp.GetPositionX();
+      ipeak_best = -1;
+      mindiff = 1000.0;
+      
+      for( int ipeak=0; ipeak<npeakstemp; ipeak++ ){
+	//int bin = 1 + int(peakpos[ipeak]+0.5);
+	//double pos = htemp->GetBinCenter(bin);
+	double pos = xpeakstemp[ipeak];
+	if( ipeak_best < 0 || fabs( pos - xtest ) < mindiff ){
+	  ipeak_best = ipeak;
+	  mindiff = fabs( pos - xtest );
+	  xpeak_best = pos;
+	}
+      }
+      
+      htemp->Fit("gaus","SQ","",xpeak_best-1.0,xpeak_best+1.0);
+      gPad->Modified();
+      c2->Update();
+      gSystem->ProcessEvents();
+      
+      fitfunc = ( (TF1*) (htemp->GetListOfFunctions()->FindObject("gaus")) );
+
+      RFoffsets[bar] = fitfunc->GetParameter("Mean");
+      dRFoffsets[bar] = fitfunc->GetParError(fitfunc->GetParNumber("Mean"));
+      
+      xtest = RFoffsets[bar];
+    }
+  }
+
+  //Now the RF offsets should be all up to date. But let's make the graph and write the database file:
+  vector<double> gID(90), dgID(90,0.0);
+  for( int i=0; i<90; i++ ){
+    gID[i] = i;
+  }
+
+  TGraphErrors *gRFoffsets = new TGraphErrors( 90, &(gID[0]), &(RFoffsets[0]), &(dgID[0]), &(dRFoffsets[0]) );
+  gRFoffsets->SetMarkerStyle(20);
+  gRFoffsets->SetMarkerColor(1);
+  gRFoffsets->SetLineColor(1);
+  c1->cd();
+  gRFoffsets->Draw("PSAME");
+
+  gPad->Modified();
+  c1->Update();
+  gSystem->ProcessEvents();
+  
+  TString pdffilename = outputfilename;
+  pdffilename.ReplaceAll(".root",".pdf");
+
+  TString tempname = pdffilename;
+  tempname += "(";
+
+  fout->cd();
+
+  gRFoffsets->Write("gRFoffsets");
+  
+  c1->Print(tempname.Data());
+
+  treenum = -1;
+  oldtreenum = -1;
+
+  nevent = 0;
+  cout << "Loop 3: Fit walk correction slope and propagation delay" << endl;
+  while( T->GetEntry(nevent) ){
+
+    if( nevent % 10000 == 0 ){
+      cout << "Loop 3: nevent = " << nevent << ", run number = " << T->g_runnum << endl;
     }
     
     treenum = C->GetTreeNumber();
@@ -487,7 +911,7 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 	//Tstart = 0.0;
 	//double Tstart = RFtime - TrigTime - bunch_spacing_ns * floor( (RFtime-TrigTime)/bunch_spacing_ns );
 	
-	// cout << "(Rftime,TrigTime,Tstart,bunchspace) = (" << RFtime << ", "
+	// cout << "(Rftime,TrigTime,Tstart,bunch_spacing_ns) = (" << RFtime << ", "
 	//      << TrigTime << ", " << Tstart << ", " << bunch_spacing_ns << ") ns" << endl;
 	
 	double yhodo = T->bb_tr_y[0]+zhodo*T->bb_tr_ph[0];
@@ -515,16 +939,26 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 	  double totright = T->bb_hodotdc_clus_bar_tdc_totright[ibar];
 	  
 	  //Some additional variables for hit quality checks:
-	  double tmean = T->bb_hodotdc_clus_bar_tdc_meantime[ibar];
+	  //double tmean = T->bb_hodotdc_clus_bar_tdc_meantime[ibar];
+	  
 	  double ypos = T->bb_hodotdc_clus_bar_tdc_timehitpos[ibar];
 	  double xpos = T->bb_hodotdc_clus_bar_tdc_vpos[ibar];
+	  
+	  
+	  int ID = int(T->bb_hodotdc_clus_bar_tdc_id[ibar]);
+
+	  double tleft_corr = tleft - etof + wL_OLD[ID]*totleft - MeanTimeOffsets[ID] - dLEFT/VSCINT_OLD[ID];
+	  double tright_corr = tright - etof + wR_OLD[ID]*totright - MeanTimeOffsets[ID] - dRIGHT/VSCINT_OLD[ID];
+	  
+
+	  double tdiff_corr = tleft_corr - tright_corr;
+	  ypos = -0.5*VSCINT_OLD[ID]*tdiff_corr;
+	  double tmean = 0.5*(tleft_corr + tright_corr);
 	  
 	  if( ibar == 0 ) {
 	    tmean0 = tmean;
 	  }
 	  
-	  int ID = int(T->bb_hodotdc_clus_bar_tdc_id[ibar]);
-
 	  RFcorr = RFtime + vz/0.299792458 + RFoffsets[ID];
 	  
 	  bool goodhit = totleft >= totmin && totleft <= totmax &&
@@ -575,28 +1009,36 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 
 	    //Correct for TOF:
 	    
-	    double tleft_corr = tleft - (etof-etof0) + wL_OLD[ID]*totleft - dLEFT/VSCINT_OLD[ID] - MeanTimeOffsets[ID];
+	    //	    double tleft_corr = tleft - (etof-etof0) + wL_OLD[ID]*totleft - dLEFT/VSCINT_OLD[ID] - MeanTimeOffsets[ID] - RFcorr;
 	    //Correct everything to a common beam bucket:
 	    //This is the thing we want to align to zero!
 	    //tleft_corr -= bunch_spacing_ns * (floor( tleft_corr/bunch_spacing_ns ) + 0.5);
-	    double tright_corr = tright - (etof-etof0) + wR_OLD[ID]*totright - dRIGHT/VSCINT_OLD[ID] - MeanTimeOffsets[ID];
+	    //double tright_corr = tright - (etof-etof0) + wR_OLD[ID]*totright - dRIGHT/VSCINT_OLD[ID] - MeanTimeOffsets[ID] - RFcorr;
 
-	    double tmean_corr = 0.5*(tleft_corr+tright_corr);
+	    //tmean_corr = 0.5*(tleft_corr+tright_corr);
 
+	    //tleft_corr -= RFcorr;
+	    //tright_corr -= RFcorr; 
+	    
+	    double tmean_corr = 0.5*(tleft_corr+tright_corr) - RFcorr; // includes RF offset;
+
+	    htmeancorr_vs_ID_old->Fill( ID, tmean_corr );
+
+	    tleft_corr -= RFcorr;
+	    tright_corr -= RFcorr;
+	    
 	    //tmean_corr contains all the old corrections
-
-	    if( useRFcorr ){
-	      tleft_corr -= RFcorr;
-	      tright_corr -= RFcorr;
-	      tmean_corr -= RFcorr;
+  
+	    double RF_bucket = floor( tmean_corr/bunch_spacing_ns ); //largest integer smaller than tmeancorr/bunch spacing
 	      
-	      double RF_bucket = floor( tmean_corr/bunch_spacing_ns ); //largest integer smaller than tmeancorr/bunch spacing
-
 	      // This RF bucket subtraction will only work if all other offsets/corrections/etc are reasonably well-known to begin with!
-	      tmean_corr -= bunch_spacing_ns * (RF_bucket + 0.5);
-	      tleft_corr -= bunch_spacing_ns * (RF_bucket + 0.5);
-	      tright_corr -= bunch_spacing_ns * (RF_bucket + 0.5);
-	    }
+	    tmean_corr -= bunch_spacing_ns * (RF_bucket + 0.5);
+	    tleft_corr -= bunch_spacing_ns * (RF_bucket + 0.5);
+	    tright_corr -= bunch_spacing_ns * (RF_bucket + 0.5);
+
+	    std::cout << "Corrected (tL,tR,tmean)=(" << tleft_corr << ", " << tright_corr << ", "
+		      << tmean_corr << ")" << std::endl;
+	    
 	    // if( fixoffsets ){
 	    //   tleft_corr -= MeanTimeOffsets[ID];
 	    //   tright_corr -= MeanTimeOffsets[ID];
@@ -715,7 +1157,7 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 
   treenum=-1,oldtreenum=-1;
 
-  cout << "2nd loop, testing new hodoscope calibrations..." << endl;
+  cout << "Loop 4, testing new hodoscope calibrations..." << endl;
 
   fout->cd();
   
@@ -757,7 +1199,7 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
   while( T->GetEntry(nevent) ){
 
     if( nevent % 10000 == 0 ){
-      cout << "nevent = " << nevent << ", run number = " << T->g_runnum << endl;
+      cout << "Loop 4: nevent = " << nevent << ", run number = " << T->g_runnum << endl;
     }
     
     treenum = C->GetTreeNumber();
@@ -844,7 +1286,7 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 	  tleft_CORR -= bunch_spacing_ns * (RF_bucket + 0.5);
 	  tright_CORR -= bunch_spacing_ns * (RF_bucket + 0.5);
 	  
-	  htmeancorr_vs_ID_old->Fill( ID, tmean_CORR + HODOt0[ID] );
+	  // htmeancorr_vs_ID_old->Fill( ID, tmean_CORR + HODOt0[ID] );
 	  
 	  // double tmean_CORR_nowalk = 0.5*(tleft_CORR - HODOwL[ID]*totleft +
 	  // 				  tright_CORR - HODOwR[ID]*totright);
@@ -920,7 +1362,6 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
 	double xHCAL = T->sbs_hcal_x;
 	double yHCAL = T->sbs_hcal_y;
 	
-	//Eventually we'll need to develop parametrized TOF for protons/neutrons for HCAL for different field settings.
 	
 	TVector3 ep(T->bb_tr_px[0], T->bb_tr_py[0], T->bb_tr_pz[0]);
 	TLorentzVector k(0,0,Ebeam,Ebeam);
@@ -1189,18 +1630,17 @@ void TOFcal_new(const char *inputfilename, const char *outputfilename="TOFcal_te
   dbfile << endl;
   
   // Print out some diagnostic plots:
-  TCanvas *c1 = new TCanvas("c1","c1",1200,900);
-  
+  //TCanvas *c1 = new TCanvas("c1","c1",1200,900);
+  c1->Clear();
 
-  TString pdffilename = outputfilename;
-  pdffilename.ReplaceAll(".root",".pdf");
+  
 
   htmean_vs_ID_new->Draw("colz");
   gPad->Modified();
   c1->Update();
   gSystem->ProcessEvents();
-  TString tempname = pdffilename;
-  tempname+= "(";
+  tempname = pdffilename;
+  //tempname+= "(";
   c1->Print(tempname.Data());
 
   
