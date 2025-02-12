@@ -34,28 +34,28 @@ sbs.gemFPP.m11.layer = 2
 
 sbs.gemFPP.m12.layer = 3
 sbs.gemFPP.m13.layer = 3
-sbs.gemFPP.m13.layer = 3
-sbs.gemFPP.m13.layer = 3
+sbs.gemFPP.m14.layer = 3
+sbs.gemFPP.m15.layer = 3
 
-sbs.gemFPP.m13.layer = 4
-sbs.gemFPP.m13.layer = 4
-sbs.gemFPP.m13.layer = 4
-sbs.gemFPP.m13.layer = 4
+sbs.gemFPP.m16.layer = 4
+sbs.gemFPP.m17.layer = 4
+sbs.gemFPP.m18.layer = 4
+sbs.gemFPP.m19.layer = 4
 
-sbs.gemFPP.m13.layer = 5
-sbs.gemFPP.m13.layer = 5
-sbs.gemFPP.m13.layer = 5
-sbs.gemFPP.m13.layer = 5
+sbs.gemFPP.m20.layer = 5
+sbs.gemFPP.m21.layer = 5
+sbs.gemFPP.m22.layer = 5
+sbs.gemFPP.m23.layer = 5
 
-sbs.gemFPP.m13.layer = 6
-sbs.gemFPP.m13.layer = 6
-sbs.gemFPP.m13.layer = 6
-sbs.gemFPP.m13.layer = 6
+sbs.gemFPP.m24.layer = 6
+sbs.gemFPP.m25.layer = 6
+sbs.gemFPP.m26.layer = 6
+sbs.gemFPP.m27.layer = 6
 
-sbs.gemFPP.m13.layer = 7
-sbs.gemFPP.m13.layer = 7
-sbs.gemFPP.m13.layer = 7
-sbs.gemFPP.m13.layer = 7
+sbs.gemFPP.m28.layer = 7
+sbs.gemFPP.m29.layer = 7
+sbs.gemFPP.m30.layer = 7
+sbs.gemFPP.m31.layer = 7
 
 
 # Define APV mapping configurations: 0 = INFN, 1 = UVA X/Y, 2 = UVA U/V or X/W
@@ -102,45 +102,55 @@ sbs.gemFPP.m31.apvmap = 1
 
 # Define initial guess values for GEM detector position and angle based on engineering drawings and tape measurements.
 # Positions in internal GEM coordinate system.
-sbs.gemFPP.m0.position =  -0.766  0     0.737
-sbs.gemFPP.m1.position =  -0.256  0    0.769
-sbs.gemFPP.m2.position =   0.256  0    0.737
-sbs.gemFPP.m3.position =   0.765  0    0.769
+# During alignment, let's fix the module m1 and align all the other modules w.r.t. that.
 
-sbs.gemFPP.m4.position = -0.766  0    0.865
-sbs.gemFPP.m5.position = -0.256  0    0.897
-sbs.gemFPP.m6.position =  0.256  0    0.865
-sbs.gemFPP.m7.position =  0.765  0    0.897
+# First railing - type B layer
+sbs.gemFPP.m0.position = -0.766  0  0.032
+sbs.gemFPP.m1.position = -0.256  0  0
+sbs.gemFPP.m2.position =  0.256  0  0.032
+sbs.gemFPP.m3.position =  0.765  0  0
 
-sbs.gemFPP.m8.position = -0.766  0    0.865
-sbs.gemFPP.m9.position = -0.256  0    0.897
-sbs.gemFPP.m10.position =  0.256  0    0.865
-sbs.gemFPP.m11.position =  0.765  0    0.897
+# First railing - type A layer
+sbs.gemFPP.m4.position = -0.766  0  0.076
+sbs.gemFPP.m5.position = -0.256  0  0.044
+sbs.gemFPP.m6.position =  0.256  0  0.076
+sbs.gemFPP.m7.position =  0.765  0  0.044
 
-sbs.gemFPP.m12.position = -0.766  0    0.865
-sbs.gemFPP.m13.position = -0.256  0    0.897
-sbs.gemFPP.m14.position =  0.256  0    0.865
-sbs.gemFPP.m15.position =  0.765  0    0.897
+# Second railing - type B layer
+sbs.gemFPP.m8.position  = -0.766  0   0.261
+sbs.gemFPP.m9.position  = -0.256  0   0.229
+sbs.gemFPP.m10.position =  0.256  0   0.261
+sbs.gemFPP.m11.position =  0.765  0   0.229
 
-sbs.gemFPP.m16.position = -0.766  0    0.865
-sbs.gemFPP.m17.position = -0.256  0    0.897
-sbs.gemFPP.m18.position =  0.256  0    0.865
-sbs.gemFPP.m19.position =  0.765  0    0.897
+# Second railing - type A layer
+sbs.gemFPP.m12.position = -0.766  0    0.305
+sbs.gemFPP.m13.position = -0.256  0    0.273
+sbs.gemFPP.m14.position =  0.256  0    0.305
+sbs.gemFPP.m15.position =  0.765  0    0.273
 
-sbs.gemFPP.m20.position = -0.766  0    0.865
-sbs.gemFPP.m21.position = -0.256  0    0.897
-sbs.gemFPP.m22.position =  0.256  0    0.865
-sbs.gemFPP.m23.position =  0.765  0    0.897
+# Third railing - type B layer
+sbs.gemFPP.m16.position = -0.766  0    0.464
+sbs.gemFPP.m17.position = -0.256  0    0.496
+sbs.gemFPP.m18.position =  0.256  0    0.464
+sbs.gemFPP.m19.position =  0.765  0    0.496
 
-sbs.gemFPP.m24.position = -0.766  0    0.865
-sbs.gemFPP.m25.position = -0.256  0    0.897
-sbs.gemFPP.m26.position =  0.256  0    0.865
-sbs.gemFPP.m27.position =  0.765  0    0.897
+# Third railing - type A layer
+sbs.gemFPP.m20.position = -0.766  0    0.508
+sbs.gemFPP.m21.position = -0.256  0    0.540
+sbs.gemFPP.m22.position =  0.256  0    0.508
+sbs.gemFPP.m23.position =  0.765  0    0.540
 
-sbs.gemFPP.m28.position = -0.766  0    0.865
-sbs.gemFPP.m29.position = -0.256  0    0.897
-sbs.gemFPP.m30.position =  0.256  0    0.865
-sbs.gemFPP.m31.position =  0.765  0    0.897
+# Fourth railing - type B layer
+sbs.gemFPP.m24.position = -0.766  0    0.693
+sbs.gemFPP.m25.position = -0.256  0    0.725
+sbs.gemFPP.m26.position =  0.256  0    0.693
+sbs.gemFPP.m27.position =  0.765  0    0.725
+
+# Fourth railing - type A layer
+sbs.gemFPP.m28.position = -0.766  0    0.737
+sbs.gemFPP.m29.position = -0.256  0    0.769
+sbs.gemFPP.m30.position =  0.256  0    0.737
+sbs.gemFPP.m31.position =  0.765  0    0.769
 
 
 # Angles: assume zero for ALL.
@@ -1518,7 +1528,7 @@ sbs.gemFPP.modulegain = 1
 sbs.gemFPP.plot_event_info = 0
 
 
----------[ 2024-11-06 00:00:00 ] # Cosmic Data Analysis
+---------[ 2025-01-01 00:00:00 ] # Cosmic Data Analysis
 
 sbs.gemFPP.useopticsconstraint = 0
 sbs.gemFPP.useslopeconstraint = 0
@@ -1530,40 +1540,13 @@ sbs.gemFPP.dump_geometry_info = 1
 
 
 # ###################### BEGIN TIME-DEPENDENT ALIGNMENT PARAMETERS #############
-sbs.gemFPP.m0.position =               0               0               0
-sbs.gemFPP.m0.angle =               0               0               0
-sbs.gemFPP.m1.position =   -0.0002602302    0.0008980871      0.07113362
-sbs.gemFPP.m1.angle =      0.01617712      0.02198924     -0.03854714
-sbs.gemFPP.m2.position =   -0.0006666024   -0.0008197776       0.2024316
-sbs.gemFPP.m2.angle =      -0.0408576      -0.1829119       0.2098025
-sbs.gemFPP.m3.position =   -0.0001347907     0.004256563       0.3411585
-sbs.gemFPP.m3.angle =      -0.1997757      -0.1773834      0.09056926
-sbs.gemFPP.m4.position =   -5.708361e-05    -0.001383042       0.4855725
-sbs.gemFPP.m4.angle =      -0.1505239     -0.08403789       0.1694961
-sbs.gemFPP.m5.position =    -7.36266e-05    0.0008235876       0.6224533
-sbs.gemFPP.m5.angle =       0.1381529      -0.1219266      -0.1057714
-sbs.gemFPP.m6.position =      -0.7662183    0.0004402241       0.7399086
-sbs.gemFPP.m6.angle =       0.3023621       0.2123888      0.09243049
-sbs.gemFPP.m7.position =      -0.2552779    -0.001077349       0.7654713
-sbs.gemFPP.m7.angle =      -0.1536249       0.1264819     -0.01557739
-sbs.gemFPP.m8.position =        0.255757   -0.0007952121       0.7370384
-sbs.gemFPP.m8.angle =      0.02535198      -0.3047412     -0.04845675
-sbs.gemFPP.m9.position =       0.7659522    -0.001784696       0.7713503
-sbs.gemFPP.m9.angle =       0.1045629      -0.2142151      -0.2728373
-sbs.gemFPP.m10.position =      -0.7674347     0.001839268       0.8655981
-sbs.gemFPP.m10.angle =      -0.1393828      -0.9463748       0.1539809
-sbs.gemFPP.m11.position =       -0.254779    0.0001533827        0.895369
-sbs.gemFPP.m11.angle =      -0.1291989      0.07851731       0.1175473
-sbs.gemFPP.m12.position =       0.2564041     0.001418061       0.8635493
-sbs.gemFPP.m12.angle =       0.4406352      -0.3496961      -0.3171744
-sbs.gemFPP.m13.position =       0.7663983    -0.003120336       0.8982273
-sbs.gemFPP.m13.angle =      -0.4768546       0.8574747      -0.8114286
+
 # ###################### END TIME-DEPENDENT ALIGNMENT PARAMETERS #############
 
 
 # ###################### BEGIN TIME-DEPENDENT PEDESTAL FILES ##########################
 
----------[ 2024-11-06 00:00:00 ] # Cosmic Data Analysis
+---------[ 2025-01-01 00:00:00 ] # Cosmic Data Analysis
 sbs.gemFPP.pedfile = gemped/daq_ped_sbs_gemFPP_run1610.dat
 sbs.gemFPP.cmfile = gemped/db_cmr_sbs_gemFPP_run1610.dat
 
