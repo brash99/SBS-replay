@@ -18,10 +18,10 @@
 // This replay script will only replay data from the GEp front trakcer i.e. first eight layers.
 
 
-void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firstevent=0, const char *fname_prefix="gep5", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=1, Int_t parallelemode=0, Int_t singlemode=0, Int_t file_seg=0 )
+void replay_gep_FPPGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firstevent=0, const char *fname_prefix="gep5", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=1, Int_t parallelemode=0, Int_t singlemode=0, Int_t file_seg=0 )
 {	
 	//  gSystem->Load("libsbs.so");
-  
+
  	int stream = 0;
 
  	if(pedestalmode == 1)
@@ -35,7 +35,7 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
 
   SBSBigBite *sbs = new SBSBigBite("sbs", "Generic apparatus");
 
-  SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gemFT", "SBS GEp front tracker GEM data"); 
+  SBSGEMSpectrometerTracker *sbsgem = new SBSGEMSpectrometerTracker("gemFPP", "SBS GEp focal plane polarimeter GEM data"); 
 
   sbs->AddDetector(sbsgem);
 
@@ -72,14 +72,17 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
 
   pathlist.push_back(prefix);
 
+  // 
+  // 
+  //
   if( prefix != "/adaqeb2/data1" )
    pathlist.push_back( "/adaqeb2/data1" );
 
   if( prefix != "/data/raw" )
    pathlist.push_back( "/data/raw" );
 
-  if( prefix != "/adaq1/data1" )
-  pathlist.push_back( "/adaq1/data1" );
+  if( prefix != "/adaq1/data1/sbs" )
+  pathlist.push_back( "/adaq1/data1/sbs" );
 
   if( prefix != "/cache/halla/sbs/raw" )
   pathlist.push_back( "/cache/halla/sbs/raw" );
@@ -108,12 +111,13 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
 	  TString ftest(fname_prefix);
 
 	  if( ftest == "gep5" )
-    {
+	  {
 		 	codafilename.Form("%s_%d.evio.0.%d", fname_prefix, runnum, segment);
 	  }
     else if ( ftest == "gem" )
     {
       codafilename.Form("%s_%d.dat.0.%d", fname_prefix, runnum, segment);
+
     }
     	
     segmentexists = false;
@@ -181,11 +185,12 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
   TString outfilebase, outfilename;
 
   if( nevents > 0 ){ 
-    outfilebase.Form( "%s_replayed_gepFTGEMs_%d_seg%d_%d_firstevent%d_nevent%d", fname_prefix, runnum, firstsegment, lastsegment, firstevent, nevents );
+
+    outfilebase.Form( "%s_replayed_gepFPPGEMs_%d_seg%d_%d_firstevent%d_nevent%d", fname_prefix, runnum, firstsegment, lastsegment, firstevent, nevents );
     outfilename.Form( "%s/%s.root", prefix.Data(), outfilebase.Data());
   }
   else {
-    outfilebase.Form( "%s_fullreplay_gepFTGEMs_%d_seg%d_%d", fname_prefix, runnum, firstsegment, lastsegment );
+    outfilebase.Form( "%s_fullreplay_gepFPPGEMs_%d_seg%d_%d", fname_prefix, runnum, firstsegment, lastsegment );
     outfilename.Form( "%s/%s.root", prefix.Data(), outfilebase.Data());
   }
 
@@ -233,7 +238,7 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
   analyzer->SetMarkInterval(100);
 
   analyzer->EnableBenchmarks();
-   
+  
   // Define the analysis parameters
   analyzer->SetEvent( event );
   analyzer->SetOutFile( outfilename.Data() );
@@ -245,7 +250,7 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";
 
-  TString odef_filename = "replay_FTGEM_gep.odef";
+  TString odef_filename = "replay_FPPGEM_gep.odef";
   
   odef_filename.Prepend( prefix );
 
