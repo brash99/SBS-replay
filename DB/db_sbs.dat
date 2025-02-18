@@ -11,7 +11,18 @@ sbs.backconstraint_y0 = -0.0042
 sbs.frontconstraint_x0 = 0.0
 sbs.frontconstraint_y0 = 0.0
 
-sbs.gemorigin_xyz = 0.0 0.0 4.825
+#sbs.gemorigin_xyz = 0.0 0.0 4.825
+
+# after redefining transformation for SBS GEMs:
+
+#sbs.gemorigin_xyz =  -0.00477348  0.000756327       4.6703
+#sbs.gemangles_xyz =    -0.126063     0.259251    -0.789679
+
+# alignment without offset of HCAL (probably won't make much difference):
+
+#sbs.gemorigin_xyz =   -0.0020234  0.000756829       4.1203
+#sbs.gemangles_xyz =     -0.12607     0.297492    -0.789679
+
 
 #the optics matrix elements below are for SBS 100% field setting (using approximation of uniform field in the magnet gap):
 sbs.precon_flag = 0
@@ -152,17 +163,28 @@ sbs.optics_origin = 0.0 0.0 4.105
 
 # even better alignment after cutting the pathological region of track X
 # where X/W strip offsets are wrong
-#sbs.gemorigin_xyz =  -0.00403358  0.000297287       4.1218
-#sbs.gemangles_xyz =     0.117299    -0.264845    -0.814373
-
-#sbs.gemorigin_xyz =   0.00329963  0.000298602      4.12189
-#sbs.gemangles_xyz =     0.117061    -0.283118    -0.814324
-
-sbs.gemorigin_xyz =  -0.00102233   0.00070928      4.12068
-sbs.gemangles_xyz =     0.121055    -0.308798    -0.799353
 
 
-#sbs.gemangles_xyz = 0.12 0 -0.8 
+#sbs.gemorigin_xyz =  -0.00510576   0.00075458      4.11962
+#sbs.gemangles_xyz =     0.123051    -0.252785    -0.789754
+
+#sbs.gemorigin_xyz =    -0.023448  -0.00823481      4.12017
+#sbs.gemangles_xyz =   0.00168174  0.000662795    -0.788323
+
+# after redefining transformation for SBS GEMs:
+
+#sbs.gemorigin_xyz =  -0.00477348  0.000756327       4.1203
+#sbs.gemangles_xyz =    -0.126063     0.259251    -0.789679
+
+# after global alignment of the individual modules based on straight-through data:
+sbs.gemorigin_xyz = 0 0 4.105
+sbs.gemangles_xyz = 0 0 0
+
+# after global alignment of the GEM stack, also based on straight-through data (not immediately obvious that this is somehow "better"):
+
+sbs.gemorigin_xyz =   0.00295174  0.000299866      4.10704
+sbs.gemangles_xyz =  -0.00627814    0.0419374   -0.0825597
+
 
 # the following lines enable use of the "polarimeter mode" analysis:
 sbs.polarimetermode = 1
@@ -469,7 +491,7 @@ sbs.optics_parameters =
 
 sbs.backconstraintwidth_x = 0.3
 sbs.backconstraintwidth_y = 0.26
-sbs.backconstraint_x0 = -0.03
+sbs.backconstraint_x0 = 0.0
 sbs.backconstraint_y0 = 0.0
 
 
@@ -492,13 +514,18 @@ sbs.frontconstraint_y0 = -0.012
 
 ------------[ 2024-04-18 23:51:00 ] # zero-field running, single foil. Target is front constraint:
 sbs.dynamicth0 = 0.0
+sbs.dynamicph0 = 0.0
 # open these up a bit until we figure out how to center them for zero-field data:
-sbs.frontconstraintwidth_x = 0.13
-sbs.frontconstraintwidth_y = 0.13
-23
-sbs.frontconstraint_x0 = 0.0164 
+
+sbs.dynamicphslope = 0.111
+sbs.frontconstraintwidth_x = 0.10
+sbs.frontconstraintwidth_y = 0.10
+
+sbs.frontconstraint_x0 = 0.0
 sbs.frontconstraint_y0 = 0.0
 
+sbs.backconstraintwidth_x = 0.2
+sbs.backconstraintwidth_y = 0.18
 
 ------------[ 2024-04-19 3:30:00 ] # back to full-field running
 sbs.dynamicth0 = -0.051

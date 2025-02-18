@@ -53,17 +53,36 @@ long NMAX;
 //Let's see if we can improve things by doing one iteration of linearized, then use TMinuit:
 int NTRACKS;
 vector<double> XTRACK,YTRACK,XPTRACK,YPTRACK;
+vector<double> XFCP, YFCP, ZFCP, XBCP, YBCP, ZBCP; //Front and back constraint points and widths, to be set in the main event loop.
+//The following default values are for the SBS zero-field alignment with single C foil and HCAL:
+double sigmaXFCP = 0.008, sigmaYFCP = 0.008;
+double sigmaXBCP = 0.055, sigmaYBCP = 0.055;
+double sigmaTH = 0.002, sigmaPH = 0.002;
 vector<int> TRACKNHITS;
 vector<vector<int> > HITMOD;
 vector<vector<double> > HITX,HITY;
+vector<double> HITXGTEMP,HITYGTEMP,HITZGTEMP;
+
+double sigmahitpos = 0.15e-3; //0.15 mm = 150 um:
+
+double Z0GEM = 4.105; //TO-DO: make configurable:
 
 void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
 
   double chi2=0.0;
 
+  double hitweight = pow(sigmahitpos,-2);
+ 
   //for( int pass=0; pass<2; pass++ ){ //First pass, re-fit tracks, Second pass: fit parameters:
   for( int itr=0; itr<NTRACKS; itr++ ){
     //First: re-fit track using latest parameters:
+
+    double sumX = 0.0, sumY = 0.0, sumZ = 0.0, sumXZ = 0.0, sumYZ = 0.0, sumZ2 = 0.0;
+
+    if( HITXGTEMP.size() < TRACKNHITS[itr] ) HITXGTEMP.resize( TRACKNHITS[itr] );
+    if( HITYGTEMP.size() < TRACKNHITS[itr] ) HITYGTEMP.resize( TRACKNHITS[itr] );
+    if( HITZGTEMP.size() < TRACKNHITS[itr] ) HITZGTEMP.resize( TRACKNHITS[itr] );
+
     
     for( int ihit=0; ihit<TRACKNHITS[itr]; ihit++ ){
       double ulocal = HITX[itr][ihit];
@@ -95,29 +114,62 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
 
       TVector3 hitpos_global = modcenter_global + R*hitpos_local;
 
-      TVector3 trackpos_global( XTRACK[itr]+XPTRACK[itr]*hitpos_global.Z(),
-				YTRACK[itr]+YPTRACK[itr]*hitpos_global.Z(),
-				hitpos_global.Z() );
-	
-	
-	
-      TVector3 diff = hitpos_global - trackpos_global;
-	
-      chi2 += pow(diff.X(),2)+pow(diff.Y(),2); //
-	
+      //Record global hit positions in storage arrays so we don't have to calculate them again in the second loop: 
+      HITXGTEMP[ihit] = hitpos_global.X();
+      HITYGTEMP[ihit] = hitpos_global.Y();
+      HITZGTEMP[ihit] = hitpos_global.Z();
+      
+      sumX += hitpos_global.X();
+      sumY += hitpos_global.Y();
+      sumZ += hitpos_global.Z();
+      sumXZ += hitpos_global.X() * hitpos_global.Z();
+      sumYZ += hitpos_global.Y() * hitpos_global.Z();
+      sumZ2 += pow(hitpos_global.Z(),2);
+      
       //update tracks? this is the tricky part:
     }
 
-    // if( pass == 0 ){ //update tracks:
-    // 	TVectorD Track = Atrack.Invert() * btrack;
+    // this gives the line of best fit through the points; we need to loop over all the hits again to calculate chi2
+    // but at least we only need to calculate the local --> global transformation the first time. 
+    double nhits=TRACKNHITS[itr];
+    double denom = (sumZ2*nhits - pow(sumZ,2));
 
-    // 	XTRACK[itr] = Track(0);
-    // 	XPTRACK[itr] = Track(1);
-    // 	YTRACK[itr] = Track(2);
-    // 	YPTRACK[itr] = Track(3);
-    // } //loop over hits
+    double xptemp = (nhits*sumXZ - sumX*sumZ)/denom;
+    double yptemp = (nhits*sumYZ - sumY*sumZ)/denom;
+    double xtemp = (sumZ2*sumX - sumZ*sumXZ)/denom;
+    double ytemp = (sumZ2*sumY - sumZ*sumYZ)/denom;
+
+
+    
+    for( int ihit=0; ihit<TRACKNHITS[itr]; ihit++ ){ 
+      double xtrack = xtemp + xptemp * HITZGTEMP[ihit];
+      double ytrack = ytemp + yptemp * HITZGTEMP[ihit];
+      chi2 += hitweight * (pow( HITXGTEMP[ihit] - xtrack, 2 ) + pow( HITYGTEMP[ihit] - ytrack, 2 ) );
+      //this is the lazy way, technically I should calculate the residuals wrt the LOCAL coordinates, but whatevs.
+      //we can fix that later
+
+      //For zero-field alignment, track direction is proportional to track position
+      // This makes the assumption of a point source of straight-line tracks from the origin explicit:
+      double xphitpos = (HITXGTEMP[ihit] - XFCP[itr])/(HITZGTEMP[ihit]-ZFCP[itr]);
+      double yphitpos = (HITYGTEMP[ihit] - YFCP[itr])/(HITZGTEMP[ihit]-ZFCP[itr]);
+
+      chi2 += pow( (xptemp - xphitpos)/sigmaTH, 2 ) + pow( (yptemp - yphitpos)/sigmaPH, 2 );
+     
+    }
+
+    double xfront = xtemp + xptemp * ZFCP[itr];
+    double yfront = ytemp + yptemp * ZFCP[itr];
+
+    double xback = xtemp + xptemp * ZBCP[itr];
+    double yback = ytemp + yptemp * ZBCP[itr];
+
+    // The following track-based constraints require the fitted tracks to point back at front and back "constraint points"
+    // defined based on target and or sieve and/or HCAL position:
+    chi2 += pow( (xfront - XFCP[itr])/sigmaXFCP, 2 ) + pow( (yfront - YFCP[itr])/sigmaYFCP, 2 )
+      + pow( (xback - XBCP[itr])/sigmaXBCP, 2 ) + pow( (yback - YBCP[itr])/sigmaYBCP, 2 );
+    
   } //loop over tracks
-    //loop over two passes
+   
 
   f = chi2;
   
@@ -125,7 +177,7 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
 
 
 
-void GEM_align( const char *configfilename, const char *outputfilename="newGEMalignment.txt" ){
+void GEM_align_allmodules_global( const char *configfilename, const char *outputfilename="newGEMalignment.txt" ){
   
   ifstream configfile(configfilename);
   
@@ -158,8 +210,15 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   double minanglechange = 5e-5; // 50 urad
 
   double trackchi2_cut = 100.0;
+
+  //To-do: make these user-configurable:
+  TVector3 HCALPOS(0.006,0,9.007);
+  TVector3 TARGPOS(0,0,0);
   
-  TString prefix = "bb.uvagem";
+  //TVector3 BeamPos(0,0,0);
+  
+  //set "sbs.gem" as default prefix:
+  TString prefix = "sbs.gem";
 
   TChain *C = new TChain("T");
   
@@ -181,12 +240,63 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 
 	if( ntokens >= 2 ){
 	  TString skey = ( (TObjString*) (*tokens)[0] )->GetString();
-
-
+	  TString sval = ( (TObjString*) (*tokens)[1] )->GetString();
 	  
 	  if( skey == "prefix" ){
 	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	    prefix = stemp;
+	  }
+
+	  if( skey == "X0HCAL" ){
+	    HCALPOS.SetX( sval.Atof() );
+	  }
+	  
+	  if( skey == "Y0HCAL" ){
+	    HCALPOS.SetY( sval.Atof() );
+	  }
+	  
+	  if( skey == "Z0HCAL" ){
+	    HCALPOS.SetZ( sval.Atof() );
+	  }
+
+	  if( skey == "X0TARG" ){
+	    TARGPOS.SetX( sval.Atof() );
+	  }
+	  
+	  if( skey == "Y0TARG" ){
+	    TARGPOS.SetY( sval.Atof() );
+	  }
+	  
+	  if( skey == "Z0TARG" ){
+	    TARGPOS.SetZ( sval.Atof() );
+	  }
+
+	  if( skey == "Z0GEM" ){
+	    Z0GEM = sval.Atof();
+	  }
+
+	  if( skey == "sigmaXbcp" ){
+	    sigmaXBCP = sval.Atof();
+	  }
+
+	  if( skey == "sigmaYbcp" ){
+	    sigmaYBCP = sval.Atof();
+	  }
+
+	  if( skey == "sigmaXfcp" ){
+	    sigmaXFCP = sval.Atof();
+	  }
+
+	  if( skey == "sigmaYfcp" ){
+	    sigmaYFCP = sval.Atof();
+	  }
+
+	  if( skey == "sigmatheta" ){
+	    sigmaTH = sval.Atof();
+	  }
+
+	  if( skey == "sigmaphi" ){
+	    sigmaPH = sval.Atof();
 	  }
 	  
 	  if( skey == "minposchange" ){
@@ -212,6 +322,10 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	  if( skey == "nlayers" ){
 	    TString snlayers = ( (TObjString*) (*tokens)[1] )->GetString();
 	    nlayers = snlayers.Atoi();
+
+	    HITXGTEMP.resize(nlayers);
+	    HITYGTEMP.resize(nlayers);
+	    HITZGTEMP.resize(nlayers);
 	  }
 
 	  if( skey == "offsetsonly" ){
@@ -262,7 +376,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	    for( int i=1; i<ntokens; i++ ){
 	      TString smodz = ( (TObjString*) (*tokens)[i] )->GetString();
 	      
-	      mod_z0[i-1] = smodz.Atof();
+	      mod_z0[i-1] = smodz.Atof() + Z0GEM;
 	    }
 	  }
 
@@ -501,7 +615,6 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   C->SetBranchStatus("sbs.hcal.y",1);
   
   
-  
   C->SetBranchStatus( branchname.Format( "%s.track.ntrack", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.track.besttrack", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.track.nhits", prefix.Data() ), 1 );
@@ -532,20 +645,19 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   C->SetBranchAddress( branchname.Format( "%s.hit.u", prefix.Data() ), hit_ulocal );
   C->SetBranchAddress( branchname.Format( "%s.hit.v", prefix.Data() ), hit_vlocal );
   
-  
+  double xHCAL, yHCAL;
+  C->SetBranchAddress("sbs.hcal.x", &xHCAL);
+  C->SetBranchAddress("sbs.hcal.y", &yHCAL);
   
   //GEM_cosmic_tracks *T = new GEM_cosmic_tracks(C);
 
   //Declare branch addresses:
 
-  TString outrootfileprefix = outputfilename;
-  outrootfileprefix.ReplaceAll(".txt","");
-  
+  TString outrootfilename;
   TString rootprefix = prefix;
   rootprefix.ReplaceAll(".","_");
-
-  TString outrootfilename;
-  outrootfilename.Form("%s_%s.root",outrootfileprefix.Data(), rootprefix.Data() );
+  
+  outrootfilename.Form("GEM_align_results_%s.root",rootprefix.Data() );
 
   TFile *fout = new TFile( outrootfilename.Data(), "RECREATE" );
 
@@ -936,6 +1048,13 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	    XPTRACK.push_back( xptrack );
 	    YTRACK.push_back( ytrack );
 	    YPTRACK.push_back( yptrack );
+	    XBCP.push_back( xHCAL + HCALPOS.X() );
+	    YBCP.push_back( yHCAL + HCALPOS.Y() );
+	    ZBCP.push_back( HCALPOS.Z() );
+
+	    XFCP.push_back( TARGPOS.X() );
+	    YFCP.push_back( TARGPOS.Y() );
+	    ZFCP.push_back( TARGPOS.Z() );
 	    TRACKNHITS.push_back( nhitsonbesttrack );
 	  }
 
@@ -1392,7 +1511,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
       maxanglechange = fabs( anglechange.Z() ) > maxanglechange ? fabs( anglechange.Z() ) : maxanglechange;
     }
 
-    cout << "iteration " << iter << ", max position change = " << maxposchange << " m, max angle change = " << maxanglechange << " rad" << endl;
+    cout << "iteration " << iter << ", max position change = " << maxposchange << " mm, max angle change = " << maxanglechange << " rad" << endl;
     
   }
 
@@ -1404,7 +1523,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   
   //if( (offsetsonlyflag == 0 && rotationsonlyflag == 0) ){
 
-  if( false ){
+  if( true ){
     TMinuit *ExtraFit = new TMinuit( 6*nmodules );
     
     ExtraFit->SetFCN( CHI2_FCN );
@@ -1427,7 +1546,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
     arglist[0]=1;
     ExtraFit->mnexcm("SET ERR",arglist,1,ierflg);
 
-    arglist[0] = 5000;
+    arglist[0] = 100000;
     arglist[1] = 1.;
   
     ExtraFit->mnexcm("MIGRAD",arglist,2,ierflg);
@@ -1470,7 +1589,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
     x0line += stemp;
     stemp.Form( " %15.7g", mod_y0[module] );
     y0line += stemp;
-    stemp.Form( " %15.7g", mod_z0[module] );
+    stemp.Form( " %15.7g", mod_z0[module]-Z0GEM );
     z0line += stemp;
     stemp.Form( " %15.7g", mod_ax[module] );
     axline += stemp;
@@ -1480,7 +1599,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
     azline += stemp;
 
     stemp.Form( "%s.m%d.position = %15.7g %15.7g %15.7g", prefix.Data(), module,
-		mod_x0[module], mod_y0[module], mod_z0[module] );
+		mod_x0[module], mod_y0[module], mod_z0[module]-Z0GEM );
 
     outfile_DB << stemp << endl;
 
