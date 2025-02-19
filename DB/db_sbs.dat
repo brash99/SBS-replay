@@ -500,8 +500,8 @@ sbs.usedynamicconstraint = 1
 sbs.dynamicthslope = 0.111
 sbs.dynamicth0 = -0.051
 
-sbs.dynamicphslope = 0.0947
-sbs.dynamicph0 = 0.002
+sbs.dynamicphslope = 0.111
+sbs.dynamicph0 = 0.0
 
 sbs.usedynamicconstraint = 1
 
@@ -533,7 +533,7 @@ sbs.dynamicth0 = -0.051
 sbs.frontconstraintwidth_x = 0.45
 sbs.frontconstraintwidth_y = 0.15
 sbs.frontconstraint_x0 = 0.2 
-sbs.frontconstraint_y0 = -0.012
+sbs.frontconstraint_y0 = 0.0
 
 
 ------------[ 2024-04-19 07:30:00 ] # analyzer installed
