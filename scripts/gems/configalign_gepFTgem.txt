@@ -1,4 +1,4 @@
-/adaqfs/home/a-onl/sbs/Rootfiles/gem_fullreplay_gepFTGEMs_697_all.root
+/adaqfs/home/a-onl/sbs/Rootfiles/gem_fullreplay_allGEMs_1034_all.root
 endlist
 prefix sbs.gemFT
 nlayers 8

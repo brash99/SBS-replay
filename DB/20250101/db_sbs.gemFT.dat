@@ -963,7 +963,7 @@ sbs.gemFT.plot_event_info = 1
 
 # when zero suppression is enabled again we will turn this to 1: 
 sbs.gemFT.pedsub_online = 1 # under normal conditions, this should always be 1, unless running normal data taking in pedestal mode:
-sbs.gemFT.max2Dhits = 25000 # per-module
+sbs.gemFT.max2Dhits = 100000 # per-module
 
 
 
@@ -972,8 +972,8 @@ sbs.gemFT.max2Dhits = 25000 # per-module
 # parameters controlling tracking:
 sbs.gemFT.minhitsontrack = 3
 
-sbs.gemFT.maxhitcombos = 50000 # 25000 #10000 #25000 for final &  50000 for first alignments
-sbs.gemFT.maxhitcombos_inner = 50000 # 25000 #25000 for final & 50000 for first alignments
+sbs.gemFT.maxhitcombos = 25000 # 25000 #10000 #25000 for final &  50000 for first alignments
+sbs.gemFT.maxhitcombos_inner = 25000 # 25000 #25000 for final & 50000 for first alignments
 #sbs.gemFT.maxhitcombos_total = 1.e22
 sbs.gemFT.maxhitcombos_total = 1.e15
 
@@ -984,7 +984,7 @@ sbs.gemFT.gridbinwidthx = 0.01
 sbs.gemFT.gridbinwidthy = 0.01
 sbs.gemFT.gridedgetolerancex = 0.0025
 sbs.gemFT.gridedgetolerancey = 0.0025
-sbs.gemFT.trackchi2cut = 30
+sbs.gemFT.trackchi2cut = 150
 
 # Adjust the grid bins and chi2 here during alignment. Comment them out after the alignment is complete:
 #For alignment with cosmics, we want to start with wider grid bins and a loose chi2 cut for tracking:
@@ -1152,4 +1152,22 @@ sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run744.dat
 sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run744.dat
 
 
+---------[ 2025-02-14 00:00:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run971.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run971.dat
 
+---------[ 2025-02-17 00:00:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1030.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1030.dat
+
+---------[ 2025-02-18 16:00:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1058.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1058.dat
+
+---------[ 2025-02-20 15:00:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1091.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1091.dat
+
+---------[ 2025-02-22 10:21:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1095.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1095.dat
