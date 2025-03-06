@@ -37,7 +37,7 @@ void replay_CDet(int run_number = 124, uint nev = -1, TString start_name = "e120
 
 
   SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm" );
-  earm->AddDetector( new SBSGenericDetector("cdet", "CDet") );
+  earm->AddDetector( new SBSCDet("cdet", "CDet") );
   gHaApps->Add(earm);
 
 
