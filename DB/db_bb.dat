@@ -1584,6 +1584,7 @@ bb.BPMA_dist_to_targ = 7.53 # This is the distance from BPMA and the nominal 0 p
 #bb.gemphi = 178.704
 
 bb.gemorigin_xyz = -0.2072627 0.0501525 2.77158
+bb.gemangles_xyz = -1
 bb.gemtheta = 8.80161
 bb.gemphi = 177.4108
 # NOTE: ZSIEVE fit result is 1.24879 and 
