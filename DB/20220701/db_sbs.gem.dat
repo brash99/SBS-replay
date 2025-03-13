@@ -195,7 +195,7 @@ sbs.gem.useopticsconstraint = 0
 
 sbs.gem.sigmahitpos = 0.0001
 sbs.gem.do_efficiencies = 1
-sbs.gem.dump_geometry_info = 1
+sbs.gem.dump_geometry_info = 0
 
 sbs.gem.efficiency_bin_width_1D = 0.02
 sbs.gem.efficiency_bin_width_2D = 0.04
@@ -242,7 +242,7 @@ sbs.gem.commonmode_nevents_lookback = 10
 
 sbs.gem.plot_common_mode = 0
 sbs.gem.pedsub_online = 1 # normally this should always be set to 1
-sbs.gem.dump_geometry_info = 1
+sbs.gem.dump_geometry_info = 0
 sbs.gem.efficiency_bin_width_1D = 0.02
 sbs.gem.efficiency_bin_width_2D = 0.02
 sbs.gem.commonmode_range_nsigma = 5.0
@@ -874,7 +874,7 @@ sbs.gem.plot_event_info = 0
 #sbs.gem.m29.angle =        0.192932       0.7917614       -0.012167
 
 
-sbs.gem.dump_geometry_info = 1
+sbs.gem.dump_geometry_info = 0
 # # Set to nominal sizes
 # Module sizes: INFN XY = (0.512 0.4096 0.001) , UVA XY = (0.512 0.6144 0.001)
 
@@ -2349,14 +2349,14 @@ sbs.gem.cmfile = gemped/db_cmr_sbs_gem_run6417.dat
 sbs.gem.useopticsconstraint = 0
 sbs.gem.useslopeconstraint = 0
 sbs.gem.useconstraint = 0
-#sbs.gem.dump_geometry_info = 1
+#sbs.gem.dump_geometry_info = 0
 
 ---------[ 2023-11-16 14:30:00 ] # Back to Beam A_LL
 
 sbs.gem.useopticsconstraint = 0
 sbs.gem.useslopeconstraint = 0
 sbs.gem.useconstraint = 1
-sbs.gem.dump_geometry_info = 1
+sbs.gem.dump_geometry_info = 0
 
 sbs.gem.use_enhanced_chi2 = 0
 sbs.gem.minhighqualityhitsontrack = 0
