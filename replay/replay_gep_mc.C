@@ -24,6 +24,7 @@
 #include "SBSHCal.h"
 #include "SBSECal.h"
 #include "SBSGEMSpectrometerTracker.h"
+#include "SBSGEMPolarimeterTracker.h"
 #include "SBSTimingHodoscope.h"
 
 #include "SBSSimDecoder.h"
@@ -34,7 +35,8 @@ TDatime get_datime(uint gepconfig)
 {
   std::unordered_map<uint,TDatime> m = {{1, "2024-10-01 00:00:00"},
 					{2, "2024-10-01 00:00:00"},
-					{3, "2024-10-01 00:00:00"}};
+					{3, "2024-10-01 00:00:00"},
+					{4, "2024-10-01 00:00:00"}};
   if (m.find(gepconfig)==m.end()) 
     throw std::invalid_argument("Invalid SBS config!! Valid options are: 1,2,3");
   return m[gepconfig];
@@ -50,7 +52,7 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
   harm->AddDetector( new SBSGEMSpectrometerTracker("gemFT", "Front tracker") );
-  harm->AddDetector( new SBSGEMSpectrometerTracker("gemFPP", "Focal Plane Polarimeter") );
+  harm->AddDetector( new SBSGEMPolarimeterTracker("gemFPP", "Focal Plane Polarimeter") );
   gHaApps->Add(harm);
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);

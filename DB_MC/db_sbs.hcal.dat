@@ -163,7 +163,7 @@ sbs.hcal.adc.conv = 0.4882
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 sbs.hcal.adc.NPedBin = 4
 # Threshold for pulse finding in waveform (mV)
-sbs.hcal.adc.thres = 20.0
+sbs.hcal.adc.thres = 5.0
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
 sbs.hcal.adc.NSB = 3
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse

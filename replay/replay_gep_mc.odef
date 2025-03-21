@@ -4,6 +4,7 @@
 #include "replay_hcal.odef"
 #include "replay_ECal.odef"
 #include "replay_FTGEM_gep.odef"
+#include "replay_FPPGEM_gep.odef"
 
 # block MC.simc*
 block MC.mc*
