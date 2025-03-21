@@ -460,7 +460,8 @@ earm.ecal.adc.conv = 0.4882
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 earm.ecal.adc.NPedBin = 4
 # Threshold for pulse finding in waveform (mV)
-earm.ecal.adc.thres = 20.0
+#earm.ecal.adc.thres = 20.0
+earm.ecal.adc.thres = 5.0
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
 earm.ecal.adc.NSB = 3
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
@@ -468,7 +469,8 @@ earm.ecal.adc.NSA = 10
 # Number of bin for fixed Threshold if no Threshold Crossing is found
 earm.ecal.adc.FixThresBin = 14
 #Convert adc integral in pC to GeV
-earm.ecal.adc.gain = 0.001
+#earm.ecal.adc.gain = 0.001
+earm.ecal.adc.gain = 0.007
 #
 #earm.ecal.tdc.offset = 0.0
 #

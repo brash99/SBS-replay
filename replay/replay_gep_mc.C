@@ -52,7 +52,6 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   harm->AddDetector( new SBSGEMSpectrometerTracker("gemFT", "Front tracker") );
   harm->AddDetector( new SBSGEMSpectrometerTracker("gemFPP", "Focal Plane Polarimeter") );
   gHaApps->Add(harm);
-
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);
 
