@@ -648,9 +648,9 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 		    for( int m=0; m<=optics_order-i-j-k-l; m++ ){
 		      term[ipar] = pow( SBS_rx[0], m ) * pow( SBS_ry[0], l ) * pow( SBS_rth[0], k ) * pow( SBS_rph[0], j ) * pow( xtar, i );
 
-		      b_ytar( ipar ) += sbsytar_expect * term[ipar];
-		      b_thtar( ipar ) += sbsthtar_expect * term[ipar];
-		      b_phtar( ipar ) += sbsphtar_expect * term[ipar];
+		      b_ytar( ipar ) += (sbsytar_expect - SBS_ytar[0]) * term[ipar];
+		      b_thtar( ipar ) += (sbsthtar_expect - SBS_thtar[0]) * term[ipar];
+		      b_phtar( ipar ) += (sbsphtar_expect - SBS_phtar[0]) * term[ipar];
 		      b_pth( ipar ) += pp_etheta * T_ethetabendSBS * term[ipar];
 
 		      ipar++;
@@ -759,17 +759,17 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
       }
 
       //fix the constant terms:
-      if( ipar == 0 ){
-	Moptics(ipar,ipar) = 1.0;
-	for( int jpar=1; jpar<nterms; jpar++ ){
-	  Moptics(ipar,jpar) = 0.0;
-	  Moptics(jpar,ipar) = 0.0;
-	}
-	b_ytar(ipar) = ytar0;
-	b_thtar(ipar) = xptar0;
-	b_phtar(ipar) = yptar0;
-	b_pth(ipar) = pth0;
-      }
+      // if( ipar == 0 ){
+      // 	Moptics(ipar,ipar) = 1.0;
+      // 	for( int jpar=1; jpar<nterms; jpar++ ){
+      // 	  Moptics(ipar,jpar) = 0.0;
+      // 	  Moptics(jpar,ipar) = 0.0;
+      // 	}
+      // 	b_ytar(ipar) = ytar0;
+      // 	b_thtar(ipar) = xptar0;
+      // 	b_phtar(ipar) = yptar0;
+      // 	b_pth(ipar) = pth0;
+      // }
       
     }
     
@@ -985,6 +985,10 @@ void SBS_optics_Heep( const char *configfilename, const char *outfilename="optic
 	  }
 	}
 
+	T_ytarSBS_fit += SBS_ytar[0];
+	T_thtarSBS_fit += SBS_thtar[0];
+	T_phtarSBS_fit += SBS_phtar[0];
+	
 	TVector3 pphat_SBS_fit( T_thtarSBS_fit, T_phtarSBS_fit, 1.0 );
 	pphat_SBS_fit = pphat_SBS_fit.Unit();
 

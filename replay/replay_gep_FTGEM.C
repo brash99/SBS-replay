@@ -18,10 +18,10 @@
 // This replay script will only replay data from the GEp front trakcer i.e. first eight layers.
 
 
-void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firstevent=0, const char *fname_prefix="e1217004", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=1, Int_t parallelemode=0, Int_t singlemode=0, Int_t file_seg=0 )
+void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firstevent=0, const char *fname_prefix="gep5", UInt_t firstsegment=0, UInt_t maxsegments=1, Int_t pedestalmode=0, Int_t cmplots=1, Int_t parallelemode=0, Int_t singlemode=0, Int_t file_seg=0 )
 {	
 	//  gSystem->Load("libsbs.so");
-
+  
  	int stream = 0;
 
  	if(pedestalmode == 1)
@@ -72,23 +72,23 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
 
   pathlist.push_back(prefix);
 
-  // 
-  // 
-  //
   if( prefix != "/adaqeb2/data1" )
    pathlist.push_back( "/adaqeb2/data1" );
 
   if( prefix != "/data/raw" )
    pathlist.push_back( "/data/raw" );
 
-  if( prefix != "/adaq1/data1/sbs" )
-  pathlist.push_back( "/adaq1/data1/sbs" );
+  if( prefix != "/adaq1/data1" )
+  pathlist.push_back( "/adaq1/data1" );
 
   if( prefix != "/cache/halla/sbs/raw" )
   pathlist.push_back( "/cache/halla/sbs/raw" );
 
 	if( prefix != "/cache/halla/sbs/GEnRP/raw" )
 	pathlist.push_back("/cache/halla/sbs/GEnRP/raw");
+
+  if( prefix != "/cache/halla/sbs/GEp/raw" )
+	pathlist.push_back("/cache/halla/sbs/GEp/raw");
 
   for( int i=0; i<pathlist.size(); i++ ){
    	cout << "search paths = " << pathlist[i] << endl;
@@ -107,10 +107,14 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
     
 	  TString ftest(fname_prefix);
 
-	  if( ftest == "e1217004" )
-	  {
+	  if( ftest == "gep5" )
+    {
 		 	codafilename.Form("%s_%d.evio.0.%d", fname_prefix, runnum, segment);
 	  }
+    else if ( ftest == "gem" )
+    {
+      codafilename.Form("%s_%d.dat.0.%d", fname_prefix, runnum, segment);
+    }
     	
     segmentexists = false;
 
@@ -174,14 +178,25 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
 
   prefix = gSystem->Getenv("OUT_DIR");
 
-  TString outfilename;
+  TString outfilebase, outfilename;
+
+  if( nevents > 0 ){ 
+    outfilebase.Form( "%s_replayed_gepFTGEMs_%d_seg%d_%d_firstevent%d_nevent%d", fname_prefix, runnum, firstsegment, lastsegment, firstevent, nevents );
+    outfilename.Form( "%s/%s.root", prefix.Data(), outfilebase.Data());
+  }
+  else {
+    outfilebase.Form( "%s_fullreplay_gepFTGEMs_%d_seg%d_%d", fname_prefix, runnum, firstsegment, lastsegment );
+    outfilename.Form( "%s/%s.root", prefix.Data(), outfilebase.Data());
+  }
+
+  // TString outfilename;
   // outfilename.Form( "%s/%s_SBSGEMs_%d.evio.0.%d_%d.root", prefix.Data(), fname_prefix, runnum, firstsegment, lastsegment );
   /*TString fntest(fname_prefix);
   if( fntest == "eel125"){
     outfilename.Form( "%s/%s_replayed_%d_newDB.root", prefix.Data(), fname_prefix, runnum);
   }*/
   
- 	TString fntest(fname_prefix);
+ 	//TString fntest(fname_prefix);
   // 	if( fntest == "eel125"){
   //   	outfilename.Form( "%s/%s_replayed_%d_seg%d_%d.root", prefix.Data(), fname_prefix, runnum, firstsegment, lastsegment );
   //   } 
@@ -207,23 +222,25 @@ void replay_gep_FTGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteven
   //     outfilename.Form("%s/%s_SBSGEMs_%d.evio.0.%d.root", prefix.Data(), fname_prefix, runnum, firstsegment);
   //   } 
   // }
-  
-  if( fntest == "e1217004" )
-  {
-  	outfilename.Form("%s/%s_replayed_SBSGEMs_%d_seg_%d_%d.root", prefix.Data(), fname_prefix, runnum, firstsegment, lastsegment);
-  }
-  
+
+
+  // if( fntest == "e1217004" )
+  // {
+  // 	outfilename.Form("%s/%s_replayed_SBSGEMs_%d_seg_%d_%d.root", prefix.Data(), fname_prefix, runnum, firstsegment, lastsegment);
+  // }
 
   analyzer->SetVerbosity(2);
   analyzer->SetMarkInterval(100);
 
   analyzer->EnableBenchmarks();
-  
+   
   // Define the analysis parameters
   analyzer->SetEvent( event );
   analyzer->SetOutFile( outfilename.Data() );
   // File to record cuts accounting information
-  analyzer->SetSummaryFile("replay_BBGEM.log"); // optional
+
+  prefix = gSystem->Getenv("LOG_DIR");
+  analyzer->SetSummaryFile(Form("%s/%s.log", prefix.Data(), outfilebase.Data())); // optional
 
   prefix = gSystem->Getenv("SBS_REPLAY");
   prefix += "/replay/";

@@ -16,6 +16,7 @@
 #include "TMath.h"
 #include "TObjArray.h"
 #include "TObjString.h"
+#include "TTreeFormula.h"
 
 double PI = TMath::Pi();
 
@@ -143,6 +144,12 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   int fixz = 0; //fix z coordinate of layer if our data don't give us enough sensitivity to determine the z coordinates:
   int fixax=0, fixay=0, fixaz=0;
 
+
+  
+  //Flag to force tracks to project back to origin
+  // 0 = off
+  // 1 = BB (not yet implemented)
+  // 2 = SBS (fix target position at zero) 
   double sigma_hitpos=0.15e-3; //m
 
   double minchi2change = 2.e-4;
@@ -150,6 +157,8 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
   double minposchange = 5e-6; // 5 um
   double minanglechange = 5e-5; // 50 urad
 
+  double trackchi2_cut = 100.0;
+  
   TString prefix = "bb.uvagem";
 
   TChain *C = new TChain("T");
@@ -173,6 +182,8 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	if( ntokens >= 2 ){
 	  TString skey = ( (TObjString*) (*tokens)[0] )->GetString();
 
+
+	  
 	  if( skey == "prefix" ){
 	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	    prefix = stemp;
@@ -340,7 +351,9 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	    NMAX = stemp.Atoi();
 	  }
-	      
+
+	  
+	  
 	  // if( skey == "eventdisplay" && ntokens >= 2 ){
 	  //   TString sevdisplay = ( (TObjString*) (*tokens)[1] )->GetString();
 
@@ -425,10 +438,10 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 	  //   thresh_clustersum = scut.Atof();
 	  // }
 
-	  // if( skey == "trackchi2cut" && ntokens >= 2 ){
-	  //   TString scut = ( (TObjString*) (*tokens)[1] )->GetString();
-	  //   TrackChi2Cut = scut.Atof();
-	  // }
+	  if( skey == "trackchi2cut" && ntokens >= 2 ){
+	    TString scut = ( (TObjString*) (*tokens)[1] )->GetString();
+	    trackchi2_cut = scut.Atof();
+	  }
 	  
 	}
       }
@@ -447,13 +460,13 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
     return;   
   }
 
-  
+  TTreeFormula *GlobalCut = new TTreeFormula( "GlobalCut", globalcut, C );  
 
-  TEventList *elist = new TEventList("elist");
+  //  TEventList *elist = new TEventList("elist");
 
-  C->Draw(">>elist",globalcut);
+  //  C->Draw(">>elist",globalcut);
 
-  cout << "Number of events passing global cut = " << elist->GetN() << endl;
+  //  cout << "Number of events passing global cut = " << elist->GetN() << endl;
   
   //declare variables to hold tree branch addresses:
   double ntracks;
@@ -473,6 +486,22 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 
   C->SetBranchStatus("*",0);
 
+  C->SetBranchStatus("bb.tr.*",1);
+  C->SetBranchStatus("sbs.tr.*",1);
+
+  C->SetBranchStatus("e.kine.*",1);
+  C->SetBranchStatus("sbs.x_fcp",1);
+  C->SetBranchStatus("sbs.y_fcp",1);
+  C->SetBranchStatus("sbs.z_fcp",1);
+  C->SetBranchStatus("sbs.x_bcp",1);
+  C->SetBranchStatus("sbs.y_bcp",1);
+  C->SetBranchStatus("sbs.z_bcp",1);
+  C->SetBranchStatus("sbs.hcal.e",1);
+  C->SetBranchStatus("sbs.hcal.x",1);
+  C->SetBranchStatus("sbs.hcal.y",1);
+  
+  
+  
   C->SetBranchStatus( branchname.Format( "%s.track.ntrack", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.track.besttrack", prefix.Data() ), 1 );
   C->SetBranchStatus( branchname.Format( "%s.track.nhits", prefix.Data() ), 1 );
@@ -509,11 +538,14 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 
   //Declare branch addresses:
 
-  TString outrootfilename;
+  TString outrootfileprefix = outputfilename;
+  outrootfileprefix.ReplaceAll(".txt","");
+  
   TString rootprefix = prefix;
   rootprefix.ReplaceAll(".","_");
-  
-  outrootfilename.Form("GEM_align_results_%s.root",rootprefix.Data() );
+
+  TString outrootfilename;
+  outrootfilename.Form("%s_%s.root",outrootfileprefix.Data(), rootprefix.Data() );
 
   TFile *fout = new TFile( outrootfilename.Data(), "RECREATE" );
 
@@ -558,7 +590,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 
  
   //niter = 1;
-  double trackchi2_cut = 100.0;
+ 
   double oldchi2cut = trackchi2_cut;
   //double resid_cut = 100.0; //mm
   //double resid2_sum = 0.0;
@@ -595,7 +627,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
     //and then try to linearize the problem:
     //    int nparam = nmodules*6; //order of parameters is x0,y0,z0,ax,ay,az
     int nparam = 0;
-     //To simplify the special cases for alignment only or rotation only, we define separate matrices for alignment only or position only fits:
+    //To simplify the special cases for alignment only or rotation only, we define separate matrices for alignment only or position only fits:
     int nparam_rot = 0;
     int nparam_pos = 0;
     
@@ -685,6 +717,11 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
     //             2*(ylocal + modaz*xlocal + mody0 - (ytrack + yptrack*(modz0 + modax*ylocal - moday*xlocal))/sigy^2*-yptrack
     //dchi2/dax =
 
+    //In the straight-through analysis, we want to essentially force global position
+    //to be proportional to track direction; that means the point (xtar, ytar)=(0,0)
+    // is assumed to be on the track and, moreover, that the point
+    // (xHCAL,yHCAL,dHCAL) is also on the track.
+    
     // if( iter < niter ){
     //   offsetsonlyflag = true;
     // } else {
@@ -703,306 +740,330 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
     double ntracks_passed = 0.0;
     // double resid_sum = 0.0;
     // double nhit_sum = 0.0;
+
+    int treenum = -1, oldtreenum = -1;
     
-    while( C->GetEntry(elist->GetEntry(nevent++))){
+    while( C->GetEntry(nevent++)){
+
+      treenum = C->GetTreeNumber();
+      if( nevent == 1 || treenum != oldtreenum ){
+	GlobalCut->UpdateFormulaLeaves();
+	oldtreenum = treenum;
+      }
       
       if( nevent % 10000 == 0 ){
-	cout << "Linearized alignment, nevent = " << nevent << endl;
+	cout << "Linearized alignment, iteration, tree number, nevent = " << iter << ", " << treenum << ", "
+	     << nevent << endl;
       }
 
-      double trackchi2 = 0.0;
+      bool passed_global = GlobalCut->EvalInstance(0) != 0;
 
       int itrack=int(besttrack);
- 
-      //cout << itrack << endl;
-      
-      int NHITS = int(ngoodhits);
-      int nhitsonbesttrack=int( tracknhits[itrack] );
 
-      // cout << "N hits total = " << NHITS << ", hits on best track = " << nhitsonbesttrack << endl;
-      // cout << "best track x, y, x', y' = " << trackX[itrack] << ", " << trackY[itrack]
-      // 	   << ", " << trackXp[itrack] << ", " << trackYp[itrack] << endl;
-      // cout << "track chi2/ndf = " << trackChi2NDF[itrack] << endl;
+      int nhits_included = 0;
       
-      double xptrack,yptrack,xtrack,ytrack;
-      if( iter < 0 ){ //on first iteration use track from ROOT tree:
-	// xptrack = T->TrackXp;
-	// yptrack = T->TrackYp;
-	// xtrack = T->TrackX;
-	// ytrack = T->TrackY;
+      if( passed_global && itrack == 0 ){
+	double trackchi2 = 0.0;
 	
-	xtrack = trackX[itrack];
-	ytrack = trackY[itrack];
-	xptrack = trackXp[itrack];
-	yptrack = trackYp[itrack];
-	trackchi2 = trackChi2NDF[itrack];
 	
-      } else { //on ALL iterations, we re-fit the track using updated alignment parameters (or the initial ones from the config file)
-	double sumX=0.0, sumY = 0.0, sumZ = 0.0, sumXZ = 0.0, sumYZ = 0.0, sumZ2 = 0.0;
 	
+	//cout << itrack << endl;
+	
+	int NHITS = int(ngoodhits);
+	int nhitsonbesttrack=int( tracknhits[itrack] );
+	
+	// cout << "N hits total = " << NHITS << ", hits on best track = " << nhitsonbesttrack << endl;
+	// cout << "best track x, y, x', y' = " << trackX[itrack] << ", " << trackY[itrack]
+	// 	   << ", " << trackXp[itrack] << ", " << trackYp[itrack] << endl;
+	// cout << "track chi2/ndf = " << trackChi2NDF[itrack] << endl;
+      
+	double xptrack,yptrack,xtrack,ytrack;
+	if( iter < 0 ){ //on first iteration use track from ROOT tree:
+	  // xptrack = T->TrackXp;
+	  // yptrack = T->TrackYp;
+	  // xtrack = T->TrackX;
+	  // ytrack = T->TrackY;
+	
+	  xtrack = trackX[itrack];
+	  ytrack = trackY[itrack];
+	  xptrack = trackXp[itrack];
+	  yptrack = trackYp[itrack];
+	  trackchi2 = trackChi2NDF[itrack];
+	
+	} else { //on ALL iterations, we re-fit the track using updated alignment parameters (or the initial ones from the config file)
+	  double sumX=0.0, sumY = 0.0, sumZ = 0.0, sumXZ = 0.0, sumYZ = 0.0, sumZ2 = 0.0;
+
+	  
+	  
+	  for( int ihit=0; ihit<NHITS; ihit++ ){
+	    int tridx = int( hit_trackindex[ihit] );
+	    if( tridx == itrack ){
+	    
+	      int module = int( hit_module[ihit] );
+	    
+	      double ulocal = hit_ulocal[ihit]; //"U" local: generalized "X"
+	      double vlocal = hit_vlocal[ihit]; //"V" local: generalized "Y"
+
+	    
+	    
+	      double det = mod_Pxu[module]*mod_Pyv[module] - mod_Pyu[module]*mod_Pxv[module]; //cos( alphau) * sin(alphav) - sin(alphau)*cos(alphav) = 1 for alphau = 0, alphav = 90
+	    
+	      double xlocal = (mod_Pyv[module]*ulocal - mod_Pyu[module]*vlocal)/det; //(sin(alphav)*U - sin(alphau)*V)/det = U = X for alphau = 0, alphav = 90
+	      double ylocal = (mod_Pxu[module]*vlocal - mod_Pxv[module]*ulocal)/det; //(cos(alphau)*V - cos(alphav)*U)/det = V = Y for alphau = 0, alphav = 90
+
+	      // cout << "module, (uhit,vhit) = " << module << ", (" << ulocal << ", " << vlocal << "), (xhit, yhit) = ("
+	      // 	 << xlocal << ", " << ylocal << ")" << endl;
+	    
+	      TVector3 hitpos_local(xlocal,ylocal,0);
+	      TRotation R;
+	      R.RotateX( mod_ax[module] );
+	      R.RotateY( mod_ay[module] );
+	      R.RotateZ( mod_az[module] );
+	    
+	      TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
+	      TVector3 hitpos_global = modcenter_global + R*hitpos_local;
+
+	      // cout << "Global hit position = ";
+	      // hitpos_global.Print();
+	    
+	      double sigma = 0.1e-3;
+	      double weight = pow(sigma_hitpos,-2);
+	    
+	      weight = 1.0;
+	    
+	      sumX += hitpos_global.X()*weight;
+	      sumY += hitpos_global.Y()*weight;
+	      sumZ += hitpos_global.Z()*weight;
+	      sumXZ += hitpos_global.X()*hitpos_global.Z()*weight;
+	      sumYZ += hitpos_global.Y()*hitpos_global.Z()*weight;
+	      sumZ2 += pow(hitpos_global.Z(),2)*weight;	  
+
+	      nhits_included++;
+	      
+	      // nhitsonbesttrack++;
+	    }
+	  }
+	
+	  double nhits = nhitsonbesttrack;
+	
+	  double denom = (sumZ2*nhits - pow(sumZ,2));
+	  xptrack = (nhits*sumXZ - sumX*sumZ)/denom;
+	  yptrack = (nhits*sumYZ - sumY*sumZ)/denom;
+	  xtrack = (sumZ2*sumX - sumZ*sumXZ)/denom;
+	  ytrack = (sumZ2*sumY - sumZ*sumYZ)/denom;
+
+	}
+
+	Txtrack = xtrack;
+	Tytrack = ytrack;
+	Txptrack = xptrack;
+	Typtrack = yptrack;
+
+	Tnhits = nhitsonbesttrack;
+
+        nhits_included = 0;
+      
 	for( int ihit=0; ihit<NHITS; ihit++ ){
 	  int tridx = int( hit_trackindex[ihit] );
 	  if( tridx == itrack ){
-	    
+	  
 	    int module = int( hit_module[ihit] );
-	    
+
 	    double ulocal = hit_ulocal[ihit]; //"U" local: generalized "X"
 	    double vlocal = hit_vlocal[ihit]; //"V" local: generalized "Y"
-
-	    
-	    
+	  
 	    double det = mod_Pxu[module]*mod_Pyv[module] - mod_Pyu[module]*mod_Pxv[module]; //cos( alphau) * sin(alphav) - sin(alphau)*cos(alphav) = 1 for alphau = 0, alphav = 90
-	    
+	  
 	    double xlocal = (mod_Pyv[module]*ulocal - mod_Pyu[module]*vlocal)/det; //(sin(alphav)*U - sin(alphau)*V)/det = U = X for alphau = 0, alphav = 90
 	    double ylocal = (mod_Pxu[module]*vlocal - mod_Pxv[module]*ulocal)/det; //(cos(alphau)*V - cos(alphav)*U)/det = V = Y for alphau = 0, alphav = 90
 
-	    // cout << "module, (uhit,vhit) = " << module << ", (" << ulocal << ", " << vlocal << "), (xhit, yhit) = ("
-	    // 	 << xlocal << ", " << ylocal << ")" << endl;
-	    
 	    TVector3 hitpos_local(xlocal,ylocal,0);
 	    TRotation R;
 	    R.RotateX( mod_ax[module] );
 	    R.RotateY( mod_ay[module] );
 	    R.RotateZ( mod_az[module] );
-	    
+
+	    TRotation Rinv = R;
+	    Rinv.Invert();
+	  
 	    TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
 	    TVector3 hitpos_global = modcenter_global + R*hitpos_local;
 
-	    // cout << "Global hit position = ";
-	    // hitpos_global.Print();
-	    
-	    double sigma = 0.1e-3;
-	    double weight = pow(sigma_hitpos,-2);
-	    
-	    weight = 1.0;
-	    
-	    sumX += hitpos_global.X()*weight;
-	    sumY += hitpos_global.Y()*weight;
-	    sumZ += hitpos_global.Z()*weight;
-	    sumXZ += hitpos_global.X()*hitpos_global.Z()*weight;
-	    sumYZ += hitpos_global.Y()*hitpos_global.Z()*weight;
-	    sumZ2 += pow(hitpos_global.Z(),2)*weight;	  
+	    trackchi2 += ( pow( hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z()), 2 ) +
+			   pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(sigma_hitpos,-2);
 
-	    // nhitsonbesttrack++;
+	    //for consistency with how we calculate residuals, should we change the chi2 calculation to be in terms of the u and v residuals instead of X and Y? 
+	  
+	    TVector3 trackpos_global( xtrack + xptrack * hitpos_global.Z(), ytrack + yptrack * hitpos_global.Z(), hitpos_global.Z() );
+	  
+	    TVector3 trackpos_local = Rinv * ( trackpos_global - modcenter_global );
+
+	    double utrack = trackpos_local.X()*mod_Pxu[module] + trackpos_local.Y()*mod_Pyu[module];
+	    double vtrack = trackpos_local.X()*mod_Pxv[module] + trackpos_local.Y()*mod_Pyv[module];
+
+	    //	  trackchi2 += ( pow( ulocal - utrack, 2 ) + pow( vlocal - vtrack, 2 ) ) * pow(sigma_hitpos, -2);
+	  
+	    Tuhit[ihit] = ulocal;
+	    Tvhit[ihit] = vlocal;
+	    Txhit[ihit] = hitpos_global.X();
+	    Tyhit[ihit] = hitpos_global.Y();
+	    Tzhit[ihit] = hitpos_global.Z();
+	    Txresid[ihit] = hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z() );
+	    Tyresid[ihit] = hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z() );
+	    Turesid[ihit] = ulocal - utrack;
+	    Tvresid[ihit] = vlocal - vtrack;
+	    Thitlayer[ihit] = mod_layer[module];
+	    Thitmodule[ihit] = module;
+
+	    nhits_included++;
+	    
 	  }
-	}
-	
-	double nhits = nhitsonbesttrack;
-	
-	double denom = (sumZ2*nhits - pow(sumZ,2));
-	xptrack = (nhits*sumXZ - sumX*sumZ)/denom;
-	yptrack = (nhits*sumYZ - sumY*sumZ)/denom;
-	xtrack = (sumZ2*sumX - sumZ*sumXZ)/denom;
-	ytrack = (sumZ2*sumY - sumZ*sumYZ)/denom;
-
-      }
-
-      Txtrack = xtrack;
-      Tytrack = ytrack;
-      Txptrack = xptrack;
-      Typtrack = yptrack;
-
-      Tnhits = nhitsonbesttrack;
-      
-      
-      for( int ihit=0; ihit<NHITS; ihit++ ){
-	int tridx = int( hit_trackindex[ihit] );
-	if( tridx == itrack ){
-	  
-	  int module = int( hit_module[ihit] );
-
-	  double ulocal = hit_ulocal[ihit]; //"U" local: generalized "X"
-	  double vlocal = hit_vlocal[ihit]; //"V" local: generalized "Y"
-	  
-	  double det = mod_Pxu[module]*mod_Pyv[module] - mod_Pyu[module]*mod_Pxv[module]; //cos( alphau) * sin(alphav) - sin(alphau)*cos(alphav) = 1 for alphau = 0, alphav = 90
-	  
-	  double xlocal = (mod_Pyv[module]*ulocal - mod_Pyu[module]*vlocal)/det; //(sin(alphav)*U - sin(alphau)*V)/det = U = X for alphau = 0, alphav = 90
-	  double ylocal = (mod_Pxu[module]*vlocal - mod_Pxv[module]*ulocal)/det; //(cos(alphau)*V - cos(alphav)*U)/det = V = Y for alphau = 0, alphav = 90
-
-	  TVector3 hitpos_local(xlocal,ylocal,0);
-	  TRotation R;
-	  R.RotateX( mod_ax[module] );
-	  R.RotateY( mod_ay[module] );
-	  R.RotateZ( mod_az[module] );
-
-	  TRotation Rinv = R;
-	  Rinv.Invert();
-	  
-	  TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
-	  TVector3 hitpos_global = modcenter_global + R*hitpos_local;
-
-	  trackchi2 += ( pow( hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z()), 2 ) +
-	   		 pow( hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z()), 2 ) )*pow(sigma_hitpos,-2);
-
-	  //for consistency with how we calculate residuals, should we change the chi2 calculation to be in terms of the u and v residuals instead of X and Y? 
-	  
-	  TVector3 trackpos_global( xtrack + xptrack * hitpos_global.Z(), ytrack + yptrack * hitpos_global.Z(), hitpos_global.Z() );
-	  
-	  TVector3 trackpos_local = Rinv * ( trackpos_global - modcenter_global );
-
-	  double utrack = trackpos_local.X()*mod_Pxu[module] + trackpos_local.Y()*mod_Pyu[module];
-	  double vtrack = trackpos_local.X()*mod_Pxv[module] + trackpos_local.Y()*mod_Pyv[module];
-
-	  //	  trackchi2 += ( pow( ulocal - utrack, 2 ) + pow( vlocal - vtrack, 2 ) ) * pow(sigma_hitpos, -2);
-	  
-	  Tuhit[ihit] = ulocal;
-	  Tvhit[ihit] = vlocal;
-	  Txhit[ihit] = hitpos_global.X();
-	  Tyhit[ihit] = hitpos_global.Y();
-	  Tzhit[ihit] = hitpos_global.Z();
-	  Txresid[ihit] = hitpos_global.X() - (xtrack + xptrack*hitpos_global.Z() );
-	  Tyresid[ihit] = hitpos_global.Y() - (ytrack + yptrack*hitpos_global.Z() );
-	  Turesid[ihit] = ulocal - utrack;
-	  Tvresid[ihit] = vlocal - vtrack;
-	  Thitlayer[ihit] = mod_layer[module];
-	  Thitmodule[ihit] = module;
-	  
-	}
 		      
-      }
+	}
 	// cout << "Old track (xp,yp,x,y)=(" << T->TrackXp << ", " << T->TrackYp << ", " << T->TrackX << ", " << T->TrackY
 	//      << ")" << endl;
 	// cout << "New track (xp,yp,x,y)=(" << xptrack << ", " << yptrack << ", " << xtrack << ", " << ytrack << ")" << endl;
-      double dof = double( 2*tracknhits[itrack] - 4 );
-      trackchi2 /= dof;
+	double dof = double( 2*tracknhits[itrack] - 4 );
+	trackchi2 /= dof;
 
-      Tchi2ndf = trackchi2;
+	Tchi2ndf = trackchi2;
       
       
-      if( trackchi2 <= trackchi2_cut ){
-	if( nevent < NMAX && iter == niter ){ //fill TRACK arrays 
-	  NTRACKS++;
-	  XTRACK.push_back( xtrack );
-	  XPTRACK.push_back( xptrack );
-	  YTRACK.push_back( ytrack );
-	  YPTRACK.push_back( yptrack );
-	  TRACKNHITS.push_back( nhitsonbesttrack );
-	}
+	if( trackchi2 <= trackchi2_cut && nhits_included == nhitsonbesttrack){
+	  if( nevent < NMAX && iter == niter ){ //fill TRACK arrays 
+	    NTRACKS++;
+	    XTRACK.push_back( xtrack );
+	    XPTRACK.push_back( xptrack );
+	    YTRACK.push_back( ytrack );
+	    YPTRACK.push_back( yptrack );
+	    TRACKNHITS.push_back( nhitsonbesttrack );
+	  }
 
-	if( iter == niter ){
-	  Tout->Fill();
-	}
+	  if( iter == niter ){
+	    Tout->Fill();
+	  }
 	
-	//we want to modify this to compute the CHANGE in module parameters required to minimize chi^2;
-	// so the starting parameters are taken as given.
-	// x_0 --> x_0 + dx0
-	// y_0 --> y_0 + dy0
-	// z_0 --> z_0 + dz0
-	// ax --> ax + dax
-	// ay --> ay + day
-	// az --> az + daz
-	// The coefficients of the changes in the parameters should stay the same as those of the parameters themselves, but the RHS needs modified:
-	vector<int> HITMODTEMP;
-	vector<double> HITXTEMP,HITYTEMP;
+	  //we want to modify this to compute the CHANGE in module parameters required to minimize chi^2;
+	  // so the starting parameters are taken as given.
+	  // x_0 --> x_0 + dx0
+	  // y_0 --> y_0 + dy0
+	  // z_0 --> z_0 + dz0
+	  // ax --> ax + dax
+	  // ay --> ay + day
+	  // az --> az + daz
+	  // The coefficients of the changes in the parameters should stay the same as those of the parameters themselves, but the RHS needs modified:
+	  vector<int> HITMODTEMP;
+	  vector<double> HITXTEMP,HITYTEMP;
 
       
       
-	for( int ihit=0; ihit<NHITS; ihit++ ){
-	  int tridx = int( hit_trackindex[ihit] );
-	  if( tridx == itrack ){
+	  for( int ihit=0; ihit<NHITS; ihit++ ){
+	    int tridx = int( hit_trackindex[ihit] );
+	    if( tridx == itrack ){
 	  
-	    int module = int( hit_module[ihit] );
+	      int module = int( hit_module[ihit] );
 	  
-	    double ulocal = hit_ulocal[ihit]; //"U" local: generalized "X"
-	    double vlocal = hit_vlocal[ihit]; //"V" local: generalized "Y"
+	      double ulocal = hit_ulocal[ihit]; //"U" local: generalized "X"
+	      double vlocal = hit_vlocal[ihit]; //"V" local: generalized "Y"
 
-	    double det = mod_Pxu[module]*mod_Pyv[module] - mod_Pyu[module]*mod_Pxv[module]; //cos( alphau) * sin(alphav) - sin(alphau)*cos(alphav) = 1 for alphau = 0, alphav = 90
+	      double det = mod_Pxu[module]*mod_Pyv[module] - mod_Pyu[module]*mod_Pxv[module]; //cos( alphau) * sin(alphav) - sin(alphau)*cos(alphav) = 1 for alphau = 0, alphav = 90
 	    
-	    double xlocal = (mod_Pyv[module]*ulocal - mod_Pyu[module]*vlocal)/det; //(sin(alphav)*U - sin(alphau)*V)/det = U = X for alphau = 0, alphav = 90
-	    double ylocal = (mod_Pxu[module]*vlocal - mod_Pxv[module]*ulocal)/det; //(cos(alphau)*V - cos(alphav)*U)/det = V = Y for alphau = 0, alphav = 90
+	      double xlocal = (mod_Pyv[module]*ulocal - mod_Pyu[module]*vlocal)/det; //(sin(alphav)*U - sin(alphau)*V)/det = U = X for alphau = 0, alphav = 90
+	      double ylocal = (mod_Pxu[module]*vlocal - mod_Pxv[module]*ulocal)/det; //(cos(alphau)*V - cos(alphav)*U)/det = V = Y for alphau = 0, alphav = 90
 	    
-	    //On subsequent iterations after the first, we want to fit the changes in the parameters relative to the previous iteration. How can we do this properly?
-	    //We need to come up with a new definition for the "local" coordinates that properly accounts for the new coordinate system:
-	    //We already re-fit the track; this means that 
+	      //On subsequent iterations after the first, we want to fit the changes in the parameters relative to the previous iteration. How can we do this properly?
+	      //We need to come up with a new definition for the "local" coordinates that properly accounts for the new coordinate system:
+	      //We already re-fit the track; this means that 
 	    
-	    if( nevent < NMAX && iter == niter ){
-	      HITMODTEMP.push_back( module );
-	      HITXTEMP.push_back( ulocal );
-	      HITYTEMP.push_back( vlocal );
-	    }
-	    TVector3 hitpos_local(xlocal,ylocal,0);
-	    TRotation R;
-	    R.RotateX( mod_ax[module] );
-	    R.RotateY( mod_ay[module] );
-	    R.RotateZ( mod_az[module] );
-	    
-	    TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
-	    TVector3 hitpos_global = modcenter_global + R*hitpos_local;
-	    
-	    double sigma = 0.1e-3;
-	    double weight = pow(sigma_hitpos,-2);
-	    
-	    // int ipar_fix[3] = {3*module,3*module+1,3*module+2};
-	    
-	    // if( refmod >= 0 && refmod < nmodules ){
-	    //   if( module > refmod ){
-	    //   // 	ipar_x0 = 6*(module-1);
-	    //   // 	ipar_y0 = 6*(module-1)+1;
-	    //   // 	ipar_z0 = 6*(module-1)+2;
-	    //   // 	ipar_ax = 6*(module-1)+3;
-	    //   // 	ipar_ay = 6*(module-1)+4;
-	    //   // 	ipar_az = 6*(module-1)+5;
-	    
-	    //     ipar_fix[0] = 3*(module-1);
-	    //     ipar_fix[1] = 3*(module-1)+1;
-	    //     ipar_fix[2] = 3*(module-1)+2;
-	    //     //   }
-	    //     // }
-	    //   }
-	    // }
-	    
-	    
-	    
-	    double xcoeff[6] = {1.0, 0.0, -xptrack, -xptrack*ylocal, xptrack*xlocal, -ylocal };
-	    double ycoeff[6] = {0.0, 1.0, -yptrack, -yptrack*ylocal, yptrack*xlocal, xlocal };
-	    
-	    if(freemodindex.find(module) != freemodindex.end()){
-	      int modidx = freemodindex[module];
-	      
-	      int ipar_x0 = 6*modidx;
-	      int ipar_y0 = 6*modidx+1;
-	      int ipar_z0 = 6*modidx+2;
-	      int ipar_ax = 6*modidx+3;
-	      int ipar_ay = 6*modidx+4;
-	      int ipar_az = 6*modidx+5;
-	      
-	      int ipar_fix[3] = { 3*modidx, 3*modidx+1, 3*modidx+2 };
-	      
-	      int ipar[6] = {ipar_x0, ipar_y0, ipar_z0, ipar_ax, ipar_ay, ipar_az };
-	      
-	      for( int i=0; i<6; i++ ){
-		for( int j=0; j<6; j++ ){
-		  M(ipar[i], ipar[j]) += weight*(xcoeff[i]*xcoeff[j] + ycoeff[i]*ycoeff[j]);
-		}
-		b(ipar[i]) += weight*(xcoeff[i]*(xtrack - xlocal) + ycoeff[i]*(ytrack-ylocal));
-		//b(ipar[i]) += xcoeff[i]*xRHS + ycoeff[i]*yRHS;
+	      if( nevent < NMAX && iter == niter ){
+		HITMODTEMP.push_back( module );
+		HITXTEMP.push_back( ulocal );
+		HITYTEMP.push_back( vlocal );
 	      }
+	      TVector3 hitpos_local(xlocal,ylocal,0);
+	      TRotation R;
+	      R.RotateX( mod_ax[module] );
+	      R.RotateY( mod_ay[module] );
+	      R.RotateZ( mod_az[module] );
+	    
+	      TVector3 modcenter_global( mod_x0[module],mod_y0[module],mod_z0[module] );
+	      TVector3 hitpos_global = modcenter_global + R*hitpos_local;
+	    
+	      double sigma = 0.1e-3;
+	      double weight = pow(sigma_hitpos,-2);
+	    
+	      // int ipar_fix[3] = {3*module,3*module+1,3*module+2};
+	    
+	      // if( refmod >= 0 && refmod < nmodules ){
+	      //   if( module > refmod ){
+	      //   // 	ipar_x0 = 6*(module-1);
+	      //   // 	ipar_y0 = 6*(module-1)+1;
+	      //   // 	ipar_z0 = 6*(module-1)+2;
+	      //   // 	ipar_ax = 6*(module-1)+3;
+	      //   // 	ipar_ay = 6*(module-1)+4;
+	      //   // 	ipar_az = 6*(module-1)+5;
+	    
+	      //     ipar_fix[0] = 3*(module-1);
+	      //     ipar_fix[1] = 3*(module-1)+1;
+	      //     ipar_fix[2] = 3*(module-1)+2;
+	      //     //   }
+	      //     // }
+	      //   }
+	      // }
+	    
+	    
+	    
+	      double xcoeff[6] = {1.0, 0.0, -xptrack, -xptrack*ylocal, xptrack*xlocal, -ylocal };
+	      double ycoeff[6] = {0.0, 1.0, -yptrack, -yptrack*ylocal, yptrack*xlocal, xlocal };
+	    
+	      if(freemodindex.find(module) != freemodindex.end()){
+		int modidx = freemodindex[module];
 	      
-	      for( int i=0; i<3; i++ ){
-		for( int j=0; j<3; j++ ){
-		  Mpos( ipar_fix[i], ipar_fix[j] ) += weight*(xcoeff[i]*xcoeff[j]+ycoeff[i]*ycoeff[j]);
-		  Mrot( ipar_fix[i], ipar_fix[j] ) += weight*(xcoeff[i+3]*xcoeff[j+3]+ycoeff[i+3]*ycoeff[j+3]);
+		int ipar_x0 = 6*modidx;
+		int ipar_y0 = 6*modidx+1;
+		int ipar_z0 = 6*modidx+2;
+		int ipar_ax = 6*modidx+3;
+		int ipar_ay = 6*modidx+4;
+		int ipar_az = 6*modidx+5;
+	      
+		int ipar_fix[3] = { 3*modidx, 3*modidx+1, 3*modidx+2 };
+	      
+		int ipar[6] = {ipar_x0, ipar_y0, ipar_z0, ipar_ax, ipar_ay, ipar_az };
+	      
+		for( int i=0; i<6; i++ ){
+		  for( int j=0; j<6; j++ ){
+		    M(ipar[i], ipar[j]) += weight*(xcoeff[i]*xcoeff[j] + ycoeff[i]*ycoeff[j]);
+		  }
+		  b(ipar[i]) += weight*(xcoeff[i]*(xtrack - xlocal) + ycoeff[i]*(ytrack-ylocal));
+		  //b(ipar[i]) += xcoeff[i]*xRHS + ycoeff[i]*yRHS;
 		}
-		//For the positional offsets, we need to subtract the sum of all alphax, alphay, alphaz dependent terms from the RHS:
-		// so this is like -xcoeff[i]*(xcoeff[3]*ax + xcoeff[4]*ay + xcoeff[5]*az)-ycoeff[i]*(ycoeff[3]*ax+ycoeff[4]*ay+ycoeff[5]*az)
-		//For the rotational offsets, the opposite is true
-		bpos( ipar_fix[i] ) += weight*( xcoeff[i]*(xtrack-xlocal - (xcoeff[3]*mod_ax[module]+xcoeff[4]*mod_ay[module]+xcoeff[5]*mod_az[module])) +
-						ycoeff[i]*(ytrack-ylocal - (ycoeff[3]*mod_ax[module]+ycoeff[4]*mod_ay[module]+ycoeff[5]*mod_az[module])) );
-		brot( ipar_fix[i] ) += weight*( xcoeff[i+3]*(xtrack-xlocal - (xcoeff[0]*mod_x0[module]+xcoeff[1]*mod_y0[module]+xcoeff[2]*mod_z0[module])) +
-						ycoeff[i+3]*(ytrack-ylocal - (ycoeff[0]*mod_x0[module]+ycoeff[1]*mod_y0[module]+ycoeff[2]*mod_z0[module])) );
+	      
+		for( int i=0; i<3; i++ ){
+		  for( int j=0; j<3; j++ ){
+		    Mpos( ipar_fix[i], ipar_fix[j] ) += weight*(xcoeff[i]*xcoeff[j]+ycoeff[i]*ycoeff[j]);
+		    Mrot( ipar_fix[i], ipar_fix[j] ) += weight*(xcoeff[i+3]*xcoeff[j+3]+ycoeff[i+3]*ycoeff[j+3]);
+		  }
+		  //For the positional offsets, we need to subtract the sum of all alphax, alphay, alphaz dependent terms from the RHS:
+		  // so this is like -xcoeff[i]*(xcoeff[3]*ax + xcoeff[4]*ay + xcoeff[5]*az)-ycoeff[i]*(ycoeff[3]*ax+ycoeff[4]*ay+ycoeff[5]*az)
+		  //For the rotational offsets, the opposite is true
+		  bpos( ipar_fix[i] ) += weight*( xcoeff[i]*(xtrack-xlocal - (xcoeff[3]*mod_ax[module]+xcoeff[4]*mod_ay[module]+xcoeff[5]*mod_az[module])) +
+						  ycoeff[i]*(ytrack-ylocal - (ycoeff[3]*mod_ax[module]+ycoeff[4]*mod_ay[module]+ycoeff[5]*mod_az[module])) );
+		  brot( ipar_fix[i] ) += weight*( xcoeff[i+3]*(xtrack-xlocal - (xcoeff[0]*mod_x0[module]+xcoeff[1]*mod_y0[module]+xcoeff[2]*mod_z0[module])) +
+						  ycoeff[i+3]*(ytrack-ylocal - (ycoeff[0]*mod_x0[module]+ycoeff[1]*mod_y0[module]+ycoeff[2]*mod_z0[module])) );
+		}
 	      }
 	    }
 	  }
-	}
 	  
-	if( nevent < NMAX && iter == niter ){
-	  HITMOD.push_back( HITMODTEMP );
-	  HITX.push_back( HITXTEMP );
-	  HITY.push_back( HITYTEMP );
-	}
+	  if( nevent < NMAX && iter == niter ){
+	    HITMOD.push_back( HITMODTEMP );
+	    HITX.push_back( HITXTEMP );
+	    HITY.push_back( HITYTEMP );
+	  }
 	
-	trackchi2_sum += trackchi2;
-	ntracks_passed += 1.0;
+	  trackchi2_sum += trackchi2;
+	  ntracks_passed += 1.0;
+	}
       }
     }
 
@@ -1331,7 +1392,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
       maxanglechange = fabs( anglechange.Z() ) > maxanglechange ? fabs( anglechange.Z() ) : maxanglechange;
     }
 
-    cout << "iteration " << iter << ", max position change = " << maxposchange << " mm, max angle change = " << maxanglechange << " rad" << endl;
+    cout << "iteration " << iter << ", max position change = " << maxposchange << " m, max angle change = " << maxanglechange << " rad" << endl;
     
   }
 
@@ -1437,7 +1498,7 @@ void GEM_align( const char *configfilename, const char *outputfilename="newGEMal
 
   
   
-  elist->Delete();
+  //  elist->Delete();
 
   fout->Write();
   fout->Close();

@@ -1,7 +1,8 @@
 bb.tdctrig.detmap = 
   5     2     122    127     -1 ## 
 
-bb.tdctrig.chanmap =  0 1  2  3  4  5   
+bb.tdctrig.chanmap =  0 1  2  3  4  5
+
 ## Number of rows and columns
 bb.tdctrig.ncols =  6
 bb.tdctrig.nrows = 1

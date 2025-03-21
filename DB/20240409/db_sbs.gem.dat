@@ -294,9 +294,9 @@ sbs.gem.m33.angle = 90 0 0
 # # Set to nominal sizes
 # Module sizes: INFN XY = (0.512 0.4096 0.001) , UVA XY = (0.512 0.6144 0.001)
 
-sbs.gem.m0.size = 1.5 0.4 0.001
+sbs.gem.m0.size = 1.552 0.4028 0.001
 
-sbs.gem.m1.size = 1.5 0.4 0.001
+sbs.gem.m1.size = 1.552 0.4028 0.001
 
 sbs.gem.m2.size = 0.512 0.6144 0.001
 sbs.gem.m3.size = 0.512 0.6144 0.001
@@ -342,8 +342,20 @@ sbs.gem.m33.size = 0.512 0.6144 0.001
 
 # For the UVA X/Y modules the "X" axis coincides with the direction of transport coordinates "X" axis. For GEM layers that are oriented so that the beam is hitting the R/O board first, "Y" axis is rotaed by -90 degrees w.r.t transport coordinates "X" axis and for the GEM layers that are oriented so that the beam is hitting the gas window first, "Y" axis is rotaded by +90 degrees w.r.t transport coordinates "X" axis (GEM layer "Y" axis and transport coordinate "Y" axis coincides with each other).
 
+# notes on X/W strip orientation:
+# X (W) strips are on the "bottom" ("top") of the readout board.
+# For both X and W strips, the "pos" index in the chanmap runs from bottom to top
+# Whether the beam hits gas window or readout board first, the X ("u") strip angles should be 180 degrees for both, since the strips basically measure -X
+# IF I have interpreted the schematics correctly and the strip angles are as defined below, then the schematic is as viewed from downstream,
+# and The "W" strips for layer 0 measure the
+# coordinate W0 = -(X+Y)/sqrt(2), and for layer 1 the "W" strips measure W1 = -(X-Y)/sqrt(2);
+# Layer 0: PxV = cos(135) = -1/sqrt(2), PyV = sin(135) = +1/sqrt(2): "W" = -X/sqrt(2) + Y/sqrt(2)
+# Layer 1: PxV = cos(-135) = -1/sqrt(2), PyV = sin(-135) = -1/sqrt(2): "W" = -X/sqrt(2) - Y/sqrt(2)
+# this would naively appear to be opposite the convention implied by the comments below; that or I'm interpreting the
+# mapping schematic incorrectly
+
 #Layer 0 and 1 needs to be confirmed 
-# Layer 0 (UVAXW) - beam hits gas window first 
+# Layer 0 (UVAXW) - beam hits gas window first
 sbs.gem.m0.uangle = 180.0
 sbs.gem.m0.vangle = 135.0
 
@@ -852,63 +864,77 @@ sbs.gem.modulegain = 1
 
 sbs.gem.plot_event_info = 0
 
+# AJRP 2/17/2025:
+# default alignment with 100% field, after fixing front and back layers based on zero-field data:
 
-# Alignment after chi2 40
-#sbs.gem.m0.position =               0               0               0
-#sbs.gem.m0.angle =               0               0               0
-#sbs.gem.m1.position =        0.463498      -0.00157892    -0.152659
-#sbs.gem.m1.angle =       -0.1736784     -0.179349      -0.09099257
-#sbs.gem.m2.position =      -0.5372868    0.0003735703    -0.001918614
-#sbs.gem.m2.angle =      -0.2110887      -0.2326176      -0.1388633
-#sbs.gem.m3.position =       0.4634978    -0.001578925       0.1526585
-#sbs.gem.m3.angle =      -0.1736797      -0.1799027     -0.09099347
-#sbs.gem.m4.position =      -0.0726951    -0.001436657        0.150708
-#sbs.gem.m4.angle =      -0.1984305      -0.2007298       0.1075617
-#sbs.gem.m5.position =      -0.6083074    -0.001046005       0.1474166
-#sbs.gem.m5.angle =      -0.2075192      -0.5288797      -0.2270465
-#sbs.gem.m6.position =      -0.7846505    -0.001508583       0.2768335
-#sbs.gem.m6.angle =        -0.17146      -0.2454972     -0.02560937
-#sbs.gem.m7.position =      -0.2753438    -0.002195403       0.2374986
-#sbs.gem.m7.angle =      -0.2248298      -0.3330456     -0.03943421
-#sbs.gem.m8.position =       0.2381732    -0.002409123       0.2819204
-#sbs.gem.m8.angle =     -0.03492949      -0.1363746     -0.02161862
-#sbs.gem.m9.position =       0.7471455    -0.003229248       0.2412632
-#sbs.gem.m9.angle =      -0.1810249      -0.3279095      0.04508918
-#sbs.gem.m10.position =      -0.7831765   -0.0009911551       0.3564045
-#sbs.gem.m10.angle =       -0.305266      -0.2524874      0.01318631
-#sbs.gem.m11.position =      -0.2724617   -5.092704e-05       0.3259518
-#sbs.gem.m11.angle =      -0.1495507      -0.2804575     -0.07591168
-#sbs.gem.m12.position =       0.2409447    -0.002097339        0.361031
-#sbs.gem.m12.angle =      -0.2229843      -0.2020404       0.2685719
-#sbs.gem.m13.position =       0.7488594    -0.000713429       0.3303187
-#sbs.gem.m13.angle =      -0.1528582      -0.1889174     -0.05254339
-#sbs.gem.m14.position =      -0.7725119    -0.001744007       0.5845172
-#sbs.gem.m14.angle =      -0.2306639       -0.495937      0.02053453
-#sbs.gem.m15.position =      -0.2615518   -0.0006883923       0.5524094
-#sbs.gem.m15.angle =      -0.1778804      -0.5140036       0.1788793
-#sbs.gem.m16.position =        0.250754     0.000443014       0.5903507
-#sbs.gem.m16.angle =      -0.1234516      -0.5190474      0.09118659
-#sbs.gem.m17.position =       0.7599085    0.0002937557       0.5605311
-#sbs.gem.m17.angle =      -0.0672784      -0.4705384      0.02486386
-#sbs.gem.m18.position =      -0.7694405   -0.0009808008       0.6665076
-#sbs.gem.m18.angle =      -0.2005919      -0.5634977       0.0126898
-#sbs.gem.m19.position =      -0.2599499    -0.001554618       0.6293624
-#sbs.gem.m19.angle =      -0.2328775      -0.4081877     -0.03620725
-#sbs.gem.m20.position =       0.2532819    2.584934e-05         0.67704
-#sbs.gem.m20.angle =      -0.1533822       -0.440692      0.03625809
-#sbs.gem.m21.position =       0.7619748   -0.0004080341       0.6375848
-#sbs.gem.m21.angle =       -0.213483      -0.4341106      0.03921945
-#sbs.gem.m22.position =      -0.7620814   -4.986055e-05       0.7961825
-#sbs.gem.m22.angle =       -0.351212      -0.3376964    -0.006837592
-#sbs.gem.m23.position =      -0.2541025   -0.0005014531       0.7579465
-#sbs.gem.m23.angle =      -0.2488561      -0.3228679     -0.02736413
-#sbs.gem.m24.position =       0.2607315    0.0009997289       0.8030369
-#sbs.gem.m24.angle =      -0.3886149        -0.35754     -0.08875549
-#sbs.gem.m25.position =       0.7682218    -0.001729283       0.7638991
-#sbs.gem.m25.angle =      -0.3312622      -0.3273019     -0.03308135
-
-
-
+sbs.gem.m0.position =    -0.002141713     -0.01548308    -0.002211918
+sbs.gem.m0.angle =       0.1677907      0.07055288      -0.1594076
+sbs.gem.m1.position =    -0.002731495     -0.01493489      0.06597573
+sbs.gem.m1.angle =       0.2671522       0.1831089      -0.1878431
+sbs.gem.m2.position =      -0.7635144   -0.0004512094       0.2342269
+sbs.gem.m2.angle =      0.08853744        0.179377     0.001836038
+sbs.gem.m3.position =      -0.2519682   -0.0006252508       0.1894398
+sbs.gem.m3.angle =     0.001816958      0.05381564     -0.01945202
+sbs.gem.m4.position =        0.259899    -0.001077052       0.2321659
+sbs.gem.m4.angle =       0.1200141       0.1031629     -0.02348125
+sbs.gem.m5.position =        0.770834    -0.001612467       0.1873834
+sbs.gem.m5.angle =       0.1040319      -0.3125352      0.09315088
+sbs.gem.m6.position =      -0.7654849   -0.0004380563       0.3135085
+sbs.gem.m6.angle =    -0.001941516     -0.01266919      0.03445443
+sbs.gem.m7.position =      -0.2532374    0.0009269035       0.2794538
+sbs.gem.m7.angle =      0.06333188       -0.104131     -0.05443909
+sbs.gem.m8.position =       0.2592416    -0.001369047       0.3129732
+sbs.gem.m8.angle =      0.09735239      -0.4308398       0.2580358
+sbs.gem.m9.position =       0.7687501    0.0003364336       0.2772365
+sbs.gem.m9.angle =       0.3301987       -0.509101   -0.0001805054
+sbs.gem.m10.position =      -0.7653112   -0.0001917618       0.5425019
+sbs.gem.m10.angle =     -0.00143217      -0.1643609       0.0704554
+sbs.gem.m11.position =      -0.2527068     0.001376043       0.5082158
+sbs.gem.m11.angle =     -0.04657638      -0.5979499       0.1764753
+sbs.gem.m12.position =       0.2587296      0.00256349       0.5465972
+sbs.gem.m12.angle =      0.05841173      -0.5603759       0.1070313
+sbs.gem.m13.position =       0.7699501     0.002885302        0.509299
+sbs.gem.m13.angle =       0.1475217      -0.2180021       0.1017191
+sbs.gem.m14.position =      -0.7662127    0.0001579997       0.6263677
+sbs.gem.m14.angle =      0.04628008      -0.2463362      0.06170555
+sbs.gem.m15.position =      -0.2546089    0.0001598454       0.5866109
+sbs.gem.m15.angle =    -0.009787153      -0.7905113     0.004704292
+sbs.gem.m16.position =       0.2573058     0.001663943       0.6352016
+sbs.gem.m16.angle =       0.1610726      -0.7601175      0.06106773
+sbs.gem.m17.position =       0.7687495     0.001781015       0.5861323
+sbs.gem.m17.angle =     -0.07152286      -0.2034422       0.1312161
+sbs.gem.m18.position =      -0.7666177    -0.003114391       0.7558672
+sbs.gem.m18.angle =      0.03514022        0.191799      0.04183716
+sbs.gem.m19.position =      -0.2544986    -0.001738683       0.7175022
+sbs.gem.m19.angle =     -0.03645274      -0.8296661      0.02221774
+sbs.gem.m20.position =       0.2592651   -0.0003626433       0.7642392
+sbs.gem.m20.angle =       0.0195353      -0.4661414     -0.06864222
+sbs.gem.m21.position =       0.7698194    -0.002619846       0.7120818
+sbs.gem.m21.angle =       0.1320096       0.4869841      0.05673364
+sbs.gem.m22.position =      -0.7672871     0.001533482       0.8756434
+sbs.gem.m22.angle =     -0.05272527      -0.2724242      0.06670993
+sbs.gem.m23.position =      -0.2548986     0.001839877       0.8376155
+sbs.gem.m23.angle =      -0.1890936       -1.256589       0.2119995
+sbs.gem.m24.position =       0.2556408     0.001191273        0.885852
+sbs.gem.m24.angle =       0.1410652       -0.512924      0.08070183
+sbs.gem.m25.position =       0.7681993     0.001769274       0.8286245
+sbs.gem.m25.angle =       0.3187733        1.228395       0.1098484
+sbs.gem.m26.position =          -0.766              -2           2.873
+sbs.gem.m26.angle =        89.99964               0               0
+sbs.gem.m27.position =          -0.256              -2          2.8357
+sbs.gem.m27.angle =        89.99964               0               0
+sbs.gem.m28.position =           0.256              -2          2.8822
+sbs.gem.m28.angle =        89.99964               0               0
+sbs.gem.m29.position =           0.765              -2          2.8432
+sbs.gem.m29.angle =        89.99964               0               0
+sbs.gem.m30.position =          -0.766              -2           2.973
+sbs.gem.m30.angle =        89.99964               0               0
+sbs.gem.m31.position =          -0.256              -2          2.9357
+sbs.gem.m31.angle =        89.99964               0               0
+sbs.gem.m32.position =           0.256              -2          2.9822
+sbs.gem.m32.angle =        89.99964               0               0
+sbs.gem.m33.position =           0.765              -2          2.9432
+sbs.gem.m33.angle =        89.99964               0               0
 
 
 ################### DECODE INFO ########################################################################
@@ -2016,60 +2042,70 @@ sbs.gem.m31.threshold_sample = 100000.
 sbs.gem.m32.threshold_sample = 100000.
 sbs.gem.m33.threshold_sample = 100000.
 
-sbs.gem.trackchi2cut = 20.0
+sbs.gem.trackchi2cut = 50.0
 
-sbs.gem.m0.position =    -9.92407e-05       -0.014948    0.0003420129
-sbs.gem.m0.angle =     0.005658904      0.01042058    -0.004514711
-sbs.gem.m1.position =    -0.001061648     -0.01446964      0.06811108
-sbs.gem.m1.angle =       0.1325731       0.1762888     -0.06239812
-sbs.gem.m2.position =      -0.7624573    -0.001271015       0.2356521
-sbs.gem.m2.angle =       0.2270892       0.2584273       0.1090848
-sbs.gem.m3.position =      -0.2508357   -0.0006584436       0.1906687
-sbs.gem.m3.angle =     -0.05872572       0.1978049      0.05618522
-sbs.gem.m4.position =       0.2606494   -0.0005340597       0.2317297
-sbs.gem.m4.angle =      0.06049594        0.360975      0.05054842
-sbs.gem.m5.position =       0.7717895   -0.0002166842       0.1853052
-sbs.gem.m5.angle =      -0.3132894        1.420928       0.1609721
-sbs.gem.m6.position =        -0.76477    -0.001015872       0.3147848
-sbs.gem.m6.angle =       0.1239778      0.08877692       0.1177193
-sbs.gem.m7.position =      -0.2524952    0.0008989072       0.2801908
-sbs.gem.m7.angle =      0.04667416       0.1759578     -0.01086156
-sbs.gem.m8.position =       0.2595003    -0.001088016       0.3119233
-sbs.gem.m8.angle =       0.0609877     -0.02824871       0.3061187
-sbs.gem.m9.position =       0.7692914     0.001290643       0.2788542
-sbs.gem.m9.angle =      -0.5812668      -0.2095559      0.08682803
-sbs.gem.m10.position =      -0.7656478   -0.0002207102       0.5435579
-sbs.gem.m10.angle =       0.2026364     -0.09702295      0.08877064
-sbs.gem.m11.position =      -0.2530167     0.001278206       0.5076592
-sbs.gem.m11.angle =      -0.0324446     -0.05242059       0.1352442
-sbs.gem.m12.position =        0.257696     0.002031102       0.5423379
-sbs.gem.m12.angle =     -0.01780759      0.07955732      0.08478424
-sbs.gem.m13.position =       0.7690253     0.002342126       0.5058875
-sbs.gem.m13.angle =      -0.4373366      0.07501141       0.1203856
-sbs.gem.m14.position =      -0.7667773    0.0002796752       0.6267418
-sbs.gem.m14.angle =       0.3196519      -0.1408276      0.06295581
-sbs.gem.m15.position =       -0.255304     5.86233e-05        0.585546
-sbs.gem.m15.angle =     -0.01031857     -0.06555382      -0.0737156
-sbs.gem.m16.position =       0.2557933    0.0008322721       0.6299071
-sbs.gem.m16.angle =      0.09677174     -0.09350466      0.01356885
-sbs.gem.m17.position =       0.7673998    0.0008827222       0.5820235
-sbs.gem.m17.angle =      -0.2351517     0.001494413       0.1377411
-sbs.gem.m18.position =      -0.7686239    -0.002505885       0.7594452
-sbs.gem.m18.angle =      0.07243406       0.2462728     -0.04271415
-sbs.gem.m19.position =      -0.2557452    -0.002021459       0.7149934
-sbs.gem.m19.angle =     -0.01380435      0.06974578     -0.09351213
-sbs.gem.m20.position =       0.2570204    -0.001673405       0.7570816
-sbs.gem.m20.angle =     -0.05212533       0.2142305      -0.1499371
-sbs.gem.m21.position =       0.7677144    -0.004364798       0.7094717
-sbs.gem.m21.angle =      -0.2859208       -0.824831      0.05057759
-sbs.gem.m22.position =      -0.7687598     0.002016637       0.8747686
-sbs.gem.m22.angle =       0.3372698     -0.04461827     0.009284924
-sbs.gem.m23.position =       -0.256615      0.00141197        0.833545
-sbs.gem.m23.angle =      -0.1093407      -0.0316357      0.05759261
-sbs.gem.m24.position =       0.2526902   -0.0005595826       0.8773625
-sbs.gem.m24.angle =       0.0886665       0.2449412     -0.03232909
-sbs.gem.m25.position =       0.7654679   -0.0007645815       0.8276217
-sbs.gem.m25.angle =      -0.3214451       -1.228375      0.08598936
+#sbs.gem.sigmahitpos = 0.01
+#sbs.gem.gridbinwidthx = 0.1
+#sbs.gem.gridbinwidthy = 0.1
+#sbs.gem.gridedgetolerancex = 0.03
+#sbs.gem.gridedgetolerancey = 0.03
+#sbs.gem.m1.sigmahitpos = 0.01
+
+# AJRP 2/17/2025:
+# default alignment with 100% field, after fixing front and back layers based on zero-field data:
+
+sbs.gem.m0.position =    -0.002141713     -0.01548308    -0.002211918
+sbs.gem.m0.angle =       0.1677907      0.07055288      -0.1594076
+sbs.gem.m1.position =    -0.002731495     -0.01493489      0.06597573
+sbs.gem.m1.angle =       0.2671522       0.1831089      -0.1878431
+sbs.gem.m2.position =      -0.7635144   -0.0004512094       0.2342269
+sbs.gem.m2.angle =      0.08853744        0.179377     0.001836038
+sbs.gem.m3.position =      -0.2519682   -0.0006252508       0.1894398
+sbs.gem.m3.angle =     0.001816958      0.05381564     -0.01945202
+sbs.gem.m4.position =        0.259899    -0.001077052       0.2321659
+sbs.gem.m4.angle =       0.1200141       0.1031629     -0.02348125
+sbs.gem.m5.position =        0.770834    -0.001612467       0.1873834
+sbs.gem.m5.angle =       0.1040319      -0.3125352      0.09315088
+sbs.gem.m6.position =      -0.7654849   -0.0004380563       0.3135085
+sbs.gem.m6.angle =    -0.001941516     -0.01266919      0.03445443
+sbs.gem.m7.position =      -0.2532374    0.0009269035       0.2794538
+sbs.gem.m7.angle =      0.06333188       -0.104131     -0.05443909
+sbs.gem.m8.position =       0.2592416    -0.001369047       0.3129732
+sbs.gem.m8.angle =      0.09735239      -0.4308398       0.2580358
+sbs.gem.m9.position =       0.7687501    0.0003364336       0.2772365
+sbs.gem.m9.angle =       0.3301987       -0.509101   -0.0001805054
+sbs.gem.m10.position =      -0.7653112   -0.0001917618       0.5425019
+sbs.gem.m10.angle =     -0.00143217      -0.1643609       0.0704554
+sbs.gem.m11.position =      -0.2527068     0.001376043       0.5082158
+sbs.gem.m11.angle =     -0.04657638      -0.5979499       0.1764753
+sbs.gem.m12.position =       0.2587296      0.00256349       0.5465972
+sbs.gem.m12.angle =      0.05841173      -0.5603759       0.1070313
+sbs.gem.m13.position =       0.7699501     0.002885302        0.509299
+sbs.gem.m13.angle =       0.1475217      -0.2180021       0.1017191
+sbs.gem.m14.position =      -0.7662127    0.0001579997       0.6263677
+sbs.gem.m14.angle =      0.04628008      -0.2463362      0.06170555
+sbs.gem.m15.position =      -0.2546089    0.0001598454       0.5866109
+sbs.gem.m15.angle =    -0.009787153      -0.7905113     0.004704292
+sbs.gem.m16.position =       0.2573058     0.001663943       0.6352016
+sbs.gem.m16.angle =       0.1610726      -0.7601175      0.06106773
+sbs.gem.m17.position =       0.7687495     0.001781015       0.5861323
+sbs.gem.m17.angle =     -0.07152286      -0.2034422       0.1312161
+sbs.gem.m18.position =      -0.7666177    -0.003114391       0.7558672
+sbs.gem.m18.angle =      0.03514022        0.191799      0.04183716
+sbs.gem.m19.position =      -0.2544986    -0.001738683       0.7175022
+sbs.gem.m19.angle =     -0.03645274      -0.8296661      0.02221774
+sbs.gem.m20.position =       0.2592651   -0.0003626433       0.7642392
+sbs.gem.m20.angle =       0.0195353      -0.4661414     -0.06864222
+sbs.gem.m21.position =       0.7698194    -0.002619846       0.7120818
+sbs.gem.m21.angle =       0.1320096       0.4869841      0.05673364
+sbs.gem.m22.position =      -0.7672871     0.001533482       0.8756434
+sbs.gem.m22.angle =     -0.05272527      -0.2724242      0.06670993
+sbs.gem.m23.position =      -0.2548986     0.001839877       0.8376155
+sbs.gem.m23.angle =      -0.1890936       -1.256589       0.2119995
+sbs.gem.m24.position =       0.2556408     0.001191273        0.885852
+sbs.gem.m24.angle =       0.1410652       -0.512924      0.08070183
+sbs.gem.m25.position =       0.7681993     0.001769274       0.8286245
+sbs.gem.m25.angle =       0.3187733        1.228395       0.1098484
 sbs.gem.m26.position =          -0.766              -2           2.873
 sbs.gem.m26.angle =        89.99964               0               0
 sbs.gem.m27.position =          -0.256              -2          2.8357
@@ -2087,12 +2123,9 @@ sbs.gem.m32.angle =        89.99964               0               0
 sbs.gem.m33.position =           0.765              -2          2.9432
 sbs.gem.m33.angle =        89.99964               0               0
 
-#sbs.gem.m18.usestriptimingcut = 0
-#sbs.gem.m18.suppressfirstlast = 0
-
 
 #                 nhits = 4    5    6    7    8    9   10       
-sbs.gem.trackchi2cut = 20.0 
+sbs.gem.trackchi2cut = 50.0 
 
 sbs.gem.minhitsontrack = 4
 
@@ -2152,8 +2185,8 @@ sbs.gem.useopticsconstraint = 0
 #sbs.gem.usestriptimingcut = 0
 
 # let's use a looser chi2 cut in case we need a different alignment for the zero-field data:
-sbs.gem.trackchi2cut = 25.0
-sbs.gem.minhitsontrack = 5
+sbs.gem.trackchi2cut = 50.0
+sbs.gem.minhitsontrack = 4
 
 sbs.gem.filterflag1D = -1
 sbs.gem.filterflag2D = -1
@@ -2187,9 +2220,155 @@ sbs.gem.filterflag2D = -1
 sbs.gem.filterflag1D = 0
 sbs.gem.filterflag2D = 0
 
+--------[ 2024-04-18 23:50:00 ] # use different, dedicated alignment for zero-field run:
+
+sbs.gem.m0.position =    -0.002141713     -0.01548308    -0.002211918
+sbs.gem.m0.angle =       0.1677907      0.07055288      -0.1594076
+sbs.gem.m1.position =    -0.002760275     -0.01499242      0.06732182
+sbs.gem.m1.angle =     -0.05211231      0.09759483      -0.1913352
+sbs.gem.m2.position =       -0.763824   -0.0004729308       0.2365501
+sbs.gem.m2.angle =     -0.02264764      -0.2166852      0.01700413
+sbs.gem.m3.position =      -0.2520134   -0.0006530761        0.191557
+sbs.gem.m3.angle =      -0.1803087      -0.1563967     -0.02451358
+sbs.gem.m4.position =       0.2600804    -0.001092607       0.2328265
+sbs.gem.m4.angle =       0.3038787       0.2224129     -0.02748718
+sbs.gem.m5.position =       0.7708111    -0.001465076       0.1916691
+sbs.gem.m5.angle =      -0.2781739      -0.9365671       0.1069646
+sbs.gem.m6.position =      -0.7657199   -0.0004528064       0.3138905
+sbs.gem.m6.angle =      -0.1097156      -0.5543139      0.04515754
+sbs.gem.m7.position =      -0.2532796    0.0008891451       0.2816602
+sbs.gem.m7.angle =      -0.1112796      -0.5383606     -0.05648659
+sbs.gem.m8.position =       0.2592836    -0.001371325       0.3114943
+sbs.gem.m8.angle =       0.3826903       0.5169586       0.2557114
+sbs.gem.m9.position =       0.7685909    0.0001292181       0.2831775
+sbs.gem.m9.angle =       0.6551507       -1.623471      -0.1217589
+sbs.gem.m10.position =       -0.765648     -0.00022071        0.543558
+sbs.gem.m10.angle =       0.2026363      -0.0967084      0.08877064
+sbs.gem.m11.position =       -0.253017      0.00127821        0.507659
+sbs.gem.m11.angle =     -0.03244459     -0.05249703       0.1352444
+sbs.gem.m12.position =       0.2588718     0.002559562       0.5442509
+sbs.gem.m12.angle =       0.1829589       0.5390138       0.1036687
+sbs.gem.m13.position =       0.7694408     0.002851237       0.5055262
+sbs.gem.m13.angle =      -0.4634452        0.603602       0.1160852
+sbs.gem.m14.position =      -0.7666647    9.995822e-05       0.6276393
+sbs.gem.m14.angle =      0.07278035      -0.8141676      0.08532082
+sbs.gem.m15.position =      -0.2546739    0.0001469354       0.5878148
+sbs.gem.m15.angle =      0.05768589       -1.095664     0.006618979
+sbs.gem.m16.position =       0.2574737     0.001664477       0.6321501
+sbs.gem.m16.angle =       0.3348386       0.7986009      0.05598665
+sbs.gem.m17.position =       0.7681625     0.001658565       0.5790717
+sbs.gem.m17.angle =      -0.1788467         1.74202      0.09462239
+sbs.gem.m18.position =       -0.768624     -0.00250588        0.759445
+sbs.gem.m18.angle =      0.07243332       0.2462183     -0.04271377
+sbs.gem.m19.position =      -0.2545661    -0.001732929       0.7187009
+sbs.gem.m19.angle =     -0.02300195       -1.083198      0.02524124
+sbs.gem.m20.position =       0.2594401   -0.0003433763       0.7606285
+sbs.gem.m20.angle =       0.1493133       0.8895623     -0.07751336
+sbs.gem.m21.position =       0.7691444    -0.002807432       0.7071592
+sbs.gem.m21.angle =      -0.3119785        1.834883      0.02615992
+sbs.gem.m22.position =      -0.7679206     0.001474589       0.8779459
+sbs.gem.m22.angle =     -0.04357041       -1.113299      0.09307831
+sbs.gem.m23.position =      -0.2548986     0.001839877       0.8376155
+sbs.gem.m23.angle =      -0.1890936       -1.256588       0.2119995
+sbs.gem.m24.position =       0.2557817     0.001221919       0.8809546
+sbs.gem.m24.angle =       0.4297499       0.9809106      0.07329162
+sbs.gem.m25.position =       0.7674141     0.001530186       0.8258957
+sbs.gem.m25.angle =      -0.2535088         1.92429      0.07318884
+sbs.gem.m26.position =          -0.766              -2           2.873
+sbs.gem.m26.angle =        89.99964               0               0
+sbs.gem.m27.position =          -0.256              -2          2.8357
+sbs.gem.m27.angle =        89.99964               0               0
+sbs.gem.m28.position =           0.256              -2          2.8822
+sbs.gem.m28.angle =        89.99964               0               0
+sbs.gem.m29.position =           0.765              -2          2.8432
+sbs.gem.m29.angle =        89.99964               0               0
+sbs.gem.m30.position =          -0.766              -2           2.973
+sbs.gem.m30.angle =        89.99964               0               0
+sbs.gem.m31.position =          -0.256              -2          2.9357
+sbs.gem.m31.angle =        89.99964               0               0
+sbs.gem.m32.position =           0.256              -2          2.9822
+sbs.gem.m32.angle =        89.99964               0               0
+sbs.gem.m33.position =           0.765              -2          2.9432
+sbs.gem.m33.angle =        89.99964               0               0
+
+
+
 --------[ 2024-04-19 04:00:00 ] # turn filtering back on for runs 122+ (10-15 uA LH2, 8 uA LD2)
 sbs.gem.filterflag1D = 0
 sbs.gem.filterflag2D = 0
+
+# AJRP 2/17/2025:
+# default alignment with 100% field, after fixing front and back layers based on zero-field data:
+
+sbs.gem.m0.position =    -0.002141713     -0.01548308    -0.002211918
+sbs.gem.m0.angle =       0.1677907      0.07055288      -0.1594076
+sbs.gem.m1.position =    -0.002731495     -0.01493489      0.06597573
+sbs.gem.m1.angle =       0.2671522       0.1831089      -0.1878431
+sbs.gem.m2.position =      -0.7635144   -0.0004512094       0.2342269
+sbs.gem.m2.angle =      0.08853744        0.179377     0.001836038
+sbs.gem.m3.position =      -0.2519682   -0.0006252508       0.1894398
+sbs.gem.m3.angle =     0.001816958      0.05381564     -0.01945202
+sbs.gem.m4.position =        0.259899    -0.001077052       0.2321659
+sbs.gem.m4.angle =       0.1200141       0.1031629     -0.02348125
+sbs.gem.m5.position =        0.770834    -0.001612467       0.1873834
+sbs.gem.m5.angle =       0.1040319      -0.3125352      0.09315088
+sbs.gem.m6.position =      -0.7654849   -0.0004380563       0.3135085
+sbs.gem.m6.angle =    -0.001941516     -0.01266919      0.03445443
+sbs.gem.m7.position =      -0.2532374    0.0009269035       0.2794538
+sbs.gem.m7.angle =      0.06333188       -0.104131     -0.05443909
+sbs.gem.m8.position =       0.2592416    -0.001369047       0.3129732
+sbs.gem.m8.angle =      0.09735239      -0.4308398       0.2580358
+sbs.gem.m9.position =       0.7687501    0.0003364336       0.2772365
+sbs.gem.m9.angle =       0.3301987       -0.509101   -0.0001805054
+sbs.gem.m10.position =      -0.7653112   -0.0001917618       0.5425019
+sbs.gem.m10.angle =     -0.00143217      -0.1643609       0.0704554
+sbs.gem.m11.position =      -0.2527068     0.001376043       0.5082158
+sbs.gem.m11.angle =     -0.04657638      -0.5979499       0.1764753
+sbs.gem.m12.position =       0.2587296      0.00256349       0.5465972
+sbs.gem.m12.angle =      0.05841173      -0.5603759       0.1070313
+sbs.gem.m13.position =       0.7699501     0.002885302        0.509299
+sbs.gem.m13.angle =       0.1475217      -0.2180021       0.1017191
+sbs.gem.m14.position =      -0.7662127    0.0001579997       0.6263677
+sbs.gem.m14.angle =      0.04628008      -0.2463362      0.06170555
+sbs.gem.m15.position =      -0.2546089    0.0001598454       0.5866109
+sbs.gem.m15.angle =    -0.009787153      -0.7905113     0.004704292
+sbs.gem.m16.position =       0.2573058     0.001663943       0.6352016
+sbs.gem.m16.angle =       0.1610726      -0.7601175      0.06106773
+sbs.gem.m17.position =       0.7687495     0.001781015       0.5861323
+sbs.gem.m17.angle =     -0.07152286      -0.2034422       0.1312161
+sbs.gem.m18.position =      -0.7666177    -0.003114391       0.7558672
+sbs.gem.m18.angle =      0.03514022        0.191799      0.04183716
+sbs.gem.m19.position =      -0.2544986    -0.001738683       0.7175022
+sbs.gem.m19.angle =     -0.03645274      -0.8296661      0.02221774
+sbs.gem.m20.position =       0.2592651   -0.0003626433       0.7642392
+sbs.gem.m20.angle =       0.0195353      -0.4661414     -0.06864222
+sbs.gem.m21.position =       0.7698194    -0.002619846       0.7120818
+sbs.gem.m21.angle =       0.1320096       0.4869841      0.05673364
+sbs.gem.m22.position =      -0.7672871     0.001533482       0.8756434
+sbs.gem.m22.angle =     -0.05272527      -0.2724242      0.06670993
+sbs.gem.m23.position =      -0.2548986     0.001839877       0.8376155
+sbs.gem.m23.angle =      -0.1890936       -1.256589       0.2119995
+sbs.gem.m24.position =       0.2556408     0.001191273        0.885852
+sbs.gem.m24.angle =       0.1410652       -0.512924      0.08070183
+sbs.gem.m25.position =       0.7681993     0.001769274       0.8286245
+sbs.gem.m25.angle =       0.3187733        1.228395       0.1098484
+sbs.gem.m26.position =          -0.766              -2           2.873
+sbs.gem.m26.angle =        89.99964               0               0
+sbs.gem.m27.position =          -0.256              -2          2.8357
+sbs.gem.m27.angle =        89.99964               0               0
+sbs.gem.m28.position =           0.256              -2          2.8822
+sbs.gem.m28.angle =        89.99964               0               0
+sbs.gem.m29.position =           0.765              -2          2.8432
+sbs.gem.m29.angle =        89.99964               0               0
+sbs.gem.m30.position =          -0.766              -2           2.973
+sbs.gem.m30.angle =        89.99964               0               0
+sbs.gem.m31.position =          -0.256              -2          2.9357
+sbs.gem.m31.angle =        89.99964               0               0
+sbs.gem.m32.position =           0.256              -2          2.9822
+sbs.gem.m32.angle =        89.99964               0               0
+sbs.gem.m33.position =           0.765              -2          2.9432
+sbs.gem.m33.angle =        89.99964               0               0
+
 
 -------[ 2024-04-18 00:00:00 ] # Gain-Match coefficiencts for straight-through running:
 
