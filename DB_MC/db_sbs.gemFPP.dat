@@ -342,10 +342,10 @@ sbs.gemFPP.m13.position = -0.256 0.0 2.413
 sbs.gemFPP.m14.position =  0.256 0.0 2.413
 sbs.gemFPP.m15.position =  0.768 0.0 2.413
 
-sbs.gemFPP.m16.position =  0.256 0.0 2.526
-sbs.gemFPP.m17.position =  0.768 0.0 2.526
-sbs.gemFPP.m18.position = -0.768 0.0 2.526
-sbs.gemFPP.m19.position = -0.256 0.0 2.526
+sbs.gemFPP.m16.position =  -0.768 0.0 2.526
+sbs.gemFPP.m17.position =  -0.256 0.0 2.526
+sbs.gemFPP.m18.position =   0.256 0.0 2.526
+sbs.gemFPP.m19.position =   0.768 0.0 2.526
 
 sbs.gemFPP.m20.position = -0.768 0.0 2.639
 sbs.gemFPP.m21.position = -0.256 0.0 2.639
