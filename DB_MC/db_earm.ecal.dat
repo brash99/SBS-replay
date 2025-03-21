@@ -470,7 +470,7 @@ earm.ecal.adc.NSA = 10
 earm.ecal.adc.FixThresBin = 14
 #Convert adc integral in pC to GeV
 #earm.ecal.adc.gain = 0.001
-earm.ecal.adc.gain = 0.030
+earm.ecal.adc.gain = 0.007
 #
 #earm.ecal.tdc.offset = 0.0
 #
