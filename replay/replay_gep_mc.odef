@@ -5,6 +5,8 @@
 #include "replay_ECal.odef"
 #include "replay_FTGEM_gep.odef"
 #include "replay_FPPGEM_gep.odef"
+# comment out CDET outputs until a working class is ready
+# #include "replay_cdet.odef"
 
 # block MC.simc*
 block MC.mc*
