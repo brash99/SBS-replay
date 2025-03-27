@@ -244,10 +244,10 @@ sbs.forwardoptics_parameters =
 
 sbs.frontconstraint_x0 = 0.0 0.0
 sbs.frontconstraint_y0 = 0.0 0.0
-sbs.frontconstraintwidth_x = 0.03 0.15
-sbs.frontconstraintwidth_y = 0.03 0.15
+sbs.frontconstraintwidth_x = 0.03 0.05
+sbs.frontconstraintwidth_y = 0.03 0.05
 
-sbs.backconstraint_x0 = 0.0 0.0
+sbs.backconstraint_x0 = 0.0 0.2
 sbs.backconstraint_y0 = 0.0 0.0
-sbs.backconstraintwidth_x = 0.03 0.3
-sbs.backconstraintwidth_y = 0.03 0.3
+sbs.backconstraintwidth_x = 0.03 0.25
+sbs.backconstraintwidth_y = 0.03 0.21

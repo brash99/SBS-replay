@@ -83,6 +83,7 @@ sbs.hcal.chanmap =
 sbs.hcal.ledmap = 2 30
 
 ## Positions in [m] where +z is roated by sbs.theta
+# actual HCAL position in g4sbs coordinates should be 0 0 (HCALdist - GEMdist)
 sbs.hcal.position = 0 0 0
 
 ## HCal is composed of 4 sub-assemblies each of 6x12 (row,col) modules
@@ -195,4 +196,9 @@ sbs.hcal.tmax = 1000.0
 # in GEN-RP, the position is hcal distance minus 4.105 m (in the "optics" coordinate system)
 
 sbs.hcal.position = 0.0 0.0 4.895
+
+-------[ 2024-10-01 00:00:00 ] # Start GEP
+
+# in g4sbs GEP HCAL is always 10 m from target, in optics coord system, it is at 0 0 (HCALdist - opticsdist) = 6.315 m
+sbs.hcal.position = 0.0 0.0 6.315
 
