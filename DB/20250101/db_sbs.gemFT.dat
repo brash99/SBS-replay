@@ -992,7 +992,7 @@ sbs.gemFT.trackchi2cut = 150
 #sbs.gemFT.gridbinwidthy = 0.02 #0.1
 #sbs.gemFT.gridedgetolerancex = 0.004 #0.02
 #sbs.gemFT.gridedgetolerancey = 0.004 #0.02
-#sbs.gemFT.trackchi2cut = 300 #3000.0 #500.0 #40 #3000.0
+#sbs.gemFT.trackchi2cut = 500 #3000.0 #500.0 #40 #3000.0
 
 sbs.gemFT.sigmahitpos = 0.0001
 sbs.gemFT.do_efficiencies = 1
@@ -1286,5 +1286,16 @@ sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1332.dat
 sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1383.dat
 sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1383.dat
 
+---------[ 2025-03-18 23:13:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1555.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1555.dat
+
+---------[ 2025-03-21 12:18:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1642.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1642.dat
+
+---------[ 2025-03-26 12:00:00 ] # Cosmic Data Analysis
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1773.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1773.dat
 
 #########################################################

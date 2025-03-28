@@ -1556,14 +1556,14 @@ sbs.gemFPP.gridbinwidthx = 0.01
 sbs.gemFPP.gridbinwidthy = 0.01
 sbs.gemFPP.gridedgetolerancex = 0.0025
 sbs.gemFPP.gridedgetolerancey = 0.0025
-sbs.gemFPP.trackchi2cut = 50.0
+sbs.gemFPP.trackchi2cut = 150.0
 
 # Adjust the grid bins and chi2 here during the alignment. Comment them out aftert the alignment is complete.
 #For alignment with cosmics, we want to start with wider grid bins and a loose chi2 cut for tracking:
-#sbs.gemFPP.gridbinwidthx = 0.02 #0.1
-#sbs.gemFPP.gridbinwidthy = 0.02 #0.1
-#sbs.gemFPP.gridedgetolerancex = 0.004 #0.02
-#sbs.gemFPP.gridedgetolerancey = 0.004 #0.02
+#sbs.gemFPP.gridbinwidthx = 0.03 #0.1
+#sbs.gemFPP.gridbinwidthy = 0.03 #0.1
+#sbs.gemFPP.gridedgetolerancex = 0.008 #0.02
+#sbs.gemFPP.gridedgetolerancey = 0.008 #0.02
 #sbs.gemFPP.trackchi2cut = 300 #300.0 #40 #3000.0
 
 sbs.gemFPP.sigmahitpos = 0.0001
@@ -2102,8 +2102,6 @@ sbs.gemFPP.m5.chanmap =
 #sbs.gemFPP.m31.position =       0.7832782    -0.001983009       0.7522747
 #sbs.gemFPP.m31.angle =    -0.004417854      -0.1675149     -0.09404955
 
-
-
 sbs.gemFPP.m0.position =      -0.7663377    -0.002471138     0.003344831
 sbs.gemFPP.m0.angle =       0.0354784       0.4735172       0.1751277
 sbs.gemFPP.m1.position =      -0.2564053    -0.001303387     -0.04093021
@@ -2169,12 +2167,45 @@ sbs.gemFPP.m30.angle =     -0.03218941      -0.1357699     -0.03794606
 sbs.gemFPP.m31.position =       0.7832871    -0.002059096       0.7521363
 sbs.gemFPP.m31.angle =    -0.003739016      -0.1458709     -0.09525315
 
+sbs.gemFPP.m28.position =      -0.7525658    -0.001196787       0.7058801
+sbs.gemFPP.m28.angle =     -0.02852094     -0.02310346      -0.0222881
+sbs.gemFPP.m29.position =      -0.2393224    -0.002661786       0.7484847
+sbs.gemFPP.m29.angle =        0.045606      -0.2965779     -0.03759406
+sbs.gemFPP.m30.position =       0.2711726    -0.001465164       0.7071813
+sbs.gemFPP.m30.angle =     -0.06044218      -0.1567788     -0.03512494
+sbs.gemFPP.m31.position =       0.7833278    -0.002032625       0.7521437
+sbs.gemFPP.m31.angle =    -0.003321725      -0.1106906     -0.09392041
+#sbs.gemFPP.m30.position =       0.2698642   -0.0005867897       0.7060747
+#sbs.gemFPP.m31.position =       0.7832871    -0.0002059096       0.74811363
+
+sbs.gemFPP.m28.position =      -0.7525883    -0.001205872       0.7059268
+sbs.gemFPP.m28.angle =     -0.03631696     -0.02334802     -0.02621172
+sbs.gemFPP.m29.position =      -0.2393466    -0.002700277       0.7485518
+sbs.gemFPP.m29.angle =      0.02724743       -0.302843     -0.03812161
+sbs.gemFPP.m30.position =        0.271193    -0.001486459        0.707152
+sbs.gemFPP.m30.angle =     -0.07241886      -0.1599976     -0.03983802
+sbs.gemFPP.m31.position =       0.7833079    -0.002028507       0.7520562
+sbs.gemFPP.m31.angle =     -0.02595239     -0.09043174     -0.09226601
+
+sbs.gemFPP.m28.position =       -0.752564    -0.001198736       0.7058874
+sbs.gemFPP.m28.angle =     -0.03494593     -0.02819255     -0.02283444
+sbs.gemFPP.m29.position =      -0.2393185    -0.002664546       0.7485243
+sbs.gemFPP.m29.angle =      0.02913735      -0.3100812     -0.03951839
+sbs.gemFPP.m30.position =       0.2711775    -0.001462059       0.7071871
+sbs.gemFPP.m30.angle =     -0.06933087      -0.1604257     -0.03590298
+sbs.gemFPP.m31.position =       0.7833336    -0.002033559       0.7521276
+sbs.gemFPP.m31.angle =     -0.01079349      -0.1003167     -0.09278271
+
+
 ---------[ 2025-03-12 16:00:00 ] # Cosmic Data Analysis
 sbs.gemFPP.pedfile = gemped/daq_ped_sbs_gemFPP_run1383.dat
 sbs.gemFPP.cmfile = gemped/db_cmr_sbs_gemFPP_run1383.dat
 
----------[ 2025-03-18 23:13:00 ] # Cosmic Data Analysis
+---------[ 2025-03-17 23:13:00 ] # Cosmic Data Analysis
 sbs.gemFPP.pedfile = gemped/daq_ped_sbs_gemFPP_run1555.dat
 sbs.gemFPP.cmfile = gemped/db_cmr_sbs_gemFPP_run1555.dat
 
+---------[ 2025-03-21 12:18:00 ] # Cosmic Data Analysis
+sbs.gemFPP.pedfile = gemped/daq_ped_sbs_gemFPP_run1642.dat
+sbs.gemFPP.cmfile = gemped/db_cmr_sbs_gemFPP_run1642.dat
 # # #################### END TIME-DEPENDENT PEDESTAL FILES #########################
