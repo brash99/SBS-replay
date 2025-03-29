@@ -245,6 +245,7 @@ sbs.gemFPP.m30.angle =     0     0     0
 sbs.gemFPP.m31.angle =     0     0     0
 
 # Final alignment results from cosmics 1392.before beam
+sbs.gemFPP.m0.position =      -0.7663377    -0.002471138     0.003344831
 sbs.gemFPP.m0.angle =       0.0354784       0.4735172       0.1751277
 sbs.gemFPP.m1.position =      -0.2564053    -0.001303387     -0.04093021
 sbs.gemFPP.m1.angle =     -0.05040715       0.3376242        0.126285
