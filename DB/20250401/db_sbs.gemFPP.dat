@@ -244,7 +244,7 @@ sbs.gemFPP.m29.angle =     0     0     0
 sbs.gemFPP.m30.angle =     0     0     0
 sbs.gemFPP.m31.angle =     0     0     0
 
-# Final alignment results from cosmics 1392.before beam
+# Final alignment results using the from cosmics before beam ==> USING THE COORDINATE SYSTEM TAKING THE CENTER OF THE FPP-LAYER_0 ACTIVE AREA CENTER AS THE ORIGIN, WITH Z=0 AT MODULE 2's Z POS.
 sbs.gemFPP.m0.position =      -0.7663359   -0.0004350632     0.002237633
 sbs.gemFPP.m0.angle =       0.0354784       0.4735172       0.1751277
 sbs.gemFPP.m1.position =      -0.2564053    -0.001303387     -0.04093021
@@ -308,6 +308,75 @@ sbs.gemFPP.m29.angle =      0.02913735      -0.3100812     -0.03951839
 sbs.gemFPP.m30.position =       0.2711775    -0.001462059       0.7071871
 sbs.gemFPP.m30.angle =     -0.06933087      -0.1604257     -0.03590298
 sbs.gemFPP.m31.position =       0.7833336    -0.002033559       0.7521276
+sbs.gemFPP.m31.angle =     -0.01079349      -0.1003167     -0.09278271
+
+# ALIGNMENT RESULT TO BE USED AT THE START OF THE EXPERIMENT. Produced by adding offsets to the above values in x,y,z = (-0.176,0,2.074+0.022).
+# This is to bring the WHOLE FPP GEM modules to the FT coordinate system. The offsets are obtained by Engineering drawings (except for 0.022 above for Z) by Andrew Puckett. 
+# It was assumed that the 2.074 m Z offset from the engineering drawings point to the Z pos center between the FPP layer 0, m1 and m2. 
+# Thus 0.022 m was added to make the total offset which was calculated to be half of the average Z spacing between two adjacent modules in FPP layer 0.
+sbs.gemFPP.m0.position = -0.9423359000 -0.0004350632 2.0982376330
+sbs.gemFPP.m0.angle =       0.0354784       0.4735172       0.1751277
+sbs.gemFPP.m1.position = -0.4324053000 -0.0013033870 2.0550697900
+sbs.gemFPP.m1.angle =     -0.05040715       0.3376242        0.126285
+sbs.gemFPP.m2.position = 0.0800000000 0.0000000000 2.0960000000
+sbs.gemFPP.m2.angle =               0               0               0
+sbs.gemFPP.m3.position = 0.5899643000 0.0001222188 2.0547317900
+sbs.gemFPP.m3.angle =     -0.05499292      -0.3760603       0.1922023
+sbs.gemFPP.m4.position = -0.9474319000 -0.0018666640 2.1822981900
+sbs.gemFPP.m4.angle =      -0.1797351      0.08019933       0.1568931
+sbs.gemFPP.m5.position = -0.4362043000 0.0000837611 2.1460891300
+sbs.gemFPP.m5.angle =     -0.04215861       0.2408143       0.1657862
+sbs.gemFPP.m6.position = 0.0762658000 -0.0009064578 2.1793319700
+sbs.gemFPP.m6.angle =     -0.07866015    -0.007901666       0.3233614
+sbs.gemFPP.m7.position = 0.5849897000 0.0015276060 2.1468016700
+sbs.gemFPP.m7.angle =     -0.03203882     -0.02406274      0.03950137
+sbs.gemFPP.m8.position = -0.9446557000 -0.0014549830 2.3146413000
+sbs.gemFPP.m8.angle =      -0.1349947      0.00812403      0.09369217
+sbs.gemFPP.m9.position = -0.4328889000 0.0002512557 2.2785306000
+sbs.gemFPP.m9.angle =      -0.1033748     -0.04172245       0.1774295
+sbs.gemFPP.m10.position = 0.0783278000 0.0015328480 2.3140286000
+sbs.gemFPP.m10.angle =     -0.08877907      -0.2745274      0.09217043
+sbs.gemFPP.m11.position = 0.5884009000 0.0018886730 2.2829226000
+sbs.gemFPP.m11.angle =      -0.0209658      -0.4283787       0.0419899
+sbs.gemFPP.m12.position = -0.9439921000 -0.0010869090 2.3973315000
+sbs.gemFPP.m12.angle =     -0.04198464     -0.06954804      0.09355445
+sbs.gemFPP.m13.position = -0.4335237000 -0.0009420742 2.3557785000
+sbs.gemFPP.m13.angle =     -0.04837586     -0.01273321      0.02241618
+sbs.gemFPP.m14.position = 0.0785634000 0.0005379267 2.4012867000
+sbs.gemFPP.m14.angle =    -0.003893892      -0.3220803      0.05774879
+sbs.gemFPP.m15.position = 0.5884883000 0.0006927025 2.3605784000
+sbs.gemFPP.m15.angle =      -0.1276048      -0.3138097      0.06860989
+sbs.gemFPP.m16.position = -0.9423636000 0.0037132540 2.4922612000
+sbs.gemFPP.m16.angle =      -0.1210758       0.2992184      -0.1097852
+sbs.gemFPP.m17.position = -0.4323712000 0.0027591240 2.5323996000
+sbs.gemFPP.m17.angle =      -0.1680999      0.03100114      -0.1099882
+sbs.gemFPP.m18.position = 0.0798015000 0.0016431790 2.4905230000
+sbs.gemFPP.m18.angle =      -0.1715151      -0.2327846      -0.1259181
+sbs.gemFPP.m19.position = 0.5908904000 0.0012401630 2.5401840000
+sbs.gemFPP.m19.angle =      -0.1356981      -0.2140943      -0.1277508
+sbs.gemFPP.m20.position = -0.9509489000 0.0039586550 2.5833264000
+sbs.gemFPP.m20.angle =      0.03590447      0.03023471      -0.1123323
+sbs.gemFPP.m21.position = -0.4366001000 0.0027393630 2.6278584000
+sbs.gemFPP.m21.angle =       0.1346293       0.1274663      -0.1486509
+sbs.gemFPP.m22.position = 0.0725982000 0.0004656969 2.5867742000
+sbs.gemFPP.m22.angle =     -0.09590833     -0.04618972      -0.1564544
+sbs.gemFPP.m23.position = 0.5865570000 -0.0003818120 2.6284566000
+sbs.gemFPP.m23.angle =    -0.007246841       0.1175065      -0.1749286
+sbs.gemFPP.m24.position = -0.9409567000 -0.0033521900 2.7113432000
+sbs.gemFPP.m24.angle =      -0.1201316       0.1044906      0.08322067
+sbs.gemFPP.m25.position = -0.4282322000 -0.0029751620 2.7519494000
+sbs.gemFPP.m25.angle =      0.03315423    -0.001134264      0.05197165
+sbs.gemFPP.m26.position = 0.0828729000 -0.0039163340 2.7110624000
+sbs.gemFPP.m26.angle =      -0.1420558      -0.2225415       0.0531967
+sbs.gemFPP.m27.position = 0.5945206000 -0.0022295160 2.7553425000
+sbs.gemFPP.m27.angle =      -0.0112726      -0.3046218      0.02038461
+sbs.gemFPP.m28.position = -0.9285640000 -0.0011987360 2.8018874000
+sbs.gemFPP.m28.angle =     -0.03494593     -0.02819255     -0.02283444
+sbs.gemFPP.m29.position = -0.4153185000 -0.0026645460 2.8445243000
+sbs.gemFPP.m29.angle =      0.02913735      -0.3100812     -0.03951839
+sbs.gemFPP.m30.position = 0.0951775000 -0.0014620590 2.8031871000
+sbs.gemFPP.m30.angle =     -0.06933087      -0.1604257     -0.03590298
+sbs.gemFPP.m31.position = 0.6073336000 -0.0020335590 2.8481276000
 sbs.gemFPP.m31.angle =     -0.01079349      -0.1003167     -0.09278271
 
 
