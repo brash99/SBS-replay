@@ -7,12 +7,14 @@ sbs.gemFT.pedestalmode = 0
 sbs.gemFT.commonmode_flag = -1
 sbs.gemFT.modules = m0  m1  m2  m3  m4  m5  m6 m7 m8 m9  m10 m11 m12 m13
 
-sbs.gemFT.useconstraint = 0
+sbs.gemFT.useconstraint = 1
 
-sbs.gemFT.gridbinwidthx = 0.01
-sbs.gemFT.gridbinwidthy = 0.01
-sbs.gemFT.gridedgetolerancex = 0.003
-sbs.gemFT.gridedgetolerancey = 0.003
+sbs.gemFT.multitracksearch = 1 # testing for the first time!
+
+sbs.gemFT.gridbinwidthx = 0.005
+sbs.gemFT.gridbinwidthy = 0.005
+sbs.gemFT.gridedgetolerancex = 0.0015
+sbs.gemFT.gridedgetolerancey = 0.0015
 
 sbs.gemFT.minhitsontrack = 4
 

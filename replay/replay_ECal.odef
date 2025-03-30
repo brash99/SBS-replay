@@ -17,6 +17,8 @@ variable earm.ecal.nclus
 block earm.ecal.clus_blk.*
 variable earm.ecal.ngoodADChits
 
+block earm.tr.*
+
 #
 variable earm.ecal.a_time
 variable earm.ecal.a_amp_p
@@ -38,7 +40,7 @@ variable earm.ecal.adcypos
 # variable earm.ecal.scinttrig.adcelemID
 
 # Waveform data (think carefully before turning these on)
-block earm.ecal.*samp*
+#block earm.ecal.*samp*
 
 ## --- *** creating diagnostic histograms --- ***
 

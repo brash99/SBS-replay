@@ -25,6 +25,7 @@
 #include "SBSECal.h"
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMPolarimeterTracker.h"
+#include "SBSGEPRegionOfInterestModule.h"
 #include "SBSTimingHodoscope.h"
 
 #include "SBSSimDecoder.h"
@@ -42,6 +43,7 @@ TDatime get_datime(uint gepconfig)
   return m[gepconfig];
 }
 
+//NOTE: the "experiment" argument here appears redundant:
 void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString experiment="gep")
 {
   SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm" );
@@ -58,6 +60,12 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   //harm->SetDebug(2);
 
   THaAnalyzer* analyzer = new THaAnalyzer;
+
+  SBSGEPRegionOfInterestModule *ROI = new SBSGEPRegionOfInterestModule( "FTROI", "GEP region of interest calculation", THaAnalyzer::kCoarseRecon );
+
+  //gHaPhysics->Add( ROI );
+
+  analyzer->AddInterStage( ROI );
   
   THaInterface::SetDecoder( SBSSimDecoder::Class() );
   
@@ -71,7 +79,7 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
     exit(-1);
   }
   
-  THaRunBase *run = new SBSSimFile(run_file.Data(), "gmn", "");
+  THaRunBase *run = new SBSSimFile(run_file.Data(), experiment.Data(), "");
   run->SetFirstEvent(0);
 
   cout << "Number of events to replay (-1=all)? ";

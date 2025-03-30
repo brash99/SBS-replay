@@ -5,16 +5,19 @@ sbs.gemFPP.is_mc = 1
 sbs.gemFPP.onlinezerosuppress = 0
 sbs.gemFPP.pedestalmode = 0
 sbs.gemFPP.commonmode_flag = -1
+
 sbs.gemFPP.modules = m0 m1 m2 m3  m4 m5 m6 m7  m8 m9 m10 m11  m12 m13 m14 m15  m16 m17 m18 m19  m20 m21 m22 m23  m24 m25 m26 m27  m28 m29 m30 m31
 
 sbs.gemFPP.useconstraint = 1
+
+sbs.gemFPP.multitracksearch = 0
 
 sbs.gemFPP.gridbinwidthx = 0.01
 sbs.gemFPP.gridbinwidthy = 0.01
 sbs.gemFPP.gridedgetolerancex = 0.003
 sbs.gemFPP.gridedgetolerancey = 0.003
 
-sbs.gemFPP.minhitsontrack = 3
+sbs.gemFPP.minhitsontrack = 4
 
 sbs.gemFPP.corrcoeff_cut = 0.5
 sbs.gemFPP.ADCasym_cut = 0.5
@@ -321,45 +324,46 @@ sbs.gemFPP.m30.size = 0.512 0.6144 0.001
 sbs.gemFPP.m31.size = 0.512 0.6144 0.001
 
 #positions #m0 and m4 have a temporary offset
-sbs.gemFPP.m0.position = -0.768 0.0 2.074
-sbs.gemFPP.m1.position = -0.256 0.0 2.074
-sbs.gemFPP.m2.position =  0.256 0.0 2.074
-sbs.gemFPP.m3.position =  0.768 0.0 2.074
+# NOTE: FPP GEM positions are offset along X above the FT GEMs; these offsets reflect that:
+sbs.gemFPP.m0.position = -0.944 0.0 2.074
+sbs.gemFPP.m1.position = -0.432 0.0 2.074
+sbs.gemFPP.m2.position =  0.080 0.0 2.074
+sbs.gemFPP.m3.position =  0.592 0.0 2.074
 
-sbs.gemFPP.m4.position = -0.768 0.0 2.187
-sbs.gemFPP.m5.position = -0.256 0.0 2.187
-sbs.gemFPP.m6.position =  0.256 0.0 2.187
-sbs.gemFPP.m7.position =  0.768 0.0 2.187
+sbs.gemFPP.m4.position = -0.944 0.0 2.187
+sbs.gemFPP.m5.position = -0.432 0.0 2.187
+sbs.gemFPP.m6.position =  0.080 0.0 2.187
+sbs.gemFPP.m7.position =  0.592 0.0 2.187
 
-sbs.gemFPP.m8.position = -0.768 0.0 2.300
-sbs.gemFPP.m9.position = -0.256 0.0 2.300
-sbs.gemFPP.m10.position =  0.256 0.0 2.300
-sbs.gemFPP.m11.position =  0.768 0.0 2.300
+sbs.gemFPP.m8.position = -0.944 0.0 2.300
+sbs.gemFPP.m9.position = -0.432 0.0 2.300
+sbs.gemFPP.m10.position =  0.080 0.0 2.300
+sbs.gemFPP.m11.position =  0.592 0.0 2.300
 
-sbs.gemFPP.m12.position = -0.768 0.0 2.413
-sbs.gemFPP.m13.position = -0.256 0.0 2.413
-sbs.gemFPP.m14.position =  0.256 0.0 2.413
-sbs.gemFPP.m15.position =  0.768 0.0 2.413
+sbs.gemFPP.m12.position = -0.944 0.0 2.413
+sbs.gemFPP.m13.position = -0.432 0.0 2.413
+sbs.gemFPP.m14.position =  0.080 0.0 2.413
+sbs.gemFPP.m15.position =  0.592 0.0 2.413
 
-sbs.gemFPP.m16.position =  -0.768 0.0 2.526
-sbs.gemFPP.m17.position =  -0.256 0.0 2.526
-sbs.gemFPP.m18.position =   0.256 0.0 2.526
-sbs.gemFPP.m19.position =   0.768 0.0 2.526
+sbs.gemFPP.m16.position =  -0.944 0.0 2.526
+sbs.gemFPP.m17.position =  -0.432 0.0 2.526
+sbs.gemFPP.m18.position =   0.080 0.0 2.526
+sbs.gemFPP.m19.position =   0.592 0.0 2.526
 
-sbs.gemFPP.m20.position = -0.768 0.0 2.639
-sbs.gemFPP.m21.position = -0.256 0.0 2.639
-sbs.gemFPP.m22.position =  0.256 0.0 2.639
-sbs.gemFPP.m23.position =  0.768 0.0 2.639
+sbs.gemFPP.m20.position = -0.944 0.0 2.639
+sbs.gemFPP.m21.position = -0.432 0.0 2.639
+sbs.gemFPP.m22.position =  0.080 0.0 2.639
+sbs.gemFPP.m23.position =  0.592 0.0 2.639
 
-sbs.gemFPP.m24.position = -0.768 0.0 2.752
-sbs.gemFPP.m25.position = -0.256 0.0 2.752
-sbs.gemFPP.m26.position =  0.256 0.0 2.752
-sbs.gemFPP.m27.position =  0.768 0.0 2.752
+sbs.gemFPP.m24.position = -0.944 0.0 2.752
+sbs.gemFPP.m25.position = -0.432 0.0 2.752
+sbs.gemFPP.m26.position =  0.080 0.0 2.752
+sbs.gemFPP.m27.position =  0.592 0.0 2.752
 
-sbs.gemFPP.m28.position = -0.768 0.0 2.865
-sbs.gemFPP.m29.position = -0.256 0.0 2.865
-sbs.gemFPP.m30.position =  0.256 0.0 2.865
-sbs.gemFPP.m31.position =  0.768 0.0 2.865
+sbs.gemFPP.m28.position = -0.944 0.0 2.865
+sbs.gemFPP.m29.position = -0.432 0.0 2.865
+sbs.gemFPP.m30.position =  0.080 0.0 2.865
+sbs.gemFPP.m31.position =  0.592 0.0 2.865
 
 sbs.gemFPP.m0.angle = 0.0 0.0 0.0
 sbs.gemFPP.m1.angle = 0.0 0.0 0.0
