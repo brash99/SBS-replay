@@ -104,8 +104,8 @@ th1d hsbs_gemFT_m0_nclustV_good 'FT L0 G0; num. V clusters; ' sbs.gemFT.m0.clust
 th1d hsbs_gemFT_m0_nstripstot_all 'FT L0 G0; Num. fired strips (U/X) + (V/Y);' sbs.gemFT.m0.strip.nstripsfired 2817 -0.5 2816.5
 th1d hsbs_gemFT_m0_nclustU_all 'FT L0 G0; num. U clusters;' sbs.gemFT.m0.clust.nclustu 101 -0.5 100.5
 th1d hsbs_gemFT_m0_nclustV_all 'FT L0 G0; num. V clusters;' sbs.gemFT.m0.clust.nclustv 101 -0.5 100.5
-th1d hsbs_gemFT_m0_stripU_all 'FT L0 G0; U/X strip index; ' sbs.gemFT.m0.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m0.strip.IsU[I]
-th1d hsbs_gemFT_m0_stripV_all 'FT L0 G0; V/Y strip index; ' sbs.gemFT.m0.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m0.strip.IsV[I]
+th1d hsbs_gemFT_m0_stripU_all 'FT L0 G0; U/X strip index; ' sbs.gemFT.m0.strip.istrip[I] 3968 -0.5 3967.5 sbs.gemFT.m0.strip.IsU[I]
+th1d hsbs_gemFT_m0_stripV_all 'FT L0 G0; V/Y strip index; ' sbs.gemFT.m0.strip.istrip[I] 3456 -0.5 3455.5 sbs.gemFT.m0.strip.IsV[I]
 th1d hsbs_gemFT_m0_ADCsumU_all 'FT L0 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m0.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m0.strip.IsU[I]
 th1d hsbs_gemFT_m0_ADCsumV_all 'FT L0 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m0.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m0.strip.IsV[I]
 th1d hsbs_gemFT_m0_ADCmaxU_all 'FT L0 G0; Strip ADC max, U/X strips;' sbs.gemFT.m0.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m0.strip.IsU[I]
@@ -120,8 +120,8 @@ th1d hsbs_gemFT_m0_iSampMaxV_all 'FT L0 G0; Peak time sample, V/Y strips;' sbs.g
 #th2d hsbs_gemFT_m0_ADCmax_vs_Vstrip_all 'FT L0 G0; V strip ADC max vs strip;' sbs.gemFT.m0.strip.istrip[I] sbs.gemFT.m0.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 sbs.gemFT.m0.strip.IsV[I]
 
 # Module 0 strip histograms, strips on tracks: 
-th1d hsbs_gemFT_m0_stripU_good 'FT L0 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m0.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m0.strip.ontrackU[I]
-th1d hsbs_gemFT_m0_stripV_good 'FT L0 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m0.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m0.strip.ontrackV[I]
+th1d hsbs_gemFT_m0_stripU_good 'FT L0 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m0.strip.istrip[I] 3968 -0.5 3967.5 sbs.gemFT.m0.strip.ontrackU[I]
+th1d hsbs_gemFT_m0_stripV_good 'FT L0 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m0.strip.istrip[I] 3456 -0.5 3455.5 sbs.gemFT.m0.strip.ontrackV[I]
 th1d hsbs_gemFT_m0_ADCsumU_good 'FT L0 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m0.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m0.strip.ontrackU[I]
 th1d hsbs_gemFT_m0_ADCsumV_good 'FT L0 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m0.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m0.strip.ontrackV[I]
 th1d hsbs_gemFT_m0_ADCmaxU_good 'FT L0 G0; Strip ADC max, U/X strips;' sbs.gemFT.m0.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m0.strip.ontrackU[I]
@@ -160,8 +160,8 @@ th1d hsbs_gemFT_m1_nclustV_good 'FT L1 G0; num. V clusters; ' sbs.gemFT.m1.clust
 th1d hsbs_gemFT_m1_nstripstot_all 'FT L1 G0; Num. fired strips (U/X) + (V/Y);' sbs.gemFT.m1.strip.nstripsfired 2817 -0.5 2816.5
 th1d hsbs_gemFT_m1_nclustU_all 'FT L1 G0; num. U clusters;' sbs.gemFT.m1.clust.nclustu 101 -0.5 100.5
 th1d hsbs_gemFT_m1_nclustV_all 'FT L1 G0; num. V clusters;' sbs.gemFT.m1.clust.nclustv 101 -0.5 100.5
-th1d hsbs_gemFT_m1_stripU_all 'FT L1 G0; U/X strip index; ' sbs.gemFT.m1.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m1.strip.IsU[I]
-th1d hsbs_gemFT_m1_stripV_all 'FT L1 G0; V/Y strip index; ' sbs.gemFT.m1.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m1.strip.IsV[I]
+th1d hsbs_gemFT_m1_stripU_all 'FT L1 G0; U/X strip index; ' sbs.gemFT.m1.strip.istrip[I] 3968 -0.5 3967.5 sbs.gemFT.m1.strip.IsU[I]
+th1d hsbs_gemFT_m1_stripV_all 'FT L1 G0; V/Y strip index; ' sbs.gemFT.m1.strip.istrip[I] 3455 -0.5 3455.5 sbs.gemFT.m1.strip.IsV[I]
 th1d hsbs_gemFT_m1_ADCsumU_all 'FT L1 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m1.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m1.strip.IsU[I]
 th1d hsbs_gemFT_m1_ADCsumV_all 'FT L1 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m1.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m1.strip.IsV[I]
 th1d hsbs_gemFT_m1_ADCmaxU_all 'FT L1 G0; Strip ADC max, U/X strips;' sbs.gemFT.m1.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m1.strip.IsU[I]
@@ -176,8 +176,8 @@ th1d hsbs_gemFT_m1_iSampMaxV_all 'FT L1 G0; Peak time sample, V/Y strips;' sbs.g
 #th2d hsbs_gemFT_m1_ADCmax_vs_Vstrip_all 'FT L1 G0; V strip ADC max vs strip;' sbs.gemFT.m1.strip.istrip[I] sbs.gemFT.m1.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 sbs.gemFT.m1.strip.IsV[I]
 
 # Module 1 strip histograms, strips on tracks: 
-th1d hsbs_gemFT_m1_stripU_good 'FT L1 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m1.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m1.strip.ontrackU[I]
-th1d hsbs_gemFT_m1_stripV_good 'FT L1 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m1.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m1.strip.ontrackV[I]
+th1d hsbs_gemFT_m1_stripU_good 'FT L1 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m1.strip.istrip[I] 3968 -0.5 3967.5 sbs.gemFT.m1.strip.ontrackU[I]
+th1d hsbs_gemFT_m1_stripV_good 'FT L1 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m1.strip.istrip[I] 3456 -0.5 3455.5 sbs.gemFT.m1.strip.ontrackV[I]
 th1d hsbs_gemFT_m1_ADCsumU_good 'FT L1 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m1.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m1.strip.ontrackU[I]
 th1d hsbs_gemFT_m1_ADCsumV_good 'FT L1 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m1.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m1.strip.ontrackV[I]
 th1d hsbs_gemFT_m1_ADCmaxU_good 'FT L1 G0; Strip ADC max, U/X strips;' sbs.gemFT.m1.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m1.strip.ontrackU[I]
@@ -216,8 +216,8 @@ th1d hsbs_gemFT_m2_nclustV_good 'FT L2 G0; num. V clusters; ' sbs.gemFT.m2.clust
 th1d hsbs_gemFT_m2_nstripstot_all 'FT L2 G0; Num. fired strips (U/X) + (V/Y);' sbs.gemFT.m2.strip.nstripsfired 2817 -0.5 2816.5
 th1d hsbs_gemFT_m2_nclustU_all 'FT L2 G0; num. U clusters;' sbs.gemFT.m2.clust.nclustu 101 -0.5 100.5
 th1d hsbs_gemFT_m2_nclustV_all 'FT L2 G0; num. V clusters;' sbs.gemFT.m2.clust.nclustv 101 -0.5 100.5
-th1d hsbs_gemFT_m2_stripU_all 'FT L2 G0; U/X strip index; ' sbs.gemFT.m2.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m2.strip.IsU[I]
-th1d hsbs_gemFT_m2_stripV_all 'FT L2 G0; V/Y strip index; ' sbs.gemFT.m2.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m2.strip.IsV[I]
+th1d hsbs_gemFT_m2_stripU_all 'FT L2 G0; U/X strip index; ' sbs.gemFT.m2.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m2.strip.IsU[I]
+th1d hsbs_gemFT_m2_stripV_all 'FT L2 G0; V/Y strip index; ' sbs.gemFT.m2.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m2.strip.IsV[I]
 th1d hsbs_gemFT_m2_ADCsumU_all 'FT L2 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m2.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m2.strip.IsU[I]
 th1d hsbs_gemFT_m2_ADCsumV_all 'FT L2 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m2.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m2.strip.IsV[I]
 th1d hsbs_gemFT_m2_ADCmaxU_all 'FT L2 G0; Strip ADC max, U/X strips;' sbs.gemFT.m2.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m2.strip.IsU[I]
@@ -232,8 +232,8 @@ th1d hsbs_gemFT_m2_iSampMaxV_all 'FT L2 G0; Peak time sample, V/Y strips;' sbs.g
 #th2d hsbs_gemFT_m2_ADCmax_vs_Vstrip_all 'FT L2 G0; V strip ADC max vs strip;' sbs.gemFT.m2.strip.istrip[I] sbs.gemFT.m2.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 sbs.gemFT.m2.strip.IsV[I]
 
 # Module 2 strip histograms, strips on tracks: 
-th1d hsbs_gemFT_m2_stripU_good 'FT L2 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m2.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m2.strip.ontrackU[I]
-th1d hsbs_gemFT_m2_stripV_good 'FT L2 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m2.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m2.strip.ontrackV[I]
+th1d hsbs_gemFT_m2_stripU_good 'FT L2 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m2.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m2.strip.ontrackU[I]
+th1d hsbs_gemFT_m2_stripV_good 'FT L2 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m2.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m2.strip.ontrackV[I]
 th1d hsbs_gemFT_m2_ADCsumU_good 'FT L2 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m2.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m2.strip.ontrackU[I]
 th1d hsbs_gemFT_m2_ADCsumV_good 'FT L2 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m2.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m2.strip.ontrackV[I]
 th1d hsbs_gemFT_m2_ADCmaxU_good 'FT L2 G0; Strip ADC max, U/X strips;' sbs.gemFT.m2.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m2.strip.ontrackU[I]
@@ -272,8 +272,8 @@ th1d hsbs_gemFT_m3_nclustV_good 'FT L3 G0; num. V clusters; ' sbs.gemFT.m3.clust
 th1d hsbs_gemFT_m3_nstripstot_all 'FT L3 G0; Num. fired strips (U/X) + (V/Y);' sbs.gemFT.m3.strip.nstripsfired 2817 -0.5 2816.5
 th1d hsbs_gemFT_m3_nclustU_all 'FT L3 G0; num. U clusters;' sbs.gemFT.m3.clust.nclustu 101 -0.5 100.5
 th1d hsbs_gemFT_m3_nclustV_all 'FT L3 G0; num. V clusters;' sbs.gemFT.m3.clust.nclustv 101 -0.5 100.5
-th1d hsbs_gemFT_m3_stripU_all 'FT L3 G0; U/X strip index; ' sbs.gemFT.m3.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m3.strip.IsU[I]
-th1d hsbs_gemFT_m3_stripV_all 'FT L3 G0; V/Y strip index; ' sbs.gemFT.m3.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m3.strip.IsV[I]
+th1d hsbs_gemFT_m3_stripU_all 'FT L3 G0; U/X strip index; ' sbs.gemFT.m3.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m3.strip.IsU[I]
+th1d hsbs_gemFT_m3_stripV_all 'FT L3 G0; V/Y strip index; ' sbs.gemFT.m3.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m3.strip.IsV[I]
 th1d hsbs_gemFT_m3_ADCsumU_all 'FT L3 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m3.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m3.strip.IsU[I]
 th1d hsbs_gemFT_m3_ADCsumV_all 'FT L3 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m3.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m3.strip.IsV[I]
 th1d hsbs_gemFT_m3_ADCmaxU_all 'FT L3 G0; Strip ADC max, U/X strips;' sbs.gemFT.m3.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m3.strip.IsU[I]
@@ -288,8 +288,8 @@ th1d hsbs_gemFT_m3_iSampMaxV_all 'FT L3 G0; Peak time sample, V/Y strips;' sbs.g
 #th2d hsbs_gemFT_m3_ADCmax_vs_Vstrip_all 'FT L3 G0; V strip ADC max vs strip;' sbs.gemFT.m3.strip.istrip[I] sbs.gemFT.m3.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 sbs.gemFT.m3.strip.IsV[I]
 
 # Module 3 strip histograms, strips on tracks: 
-th1d hsbs_gemFT_m3_stripU_good 'FT L3 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m3.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m3.strip.ontrackU[I]
-th1d hsbs_gemFT_m3_stripV_good 'FT L3 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m3.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m3.strip.ontrackV[I]
+th1d hsbs_gemFT_m3_stripU_good 'FT L3 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m3.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m3.strip.ontrackU[I]
+th1d hsbs_gemFT_m3_stripV_good 'FT L3 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m3.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m3.strip.ontrackV[I]
 th1d hsbs_gemFT_m3_ADCsumU_good 'FT L3 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m3.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m3.strip.ontrackU[I]
 th1d hsbs_gemFT_m3_ADCsumV_good 'FT L3 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m3.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m3.strip.ontrackV[I]
 th1d hsbs_gemFT_m3_ADCmaxU_good 'FT L3 G0; Strip ADC max, U/X strips;' sbs.gemFT.m3.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m3.strip.ontrackU[I]
@@ -328,8 +328,8 @@ th1d hsbs_gemFT_m4_nclustV_good 'FT L4 G0; num. V clusters; ' sbs.gemFT.m4.clust
 th1d hsbs_gemFT_m4_nstripstot_all 'FT L4 G0; Num. fired strips (U/X) + (V/Y);' sbs.gemFT.m4.strip.nstripsfired 2817 -0.5 2816.5
 th1d hsbs_gemFT_m4_nclustU_all 'FT L4 G0; num. U clusters;' sbs.gemFT.m4.clust.nclustu 101 -0.5 100.5
 th1d hsbs_gemFT_m4_nclustV_all 'FT L4 G0; num. V clusters;' sbs.gemFT.m4.clust.nclustv 101 -0.5 100.5
-th1d hsbs_gemFT_m4_stripU_all 'FT L4 G0; U/X strip index; ' sbs.gemFT.m4.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m4.strip.IsU[I]
-th1d hsbs_gemFT_m4_stripV_all 'FT L4 G0; V/Y strip index; ' sbs.gemFT.m4.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m4.strip.IsV[I]
+th1d hsbs_gemFT_m4_stripU_all 'FT L4 G0; U/X strip index; ' sbs.gemFT.m4.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m4.strip.IsU[I]
+th1d hsbs_gemFT_m4_stripV_all 'FT L4 G0; V/Y strip index; ' sbs.gemFT.m4.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m4.strip.IsV[I]
 th1d hsbs_gemFT_m4_ADCsumU_all 'FT L4 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m4.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m4.strip.IsU[I]
 th1d hsbs_gemFT_m4_ADCsumV_all 'FT L4 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m4.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m4.strip.IsV[I]
 th1d hsbs_gemFT_m4_ADCmaxU_all 'FT L4 G0; Strip ADC max, U/X strips;' sbs.gemFT.m4.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m4.strip.IsU[I]
@@ -344,8 +344,8 @@ th1d hsbs_gemFT_m4_iSampMaxV_all 'FT L4 G0; Peak time sample, V/Y strips;' sbs.g
 #th2d hsbs_gemFT_m4_ADCmax_vs_Vstrip_all 'FT L4 G0; V strip ADC max vs strip;' sbs.gemFT.m4.strip.istrip[I] sbs.gemFT.m4.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 sbs.gemFT.m4.strip.IsV[I]
 
 # Module 4 strip histograms, strips on tracks: 
-th1d hsbs_gemFT_m4_stripU_good 'FT L4 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m4.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m4.strip.ontrackU[I]
-th1d hsbs_gemFT_m4_stripV_good 'FT L4 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m4.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m4.strip.ontrackV[I]
+th1d hsbs_gemFT_m4_stripU_good 'FT L4 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m4.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m4.strip.ontrackU[I]
+th1d hsbs_gemFT_m4_stripV_good 'FT L4 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m4.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m4.strip.ontrackV[I]
 th1d hsbs_gemFT_m4_ADCsumU_good 'FT L4 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m4.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m4.strip.ontrackU[I]
 th1d hsbs_gemFT_m4_ADCsumV_good 'FT L4 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m4.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m4.strip.ontrackV[I]
 th1d hsbs_gemFT_m4_ADCmaxU_good 'FT L4 G0; Strip ADC max, U/X strips;' sbs.gemFT.m4.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m4.strip.ontrackU[I]
@@ -384,8 +384,8 @@ th1d hsbs_gemFT_m5_nclustV_good 'FT L5 G0; num. V clusters; ' sbs.gemFT.m5.clust
 th1d hsbs_gemFT_m5_nstripstot_all 'FT L5 G0; Num. fired strips (U/X) + (V/Y);' sbs.gemFT.m5.strip.nstripsfired 2817 -0.5 2816.5
 th1d hsbs_gemFT_m5_nclustU_all 'FT L5 G0; num. U clusters;' sbs.gemFT.m5.clust.nclustu 101 -0.5 100.5
 th1d hsbs_gemFT_m5_nclustV_all 'FT L5 G0; num. V clusters;' sbs.gemFT.m5.clust.nclustv 101 -0.5 100.5
-th1d hsbs_gemFT_m5_stripU_all 'FT L5 G0; U/X strip index; ' sbs.gemFT.m5.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m5.strip.IsU[I]
-th1d hsbs_gemFT_m5_stripV_all 'FT L5 G0; V/Y strip index; ' sbs.gemFT.m5.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m5.strip.IsV[I]
+th1d hsbs_gemFT_m5_stripU_all 'FT L5 G0; U/X strip index; ' sbs.gemFT.m5.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m5.strip.IsU[I]
+th1d hsbs_gemFT_m5_stripV_all 'FT L5 G0; V/Y strip index; ' sbs.gemFT.m5.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m5.strip.IsV[I]
 th1d hsbs_gemFT_m5_ADCsumU_all 'FT L5 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m5.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m5.strip.IsU[I]
 th1d hsbs_gemFT_m5_ADCsumV_all 'FT L5 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m5.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m5.strip.IsV[I]
 th1d hsbs_gemFT_m5_ADCmaxU_all 'FT L5 G0; Strip ADC max, U/X strips;' sbs.gemFT.m5.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m5.strip.IsU[I]
@@ -400,8 +400,8 @@ th1d hsbs_gemFT_m5_iSampMaxV_all 'FT L5 G0; Peak time sample, V/Y strips;' sbs.g
 #th2d hsbs_gemFT_m5_ADCmax_vs_Vstrip_all 'FT L5 G0; V strip ADC max vs strip;' sbs.gemFT.m5.strip.istrip[I] sbs.gemFT.m5.strip.ADCmax[I] 1536 -0.5 1535.5 250 0 4000 sbs.gemFT.m5.strip.IsV[I]
 
 # Module 5 strip histograms, strips on tracks: 
-th1d hsbs_gemFT_m5_stripU_good 'FT L5 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m5.strip.istrip[I] 1280 -0.5 1279.5 sbs.gemFT.m5.strip.ontrackU[I]
-th1d hsbs_gemFT_m5_stripV_good 'FT L5 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m5.strip.istrip[I] 1536 -0.5 1535.5 sbs.gemFT.m5.strip.ontrackV[I]
+th1d hsbs_gemFT_m5_stripU_good 'FT L5 G0 (strips on tracks); U/X strip index;' sbs.gemFT.m5.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m5.strip.ontrackU[I]
+th1d hsbs_gemFT_m5_stripV_good 'FT L5 G0 (strips on tracks); V/Y strip index;' sbs.gemFT.m5.strip.istrip[I] 3840 -0.5 3839.5 sbs.gemFT.m5.strip.ontrackV[I]
 th1d hsbs_gemFT_m5_ADCsumU_good 'FT L5 G0; Strip ADC sum, U/X strips;' sbs.gemFT.m5.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m5.strip.ontrackU[I]
 th1d hsbs_gemFT_m5_ADCsumV_good 'FT L5 G0; Strip ADC sum, V/Y strips;' sbs.gemFT.m5.strip.ADCsum[I] 1000 0 15000 sbs.gemFT.m5.strip.ontrackV[I]
 th1d hsbs_gemFT_m5_ADCmaxU_good 'FT L5 G0; Strip ADC max, U/X strips;' sbs.gemFT.m5.strip.ADCmax[I] 500 0 4000 sbs.gemFT.m5.strip.ontrackU[I]
