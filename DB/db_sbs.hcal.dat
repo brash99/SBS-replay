@@ -173,6 +173,10 @@ sbs.hcal.xpos =
 0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  0.916875  
 1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625  1.075625
 
+# TDC calibrations
+sbs.hcal.tdc.calib = 0.11186 
+sbs.hcal.reftdc.calib = 0.11186
+
 ## Mininum energy for a cluster element, set to 5 MeV
 sbs.hcal.emin_clTotal = 0.005
 sbs.hcal.emin = 0.001 
@@ -253,7 +257,6 @@ sbs.hcal.tdc.offset =
 -1758.6 -885.693 -890.215 -898.504 -998.993 -984.162 -1014.18 -1011.86 -884.503 -895.387 -901.453 -889.406 
 -1054.51 -1067.66 -911.912 -924.176 -1000.81 -987.347 -1161.1 -1189.58 -894.14 -906.497 -905.533 -904.125
  
-sbs.hcal.tdc.calib = 0.112
 
 # Convert adc integral in pC to GeV
 #sbs.hcal.adc.gain =
@@ -946,7 +949,12 @@ sbs.hcal.tdc.offset =
 -261.816 -362.358 -243.51 -395.149 -495.528 -489.251 -472.425 -685.298 -395.039 -408.429 -588.32 -212.978
 
 --------[ 2022-10-17 00:00:00 ] #GEN2 ## Moved noisy channel idx 63 to edge of acceptance (63->61, 61->63) (gain)
-sbs.hcal.tdc.calib = 0.112
+
+# TDC calibrations
+sbs.hcal.tdc.calib = 0.11186 
+sbs.hcal.reftdc.calib = 0.11186
+
+#sbs.hcal.tdc.calib = 0.112
 
 sbs.hcal.adc.gain =
 0.0039889  0.00128798  0.00351214  0.00304626  0.00178882  0.00321967  0.00370097  0.00538299  0.00562417  0.00373941  0.00378799  0.000633862
@@ -1108,7 +1116,10 @@ sbs.hcal.tw1 =
 
 --------[ 2022-11-11 00:00:00 ] #GEN3
 
-sbs.hcal.tdc.calib = 0.112
+# TDC calibrations
+sbs.hcal.tdc.calib = 0.11186 
+sbs.hcal.reftdc.calib = 0.11186
+#sbs.hcal.tdc.calib = 0.112
 
 sbs.hcal.adc.gain =
 0.0039889  0.00128798  0.00351214  0.00304626  0.00178882  0.00321967  0.00370097  0.00538299  0.00562417  0.00373941  0.00378799  0.000633862
