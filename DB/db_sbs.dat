@@ -1079,6 +1079,10 @@ sbs.optics_parameters =
 
 # FT origin is 16.5 cm above beam height
 sbs.gemorigin_xyz = -0.165 0.0 3.685
+
+# let's put this entry in here in case it's "mandatory"
+sbs.gemangles_xyz = 0.0 0.0 0.0
+
 # optics coordinate system is centered at beam height (probably not ideal but that's what g4sbs optics fitting code uses):
 sbs.optics_origin = 0.0 0.0 3.685
 
