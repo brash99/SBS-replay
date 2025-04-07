@@ -1565,3 +1565,11 @@ sbs.hcal.position = 0 0 4.897
 
 sbs.hcal.adc.timeoffset = 0.0
 
+--------[ 2024-10-01 00:00:00 ] # start GEP: 
+
+# HCAL position for back tracker search region constraint:
+# AJRP 2025-04-07: we offset HCAL position vertically to compensate for vertical offset of GEM coordinate system. The "position" variable specifies the HCAL origin in
+# GEM coordinates (we might need to modify the code too, oh wait, nope, the code already does this correctly). 
+# since HCAL is 10 m from the target and our initial guess for the origin of the GEM coordinate system is 3.685 m from target, HCAL z position should be 
+# 6.315 m (initial guess, will need adjustment)
+sbs.hcal.position = 0.165 0.0 6.315

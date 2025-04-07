@@ -226,7 +226,7 @@ earm.ecal.chanmap =
 1628 1629 1630 1631 1632 1633 1634 1635 1636 1637 1638 1639 1640 1641 1642 1643 ##Crate roc id 44, Slot 19
 1644 1645 1646 1647 1648 1649 1650 1651 1652 1653 1654 1655 ##Crate roc id 44, Slot 20
 
-earm.ecal.position = 0.0 0.0 9.5
+earm.ecal.position = 0.0 0.0 8.0
 
 earm.ecal.size = 2.9619 1.250811 0.45
 earm.ecal.xyz = 1.45074 -0.564624 0.0
@@ -637,8 +637,9 @@ earm.ecal.adc.FixThresBin = 14
 earm.ecal.adc.gain = 1 # 0.001
 
 ## ** Parameters related to ECAL clustering **
-## Maximum distance difference between cluster seed and additional clusters, set to 0.3 m
-earm.ecal.Rmax_dis = 0.0608
+# AJRP: let's make this a little more conservative at the beginning in case there are inaccuracies in the position database.
+# 7 cm should capture anything within 1.5X the nominal center-to-center block spacing of the seed.
+earm.ecal.Rmax_dis = 0.07
 ## Mininum energy  for a cluster center (not really used right now)
 earm.ecal.emin  = 0.005
 earm.ecal.emin_clSeed = 0.005
