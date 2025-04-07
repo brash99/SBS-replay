@@ -3,9 +3,9 @@
 
 # GEP target is 30-cm thick and starts 9-cm upstream of origin:
 
-FTROI.nbins_zvertex = 30
-FTROI.zvertex_min = -0.24 # -24 cm
-FTROI.zvertex_max = 0.06 # +6 cm
+FTROI.nbins_zvertex = 24
+FTROI.zvertex_min = -0.27 # -27 cm (extra 3 cm for resolution tolerance)
+FTROI.zvertex_max = 0.09 # +9 cm (extra 3 cm for resolution tolerance)
 
 FTROI.earm_name = earm
 FTROI.edet_name = ecal

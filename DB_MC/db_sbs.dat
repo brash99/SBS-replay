@@ -176,6 +176,8 @@ sbs.optics_origin = 0.0 0.0 3.685
 sbs.polarimetermode = 1
 
 sbs.z0analyzer = 1.53
+sbs.analyzerthick = 0.5588
+sbs.nbinsz_fcp = 11
 
 # test GEP tracking mode:
 sbs.geptrackingmode = 1       
@@ -244,8 +246,8 @@ sbs.forwardoptics_parameters =
 
 sbs.frontconstraint_x0 = 0.0 0.0
 sbs.frontconstraint_y0 = 0.0 0.0
-sbs.frontconstraintwidth_x = 0.03 0.1
-sbs.frontconstraintwidth_y = 0.03 0.1
+sbs.frontconstraintwidth_x = 0.03 0.02
+sbs.frontconstraintwidth_y = 0.03 0.02
 
 
 

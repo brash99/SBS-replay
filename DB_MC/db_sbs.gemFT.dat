@@ -30,7 +30,7 @@ sbs.gemFT.threshold_clustersum = 400.0
 
 sbs.gemFT.peakprominence_minsigma = 3.5
 sbs.gemFT.peakprominence_minfraction = 0.15
-sbs.gemFT.trackchi2cut = 150.0
+sbs.gemFT.trackchi2cut = 30.0
 
 sbs.gemFT.maxnu_charge = 4
 sbs.gemFT.maxnv_charge = 4

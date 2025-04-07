@@ -13,6 +13,7 @@
 #include "THaAnalyzer.h"
 #include "THaVarList.h"
 #include "THaInterface.h"
+#include "THaGoldenTrack.h"
 
 #include "SBSBigBite.h"
 #include "SBSBBShower.h"
@@ -66,6 +67,9 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   //gHaPhysics->Add( ROI );
 
   analyzer->AddInterStage( ROI );
+
+  //It seems necessary to add the SBS "golden track" for certain physics modules.
+  gHaPhysics->Add( new THaGoldenTrack( "SBS.gold", "SBS golden track", "sbs") );
   
   THaInterface::SetDecoder( SBSSimDecoder::Class() );
   
