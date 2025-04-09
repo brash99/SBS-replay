@@ -27,6 +27,7 @@
 #include "SBSGEMSpectrometerTracker.h"
 #include "SBSGEMPolarimeterTracker.h"
 #include "SBSGEPRegionOfInterestModule.h"
+#include "SBSGEPHeepCoinModule.h"
 #include "SBSTimingHodoscope.h"
 
 #include "SBSSimDecoder.h"
@@ -70,6 +71,8 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
 
   //It seems necessary to add the SBS "golden track" for certain physics modules.
   gHaPhysics->Add( new THaGoldenTrack( "SBS.gold", "SBS golden track", "sbs") );
+  gHaPhysics->Add( new SBSGEPHeepCoinModule( "heep", "H(e,e'p) GEP-style", "earm","sbs" ) );
+  
   
   THaInterface::SetDecoder( SBSSimDecoder::Class() );
   
