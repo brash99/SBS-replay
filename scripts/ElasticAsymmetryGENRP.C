@@ -237,7 +237,7 @@ void ElasticAsymmetryGENRP( const char *configfilename, const char *outputfilena
                               //1 = choose smallest thetapq (proton or neutron)
                               //2 = choose highest-energy regardless of ADC time.
   // We need a mechanism to enforce the desired IHWP state: run number is probably the best. How about read a list of starting runs after each IHWP change and the state: 
-  double GEMdistSBS = 4.324;
+  double GEMdistSBS = 4.12;
   double z0analyzer = 0.397;
   double analyzerdist = GEMdistSBS + z0analyzer; //about 4.72 meters
 

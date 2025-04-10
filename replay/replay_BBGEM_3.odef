@@ -32,7 +32,7 @@ block bb.gem.*.clust.nclustv_tot
 
 # turn on all raw strip variables: never use except for very specialized low-level analysis:
 #block bb.gem.*.strip.*
-
+#block bb.gem.*.clust.*
 
 #Cuts: 
 cut singletrack bb.gem.track.ntrack==1

@@ -11,8 +11,10 @@ variable sbs.hcal.nblk
 variable sbs.hcal.idblk
 variable sbs.hcal.atimeblk
 variable sbs.hcal.tdctimeblk
+variable sbs.hcal.tdctimeblk_tw
 variable sbs.hcal.index
 variable sbs.hcal.tdctime
+variable sbs.hcal.tdctime_tw
 variable sbs.hcal.adctime
 variable sbs.hcal.e_goodtdc
 variable sbs.hcal.eblk_goodtdc

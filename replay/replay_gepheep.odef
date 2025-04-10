@@ -1,0 +1,46 @@
+block heep.*
+
+cut goodheep heep.datavalid==1.
+formula dEcalo heep.ecalo/heep.eprime_eth-1.
+formula detheta heep.etheta-heep.eth_pth
+formula dptheta heep.ptheta-heep.pth_eth
+
+th1d hHeep_acopl 'Acoplanarity ; rad' heep.acoplanarity 100 0 0.1 goodheep
+th1d hHeep_inel 'Missing mass squared of ep --> pX; Inelasticity (GeV^{2});' heep.inelasticity 100 -2 2 goodheep
+th1d hHeep_dpe 'p_{p}/p_{el}(etheta)-1;dpe' heep.dpe 200 -0.2 0.2 goodheep
+th1d hHeep_dpp 'p_{p}/p_{el}(ptheta)-1;dpp;' heep.dpp 200 -0.2 0.2 goodheep
+th1d hHeep_dphi ';dphi (rad);' heep.dphi 200 -0.1 0.1 goodheep
+th1d hHeep_dx 'Angles-only ;dx = x_{ECAL}-x_{expect} (m);' heep.dxECAL 250 -0.5 0.5 goodheep
+th1d hHeep_dy 'Angles-only ;dy = y_{ECAL}-y_{expect} (m);' heep.dyECAL 250 -0.5 0.5 goodheep
+th2d hHeep_dxdy 'Angles-only ;dy (m); dx (m)' heep.dyECAL heep.dxECAL 125 -0.5 0.5 125 -0.5 0.5 goodheep
+
+th1d hHeep_dx4vect 'Four-vector method ;dx = x_{ECAL}-x_{expect} (m);' heep.dxECAL4vect 250 -0.5 0.5 goodheep
+th1d hHeep_dy4vect 'Four-vector method ;dy = y_{ECAL}-y_{expect} (m);' heep.dyECAL4vect 250 -0.5 0.5 goodheep
+th2d hHeep_dxdy4vect 'Four-vector method ;dy (m); dx (m)' heep.dyECAL4vect heep.dxECAL4vect 125 -0.5 0.5 125 -0.5 0.5 goodheep
+
+th1d hHeep_Emiss 'Missing energy (fractional); E_{calo}/E'(etheta)-1;' dEcalo 200 -1.0 1.0 goodheep
+
+th1d hHeep_deth ';theta_{e}-theta_{e}(theta_{p}) (rad);' detheta 200 -0.05 0.05 goodheep
+th1d hHeep_dpth ';theta_{p}-theta_{p}(theta_{e}) (rad);' dptheta 200 -0.05 0.05 goodheep
+
+# what else?
+# how about some kinematics calculations:
+
+# various flavors of Q2
+th1d hHeep_Q2eth ';Q^{2}(E,theta_{e}) (GeV^{2});' heep.Q2_eth 1500 0.0 15.0 goodheep
+th1d hHeep_Q2pth ';Q^{2}(E,theta_{p}) (GeV^{2});' heep.Q2_pth 1500 0.0 15.0 goodheep
+th1d hHeep_Q2p4vect 'From proton 4-vector ;Q^{2} (GeV^{2});' heep.Q2_p4vect 1500 0.0 15.0 goodheep
+
+# various flavors of epsilon:
+th1d hHeep_eps_eth 'From e^{-} angle;epsilon(E,theta_{e});' heep.eps_eth 100 0 1.0 goodheep
+th1d hHeep_eps_pth 'From p angle;epsilon(E,theta_{p});' heep.eps_pth 100 0 1.0 goodheep 
+th1d hHeep_eps_p4vect 'From proton 4-vector ; epsilon;' heep.eps_4vect 100 0 1.0 goodheep
+
+# timing:
+th1d hHeep_dtADC 'ECAL - HCAL (ADC time) ;dt (ns);' heep.dt_ADC 500 -250 250 goodheep
+
+# ECAL spurious correlations:
+th2d hHeep_dxx 'Angles only; xECAL (m); dxECAL (m)' earm.ecal.x heep.dxECAL 350 -1.75 1.75 125 -0.5 0.5 goodheep
+th2d hHeep_dxy 'Angles only; yECAL (m); dxECAL (m)' earm.ecal.y heep.dxECAL 160 -0.8 0.8 125 -0.5 0.5 goodheep
+th2d hHeep_dyx 'Angles only; xECAL (m); dyECAL (m)' earm.ecal.x heep.dyECAL 350 -1.75 1.75 125 -0.5 0.5 goodheep
+th2d hHeep_dyy 'Angles only; yECAL (m); dyECAL (m)' earm.ecal.y heep.dyECAL 160 -0.8 0.8 125 -0.5 0.5 goodheep

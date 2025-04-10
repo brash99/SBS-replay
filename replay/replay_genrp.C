@@ -221,7 +221,8 @@ void replay_genrp(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, c
 
   gHaPhysics->Add( new THaGoldenTrack( "BB.gold", "BigBite golden track", "bb" ));
   gHaPhysics->Add( new THaPrimaryKine( "e.kine", "electron kinematics", "bb", 0.0, 0.938272 ));
-
+  gHaPhysics->Add( new THaGoldenTrack( "SBS.gold", "SBS golden track", "sbs" ));
+  
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("Left","HA scaler event type 140"));
   //gHaEvtHandlers->Add (new THaScalerEvtHandler("SBS","HA scaler event type 141"));
 

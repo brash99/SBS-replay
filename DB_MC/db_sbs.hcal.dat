@@ -83,6 +83,7 @@ sbs.hcal.chanmap =
 sbs.hcal.ledmap = 2 30
 
 ## Positions in [m] where +z is roated by sbs.theta
+# actual HCAL position in g4sbs coordinates should be 0 0 (HCALdist - GEMdist)
 sbs.hcal.position = 0 0 0
 
 ## HCal is composed of 4 sub-assemblies each of 6x12 (row,col) modules
@@ -163,7 +164,7 @@ sbs.hcal.adc.conv = 0.4882
 # Number of bins (bin=4ns) at the beginning of waveform used to determing average Pedestal
 sbs.hcal.adc.NPedBin = 4
 # Threshold for pulse finding in waveform (mV)
-sbs.hcal.adc.thres = 20.0
+sbs.hcal.adc.thres = 5.0
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
 sbs.hcal.adc.NSB = 3
 # Number of bins (bin=4ns) before Threshold Bin to use in integrating pulse
@@ -195,4 +196,13 @@ sbs.hcal.tmax = 1000.0
 # in GEN-RP, the position is hcal distance minus 4.105 m (in the "optics" coordinate system)
 
 sbs.hcal.position = 0.0 0.0 4.895
+
+-------[ 2024-10-01 00:00:00 ] # Start GEP
+
+# in g4sbs GEP HCAL is always 10 m from target, in optics coord system, it is at 0 0 (HCALdist - opticsdist) = 6.315 m
+#sbs.hcal.position = 0.0 0.0 6.315
+
+# offset HCAL position vertically to compensate for vertical offset of GEM coordinate system. The "position" variable specifies the HCAL origin in
+# GEM coordinates (we might need to modify the code too, oh wait, nope, the code already does this correctly):
+sbs.hcal.position = 0.165 0.0 6.315
 

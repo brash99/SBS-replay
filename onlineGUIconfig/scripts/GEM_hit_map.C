@@ -1,4 +1,4 @@
-void GEM_hit_map(int layer, TString det = "bb.gem"){
+void GEM_hit_map(int layer, TString det = "bb.gem", int what_gep_tracker = 0 /* Input 1 for FT and 2 for FPP */){
 
   gStyle->SetPalette(1);
 
@@ -9,6 +9,25 @@ void GEM_hit_map(int layer, TString det = "bb.gem"){
   if(layer < 4){
     width = 0.4;
     height = 1.5;
+  }
+
+  if ( what_gep_tracker == 1 )
+  {
+    if ( layer < 6 )
+    {
+      width = 0.4;
+      height = 1.5;
+    }
+    if ( layer == 6 || layer == 7 )
+    {
+      width = 0.6;
+      height = 2.0;
+    }
+  }
+  else if ( what_gep_tracker == 2 )
+  {
+    width = 0.6;
+    height = 2.0;
   }
 
   TTree *t = (TTree*) gFile->Get("T");
