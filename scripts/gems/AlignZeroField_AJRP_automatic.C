@@ -158,6 +158,8 @@ void AlignZeroField( const char *configfilename ){
   double GEMax = 0.0;
   double GEMay = -10.0*PI/180.0;
   double GEMaz = 0.0;
+
+  int fixzsieve = 1;
   
   TCut globalcut = "";
   
@@ -179,6 +181,11 @@ void AlignZeroField( const char *configfilename ){
 	if( ntokens >= 2 ){
 	  TString skey = ( (TObjString*) (*tokens)[0] )->GetString();
 
+	  if( skey == "fixzsieve" ){
+	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
+	    fixzsieve = stemp.Atoi();
+	  }
+	  
 	  if( skey == "prefix" ){
 	    TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	    prefix = stemp;
@@ -761,6 +768,8 @@ void AlignZeroField( const char *configfilename ){
   FitZeroField->mnparm( 4, "GEMax", GEMax, 0.3*PI/180.0, 0, 0, ierflg ); //guesstimate 0.3 degrees as initial angular accuracy
   FitZeroField->mnparm( 5, "GEMay", GEMay, 0.3*PI/180.0, 0, 0, ierflg );
   FitZeroField->mnparm( 6, "GEMaz", GEMaz, 0.3*PI/180.0, 0, 0, ierflg );
+
+  if( fixzsieve != 0 ) FitZeroField->FixParameter(3);
   
   double arglist[10];
   arglist[0]=1;

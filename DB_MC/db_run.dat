@@ -224,16 +224,16 @@ bb.magdist = 1.55
 ###############################################################################
 --------[ 2024-10-01 00:00:00 ] 
 
-ebeam = 6.4
+ebeam = 6.476
 experiment = gep
 
 sbs.theta = -25.7
-sbs.pcentral = 3.86
+sbs.pcentral = 3.88
 sbs.magdist = 1.6
 sbs.hcaldist = 10.0
 
-earm.theta = 29.8
-earm.pcentral = 3.37
-earm.ecaldist = 9.5
+earm.theta = 29.46
+earm.pcentral = 3.42
+earm.ecaldist = 8.0
 
 

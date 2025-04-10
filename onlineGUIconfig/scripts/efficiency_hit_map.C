@@ -1,5 +1,5 @@
 //option = 0/1 (layer / module)
-void efficiency_hit_map(TString hdidhit, TString hshouldhit, int layer=0, int option = 0 ){
+void efficiency_hit_map(TString hdidhit, TString hshouldhit, int layer=0, int option = 0 /*input 1 for FT and 2 FPP*/ ){
   
   gStyle->SetOptStat(0);
   gStyle->SetPalette(1);
@@ -42,6 +42,29 @@ void efficiency_hit_map(TString hdidhit, TString hshouldhit, int layer=0, int op
 
      Hdid->SetTitle(Form("Layer %i, Efficiency = %g",layer,efficiency*100));
   }
+
+  else if ( option == 1 )
+  {
+    if ( layer < 6 )
+    {
+      Hdid->GetXaxis()->SetRangeUser(-0.2,0.2);
+      Hdid->GetYaxis()->SetRangeUser(-0.75,0.75);
+    }
+    else if ( layer == 6 || layer == 7 )
+    {
+      Hdid->GetXaxis()->SetRangeUser(-0.3,0.3);
+      Hdid->GetYaxis()->SetRangeUser(-1.0,1.0);
+    }
+    Hdid->SetTitle(Form("Layer %i, Efficiency = %g",layer,efficiency*100));
+  }
+
+  else if ( option == 2 )
+  {
+    Hdid->GetXaxis()->SetRangeUser(-0.3,0.3);
+    Hdid->GetYaxis()->SetRangeUser(-1.0,1.0);
+    Hdid->SetTitle(Form("Layer %i, Efficiency = %g",layer,efficiency*100));
+  }
+
 
   else{
     if(layer < 4){

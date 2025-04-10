@@ -1,0 +1,4 @@
+#Output variable definitions for the GEM-onl analysis of GEp trackers.
+
+#include "replay_FTGEM_gep.odef"
+#include "replay_FPPGEM_gep.odef"

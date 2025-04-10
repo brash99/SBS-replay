@@ -1,9 +1,9 @@
 ---------[ 2021-09-01 00:00:00 ] # beginning of (SBS) time
 
 sbs.tdctrig.detmap =
-17 8 32 34 0
-17 8 35 35 -1
-17 8 36 36 0
+17 8 32 34 0    # HCAL trig, (??), EDTM, ref index 0 (BB trig) 
+17 8 35 35 -1   # copy of BB trig, ref index -1 (no reference)
+17 8 36 36 0    # RF time, ref index 0
 
 # elemID 0 = HCAL sum trigger
 # elemID 1 = undefined?
@@ -11,7 +11,7 @@ sbs.tdctrig.detmap =
 # elemID 3 = RF
 # REF = BB trig.
 
-sbs.tdctrig.chanmap = 0 1 2 -1000 3
+sbs.tdctrig.chanmap = 0 1 2 -1000 3 # here the copy of the BB trigger is treated as reference for all other channels. 
 
 
 sbs.tdctrig.ncols = 4
