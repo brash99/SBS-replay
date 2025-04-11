@@ -21,7 +21,7 @@
 #include "SBSGEPEArm.h"
 
 
-void replay_ECal(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="e1209016", UInt_t firstsegment=0, UInt_t maxsegments=10, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1, Int_t usesbsgems=1)
+void replay_ECal(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="cdet", UInt_t firstsegment=0, UInt_t maxsegments=10, Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=1, Int_t usesbsgems=1)
 		 //int run_number = 124, uint nev = -1, TString start_name = "e1209019", uint nseg = 0)
 {
 
@@ -81,9 +81,9 @@ void replay_ECal(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, co
     for( UInt_t iseg = firstsegment; iseg < firstsegment + maxsegments; ++iseg ) {
       TString codafilename;
       if( test_data )
-	codafilename.Form("%s_%u.evio.%u", fname_prefix, runnum, istream);
+	codafilename.Form("%s_%u.dat.%u", fname_prefix, runnum, istream);
       else
-	codafilename.Form("%s_%u.evio.%d.%u", fname_prefix, runnum, istream, iseg);
+	codafilename.Form("%s_%u.dat.%d.%u", fname_prefix, runnum, istream, iseg);
       cout << "codafilename = " << codafilename << endl;
       filenames.emplace_back(codafilename.Data());
     }
