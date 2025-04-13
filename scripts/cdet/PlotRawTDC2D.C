@@ -20,7 +20,7 @@
 static const int TDCmult_cut = 20;
 static const double xcut = 998.0;
 static const double TDC_calib_to_ns = 0.01;
-static const double HotChannelRatio = 26880.0;
+static const double HotChannelRatio = .01;
 
 static const int NumPaddles = 16;
 static const int NumBars = 14;
@@ -94,18 +94,18 @@ TChain *T = 0;
   
 //===================================================== Histogram Declarations
 // number of histo bins
-const int NTDCBins = 200;
+const int NTDCBins = 1500;
 const double TDCBinLow = 1;
-const double TDCBinHigh = 4601;
+const double TDCBinHigh = 4501;
 const int NTotBins = 1500;
 const double TotBinLow = 1.;
 const double TotBinHigh = 4501.;
 
 //const int num_bad = 0;
-const int num_bad = 23;
+const int num_bad = 26;
 
 const int bad_channels[] = {
-	45, 207, 604, 728, 1174, 1488, 1726, 1912, 2131, 2132, 
+	45, 207, 604, 728, 1174, 1488, 1684, 1685, 1712, 1726, 1912, 2131, 2132, 
 	2410, 2411, 2417, 2425, 2426, 2427, 2430, 2466, 2470, 2471, 2472, 
 	2673, 2675
 };
@@ -200,9 +200,9 @@ bool check_bad(int pmt, bool suppress_bad) {
 	return flag;
 }
 
-void PlotRawTDC2D(Int_t RunNumber=2232, Int_t nevents=50000, 
+void PlotRawTDC2D(Int_t RunNumber=2410, Int_t nevents=100000, 
 	const TString InFilePrefix="cdet", 
-	Double_t TotMin = 10.0, Double_t TotMax = 100.0, bool suppress_bad = true){
+	Double_t TotMin = 10.0, Double_t TotMax = 100.0, bool suppress_bad = false){
   // InFile is the input file without absolute path and without .root suffix
   // nevents is how many events to analyse, -1 for all
   

@@ -38,10 +38,11 @@ void replay_CDet(UInt_t runnum=2232, const char *fname_prefix="gep5",Long_t neve
   //SBSGenericDetector* cdet = new SBSGenericDetector("cdet", "CDet");
   //ecal->SetDataOutputLevel(1);
   //cdet->SetDataOutputLevel(1);
-  //earm->AddDetector(ecal);
+  
   earm->AddDetector(cdet);
   earm->AddDetector(ecal);
   gHaApps->Add(earm);  
+  
   // enabling writing out waveform information
   ecal->SetStoreRawHits(kTRUE);
   cdet->SetStoreRawHits(kTRUE);

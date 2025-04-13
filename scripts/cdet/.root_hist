@@ -1,407 +1,3 @@
-.x PlotRawTDC2D.C(2040,5580,"cdet")
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet")
- .q
-.x PlotRawTDC2D.C(2040,5580,"cdet")
-.x PlotRawTDC2D.C(2040,5580,"cdet")
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-plotAllTDC()
-.q
-plotAllTDC()
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-plotTDC2d()
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-.q
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet")
-root
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet")
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet",10.0,200.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2040,5580,"cdet",20.0,100.0)
-.q
-.x PlotRawTDC2D.C(1999,216600,"cdet",20.0,100.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(1999,100000,"cdet",20.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2090,100000)
-plotRefTDC()
-.q
-.x PlotRawTDC2D.C(2090,100000)
-plotRefTDC()
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2090,100000)
-plotAllTDC()
-plotRefTDC()
-.q
-.x PlotRawTDC2D.C(2090,100000)
-plotRefTDC()
-.q
-.x PlotRawTDC2D.C(2090,100000)
-.x PlotRawTDC2D.C(2090,100000)
-.q
-.x PlotRawTDC2D.C(2090,100000)
-plotRefTDC()
-,q
-.q
-.x PlotRawTDC2D.C(2090,100000,"cdet",20.0,350.0)
-plotRefTDC()
-.q
-.x PlotRawTDC2D.C(2090,100000,"cdet",20.0,350.0)
-.q
-.x PlotRawTDC2D.C(2090,100000,"cdet",20.0,350.0)
-.q
-.x PlotRawTDC2D.C(2090,100000,"cdet",20.0,350.0)
-plotRefTDC()
-.q
-.x PlotRawTDC2D.C(2090,100000,"cdet",20.0,350.0)
-.q
-.x PlotRawTDC2D.C(2090,100000,"cdet",20.0,350.0)
-plotRefTDC()
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2091,100000,"cdet",20.0,350.0)
-plotAllTDC()
-plotRefTDC()
-.q
-.x PlotRawTDC2D.C(2112,100000,"cdet")
-.x PlotRawTDC2D.C(2112,4000,"cdet")
-.q
-.x PlotRawTDC2D.C(2112,4000,"cdet")
-plotAllTDC()
-plotRefTDC()
-.q
-.x PlotRawTDC2D.C(2113,4000,"cdet")
-plotRefTDC()
-.q
-.q
-.x PlotRawTDC2D.C(2112,4000,"cdet")
-plotRefTDC()
-plotAllTDC()
-.x PlotRawTDC2D.C(2113,4000,"cdet")
-.q
-.x PlotRawTDC2D.C(2113,4000,"cdet")
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2128,4000,"cdet")
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2128,4000,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2130,170000,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",30.0,70.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,40.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",20.0,40.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet")
-.q
-.x PlotRawTDC2D.C(2138,170000,"cdet")
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",10.0,40.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2138,170000,"cdet",5.0,45.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",10.0,45.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,45.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",10.0,50.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,35.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,30.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",10.0,30.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",5.0,40.0)
-plotAllTDC()
-.q
-plotAllTDC().q
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,40.0)
-plotAllTDC().q
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2135,170000,"cdet",10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2138,170000,"cdet",10.0,40.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2DCut.C(2135,170000,"cdet",1150.0,1200.0,10.0,40.0)
-.q
-.x PlotRawTDC2DCut.C(2135,170000,"cdet",1150.0,1200.0,10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2DCut.C(2135,170000,"cdet",1150.0,1180.0,10.0,40.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2DCut.C(2135,170000,"cdet",1150.0,1180.0,10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2DCut.C(2138,170000,"cdet",2150.0,2180.0,10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2DCut.C(2138,170000,"cdet",2000.0,2200.0,10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2DCut.C(2138,170000,"cdet",2100.0,2150.0,10.0,40.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2DCut.C(2135,170000,"cdet",1150.0,1200.0,10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2DCut.C(2147,800000,"cdet",1150.0,1200.0,10.0,40.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2147,800000,"cdet",10.0,40.0)
-.x PlotRawTDC2D.C(2147,800000,"cdet",10.0,40.0)
-,q
-.q
-.x PlotRawTDC2D.C(2147,800000)
-plotAllTDC()
-.x PlotRawTDC2D.C(2147,800000,"cdet",10.0,40.0)
-.q
-.x PlotRawTDC2D.C(2147,800000,"cdet",10.0,40.0)
-.x PlotRawTDC2D.C(2147,800000,"cdet",10.0,40.0)
-.q
-.x PlotRawTDC2D.C(2147,800000,"cdet",10.0,40.0)
-plotAllTDC()
-plotTDC2d()
-plotGoodTDC2D()
-.q
-.q
-.x PlotRawTDC2D.C(2154,10000,"cdet")
-.x PlotRawTDC2D.C(2154,10000,"cdet",0.0,10000.0)
-.q
-.x PlotRawTDC2D.C(2154,10000,"cdet",0.0,10000.0)
-plotRowColLayer()
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2154,14358,"cdet",0.0,10000.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2154,14358,"cdet",0.0,10000.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2154,14358,"cdet",10.0,50.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2154,14358,"cdet",0.0,100.0)
-.q
-.x PlotRawTDC2D.C(2154,14358,"cdet",0.0,100.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2154,14358,"cdet",0.0,60.0)
-.q
-.x PlotRawTDC2D.C(2154,14358,"cdet",0.0,60.0)
-plotAllTDC()
-plotXYZ()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,1000.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,200.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-plotAllTDC()
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",2200.0,2750.0,0.0,100.0)
-plotAllTDC()
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",0.0,4650.0,0.0,300.0)
-plotAllTDC()
-.q
-.q
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",0.0,4650.0,0.0,300.0)
-plotAllTDC()
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",2350.0,2500.0,0.0,80.0)
-plotAllTDC()
-plotXYZ()
-plotRowColLayer()
-plotRefTDC()
-plotTDC2d()
-.q
-.w
-.q
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",2350.0,2500.0,0.0,80.0)
-plotTDC2d()
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-pwd
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-pwd
-plotAllTDC()
-plotXYZ()
-.q
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",2350.0,2500.0,0.0,80.0)
-plotAllTDC()
-plotXYZ()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",0.0,100.0)
-plotXYZ()
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",10.0,100.0)
-plotAllTDC()
-.wq
-.q
-.q
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",2350.0,2500.0,0.0,80.0)
-plotAllTDC()
-plotXYZ()
-plotXYZ()
-.q
-.x PlotRawTDC2D.C(2159,143000,"cdet",10.0,100.0)
-.q
-.x PlotRawTDC2D.C(2163,2000)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2163,2000)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2163,2000)
-plotAllTDC()
-.q
-.x PlotRawTDC2DCut.C(2159,143000,"cdet",2350.0,2500.0,0.0,80.0)
-plotXYZ()
-plotRowColLayer()
-plotTDC2d()
-.x PlotRawTDC2D.C(2172,5000)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2218,4500)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2220,500)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2222,900)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2223,2000)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2218,4500)
-plotAllTDC()
-.x PlotRawTDC2D.C(2218,4500,"cdet",10.0,100.0)
-.q
-.x PlotRawTDC2D.C(2218,4500,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2218,4500,"cdet",10.0,100.0)
-.q
-.x PlotRawTDC2D.C(2218,4500,"cdet",10.0,100.0)
-.q
-.x PlotRawTDC2D.C(2218,4500,"cdet",10.0,100.0)
-.q
-.x PlotRawTDC2D.C(2218,4500,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2220,4500,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2220,500,"cdet",10.0,100.0)
-plotAllTDC()
-.q.q
-.x PlotRawTDC2D.C(2222,900,"cdet",10.0,100.0)
-plotAllTDC()
-plotAllTDC().q
-.q
-.x PlotRawTDC2D.C(2223,900,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2223,2000,"cdet",10.0,100.0)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2232,50000,"cdet",10.0,100.0)
-.q
-.x PlotRawTDC2D.C(2232)
-.q
-.x PlotRawTDC2D.C(2232)
-plotAllTDC()
-.q
-.x PlotRawTDC2D.C(2232)
-plotAllTDC()
-plotXYZ()
-.q
-.x PlotRawTDC2D.C(2232)
-.q
-.x PlotRawTDC2D.C(2232)
-.q
-.x PlotRawTDC2D.C(2232)
-.q
-.x PlotRawTDC2D.C(2232)
-:q
-.q
-.x PlotRawTDC2D.C(2232)
-.q
-.x PlotRawTDC2D.C(2232)
-.q
-.x PlotRawTDC2D.C(2232)
-plotXYECalCDet()
-.q
-.x PlotRawTDC2D.C(2232)
-plotXYECalCDet()
-.q
-.x PlotRawTDC2D.C(2232)
-plotXYECalCDet()
-.q
-.x PlotRawTDC2D.C(2232)
 plotXYECalCDet()
 .q
 .x PlotRawTDC2D.C(2232,50000)
@@ -462,3 +58,376 @@ plotAllTDC()
 plotAllTDC()
 pwd
 .q
+.x PlotRawTDC2D.C(2369,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2379,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2372,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+pwd
+,q
+.q
+.x PlotRawTDC2D.C(2379,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2399,2000,"cdet",10.0,100.0,false)
+.x PlotRawTDC2D.C(2399,1000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.x PlotRawTDC2D.C(2399,1000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2399,1000,"cdet",1.0,10000.0,false)
+plotAllTDC()
+plotXYZ()
+.q
+.x PlotRawTDC2D.C(2399,1000,"cdet",1.0,10000.0,true)
+.x PlotRawTDC2D.C(2399,1000,"cdet",10.0,100.0,true)
+.q
+.x PlotRawTDC2D.C(2399,1000,"cdet",10.0,100.0,true)
+.q
+.q
+.x PlotRawTDC2D.C(2399,1000,"cdet",1.0,10000.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2399,1000,"cdet",1.0,10000.0,false)
+.x PlotRawTDC2D.C(2399,1000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.q
+.x PlotRawTDC2D.C(2399,1000,"cdet",10.0,100.0,false)
+.q
+.x PlotRawTDC2D.C(2399,1000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2401,1300,"cdet",10.0,100.0,true)
+plotAllTDC()
+ls -altr
+pwd
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",30.0,70.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",30.0,70.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",30.0,70.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",30.0,70.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",30.0,70.0,false)
+plotAllTDC()
+plotXYZ()
+plotXYECalCDet()
+.q
+.x PlotRawTDC2D.C(2396,50000,"cdet",30.0,70.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,true)
+plotAllTDC()
+plotXYZ()
+plotXYECalCDet()
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,false)
+plotAllTDC()
+plotXYZ()
+plotAllTDC()
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,True)
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,True)
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,false)
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2404,12000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2410,1000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2410,1000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2410,1000,"cdet",10.0,100.0,true)
+plotXYZ()
+plotXYECalCDet()
+pwd
+.q
+.x PlotRawTDC2D.C(2410,1000000,"cdet",10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2426,1000000,"cdet",10.0,100.0,true)
+plotAllTDC()
+pwd
+.q
+.x PlotRawTDC2D.C(2455,1000000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.x PlotRawTDC2D.C(2455,10000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2455,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+pwd
+.q
+.x PlotRawTDC2D.C(2426,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2D.C(2421,50000,"cdet",10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",500.0,1500.0,10.0,100.0,false)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",500.0,1500.0,10.0,100.0,false)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",900.0,1100.0,10.0,100.0,false)
+plotAllTDC()
+plotXYZ()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",900.0,1100.0,10.0,100.0,true)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C()
+plotAllTDC()
+pwd
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",900.0,1100.0,10.0,100.0,true,30)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",900.0,1100.0,10.0,100.0,true,30)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",900.0,1100.0,10.0,100.0,true,30)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",900.0,1100.0,10.0,100.0,true,30)
+.q
+.x PlotRawTDC2DCut.C(2421,1000000,"cdet",900.0,1100.0,10.0,100.0,true,30)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,1000000,"cdet",900.0,1100.0,10.0,100.0,true,1)
+.q
+.x PlotRawTDC2DCut.C(2421,32000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotAllTDC()
+.x PlotRawTDC2DCut.C(2421,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,"cdet",500.0,1500.0,10.0,100.0,true,30)
+plotAllTDC()
+.x PlotRawTDC2DCut.C(2421,30000,"cdet",500.0,1500.0,10.0,100.0,true,30)
+.q
+.x PlotRawTDC2DCut.C(2421,30000,"cdet",500.0,1500.0,10.0,100.0,true,30)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,30000,"cdet",500.0,1500.0,10.0,100.0,true,2)
+plotAllTDC()
+.x PlotRawTDC2DCut.C(2421,3000,"cdet",500.0,1500.0,10.0,100.0,true,2)
+plotAllTDC()
+.x PlotRawTDC2DCut.C(2421,3000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,3000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,0)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",0.0,4500.0,10.0,100.0,true,1)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",0.0,4500.0,10.0,100.0,true,1)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,5000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,5000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,5000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,5000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+.q
+.x PlotRawTDC2DCut.C(2421,5000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,5000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,5000,1000000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2396,5000,50000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.x PlotRawTDC2DCut.C(2410,5000,100000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.x PlotRawTDC2DCut.C(2410,50000,100000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+.q
+.x PlotRawTDC2DCut.C(2410,50000,100000,"cdet",500.0,1500.0,10.0,100.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2410,50000,100000,"cdet",500.0,1500.0,2.0,10.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2410,50000,100000,"cdet",500.0,1500.0,2.0,10.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2410,500,100000,"cdet",500.0,1500.0,2.0,10.0,true,1)
+plotNhits()
+pwd
+.q
+.x PlotRawTDC2DCut.C(2421,500,100000,"cdet",500.0,1500.0,2.0,10.0,true,1)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,500,1000000,"cdet",500.0,1500.0,10.0,100.0,false,0)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,500,1000000,"cdet",500.0,1500.0,10.0,100.0,false,0)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,50000,1000000,"cdet",500.0,1500.0,10.0,100.0,false,0)
+.q
+.x PlotRawTDC2DCut.C(2421,50000,50000,"cdet",500.0,1500.0,10.0,100.0,false,0)
+.q
+.x PlotRawTDC2DCut.C(2421,32000,50000,"cdet",500.0,1500.0,10.0,100.0,false,0)
+plotAllTDC()
+plotNhits()
+plotRowColLayer()
+plotHalfModule()
+plotBarTDC()
+plotBarTDC(1,1,1)
+plotBarTDC(2,1,1)
+plotBarTDC(42,1,1)
+plotBarTDC(42,2,2)
+plotBarTDC(42,2,3)
+plotBarTDC(42,2,2)
+plotCDetTDC()
+plotBarTDC(42,2,2)
+.q
+.x PlotRawTDC2DCut.C(2421,32000,50000,"cdet",0.0,4500.0,10.0,100.0,false,0)
+plotBarTDC(42,2,2)
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",0.0,4500.0,10.0,100.0,false,10)
+.q
+plotNhits()
+plotTDC2d()
+plotRowColLayer()
+plotGoodTDC2D()
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,100.0,false,10)
+plotAllTDC()
+plotTDC2d()
+plotRowColLayer()
+plotAllTDC()
+plotNhits()
+.q
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,100.0,false,7)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,100.0,false,7)
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,100.0,false,7)
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,100.0,false,7)
+plotNhits()
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,100.0,false,7)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",3000.0,4000.0,10.0,100.0,false,7)
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",3000.0,3200.0,10.0,100.0,false,7)
+plotNhits()
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",3000.0,3200.0,10.0,100.0,false,7)
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",3000.0,3200.0,10.0,100.0,false,7)
+plotNhits()
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,100.0,false,7)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,7)
+plotAllTDC()
+plotNhits()
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,7)
+plotAllTDC()
+plotNhits()
+ls -altr
+.q
+.q
+.x PlotRawTDC2DCut.C(2421,200000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,7)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,13)
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,15)
+plotAllTDC()
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",3000.0,3200.0,10.0,60.0,false,15)
+plotAllTDC()
+.q
+.q
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",3000.0,3200.0,10.0,60.0,false,15)
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,15)
+plotAllTDC()
+plotAllTDC()
+plotNhits()
+.q
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",3000.0,3200.0,10.0,60.0,false,15)
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,15)
+plotAllTDC()
+plotAllTDC()
+.q
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,15)
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",900.0,1100.0,10.0,60.0,false,15)
+.x PlotRawTDC2DCut.C(2421,500,1000000,"cdet",3000.0,3200.0,10.0,60.0,false,15)
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",3000.0,3200.0,10.0,60.0,false,15)
+plotNhits()
+plotAllTDC()
+plotAllTDC()
+plotAllTDC()
+plotAllTDC()
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",100.0,300.0,10.0,60.0,false,15)
+.q
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",500.0,700.0,10.0,60.0,true,15)
+.x PlotRawTDC2DCut.C(2421,500000,1000000,"cdet",700.0,900.0,10.0,60.0,true,15)

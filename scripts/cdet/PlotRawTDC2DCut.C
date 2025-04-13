@@ -17,10 +17,12 @@
 #include <TSystem.h>
 #include <TLatex.h>
 
-static const int TDCmult_cut = 7;
+static const int TDCmult_cut = 15;
 static const double xcut = 998.0;
+static const int nhitcutlow = 10;
+static const int nhitcuthigh = 40;
 static const double TDC_calib_to_ns = 0.01;
-static const double HotChannelRatio = 200.0;
+static const double HotChannelRatio = .01;
 
 static const int NumPaddles = 16;
 static const int NumBars = 14;
@@ -82,20 +84,34 @@ namespace TCDet {
   Int_t NdataGoodZ;
   Double_t GoodZ[nTdc];
 
+  Double_t GoodECalX;
+  Double_t GoodECalY;
+  Double_t nhits;
+  Double_t ngoodhits;
+  Double_t ngoodTDChits;
+
 };
 
 TChain *T = 0;
   
 //===================================================== Histogram Declarations
 // number of histo bins
-const int NTDCBins = 200;
-const double TDCBinLow = 1;
-const double TDCBinHigh = 4601;
-const int NTotBins = 1500;
+const int NTDCBins = 1000;
+const int NTotBins = 200;
 const double TotBinLow = 1.;
-const double TotBinHigh = 4501.;
+const double TotBinHigh = 201.;
 
-const int num_bad = 76;
+//const int num_bad = 0;
+const int num_bad = 26;
+
+const int bad_channels[] = {
+	45, 207, 604, 728, 1174, 1488, 1684, 1685, 1712, 1726, 1912, 2131, 2132, 
+	2410, 2411, 2417, 2425, 2426, 2427, 2430, 2466, 2470, 2471, 2472, 
+	2673, 2675
+};
+	
+
+/*
 const int bad_channels[] = {
 		45,   224, 226, 234, 241, 284, 240, 604, 690, 698, 702,
 		864, 1174,1437,1488,1726,1912,2131,2132,2213,2214,
@@ -105,7 +121,7 @@ const int bad_channels[] = {
 		2592,2607,2613,2614,2616,2620,2624,2628,2632,2633,
 		2634,2656,2661,2664,2665,2666,2667,2673,2675,2681,
 		2683,2687};
-
+*/
 
 // Raw hits ie all hits
 TH1F *hRawLe[nBarsTDC];
@@ -151,11 +167,26 @@ TH1F *hRowLayer2Side2;
 TH1F *hLayer;
 TH1F *hCol;
 
+TH1F *hnhits1;
+TH1F *hngoodhits1;
+TH1F *hngoodTDChits1;
+TH1F *hnhits2;
+TH1F *hngoodhits2;
+TH1F *hngoodTDChits2;
+TH1F *hnhits_ev;
+TH1F *hngoodhits_ev;
+TH1F *hngoodTDChits_ev;
+
 TH1F *hHitX;
 TH1F *hHitY;
 TH1F *hHitZ;
 TH2F *hHitXY1;
 TH2F *hHitXY2;
+
+TH2F *hXECalCDet1;
+TH2F *hXECalCDet2;
+TH2F *hYECalCDet1;
+TH2F *hYECalCDet2;
   
 // 2D histograms
 TH2F* h2d_RawLE;
@@ -170,19 +201,19 @@ TH2F* h2d_Mult;
 
 using namespace std;
 
-bool check_bad(int pmt) {
+bool check_bad(int pmt, bool suppress_bad) {
 	bool flag = false;
-	if (num_bad == 0) return flag;
+	if (!suppress_bad) return flag;
 	for (int i=0;i<num_bad;i++) {
 		if (pmt == bad_channels[i])  flag = true;
 	}
 	return flag;
 }
 
-void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000, 
-	const TString InFilePrefix="cdet", 
-	Double_t LeMin = 1150.0, Double_t LeMax = 1200.0,
-	Double_t TotMin = 0.0, Double_t TotMax = 200.0){
+void PlotRawTDC2DCut(Int_t RunNumber=2421, Int_t nevents=50000, Int_t neventsr=1000000, 
+	const TString InFilePrefix="cdet",
+	Double_t LeMin = 500.0, Double_t LeMax = 1500.0,
+	Double_t TotMin = 10.0, Double_t TotMax = 100.0, bool suppress_bad = false, Int_t nruns=30){
   // InFile is the input file without absolute path and without .root suffix
   // nevents is how many events to analyse, -1 for all
   
@@ -190,9 +221,22 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
   // root -l
   // .L PlotRawTDC2D.C+
   // PlotRawTDC2D("filename", -1)
-
+  double TDCBinLow = LeMin;
+  double TDCBinHigh = LeMax;
+  
   // hit channel id
+  
   hHitPMT = new TH1F("hHitPMT","hHitPMT",nTdc,0,nTdc);
+  hnhits1 = new TH1F("hnhits1","hnhits1",100,1,101);
+  hngoodhits1 = new TH1F("hngoothits1","hngoodhits1",100,1,101);
+  hngoodTDChits1 = new TH1F("hngoodTDChits1","hngoodTDChits1",100,1,101);
+  hnhits2 = new TH1F("hnhits2","hnhits2",100,1,101);
+  hngoodhits2 = new TH1F("hngoothits2","hngoodhits2",100,1,101);
+  hngoodTDChits2 = new TH1F("hngoodTDChits2","hngoodTDChits2",100,1,101);
+  hnhits_ev = new TH1F("hnhits_ev","hnhits_ev",500,0,200000);
+  hngoodhits_ev = new TH1F("hngoothits_ev","hngoodhits_ev",500,0,200000);
+  hngoodTDChits_ev = new TH1F("hngoodTDChits_ev","hngoodTDChits_ev",500,0,200000);
+
   hRow = new TH1F("RowNumber","RowNumber",680, 0, 680);
   hRowLayer1Side1 = new TH1F("RowNumberL1S1","RowNumberL1S1",680, 0, 680);
   hRowLayer1Side2 = new TH1F("RowNumberL1S2","RowNumberL1S2",680, 0, 680);
@@ -206,6 +250,11 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
   hHitZ = new TH1F("HitZposition","HitZPosition",200,7.5,8.0);
   hHitXY1 = new TH2F("HitXY1position","HitXY1Position",9,-1.0,1.0,800,-2.0,2.0);
   hHitXY2 = new TH2F("HitXY2position","HitXY2Position",9,-1.0,1.0,800,-2.0,2.0);
+  
+  hXECalCDet1 = new TH2F("XECalCDet1","XECalCDet1",100,-2.0,2.0,100,-2.0,2.0);
+  hXECalCDet2 = new TH2F("XECalCDet2","XECalCDet2",100,-2.0,2.0,100,-2.0,2.0);
+  hYECalCDet1 = new TH2F("YECalCDet1","YECalCDet1",100,-1.0,1.0,9,-1.0,1.0);
+  hYECalCDet2 = new TH2F("YECalCDet2","YECalCDet2",100,-1.0,1.0,9,-1.0,1.0);
   
   // 2D histograms
   h2d_RawLE  = new TH2F("h2d_RawLE","", NTDCBins,TDCBinLow,TDCBinHigh,nBarsTDC+1,0,nBarsTDC+1);
@@ -232,7 +281,7 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
             NTotBins, TotBinLow, TotBinHigh);
   hAllRawPMT = new TH1F(TString::Format("hRawPMT"),
             TString::Format("hRawPMT"),
-            nTdc+32, 0, nTdc+32);
+            nTdc, 0, nTdc);
   hAllGoodLe = new TH1F(TString::Format("hAllGoodLe"),
             TString::Format("hAllGoodLe"),
             NTDCBins, TDCBinLow, TDCBinHigh);
@@ -244,7 +293,7 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
             NTotBins, TotBinLow, TotBinHigh);
   hAllGoodPMT = new TH1F(TString::Format("hAllGoodPMT"),
             TString::Format("hAllGoodPMT"),
-            nTdc+32, 0, nTdc+32);
+            nTdc, 0, nTdc);
   h2AllGoodLe = new TH2F(TString::Format("h2AllGoodLe"),
             TString::Format("h2AllGoodLe"),nTdc,0,nTdc,
             NTDCBins, TDCBinLow, TDCBinHigh);
@@ -310,20 +359,32 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
   }// bar loop
 
 
-    TString subfile = TString::Format("_%d_%d",RunNumber,nevents);
-    TString sInFile = REPLAYED_DIR + "/" + InFilePrefix + subfile + ".root";
-    cout << "Input ROOT file = " << sInFile << endl;
   //========================================================= Get data from tree
   if(!T) { 
     // TString sInFile = REPLAYED_DIR + "/" + InFile + ".root";
-    cout << "Adding " << sInFile << endl;
     T = new TChain("T");
+    TString subfile, sInFile;
+    subfile = TString::Format("_%d_%d",RunNumber,neventsr);
+    sInFile = REPLAYED_DIR + "/" + InFilePrefix + subfile + ".root";
+    cout << "Input ROOT file = " << sInFile << endl;
+    cout << "Adding " << sInFile << endl;
     T->Add(sInFile);
+    cout << "Adding " << nruns << " files ... " << endl;
+    for (Int_t i=1; i<=nruns; i++) {
+    	subfile = TString::Format("_%d_%d_%d",RunNumber,neventsr,i);
+    	//subfile = TString::Format("_%d_1000000_%d",RunNumber,i);
+    	sInFile = REPLAYED_DIR + "/" + InFilePrefix + subfile + ".root";
+    	cout << "Input ROOT file = " << sInFile << endl;
+    	cout << "Adding " << sInFile << endl;
+    	T->Add(sInFile);
+    }
     
     // disable all branches
     T->SetBranchStatus("*",0);
     // enable branches
     T->SetBranchStatus("earm.cdet.*",1);
+    T->SetBranchStatus("earm.ecal.*",1);
+
     T->SetBranchAddress("earm.cdet.tdc_mult",TCDet::TDCmult);
     
     T->SetBranchAddress("earm.cdet.hits.TDCelemID",TCDet::RawElID);
@@ -344,6 +405,13 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
     T->SetBranchAddress("earm.cdet.hit.col",TCDet::GoodRow);
     T->SetBranchAddress("earm.cdet.hit.layer",TCDet::GoodLayer);
 
+        
+    T->SetBranchAddress("earm.cdet.nhits",&TCDet::nhits);
+    T->SetBranchAddress("earm.cdet.ngoodhits",&TCDet::ngoodhits);
+    T->SetBranchAddress("earm.cdet.ngoodTDChits",&TCDet::ngoodTDChits);
+    T->SetBranchAddress("earm.ecal.x",&TCDet::GoodECalX);
+    T->SetBranchAddress("earm.ecal.y",&TCDet::GoodECalY);
+
     // enable vector size branches
     T->SetBranchAddress("Ndata.earm.cdet.tdc_mult",&TCDet::NdataMult); 
     T->SetBranchAddress("Ndata.earm.cdet.hits.TDCelemID",&TCDet::NdataRawElID); 
@@ -363,6 +431,7 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
     T->SetBranchAddress("Ndata.earm.cdet.hit.row",&TCDet::NdataGoodCol);
     T->SetBranchAddress("Ndata.earm.cdet.hit.col",&TCDet::NdataGoodRow);
     T->SetBranchAddress("Ndata.earm.cdet.hit.layer",&TCDet::NdataGoodLayer);
+    
 
   }//setting tree
   
@@ -379,7 +448,7 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
   //==================================================== Create output root file
   // root file for viewing fits
   
-  TString outrootfile = ANALYSED_DIR + "/RawTDC_" + InFilePrefix + subfile + ".root";
+  TString outrootfile = ANALYSED_DIR + "/RawTDC_" + InFilePrefix + ".root";
   TFile *f = new TFile(outrootfile, "RECREATE");
 
 
@@ -395,16 +464,24 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
     T->GetEntry(event);
     // cout << "event " << event << endl;
     EventCounter++;
-    if (EventCounter % 1000 == 0) cout <<
-				      EventCounter << "/" <<
-				      NEventsAnalysis << endl;
+    if (EventCounter % 1000 == 0) {
+	cout << EventCounter << "/" << NEventsAnalysis << "/ Nhits = " << (Int_t)TCDet::nhits << endl;
+    	for (Int_t nfill=0; nfill<(Int_t)TCDet::nhits; nfill++) {hnhits_ev->Fill(EventCounter);}
+    	for (Int_t nfill=0; nfill<(Int_t)TCDet::ngoodhits; nfill++) {hngoodhits_ev->Fill(EventCounter);}
+    	for (Int_t nfill=0; nfill<(Int_t)TCDet::ngoodTDChits; nfill++) {hngoodTDChits_ev->Fill(EventCounter);}
+    }
+
+
     //cout << "Raw TDC hit loop: " << TCDet::NdataRawElID << endl;
+    
+    
     for(Int_t el=0; el<TCDet::NdataRawElID; el++){
 	//cout << "Raw ID = " << TCDet::RawElID[el] << " raw le = " << TCDet::RawElLE[el] << " raw te = " << TCDet::RawElTE[el] << " raw tot = " << TCDet::RawElTot[el] << endl;
 	if (TCDet::RawElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::RawElLE[el] <= LeMax/TDC_calib_to_ns &&
-	        TCDet::RawElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::RawElTot[el] <= TotMax/TDC_calib_to_ns &&
+		TCDet::RawElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::RawElTot[el] <= TotMax/TDC_calib_to_ns &&
 		TCDet::TDCmult[el] < TDCmult_cut ) {
-	  if ( !check_bad(TCDet::RawElID[el]) ) {
+
+	  if ( !check_bad(TCDet::RawElID[el],suppress_bad) ) {
 	   if ( TCDet::RawElID[el] < nTdc ) {
 	    hRawLe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns);
 	    hRawTe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns);
@@ -429,11 +506,44 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
 
     }// all raw tdc hit loop
     
+    int nhitsc1 = 0;
+    int nhitsc2 = 0;
+    int ngoodhitsc1 = 0;
+    int ngoodhitsc2 = 0;
+    int ngoodTDChitsc1 = 0;
+    int ngoodTDChitsc2 = 0;
+    
     for(Int_t el=0; el<TCDet::NdataGoodElID; el++){
 	if (TCDet::GoodElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::GoodElLE[el] <= LeMax/TDC_calib_to_ns &&
 		TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns &&
 		TCDet::GoodX[el] < xcut && TCDet::TDCmult[el] < TDCmult_cut ) {
-	  if ( !check_bad(TCDet::GoodElID[el]) ) {
+	  if ( !check_bad(TCDet::GoodElID[el], suppress_bad) ) {
+	   if ( TCDet::GoodElID[el] < nTdc )  {
+	    int sbscoln = (Int_t)TCDet::GoodCol[el];
+	    int mylayern = sbscoln/2;
+	    if (mylayern == 0) {
+		nhitsc1++;
+	        ngoodhitsc1++;
+		ngoodTDChitsc1++;
+	    } else {
+		nhitsc2++;
+	        ngoodhitsc2++;
+		ngoodTDChitsc2++;
+	    }
+	   }
+	  }
+	}
+    }
+
+
+    
+    for(Int_t el=0; el<TCDet::NdataGoodElID; el++){
+	if (TCDet::GoodElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::GoodElLE[el] <= LeMax/TDC_calib_to_ns &&
+		TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns &&
+		TCDet::GoodX[el] < xcut && TCDet::TDCmult[el] < TDCmult_cut && 
+		ngoodTDChitsc1 <= nhitcuthigh && ngoodTDChitsc2 <= nhitcuthigh &&
+		ngoodTDChitsc1 >= nhitcutlow && ngoodTDChitsc2 >= nhitcutlow) {
+	  if ( !check_bad(TCDet::GoodElID[el], suppress_bad) ) {
 	   if ( TCDet::GoodElID[el] < nTdc )  {
 	    //cout << "el = " << el << "Raw ID = " << TCDet::RawElID[el] << " raw le = " << TCDet::RawElLE[el] << " raw te = " << TCDet::RawElTE[el] << " raw tot = " << TCDet::RawElTot[el] << endl;
 
@@ -456,12 +566,14 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
 	    //hLayer->Fill(mylayer);
 	    //hCol->Fill(mycol);
 
+
 	    hHitPMT->Fill((Int_t)TCDet::GoodElID[el]);
 	    hRow->Fill((Int_t)TCDet::GoodRow[el]);
 	    //std::cout << "Layer = " << (Int_t)TCDet::GoodLayer[el] << " Side = " << (Int_t)TCDet::GoodCol[el] << std::endl;
 	    int sbscol = (Int_t)TCDet::GoodCol[el];
 	    int myside = sbscol%2;
 	    int mylayer = sbscol/2;
+
 	
 	    if (myside == 0) {
 		if (mylayer == 0) {
@@ -485,8 +597,12 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
 	    hHitZ->Fill(TCDet::GoodZ[el]);
 	    if (mylayer==0) {
 		hHitXY1->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
+		hXECalCDet1->Fill(TCDet::GoodX[el],TCDet::GoodECalX);
+		hYECalCDet1->Fill(TCDet::GoodY[el],TCDet::GoodECalY);
 	    } else {
 		hHitXY2->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
+		hXECalCDet2->Fill(TCDet::GoodX[el],TCDet::GoodECalX);
+		hYECalCDet2->Fill(TCDet::GoodY[el],TCDet::GoodECalY);
 	    }
 	   } else {
 	    hRefGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
@@ -499,10 +615,17 @@ void PlotRawTDC2DCut(Int_t RunNumber=1742, Int_t nevents=40000,
 
 
     }// all good tdc hit loop
+    
+    hnhits1->Fill(nhitsc1);
+    hngoodhits1->Fill(ngoodhitsc1);
+    hngoodTDChits1->Fill(ngoodTDChitsc1);
+    hnhits2->Fill(nhitsc2);
+    hngoodhits2->Fill(ngoodhitsc2);
+    hngoodTDChits2->Fill(ngoodTDChitsc2);
 
     //cout << "Element loop: " << TCDet::NdataMult << endl;
     for(Int_t tdc=0; tdc<TCDet::NdataMult; tdc++){
-      if (!check_bad(TCDet::RawElID[tdc])) {
+      if (!check_bad(TCDet::RawElID[tdc],suppress_bad)) {
       hMultiplicity->Fill(TCDet::TDCmult[tdc]);
 	hMultiplicityL[(Int_t)TCDet::RawElID[tdc]]->Fill(TCDet::TDCmult[tdc]);
 	if( TCDet::TDCmult[tdc] != 0 )
@@ -819,6 +942,33 @@ TCanvas *plotRowColLayer(){
 
 }
 
+TCanvas *plotNhits(){
+  TCanvas *c55 = new TCanvas("c55", "c5", 50,50,800,800);
+  c55->Divide(3,3, 0.01, 0.01, 0);
+
+  c55->cd(1);
+  hnhits1->Draw();
+  c55->cd(2);
+  hngoodhits1->Draw();
+  c55->cd(3);
+  hngoodTDChits1->Draw();
+  c55->cd(4);
+  hnhits2->Draw();
+  c55->cd(5);
+  hngoodhits2->Draw();
+  c55->cd(6);
+  hngoodTDChits2->Draw();
+  c55->cd(7);
+  hnhits_ev->Draw();
+  c55->cd(8);
+  hngoodhits_ev->Draw();
+  c55->cd(9);
+  hngoodTDChits_ev->Draw();
+
+  return c55;
+
+}
+
 TCanvas *plotTDC2d(){
 
 
@@ -871,23 +1021,26 @@ auto plotXYZ(){
    hHitXY2->Draw("colz");
 
 
-  //auto c7 = new TCanvas("c7", "c7", 50,50,800,800);
-  //c7->Divide(2,2, 0.01, 0.01, 0);
-
-  //c7->cd(1);
-  //gPad->SetLogy();
-  //hHitX->Draw();
-  //c7->cd(2);
-  //gPad->SetLogy();
-  //hHitY->Draw();
-  //c7->cd(3);
-  //gPad->SetLogy();
-  //hHitZ->Draw();
-  //c7->cd(4);
-  //hHitXY->SetTitle("XY Distribution");
-  //gPad->SetLogz();
-  //hHitXY->Draw("RX RY");
-
   return c7;
 
+}
+
+auto plotXYECalCDet(){
+
+   TCanvas *c8 = new TCanvas("c8", "c7", 1200,1200);
+   c8->Divide(2,2);
+
+   c8->cd(1);
+   hXECalCDet1->Draw("colz");
+
+   c8->cd(2);
+   hXECalCDet2->Draw("colz");
+
+   c8->cd(3);
+   hYECalCDet1->Draw("colz");
+
+   c8->cd(4);
+   hYECalCDet2->Draw("colz");
+
+  return c8;
 }
