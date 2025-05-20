@@ -882,7 +882,7 @@ auto plotXYZ(){
    TPad *p1 = new TPad("p1","p1",0.05,0.0,0.45,1.0);
    p1->Draw();
    p1->Divide(1,3);
-
+   
    p1->cd(1);
    gPad->SetLogy();
    hHitX->Draw();
@@ -899,13 +899,126 @@ auto plotXYZ(){
    TPad *p2 = new TPad("p1","p1",0.55,0.0,0.95,1.0);
    p2->Draw();
    p2->Divide(2,1);
+   
+   /*flip XY histograms to visually match CDet*/
+   TH2F* hHitXY1_flip = (TH2F*)hHitXY1->Clone("hHitXY1_flip"); //intialize flipped histograms
+   hHitXY1_flip->Reset();
+   TH2F* hHitXY2_flip = (TH2F*)hHitXY2->Clone("hHitXY2_flip");
+   hHitXY2_flip->Reset();
 
+   int nx1 = hHitXY1->GetNbinsX(); //number bins in histograms
+   int ny1 = hHitXY1->GetNbinsY();
+   int nx2 = hHitXY2->GetNbinsX();
+   int ny2 = hHitXY2->GetNbinsY();
+   std::cout << "nx1 = " << nx1 <<endl;
+   std::cout << "nx2 = " << nx2 << endl;
+   std::cout << "ny1 = " << ny1 <<endl;
+   std::cout << "ny2 = " << ny2 << endl;
+
+   std::vector<TString> xLabels1(nx1 + 1); //strings for axis labels
+   std::vector<TString> yLabels1(ny1 + 1);
+   std::vector<TString> xLabels2(nx2 + 1); 
+   std::vector<TString> yLabels2(ny2 + 1);
+
+   //fill flipped histograms
+   for (int ix = 1; ix <= nx1; ++ix) {
+     for (int iy = 1; iy <= ny1; ++iy) {
+       double content = hHitXY1->GetBinContent(ix,iy);
+       hHitXY1_flip->SetBinContent(nx1 - ix + 1, ny1 - iy + 1, content);
+     }
+   }
+   
+   for (int iix = 1; iix <= nx2; ++iix) {                                                                          
+     for (int iiy = 1; iiy <= ny2; ++iiy) {                                                                         
+       double content = hHitXY2->GetBinContent(iix,iiy);                                                           
+       hHitXY2_flip->SetBinContent(nx2 - iix + 1, ny2 - iiy + 1, content);                                       
+     }       
+   }      
+
+   TAxis* xaxis1 = hHitXY1->GetXaxis(); //TAxis for storing original labels
+   TAxis* yaxis1 = hHitXY1->GetYaxis();
+   TAxis* xaxis2 = hHitXY2->GetXaxis();
+   TAxis* yaxis2 = hHitXY2->GetYaxis();
+
+   TAxis* xaxis1r = hHitXY1_flip->GetXaxis(); //TAxis for storing reversed labels
+   TAxis* yaxis1r = hHitXY1_flip->GetYaxis();
+   TAxis* xaxis2r = hHitXY2_flip->GetXaxis();
+   TAxis* yaxis2r = hHitXY2_flip->GetYaxis();
+
+   //store original labels
+   for (int i = 1; i <= nx1; ++i) {
+    TString label = xaxis1->GetBinLabel(i);
+    if (label == "") label = Form("%g", xaxis1->GetBinLowEdge(i));
+    xLabels1[i] = label;
+  }
+  for (int i = 1; i <= nx2; ++i) {
+    TString label = xaxis2->GetBinLabel(i);
+    if (label == "") label = Form("%g", xaxis2->GetBinLowEdge(i));
+    xLabels2[i] = label;
+  }
+  for (int i = 1; i <= ny1; ++i) {
+    TString label = yaxis1->GetBinLabel(i);
+    if (label == "") label = Form("%g", yaxis1->GetBinLowEdge(i));
+    yLabels1[i] = label;
+  }
+  for (int i = 1; i <= nx2; ++i) {
+    TString label = yaxis2->GetBinLabel(i);
+    if (label == "") label = Form("%g", yaxis2->GetBinLowEdge(i));
+    yLabels2[i] = label;
+  }
+  
+  //Set reversed labels
+  for (int i = 1; i <= nx1; ++i) {
+    if (i==1 || i == nx1 || i ==nx1/3 || i ==2*nx1/3){
+      xaxis1r->SetBinLabel(i, xLabels1[nx1 - i + 1]);
+    }
+    else{
+      xaxis1r->SetBinLabel(i, "");
+    }
+  }
+  for (int i = 1; i <= nx2; ++i) {
+    if (i==1 || i == nx2 || i == nx2/3 || i == 2*nx2/3 ){
+      xaxis2r->SetBinLabel(i, xLabels2[nx2 - i + 1]);
+    }
+    else{
+      xaxis2r->SetBinLabel(i, "");
+    }
+  }
+  for (int j = 1; j <= ny1; ++j) {
+    if (j==1 || j == ny1 || j == ny1/8 || j == 3*ny1/8 || j == ny1/2 || j == 5*ny1/8 || j == 7*ny1/8){
+      if (j==ny1){
+        yaxis1r->SetBinLabel(j, yLabels1[ny1 - j]);
+      }
+      else{
+        yaxis1r->SetBinLabel(j, yLabels1[ny1 - j + 1]);
+      }
+    }
+    else{
+      yaxis1r->SetBinLabel(j, "");
+    }
+  }
+  for (int j = 1; j <= ny2; ++j) {
+    if (j==1 || j == ny2 || j == ny2/8 || j == 3*ny2/8 || j == ny2/2 || j == 5*ny2/8 || j == 7*ny2/8){
+      if (j==ny2){
+        yaxis2r->SetBinLabel(j, yLabels2[ny2 - j]);
+      }
+      else{
+        yaxis2r->SetBinLabel(j, yLabels2[ny2 - j + 1]);
+      }
+    }
+    else{
+      yaxis2r->SetBinLabel(j, "");
+    }
+  }
+   
    p2->cd(1);
    gPad->SetLogz();
-   hHitXY1->Draw("colz");
+   // hHitXY1->Draw("colz");
+   hHitXY1_flip->Draw("colz"); 
    p2->cd(2);
    gPad->SetLogz();
-   hHitXY2->Draw("colz");
+   hHitXY2_flip->Draw("colz"); 
+   //hHitXY2->Draw("colz");
 
 
   return c7;

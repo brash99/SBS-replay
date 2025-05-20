@@ -960,9 +960,9 @@ sbs.gemFT.m13.chanmap =
 
 ############ parameters searched by SBSGEMModule::ReadDatabase() #################
 ############ offline thresholds: ############
-sbs.gemFT.threshold_sample = 100.0
-sbs.gemFT.threshold_stripsum = 300.
-sbs.gemFT.threshold_clustersum = 600.
+sbs.gemFT.threshold_sample = 50.0
+sbs.gemFT.threshold_stripsum = 75.0
+sbs.gemFT.threshold_clustersum = 100.0
 
 
 sbs.gemFT.ADCasym_cut = 0.8 
@@ -985,7 +985,7 @@ sbs.gemFT.maxnv_pos = 3
 sbs.gemFT.sigmahitpos = 0.0001
 sbs.gemFT.sigmahitshape = 0.0004
 sbs.gemFT.zerosuppress = 1
-sbs.gemFT.zerosuppress_nsigma = 5.0
+sbs.gemFT.zerosuppress_nsigma = 3.0
 sbs.gemFT.onlinezerosuppress = 1 # note that this parameter only provides a default value, actual behavior is determined by the flags seen in the raw data:
 
 sbs.gemFT.plot_common_mode = 0
@@ -1000,12 +1000,12 @@ sbs.gemFT.max2Dhits = 100000 # per-module
 ############### Parameters searched by SBSGEMSpectrometerTracker::ReadDatabase() ######################
 
 # parameters controlling tracking:
-sbs.gemFT.minhitsontrack = 3
+sbs.gemFT.minhitsontrack = 4
 
 sbs.gemFT.maxhitcombos = 25000 # 25000 #10000 #25000 for final &  50000 for first alignments
 sbs.gemFT.maxhitcombos_inner = 25000 # 25000 #25000 for final & 50000 for first alignments
 #sbs.gemFT.maxhitcombos_total = 1.e22
-sbs.gemFT.maxhitcombos_total = 1.e15
+sbs.gemFT.maxhitcombos_total = 1.e20
 
 sbs.gemFT.tryfasttrack = 0  #May get errors before a good alignment. So may be help to turn off during alignment. 
 
@@ -1014,7 +1014,9 @@ sbs.gemFT.gridbinwidthx = 0.01
 sbs.gemFT.gridbinwidthy = 0.01
 sbs.gemFT.gridedgetolerancex = 0.0025
 sbs.gemFT.gridedgetolerancey = 0.0025
-sbs.gemFT.trackchi2cut = 150
+# min hits = 4
+# chi2 cut by num hits =  4  5  6  7  8
+sbs.gemFT.trackchi2cut = 15 20 25 30 30 
 
 # Adjust the grid bins and chi2 here during alignment. Comment them out after the alignment is complete:
 #For alignment with cosmics, we want to start with wider grid bins and a loose chi2 cut for tracking:
@@ -1103,6 +1105,32 @@ sbs.gemFT.useslopeconstraint = 0
 sbs.gemFT.useconstraint = 0
 sbs.gemFT.dump_geometry_info = 1
 
+----------[ 2025-04-01 00:00:00 ] # beam is here;
+
+sbs.gemFT.useopticsconstraint = 1
+sbs.gemFT.xptar_min = -0.4
+sbs.gemFT.xptar_max = 0.4
+sbs.gemFT.yptar_min = -0.12
+sbs.gemFT.yptar_max = 0.12
+sbs.gemFT.ytar_min = -0.14
+sbs.gemFT.ytar_max = 0.08
+sbs.gemFT.pmin = 0.8
+sbs.gemFT.pmax = 7.0
+
+sbs.gemFT.useconstraint = 1
+sbs.gemFT.suppressfirstlast = -1
+
+---------[ 2025-04-13 18:06:00 ] # getting ready for zero-field running
+
+sbs.gemFT.useopticsconstraint = 0
+sbs.gemFT.multitracksearch = 0
+
+--------[ 2025-04-14 17:19:00 ] # done with zero-field, back to field-on running
+
+sbs.gemFT.useopticsconstraint = 1
+sbs.gemFT.multitracksearch = 1
+
+
 # ###################### END TIME-DEPENDENT CLUSTERING PARAMETERS #############
 
 
@@ -1110,6 +1138,49 @@ sbs.gemFT.dump_geometry_info = 1
 sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run1610.dat
 sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run1610.dat
 
+---------[ 2025-04-03 00:00:00 ] 
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run2022.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run2022.dat
 
+---------[ 2025-04-10 00:00:00 ] 
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run2373.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run2373.dat
+
+sbs.gemFT.m0.position =               0               0               0
+sbs.gemFT.m0.angle =               0               0               0
+sbs.gemFT.m1.position =   -0.0008336496     0.001018079      0.06878698
+sbs.gemFT.m1.angle =      0.02103172      0.07351981     -0.04104446
+sbs.gemFT.m2.position =    4.358345e-05    -0.000463983       0.2032454
+sbs.gemFT.m2.angle =      0.01991634    -0.004759987       0.2389661
+sbs.gemFT.m3.position =      0.00135852     0.006116189        0.342399
+sbs.gemFT.m3.angle =     -0.05940786       -0.100179      -0.1091786
+sbs.gemFT.m4.position =     0.001460831    -0.001688749       0.4881087
+sbs.gemFT.m4.angle =     -0.05403745    -0.005666608       0.2463039
+sbs.gemFT.m5.position =     0.001423451     0.001153484       0.6243896
+sbs.gemFT.m5.angle =      0.09106874     -0.07950782     -0.03454482
+sbs.gemFT.m6.position =      -0.7703566     0.001161632       0.7667669
+sbs.gemFT.m6.angle =     -0.04498925       -0.192106      -0.0496584
+sbs.gemFT.m7.position =      -0.2585421    0.0006449532       0.7270895
+sbs.gemFT.m7.angle =     -0.09400208     -0.09350986    -0.007079323
+sbs.gemFT.m8.position =       0.2535343    -0.001932672       0.7676596
+sbs.gemFT.m8.angle =       0.1536059     -0.03682355      0.03503232
+sbs.gemFT.m9.position =       0.7643235   -0.0005873266       0.7235441
+sbs.gemFT.m9.angle =       0.3848762        0.533978     -0.05171388
+sbs.gemFT.m10.position =      -0.7710844     0.001735025       0.8917725
+sbs.gemFT.m10.angle =      0.06818171       -0.395571    -0.003016754
+sbs.gemFT.m11.position =      -0.2585492    0.0009531311       0.8509929
+sbs.gemFT.m11.angle =       0.1116634        -0.31473       0.1398682
+sbs.gemFT.m12.position =       0.2515058   -0.0001339646       0.8952383
+sbs.gemFT.m12.angle =       0.1887156      0.05264619      0.02910754
+sbs.gemFT.m13.position =       0.7632681   -0.0002482181       0.8484636
+sbs.gemFT.m13.angle =       0.9247449        1.344922      0.02679168
+
+---------[ 2025-04-15 10:20:00 ] 
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run2735.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run2735.dat
+
+---------[ 2025-04-16 16:16:00 ] 
+sbs.gemFT.pedfile = gemped/daq_ped_sbs_gemFT_run2818.dat
+sbs.gemFT.cmfile = gemped/db_cmr_sbs_gemFT_run2818.dat
 
 # ###################### END TIME-DEPENDENT PARAMETERS #############

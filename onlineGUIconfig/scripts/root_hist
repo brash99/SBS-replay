@@ -1,0 +1,10 @@
+.x hcal_heatmap_coinc.C($HOME/sbs/Rootfiles/gen_replayed_5135_9k_events.root)
+.q
+.x hcal_heatmap_coinc.C(/adaqfs/home/a-onl/sbs/Rootfiles/gen_replayed_5135_9k_events.root)
+.q
+.x hcal_heatmap_coinc.C('/adaqfs/home/a-onl/sbs/Rootfiles/gen_replayed_5135_9k_events.root')
+.q
+.x hcal_heatmap_coinc.C(5135,9)
+.q
+.x hcal_heatmap_coinc.C(5135,9)
+.q

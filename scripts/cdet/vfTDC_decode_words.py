@@ -108,8 +108,13 @@ if __name__ == "__main__":
     # Get word from user input
     #vfTDC_word = int(input("Enter vfTDC word (in hex): "), 16)
 
-    word_list = [0x94c531b5, 0x98855c20, 0x00028001, 0xbc8c2060,
-                 0xbc882794, 0xbc8c85cc, 0xbc888e60, 0xbc8c3618]
+    # Run 2652 Event 66 of split 2.0
+    word_list = [0x81a4bf01, 0x918000bf, 0x985020ce, 0x00000382,
+                 0xbcc0fda8, 0xbcc4ff9c, 0x89800005, 0xf98000bf]
+    # Run 2655 Event 73 of split 2.0
+    word_list = [0x81a4d401, 0x918000d4, 0x98e7e24d, 0x000002e2,
+                 0xbc429c72, 0xbc429c84, 0xbc469e34, 0xbc4a9c5e,
+                 0xbc4e9faa, 0xbdc29e50, 0xbdc6a1b8, 0x8990000a]
 
     # Decode the vfTDC word
     for vfTDC_word in word_list:

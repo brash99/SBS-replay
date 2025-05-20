@@ -1,0 +1,23 @@
+block earm.cdet.*
+
+th1d hAllRawLe 'CDet Raw Leading Edge TDC All Channels (10ps/ch)' earm.cdet.hits.t[I] 4500 1 450001 earm.cdet.hits.t_tot[I]>=1000&&earm.cdet.hits.t_to
+th1d hAllRawTe 'CDet Raw Trailing Edge TDC All Channels (10ps/ch)' earm.cdet.hits.t_te[I] 4500 1 450001 earm.cdet.hits.t_tot[I]>=1000&&earm.cdet.hits.
+th1d hAllRawTot 'CDet Raw Time-over-Threshold All Channels (10ps/ch)' earm.cdet.hits.t_tot[I] 120 1 12001 earm.cdet.hits.t_tot[I]>=1000&&earm.cdet.hit
+th1d hAllRawPMT 'CDet Raw PMT ID' earm.cdet.hits.TDCelemID[I] 2688 0 2688 earm.cdet.hits.t_tot[I]>=1000&&earm.cdet.hits.t_tot[I]<=10000
+
+th1d hAllGoodLe 'CDet Good Leading Edge TDC All Channels (10ps/ch)' earm.cdet.hit.tdc_le[I] 4500 1 450001 earm.cdet.hit.tdc_tot[I]>=1000&&earm.cdet.hi
+th1d hAllGoodTe 'CDet Good Trailing Edge TDC All Channels (10ps/ch)' earm.cdet.hit.tdc_te[I] 4500 1 450001 earm.cdet.hit.tdc_tot[I]>=1000&&earm.cdet.h
+th1d hAllGoodTot 'CDet Good Time-over-Threshold All Channels (10ps/ch)' earm.cdet.hit.tdc_tot[I] 120 1 12001 earm.cdet.hit.tdc_tot[I]>=1000&&earm.cdet
+th1d hAllGoodPMT 'CDet Good PMT ID' earm.cdet.hit.pmtnum[I] 2688 0 2688 earm.cdet.hit.tdc_tot[I]>=1000&&earm.cdet.hit.tdc_tot[I]<=10000
+
+th1d hHitX 'CDet X Good Hits' earm.cdet.hit.xhit[I] 1000 -2.0 2.0 earm.cdet.hit.tdc_tot[I]>=1000&&earm.cdet.hit.tdc_tot[I]<=10000
+th1d hHitY 'CDet Y Good Hits' earm.cdet.hit.yhit[I] 200 -0.5 0.5 earm.cdet.hit.tdc_tot[I]>=1000&&earm.cdet.hit.tdc_tot[I]<=10000
+th1d hHitZ 'CDet Z Good Hits' earm.cdet.hit.zhit[I] 200  7.5 8.0 earm.cdet.hit.tdc_tot[I]>=1000&&earm.cdet.hit.tdc_tot[I]<=10000
+
+th2d hHitXY1 'CDet X vs. Y Layer 1 Good Hits' earm.cdet.hit.yhit[I] earm.cdet.hit.xhit[I] 9 -1.0 1.0 800 -2.0 2.0 earm.cdet.hit.tdc_tot[I]>=1000&&earm
+th2d hHitXY2 'CDet X vs. Y Layer 2 Good Hits' earm.cdet.hit.yhit[I] earm.cdet.hit.xhit[I] 9 -1.0 1.0 800 -2.0 2.0 earm.cdet.hit.tdc_tot[I]>=1000&&earm
+
+th2d hXECalCDet1  'ECal X vs. CDet X (Layer 1 Good Hits)' earm.cdet.hit.xhit[I] earm.ecal.x[I] 100 -2.0 2.0 100 -2.0 2.0 earm.cdet.hit.tdc_tot[I]>=100
+th2d hXECalCDet2  'ECal X vs. CDet X (Layer 2 Good Hits)' earm.cdet.hit.xhit[I] earm.ecal.x[I] 100 -2.0 2.0 100 -2.0 2.0 earm.cdet.hit.tdc_tot[I]>=100
+th2d hYECalCDet1  'ECal Y vs. CDet Y (Layer 1 Good Hits)' earm.cdet.hit.yhit[I] earm.ecal.y[I] 100 -1.0 1.0 9 -1.0 1.0 earm.cdet.hit.tdc_tot[I]>=1000&
+th2d hYECalCDet2  'ECal Y vs. CDet Y (Layer 2 Good Hits)' earm.cdet.hit.yhit[I] earm.ecal.y[I] 100 -1.0 1.0 9 -1.0 1.0 earm.cdet.hit.tdc_tot[I]>=1000&

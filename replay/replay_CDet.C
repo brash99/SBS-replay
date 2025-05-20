@@ -161,7 +161,7 @@ void replay_CDet(UInt_t runnum=2232, const char *fname_prefix="gep5",Long_t neve
   analyzer->EnableHelicity();
 
   // analyzer->SetVerbosity(2);
-  analyzer->SetMarkInterval(1000);
+  analyzer->SetMarkInterval(100);
 
   analyzer->EnableBenchmarks();
 

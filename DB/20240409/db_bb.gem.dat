@@ -3260,11 +3260,21 @@ bb.gem.trackchi2cut = 300.0
 
 # this will need to be adjusted before beam; at minimum, turn on the main constraint.
 
+---------[ 2024-04-16 18:00:00 ] # initial trigger time centered around 339 ns:
+
+bb.gem.trigtime_t0 = 339.4
+
+---------[ 2024-04-19 07:30:00 ] # Analyzer inserted: shift main bigbite trigger time peak to 345 ns:
+bb.gem.trigtime_t0 = 345.0
+
 ---------[ 2024-04-16 18:00:00 ] # Before Beam Checkout before GEN-RP
 
 bb.gem.usetrigtime = 1
 #bb.gem.trigtime_slope = 1.0
-bb.gem.trigtime_slope = 0.5
+bb.gem.trigtime_slope = 0.5 
+bb.gem.trigtime_t0 = 339.4 
+
+
 bb.gem.clustering_flag = 0
 bb.gem.deconvolution_flag = 0
 
