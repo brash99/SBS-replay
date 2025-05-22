@@ -50,6 +50,23 @@ static const double ecal_dist = 6.6;
 static const double cdet_dist_offset = 2.0;
 static const double cdet_y_half_length = 0.30;
 
+// List of x-positions (or bins) for unused pixels
+static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65, 79, 83, 95, 109, 111, 115, 127, 140, 143, 145, 
+  156, 172, 175, 176, 188, 195, 199, 213, 220, 236, 239, 244, 255, 268, 271, 284, 287, 300, 303, 307, 319, 332, 335, 339, 
+  351, 354, 364, 371, 381, 384, 396, 401, 410, 419, 423, 435, 436, 451, 461, 465, 479, 480, 483, 508, 511, 512, 515, 540, 
+  543, 546, 559, 563, 573, 576, 589, 596, 605, 609, 610, 627, 638, 643, 655, 656, 665, 675, 674, 703, 696, 709, 707, 729, 
+  725, 748, 738, 766, 752, 780, 777, 791, 784, 812, 800, 828, 818, 847, 844, 860, 850, 868, 867, 885, 884, 904, 900, 927, 
+  912, 943, 940, 947, 945, 971, 967, 991, 986, 1007, 1005, 1023, 1011, 1028, 1027, 1050, 1043, 1068, 1066, 1075, 1072, 1102, 
+  1088, 1119, 1106, 1135, 1121, 1151, 1148, 1166, 1162, 1182, 1178, 1186, 1184, 1215, 1203, 1231, 1228, 1247, 1235, 1252, 
+  1249, 1274, 1267, 1285, 1282, 1310, 1299, 1321, 1317, 1341, 1340, 1349, 1359, 1372, 1375, 1376, 1391, 1392, 1405, 1409, 
+  1420, 1428, 1439, 1443, 1455, 1468, 1471, 1486, 1487, 1500, 1503, 1516, 1519, 1520, 1523, 1536, 1551, 1557, 1567, 1568, 
+  1583, 1584, 1597, 1603, 1615, 1617, 1629, 1646, 1647, 1648, 1654, 1676, 1679, 1692, 1695, 1708, 1711, 1715, 1725, 1732, 
+  1743, 1744, 1757, 1761, 1770, 1778, 1786, 1804, 1807, 1820, 1823, 1836, 1839, 1854, 1855, 1856, 1868, 1877, 1887, 1902, 
+  1903, 1916, 1919, 1934, 1935, 1942, 1951, 1964, 1967, 1973, 1983, 1988, 1999, 2000, 2013, 2031, 2028, 2047, 2034, 2051, 
+  2048, 2067, 2064, 2085, 2080, 2104, 2099, 2122, 2112, 2143, 2131, 2147, 2144, 2163, 2160, 2188, 2177, 2207, 2202, 2221, 
+  2208, 2239, 2227, 2254, 2243, 2271, 2259, 2283, 2279, 2303, 2300, 2316, 2307, 2334, 2320, 2348, 2339, 2367, 2355, 2383, 
+  2369, 2395, 2384, 2409, 2405, 2422, 2416, 2435, 2432, 2451, 2448, 2479, 2464, 2493, 2483, 2508, 2499, 2513, 2512, 2537, 
+  2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 const TString REPLAYED_DIR = "/adaqfs/home/a-onl/sbs/Rootfiles";
 const TString ANALYSED_DIR = "/adaqfs/home/a-onl/sbs/Rootfiles/cdetFiles/cdet_histfiles";
@@ -98,6 +115,7 @@ namespace TCDet {
 
   Double_t GoodECalX;
   Double_t GoodECalY;
+  Double_t GoodECalE;
   Double_t nhits;
   Double_t ngoodhits;
   Double_t ngoodTDChits;
@@ -117,7 +135,7 @@ TChain *T = 0;
 // number of histo bins
 const int NTotBins = 200;
 const double TotBinLow = 1.;
-const double TotBinHigh = 201.;
+const double TotBinHigh = 51.;
 
 //const int num_bad = 0;
 //
@@ -192,6 +210,11 @@ TH2F *h2AllGoodTot;
 TH2F *h2TDCTOTvsLE;
 TH2F *h2CDetX1vsX2;
 
+TH2F *h2TOTvsXDiff1;
+TH2F *h2TOTvsXDiff2;
+TH2F *h2LEvsXDiff1;
+TH2F *h2LEvsXDiff2;
+
 TH2F *hBarRateHV;
 
 TH1F *hRefRawLe;
@@ -240,11 +263,14 @@ TH2F *hHitXY2;
 
 TH1F *hXECal;
 TH1F *hYECal;
+TH1F *hEECal;
 
 TH2F *hXECalCDet1;
 TH2F *hXECalCDet2;
 TH2F *hYECalCDet1;
 TH2F *hYECalCDet2;
+TH2F *hEECalCDet1;
+TH2F *hEECalCDet2;
 
 TH2F *hXYECal;
 
@@ -328,6 +354,53 @@ vector<vector<double>> readDataFromFiles(const vector<string>& filenames) {
     return allData;
 }
 
+int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixelNum){
+  // Calculate paddle number, note that missing pixels are included here
+  // Validate inputs
+  if (layerNum < 1 || layerNum > 2 ||
+    sideNum < 0 || sideNum > 1 ||
+    submoduleNum < 1 || submoduleNum > 3 ||
+    pmtNum < 1 || pmtNum > 14 ||
+    pixelNum < 1 || pixelNum > 16) {
+    std::cerr << "Error: Invalid input values.\n"
+              << "  layerNum must be 1 or 2\n"
+              << "  sideNum must be 0 or 1\n"
+              << "  submoduleNum must be 1 to 3\n"
+              << "  pmtNum must be 1 to 14\n"
+              << "  pixelNum must be 1 to 16\n";
+    return -1;  // Error code
+}
+
+  int pixel = (layerNum - 1) * 1344 +
+  (submoduleNum - 1) * 224 +
+  (sideNum - 1) * 672 +
+  (pmtNum - 1) * 16 +
+  pixelNum;
+  return pixel - 1;
+}
+
+std::vector<int> getLocation(int pixelID) {
+  // Check valid range
+  if (pixelID < 0 || pixelID > 2687) {
+      std::cerr << "Error: pixelID must be in the range 1 to 2688.\n";
+      return {};  // return empty vector to signal error
+  }
+
+  int layerNum      = pixelID / 1344 + 1;
+  pixelID               %= 1344;
+
+  int sideNum       = pixelID / 672 + 1;  // 1 or 2
+  pixelID               %= 672;
+
+  int submoduleNum  = pixelID / 224 + 1;
+  pixelID               %= 224;
+
+  int pmtNum        = pixelID / 16 + 1;
+  int pixelNum      = pixelID % 16 + 1;
+
+  return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
+}
+
 void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t neventsr=50000,
 	Double_t LeMin = 0.0, Double_t LeMax = 60.0,
 	Double_t TotMin = 2.0, Double_t TotMax = 45.0, 
@@ -341,6 +414,10 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
 
 	int NTDCBins = (LeMax-LeMin)/4; // 4 ns is the trigger time 
 					// resolution, so this is the best we can hope for, I think.
+
+	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
+	double XDiffLow = XOffset-XDiffCut;
+	double XDiffHigh = XOffset+XDiffCut;
 
   // InFile is the input file without absolute path and without .root suffix
   // nevents is how many events to analyse, -1 for all
@@ -389,18 +466,21 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
   
   hXECal = new TH1F("XEcal","XEcal",200,-1.5,1.5);
   hYECal = new TH1F("YEcal","YEcal",200,-1.0,1.0);
+  hEECal = new TH1F("YEcal","YEcal",200,0.0,20.0);
   
   hXECalCDet1 = new TH2F("XECalCDet1","XECalCDet1",100,-2.0,2.0,100,-2.0,2.0);
   hXECalCDet2 = new TH2F("XECalCDet2","XECalCDet2",100,-2.0,2.0,100,-2.0,2.0);
   hYECalCDet1 = new TH2F("YECalCDet1","YECalCDet1",100,-1.0,1.0,9,-1.0,1.0);
   hYECalCDet2 = new TH2F("YECalCDet2","YECalCDet2",100,-1.0,1.0,9,-1.0,1.0);
+  hEECalCDet1 = new TH2F("EECalCDet1","EECalCDet1",100,0.0,20.0,100,-2.0,2.0);
+  hEECalCDet2 = new TH2F("EECalCDet1","EECalCDet1",100,0.0,20.0,100,-2.0,2.0);
   
   hXYECal = new TH2F("XYECal","XYECal",200,-2.0,2.0,200,-2.0,2.0);
   
-  hXDiffECalCDet1 = new TH1F("XDiffECalCDet1","XDiffECalCDet1",2000,-3.0,3.0);
-  hXPlusECalCDet1 = new TH1F("XPlusECalCDet1","XPlusECalCDet1",2000,-3.0,3.0);
-  hXDiffECalCDet2 = new TH1F("XDiffECalCDet2","XDiffECalCDet2",2000,-3.0,3.0);
-  hXPlusECalCDet2 = new TH1F("XPlusECalCDet2","XPlusECalCDet2",2000,-3.0,3.0);
+  hXDiffECalCDet1 = new TH1F("XDiffECalCDet1","XDiffECalCDet1",NXDiffBins,XDiffLow,XDiffHigh);
+  hXPlusECalCDet1 = new TH1F("XPlusECalCDet1","XPlusECalCDet1",NXDiffBins,XDiffLow,XDiffHigh);
+  hXDiffECalCDet2 = new TH1F("XDiffECalCDet2","XDiffECalCDet2",NXDiffBins,XDiffLow,XDiffHigh);
+  hXPlusECalCDet2 = new TH1F("XPlusECalCDet2","XPlusECalCDet2",NXDiffBins,XDiffLow,XDiffHigh);
   
   hXCDet1CDet2 = new TH2F("XCDet1CDet2","XCDet1CDet2",200,-0.5,0.5,200,-0.5,0.5);
   
@@ -467,6 +547,18 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
   h2CDetX1vsX2 = new TH2F(TString::Format("h2CDetX1vsX2"),
             TString::Format("h2CDetX1vsX2"),1000, -2.0, 2.0, 
             1000, -2.0, 2.0);
+  h2TOTvsXDiff1 = new TH2F(TString::Format("h2TOTvsXDiff1"),
+            TString::Format("h2TOTvsXDiff1"),NTotBins,TotBinLow,TotBinHigh,
+            1000, -0.3, 0.3);
+  h2TOTvsXDiff2 = new TH2F(TString::Format("h2TOTvsXDiff2"),
+            TString::Format("h2TOTvsXDiff2"),NTotBins,TotBinLow,TotBinHigh,
+            1000, -0.3, 0.3);
+  h2LEvsXDiff1 = new TH2F(TString::Format("h2LEvsXDiff1"),
+            TString::Format("h2LEvsXDiff1"),NTDCBins,TDCBinLow,TDCBinHigh,
+            1000, -0.3, 0.3);
+  h2LEvsXDiff2 = new TH2F(TString::Format("h2LEvsXDiff2"),
+            TString::Format("h2LEvsXDiff2"),NTDCBins,TDCBinLow,TDCBinHigh,
+            1000, -0.3, 0.3);
 
   hRefRawLe = new TH1F(TString::Format("hRefRawLe"),
             TString::Format("hRefRawLe"),
@@ -580,6 +672,7 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
     T->SetBranchAddress("earm.cdet.ngoodTDChits",&TCDet::ngoodTDChits);
     T->SetBranchAddress("earm.ecal.x",&TCDet::GoodECalX);
     T->SetBranchAddress("earm.ecal.y",&TCDet::GoodECalY);
+    T->SetBranchAddress("earm.ecal.e",&TCDet::GoodECalE);
 
     // enable vector size branches
     T->SetBranchAddress("Ndata.earm.cdet.tdc_mult",&TCDet::NdataMult); 
@@ -836,7 +929,7 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
 	    TCDet::ngoodTDChits_paddles[mypaddle]++;
 	    
 	    if ( (layer_choice == 1 && mylayer == 0) || (layer_choice == 2 && mylayer == 1) || 
-			(layer_choice == 3 && (ngoodhitsc1+ngoodhitsc2) >= 1) )  
+			(layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) )  
 		{
 		eff_numerator++;
 	    	hGoodLe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
@@ -878,17 +971,23 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
 	    hHitY->Fill(TCDet::GoodY[el]);
 	    hHitZ->Fill(TCDet::GoodZ[el]);
 	    if (mylayer==0) {
+	    	h2TOTvsXDiff1->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	h2LEvsXDiff1->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hHitXY1->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
 		hXECalCDet1->Fill(TCDet::GoodX[el],TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hYECalCDet1->Fill(TCDet::GoodY[el],TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    	hXDiffECalCDet1->Fill(TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    	hXPlusECalCDet1->Fill(TCDet::GoodX[el]+TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+		hEECalCDet1->Fill(TCDet::GoodECalE,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    } else {
+	    	h2TOTvsXDiff2->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	h2LEvsXDiff2->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hHitXY2->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
 		hXECalCDet2->Fill(TCDet::GoodX[el],TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hYECalCDet2->Fill(TCDet::GoodY[el],TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    	hXDiffECalCDet2->Fill(TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    	hXPlusECalCDet2->Fill(TCDet::GoodX[el]+TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+		hEECalCDet2->Fill(TCDet::GoodECalE,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    }
 
 
@@ -910,6 +1009,7 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
       hXYECal->Fill(TCDet::GoodECalY,TCDet::GoodECalX);
       hXECal->Fill(TCDet::GoodECalX);
       hYECal->Fill(TCDet::GoodECalY);
+      hEECal->Fill(TCDet::GoodECalE);
     };
     
     
@@ -941,9 +1041,9 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t nev
   }// event loop
 
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
-  std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Eff = " << 100.0*eff_numerator_layer1/eff_denominator << " %" << std::endl;
-  std::cout << "Layer 2 Events = " << eff_numerator_layer2 << "     Eff = " << 100.0*eff_numerator_layer2/eff_denominator << " %" << std::endl;
-  std::cout << "One Good Layer Events = " << eff_numerator << "     Eff = " << 100.0*eff_numerator/eff_denominator << " %" << std::endl;
+  std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer1/eff_denominator  << std::endl;
+  std::cout << "Layer 2 Events = " << eff_numerator_layer2 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer2/eff_denominator <<  std::endl;
+  std::cout << "One Good Layer Events = " << eff_numerator << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator/eff_denominator <<  std::endl;
 
 
   for (Int_t b=0; b<NumCDetPaddles; b++) {
@@ -1113,24 +1213,6 @@ void plotPMTRates(Int_t mymodule=1, Int_t mylayer=1, Int_t choice = 1){
   Int_t offsetl = (mylayer-1)*1344 + (mymodule-1)*224;
   Int_t offsetr = (mylayer-1)*1344 + 672 + (mymodule-1)*224;
   Int_t xcpos = 50 + (choice-1)*400;
-
-// List of x-positions (or bins) for unused pixels
-  std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65, 79, 83, 95, 109, 111, 115, 127, 140, 143, 145, 
-    156, 172, 175, 176, 188, 195, 199, 213, 220, 236, 239, 244, 255, 268, 271, 284, 287, 300, 303, 307, 319, 332, 335, 339, 
-    351, 354, 364, 371, 381, 384, 396, 401, 410, 419, 423, 435, 436, 451, 461, 465, 479, 480, 483, 508, 511, 512, 515, 540, 
-    543, 546, 559, 563, 573, 576, 589, 596, 605, 609, 610, 627, 638, 643, 655, 656, 665, 675, 674, 703, 696, 709, 707, 729, 
-    725, 748, 738, 766, 752, 780, 777, 791, 784, 812, 800, 828, 818, 847, 844, 860, 850, 868, 867, 885, 884, 904, 900, 927, 
-    912, 943, 940, 947, 945, 971, 967, 991, 986, 1007, 1005, 1023, 1011, 1028, 1027, 1050, 1043, 1068, 1066, 1075, 1072, 1102, 
-    1088, 1119, 1106, 1135, 1121, 1151, 1148, 1166, 1162, 1182, 1178, 1186, 1184, 1215, 1203, 1231, 1228, 1247, 1235, 1252, 
-    1249, 1274, 1267, 1285, 1282, 1310, 1299, 1321, 1317, 1341, 1340, 1349, 1359, 1372, 1375, 1376, 1391, 1392, 1405, 1409, 
-    1420, 1428, 1439, 1443, 1455, 1468, 1471, 1486, 1487, 1500, 1503, 1516, 1519, 1520, 1523, 1536, 1551, 1557, 1567, 1568, 
-    1583, 1584, 1597, 1603, 1615, 1617, 1629, 1646, 1647, 1648, 1654, 1676, 1679, 1692, 1695, 1708, 1711, 1715, 1725, 1732, 
-    1743, 1744, 1757, 1761, 1770, 1778, 1786, 1804, 1807, 1820, 1823, 1836, 1839, 1854, 1855, 1856, 1868, 1877, 1887, 1902, 
-    1903, 1916, 1919, 1934, 1935, 1942, 1951, 1964, 1967, 1973, 1983, 1988, 1999, 2000, 2013, 2031, 2028, 2047, 2034, 2051, 
-    2048, 2067, 2064, 2085, 2080, 2104, 2099, 2122, 2112, 2143, 2131, 2147, 2144, 2163, 2160, 2188, 2177, 2207, 2202, 2221, 
-    2208, 2239, 2227, 2254, 2243, 2271, 2259, 2283, 2279, 2303, 2300, 2316, 2307, 2334, 2320, 2348, 2339, 2367, 2355, 2383, 
-    2369, 2395, 2384, 2409, 2405, 2422, 2416, 2435, 2432, 2451, 2448, 2479, 2464, 2493, 2483, 2508, 2499, 2513, 2512, 2537, 
-    2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
   TCanvas *caPMT = new TCanvas(TString::Format("PMT Rates Left %d",choice), TString::Format("PMT Rates Left %d",choice), xcpos,50,400,550);
   caPMT->Divide(2,7,0.01,0.01,0);
@@ -1464,6 +1546,25 @@ TCanvas *plotTOTvsLE(){
 
 }
 
+TCanvas *plotTOTvsXDiff(){
+
+  TCanvas *c1234 = new TCanvas("c1234", "c1234", 50,50,1000,1000);
+  c1234->Divide(2,2,0.01,0.01,0);
+
+  c1234->cd(1);
+  h2TOTvsXDiff1->Draw("colz");
+  c1234->cd(2);
+  h2TOTvsXDiff2->Draw("colz");
+  c1234->cd(3);
+  h2LEvsXDiff1->Draw("colz");
+  c1234->cd(4);
+  h2LEvsXDiff2->Draw("colz");
+
+  return c1234;
+
+}
+
+
 TCanvas *plotRowColLayer(){
 
 
@@ -1553,6 +1654,19 @@ TCanvas *plotTDC2d(){
 
 }
 
+auto *plotEECalCDet() {
+
+  TCanvas *c1717 = new TCanvas("c1717", "c1717", 50,50,800,800);
+  c1717->Divide(1,2, 0.01, 0.01, 0);
+
+  c1717->cd(1);
+  hEECalCDet1->Draw();
+  c1717->cd(2);
+  hEECalCDet2->Draw();
+
+  return c1717;
+}
+
 auto plotXYZ(){
 
    TCanvas *c7 = new TCanvas("c7", "c7", 800,800);
@@ -1610,10 +1724,94 @@ auto plotXYECalCDet(){
    hYECal->Draw();
    
    c8->cd(5);
-   hXDiffECalCDet1->Draw();
+    // Define the Gaussian + constant background function
+    TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]", -0.12, 0.15);
+
+    // Set initial parameters:
+    // [0] amplitude, [1] mean, [2] sigma, [3] constant background
+    fitFunc->SetParameters(hXDiffECalCDet1->GetMaximum(), 0.02, 0.01, hXDiffECalCDet1->GetMinimum());
+    fitFunc->SetParNames("Amplitude", "Mean", "Sigma", "Background");
+
+    // Optional: set limits on the parameters if needed
+    fitFunc->SetParLimits(1, -0.05, 0.05);  // constrain the mean near 0.02
+    fitFunc->SetParLimits(2, 0.001, 0.05);  // positive sigma
+
+    // Fit the histogram
+    hXDiffECalCDet1->Fit(fitFunc, "R");  // "R" = use function range only
+
+    // Draw the result
+    hXDiffECalCDet1->Draw();
+    fitFunc->Draw("same");
+    // Extract Gaussian parameters
+    double A = fitFunc->GetParameter(0); // Amplitude
+    double mu = fitFunc->GetParameter(1); // Mean
+    double sigma = fitFunc->GetParameter(2); // Sigma
+    double bg = fitFunc->GetParameter(3); // Background level
+
+    // Define integration limits
+    double x_min = mu - 3*sigma;
+    double x_max = mu + 3*sigma;
+
+    // Signal: integral of the Gaussian part only over ±3σ
+    TF1* gausOnly = new TF1("gausOnly", "[0]*exp(-0.5*((x-[1])/[2])^2)", x_min, x_max);
+    gausOnly->SetParameters(A, mu, sigma);
+    double signal = gausOnly->Integral(x_min, x_max);
+
+    // Noise: integral of background over same range
+    double noise = bg * (x_max - x_min);
+
+    // Compute signal-to-noise ratio
+    double snr = (noise > 0) ? signal / noise : 0;
+
+    std::cout << "Signal (Gaussian, ±3σ): " << signal << std::endl;
+    std::cout << "Noise (Background, ±3σ): " << noise << std::endl;
+    std::cout << "Signal-to-Noise Ratio: " << snr << std::endl;
+   
 
    c8->cd(6);
-   hXDiffECalCDet2->Draw();
+    // Define the Gaussian + constant background function
+    TF1* fitFunc2 = new TF1("fitFunc", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]", -0.12, 0.15);
+
+    // Set initial parameters:
+    // [0] amplitude, [1] mean, [2] sigma, [3] constant background
+    fitFunc2->SetParameters(hXDiffECalCDet2->GetMaximum(), 0.02, 0.01, hXDiffECalCDet2->GetMinimum());
+    fitFunc2->SetParNames("Amplitude", "Mean", "Sigma", "Background");
+
+    // Optional: set limits on the parameters if needed
+    fitFunc2->SetParLimits(1, -0.05, 0.05);  // constrain the mean near 0.02
+    fitFunc2->SetParLimits(2, 0.001, 0.05);  // positive sigma
+
+    // Fit the histogram
+    hXDiffECalCDet2->Fit(fitFunc2, "R");  // "R" = use function range only
+
+    // Draw the result
+    hXDiffECalCDet2->Draw();
+    fitFunc2->Draw("same");
+
+    // Extract Gaussian parameters
+    double A2 = fitFunc2->GetParameter(0); // Amplitude
+    double mu2 = fitFunc2->GetParameter(1); // Mean
+    double sigma2 = fitFunc2->GetParameter(2); // Sigma
+    double bg2 = fitFunc2->GetParameter(3); // Background level
+
+    // Define integration limits
+    double x_min2 = mu2 - 3*sigma2;
+    double x_max2 = mu2 + 3*sigma2;
+
+    // Signal: integral of the Gaussian part only over ±3σ
+    TF1* gausOnly2 = new TF1("gausOnly2", "[0]*exp(-0.5*((x-[1])/[2])^2)", x_min, x_max);
+    gausOnly2->SetParameters(A2, mu2, sigma2);
+    double signal2 = gausOnly2->Integral(x_min2, x_max2);
+
+    // Noise: integral of background over same range
+    double noise2 = bg2 * (x_max2 - x_min2);
+
+    // Compute signal-to-noise ratio
+    double snr2 = (noise2 > 0) ? signal2 / noise2 : 0;
+
+    std::cout << "Signal (Gaussian, ±3σ): " << signal2 << std::endl;
+    std::cout << "Noise (Background, ±3σ): " << noise2 << std::endl;
+    std::cout << "Signal-to-Noise Ratio: " << snr2 << std::endl;
 
    c8->cd(7);
    hYECalCDet1->Draw();

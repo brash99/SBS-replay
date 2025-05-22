@@ -8,6 +8,7 @@ cut goodCDettimingLayer2 earm.cdet.hits.t_tot[I]>=800&&earm.cdet.hits.t_tot[I]<3
 
 variable earm.ecal.x
 variable earm.ecal.y
+variable earm.ecal.e
 
 #formula dEcalo heep.ecalo/heep.eprime_eth-1.
 #formula detheta heep.etheta-heep.eth_pth

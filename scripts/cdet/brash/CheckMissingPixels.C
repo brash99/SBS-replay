@@ -80,11 +80,11 @@ void CheckMissingPixels(bool showAll=true) {
                                      pixel;
 
                         // Output only missing pixels
-                        //std::cout << "Layer " << layer << " Module " << submodule
-                        //          << " Side " << side + 1 << " PMT " << pmt
-                        //          << " Missing Pixel " << pixel
-                        //          << " Paddle " << paddle << std::endl;
-			std::cout << paddle - 1 << ", ";
+                        std::cout << "Layer " << layer << " Module " << submodule
+                                  << " Side " << side + 1 << " PMT " << pmt
+                                  << " Missing Pixel " << pixel
+                                  << " Paddle " << paddle << std::endl;
+			            //std::cout << paddle - 1 << ", ";
 		      }
 		    }
                 }

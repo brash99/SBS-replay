@@ -22,3 +22,6 @@ CheckMissingPixels(true)
 .q
 .x CheckMissingPixels.C(false)
 .q
+.x CheckMissingPixels.C(false)
+.x CheckMissingPixels.C(false)
+.q
