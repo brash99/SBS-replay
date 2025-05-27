@@ -358,7 +358,7 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
   // Calculate paddle number, note that missing pixels are included here
   // Validate inputs
   if (layerNum < 1 || layerNum > 2 ||
-    sideNum < 0 || sideNum > 1 ||
+    sideNum < 1 || sideNum > 2 ||
     submoduleNum < 1 || submoduleNum > 3 ||
     pmtNum < 1 || pmtNum > 14 ||
     pixelNum < 1 || pixelNum > 16) {
@@ -371,10 +371,10 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
     return -1;  // Error code
 }
 
-  int pixel = (layerNum - 1) * 1344 +
-  (submoduleNum - 1) * 224 +
-  (sideNum - 1) * 672 +
-  (pmtNum - 1) * 16 +
+  int pixel = (layerNum - 1) * 1344 + //1344 pixels per layer, 0-1343 in layer 1, 1344-2687 in layer 2
+  (submoduleNum - 1) * 224 + //224 pixels per side of a module
+  (sideNum - 1) * 672 + //672 pixels per side
+  (pmtNum-1) * 16 + //16 pixels per pmt
   pixelNum;
   return pixel - 1;
 }
@@ -382,21 +382,22 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
 std::vector<int> getLocation(int pixelID) {
   // Check valid range
   if (pixelID < 0 || pixelID > 2687) {
-      std::cerr << "Error: pixelID must be in the range 1 to 2688.\n";
+      std::cerr << "Error: pixelID must be in the range 0 to 2687.\n";
       return {};  // return empty vector to signal error
   }
 
-  int layerNum      = pixelID / 1344 + 1;
+  int layerNum      = pixelID / 1344; //1344 pixels per layer
   pixelID               %= 1344;
 
-  int sideNum       = pixelID / 672 + 1;  // 1 or 2
+  int sideNum       = pixelID / 672;  //672 pixels per side
   pixelID               %= 672;
 
-  int submoduleNum  = pixelID / 224 + 1;
+  int submoduleNum  = pixelID / 224; //224 pixels per side of module
   pixelID               %= 224;
 
-  int pmtNum        = pixelID / 16 + 1;
-  int pixelNum      = pixelID % 16 + 1;
+  int pmtNum        = pixelID / 16; //16 pixels per bar
+  pixelID               %= 16;
+  int pixelNum      = pixelID % 16;
 
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }

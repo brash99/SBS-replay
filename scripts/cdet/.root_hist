@@ -428,3 +428,31 @@ getLocation(116)
 7*16
 .q
 .q
+.L PlotHVScanHighCurrentBStest.C
+getPixelID(2,2,3,14,16)
+.q
+.L PlotHVScanHighCurrent.C
+.L PlotHVScanHighCurrent.C
+.q
+.L PlotHVScanHighCurrent.C
+getPixelID(1,1,1,1,1)
+getPixelID(1,1,1,1,2)
+getPixelID(2,2,3,14,16)
+getPixelID(1,1,2,2,16)
+.q
+.L PlotHVScanHighCurrent.C
+getPixelID(2,2,3,14,16)
+.q
+.L PlotHVScanHighCurrent.C
+getPixelID(2,2,3,14,16)
+.q
+getPixelID(2,2,3,14,16)
+.q
+.L PlotHVScanHighCurrent.C
+getPixelID(2,2,3,14,16)
+16*14*2*3*2
+getPixelID(2,2,3,13,16)
+2016 + (13*14) +16
+getPixelID(2,2,1,13,16)
+1344 + (672) + (13*14) +15
+.q

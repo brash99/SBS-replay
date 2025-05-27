@@ -358,7 +358,7 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
   // Calculate paddle number, note that missing pixels are included here
   // Validate inputs
   if (layerNum < 1 || layerNum > 2 ||
-    sideNum < 0 || sideNum > 1 ||
+    sideNum < 1 || sideNum > 2 ||
     submoduleNum < 1 || submoduleNum > 3 ||
     pmtNum < 1 || pmtNum > 14 ||
     pixelNum < 1 || pixelNum > 16) {
@@ -371,10 +371,10 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
     return -1;  // Error code
 }
 
-  int pixel = (layerNum - 1) * 1344 +
-  (submoduleNum - 1) * 224 +
-  (sideNum - 1) * 672 +
-  (pmtNum - 1) * 16 +
+  int pixel = (layerNum - 1) * 1344 + //1344 pixels per layer, 0-1343 in layer 1, 1344-2687 in layer 2
+  (submoduleNum - 1) * 224 + //224 pixels per module
+  (sideNum - 1) * 672 + //672 pixels per side
+  (pmtNum - 1) * 16 + //16
   pixelNum;
   return pixel - 1;
 }
