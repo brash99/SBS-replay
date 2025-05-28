@@ -456,3 +456,16 @@ getPixelID(2,2,3,13,16)
 getPixelID(2,2,1,13,16)
 1344 + (672) + (13*14) +15
 .q
+.x PlotHVScanHighCurrent.C()
+.q
+.x PlotHVScanHighCurrent.C(3867,50000,500000,10.0,35.0,18.0,45.0)
+plotEECalCDet()
+plotXYECalCDet()
+.q
+.x PlotHVScanHighCurrent.C()
+ls -altr
+plotXYECalCDet()
+.q
+.x PlotHVScanHighCurrent.C(3867,389000)
+plotRefTDC()
+plotXYECalCDet()

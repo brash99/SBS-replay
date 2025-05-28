@@ -402,12 +402,12 @@ std::vector<int> getLocation(int pixelID) {
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }
 
-void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t neventsr=50000,
-	Double_t LeMin = 0.0, Double_t LeMax = 60.0,
-	Double_t TotMin = 2.0, Double_t TotMax = 45.0, 
+void PlotHVScanHighCurrent(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000,
+	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
+	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
-	Int_t nhitcutlow2 = 0, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 3.1, Double_t XOffset = 0.0,
+	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
+	Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30
