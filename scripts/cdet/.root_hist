@@ -1,104 +1,3 @@
-plotXYECalCDet()
-plotNhits()
-plotAllTDC()
-plotTOTvsLE()
-pwd
-.q
-.x PlotHVScanHighCurrent.C(3637,50000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-plotPMTRates(2,1,2)
-plotPMTRates(3,1,3)
-plotPMTRates(1,2,1)
-plotPMTRates(2,2,2)
-plotPMTRates(3,2,3)
-plotPMTRates(1,1,1)
-plotPMTRates(2,1,2)
-plotPMTRates(3,1,3)
-.q
-.q
-.x PlotHVScanHighCurrent.C(3637,1000,1000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-.q
-.x PlotHVScanHighCurrent.C(3637,1000,1000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-.q
-.x PlotHVScanHighCurrent.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-plotAllTDC()
-.q
-.x PlotHVScanHighCurrent.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotAllTDC()
-plotPMTRates(1,1,1)
-.q
-plotPMTRates(1,1,1)
-.x PlotHVScanHighCurrent.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotAllTDC()
-plotPMTRates(1,1,1)
-plotPMTRates(2,1,2)
-plotPMTRates(3,1,3)
-plotRefTDC()
-.q
-.x PlotHVScanHighCurrent.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-plotPMTRates(2,1,2)
-plotPMTRates(3,1,3)
-plotPMTRates(1,2,1)
-plotPMTRates(2,2,2)
-plotPMTRates(3,2,3)
-.q
-.q
-.q
-.x PlotHVScanHighCurrent.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-.q
-.x PlotHVScanHighCurrentBStest.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-.q
-.x PlotHVScanHighCurrentBStest.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-.q
-.x PlotHVScanHighCurrentBStest.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-.x PlotHVScanHighCurrent.C(3694,50000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotXYECalCDet()
-plotPMTRates(1,1,1)
-plotAllTDC()
-.q
-.x PlotHVScanHighCurrent.C(3694,50000,50000,5.0,65.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotAllTDC()
-plotXYECalCDet()
-.q
-.x PlotHVScanHighCurrent.C(3688,50000,50000,5.0,65.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotAllTDC()
-plotPMTRates(2,1,2)
-plotAllTDC()
-plotXYECalCDet()
-pwd
-plotPMTRates(1,1,1)
-.q
-.q
-.x PlotHVScanHighCurrentBStest.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-.q
-.x PlotHVScanHighCurrentBStest.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-.q
-.x PlotHVScanHighCurrentBStest.C(3594,10000,50000,5.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotPMTRates(1,1,1)
-.x PlotHVScanHighCurrent.C(3781,50000,50000,5.0,65.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-.x PlotHVScanHighCurrent.C(3783,50000,50000,5.0,65.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-.q
-plotAllTDC()
-plotXYECalCDet()
-.q
-.x PlotHVScanHighCurrent.C(3781,50000,50000,5.0,65.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotXYECalCDet()
-plotNhits()
-plotAllTDC()
-.q
-.x PlotHVScanHighCurrent.C(3867,50000,50000,5.0,65.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
-plotAllTDC()
-plotXYECalCDet()
-.x PlotHVScanHighCurrent.C(3867,50000,50000,5.0,65.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30).q
-.q
-.x PlotHVScanHighCurrent.C(3867,50000,50000,15.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30).q
 .x PlotHVScanHighCurrent.C(3867,50000,50000,15.0,35.0,8.0,35.0,1,100,1,100,0.16,0.02,3,false,30)
 plotXYECalCDet()
 plotAllTDC()
@@ -468,4 +367,113 @@ plotXYECalCDet()
 .q
 .x PlotHVScanHighCurrent.C(3867,389000)
 plotRefTDC()
+plotXYECalCDet()
+.x PlotHVScanHighCurrent.C(4141,50000)
+.q
+.x PlotHVScanHighCurrent.C(4141,50000,50000)
+plotRefTDC()
+plotAllTDC()
+.q
+.x PlotHVScanHighCurrent.C(4141,50000,50000)
+plotXYECalCDet()
+plotXYZ()
+plotXYZ()
+plotXYZ()
+plotBarTDC(1, 2, 2)
+.q
+.x PlotHVScanHighCurrent.C(4141,50000,50000)
+plotBarTDC(1,2,2)
+plotBarTDC(0,2,2)
+plotBarTDC(3,2,2)
+plotBarTDC(16,2,2)
+plotBarTDC(14,2,2)
+plotBarTDC(15,2,2)
+.q
+.q
+.x PlotHVScanHighCurrent.C(4172,50000,50000)
+plotAllTDC()
+.x PlotHVScanHighCurrent.C(4172,50000,50000,0.0,100.0)
+.x PlotHVScanHighCurrent.C(4172,50000,50000,0.0,100.0)
+plotAllTDC()
+.q
+.q
+.x PlotHVScanHighCurrent.C(4176,50000,50000,10.0,35.0,18.0,45.0)
+.q
+.x PlotHVScanHighCurrent.C(4172,50000,50000,0.0,100.0)
+.q
+.x PlotHVScanHighCurrent.C(4176,50000,50000,0.0,100.0)
+.x PlotHVScanHighCurrent.C(4176,50000,50000,0.0,100.0)
+.x PlotHVScanHighCurrent.C(4176,50000,50000,0.0,100.0)
+plotAllTDC()
+plotXYECalCDet()
+plotAllTDC()
+.q
+.x PlotHVScanHighCurrent.C(4176,50000,50000,8.0,35.0)
+plotAllTDC()
+plotXYECalCDet()
+plotBarRates()
+plotPMTRates(1,1,1)
+plotPMTRates(1,2,1)
+.x PlotHVScanHighCurrent.C(4173,50000,50000,0.0,100.0)
+plotTOTvsLE()
+plotTOTvsLE()
+plotTOTvsXDiff()
+plotRowColLayer()
+plotXYZ()
+.w
+.q
+.x PlotHVScanHighCurrent.C(4176,50000,50000,8.0,35.0)
+plotXYZ()
+plotPMTRates(1,1,1)
+plotPMTRates(2,1,2)
+plotPMTRates(3,1,3)
+plotPMTRates(1,2,1)
+plotPMTRates(2,2,2)
+plotPMTRates(3,2,3)
+.x PlotHVScanHighCurrent.C(4177,50000,50000,8.0,35.0)
+.q
+.x PlotHVScanHighCurrent.C(4177,50000,50000,0.0,100.0,0.1,45.0,0,100,0,100,3.1,0.0)
+plotRefTDC()
+plotAllTDC()
+plotXYECalCDet()
+plotAllTDC()
+.q
+.x PlotHVScanHighCurrent.C(4177,50000,50000,0.0,100.0,0.1,45.0,0,100,0,100,3.1,0.0)
+.q
+.x PlotHVScanHighCurrent.C(4176,50000,50000,8.0,35.0)
+plotAllTDC()
+.q
+.x PlotHVScanHighCurrent.C(3867,50000,500000,10.0,35.0,18.0,45.0)
+plotXYZ()
+.q
+.q
+.x PlotHVScanHighCurrent.C(4297,50000,50000,10.0,35.0,18.0,45.0)
+.q
+.q
+.x Plot50kCDet.C(3867,50000,50000,10.0,35.0,18.0,45.0)
+plotXYECalCDet()
+.q
+.x Plot50kCDet.C(3867,50000,50000,5.0,45.0,18.0,45.0,1,100,1,100,0.16,0.02)
+plotXYECalCDet()
+pwd
+.q
+.x PlotHVScanHighCurrent.C(3867,50000,500000,10.0,35.0,18.0,45.0)
+plotXYECalCDet()
+.q
+.x PlotHVScanHighCurrent.C(3867,50000,500000,10.0,35.0,18.0,45.0)
+.x Plot50kCDet.C(3867,50000,50000,10.0,35.0,18.0,45.0)
+plotAllTDC()
+plotAllTDC()
+plotXYECalCDet()
+plotXYECalCDet()
+.q
+.q
+.x Plot50kCDet.C(4297,50000,50000,10.0,35.0,18.0,45.0)
+.x Plot50kCDet.C(4302,50000,50000,10.0,35.0,18.0,45.0)
+.q
+.x Plot50kCDet.C(4302,50000,50000,10.0,35.0,18.0,45.0)
+.q
+.x Plot50kCDet.C(4302,3,50000,50000,10.0,35.0,18.0,45.0)
+plotXYECalCDet()
+.x PlotHVScanHighCurrent.C(4302,50000,50000,10.0,35.0,18.0,45.0)
 plotXYECalCDet()
