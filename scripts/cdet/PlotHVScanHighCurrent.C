@@ -422,7 +422,7 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nev
 	Double_t RefTotMin = 1.0;
 	Double_t RefTotMax = 251.0;
 
-	int NTDCBins = (LeMax-LeMin)/.018; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
+	int NTDCBins = 2*(LeMax-LeMin)/.0160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
 					// 4 ns resolution is the best we can hope for, I think, using only the module trigger time.
 
 	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
