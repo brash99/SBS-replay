@@ -68,8 +68,8 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2369, 2395, 2384, 2409, 2405, 2422, 2416, 2435, 2432, 2451, 2448, 2479, 2464, 2493, 2483, 2508, 2499, 2513, 2512, 2537, 
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
-const TString REPLAYED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+const TString REPLAYED_DIR = "/adaqfs/home/a-onl/sbs/Rootfiles";
+const TString ANALYSED_DIR = "/adaqfs/home/a-onl/sbs/Rootfiles/cdetFiles/cdet_histfiles";
 
 // // for local analysis at uog (please leave in comments)
 // TString REPLAYED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Replayed";
@@ -401,18 +401,18 @@ std::vector<int> getLocation(int pixelID) {
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }
 
-void PlotHVScanHighCurrent(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t neventsr=50000,
-	Double_t LeMin = 4, Double_t LeMax = 60.0,
-	Double_t TotMin = 5, Double_t TotMax = 45.0, 
+void PlotElastic(Int_t RunNumber1=3562, Int_t nevents=50000, Int_t neventsr=50000,
+	Double_t LeMin = 0.0, Double_t LeMax = 60.0,
+	Double_t TotMin = 2.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 0, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 1, Double_t XOffset = 0.02,
+	Double_t XDiffCut = 3.1, Double_t XOffset = 0.0,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30
 	){
 
-	int NTDCBins = (LeMax-LeMin)/4; // 4 ns is the trigger time,0.018ns is expected time res 
+	int NTDCBins = (LeMax-LeMin)/4; // 4 ns is the trigger time 
 					// resolution, so this is the best we can hope for, I think.
 
 	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
