@@ -405,7 +405,7 @@ std::vector<int> getLocation(int pixelID) {
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }
 
-void PlotHVScanHighCurrent(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000,
+void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000,
 	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
 	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
