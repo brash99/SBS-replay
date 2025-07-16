@@ -1,0 +1,35 @@
+# Runs used for timing cuts
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3173*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3174*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3175*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3176*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3177*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3178*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3179*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3180*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3181*
+/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_3182*
+
+# Runs used for gain matching
+#/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_308*
+#/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_309*
+#/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_31*
+#/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_32*
+#/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_33*
+#/adaqfs/home/a-onl/sbs/Rootfiles/GEP1/LH2/bigprod_Apr30/gep5_fullreplay_34*
+
+
+endlist
+((sbs.gemFT.track.nhits[0]>4&&sqrt(pow((heep.dxECAL+0.004)/0.022,2)+pow((heep.dyECAL-0.015)/0.022,2))<=3.5)&&abs(heep.dpp+0.022)<0.05)&&abs(heep.dt_ADC-15.0)<20&&abs(sbs.tr.vz[0]+0.09)<0.15
+#((sbs.gemFT.track.nhits[0]>4&&sqrt(pow((heep.dxECAL+0.004)/0.022,2)+pow((heep.dyECAL-0.015)/0.022,2))<=3.5)&&abs(heep.dpp+0.022)<0.05)&&abs(sbs.tr.vz[0]+0.09)<0.15
+#sbs.gemFT.track.chi2ndf[0]<500&&sbs.gemFT.track.nhits[0]>4&&abs(sbs.tr.y[0]-sbs.tr.ph[0]*(3.685+0.081)+0.03)<0.03&&abs(sbs.tr.r_x[0]-sbs.tr.th[0]*(3.685+0.081)-0.023)<0.04
+#sbs.gemFT.track.chi2ndf[0]<500&&sbs.gemFT.track.nhits[0]>4
+#sbs.tr.n>0&&abs(sbs.tr.vz[0]+0.09)<0.15&&sbs.gemFT.track.chi2ndf[0]<30&&sbs.gemFT.track.nhits[0]>=4
+endcut
+detname sbs.gemFPP
+nmodules 32
+ADCcut 500
+ccor_cut 0.7
+deltat_cut 25
+mod_nstripu 1280 1280 1280 1280  1280 1280 1280 1280  1280 1280 1280 1280  1280 1280 1280 1280  1280 1280 1280 1280  1280 1280 1280 1280  1280 1280 1280 1280  1280 1280 1280 1280
+mod_nstripv 1536 1536 1536 1536  1536 1536 1536 1536  1536 1536 1536 1536  1536 1536 1536 1536  1536 1536 1536 1536  1536 1536 1536 1536  1536 1536 1536 1536  1536 1536 1536 1536

@@ -1,0 +1,23 @@
+# Output variable definitions for analysis of all detectors replay_gep.C
+
+#include "replay_beam.odef"
+#include "replay_ECal.odef"
+#include "replay_CDet.odef"
+#include "replay_hcal.odef"
+#include "replay_FTGEM_gep.odef"
+#include "replay_FPPGEM_gep.odef"
+#include "replay_helicity.odef"
+#include "replay_gepheep.odef"
+#include "replay_sbs.odef"
+
+block g.*
+
+begin epics
+HALLA:p
+hac_bcm_average
+IPM1H04A.XPOS
+IPM1H04A.YPOS
+IPM1H04E.XPOS	
+IPM1H04E.YPOS	
+IGL1I00OD16_16 IN=1 OUT=-1
+end epics

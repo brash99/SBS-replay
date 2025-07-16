@@ -60,7 +60,7 @@ void FitGaus_FWHM( TH1D *htest, double thresh=0.5 ){
   double xlow = htest->GetBinLowEdge(binlow);
   double xhigh = htest->GetBinLowEdge(binhigh+1);
 
-  htest->Fit("gaus","q0S","",xlow, xhigh);
+  htest->Fit("gaus","qS","",xlow, xhigh);
 }
 
 void GetTrackingCutsFast( const char *configfilename, const char *outfilename="GENtrackingcuts.root", int nmodules=8, double thresh=0.003, double nsig_tstrip=4.5, double nsig_dt=5.0 ){

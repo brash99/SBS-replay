@@ -1,9 +1,19 @@
 block heep.*
 
-cut goodheep heep.datavalid==1.
+
+
 formula dEcalo heep.ecalo/heep.eprime_eth-1.
 formula detheta heep.etheta-heep.eth_pth
 formula dptheta heep.ptheta-heep.pth_eth
+
+cut goodheep heep.datavalid==1.
+cut gooddxdy abs(heep.dxECAL-0.02)<0.1&&abs(heep.dyECAL-0.02)<0.1
+cut gooddpp abs(heep.dpp+0.15)<0.1
+cut goodctime abs(heep.dt_ADC-110.)<25.
+cut goodhcalcorr abs(sbs.tr.x[0]+sbs.tr.th[0]*sbs.z_bcp[30]-sbs.x_bcp[30]+0.1)<0.2&&abs(sbs.tr.y[0]+sbs.tr.ph[0]*sbs.z_bcp[30]-sbs.x_bcp[30])<0.2
+cut goodtrack goodhcalcorr&&goodctime
+cut gooddx abs(heep.dxECAL-0.02)<0.1
+cut gooddy abs(heep.dyECAL-0.02)<0.1
 
 th1d hHeep_acopl 'Acoplanarity ; rad' heep.acoplanarity 100 0 0.1 goodheep
 th1d hHeep_inel 'Missing mass squared of ep --> pX; Inelasticity (GeV^{2});' heep.inelasticity 100 -2 2 goodheep

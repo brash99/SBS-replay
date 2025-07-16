@@ -1,0 +1,88 @@
+# ADC from calorimeter
+
+variable earm.ecal.ngoodADChits
+
+block earm.tr.*
+
+#
+#variable earm.ecal.a_time
+#variable earm.ecal.a_amp_p
+#variable earm.ecal.a_p
+#variable earm.ecal.ped
+#variable earm.ecal.adcrow
+#variable earm.ecal.adccol
+#variable earm.ecal.adcelemID
+#variable earm.ecal.adcxpos
+#variable earm.ecal.adcypos
+
+#
+# variable earm.ecal.scinttrig.a_time
+# variable earm.ecal.scinttrig.a_amp_p
+# variable earm.ecal.scinttrig.a_p
+# variable earm.ecal.scinttrig.ped
+# variable earm.ecal.scinttrig.adcrow
+# variable earm.ecal.scinttrig.adccol
+# variable earm.ecal.scinttrig.adcelemID
+
+# Waveform data (think carefully before turning these on)
+#block earm.ecal.*samp*
+
+# Variables provided by M.Jones 4/4/2025
+#variable earm.ecal.a_p
+#variable earm.ecal.a_c
+#variable earm.ecal.a_amp_p
+#variable earm.ecal.adcelemID
+#variable earm.ecal.adcrow
+#variable earm.ecal.adccol
+#variable earm.ecal.adcxpos
+#variable earm.ecal.adcypos
+#variable earm.ecal.a_time
+#variable earm.ecal.ped
+variable earm.ecal.nclus
+variable earm.ecal.e
+variable earm.ecal.adctime
+variable earm.ecal.atimeblk
+variable earm.ecal.eblk
+variable earm.ecal.atimeblk
+variable earm.ecal.againblk
+variable earm.ecal.eblk
+variable earm.ecal.rowblk
+variable earm.ecal.colblk
+variable earm.ecal.nblk
+variable earm.ecal.idblk
+variable earm.ecal.index
+variable earm.ecal.x
+variable earm.ecal.y
+
+
+block earm.ecal.clus.*
+
+block earm.ecal.clus_blk.*
+
+block earm.ecal.vtp.*
+block sbs.hcal.vtp.*
+#block earm.ecal.goodblock.*
+
+## --- *** creating diagnostic histograms --- ***
+
+# Cluster related
+th1d hclus_mult 'ECAL Cluster Multiplicity' earm.ecal.nclus 35 0 35 earm.ecal.nclus>0
+th1d hclus_size 'No. of Blocks in Best ECAL Cluster' earm.ecal.nblk 30 0 30 earm.ecal.nclus>0
+th1d hclus_eng 'ECAL Cluster Energy (GeV)' earm.ecal.e 100 0 8.0 earm.ecal.nclus>0
+th2d h2clus_pos 'Position of Best Cluster' earm.ecal.colblk+1 earm.ecal.rowblk+1 27 1 28 69 1 70 earm.ecal.e>1&&sbs.hcal.e>0.05
+
+# Timing Stuff
+th1d hclus_atECAL 'ECAL ADC Clus time; ns ; ' earm.ecal.atimeblk 250 0 250 sbs.hcal.nclus>0&&earm.ecal.nclus>0
+th1d hclus_atECAL_cut 'ECAL ADC Clus time w/ Strict Cut (ns)' earm.ecal.atimeblk 250 0 250 sbs.hcal.e>0.05&&earm.ecal.e>2.
+th1d hclus_atHCAL 'HCAL ADC Clus time >> if peak not aroud 95 or multipeak for COIN trig, call RC and start new run; ns; ' sbs.hcal.atimeblk 200 0 200 sbs.hcal.nclus>0&&earm.ecal.nclus>0
+th1d hclus_atHCAL_cut 'HCAL ADC Clus time w/ Strict Cut (ns)' sbs.hcal.atimeblk 200 0 200 sbs.hcal.e>0.05&&earm.ecal.e>2.
+th1d hclus_atimediff 'ECAL ADC Clus time - HCAL ADC Clus time (ns)' earm.ecal.atimeblk-sbs.hcal.atimeblk 300 -150 150 sbs.hcal.nclus>0&&earm.ecal.nclus>0
+
+# All ECal channels
+th1d helemID_ecal 'ECal blocks (Total 1656)' earm.ecal.adcelemID[I] 1655 0 1655 earm.ecal.a_time[I]>0
+th2d hped_vs_elem_ecal 'Pedestal vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.ped[I] 1656 0 1655 200 0 200 earm.ecal.a_time[I]>0
+th2d hADCtime_vs_elem_ecal 'ADC time (ns) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_time[I] 1656 0 1655 250 0 250 earm.ecal.a_time[I]>0
+th2d hADCamp_vs_elem_ecal 'ADC amplitude (mV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_amp_p[I] 1656 0 1655 100 0 1000 earm.ecal.a_time[I]>0
+th2d hADCint_vs_elem_ecal 'ADC integral (pC) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_p[I] 1656 0 1655 100 0 1000 earm.ecal.a_time[I]>0
+th2d hADCeng_vs_elem_ecal 'ADC integral (GeV) vs ECal blocks' earm.ecal.adcelemID[I] earm.ecal.a_c[I] 1656 0 1655 100 0 5 earm.ecal.a_time[I]>0
+

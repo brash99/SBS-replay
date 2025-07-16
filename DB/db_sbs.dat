@@ -1078,17 +1078,25 @@ sbs.optics_parameters =
 ----------[ 2024-10-01 00:00:00 ] # start GEP:
 
 # FT origin is 16.5 cm above beam height
-sbs.gemorigin_xyz = -0.165 0.0 3.685
+#sbs.gemorigin_xyz = -0.165 0.0 3.685
+
+# global alignment with single C foil suggests GEM first layer is at
+#sbs.gemorigin_xyz = -0.1522 -0.0079 3.5719 
 
 # let's put this entry in here in case it's "mandatory"
-sbs.gemangles_xyz = 0.0 0.0 0.0
+#sbs.gemangles_xyz = 0.0 0.0 0.0
+
+# updated global FT alignment after internal alignment with straight-through:
+sbs.gemorigin_xyz =    -0.153507   -0.0068747      3.61869
+sbs.gemangles_xyz =    0.0702184    -0.393578     0.352327
+
 
 # optics coordinate system is centered at beam height (probably not ideal but that's what g4sbs optics fitting code uses):
 sbs.optics_origin = 0.0 0.0 3.685
 
 sbs.polarimetermode = 1
 
-sbs.z0analyzer = 1.53
+sbs.z0analyzer = 1.473
 sbs.analyzerthick = 0.5588
 sbs.nbinsz_fcp = 11
 
@@ -1161,16 +1169,30 @@ sbs.forwardoptics_parameters =
 # set initial constraint offsets and widths for testing:
 
 # for real data, set wider limits (or perhaps no limits) until we understand what's going on with the GEM alignments:
-sbs.frontconstraint_x0 = -0.01 0.0
-sbs.frontconstraint_y0 = -0.01 0.0
-sbs.frontconstraintwidth_x = 0.03 0.07
-sbs.frontconstraintwidth_y = 0.03 0.07
+# we'll keep these here for now until done with global straight-through alignment:
+#sbs.frontconstraint_x0 = -0.006 0.0
+#sbs.frontconstraint_y0 = 0.0 0.0
+#sbs.frontconstraintwidth_x = 0.035 0.025
+#sbs.frontconstraintwidth_y = 0.06 0.025
+
+#sbs.backconstraint_x0 = 0.0 0.0
+#sbs.backconstraint_y0 = 0.0 0.0
+#sbs.backconstraintwidth_x = 0.06 0.3
+#sbs.backconstraintwidth_y = 0.06 0.3
+
+# constraints after alignment, AJRP 4/21/2025:
+sbs.frontconstraint_x0 = -0.006 0.0
+sbs.frontconstraint_y0 = -0.003 0.0
+sbs.frontconstraintwidth_x = 0.035 0.025
+sbs.frontconstraintwidth_y = 0.03 0.025
+
+sbs.backconstraint_x0 = -0.008 0.07
+sbs.backconstraint_y0 = -0.003 0.017
+sbs.backconstraintwidth_x = 0.04 0.25
+sbs.backconstraintwidth_y = 0.035 0.25
 
 
-sbs.backconstraint_x0 = -0.02 0.037
-sbs.backconstraint_y0 = -0.0125 0.0
-sbs.backconstraintwidth_x = 0.03 0.3
-sbs.backconstraintwidth_y = 0.03 0.25
+
 
 ---------[ 2025-04-13 18:06:00 ] # getting ready for zero-field running
 
@@ -1195,6 +1217,17 @@ sbs.backconstraint_y0 = -0.0096 -0.011
 sbs.backconstraintwidth_x = 0.03 0.2
 sbs.backconstraintwidth_y = 0.02 0.2
 
+# attempting to update these after alignment: needed offsets "should" be ~zero now
+sbs.frontconstraint_x0 = -0.0059 0.01
+sbs.frontconstraint_y0 = -0.0038 -0.007
+sbs.frontconstraintwidth_x = 0.025 0.12
+sbs.frontconstraintwidth_y = 0.029 0.1
+
+sbs.backconstraint_x0 = -0.0084 0.041
+sbs.backconstraint_y0 = 0.0005 0.0167
+sbs.backconstraintwidth_x = 0.038 0.15
+sbs.backconstraintwidth_y = 0.036 0.15
+
 --------[ 2025-04-14 17:19:00 ] # done with zero-field, back to field-on running
 
 sbs.geptrackingmode = 1
@@ -1204,14 +1237,198 @@ sbs.usedynamicconstraint = 0
 # set initial constraint offsets and widths for testing:
 
 # for real data, set wider limits (or perhaps no limits) until we understand what's going on with the GEM alignments:
-sbs.frontconstraint_x0 = -0.01 0.0
-sbs.frontconstraint_y0 = -0.01 0.0
-sbs.frontconstraintwidth_x = 0.03 0.07
-sbs.frontconstraintwidth_y = 0.03 0.07
+#sbs.frontconstraint_x0 = -0.01 0.0
+#sbs.frontconstraint_y0 = -0.01 0.0
+#sbs.frontconstraintwidth_x = 0.03 0.07
+#sbs.frontconstraintwidth_y = 0.03 0.07
 
 
-sbs.backconstraint_x0 = -0.02 0.037
-sbs.backconstraint_y0 = -0.0125 0.0
-sbs.backconstraintwidth_x = 0.03 0.3
-sbs.backconstraintwidth_y = 0.03 0.25
+#sbs.backconstraint_x0 = -0.02 0.037
+#sbs.backconstraint_y0 = -0.0125 0.0
+#sbs.backconstraintwidth_x = 0.03 0.3
+#sbs.backconstraintwidth_y = 0.03 0.25
 
+
+# for real data, set wider limits (or perhaps no limits) until we understand what's going on with the GEM alignments:
+# temporarily relax front tracker region-of-interest constraints after realignment:
+#sbs.frontconstraint_x0 = 0.0 0.0
+#sbs.frontconstraint_y0 = 0.0 0.0
+#sbs.frontconstraintwidth_x = 0.06 0.07
+#sbs.frontconstraintwidth_y = 0.06 0.07
+
+#sbs.backconstraint_x0 = 0.0 0.0
+#sbs.backconstraint_y0 = 0.0 0.0
+#sbs.backconstraintwidth_x = 0.06 0.3
+#sbs.backconstraintwidth_y = 0.06 0.3
+
+# constraints after alignment, AJRP 4/21/2025:
+sbs.frontconstraint_x0 = -0.006 0.0
+sbs.frontconstraint_y0 = -0.003 0.0
+sbs.frontconstraintwidth_x = 0.035 0.05
+sbs.frontconstraintwidth_y = 0.03 0.05
+
+sbs.backconstraint_x0 = -0.008 0.07
+sbs.backconstraint_y0 = -0.003 0.017
+sbs.backconstraintwidth_x = 0.04 0.35
+sbs.backconstraintwidth_y = 0.035 0.35
+
+--------[ 2025-05-05 00:00:00 ] # start kin 3
+
+
+# here the main change needed (initially) is a new optics model (forward and backward):
+
+# changing optics origin to reflect SBS survey offset:
+sbs.optics_origin = 0.0 0.0 3.714
+
+# starting with GEM origin from previous global alignment, adding 2.8 cm to the
+# z offset. This global alignment will need to be redone of course
+#sbs.gemorigin_xyz =    -0.153507   -0.0068747      3.61869
+#sbs.gemorigin_xyz =    -0.153507   -0.0068747      3.648
+#sbs.gemangles_xyz =    0.0702184    -0.393578     0.352327
+
+sbs.gemorigin_xyz =    -0.147446  -0.00258276      3.61066
+sbs.gemangles_xyz =   -0.0290593    -0.342306     0.309045
+
+sbs.optics_order = 2
+
+# replacing old coefficients with updated proton gun simulations accounting for survey offsets:
+# total number of terms = 21
+# Expansion is: u = sum_{i,j,k,l,m}=0^{i+j+k+l+m<=order} Cu_{ijklm} xfp^i * yfp^j * xpfp^k * ypfp^l * xtar^m, 
+# u = xptar, yptar, ytar, p*thetabend. Columns are:
+#          Cxptar          Cyptar           Cytar     Cpthetabend   i j k l m
+sbs.optics_parameters = 
+    8.0895916e-05  -0.00049039118    0.0011079288      0.66667862   0 0 0 0 0
+       0.45157674    0.0052485383    -0.010834743    0.0098745771   1 0 0 0 0
+      0.010268812    -0.019180197       1.0470545     0.033331617   0 1 0 0 0
+      -0.68365665    -0.017491071     0.038757897    -0.033062291   0 0 1 0 0
+      -0.02843851       1.0481547      -3.8317431     -0.16016801   0 0 0 1 0
+    4.3955429e-14   2.8153743e-14  -7.7507428e-14   1.7358714e-13   0 0 0 0 1
+      0.014401165    -0.022402688     0.041466907    -0.038927947   2 0 0 0 0
+       0.51518767      0.18533766     -0.44384439    -0.064942865   1 1 0 0 0
+      0.051122835     0.028932772     -0.16206695      0.81306965   0 2 0 0 0
+     -0.057710738      0.13470467     -0.26060194      0.19517264   1 0 1 0 0
+      -0.71204891     -0.59380256       1.5785597      0.18130516   0 1 1 0 0
+      0.034869551     -0.19706728      0.40324194     -0.15209314   0 0 2 0 0
+       -2.0357351     -0.45485705       1.1594505      0.13006557   1 0 0 1 0
+      -0.25009152      -0.2591533       1.2773413      -5.1417083   0 1 0 1 0
+        2.9148538       1.5104698      -4.1934443     -0.32321029   0 0 1 1 0
+        0.2756614      0.51537972      -2.3807251       8.9140871   0 0 0 2 0
+   -6.2203387e-13   2.7769879e-13  -7.6727631e-13   3.5022084e-12   1 0 0 0 1
+   -8.3939423e-13   2.6369691e-13   -8.359979e-13   4.4495503e-13   0 1 0 0 1
+    1.5013262e-14  -3.6565471e-14   1.3454079e-13  -1.4330048e-13   0 0 1 0 1
+   -2.2799911e-13   7.0052094e-14  -2.1962422e-13   2.4364109e-13   0 0 0 1 1
+   -4.4466211e-14   2.1208022e-14  -6.0082639e-14   2.9570217e-13   0 0 0 0 2
+   
+
+sbs.forwardoptics_order = 2
+
+# total number of terms = 21
+# Expansion is: u = sum_{i,j,k,l,m}=0^{i+j+k+l+m<=order} Cu_{ijklm} xptar^i * yptar^j * ytar^k * (1/p)^l * xtar^m, 
+# u = xfp, yfp, xpfp, ypfp. Columns are:
+#            Cxfp            Cyfp           Cxpfp           Cypfp   i j k l m
+
+sbs.forwardoptics_parameters =
+     0.0017040293   3.4593942e-05   0.00084178661   3.7345985e-05   0 0 0 0 0
+        3.6964054   -0.0062815943      0.98539642   -0.0026820685   1 0 0 0 0
+     -0.010759657       3.7485937   -0.0038026302       1.0278897   0 1 0 0 0
+     0.0022030488       1.0166014   0.00045148572     0.011923387   0 0 1 0 0
+       -1.0158533   -0.0025862612     -0.66667504   -0.0021350941   0 0 0 1 0
+   -5.4223986e-14  -7.6067624e-15  -7.9220484e-14   1.5998921e-14   0 0 0 0 1
+       -0.1690864     0.020979908     -0.11516621    0.0098555786   2 0 0 0 0
+       0.28611525     -0.52579079     0.016139289     -0.18937172   1 1 0 0 0
+      -0.54431209     0.077922572     -0.23755392     0.055837756   0 2 0 0 0
+       -3.0146204     -0.30867201    0.0058269893     -0.11706896   1 0 1 0 0
+       -0.5498662      0.14097823      -0.1729077     0.068280383   0 1 1 0 0
+     -0.066403218     0.028602219    -0.040699211    0.0051230186   0 0 2 0 0
+       0.24744066     0.090629548      0.19645596     0.044651645   1 0 0 1 0
+       0.12222631     -0.27940771     0.080578178     -0.26883276   0 1 0 1 0
+     -0.013752179     -0.14463474    0.0048985291     -0.12394561   0 0 1 1 0
+     -0.065546725     0.015248278    -0.064248968     0.017518439   0 0 0 2 0
+    -2.717878e-14   4.2425048e-14  -1.6241999e-14   1.1268872e-14   1 0 0 0 1
+    3.1681472e-14   2.3899665e-14   1.6874848e-14   3.1777695e-15   0 1 0 0 1
+    7.1036926e-15   6.0864942e-15   8.4761842e-15   -2.936155e-16   0 0 1 0 1
+      1.98409e-15  -7.5958771e-14   1.2249967e-14  -3.1717196e-14   0 0 0 1 1
+   -2.5110122e-15  -9.2254763e-16  -2.1759938e-15   4.5146178e-16   0 0 0 0 2
+
+
+# start with same constraints from Kin. 1.
+# start with relatively loose constraints until we figure out how to center things:
+sbs.frontconstraint_x0 = 0.0 0.0
+sbs.frontconstraint_y0 = 0.0 0.0
+sbs.frontconstraintwidth_x = 0.05 0.05
+sbs.frontconstraintwidth_y = 0.05 0.05
+
+sbs.backconstraint_x0 = 0.0 0.0
+sbs.backconstraint_y0 = 0.0 0.0
+sbs.backconstraintwidth_x = 0.05 0.5
+sbs.backconstraintwidth_y = 0.05 0.5
+
+---------[ 2025-05-09 10:30:00 ] # Start C-foil zero-field runs.
+sbs.geptrackingmode = 0
+sbs.polarimetermode = 1
+sbs.usedynamicconstraint = 1
+
+sbs.dynamicphslope = 0.1
+sbs.dynamicthslope = 0.1
+sbs.dynamicph0 = 0.0
+sbs.dynamicth0 = 0.0
+
+sbs.frontconstraint_x0 = 0.0 0.0
+sbs.frontconstraint_y0 = 0.0 0.0
+sbs.frontconstraintwidth_x = 0.1 0.2
+sbs.frontconstraintwidth_y = 0.1 0.2
+
+sbs.backconstraint_x0 = 0.0 0.0
+sbs.backconstraint_y0 = 0.0 0.0
+sbs.backconstraintwidth_x = 0.015 0.5
+sbs.backconstraintwidth_y = 0.03 0.5
+
+---------[ 2025-05-09 20:00:00 ] # Begin production running on LH2 with field ON.
+sbs.geptrackingmode = 1
+sbs.polarimetermode = 1
+sbs.usedynamicconstraint = 0
+
+sbs.frontconstraint_x0 = 0.005 0.0
+sbs.frontconstraint_y0 = 0.0 0.002
+sbs.frontconstraintwidth_x = 0.041 0.025
+sbs.frontconstraintwidth_y = 0.036 0.025
+
+sbs.backconstraint_x0 = 0.0066 0.062
+sbs.backconstraint_y0 = 0.0 -0.023
+sbs.backconstraintwidth_x = 0.05 0.25
+sbs.backconstraintwidth_y = 0.045 0.21
+
+---------[ 2025-05-23 17:00:00 ] # Start C-foil zero-field runs taken after GEM work in Hall. FPP L0 L1 and L4 L5 were pulled out.
+sbs.geptrackingmode = 0
+sbs.polarimetermode = 1
+sbs.usedynamicconstraint = 1
+
+sbs.dynamicphslope = 0.1
+sbs.dynamicthslope = 0.1
+sbs.dynamicph0 = 0.0
+sbs.dynamicth0 = 0.0
+
+sbs.frontconstraint_x0 = 0.0 0.0
+sbs.frontconstraint_y0 = 0.0 0.0
+sbs.frontconstraintwidth_x = 0.1 0.2
+sbs.frontconstraintwidth_y = 0.1 0.2
+
+sbs.backconstraint_x0 = 0.0 0.0
+sbs.backconstraint_y0 = 0.0 0.0
+sbs.backconstraintwidth_x = 0.015 0.5
+sbs.backconstraintwidth_y = 0.03 0.5
+
+---------[ 2025-05-23 20:00:00 ] # Begin production running on LH2 with field ON.
+sbs.geptrackingmode = 1
+sbs.polarimetermode = 1
+sbs.usedynamicconstraint = 0
+
+sbs.frontconstraint_x0 = 0.0 0.0
+sbs.frontconstraint_y0 = 0.0 0.0
+sbs.frontconstraintwidth_x = 0.05 0.05
+sbs.frontconstraintwidth_y = 0.05 0.05
+
+sbs.backconstraint_x0 = 0.0 0.0
+sbs.backconstraint_y0 = 0.0 0.0
+sbs.backconstraintwidth_x = 0.05 0.5
+sbs.backconstraintwidth_y = 0.05 0.5

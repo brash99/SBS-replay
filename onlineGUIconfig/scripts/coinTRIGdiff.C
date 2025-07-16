@@ -14,11 +14,11 @@ void coinTRIGdiff(){
 
   Int_t Ndata_hcal_reftdc=0;
   
-  TH1D *h1_ECAL = new TH1D("h1_ECAL","ECAL Trig time; ns", 400, 0., 400.);
-  TH1D *h1_HCAL = new TH1D("h1_HCAL","HCAL Trig time; ns", 400, 0., 400.);
-  TH1D *h1_COIN = new TH1D("h1_COIN","COIN Trig time; ns", 400, 0., 400.);
-  TH1D *h1_COINmatch = new TH1D("h1_COINmatch","COIN-Match Trig time; ns", 400, 0., 400.);
-  TH1D *h1_calDiff = new TH1D("h1_calDiff","HCal/ECAL Difference; ns", 500, -250, 250);
+  TH1D *h1_ECAL = new TH1D("h1_ECAL","ECAL Trig time; ns", 300, 0., 300.);
+  TH1D *h1_HCAL = new TH1D("h1_HCAL","HCAL Trig time; ns", 300, 0., 300.);
+  TH1D *h1_COIN = new TH1D("h1_COIN","COIN Trig time; ns", 300, 0., 300.);
+  TH1D *h1_COINmatch = new TH1D("h1_COINmatch","COIN-Match Trig time; ns", 300, 0., 300.);
+  TH1D *h1_calDiff = new TH1D("h1_calDiff","HCal/ECAL Difference; ns", 300, -150, 150);
   TH1D *h1_RF_time = new TH1D("h1_RF_time","Accelerator RF Time; ns;",320, 0.,320.);
 
   double trigbits;
