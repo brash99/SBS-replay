@@ -136,6 +136,9 @@ TChain *T = 0;
 const int NTotBins = 200;
 const double TotBinLow = 1.;
 const double TotBinHigh = 51.;
+const int RefNTotBins = 800;
+const double RefTotBinLow = 1.;
+const double RefTotBinHigh = 201.;
 
 //const int num_bad = 0;
 //
@@ -358,7 +361,7 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
   // Calculate paddle number, note that missing pixels are included here
   // Validate inputs
   if (layerNum < 1 || layerNum > 2 ||
-    sideNum < 0 || sideNum > 1 ||
+    sideNum < 1 || sideNum > 2 ||
     submoduleNum < 1 || submoduleNum > 3 ||
     pmtNum < 1 || pmtNum > 14 ||
     pixelNum < 1 || pixelNum > 16) {
@@ -371,10 +374,10 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
     return -1;  // Error code
 }
 
-  int pixel = (layerNum - 1) * 1344 +
-  (submoduleNum - 1) * 224 +
-  (sideNum - 1) * 672 +
-  (pmtNum - 1) * 16 +
+  int pixel = (layerNum - 1) * 1344 + //1344 pixels per layer, 0-1343 in layer 1, 1344-2687 in layer 2
+  (submoduleNum - 1) * 224 + //224 pixels per side of a module
+  (sideNum - 1) * 672 + //672 pixels per side
+  (pmtNum-1) * 16 + //16 pixels per pmt
   pixelNum;
   return pixel - 1;
 }
@@ -382,38 +385,45 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
 std::vector<int> getLocation(int pixelID) {
   // Check valid range
   if (pixelID < 0 || pixelID > 2687) {
-      std::cerr << "Error: pixelID must be in the range 1 to 2688.\n";
+      std::cerr << "Error: pixelID must be in the range 0 to 2687.\n";
       return {};  // return empty vector to signal error
   }
 
-  int layerNum      = pixelID / 1344 + 1;
+  int layerNum      = pixelID / 1344; //1344 pixels per layer
   pixelID               %= 1344;
 
-  int sideNum       = pixelID / 672 + 1;  // 1 or 2
+  int sideNum       = pixelID / 672;  //672 pixels per side
   pixelID               %= 672;
 
-  int submoduleNum  = pixelID / 224 + 1;
+  int submoduleNum  = pixelID / 224; //224 pixels per side of module
   pixelID               %= 224;
 
-  int pmtNum        = pixelID / 16 + 1;
-  int pixelNum      = pixelID % 16 + 1;
+  int pmtNum        = pixelID / 16; //16 pixels per bar
+  pixelID               %= 16;
+  int pixelNum      = pixelID % 16;
 
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }
 
-void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t neventsr=1000,
+void PlotHVScanHighCurrent(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000,
 	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
 	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
-	Int_t nhitcutlow1 = 0, Int_t nhitcuthigh1 = 100,
-	Int_t nhitcutlow2 = 0, Int_t nhitcuthigh2 = 100,
+	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
+	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
 	Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30
 	){
 
-	int NTDCBins = (LeMax-LeMin)/4; // 4 ns is the trigger time 
-					// resolution, so this is the best we can hope for, I think.
+	Double_t RefLeMin = 1.0;
+	Double_t RefLeMax = 251.0;
+	int RefNTDCBins = (RefLeMax-RefLeMin)/4;
+	Double_t RefTotMin = 1.0;
+	Double_t RefTotMax = 251.0;
+
+	int NTDCBins = 2*(LeMax-LeMin)/.0160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
+					// 4 ns resolution is the best we can hope for, I think, using only the module trigger time.
 
 	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
 	double XDiffLow = XOffset-XDiffCut;
@@ -428,6 +438,9 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
   // PlotRawTDC2D("filename", -1)
   double TDCBinLow = LeMin;
   double TDCBinHigh = LeMax;
+  double RefTDCBinLow = RefLeMin;
+  double RefTDCBinHigh = RefLeMax;
+
   
   // hit channel id
   
@@ -562,25 +575,25 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 
   hRefRawLe = new TH1F(TString::Format("hRefRawLe"),
             TString::Format("hRefRawLe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
   hRefRawTe = new TH1F(TString::Format("hRefRawTe"),
             TString::Format("hRefRawTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
   hRefRawTot = new TH1F(TString::Format("hRefRawTot"),
             TString::Format("hRefRawTot"),
-            NTotBins, TotBinLow, TotBinHigh);
+            RefNTotBins, RefTotBinLow, RefTotBinHigh);
   hRefRawPMT = new TH1F(TString::Format("hRefRawPMT"),
             TString::Format("hRefRawPMT"),
-            2720, 0, 2720);
+            32, 2688, 2720);
   hRefGoodLe = new TH1F(TString::Format("hRefGoodLe"),
             TString::Format("hRefGoodLe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
   hRefGoodTe = new TH1F(TString::Format("hRefGoodTe"),
             TString::Format("hRefGoodTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
   hRefGoodTot = new TH1F(TString::Format("hRefGoodTot"),
             TString::Format("hRefGoodTot"),
-            NTotBins, TotBinLow, TotBinHigh);
+            RefNTotBins, RefTotBinLow, RefTotBinHigh);
   hRefGoodPMT = new TH1F(TString::Format("hRefGoodPMT"),
             TString::Format("hRefGoodPMT"),
             2720, 0, 2720);
@@ -741,12 +754,50 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 
     //cout << "Raw TDC hit loop: " << TCDet::NdataRawElID << endl;
     
+    // First pass through hits:  purpose is to get reference LE TDC Value for this event
+    
+    double event_ref_tdc = 0.0;
+
+    for(Int_t el=0; el<TCDet::NdataRawElID; el++) {
+ 
+	bool good_ref_le_time = TCDet::RawElLE[el] >= 0.0/TDC_calib_to_ns && TCDet::RawElLE[el] <= 100.0/TDC_calib_to_ns;
+	bool good_ref_tot = TCDet::GoodElTot[el] >= 0.0/TDC_calib_to_ns && TCDet::GoodElTot[el] <= 200.0/TDC_calib_to_ns;
+	bool good_ref_event = good_ref_le_time && good_ref_tot;
+	if ( good_ref_event ) {
+
+	  //if (TCDet::RawElID[el] > 2687) {
+	  //	cout << "el = " << el << " Raw ID = " << TCDet::RawElID[el] << " raw le = " << 
+	//	TCDet::RawElLE[el] << " raw te = " << TCDet::RawElTE[el] << " raw tot = " << 
+	//	TCDet::RawElTot[el] << " CDet X = " << TCDet::GoodX[el] << " ECal X = " << TCDet::GoodECalX << endl;
+	  //}
+	  if ( !check_bad(TCDet::RawElID[el],suppress_bad) ) {
+	   //cout << " el = " << el << endl;
+	   //cout << " tdc = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
+	   if ( (Int_t)TCDet::RawElID[el] == 2696 && (Int_t)TCDet::RawElLE[el]>0 && (Int_t)TCDet::RawElTot[el]>0 ) {
+	    //cout << " Ref  ID = " << (Int_t)TCDet::RawElID[el] << " el = " << el << "    LE = " << TCDet::RawElLE[el]*TDC_calib_to_ns 
+	    //		<< "    TE = " << TCDet::RawElTE[el]*TDC_calib_to_ns << "    ToT = " << TCDet::RawElTot[el]*TDC_calib_to_ns << endl;
+ 	    hRefRawLe->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns);
+	    hRefRawTe->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns);
+	    hRefRawTot->Fill(TCDet::RawElTot[el]*TDC_calib_to_ns);
+	    hRefRawPMT->Fill(TCDet::RawElID[el]);
+
+	    event_ref_tdc = TCDet::RawElLE[el]*TDC_calib_to_ns;
+	
+
+	   }
+	  }
+	}
+    }// end ref TDC loop
+    
+
+    // second pass: fill raw CDet TDC histos
     
     for(Int_t el=0; el<TCDet::NdataRawElID; el++){
 
 	bool good_raw_le_time = TCDet::RawElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::RawElLE[el] <= LeMax/TDC_calib_to_ns;
 	bool good_raw_tot = TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns;
 	bool good_mult = TCDet::TDCmult[el] < TDCmult_cut;
+
 
 	bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult;
 
@@ -765,30 +816,28 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 	   //cout << " tdc = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
 	   if ( (Int_t)TCDet::RawElID[el] < 2688 ) {
 	    //if ((Int_t)TCDet::RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)TCDet::RawElID[el] << "    TDC = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
-	    hRawLe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns);
-	    hRawTe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns);
+	    hRawLe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    hRawTe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	    hRawTot[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElTot[el]*TDC_calib_to_ns);
- 	    hAllRawLe->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns);
-	    hAllRawTe->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns);
+ 	    hAllRawLe->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    hAllRawTe->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	    hAllRawTot->Fill(TCDet::RawElTot[el]*TDC_calib_to_ns);
 	    hAllRawPMT->Fill(TCDet::RawElID[el]);
 	    hAllRawBar->Fill((Int_t)(TCDet::RawElID[el]/16));
 
-	    h2d_RawLE->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns, (Int_t)TCDet::RawElID[el]);
-	    h2d_RawTE->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns, (Int_t)TCDet::RawElID[el]);
+	    h2d_RawLE->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)TCDet::RawElID[el]);
+	    h2d_RawTE->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)TCDet::RawElID[el]);
 	    h2d_RawTot->Fill(TCDet::RawElTot[el]*TDC_calib_to_ns, (Int_t)TCDet::RawElID[el]);
 
-	   } else {
-	    if ((Int_t)TCDet::RawElID[el] >= 2688) cout << " Ref  ID = " << (Int_t)TCDet::RawElID[el] << "    TDC = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
- 	    hRefRawLe->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns);
-	    hRefRawTe->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns);
-	    hRefRawTot->Fill(TCDet::RawElTot[el]*TDC_calib_to_ns);
-	    hRefRawPMT->Fill(TCDet::RawElID[el]);
 	   }
 	  }
 	}
+	
 
     }// all raw tdc hit loop
+
+
+    // Third pass:  Get layer occupancies
     
     int nhitsc1 = 0;
     int nhitsc2 = 0;
@@ -876,6 +925,8 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 
     hnpaddles->Fill(TCDet::npaddles);
     hngoodpaddles->Fill(TCDet::ngoodpaddles);
+
+    // Fourth pass:  use layer occupancies to apply additional cuts
  
     for(Int_t el=0; el<TCDet::NdataGoodElID; el++){
         bool goodhit_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
@@ -932,19 +983,19 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 			(layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) )  
 		{
 		eff_numerator++;
-	    	hGoodLe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
-	    	hGoodTe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns);
+	    	hGoodLe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	hGoodTe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	    	hGoodTot[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns);
-	    	hAllGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
-	    	hAllGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns);
+	    	hAllGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	hAllGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	    	hAllGoodTot->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns);
 	    	hAllGoodPMT->Fill(TCDet::GoodElID[el]);
 	    	hAllGoodBar->Fill((Int_t)(TCDet::GoodElID[el]/16));
-	    	h2AllGoodLe->Fill(TCDet::GoodElID[el],TCDet::GoodElLE[el]*TDC_calib_to_ns);
-	    	h2AllGoodTe->Fill(TCDet::GoodElID[el],TCDet::GoodElTE[el]*TDC_calib_to_ns);
+	    	h2AllGoodLe->Fill(TCDet::GoodElID[el],TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	h2AllGoodTe->Fill(TCDet::GoodElID[el],TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	    	h2AllGoodTot->Fill(TCDet::GoodElID[el],TCDet::GoodElTot[el]*TDC_calib_to_ns);
 
-	    	h2TDCTOTvsLE->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodElLE[el]*TDC_calib_to_ns);
+	    	h2TDCTOTvsLE->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	  
 	    	hHitPMT->Fill((Int_t)TCDet::GoodElID[el]);
 	    	hRow->Fill((Int_t)TCDet::GoodRow[el]);
@@ -972,7 +1023,7 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 	    hHitZ->Fill(TCDet::GoodZ[el]);
 	    if (mylayer==0) {
 	    	h2TOTvsXDiff1->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
-	    	h2LEvsXDiff1->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	h2LEvsXDiff1->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hHitXY1->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
 		hXECalCDet1->Fill(TCDet::GoodX[el],TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hYECalCDet1->Fill(TCDet::GoodY[el],TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
@@ -981,7 +1032,7 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 		hEECalCDet1->Fill(TCDet::GoodECalE,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    } else {
 	    	h2TOTvsXDiff2->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
-	    	h2LEvsXDiff2->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	h2LEvsXDiff2->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hHitXY2->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
 		hXECalCDet2->Fill(TCDet::GoodX[el],TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hYECalCDet2->Fill(TCDet::GoodY[el],TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
@@ -992,8 +1043,8 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=1000, Int_t 
 
 
 	   } else {
-	    hRefGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
-	    hRefGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns);
+	    hRefGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    hRefGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	    hRefGoodTot->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns);
 	    hRefGoodPMT->Fill(TCDet::GoodElID[el]*TDC_calib_to_ns);
 	   }
@@ -1395,8 +1446,10 @@ TCanvas *plotRefTDC() {
   cbb->Divide(2,2,0.01,0.01,0);
 
   cbb->cd(1);
+  gPad->SetLogy();
   hRefRawLe->Draw();
   cbb->cd(2);
+  gPad->SetLogy();
   hRefRawTe->Draw();
   cbb->cd(3);
   gPad->SetLogy();
