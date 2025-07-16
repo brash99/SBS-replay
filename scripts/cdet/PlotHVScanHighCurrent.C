@@ -68,8 +68,11 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2369, 2395, 2384, 2409, 2405, 2422, 2416, 2435, 2432, 2451, 2448, 2479, 2464, 2493, 2483, 2508, 2499, 2513, 2512, 2537, 
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
-const TString REPLAYED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
+const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
+//const TString REPLAYED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles";
+//const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+
 
 // // for local analysis at uog (please leave in comments)
 // TString REPLAYED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Replayed";
@@ -795,7 +798,7 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nev
     for(Int_t el=0; el<TCDet::NdataRawElID; el++){
 
 	bool good_raw_le_time = TCDet::RawElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::RawElLE[el] <= LeMax/TDC_calib_to_ns;
-	bool good_raw_tot = TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns;
+	bool good_raw_tot = TCDet::RawElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::RawElTot[el] <= TotMax/TDC_calib_to_ns;
 	bool good_mult = TCDet::TDCmult[el] < TDCmult_cut;
 
 
