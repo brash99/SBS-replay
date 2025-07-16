@@ -65,18 +65,30 @@ vector<double> HITXGTEMP,HITYGTEMP,HITZGTEMP;
 
 double sigmahitpos = 0.15e-3; //0.15 mm = 150 um:
 
+double X0GEM = -0.165;
+double Y0GEM = 0.0;
 double Z0GEM = 4.105; //TO-DO: make configurable:
+
+bool firstchi2eval = true;
 
 void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
 
   double chi2=0.0;
 
   double hitweight = pow(sigmahitpos,-2);
- 
+
+  // if( firstchi2eval ){
+  //   cout << "NTRACKS=" << NTRACKS;
+  // }
+  
   //for( int pass=0; pass<2; pass++ ){ //First pass, re-fit tracks, Second pass: fit parameters:
   for( int itr=0; itr<NTRACKS; itr++ ){
     //First: re-fit track using latest parameters:
 
+    // if( firstchi2eval ){
+    //   cout << "track " << itr << ", nhits = " << TRACKNHITS[itr] << endl;
+    // }
+    
     double sumX = 0.0, sumY = 0.0, sumZ = 0.0, sumXZ = 0.0, sumYZ = 0.0, sumZ2 = 0.0;
 
     if( HITXGTEMP.size() < TRACKNHITS[itr] ) HITXGTEMP.resize( TRACKNHITS[itr] );
@@ -118,14 +130,16 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
       HITXGTEMP[ihit] = hitpos_global.X();
       HITYGTEMP[ihit] = hitpos_global.Y();
       HITZGTEMP[ihit] = hitpos_global.Z();
+
+      if( !fixmod[module] ){
       
-      sumX += hitpos_global.X();
-      sumY += hitpos_global.Y();
-      sumZ += hitpos_global.Z();
-      sumXZ += hitpos_global.X() * hitpos_global.Z();
-      sumYZ += hitpos_global.Y() * hitpos_global.Z();
-      sumZ2 += pow(hitpos_global.Z(),2);
-      
+	sumX += hitpos_global.X();
+	sumY += hitpos_global.Y();
+	sumZ += hitpos_global.Z();
+	sumXZ += hitpos_global.X() * hitpos_global.Z();
+	sumYZ += hitpos_global.Y() * hitpos_global.Z();
+	sumZ2 += pow(hitpos_global.Z(),2);
+      }
       //update tracks? this is the tricky part:
     }
 
@@ -142,9 +156,16 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
 
     
     for( int ihit=0; ihit<TRACKNHITS[itr]; ihit++ ){ 
+
+
+      int module = HITMOD[itr][ihit];
+      
       double xtrack = xtemp + xptemp * HITZGTEMP[ihit];
       double ytrack = ytemp + yptemp * HITZGTEMP[ihit];
-      chi2 += hitweight * (pow( HITXGTEMP[ihit] - xtrack, 2 ) + pow( HITYGTEMP[ihit] - ytrack, 2 ) );
+
+      if( !fixmod[module] ){
+	chi2 += hitweight * (pow( HITXGTEMP[ihit] - xtrack, 2 ) + pow( HITYGTEMP[ihit] - ytrack, 2 ) );
+      }
       //this is the lazy way, technically I should calculate the residuals wrt the LOCAL coordinates, but whatevs.
       //we can fix that later
 
@@ -153,8 +174,13 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
       double xphitpos = (HITXGTEMP[ihit] - XFCP[itr])/(HITZGTEMP[ihit]-ZFCP[itr]);
       double yphitpos = (HITYGTEMP[ihit] - YFCP[itr])/(HITZGTEMP[ihit]-ZFCP[itr]);
 
-      chi2 += pow( (xptemp - xphitpos)/sigmaTH, 2 ) + pow( (yptemp - yphitpos)/sigmaPH, 2 );
-     
+      if( !fixmod[module] ){
+	chi2 += pow( (xptemp - xphitpos)/sigmaTH, 2 ) + pow( (yptemp - yphitpos)/sigmaPH, 2 );
+      }
+      // if( firstchi2eval ){
+      // 	std::cout << "(xptrack,xphitpos)=(" << xptemp << ", " << xphitpos << ")"
+      // 		  << "(yptrack,yphitpos)=(" << yptemp << ", " << yphitpos << ")" << std::endl;
+      // }
     }
 
     double xfront = xtemp + xptemp * ZFCP[itr];
@@ -163,13 +189,25 @@ void CHI2_FCN( int &npar, double *gin, double &f, double *par, int flag){
     double xback = xtemp + xptemp * ZBCP[itr];
     double yback = ytemp + yptemp * ZBCP[itr];
 
+    if( firstchi2eval ){
+      // std::cout << " (xfront,xfcp,yfront,yfcp)=(" << xfront << ", " << XFCP[itr] << ", "
+      // 		<< yfront << ", " << YFCP[itr] << ")" << std::endl;
+      
+      // std::cout << " (xback,xbcp,yback,ybcp)=(" << xback << ", " << XBCP[itr] << ", "
+      // 		<< yback << ", " << YBCP[itr] << ")" << std::endl;
+
+    }
     // The following track-based constraints require the fitted tracks to point back at front and back "constraint points"
     // defined based on target and or sieve and/or HCAL position:
     chi2 += pow( (xfront - XFCP[itr])/sigmaXFCP, 2 ) + pow( (yfront - YFCP[itr])/sigmaYFCP, 2 )
       + pow( (xback - XBCP[itr])/sigmaXBCP, 2 ) + pow( (yback - YBCP[itr])/sigmaYBCP, 2 );
     
   } //loop over tracks
-   
+
+  if( firstchi2eval ){
+    firstchi2eval = false;
+  }
+  
 
   f = chi2;
   
@@ -271,6 +309,14 @@ void GEM_align_allmodules_global( const char *configfilename, const char *output
 	    TARGPOS.SetZ( sval.Atof() );
 	  }
 
+	  if( skey == "X0GEM" ){
+	    X0GEM = sval.Atof();
+	  }
+
+	  if( skey == "Y0GEM" ){
+	    Y0GEM = sval.Atof();
+	  }
+	  
 	  if( skey == "Z0GEM" ){
 	    Z0GEM = sval.Atof();
 	  }
@@ -360,7 +406,7 @@ void GEM_align_allmodules_global( const char *configfilename, const char *output
 	    for( int i=1; i<ntokens; i++ ){
 	      TString smodx = ( (TObjString*) (*tokens)[i] )->GetString();
 	      
-	      mod_x0[i-1] = smodx.Atof();
+	      mod_x0[i-1] = smodx.Atof() + X0GEM;
 	    }
 	  }
 
@@ -368,7 +414,7 @@ void GEM_align_allmodules_global( const char *configfilename, const char *output
 	    for( int i=1; i<ntokens; i++ ){
 	      TString smody = ( (TObjString*) (*tokens)[i] )->GetString();
 	      
-	      mod_y0[i-1] = smody.Atof();
+	      mod_y0[i-1] = smody.Atof() + Y0GEM;
 	    }
 	  }
 
@@ -1515,14 +1561,14 @@ void GEM_align_allmodules_global( const char *configfilename, const char *output
     
   }
 
-  // cout << "NTRACKS = " << NTRACKS << ", XTRACK.size() = " << XTRACK.size()
-  //      << ", YTRACK.size() = " << YTRACK.size() << ", XPTRACK.size() = " << XPTRACK.size()
-  //      << ", YPTRACK.size() = " << YPTRACK.size() << ", TRACKNHITS.size() = " << TRACKNHITS.size()
-  //      << ", HITMOD.size() = " << HITMOD.size() << ", HITX.size() = " << HITX.size()
-  //      << ", HITY.size() = " << HITY.size() << endl;
+  cout << "NTRACKS = " << NTRACKS << ", XTRACK.size() = " << XTRACK.size()
+       << ", YTRACK.size() = " << YTRACK.size() << ", XPTRACK.size() = " << XPTRACK.size()
+       << ", YPTRACK.size() = " << YPTRACK.size() << ", TRACKNHITS.size() = " << TRACKNHITS.size()
+       << ", HITMOD.size() = " << HITMOD.size() << ", HITX.size() = " << HITX.size()
+       << ", HITY.size() = " << HITY.size() << endl;
   
   //if( (offsetsonlyflag == 0 && rotationsonlyflag == 0) ){
-
+  
   if( true ){
     TMinuit *ExtraFit = new TMinuit( 6*nmodules );
     
@@ -1533,6 +1579,12 @@ void GEM_align_allmodules_global( const char *configfilename, const char *output
     for( int mod=0; mod<nmodules; mod++ ){
       TString sparname;
 
+      if( offsetsonlyflag != 0 ){
+	mod_dax[mod] = 0.0;
+	mod_day[mod] = 0.0;
+	mod_daz[mod] = 0.0;
+      }
+      
       ExtraFit->mnparm( 6*mod,   sparname.Format( "mod%d_dx0", mod ), 0.0, mod_dx0[mod],0,0,ierflg);
       ExtraFit->mnparm( 6*mod+1, sparname.Format( "mod%d_dy0", mod ), 0.0, mod_dy0[mod],0,0,ierflg);
       ExtraFit->mnparm( 6*mod+2, sparname.Format( "mod%d_dz0", mod ), 0.0, mod_dz0[mod],0,0,ierflg);
@@ -1585,9 +1637,9 @@ void GEM_align_allmodules_global( const char *configfilename, const char *output
   for( map<int,double>::iterator imod=mod_x0.begin(); imod!=mod_x0.end(); ++imod ){
     int module = imod->first;
     TString stemp;
-    stemp.Form( " %15.7g", mod_x0[module] );
+    stemp.Form( " %15.7g", mod_x0[module]-X0GEM );
     x0line += stemp;
-    stemp.Form( " %15.7g", mod_y0[module] );
+    stemp.Form( " %15.7g", mod_y0[module]-Y0GEM );
     y0line += stemp;
     stemp.Form( " %15.7g", mod_z0[module]-Z0GEM );
     z0line += stemp;
@@ -1599,7 +1651,7 @@ void GEM_align_allmodules_global( const char *configfilename, const char *output
     azline += stemp;
 
     stemp.Form( "%s.m%d.position = %15.7g %15.7g %15.7g", prefix.Data(), module,
-		mod_x0[module], mod_y0[module], mod_z0[module]-Z0GEM );
+		mod_x0[module]-X0GEM, mod_y0[module]-Y0GEM, mod_z0[module]-Z0GEM );
 
     outfile_DB << stemp << endl;
 

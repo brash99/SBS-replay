@@ -1,0 +1,11 @@
+# Add cuts here
+
+Block: Physics
+GoodFrontTrack sbs.tr.n>0
+GoodECAL earm.ecal.nclus>0
+GoodHCAL sbs.hcal.nclus>0
+GoodECALHCAL GoodECAL||GoodHCAL
+
+Physics_master GoodECALHCAL
+# for online replays don't require a track.
+#Physics_master GoodFrontTrack

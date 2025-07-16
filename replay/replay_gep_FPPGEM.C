@@ -75,14 +75,17 @@ void replay_gep_FPPGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteve
   // 
   // 
   //
+  if( prefix != "/adaqeb1/data1" )
+   pathlist.push_back( "/adaqeb1/data1" );
+
   if( prefix != "/adaqeb2/data1" )
    pathlist.push_back( "/adaqeb2/data1" );
 
+  if( prefix != "/adaqeb3/data1" ) 
+   pathlist.push_back( "/adaqeb3/data1" );
+  
   if( prefix != "/data/raw" )
    pathlist.push_back( "/data/raw" );
-
-  if( prefix != "/adaq1/data1/sbs" )
-  pathlist.push_back( "/adaq1/data1/sbs" );
 
   if( prefix != "/cache/halla/sbs/raw" )
   pathlist.push_back( "/cache/halla/sbs/raw" );

@@ -12,3 +12,14 @@ FTROI.edet_name = ecal
 FTROI.parm_name = sbs
 FTROI.pdet_name = gemFT
 
+FTROI.z0targ = -0.09
+
+---------[ 2025-05-09 00:00:00 ] # start kin. 3
+
+# For kin. 3 the SBS is pointing about 1 cm downstream of target center:
+FTROI.z0targ = -0.1 
+
+FTROI.nbins_zvertex = 24
+FTROI.zvertex_min = -0.28
+FTROI.zvertex_max = 0.08
+

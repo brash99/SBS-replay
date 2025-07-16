@@ -4,3 +4,10 @@ heep.earm_name = earm
 heep.parm_name = sbs
 
 # and this is all we need!
+
+# in order to pick up the correct value of beam energy for different kinematics, we need to put another timestamp here. I don't know whether we
+# need to redefine the parameters, but let's do it anyway? This might not be the actual solution
+------[ 2025-05-04 11:59:00 ] # GEP3
+
+heep.earm_name = earm
+heep.parm_name = sbs

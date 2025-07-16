@@ -63,7 +63,11 @@ void replay_gep_allGEM( UInt_t runnum=1234, Long_t nevents=5000, Long_t firsteve
 
     pathlist.push_back(prefix);
 
+    if( prefix != "/adaqeb1/data1" ) pathlist.push_back( "/adaqeb1/data1" );
+    
     if( prefix != "/adaqeb2/data1" ) pathlist.push_back( "/adaqeb2/data1" );
+
+    if( prefix != "/adaqeb3/data1" ) pathlist.push_back( "/adaqeb3/data1" );
 
     if( prefix != "/data/raw" ) pathlist.push_back( "/data/raw" );
 

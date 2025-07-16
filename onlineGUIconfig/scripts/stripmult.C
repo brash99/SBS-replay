@@ -62,11 +62,12 @@ void stripmult( int layer=0, int axis=0, int nstrips=3840, const char *detname="
   //double nstripmean = mean;
   double occupancy = mean/double(nstrips);
   
-  text.Form( "Raw strip multiplicity = %6.1f", mean );
+  // text.Form( "Raw strip multiplicity = %6.1f", mean );
+   text.Form( "StrpMul = %6.1f", mean );
 
   p->AddText( text.Data() );
   
-  text.Form( "Raw occupancy = %6.2f%%", occupancy * 100.0);
+  text.Form( "Occu = %6.2f%%", occupancy * 100.0);
 
   p->AddText( text.Data() );
 
