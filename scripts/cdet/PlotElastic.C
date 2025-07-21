@@ -68,8 +68,11 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2369, 2395, 2384, 2409, 2405, 2422, 2416, 2435, 2432, 2451, 2448, 2479, 2464, 2493, 2483, 2508, 2499, 2513, 2512, 2537, 
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
-const TString REPLAYED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+
+const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
+const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
+//const TString REPLAYED_DIR = "/work/hallc/gep/brash/sbs/Rootfiles";
+//const TString ANALYSED_DIR = "/work/hallc/gep/brash/sbs/Rootfiles/cdetFiles/cdet_histfiles";
 
 // // for local analysis at uog (please leave in comments)
 // TString REPLAYED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Replayed";
@@ -413,16 +416,17 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
 	Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
-	Int_t nruns=30
+	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1
 	){
 
+  Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
 	Double_t RefLeMax = 251.0;
 	int RefNTDCBins = (RefLeMax-RefLeMin)/4;
 	Double_t RefTotMin = 1.0;
 	Double_t RefTotMax = 251.0;
 
-	int NTDCBins = (LeMax-LeMin)/.018; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
+	int NTDCBins = 2*(LeMax-LeMin)/.0160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
 					// 4 ns resolution is the best we can hope for, I think, using only the module trigger time.
 
 	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
@@ -637,25 +641,24 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
 
     TString subfile, sInFile;
 
-    subfile = TString::Format("cdet_%d_%d",RunNumber1,neventsr);
-    sInFile = REPLAYED_DIR + "/" + subfile + ".root";
-    cout << "Input ROOT file = " << sInFile << endl;
-    cout << "Adding " << sInFile << endl;
-    T->Add(sInFile);
-    cout << "Adding " << nruns << " files ... " << endl;
-    for (Int_t i=1; i<=nruns; i++) {
-        subfile = TString::Format("cdet_%d_%d_%d",RunNumber1,neventsr,i);
+    cout << "Adding " << nseg << " files ... " << endl;
+    for (Int_t istream=0; istream<=maxstream; istream++){
+      for (Int_t iseg=0; iseg<nseg; iseg++) {
+        subfile = TString::Format("cdet_full_replayed_%d_stream%d_%d_seg%u_%u_firstevent%ld_nevent%ld",RunNumber1, 
+        istream, maxstream, iseg, nseg, firstevent, nevents);
         //subfile = TString::Format("_%d_1000000_%d",RunNumber1,i);
         sInFile = REPLAYED_DIR + "/" + subfile + ".root";
         cout << "Input ROOT file = " << sInFile << endl;
         cout << "Adding " << sInFile << endl;
         T->Add(sInFile);
+      }
     }
  
     
     // disable all branches
     T->SetBranchStatus("*",0);
-    // enable branches
+    /* enable branches */ 
+    //Earm branches
     T->SetBranchStatus("earm.cdet.*",1);
     T->SetBranchStatus("earm.ecal.*",1);
 
@@ -686,6 +689,9 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
     T->SetBranchAddress("earm.ecal.x",&TCDet::GoodECalX);
     T->SetBranchAddress("earm.ecal.y",&TCDet::GoodECalY);
     T->SetBranchAddress("earm.ecal.e",&TCDet::GoodECalE);
+
+    //SBS branches
+
 
     // enable vector size branches
     T->SetBranchAddress("Ndata.earm.cdet.tdc_mult",&TCDet::NdataMult); 

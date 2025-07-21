@@ -40,7 +40,6 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
 		Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=0, Int_t firststream=0, Int_t dogems=1, Int_t requiretrack=0, Int_t nontrackingmode=0)
 {
     THaAnalyzer* analyzer = new THaAnalyzer;
-    gSystem->AddIncludePath("/work/halla/sbs/btspaude/CDet_replay/git-repo/sbs_devel/SBS-replay/replay");
     // Initialize Electron Arm.
     SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm");
     // // ECal
@@ -174,7 +173,7 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
 
     if ( st != THaRunBase::READ_OK )
       {
-        cerr << "========= Eroor initializing run" << endl;
+        cerr << "========= Error initializing run" << endl;
         return;
       }
     
