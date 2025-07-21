@@ -408,12 +408,13 @@ std::vector<int> getLocation(int pixelID) {
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }
 
-void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000,
+void PlotHVScanHighCurrentFarm(Int_t RunNumber1=4441, Int_t nevents=50000, Int_t neventsr=50000,
 	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
 	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
+	//Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
+	Double_t XDiffCut = 0.32, Double_t XOffset = 0.02,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30
@@ -798,14 +799,14 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t
     for(Int_t el=0; el<TCDet::NdataRawElID; el++){
 
 	bool good_raw_le_time = TCDet::RawElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::RawElLE[el] <= LeMax/TDC_calib_to_ns;
-	bool good_raw_tot = TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns;
+	bool good_raw_tot = TCDet::RawElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::RawElTot[el] <= TotMax/TDC_calib_to_ns;
 	bool good_mult = TCDet::TDCmult[el] < TDCmult_cut;
 
 
 	bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult;
 
 
-	//if ((Int_t)TCDet::RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)TCDet::RawElID[el] << "    TDC = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
+	//if ((Int_t)TCDet::RawElID[el] > 0) cout << "el = " << el << " Hit ID = " << (Int_t)TCDet::RawElID[el] << "    TDC = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
 	//cout << "Raw ID = " << TCDet::RawElID[el] << " raw le = " << TCDet::RawElLE[el] << " raw te = " << TCDet::RawElTE[el] << " raw tot = " << TCDet::RawElTot[el] << endl;
 	if ( good_raw_event ) {
 
@@ -818,6 +819,7 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t
 	   //cout << " el = " << el << endl;
 	   //cout << " tdc = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
 	   if ( (Int_t)TCDet::RawElID[el] < 2688 ) {
+
 	    //if ((Int_t)TCDet::RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)TCDet::RawElID[el] << "    TDC = " << TCDet::RawElLE[el]*TDC_calib_to_ns << endl;
 	    hRawLe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
 	    hRawTe[(Int_t)TCDet::RawElID[el]]->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);

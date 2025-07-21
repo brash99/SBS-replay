@@ -123,6 +123,12 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
     gHaEvtHandlers->Add(sbsScaler);
 
 
+    cout << "************************************" << endl;
+    cout << "************************************" << endl;
+    cout << "*********** Section 1 **************" << endl;
+    cout << "************************************" << endl;
+    cout << "************************************" << endl;
+    
     // Add evio files.
     TString prefix = gSystem->Getenv("DATA_DIR");
     
@@ -210,7 +216,12 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
 			   firststream, maxstream, firstsegment, lastsegment);
 	}        
     }
-    
+  
+    cout << "************************************" << endl;
+    cout << "************************************" << endl;
+    cout << "*********** Section 2 **************" << endl;
+    cout << "************************************" << endl;
+    cout << "************************************" << endl;
     
 
     analyzer->EnableHelicity();
@@ -237,6 +248,12 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
 
     odef_filename.Prepend( prefix );
 
+    cout << "************************************" << endl;
+    cout << "************************************" << endl;
+    cout << "********** Section 3 ***************[" << endl;
+    cout << "************************************" << endl;
+    cout << "************************************" << endl;
+    cout << "Setting odef_filename to: " << odef_filename << endl;
     analyzer->SetOdefFile( odef_filename );
 
     TString cdef_filename = "replay_gep.cdef"; // TO BE MADE!
