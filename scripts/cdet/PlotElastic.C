@@ -80,6 +80,23 @@ const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //TString ANALYSED_DIR = "/w/work2/jlab/halla/sbs_hodo/Rootfiles/bbhodo_hist";
 //TString ANALYSED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Analysed";
 
+/* Create globals for vectors */
+// Scalars (1D vectors)
+std::vector<double> vhdeep_dpp;
+std::vector<double> vheep_dt_ADC;
+std::vector<double> vheep_ecalo;
+std::vector<double> vheep_eprime_eth;
+std::vector<double> vheep_dxECAL;
+std::vector<double> vearm_ecal_x;
+std::vector<int>    vsbs_gemFPP_ntrack;
+std::vector<double> vheep_dyECAL;
+
+// Arrays (2D vectors)
+std::vector<std::vector<double>> vsbs_tr_vz;
+std::vector<std::vector<double>> vsbs_gemFPP_sclose;
+std::vector<std::vector<int>>    vsbs_gemFT_nhits;
+std::vector<std::vector<int>>    vsbs_gemFT_ngoodhits;
+
 namespace TCDet {
   Int_t NdataMult;
   Double_t TDCmult[nTdc*2];
@@ -407,6 +424,15 @@ std::vector<int> getLocation(int pixelID) {
 
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }
+//Used to fill 2D arrays 
+template<typename T>
+std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
+  std::vector<T> tmp;
+  int n = arr.GetSize();
+  tmp.reserve(n);
+  for (int i=0; i<n; i++) tmp.push_back(arr[i]);
+  return tmp;
+}
 
 void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000,
 	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
@@ -644,8 +670,16 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
     cout << "Adding " << nseg << " files ... " << endl;
     for (Int_t istream=0; istream<=maxstream; istream++){
       for (Int_t iseg=0; iseg<nseg; iseg++) {
-        subfile = TString::Format("cdet_full_replayed_%d_stream%d_%d_seg%u_%u_firstevent%ld_nevent%ld",RunNumber1, 
-        istream, maxstream, iseg, nseg, firstevent, nevents);
+	if (iseg == 0){
+	  //subfile = TString::Format("cdet_full_replayed_%d_stream0_seg0_firstevent%d_nevent%d",RunNumber1, 
+				    firstevent, nevents);
+	  subfile = TString::Format("cdet_full_replayed_%d_%ld_events_stream%d_seg",RunNumber1,nevents,istream);
+	}
+	else {
+	  //subfile = TString::Format("cdet_full_replayed_%d_stream0_seg0_firstevent%d_nevent%d_%d",RunNumber1,
+				    firstevent, nevents, iseg);
+	  subfile = TString::Format("cdet_full_replayed_%d_%ld_events_stream%d_seg%d",RunNumber1,nevents,istream,iseg);
+	}
         //subfile = TString::Format("_%d_1000000_%d",RunNumber1,i);
         sInFile = REPLAYED_DIR + "/" + subfile + ".root";
         cout << "Input ROOT file = " << sInFile << endl;
@@ -654,7 +688,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
       }
     }
  
-    
+    TTreeReader reader(T);
     // disable all branches
     T->SetBranchStatus("*",0);
     /* enable branches */ 
@@ -692,6 +726,30 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
 
     //SBS branches
 
+    // Scalars
+    TTreeReaderValue<double> heep_dpp(reader, "heep.dpp");
+    TTreeReaderValue<double> heep_dt_ADC(reader, "heep.dt_ADC");
+    TTreeReaderValue<double> heep_ecalo(reader, "heep.ecalo");
+    TTreeReaderValue<double> heep_eprime_eth(reader, "heep.eprime_eth");
+    TTreeReaderValue<double> heep_dxECAL(reader, "heep.dxECAL");
+    TTreeReaderValue<double> earm_ecal_x(reader, "earm.ecal.x");
+    TTreeReaderValue<int> sbs_gemFPP_ntrack(reader, "sbs.gemFPP.track.ntrack");
+    TTreeReaderValue<double> heep_dyECAL(reader, "heep.dyECAL");
+
+    // Arrays
+    TTreeReaderArray<double> sbs_tr_vz(reader, "sbs.tr.vz");
+    TTreeReaderArray<double> sbs_gemFPP_sclose(reader, "sbs.gemFPP.track.sclose");
+    TTreeReaderArray<int> sbs_gemFT_nhits(reader, "sbs.gemFT.track.nhits");
+    TTreeReaderArray<int> sbs_gemFT_ngoodhits(reader, "sbs.gemFT.track.ngoodhits");
+
+    /* fill right to vectors? If yes, can remove this block
+    T->SetBranchAddress("heep.dpp", heep_dpp);
+    T->SetBranchAddress("heep.dt_ADC", heep_dt_ADC);
+    T->SetBranchAddress("heep.ecalo", heep_ecalo);
+    T->SetBranchAddress("heep.eprime_eth", heep_eprime_eth);
+    T->SetBranchAddress("heep.dxECAL", heep_dxECAL);
+    T->SetBranchAddress("heep.dpp", heep_dpp);
+    */
 
     // enable vector size branches
     T->SetBranchAddress("Ndata.earm.cdet.tdc_mult",&TCDet::NdataMult); 
@@ -888,7 +946,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
 	bool good_ecal_diff_y = (TCDet::GoodY[el]-(TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
 			(TCDet::GoodY[el]-(TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
 	
-
+  //bool good_elastic = 
 	bool good_CDet_event = good_ecal_reconstruction && good_ecal_diff_x && good_ecal_diff_y && good_le_time && good_tot && good_hit_mult && good_cdet_X;
 
 
