@@ -4,7 +4,7 @@
 #include <TSystemFile.h>
 
 // Scalars (1D vectors)
-std::vector<double> vhdeep_dpp;
+std::vector<double> vheep_dpp;
 std::vector<double> vheep_dt_ADC;
 std::vector<double> vheep_ecalo;
 std::vector<double> vheep_eprime_eth;
@@ -61,7 +61,8 @@ void dpp(const char* dirname = ".") {
     TH1F *h = (TH1F*)gDirectory->Get("hHeepDpp");
     if (!h) {
         printf("Histogram hHeepDpp not found!\n");
-
+    }
+    /*
     // Set up TTreeReader
     TTreeReader reader(chain);
 
@@ -83,9 +84,8 @@ void dpp(const char* dirname = ".") {
 
     // Fill vector from TChain
     while (reader.Next()) {
-        vheep_dpp.push_back(*heep_dpp);
         // Scalars — push_back the dereferenced values
-        vhdeep_dpp.push_back(*heep_dpp);
+        vheep_dpp.push_back(*heep_dpp);
         vheep_dt_ADC.push_back(*heep_dt_ADC);
         vheep_ecalo.push_back(*heep_ecalo);
         vheep_eprime_eth.push_back(*heep_eprime_eth);
@@ -100,10 +100,10 @@ void dpp(const char* dirname = ".") {
         vsbs_gemFT_nhits.push_back(fill2D(sbs_gemFT_nhits));
         vsbs_gemFT_ngoodhits.push_back(fill2D(sbs_gemFT_ngoodhits));
     }
+        */
 
     std::cout << "Filled vheep_dpp with " << vheep_dpp.size() << " entries.\n";
 
-    /*
     const char *cut = "abs(heep.dt_ADC)<10 && abs(sbs.tr.vz[0]+0.1)<0.18 && heep.ecalo/heep.eprime_eth > 0.7 && abs(heep.dxECAL - 0.01 + 0.025 * earm.ecal.x) < 0.05 && sbs.gemFPP.track.ntrack > 0 && abs(heep.dyECAL - 0.01) < 0.06 && sbs.gemFPP.track.sclose[0] < 0.01 && (sbs.gemFT.track.nhits[0] > 4 || sbs.gemFT.track.ngoodhits[0] > 2)";
 
     chain->Draw("heep.dpp >> hheep_dpp(100, -0.1, 0.1)", cut, "hist");
@@ -111,7 +111,6 @@ void dpp(const char* dirname = ".") {
     TH1F *h = (TH1F*)gDirectory->Get("hheep_dpp");
     if (!h) {
         printf("Histogram hheep_dpp not found!\n");
->>>>>>> 24586a4 (made script for looking at dpp.C with elastic cuts, fixed routine name on PlotHVScanHighCurrentFarm.C)
         return;
     }
     h->SetTitle("heep.dpp with cuts;#delta p/p;Counts");
@@ -122,15 +121,6 @@ void dpp(const char* dirname = ".") {
     //outFile->Close();
 
     printf("Done!");
-<<<<<<< HEAD
-}
-=======
-    */
 }
 
-//routine to plot heep.dpp with cuts
-void plotDpp(){
-
-
-}
 

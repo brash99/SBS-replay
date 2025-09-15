@@ -799,7 +799,7 @@ void PlotHVScanHighCurrent(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nev
 
 	bool good_raw_le_time = TCDet::RawElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::RawElLE[el] <= LeMax/TDC_calib_to_ns;
 	bool good_raw_tot = TCDet::RawElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::RawElTot[el] <= TotMax/TDC_calib_to_ns;
-	bool good_mult = TCDet::TDCmult[el] < TDCmult_cut;
+  bool good_mult = TCDet::TDCmult[el] < TDCmult_cut;
 
 
 	bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult;
