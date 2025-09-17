@@ -746,11 +746,13 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
 
   //========================================================= Check no of events
   
+
+  //Should likely just have Nev = T->GetEntries();, so it just grabs all events ------- NOT WORKING --------
   Int_t Nev = T->GetEntries();
   cout << "N entries in tree is " << Nev << endl;
-  Int_t NEventsAnalysis;
-  if(nevents==-1) NEventsAnalysis = Nev;
-  else NEventsAnalysis = nevents;
+  Int_t NEventsAnalysis;// = Nev;
+  if(neventsr==-1) NEventsAnalysis = Nev;
+  else NEventsAnalysis = neventsr;
   cout << "Running analysis for " << NEventsAnalysis << " events" << endl;
   
 
@@ -761,6 +763,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
   subfile = TString::Format("gep5_replayed_nogems_%d_50k_events.root",RunNumber1);
   TString outrootfile = ANALYSED_DIR + "/RawTDC_" + subfile;
   TFile *f = new TFile(outrootfile, "RECREATE");
+  
 
 
 
@@ -924,17 +927,17 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
       }
       nhits_paddles[mypaddlen]++;
 
-            bool good_ecal_reconstruction = GoodECalY > -1.2 && GoodECalY < 1.2 &&
-          GoodECalX > -1.5 && GoodECalX < 1.5 &&
-          GoodECalX != 0.00 && GoodECalY != 0.00 ;
+            bool good_ecal_reconstruction = *GoodECalY > -1.2 && *GoodECalY < 1.2 &&
+          *GoodECalX > -1.5 && *GoodECalX < 1.5 &&
+          *GoodECalX != 0.00 && *GoodECalY != 0.00 ;
       bool good_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_hit_mult = TDCmult[el] < TDCmult_cut;
       bool good_cdet_X = GoodX[el] < xcut;
-      bool good_ecal_diff_x = (GoodX[el]-(GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-(GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool good_ecal_diff_y = (GoodY[el]-(GoodECalY*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
-          (GoodY[el]-(GoodECalY*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
+      bool good_ecal_diff_x = (GoodX[el]-((*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]-((*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool good_ecal_diff_y = (GoodY[el]-((*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
+          (GoodY[el]-((*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
       
       
       bool good_CDet_event = good_ecal_reconstruction && good_ecal_diff_x && good_ecal_diff_y && good_le_time && good_tot && good_hit_mult && good_cdet_X;
@@ -983,19 +986,19 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
         // Fourth pass:  use layer occupancies to apply additional cuts
     
         for(Int_t el=0; el<GoodElID.GetSize(); el++){
-            bool goodhit_ecal_reconstruction = GoodECalY > -1.2 && GoodECalY < 1.2 &&
-          GoodECalX > -1.5 && GoodECalX < 1.5 &&
-          GoodECalX != 0.00 && GoodECalY != 0.00 ;
+            bool goodhit_ecal_reconstruction = *GoodECalY > -1.2 && *GoodECalY < 1.2 &&
+          *GoodECalX > -1.5 && *GoodECalX < 1.5 &&
+          *GoodECalX != 0.00 && *GoodECalY != 0.00 ;
       bool goodhit_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool goodhit_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool goodhit_hit_mult = TDCmult[el] < TDCmult_cut;
       bool goodhit_cdet_X = GoodX[el] < xcut;
       bool goodhit_low = ngoodhitsc1 >= nhitcutlow1  && ngoodhitsc2 >= nhitcutlow2;
       bool goodhit_high  = ngoodhitsc1 <= nhitcuthigh1 && ngoodhitsc2 <= nhitcuthigh2; 
-      bool goodhit_ecal_diff_x = (GoodX[el]-(GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-(GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool goodhit_ecal_diff_y = (GoodY[el]-(GoodECalY*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
-          (GoodY[el]-(GoodECalY*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
+      bool goodhit_ecal_diff_x = (GoodX[el]-((*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]-((*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool goodhit_ecal_diff_y = (GoodY[el]-((*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
+          (GoodY[el]-((*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
 
 
       bool goodhit_CDet_event = goodhit_ecal_reconstruction && goodhit_ecal_diff_x && goodhit_ecal_diff_y && goodhit_le_time && goodhit_tot 
@@ -1076,23 +1079,23 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
           hHitY->Fill(GoodY[el]);
           hHitZ->Fill(GoodZ[el]);
           if (mylayer==0) {
-            h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
         hHitXY1->Fill(GoodY[el],GoodX[el]);
-        hXECalCDet1->Fill(GoodX[el],GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hYECalCDet1->Fill(GoodY[el],GoodECalY*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXDiffECalCDet1->Fill(GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXPlusECalCDet1->Fill(GoodX[el]+GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hEECalCDet1->Fill(GoodECalE,GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+        hXECalCDet1->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+        hYECalCDet1->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            hXDiffECalCDet1->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            hXPlusECalCDet1->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+        hEECalCDet1->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
           } else {
-            h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
         hHitXY2->Fill(GoodY[el],GoodX[el]);
-        hXECalCDet2->Fill(GoodX[el],GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hYECalCDet2->Fill(GoodY[el],GoodECalY*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXDiffECalCDet2->Fill(GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXPlusECalCDet2->Fill(GoodX[el]+GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hEECalCDet2->Fill(GoodECalE,GoodX[el]-GoodECalX*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+        hXECalCDet2->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+        hYECalCDet2->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            hXDiffECalCDet2->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            hXPlusECalCDet2->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+        hEECalCDet2->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
           }
 
 
@@ -1109,12 +1112,12 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
         }// all good tdc hit loop
 
         
-        if (GoodECalX != 0.00 && GoodECalY != 0.00) {
+        if (*GoodECalX != 0.00 && *GoodECalY != 0.00) {
           eff_denominator++;
-          hXYECal->Fill(GoodECalY,GoodECalX);
-          hXECal->Fill(GoodECalX);
-          hYECal->Fill(GoodECalY);
-          hEECal->Fill(GoodECalE);
+          hXYECal->Fill(*GoodECalY,*GoodECalX);
+          hXECal->Fill(*GoodECalX);
+          hYECal->Fill(*GoodECalY);
+          hEECal->Fill(*GoodECalE);
         };
         
         
