@@ -23,10 +23,8 @@
 #include "SBSGEPEArm.h"
 
 
-void replay_CDet(UInt_t runnum=2232, const char *fname_prefix="gep5",Long_t nevents=50000, Long_t firstevent=1, 
-	UInt_t firstsegment=0, 
-	UInt_t maxsegments=10, Int_t maxstream=2, Int_t pedestalmode=0, 
-	Int_t cmplots=1, Int_t usesbsgems=1)
+void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="gep5", UInt_t firstsegment=0, UInt_t maxsegments=1, 
+		Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=0, Int_t firststream=0, Int_t dogems=1, Int_t requiretrack=0, Int_t nontrackingmode=0)
 		 //int run_number = 124, uint nev = -1, TString start_name = "cdet", uint nseg = 0)
 {
 
@@ -148,8 +146,15 @@ void replay_CDet(UInt_t runnum=2232, const char *fname_prefix="gep5",Long_t neve
   TString outfile_prefix = "cdet";
 
   UInt_t lastsegment = run->GetLastSegment();
-  outfilename.Form( "%s/%s_%d_%ld.root", prefix.Data(), outfile_prefix.Data(), runnum, nevents);
-  // if( nevents > 0 ){
+  //if statement for nevents >0 
+  if (nevents > 0){
+    outfilename.Form( "%s/%s_%d_stream_%d_%d_seg%u_%u_firstevent%ld_nevent%ld.root", prefix.Data(), outfile_prefix.Data(), runnum, firststream, maxstream, firstsegment, lastsegment, firstevent, nevents);
+  }
+  else{
+    outfilename.Form("%s/%s_replayed_%u_stream%d_%d_seg%u_%u.root", prefix.Data(), outfile_prefix.Data(), runnum,
+			   firststream, maxstream, firstsegment, lastsegment);
+  }
+    // if( nevents > 0 ){
   //   outfilename.Form( "%s/%s_replayed_%u_stream%d_%d_seg%u_%u_firstevent%ld_nevent%ld.root", prefix.Data(), fname_prefix, runnum,
   // 		      0, maxstream, firstsegment, lastsegment, firstevent, nevents );
   // } else {
@@ -179,7 +184,7 @@ void replay_CDet(UInt_t runnum=2232, const char *fname_prefix="gep5",Long_t neve
   TString odef_filename = "replay_CDet.odef";
 
   //no need to define SBS GEM output if we aren't analyzing the data
-  if( usesbsgems == 0 ) odef_filename = "replay_gen_noSBSGEMs.odef";
+  //if( usesbsgems == 0 ) odef_filename = "replay_gen_noSBSGEMs.odef";
 
   odef_filename.Prepend( prefix );
 

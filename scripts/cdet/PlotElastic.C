@@ -437,7 +437,7 @@ std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
   return tmp;
 }
 
-void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000,
+void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000, Int_t elastic =0,
 	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
 	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
@@ -675,11 +675,14 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
       for (Int_t iseg=0; iseg<nseg; iseg++) {
 	if (iseg == 0){
 	  //subfile = TString::Format("cdet_full_replayed_%d_stream0_seg0_firstevent%d_nevent%d",RunNumber1, firstevent, nevents);
-	  subfile = TString::Format("cdet_full_replayed_%d_%d_events_stream%d_seg",RunNumber1,nevents,istream);
+    //full replay name
+	  //subfile = TString::Format("cdet_full_replayed_%d_%d_events_stream%d_seg",RunNumber1,nevents,istream);
+    subfile = TString::Format("cdet_%d_%d_events_stream%d_seg",RunNumber1,nevents,istream);
 	}
 	else {
 	  //subfile = TString::Format("cdet_full_replayed_%d_stream0_seg0_firstevent%d_nevent%d_%d",RunNumber1,firstevent, nevents, iseg);
-	  subfile = TString::Format("cdet_full_replayed_%d_%d_events_stream%d_seg_%d",RunNumber1,nevents,istream,iseg);
+    //full replay name
+	  //subfile = TString::Format("cdet_full_replayed_%d_%d_events_stream%d_seg_%d",RunNumber1,nevents,istream,iseg);
 	}
         //subfile = TString::Format("_%d_1000000_%d",RunNumber1,i);
         sInFile = REPLAYED_DIR + "/" + subfile + ".root";
@@ -726,8 +729,8 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
   TTreeReaderValue<double> GoodECalY    (reader, "earm.ecal.y");
   TTreeReaderValue<double> GoodECalE    (reader, "earm.ecal.e");
 
-  /* ----- SBS branches ----- */
-
+  /* ----- SBS branches ----- 
+    ------- comment out for now ---------
   // Scalars
   TTreeReaderValue<double> heep_dpp(reader, "heep.dpp");
   TTreeReaderValue<double> heep_dt_ADC(reader, "heep.dt_ADC");
@@ -743,7 +746,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
   TTreeReaderArray<double> sbs_gemFPP_track_sclose(reader, "sbs.gemFPP.track.sclose");
   TTreeReaderArray<double> sbs_gemFT_track_nhits(reader, "sbs.gemFT.track.nhits");
   TTreeReaderArray<double> sbs_gemFT_track_ngoodhits(reader, "sbs.gemFT.track.ngoodhits");
-
+  */
   //========================================================= Check no of events
   
 
@@ -783,6 +786,10 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
     event++;
     event = event - 1;
     EventCounter++;
+    // Only stop early if neventsr > 0
+    if (neventsr > 0 && EventCounter > neventsr) {
+        break;
+    }
     Int_t nh = *nhits;
     Int_t ngh = *ngoodhits;
     Int_t ngth = *ngoodTDChits;
@@ -794,11 +801,14 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
     	for (Int_t nfill=0; nfill<ngth; nfill++) {hngoodTDChits_ev->Fill(EventCounter);}
     }
 
-    bool good_elastic = abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ecalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ecal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
+    bool good_elastic;
+    if (elastic == 0) good_elastic = abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ecalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ecal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
+    else if (elastic == 1) good_elastic = true; //incase one does not want to use the elastic cut
     if (good_elastic){
 
       //fill vectors we wish to make cuts on for selecting elastics
       // Scalars — push_back the dereferenced values
+      /* Comment out heep and gems vectors, do not use root files witht them yet
       vheep_dpp.push_back(*heep_dpp);
       vheep_dt_ADC.push_back(*heep_dt_ADC);
       vheep_ecalo.push_back(*heep_ecalo);
@@ -813,35 +823,40 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
       vsbs_gemFPP_track_sclose.push_back(fill2D(sbs_gemFPP_track_sclose));
       vsbs_gemFT_track_nhits.push_back(fill2D(sbs_gemFT_track_nhits));
       vsbs_gemFT_track_ngoodhits.push_back(fill2D(sbs_gemFT_track_ngoodhits));
+      */
       // First pass through hits:  purpose is to get reference LE TDC Value for this event
       
       double event_ref_tdc = 0.0;
+      double ref_int = 0;
+      double ref_corr = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++) {
-    
-        bool good_ref_le_time = RawElLE[el] >= 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
-        bool good_ref_tot = GoodElTot[el] >= 0.0/TDC_calib_to_ns && GoodElTot[el] <= 200.0/TDC_calib_to_ns;
-        bool good_ref_event = good_ref_le_time && good_ref_tot;
-        if ( good_ref_event ) {
+        if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
+          bool good_ref_le_time = RawElLE[el] >= 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
+          bool good_ref_tot = GoodElTot[el] >= 0.0/TDC_calib_to_ns && GoodElTot[el] <= 200.0/TDC_calib_to_ns;
+          bool good_ref_event = good_ref_le_time && good_ref_tot;
+          if ( good_ref_event ) {
 
-          //if (RawElID[el] > 2687) {
-          //	cout << "el = " << el << " Raw ID = " << RawElID[el] << " raw le = " << 
-        //	RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << 
-        //	RawElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << GoodECalX << endl;
-          //}
-          if ( !check_bad(RawElID[el],suppress_bad) ) {
-          //cout << " el = " << el << endl;
-          //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
-          if ( (Int_t)RawElID[el] == 2696 && (Int_t)RawElLE[el]>0 && (Int_t)RawElTot[el]>0 ) {
-            //cout << " Ref  ID = " << (Int_t)RawElID[el] << " el = " << el << "    LE = " << RawElLE[el]*TDC_calib_to_ns 
-            //		<< "    TE = " << RawElTE[el]*TDC_calib_to_ns << "    ToT = " << RawElTot[el]*TDC_calib_to_ns << endl;
-            hRefRawLe->Fill(RawElLE[el]*TDC_calib_to_ns);
-            hRefRawTe->Fill(RawElTE[el]*TDC_calib_to_ns);
-            hRefRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
-            hRefRawPMT->Fill(RawElID[el]);
+            //if (RawElID[el] > 2687) {
+            //	cout << "el = " << el << " Raw ID = " << RawElID[el] << " raw le = " << 
+          //	RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << 
+          //	RawElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << GoodECalX << endl;
+            //}
+            if ( !check_bad(RawElID[el],suppress_bad) ) {
+            //cout << " el = " << el << endl;
+            //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
+              if ( (Int_t)RawElID[el] == 2696 && (Int_t)RawElLE[el]>0 && (Int_t)RawElTot[el]>0 ) {
+                //cout << " Ref  ID = " << (Int_t)RawElID[el] << " el = " << el << "    LE = " << RawElLE[el]*TDC_calib_to_ns 
+                //		<< "    TE = " << RawElTE[el]*TDC_calib_to_ns << "    ToT = " << RawElTot[el]*TDC_calib_to_ns << endl;
+                hRefRawLe->Fill(RawElLE[el]*TDC_calib_to_ns);
+                hRefRawTe->Fill(RawElTE[el]*TDC_calib_to_ns);
+                hRefRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
+                hRefRawPMT->Fill(RawElID[el]);
 
-            event_ref_tdc = RawElLE[el]*TDC_calib_to_ns;
-      
+                event_ref_tdc = RawElLE[el]*TDC_calib_to_ns;
+                ref_int = std::floor(event_ref_tdc);
+                ref_corr = event_ref_tdc - ref_int;
 
+              }
             }
           }
         }
@@ -873,17 +888,17 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
         //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
         if ( (Int_t)RawElID[el] < 2688 ) {
           //if ((Int_t)RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
-          hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-          hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+          hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
+          hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
           hRawTot[(Int_t)RawElID[el]]->Fill(RawElTot[el]*TDC_calib_to_ns);
-          hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-          hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+          hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
+          hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
           hAllRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
           hAllRawPMT->Fill(RawElID[el]);
           hAllRawBar->Fill((Int_t)(RawElID[el]/16));
 
-          h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)RawElID[el]);
-          h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)RawElID[el]);
+          h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
+          h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
           h2d_RawTot->Fill(RawElTot[el]*TDC_calib_to_ns, (Int_t)RawElID[el]);
 
         }
