@@ -151,7 +151,7 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
     outfilename.Form( "%s/%s_%d_stream_%d_%d_seg%u_%u_firstevent%ld_nevent%ld.root", prefix.Data(), outfile_prefix.Data(), runnum, firststream, maxstream, firstsegment, lastsegment, firstevent, nevents);
   }
   else{
-    outfilename.Form("%s/%s_replayed_%u_stream%d_%d_seg%u_%u.root", prefix.Data(), outfile_prefix.Data(), runnum,
+    outfilename.Form("%s/%s_%d_stream%d_%d_seg%u_%u.root", prefix.Data(), outfile_prefix.Data(), runnum,
 			   firststream, maxstream, firstsegment, lastsegment);
   }
     // if( nevents > 0 ){

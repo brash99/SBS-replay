@@ -80,6 +80,49 @@ const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //TString ANALYSED_DIR = "/w/work2/jlab/halla/sbs_hodo/Rootfiles/bbhodo_hist";
 //TString ANALYSED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Analysed";
 
+int GetSegmentNumber(const TString &fname) {
+  Ssiz_t pos = fname.Last('_');
+  if (pos != kNPOS) {
+    TString segPart = fname(pos+1, fname.Length()-pos-1);
+    if (segPart.EndsWith(".root"))
+      segPart.Chop();
+    return segPart.Atoi();
+  }
+  return -1;
+}
+
+void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegment = -1) {
+  TString prefix = dir;
+  std::vector<TString> runfiles;
+
+  TSystemDirectory directory(prefix, prefix);
+  TList *files = directory.GetListOfFiles();
+
+  if (files) {
+    TIter next(files);
+    TSystemFile *f;
+    while ((f = (TSystemFile*) next())) {
+      TString fname = f->GetName();
+
+      if (fname.BeginsWith(Form("cdet_%d_", runnum)) && fname.EndsWith(".root")) {
+        if (onlySegment >= 0) {
+          int seg = GetSegmentNumber(fname);
+          if (seg != onlySegment) continue;
+        }
+        runfiles.push_back(prefix + "/" + fname);
+      }
+    }
+  }
+
+  std::sort(runfiles.begin(), runfiles.end());
+
+  std::cout << "Adding " << runfiles.size() << " files for run " << runnum << "..." << std::endl;
+  for (auto &file : runfiles) {
+    std::cout << "  " << file << std::endl;
+    chain->Add(file);
+  }
+}
+
 /* Create globals for vectors */
 // Scalars (1D vectors)
 std::vector<double> vheep_dpp;
@@ -96,6 +139,12 @@ std::vector<std::vector<double>> vsbs_tr_vz;
 std::vector<std::vector<double>> vsbs_gemFPP_track_sclose;
 std::vector<std::vector<double>> vsbs_gemFT_track_nhits;
 std::vector<std::vector<double>> vsbs_gemFT_track_ngoodhits;
+
+/* CDet & ECal Vectors */
+std::vector<double> vRefRawLe;
+std::vector<double> vRefRawTe;
+std::vector<double> vRefRawTot;
+std::vector<int>    vRefRawPMT;
 
 namespace TCDet {
   Int_t NdataMult;
@@ -162,6 +211,12 @@ const double TotBinHigh = 51.;
 const int RefNTotBins = 800;
 const double RefTotBinLow = 1.;
 const double RefTotBinHigh = 201.;
+
+double TDCBinLow;
+double TDCBinHigh;
+double RefTDCBinLow;
+double RefTDCBinHigh;
+int RefNTDCBins;
 
 //const int num_bad = 0;
 //
@@ -437,7 +492,7 @@ std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
   return tmp;
 }
 
-void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000, Int_t elastic =0,
+void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=500000, Int_t elastic = 0, Int_t onlySegment = -1,
 	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
 	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
@@ -451,7 +506,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
 	Double_t RefLeMax = 251.0;
-	int RefNTDCBins = (RefLeMax-RefLeMin)/4;
+	RefNTDCBins = (RefLeMax-RefLeMin)/4;
 	Double_t RefTotMin = 1.0;
 	Double_t RefTotMax = 251.0;
 
@@ -469,10 +524,10 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
   // root -l
   // .L PlotRawTDC2D.C+
   // PlotRawTDC2D("filename", -1)
-  double TDCBinLow = LeMin;
-  double TDCBinHigh = LeMax;
-  double RefTDCBinLow = RefLeMin;
-  double RefTDCBinHigh = RefLeMax;
+  TDCBinLow = LeMin;
+  TDCBinHigh = LeMax;
+  RefTDCBinLow = RefLeMin;
+  RefTDCBinHigh = RefLeMax;
 
   
   // hit channel id
@@ -605,19 +660,18 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
   h2LEvsXDiff2 = new TH2F(TString::Format("h2LEvsXDiff2"),
             TString::Format("h2LEvsXDiff2"),NTDCBins,TDCBinLow,TDCBinHigh,
             1000, -0.3, 0.3);
-
-  hRefRawLe = new TH1F(TString::Format("hRefRawLe"),
-            TString::Format("hRefRawLe"),
-            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
-  hRefRawTe = new TH1F(TString::Format("hRefRawTe"),
-            TString::Format("hRefRawTe"),
-            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
-  hRefRawTot = new TH1F(TString::Format("hRefRawTot"),
-            TString::Format("hRefRawTot"),
-            RefNTotBins, RefTotBinLow, RefTotBinHigh);
-  hRefRawPMT = new TH1F(TString::Format("hRefRawPMT"),
-            TString::Format("hRefRawPMT"),
-            32, 2688, 2720);
+  // hRefRawLe = new TH1F(TString::Format("hRefRawLe"),
+  //           TString::Format("hRefRawLe"),
+  //           RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
+  // hRefRawTe = new TH1F(TString::Format("hRefRawTe"),
+  //           TString::Format("hRefRawTe"),
+  //           RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
+  // hRefRawTot = new TH1F(TString::Format("hRefRawTot"),
+  //           TString::Format("hRefRawTot"),
+  //           RefNTotBins, RefTotBinLow, RefTotBinHigh);
+  // hRefRawPMT = new TH1F(TString::Format("hRefRawPMT"),
+  //           TString::Format("hRefRawPMT"),
+  //           32, 2688, 2720);
   hRefGoodLe = new TH1F(TString::Format("hRefGoodLe"),
             TString::Format("hRefGoodLe"),
             RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
@@ -664,35 +718,14 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
 
 
   //========================================================= Get data from tree
-  if(!T) { 
-    // TString sInFile = REPLAYED_DIR + "/" + InFile + ".root";
-    T = new TChain("T");
+  if (!T) {
+  T = new TChain("T");
 
-    TString subfile, sInFile;
+  int runnum = RunNumber1;
+  //int onlySegment = -1; // set to >=0 to pick just one
 
-    cout << "Adding " << nseg << " files ... " << endl;
-    for (Int_t istream=0; istream<=maxstream; istream++){
-      for (Int_t iseg=0; iseg<nseg; iseg++) {
-	if (iseg == 0){
-	  //subfile = TString::Format("cdet_full_replayed_%d_stream0_seg0_firstevent%d_nevent%d",RunNumber1, firstevent, nevents);
-    //full replay name
-	  //subfile = TString::Format("cdet_full_replayed_%d_%d_events_stream%d_seg",RunNumber1,nevents,istream);
-    subfile = TString::Format("cdet_%d_%d_events_stream%d_seg",RunNumber1,nevents,istream);
-	}
-	else {
-	  //subfile = TString::Format("cdet_full_replayed_%d_stream0_seg0_firstevent%d_nevent%d_%d",RunNumber1,firstevent, nevents, iseg);
-    //full replay name
-	  //subfile = TString::Format("cdet_full_replayed_%d_%d_events_stream%d_seg_%d",RunNumber1,nevents,istream,iseg);
-	}
-        //subfile = TString::Format("_%d_1000000_%d",RunNumber1,i);
-        sInFile = REPLAYED_DIR + "/" + subfile + ".root";
-        cout << "Input ROOT file = " << sInFile << endl;
-        cout << "Adding " << sInFile << endl;
-        T->Add(sInFile);
-      }
-    }
-
-  }//setting tree
+  AddRunFilesToChain(T, REPLAYED_DIR.Data(), runnum, onlySegment);
+}
 
   TTreeReader reader(T);
   
@@ -802,7 +835,8 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
     }
 
     bool good_elastic;
-    if (elastic == 0) good_elastic = abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ecalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ecal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
+    if (elastic == 0) good_elastic = true; //abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ecalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ecal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
+    //currently not using full replays, so elastic cuts dont work, just assume all elastic
     else if (elastic == 1) good_elastic = true; //incase one does not want to use the elastic cut
     if (good_elastic){
 
@@ -847,10 +881,15 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
               if ( (Int_t)RawElID[el] == 2696 && (Int_t)RawElLE[el]>0 && (Int_t)RawElTot[el]>0 ) {
                 //cout << " Ref  ID = " << (Int_t)RawElID[el] << " el = " << el << "    LE = " << RawElLE[el]*TDC_calib_to_ns 
                 //		<< "    TE = " << RawElTE[el]*TDC_calib_to_ns << "    ToT = " << RawElTot[el]*TDC_calib_to_ns << endl;
-                hRefRawLe->Fill(RawElLE[el]*TDC_calib_to_ns);
-                hRefRawTe->Fill(RawElTE[el]*TDC_calib_to_ns);
-                hRefRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
-                hRefRawPMT->Fill(RawElID[el]);
+                
+                vRefRawLe.push_back(RawElLE[el] * TDC_calib_to_ns);
+                vRefRawTe.push_back(RawElTE[el] * TDC_calib_to_ns);
+                vRefRawTot.push_back(RawElTot[el] * TDC_calib_to_ns);
+                vRefRawPMT.push_back((int)RawElID[el]);
+                //hRefRawLe->Fill(RawElLE[el]*TDC_calib_to_ns);
+                //hRefRawTe->Fill(RawElTE[el]*TDC_calib_to_ns);
+                //hRefRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
+                //hRefRawPMT->Fill(RawElID[el]);
 
                 event_ref_tdc = RawElLE[el]*TDC_calib_to_ns;
                 ref_int = std::floor(event_ref_tdc);
@@ -1178,9 +1217,9 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
 		int myhotbar = (b%672)%224/16 + 1;
 		int myhotpaddle = ((b%672)%224)%16 + 1;
 		int mycable = b/16;
-		std::cout << "Hot PMT!! ID = " << b << "  layer = " << myhotlayer <<
-		"   side = " << myhotside << "   module = " << myhotmodule <<
-		"   bar = " << myhotbar << "   paddle_PMT = " << myhotpaddle << " CDet Cable = " << mycable << "   Entries = " << hRawLe[b]->GetEntries() << std::endl;
+		//std::cout << "Hot PMT!! ID = " << b << "  layer = " << myhotlayer <<
+		//"   side = " << myhotside << "   module = " << myhotmodule <<
+		//"   bar = " << myhotbar << "   paddle_PMT = " << myhotpaddle << " CDet Cable = " << mycable << "   Entries = " << hRawLe[b]->GetEntries() << std::endl;
 	}
   }
   
@@ -1513,19 +1552,42 @@ TCanvas *plotGoodTDC2D(){
 }
 
 TCanvas *plotRefTDC() {
+  hRefRawLe = new TH1F(TString::Format("hRefRawLe"),
+            TString::Format("hRefRawLe"),
+            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
+  hRefRawTe = new TH1F(TString::Format("hRefRawTe"),
+            TString::Format("hRefRawTe"),
+            RefNTDCBins, RefTDCBinLow, RefTDCBinHigh);
+  hRefRawTot = new TH1F(TString::Format("hRefRawTot"),
+            TString::Format("hRefRawTot"),
+            RefNTotBins, RefTotBinLow, RefTotBinHigh);
+  hRefRawPMT = new TH1F(TString::Format("hRefRawPMT"),
+            TString::Format("hRefRawPMT"),
+            32, 2688, 2720);
 
+  
+  //fill histograms
+  for (double val : vRefRawLe)   hRefRawLe->Fill(val);
+  for (double val : vRefRawTe)   hRefRawTe->Fill(val);
+  for (double val : vRefRawTot)  hRefRawTot->Fill(val);
+  for (int    val : vRefRawPMT)  hRefRawPMT->Fill(val);
+
+  //make canvas
   TCanvas *cbb = new TCanvas("ref", "ref", 850,50, 1200,800);
   cbb->Divide(2,2,0.01,0.01,0);
 
   cbb->cd(1);
   gPad->SetLogy();
   hRefRawLe->Draw();
+
   cbb->cd(2);
   gPad->SetLogy();
   hRefRawTe->Draw();
+
   cbb->cd(3);
   gPad->SetLogy();
   hRefRawTot->Draw();
+
   cbb->cd(4);
   gPad->SetLogy();
   hRefRawPMT->Draw();
