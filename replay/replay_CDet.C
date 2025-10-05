@@ -21,6 +21,7 @@
 #include "SBSCDet.h"
 #include "SBSCDet_Hit.h"
 #include "SBSGEPEArm.h"
+#include "SBSVTP.h"
 
 
 void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const char *fname_prefix="gep5", UInt_t firstsegment=0, UInt_t maxsegments=1, 
@@ -31,19 +32,23 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
   THaAnalyzer* analyzer = new THaAnalyzer;  
 
   SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm" );
+  
   SBSECal* ecal = new SBSECal("ecal", "ECal");
+  ecal->SetDataOutputLevel(2);
+  ecal->SetStoreRawHits(kTRUE); // Enabling writing out waveform information.
+
   SBSCDet* cdet = new SBSCDet("cdet", "CDet");
   //SBSGenericDetector* cdet = new SBSGenericDetector("cdet", "CDet");
   //ecal->SetDataOutputLevel(1);
   //cdet->SetDataOutputLevel(1);
   
+  cdet->SetStoreRawHits(kTRUE); // enabling writing out waveform information
+
   earm->AddDetector(cdet);
   earm->AddDetector(ecal);
   gHaApps->Add(earm);  
   
-  // enabling writing out waveform information
-  ecal->SetStoreRawHits(kTRUE);
-  cdet->SetStoreRawHits(kTRUE);
+
 
   // SBSGenericDetector* scinttrig = new SBSGenericDetector("ecal.scinttrig","HCal trigs");
   // scinttrig->SetModeADC(SBSModeADC::kWaveform);

@@ -945,7 +945,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
       }
       
 
-        }// all raw tdc hit loop
+  }// all raw tdc hit loop
 
 
         // Third pass:  Get layer occupancies
