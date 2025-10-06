@@ -69,9 +69,9 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 
-const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
+//const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
 const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
-//const TString REPLAYED_DIR = "/work/hallc/gep/brash/sbs/Rootfiles";
+const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
 //const TString ANALYSED_DIR = "/work/hallc/gep/brash/sbs/Rootfiles/cdetFiles/cdet_histfiles";
 
 // // for local analysis at uog (please leave in comments)
@@ -604,7 +604,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
             NTDCBins, TDCBinLow, TDCBinHigh);
   hAllRawTe = new TH1F(TString::Format("hRawTe"),
             TString::Format("hRawTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
   hAllRawTot = new TH1F(TString::Format("hRawTot"),
             TString::Format("hRawTot"),
             NTotBins, TotBinLow, TotBinHigh);
@@ -619,7 +619,7 @@ void PlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t neventsr=5000
             NTDCBins, TDCBinLow, TDCBinHigh);
   hAllGoodTe = new TH1F(TString::Format("hAllGoodTe"),
             TString::Format("hAllGoodTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
   hAllGoodTot = new TH1F(TString::Format("hAllGoodTot"),
             TString::Format("hAllGoodTot"),
             NTotBins, TotBinLow, TotBinHigh);

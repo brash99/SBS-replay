@@ -141,11 +141,50 @@ std::vector<std::vector<double>> vsbs_gemFT_track_nhits;
 std::vector<std::vector<double>> vsbs_gemFT_track_ngoodhits;
 
 /* CDet & ECal Vectors */
+//1D vectors
 std::vector<double> vRefRawLe;
 std::vector<double> vRefRawTe;
 std::vector<double> vRefRawTot;
 std::vector<int>    vRefRawPMT;
 
+std::vector<double> vAllRawLe;
+std::vector<double> vAllRawTe;
+std::vector<double> vAllRawTot;
+std::vector<int> vAllRawPMT;
+std::vector<int> vAllRawBar;
+
+std::vector<double> vAllGoodLe;
+std::vector<double> vAllGoodTe;
+std::vector<double> vAllGoodTot;
+std::vector<int> vAllGoodPMT;
+std::vector<int> vAllGoodBar;
+
+std::vector<int> vhitPMT;
+std::vector<int> vRow;
+std::vector<int> vCol;
+std::vector<int> vLayer;
+
+std::vector<double> vHitX;
+std::vector<double> vHitY;
+std::vector<double> vHitZ;
+
+std::vector<int> vRowLayer1Side1;
+std::vector<int> vRowLayer2Side1;
+std::vector<int> vRowLayer1Side2;
+std::vector<int> vRowLayer2Side2;
+
+//2D vectors
+std::vector<std::vector<double>> vRawLe;
+std::vector<std::vector<double>> vRawTe;
+std::vector<std::vector<double>> vRawTot;
+std::vector<std::vector<int>> vRawID;
+
+std::vector<std::vector<double>> vGoodLe;
+std::vector<std::vector<double>> vGoodTe;
+std::vector<std::vector<double>> vGoodTot;
+std::vector<std::vector<int>> vGoodID;
+
+/*
 namespace TCDet {
   Int_t NdataMult;
   Double_t TDCmult[nTdc*2];
@@ -191,7 +230,7 @@ namespace TCDet {
 
 
 
-};
+};*/
 
 //===================================================== Globals for paddle hits
 Double_t nhits_paddles[nTdc*2];
@@ -214,9 +253,11 @@ const double RefTotBinHigh = 201.;
 
 double TDCBinLow;
 double TDCBinHigh;
+int NTDCBins;
 double RefTDCBinLow;
 double RefTDCBinHigh;
 int RefNTDCBins;
+
 
 //const int num_bad = 0;
 //
@@ -510,7 +551,7 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
 	Double_t RefTotMin = 1.0;
 	Double_t RefTotMax = 251.0;
 
-	int NTDCBins = 2*(LeMax-LeMin)/.0160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
+	NTDCBins = 2*(LeMax-LeMin)/.0160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
 					// 4 ns resolution is the best we can hope for, I think, using only the module trigger time.
 
 	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
@@ -903,6 +944,11 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
       
       // second pass: fill raw CDet TDC histos
         
+      std::vector<double> thisEvent_LE;
+      std::vector<double> thisEvent_TE;
+      std::vector<double> thisEvent_TOT;
+      std::vector<int> thisEvent_ID;
+
       for(Int_t el=0; el<RawElID.GetSize(); el++){
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
@@ -912,65 +958,71 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
 
       bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult;
 
-      std::vector<double> thisEvent_LE;
-      std::vector<int> thisEvent_ID;
       //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
       if ( good_raw_event ) {
         if ( !check_bad(RawElID[el],suppress_bad) ) {
         //cout << " el = " << el << endl;
         //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
-        if ( (Int_t)RawElID[el] < 2688 ) {
-          //if ((Int_t)RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
+          if ( (Int_t)RawElID[el] < 2688 ) {
+            //if ((Int_t)RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
+            
+            //fill this events vectors
+            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
+            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - ref_corr);
+            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns - ref_corr);
+            thisEvent_ID.push_back((Int_t)RawElID[el]);
           
-          //fill this events vectors
-          thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
-          thisEvent_ID.push_back((Int_t)RawElID[el]);
-         
-          vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
-          /* Comment out histograms for now
-          hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
-          hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
-          hRawTot[(Int_t)RawElID[el]]->Fill(RawElTot[el]*TDC_calib_to_ns);
-          hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
-          hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
-          hAllRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
-          hAllRawPMT->Fill(RawElID[el]);
-          hAllRawBar->Fill((Int_t)(RawElID[el]/16));
+            //fill all hits vectors
+            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
+            vAllRawTe.push_back(RawElTE[el]*TDC_calib_to_ns - ref_corr);
+            vAllRawTot.push_back(RawElTot[el]*TDC_calib_to_ns);
+            vAllRawPMT.push_back(RawElID[el]);
+            vAllRawBar.push_back((Int_t)(RawElID[el]/16));
+            /* Comment out histograms for now
+            hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
+            hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
+            hRawTot[(Int_t)RawElID[el]]->Fill(RawElTot[el]*TDC_calib_to_ns);
+            hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
+            hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
+            hAllRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
+            hAllRawPMT->Fill(RawElID[el]);
+            hAllRawBar->Fill((Int_t)(RawElID[el]/16));
 
-          h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
-          h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
-          h2d_RawTot->Fill(RawElTot[el]*TDC_calib_to_ns, (Int_t)RawElID[el]);
-          */
-        }
+
+
+            h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
+            h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
+            h2d_RawTot->Fill(RawElTot[el]*TDC_calib_to_ns, (Int_t)RawElID[el]);
+            */
+          }
         }
       }
-      vRawLe.push_back(thisEvent_LE);
-      vRawTe.push_back(thisEvent_TE);
-      vRawTot.push_back(thisEvent_TOT);
-      vRawID.push_pack(thisEvent_ID);
-
     }// all raw tdc hit loop
+    vRawLe.push_back(thisEvent_LE);
+    vRawTe.push_back(thisEvent_TE);
+    vRawTot.push_back(thisEvent_TOT);
+    vRawID.push_back(thisEvent_ID);
 
 
-        // Third pass:  Get layer occupancies
-        
-        int nhitsc1 = 0;
-        int nhitsc2 = 0;
-        int ngoodhitsc1 = 0;
-        int ngoodhitsc2 = 0;
-        int ngoodTDChitsc1 = 0;
-        int ngoodTDChitsc2 = 0;
-        for (int j=0; j<nTdc; j++) {
+    // Third pass:  Get layer occupancies
+    
+    int nhitsc1 = 0;
+    int nhitsc2 = 0;
+    int ngoodhitsc1 = 0;
+    int ngoodhitsc2 = 0;
+    int ngoodTDChitsc1 = 0;
+    int ngoodTDChitsc2 = 0;
+    for (int j=0; j<nTdc; j++) {
       nhits_paddles[j]=0;
       ngoodhits_paddles[j]=0;
       ngoodTDChits_paddles[j]=0;
-        }
-        npaddles=0;
-        ngoodpaddles=0;
-        ngoodTDCpaddles=0;
-        
-        for(Int_t el=0; el<GoodElID.GetSize(); el++){
+    }
+    npaddles=0;
+    ngoodpaddles=0;
+    ngoodTDCpaddles=0;
+    
+    for(Int_t el=0; el<GoodElID.GetSize(); el++){
       int sbselemid = (Int_t)GoodElID[el];
       int sbsrown = sbselemid%672;
       int sbscoln = sbselemid/672;
@@ -986,9 +1038,9 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
       }
       nhits_paddles[mypaddlen]++;
 
-            bool good_ecal_reconstruction = *GoodECalY > -1.2 && *GoodECalY < 1.2 &&
-          *GoodECalX > -1.5 && *GoodECalX < 1.5 &&
-          *GoodECalX != 0.00 && *GoodECalY != 0.00 ;
+      bool good_ecal_reconstruction = *GoodECalY > -1.2 && *GoodECalY < 1.2 &&
+                                      *GoodECalX > -1.5 && *GoodECalX < 1.5 &&
+                                      *GoodECalX != 0.00 && *GoodECalY != 0.00 ;
       bool good_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_hit_mult = TDCmult[el] < TDCmult_cut;
@@ -1005,49 +1057,56 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
       if (good_CDet_event) {
 
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
-        if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
+          if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
 
-          //cout << "Hit number " << el << ":    Paddle = " << mypaddlen << " Row = " << sbsrown  << " Col = " << sbscoln  << " hits = " << ngoodTDChits_paddles[mypaddlen] << endl;
-          //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
-      //	GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
-      //	GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << GoodECalX << endl;
-          if (mylayern == 0) {
-              ngoodhitsc1++;
-          } else {
-              ngoodhitsc2++;
+            //cout << "Hit number " << el << ":    Paddle = " << mypaddlen << " Row = " << sbsrown  << " Col = " << sbscoln  << " hits = " << ngoodTDChits_paddles[mypaddlen] << endl;
+            //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
+        //	GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
+        //	GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << GoodECalX << endl;
+            if (mylayern == 0) {
+                ngoodhitsc1++;
+            } else {
+                ngoodhitsc2++;
+            }
+            ngoodhits_paddles[mypaddlen]++;
           }
-          ngoodhits_paddles[mypaddlen]++;
-        }
         }
       }
-        }
-        for (int j=0; j<nTdc; j++) {
+    }
+    for (int j=0; j<nTdc; j++) {
       if (nhits_paddles[j] > 0) {
         npaddles++;
         //cout << "Paddle = " << j <<  "  nhits = " << ngoodTDChits_paddles[j] << endl;
       }
-        }
-        for (int j=0; j<nTdc; j++) {
+    }
+    for (int j=0; j<nTdc; j++) {
       if (ngoodhits_paddles[j] > 0) {
         ngoodpaddles++;
         //cout << "Paddle = " << j <<  "  nhits = " << ngoodTDChits_paddles[j] << endl;
       }
-        }
+    }
         //cout << "event " << event << endl;
         //cout << "Number of good layer 1 hits: " << ngoodTDChitsc1 << endl;
         //cout << "Number of good layer 2 hits: " << ngoodTDChitsc2 << endl;
         //cout << "Layer 1 Hit Cut " << nhitcutlow1 << " " << nhitcuthigh1 << endl;
         //cout << "Layer 2 Hit Cut " << nhitcutlow2 << " " << nhitcuthigh2 << endl;
+    vnpaddles.push_back(npaddles);
+    vngoodpaddles.push_back(ngoodpaddles);
+    //hnpaddles->Fill(npaddles);
+    //hngoodpaddles->Fill(ngoodpaddles);
 
-        hnpaddles->Fill(npaddles);
-        hngoodpaddles->Fill(ngoodpaddles);
-
-        // Fourth pass:  use layer occupancies to apply additional cuts
+    // Fourth pass:  use layer occupancies to apply additional cuts
     
-        for(Int_t el=0; el<GoodElID.GetSize(); el++){
-            bool goodhit_ecal_reconstruction = *GoodECalY > -1.2 && *GoodECalY < 1.2 &&
-          *GoodECalX > -1.5 && *GoodECalX < 1.5 &&
-          *GoodECalX != 0.00 && *GoodECalY != 0.00 ;
+    //before loop temp vectors to fill into vGoodLE, etc.
+    std::vector<double> thisEvent_GoodLE;
+    std::vector<double> thisEvent_GoodTE;
+    std::vector<double> thisEvent_GoodTOT;
+    std::vector<int> thisEvent_GoodID;
+
+    for(Int_t el=0; el<GoodElID.GetSize(); el++){
+      bool goodhit_ecal_reconstruction = *GoodECalY > -1.2 && *GoodECalY < 1.2 &&
+                                         *GoodECalX > -1.5 && *GoodECalX < 1.5 &&
+                                         *GoodECalX != 0.00 && *GoodECalY != 0.00;
       bool goodhit_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool goodhit_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool goodhit_hit_mult = TDCmult[el] < TDCmult_cut;
@@ -1058,140 +1117,167 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
           (GoodX[el]-((*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
       bool goodhit_ecal_diff_y = (GoodY[el]-((*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
           (GoodY[el]-((*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
-
-
       bool goodhit_CDet_event = goodhit_ecal_reconstruction && goodhit_ecal_diff_x && goodhit_ecal_diff_y && goodhit_le_time && goodhit_tot 
         && goodhit_hit_mult && goodhit_cdet_X && goodhit_low && goodhit_high;
 
       if (goodhit_CDet_event) {
 
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
-        if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
-              //cout << "event " << event << endl;
-          //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
-        //GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
-        //GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << GoodECalX << endl;
+          if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
+                //cout << "event " << event << endl;
+            //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
+          //GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
+          //GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << GoodECalX << endl;
 
-          //cout << "Filling good timing histos ... " << ngoodTDChitsc1 << " " << endl;
-          
-          //std::cout << "Layer = " << (Int_t)GoodLayer[el] << " Side = " << (Int_t)GoodCol[el] << std::endl;
-          
-          int sbselem = (Int_t)GoodElID[el];
-          int sbsrow = sbselem%672;
-          int sbscol = sbselem/672;
-          //int sbscol = (Int_t)GoodCol[el];
-          //int sbsrow = (Int_t)GoodRow[el];
-          int myside = sbscol%2;
-          int mylayer = sbscol/2;
-          int mypaddle = sbscol*672 + sbsrow;
+            //cout << "Filling good timing histos ... " << ngoodTDChitsc1 << " " << endl;
+            
+            //std::cout << "Layer = " << (Int_t)GoodLayer[el] << " Side = " << (Int_t)GoodCol[el] << std::endl;
+            
+            int sbselem = (Int_t)GoodElID[el];
+            int sbsrow = sbselem%672;
+            int sbscol = sbselem/672;
+            //int sbscol = (Int_t)GoodCol[el];
+            //int sbsrow = (Int_t)GoodRow[el];
+            int myside = sbscol%2;
+            int mylayer = sbscol/2;
+            int mypaddle = sbscol*672 + sbsrow;
 
-          if (mylayer == 0) {
-        ngoodTDChitsc1++;
-        eff_numerator_layer1++;
-          } else {
-        ngoodTDChitsc2++;
-        eff_numerator_layer2++;
-          }
+            if (mylayer == 0) {
+              ngoodTDChitsc1++;
+              eff_numerator_layer1++;
+            } 
+            else {
+              ngoodTDChitsc2++;
+              eff_numerator_layer2++;
+            }
 
-          ngoodTDChits_paddles[mypaddle]++;
-          
-          if ( (layer_choice == 1 && mylayer == 0) || (layer_choice == 2 && mylayer == 1) || 
-          (layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) )  
-        {
-        eff_numerator++;
-            hGoodLe[(Int_t)GoodElID[el]]->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-            hGoodTe[(Int_t)GoodElID[el]]->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-            hGoodTot[(Int_t)GoodElID[el]]->Fill(GoodElTot[el]*TDC_calib_to_ns);
-            hAllGoodLe->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-            hAllGoodTe->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-            hAllGoodTot->Fill(GoodElTot[el]*TDC_calib_to_ns);
-            hAllGoodPMT->Fill(GoodElID[el]);
-            hAllGoodBar->Fill((Int_t)(GoodElID[el]/16));
-            h2AllGoodLe->Fill(GoodElID[el],GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-            h2AllGoodTe->Fill(GoodElID[el],GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-            h2AllGoodTot->Fill(GoodElID[el],GoodElTot[el]*TDC_calib_to_ns);
+            ngoodTDChits_paddles[mypaddle]++;
+            
+            if ( (layer_choice == 1 && mylayer == 0) || (layer_choice == 2 && mylayer == 1) || 
+            (layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) ) {
+              eff_numerator++;
 
-            h2TDCTOTvsLE->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              thisEvent_GoodLE.push_back(GoodElLE[el]*TDC_calib_to_ns - ref_corr);
+              thisEvent_GoodTE.push_back(GoodElTE[el]*TDC_calib_to_ns - ref_corr);
+              thisEvent_GoodTOT.push_back(GoodElTot[el]*TDC_calib_to_ns);
+              thisEvent_GoodID.push_back((Int_t)GoodElID[el]);
+
+              // hGoodLe[(Int_t)GoodElID[el]]->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              // hGoodTe[(Int_t)GoodElID[el]]->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              // hGoodTot[(Int_t)GoodElID[el]]->Fill(GoodElTot[el]*TDC_calib_to_ns);
+
+              vAllGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns - ref_corr);
+              vAllGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns - ref_corr);
+              vAllGoodTot.push_back(GoodElTot[el]*TDC_calib_to_ns);
+              vAllGoodPMT.push_back(GoodElID[el]);
+              vAllGoodBar.push_back((Int_t)(GoodElID[el]/16));
+
+              // hAllGoodLe->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              // hAllGoodTe->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              // hAllGoodTot->Fill(GoodElTot[el]*TDC_calib_to_ns);
+              // hAllGoodPMT->Fill(GoodElID[el]);
+              // hAllGoodBar->Fill((Int_t)(GoodElID[el]/16));
+
+              // h2AllGoodLe->Fill(GoodElID[el],GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              // h2AllGoodTe->Fill(GoodElID[el],GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              // h2AllGoodTot->Fill(GoodElID[el],GoodElTot[el]*TDC_calib_to_ns);
+
+              // h2TDCTOTvsLE->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              
+              vhitPMT.push_back((Int_t)GoodElID[el]);
+              //hHitPMT->Fill((Int_t)GoodElID[el]);
+              vRow.push_back((Int_t)GoodRow[el]);
+              //hRow->Fill((Int_t)GoodRow[el]);
+            }
         
-            hHitPMT->Fill((Int_t)GoodElID[el]);
-            hRow->Fill((Int_t)GoodRow[el]);
-          }
-      
-          if (myside == 0) {
-        if (mylayer == 0) {
-          hRowLayer1Side1->Fill((Int_t)GoodRow[el]);
-        } else {
-          hRowLayer2Side1->Fill((Int_t)GoodRow[el]);
-        }
-          } else {
-        if(mylayer == 0) {
-          hRowLayer1Side2->Fill((Int_t)GoodRow[el]);
-        } else {
-          hRowLayer2Side2->Fill((Int_t)GoodRow[el]);
-        }
-          }	
-          
-          hCol->Fill(myside);
-          hLayer->Fill(mylayer);
+            if (myside == 0) {
+              if (mylayer == 0) {
+                vRowLayer1Side1.push_back((Int_t)GoodRow[el]);
+                //hRowLayer1Side1->Fill((Int_t)GoodRow[el]);
+              } 
+              else {
+                vRowLayer2Side1.push_back((Int_t)GoodRow[el]);
+                //hRowLayer2Side1->Fill((Int_t)GoodRow[el]);
+              }
+            }
+            else {
+              if(mylayer == 0) {
+                vRowLayer1Side2.push_back((Int_t)GoodRow[el]);
+                //hRowLayer1Side2->Fill((Int_t)GoodRow[el]);
+              } 
+              else {
+                vRowLayer2Side2.push_back((Int_t)GoodRow[el]);
+                //hRowLayer2Side2->Fill((Int_t)GoodRow[el]);
+              }
+            }	
+            vCol.push_back(myside);
+            //hCol->Fill(myside);
+            vLayer.push_back(mylayer);
+            //hLayer->Fill(mylayer);
 
-          hHitX->Fill(GoodX[el]);
-          hHitY->Fill(GoodY[el]);
-          hHitZ->Fill(GoodZ[el]);
-          if (mylayer==0) {
-            h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hHitXY1->Fill(GoodY[el],GoodX[el]);
-        hXECalCDet1->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hYECalCDet1->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXDiffECalCDet1->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXPlusECalCDet1->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hEECalCDet1->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          } else {
-            h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hHitXY2->Fill(GoodY[el],GoodX[el]);
-        hXECalCDet2->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hYECalCDet2->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXDiffECalCDet2->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            hXPlusECalCDet2->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-        hEECalCDet2->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          }
+            vHitX.push_back(GoodX[el]);
+            vHitY.push_back(GoodY[el]);
+            vHitZ.push_back(GoodZ[el]);
+
+            if (mylayer==0) {
+              h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+          hHitXY1->Fill(GoodY[el],GoodX[el]);
+          hXECalCDet1->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+          hYECalCDet1->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hXDiffECalCDet1->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hXPlusECalCDet1->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+          hEECalCDet1->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            } else {
+              h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+          hHitXY2->Fill(GoodY[el],GoodX[el]);
+          hXECalCDet2->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+          hYECalCDet2->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hXDiffECalCDet2->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hXPlusECalCDet2->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+          hEECalCDet2->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            }
 
 
-        } else {
+          } 
+          else {
           hRefGoodLe->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
           hRefGoodTe->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
           hRefGoodTot->Fill(GoodElTot[el]*TDC_calib_to_ns);
           hRefGoodPMT->Fill(GoodElID[el]*TDC_calib_to_ns);
-        }
+          }
         }
       }
+    }// all good tdc hit loop
 
+    vGoodLe.push_back(thisEvent_GoodLE);
+    vGoodTe.push_back(thisEvent_GoodTE);
+    vGoodTot.push_back(thisEvent_GoodTOT);
+    vGoodID.push_back(thisEvent_GoodID);
 
-        }// all good tdc hit loop
+    if (*GoodECalX != 0.00 && *GoodECalY != 0.00) {
+      eff_denominator++;
+      hXYECal->Fill(*GoodECalY,*GoodECalX);
+      hXECal->Fill(*GoodECalX);
+      hYECal->Fill(*GoodECalY);
+      hEECal->Fill(*GoodECalE);
+    };
+        
+        
+    hnhits1->Fill(nhitsc1);
+    hngoodhits1->Fill(ngoodhitsc1);
+    hngoodTDChits1->Fill(ngoodTDChitsc1);
+    hnhits2->Fill(nhitsc2);
+    hngoodhits2->Fill(ngoodhitsc2);
+    hngoodTDChits2->Fill(ngoodTDChitsc2);
 
-        
-        if (*GoodECalX != 0.00 && *GoodECalY != 0.00) {
-          eff_denominator++;
-          hXYECal->Fill(*GoodECalY,*GoodECalX);
-          hXECal->Fill(*GoodECalX);
-          hYECal->Fill(*GoodECalY);
-          hEECal->Fill(*GoodECalE);
-        };
-        
-        
-        hnhits1->Fill(nhitsc1);
-        hngoodhits1->Fill(ngoodhitsc1);
-        hngoodTDChits1->Fill(ngoodTDChitsc1);
-        hnhits2->Fill(nhitsc2);
-        hngoodhits2->Fill(ngoodhitsc2);
-        hngoodTDChits2->Fill(ngoodTDChitsc2);
-        for (int j=0; j<nTdc; j++) {
+    for (int j=0; j<nTdc; j++) {
       if (ngoodTDChits_paddles[j] > 0) {
         ngoodTDCpaddles++;
         //cout << "Paddle = " << j <<  "  nhits = " << ngoodTDChits_paddles[j] << endl;
       }
-        }
+    }
         hngoodTDCpaddles->Fill(ngoodTDCpaddles);
 
         //cout << "Element loop: " << NdataMult << endl;
@@ -1828,6 +1914,23 @@ TCanvas *plotNhits(){
 }
 
 TCanvas *plotTDC2d(){
+
+  h2d_RawLE  = new TH2F("h2d_RawLE","Raw LE vs PMT", NTDCBins,TDCBinLow,TDCBinHigh,nTdc+1,0,nTdc+1);
+  h2d_RawTE  = new TH2F("h2d_RawTE","Raw TE vs PMT", NTDCBins,TDCBinLow,TDCBinHigh,nTdc+1,0,nTdc+1);
+  h2d_RawTot = new TH2F("h2d_RawTot","Raw TOT vs PMT", NTotBins,TotBinLow,TotBinHigh,nTdc+1,0,nTdc+1);
+
+  // TH2D *h2d_RawLE = new TH2D("h2d_RawLE", "Raw LE vs PMT", 400, 0, 200, 2700, 0, 2700);
+  // TH2D *h2d_RawTE = new TH2D("h2d_RawTE", "Raw TE vs PMT", 400, 0, 200, 2700, 0, 2700);
+  // TH2D *h2d_RawTot = new TH2D("h2d_RawTot", "Raw Tot vs PMT", 400, 0, 200, 2700, 0, 2700);
+
+  for (size_t evt = 0; evt < vRawLe.size(); evt++) {
+    for (size_t hit = 0; hit < vRawLe[evt].size(); hit++) {
+      h2d_RawLE->Fill(vRawLe[evt][hit], vRawID[evt][hit]);
+      h2d_RawTE->Fill(vRawTe[evt][hit], vRawID[evt][hit]);
+      h2d_RawTot->Fill(vRawTot[evt][hit], vRawID[evt][hit]);
+    }
+  }
+
 
 
   TCanvas *c6 = new TCanvas("c6", "c6", 50,50,800,800);
