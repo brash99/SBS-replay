@@ -23,6 +23,10 @@
 *.a
 *.lib
 
+#aclic
+*_ACLiC_dict.*
+*_ACLiC_dict.cxx_tmp_*
+
 # Executables
 *.exe
 *.out

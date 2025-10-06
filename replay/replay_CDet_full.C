@@ -40,7 +40,6 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
 		Int_t maxstream=2, Int_t pedestalmode=0, Int_t cmplots=0, Int_t firststream=0, Int_t dogems=1, Int_t requiretrack=0, Int_t nontrackingmode=0)
 {
     THaAnalyzer* analyzer = new THaAnalyzer;
-    gSystem->AddIncludePath("/work/halla/sbs/btspaude/CDet_replay/git-repo/sbs_devel/SBS-replay/replay");
     // Initialize Electron Arm.
     SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm");
     // // ECal
@@ -180,7 +179,7 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
 
     if ( st != THaRunBase::READ_OK )
       {
-        cerr << "========= Eroor initializing run" << endl;
+        cerr << "========= Error initializing run" << endl;
         return;
       }
     
@@ -196,8 +195,10 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
       
       if ( dogems != 0 )
 	{
-	  outfilename.Form("%s/%s_replayed_%u_stream%d_%d_seg%u_%u_firstevent%ld_nevent%ld.root", prefix.Data(), outfile_prefix.Data(), runnum, 
+    outfilename.Form("%s/%s_replayed_%u_stream%d_%d_seg%u_%u_firstevent%ld_nevent%ld.root", prefix.Data(), outfile_prefix.Data(), runnum, 
 			   firststream, maxstream, firstsegment, lastsegment, firstevent, nevents);
+	  //outfilename.Form("%s/%s_replayed_%u_stream%d_seg%u_firstevent%ld_nevent%ld.root", prefix.Data(), outfile_prefix.Data(), runnum, firststream, firstsegment, firstevent, nevents);
+	  //outfilename.Form("%s/%s_replayed_%u_%ld_events_stream%d_seg.root", prefix.Data(), outfile_prefix.Data(), runnum, nevents, firststream);
 	}
       else
 	{
@@ -208,12 +209,12 @@ void replay_CDet_full(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, con
     } else {
       if ( dogems != 0 )
 	{
-	  outfilename.Form("%s/%s_fullreplay_%u_stream%d_%d_seg%u_%u.root", prefix.Data(), fname_prefix, runnum,
+	  outfilename.Form("%s/%s_replayed_%u_stream%d_%d_seg%u_%u.root", prefix.Data(), fname_prefix, runnum,
 			   firststream, maxstream, firstsegment, lastsegment);
 	}
       else
 	{
-	  outfilename.Form("%s/%s_fullreplay_nogems_%u_stream%d_%d_seg%u_%u.root", prefix.Data(), fname_prefix, runnum,
+	  outfilename.Form("%s/%s_replayed_nogems_%u_stream%d_%d_seg%u_%u.root", prefix.Data(), fname_prefix, runnum,
 			   firststream, maxstream, firstsegment, lastsegment);
 	}        
     }
