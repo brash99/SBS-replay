@@ -69,16 +69,10 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 
-const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
-const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
-//const TString REPLAYED_DIR = "/work/hallc/gep/brash/sbs/Rootfiles";
-//const TString ANALYSED_DIR = "/work/hallc/gep/brash/sbs/Rootfiles/cdetFiles/cdet_histfiles";
-
-// // for local analysis at uog (please leave in comments)
-// TString REPLAYED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Replayed";
-//TString REPLAYED_DIR = "/w/work2/jlab/halla/sbs_hodo/Rootfiles";
-//TString ANALYSED_DIR = "/w/work2/jlab/halla/sbs_hodo/Rootfiles/bbhodo_hist";
-//TString ANALYSED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Analysed";
+// const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
+// const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
+const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
+const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
 
 int GetSegmentNumber(const TString &fname) {
   Ssiz_t pos = fname.Last('_');
