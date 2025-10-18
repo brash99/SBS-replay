@@ -2500,7 +2500,7 @@ static TGraph* MakeCDFMapForBar_RawLe(int layer, int side, int bar,
   if (includeUF) { cum += hSum->GetBinContent(nbx+1); U.back() = cum / N; }
 
   auto g = new TGraph((int)X.size(), X.data(), U.data());
-  g->SetName(Form("gCDF_L%d_S%d_M%d_B%02d", layer, side, module, bar_local));
+  g->SetName(Form("gCDF_L%d_S%d_M%d_B%02d", layer, side, mymodule, bar));
   delete hSum;
   return g;
 }
