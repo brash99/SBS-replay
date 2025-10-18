@@ -2576,6 +2576,74 @@ static TGraph* MakeEmpiricalCDF(const TH1* h, bool includeUF=false){
   return g;
 }
 
+static double QuantileFromGraph(const TGraph* g, double u){
+  if (!g) return std::numeric_limits<double>::quiet_NaN();
+  const int n = g->GetN();
+  if (n < 2) return std::numeric_limits<double>::quiet_NaN();
+  const double* xs = g->GetX(); const double* ys = g->GetY();
+  if (u <= ys[0]) return xs[0];
+  if (u >= ys[n-1]) return xs[n-1];
+  int lo = 0, hi = n-1;
+  while (hi - lo > 1){
+    int mid = (lo + hi)/2;
+    if (ys[mid] < u) lo = mid; else hi = mid;
+  }
+  const double y0=ys[lo], y1=ys[hi], x0=xs[lo], x1=xs[hi];
+  if (y1==y0) return 0.5*(x0+x1);
+  const double t = (u - y0)/(y1 - y0);
+  return x0 + t*(x1 - x0);
+}
+
+// Compute warp anchors u10,u50,u90 from summed data + your fitted model
+static void ComputeWarpAnchors_u(const TH1* hSum,
+                                 double t0_fit, double t1_fit, double sigma_fit,
+                                 double alpha_fit, double beta_fit,
+                                 double& u10, double& u50, double& u90,
+                                 bool includeUF=false)
+{
+  std::unique_ptr<TGraph> gEmp(MakeEmpiricalCDF(hSum, includeUF));
+  const double x10 = QuantileFromGraph(gEmp.get(), 0.10);
+  const double x50 = QuantileFromGraph(gEmp.get(), 0.50);
+  const double x90 = QuantileFromGraph(gEmp.get(), 0.90);
+
+  auto F = [&](double x){ return CDF_model(x, t0_fit,t1_fit,sigma_fit,alpha_fit,beta_fit); };
+  u10 = F(x10); u50 = F(x50); u90 = F(x90);
+
+  // force monotonic and within [0,1]
+  u10 = std::min(std::max(u10,0.0),1.0);
+  u50 = std::min(std::max(u50,0.0),1.0);
+  u90 = std::min(std::max(u90,0.0),1.0);
+  if (u50 < u10) u50 = u10;
+  if (u90 < u50) u90 = u50;
+}
+
+// piecewise-linear warp g(u) through (0,0),(u10,0.1),(u50,0.5),(u90,0.9),(1,1)
+inline double g_warp(double u, double u10, double u50, double u90){
+  if (u <= 0.0) return 0.0;
+  if (u >= 1.0) return 1.0;
+  struct Pt{ double x,y; };
+  Pt p[5] = {{0.0,0.0},{u10,0.1},{u50,0.5},{u90,0.9},{1.0,1.0}};
+  for (int i=1;i<5;++i) if (p[i].x < p[i-1].x) p[i].x = p[i-1].x; // enforce monotone x
+  int i=0; while (i<4 && u > p[i+1].x) ++i;
+  const double x0=p[i].x, y0=p[i].y, x1=p[i+1].x, y1=p[i+1].y;
+  if (x1 == x0) return y1;
+  const double t = (u - x0)/(x1 - x0);
+  return y0 + t*(y1 - y0);
+}
+
+// Final calibrated time using warp, mapped to nominal [t0_nom,t1_nom]
+inline double CalibrateTime_Parametric_Warped(double x_raw,
+    double t0_fit, double t1_fit, double sigma_fit, double alpha_fit, double beta_fit,
+    double u10, double u50, double u90,
+    double t0_nom=10.0, double t1_nom=11.127, bool clamp_u=true)
+{
+  double u_raw = CDF_model(x_raw, t0_fit,t1_fit,sigma_fit,alpha_fit,beta_fit);
+  double u = (u_raw - alpha_fit) / beta_fit;             // de-bias/scale
+  if (clamp_u) { if (u<0) u=0; else if (u>1) u=1; }
+  const double u_corr = g_warp(u, u10, u50, u90);
+  return t0_nom + (t1_nom - t0_nom) * u_corr;
+}
+
 // Parametric CDF model: alpha + beta * (sigma/W) [A((x-t0)/sigma) - A((x-t1)/sigma)]
 static double CDF_Model(double *xx, double *pp){
   const double x  = xx[0];
@@ -2648,10 +2716,19 @@ void WriteCDFParamFile(const char* outCsv = "tdc_cdf_params.csv",
       for (int M=1; M<=NumModules; ++M){
         for (int B=1; B<=NumBars; ++B){
           auto R = FitCDFParams_ForBar(L,S,M,B, includeUF,rebin, float_alpha_beta, float_t0_t1);
+          // After you compute FitResult R and still have hSum for (L,S,M,B)
+I         double u10=0,u50=0,u90=0;
+          ComputeWarpAnchors_u(hSum, R.t0, R.t1, R.sigma, R.alpha, R.beta, u10, u50, u90, /*includeUF=*/false);
+
+
           const int global_bar = (M-1)*NumBars + B; // 1..(NumModules*NumBars) e.g. 1..42
+          //os << L<<","<<S<<","<<M<<","<<B<<","<<global_bar<<","
+          //   << R.t0<<","<<R.t1<<","<<R.sigma<<","<<R.alpha<<","<<R.beta<<","
+          //   << R.chi2<<","<<R.ndf<<","<<(R.ok?1:0)<<"\n";
           os << L<<","<<S<<","<<M<<","<<B<<","<<global_bar<<","
-             << R.t0<<","<<R.t1<<","<<R.sigma<<","<<R.alpha<<","<<R.beta<<","
-             << R.chi2<<","<<R.ndf<<","<<(R.ok?1:0)<<"\n";
+          << R.t0<<","<<R.t1<<","<<R.sigma<<","<<R.alpha<<","<<R.beta<<","
+          << u10<<","<<u50<<","<<u90<<","
+          << R.chi2<<","<<R.ndf<<","<<(R.ok?1:0)<<"\n";
         }
       }
     }
