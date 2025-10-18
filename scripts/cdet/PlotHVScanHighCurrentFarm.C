@@ -18,6 +18,226 @@
 #include <TLatex.h>
 #include <vector>
 
+#include <map>
+#include <tuple>
+#include "TKey.h"
+
+// =========================== ADD THIS BLOCK ===========================
+// Required headers (add any that aren't already present in your macro)
+#include <limits>
+#include "TH1F.h"
+#include "TH1D.h"
+#include "TString.h" // for Form()
+#include <algorithm>
+
+// ====== includes you likely already have ======
+#include <cmath>
+#include <fstream>
+
+static const int NumPaddles = 16;
+static const int NumBars = 14;
+static const int NumLayers = 2;
+static const int NumSides = 2;
+static const int NumModules = 3;
+static const int NumHalfModules = NumModules*NumSides*NumLayers;
+
+// ---- Add/replace this function in your macro --------------------------------
+
+// --- math helpers (std-normal) ---
+static inline double phi(double z){ return std::exp(-0.5*z*z)/std::sqrt(2.0*M_PI); }
+static inline double Phi(double z){ return 0.5*(1.0 + std::erf(z/std::sqrt(2.0))); }
+static inline double Afunc(double z){ return z*Phi(z) + phi(z); }
+
+static inline void draw_null_msg(const char* msg="(no data)") {
+  TLatex l; l.SetTextSize(0.06); l.DrawLatexNDC(0.2,0.5, msg);
+}
+
+// Major order: [layer][side][module][bar][paddle], NumSides=2, NumModules=3
+static inline int flatStartIdx_for_bar(int layer, int side, int bar,
+                                       int NumSides, int NumModules, int NumBars, int NumPaddles)
+{
+  int mymodule     = (bar-1)/NumBars + 1;              // 1..NumModules
+  int paddle_start = ((bar-1) % NumBars) * NumPaddles; // 0..(NumBars-1)*NumPaddles
+  return (layer-1)    * (NumSides * NumModules * NumBars * NumPaddles)
+       + (side-1)     * (           NumModules * NumBars * NumPaddles)
+       + (mymodule-1) * (                         NumBars * NumPaddles)
+       +  paddle_start;
+}
+
+// Major order: [layer][side][module][bar][paddle], NumSides=2, NumModules=3
+static inline int flatStartIdx_for_bar_LSMB(int layer, int side, int module, int bar_local,
+                                            int NumSides, int NumModules, int NumBars, int NumPaddles)
+{
+  // bar_local: 1..NumBars within this module
+  const int paddle_start = (bar_local-1) * NumPaddles; // 0..(NumBars-1)*NumPaddles
+  return (layer-1)   * (NumSides * NumModules * NumBars * NumPaddles)
+       + (side-1)    * (           NumModules * NumBars * NumPaddles)
+       + (module-1)  * (                         NumBars * NumPaddles)
+       +  paddle_start;
+}
+
+// ------- small helper for messages
+static inline void draw_msg(const char* s){ TLatex l; l.SetTextSize(0.06); l.DrawLatexNDC(0.15,0.5,s); }
+
+// ------- interval overlap (length), used to distribute counts accurately
+static inline double overlap(double a0,double a1,double b0,double b1){
+  if (a1 < b0 || b1 < a0) return 0.0;
+  double lo = std::max(a0,b0), hi = std::min(a1,b1);
+  return (hi > lo) ? (hi - lo) : 0.0;
+}
+
+
+// ---------- helper: observed support ----------
+// Returns {minX, maxX} from the first/last non-empty bin.
+// If the histogram is empty or null, returns {NaN, NaN}.
+static inline std::pair<double,double> observed_x_range(const TH1* h) {
+  if (!h) return {std::numeric_limits<double>::quiet_NaN(),
+                  std::numeric_limits<double>::quiet_NaN()};
+  const int nb = h->GetNbinsX();
+  const TAxis* ax = h->GetXaxis();
+  int first = -1, last = -1;
+  for (int b = 1; b <= nb; ++b)        if (h->GetBinContent(b) > 0.0) { first = b; break; }
+  for (int b = nb; b >= 1; --b)        if (h->GetBinContent(b) > 0.0) { last  = b; break; }
+  if (first < 0 || last < 0)           return {std::numeric_limits<double>::quiet_NaN(),
+                                               std::numeric_limits<double>::quiet_NaN()};
+  return { ax->GetBinLowEdge(first), ax->GetBinUpEdge(last) };
+}
+
+// ============= Core plotting body as a macro to avoid duplication =============
+#define PLOT_TDC_CALIB_BODY(HARR, NHISTS, FAMILY, OUTFILE, SKIPEMPTY)                \
+  /* storage for graphs */                                                           \
+  std::vector<double> paddleIdx; paddleIdx.reserve(NHISTS);                          \
+  std::vector<double> means;     means.reserve(NHISTS);                              \
+  std::vector<double> meanErrs;  meanErrs.reserve(NHISTS);                           \
+  std::vector<double> ranges;    ranges.reserve(NHISTS);                             \
+  std::vector<double> xErrZero;  xErrZero.reserve(NHISTS);                           \
+                                                                                     \
+  /* tree for full record */                                                         \
+  TTree *t = new TTree(Form("%sStats", FAMILY),                                      \
+                       Form("Per-element stats for %s", FAMILY));                    \
+  Int_t    paddle = 0;                                                               \
+  Long64_t entries = 0;                                                              \
+  Double_t mean = 0, meanErr = 0, rms = 0, minX = 0, maxX = 0, range = 0;           \
+  t->Branch("paddle",  &paddle,  "paddle/I");                                        \
+  t->Branch("entries", &entries, "entries/L");                                       \
+  t->Branch("mean",    &mean,    "mean/D");                                          \
+  t->Branch("meanErr", &meanErr, "meanErr/D");                                       \
+  t->Branch("rms",     &rms,     "rms/D");                                           \
+  t->Branch("minX",    &minX,    "minX/D");                                          \
+  t->Branch("maxX",    &maxX,    "maxX/D");                                          \
+  t->Branch("range",   &range,   "range/D");                                         \
+                                                                                     \
+  for (int i = 0; i < (NHISTS); ++i) {                                               \
+    paddle = i + 1;                                                                  \
+    TH1* h = (HARR ? (TH1*)(HARR)[i] : nullptr);                                     \
+                                                                                     \
+    if (h) {                                                                         \
+      entries = static_cast<Long64_t>(h->GetEntries());                              \
+      mean    = h->GetMean();                                                        \
+      meanErr = h->GetMeanError();                                                   \
+      rms     = h->GetRMS();                                                         \
+      auto [obsMinX, obsMaxX] = observed_x_range(h);                                 \
+      minX  = obsMinX;                                                               \
+      maxX  = obsMaxX;                                                               \
+      range = (TMath::IsNaN(minX) || TMath::IsNaN(maxX)) ? 0.0 : (maxX - minX);      \
+    } else {                                                                         \
+      entries = 0;                                                                   \
+      mean = meanErr = rms = minX = maxX = range =                                   \
+        std::numeric_limits<double>::quiet_NaN();                                    \
+    }                                                                                \
+    t->Fill();                                                                       \
+                                                                                     \
+    const bool isEmpty = (!h || entries <= 100);                                       \
+    if ((SKIPEMPTY) && isEmpty) continue;                                            \
+                                                                                     \
+    paddleIdx.push_back(paddle);                                                     \
+    xErrZero.push_back(0.0);                                                         \
+    means.push_back(mean);                                                           \
+    meanErrs.push_back(meanErr);                                                     \
+    ranges.push_back(range);                                                         \
+  }                                                                                  \
+                                                                                     \
+  const int nPts = static_cast<int>(paddleIdx.size());                               \
+                                                                                     \
+  /* Build graphs only if we have points (avoids Draw() crash in some builds) */     \
+  TGraphErrors *gMean = nullptr;                                                     \
+  TGraph       *gRange = nullptr;                                                    \
+  if (nPts > 0) {                                                                    \
+    gMean = new TGraphErrors(nPts,                                                   \
+                             paddleIdx.data(), means.data(),                         \
+                             xErrZero.data(),  meanErrs.data());                     \
+    gMean->SetName(Form("gMean_%s_vs_paddle", FAMILY));                              \
+    gMean->SetTitle(Form("%s: Mean vs Paddle;Paddle index;Mean value", FAMILY));     \
+    gMean->SetMarkerStyle(20);                                                       \
+    gMean->SetMarkerSize(0.7);                                                       \
+                                                                                     \
+    gRange = new TGraph(nPts, paddleIdx.data(), ranges.data());                      \
+    gRange->SetName(Form("gRange_%s_vs_paddle", FAMILY));                            \
+    gRange->SetTitle(Form("%s: Range (x_{max}-x_{min}) vs Paddle;Paddle index;Range",FAMILY));\
+    gRange->SetMarkerStyle(20);                                                      \
+    gRange->SetMarkerSize(0.7);                                                      \
+  }                                                                                  \
+                                                                                     \
+  TCanvas *c = new TCanvas(Form("c_%s_TDCCalib", FAMILY),                            \
+                           Form("TDC Calibration Summary: %s", FAMILY),              \
+                           1200, 800);                                               \
+  c->Divide(1,2);                                                                    \
+  c->cd(1); if (gMean)  gMean->Draw("AP"); else { gPad->SetGrid(); }                 \
+  c->cd(2); if (gRange) gRange->Draw("AP"); else { gPad->SetGrid(); }                \
+                                                                                     \
+  if ((OUTFILE) && (OUTFILE)[0] != '\0') {                                           \
+    TFile *fout = TFile::Open(OUTFILE, "UPDATE");                                    \
+    if (!fout || fout->IsZombie()) { delete fout; fout = TFile::Open(OUTFILE, "RECREATE"); }\
+    if (fout && !fout->IsZombie()) {                                                 \
+      t->Write("", TObject::kOverwrite);                                             \
+      if (gMean)  gMean->Write("", TObject::kOverwrite);                             \
+      if (gRange) gRange->Write("", TObject::kOverwrite);                            \
+      c->Write("", TObject::kOverwrite);                                             \
+      fout->Close();                                                                 \
+      std::cout << "[plotTDCCalibration] Wrote " << FAMILY                           \
+                << " outputs to " << OUTFILE << std::endl;                           \
+    } else {                                                                         \
+      std::cerr << "[plotTDCCalibration] Could not create " << OUTFILE << std::endl; \
+    }                                                                                \
+  }                                                                                  \
+  return c;
+
+// ================= Overloads =================
+
+// Base-type array: TH1*[]
+TCanvas* plotTDCCalibration(TH1* const hists[],
+                            int nHists,
+                            const char* familyName   = "hRawLe",
+                            const char* outFileName  = "TDCCalib.root",
+                            bool skipEmpty           = false)
+{
+  PLOT_TDC_CALIB_BODY(hists, nHists, familyName, outFileName, skipEmpty)
+}
+
+// TH1F*[] array
+TCanvas* plotTDCCalibration(TH1F* const hists[],
+                            int nHists,
+                            const char* familyName   = "hRawLe",
+                            const char* outFileName  = "TDCCalib.root",
+                            bool skipEmpty           = false)
+{
+  PLOT_TDC_CALIB_BODY(hists, nHists, familyName, outFileName, skipEmpty)
+}
+
+// TH1D*[] array
+TCanvas* plotTDCCalibration(TH1D* const hists[],
+                            int nHists,
+                            const char* familyName   = "hRawLe",
+                            const char* outFileName  = "TDCCalib.root",
+                            bool skipEmpty           = false)
+{
+  PLOT_TDC_CALIB_BODY(hists, nHists, familyName, outFileName, skipEmpty)
+}
+
+#undef PLOT_TDC_CALIB_BODY
+// ========================= END ADD BLOCK =========================
+
+//
 std::vector<TCanvas*> canvas_vector;
 
 static const int TDCmult_cut = 100;
@@ -27,12 +247,6 @@ static const double xcut = 998.0;
 static const double TDC_calib_to_ns = 0.01;
 static const double HotChannelRatio = .01;
 
-static const int NumPaddles = 16;
-static const int NumBars = 14;
-static const int NumLayers = 2;
-static const int NumSides = 2;
-static const int NumModules = 3;
-static const int NumHalfModules = NumModules*NumSides*NumLayers;
 
 static const int NumCDetPaddles = NumHalfModules*NumBars*NumPaddles; //2688
 static const int nRef = 4;
@@ -1888,4 +2102,551 @@ auto plotXYECalCDet(){
    
 
   return c8;
+}
+
+
+
+/**
+ * plotBarTDCSumRawLe_CDF
+ *
+ * Sums the 16 hRawLe histograms for a given (layer, side, bar), then plots:
+ *   (left)  summed histogram (optionally rebinned; logY optional)
+ *   (right) normalized cumulative (CDF) vs x  ∈ [0,1]
+ *
+ * @param bar         1-based bar index within its module
+ * @param side        1..2
+ * @param layer       1..NumLayers
+ * @param logy        apply log scale on Y for the summed histogram panel
+ * @param rebin       rebin factor for both summed and CDF (>=1)
+ * @param includeUnderOverflow  if true, include under/overflow in the total N for CDF
+ * @param saveAs      optional filename to SaveAs (pdf/png/root, etc.)
+ *
+ * Notes:
+ *  - CDF(p) at bin b is cumulative counts up to bin b divided by total N
+ *  - With variable bin widths, this is a *discrete* CDF over bin contents (usual in HEP)
+ */
+TCanvas* plotBarTDCSumRawLe_CDF(int bar=39, int side=1, int layer=1,
+                                bool logy=false, int rebin=1,
+                                bool includeUnderOverflow=false,
+                                const char* saveAs=nullptr)
+{
+  const int NumSides = 2;
+
+  // Expect globals:
+  //   extern const int NumLayers, NumModules, NumBars, NumPaddles;
+  //   extern TH1F* hRawLe[];  // or TH1*; cast below is generic
+
+  if (layer < 1 || layer > NumLayers || side < 1 || side > NumSides) {
+    std::cerr << "[plotBarTDCSumRawLe_CDF] Bad layer/side: L="<<layer<<" S="<<side<<std::endl;
+    return nullptr;
+  }
+  int mymodule = (bar-1)/NumBars + 1;
+  if (mymodule < 1 || mymodule > NumModules) {
+    std::cerr << "[plotBarTDCSumRawLe_CDF] Bar "<<bar<<" -> module "<<mymodule<<" out of range.\n";
+    return nullptr;
+  }
+
+  const int start = flatStartIdx_for_bar(layer, side, bar, NumSides, NumModules, NumBars, NumPaddles);
+
+  // Prototype to grab binning
+  TH1* proto = nullptr;
+  for (int ii = 0; ii < NumPaddles; ++ii) {
+    TH1* h = reinterpret_cast<TH1*>(hRawLe[start + ii]);
+    if (h) { proto = h; break; }
+  }
+
+  TString cname = Form("c_bar%03d_L%d_S%d_RawLeSumCDF", bar, layer, side);
+  TCanvas* c = new TCanvas(cname, cname, 1100, 500);
+  c->Divide(2,1, 0.02, 0.02);
+
+  if (!proto) {
+    c->cd(1); draw_null_msg("No hRawLe histograms found for this bar");
+    c->cd(2); draw_null_msg("No data");
+    return c;
+  }
+
+  // Sum the 16 paddles
+  TH1* hSum = (TH1*)proto->Clone(Form("hRawLe_bar%03d_L%d_S%d_sum", bar, layer, side));
+  hSum->Reset("ICES");
+  hSum->SetDirectory(nullptr);
+
+  int nAdded = 0;
+  for (int ii = 0; ii < NumPaddles; ++ii) {
+    TH1* h = reinterpret_cast<TH1*>(hRawLe[start + ii]);
+    if (!h) continue;
+    hSum->Add(h);
+    ++nAdded;
+  }
+
+  if (rebin > 1) hSum->Rebin(rebin);
+
+  // Left: summed histogram
+  c->cd(1);
+  gPad->SetTicks(1,1);
+  if (logy) gPad->SetLogy();
+  hSum->SetLineWidth(2);
+  hSum->SetTitle(Form("RawLe Sum  (L%d S%d M%d bar%03d)  [added %d paddles];TDC;Counts",
+                      layer, side, mymodule, bar, nAdded));
+  hSum->Draw("HIST");
+
+  // Build normalized cumulative (CDF)
+  TH1* hCDF = (TH1*)hSum->Clone(Form("%s_CDF", hSum->GetName()));
+  hCDF->Reset("ICES");
+  hCDF->SetDirectory(nullptr);
+
+  const int nbx = hSum->GetNbinsX();
+  // Total N for normalization
+  double N = 0.0;
+  if (includeUnderOverflow) {
+    N = hSum->GetBinContent(0);
+    for (int b=1; b<=nbx; ++b) N += hSum->GetBinContent(b);
+    N += hSum->GetBinContent(nbx+1);
+  } else {
+    N = hSum->Integral(1, nbx); // counts, not width-weighted
+  }
+
+  // Avoid div-by-zero
+  if (N <= 0) {
+    c->cd(2); draw_null_msg("CDF undefined (total counts = 0)");
+    if (saveAs && saveAs[0]) c->SaveAs(saveAs);
+    return c;
+  }
+
+  // Fill CDF
+  double running = includeUnderOverflow ? hSum->GetBinContent(0) : 0.0;
+  for (int b = 1; b <= nbx; ++b) {
+    running += hSum->GetBinContent(b);
+    hCDF->SetBinContent(b, running / N);
+    // Optional (approx) binomial error if you want error bars:
+    // double p = running / N;
+    // hCDF->SetBinError(b, std::sqrt(p*(1.0-p)/N));
+  }
+  if (includeUnderOverflow) running += hSum->GetBinContent(nbx+1);
+
+  // Right: CDF (normalized 0..1)
+  c->cd(2);
+  gPad->SetTicks(1,1);
+  // Keep CDF linear by default (usually more readable); flip if you prefer:
+  // if (logy) gPad->SetLogy();
+  hCDF->SetMaximum(1.05);
+  hCDF->SetMinimum(0.0);
+  hCDF->SetLineWidth(2);
+  hCDF->SetTitle("Cumulative Distribution (normalized);TDC;CDF");
+  hCDF->Draw("HIST");
+
+  if (saveAs && saveAs[0]) c->SaveAs(saveAs);
+  return c;
+}
+// ---- End function ------------------------------------------------------------
+
+
+/**
+ * calibrateBarRawLeToLinearCDF
+ *
+ * Build summed RawLe histogram for a (layer, side, bar), compute its empirical CDF,
+ * fit the CDF by monotone piecewise-linear interpolation, and apply the quantile
+ * mapping y = t0 + W * F_fit(x) to produce a "calibrated" histogram following the
+ * target linear CDF on [t0, t0+W].
+ *
+ * @param bar         1-based bar index inside its module
+ * @param side        1..2
+ * @param layer       1..NumLayers
+ * @param rebin       rebin factor for the summed histogram (>=1)
+ * @param includeUF   include under/overflow in total N and CDF build
+ * @param t0          desired CDF turn-on (default 10.0)
+ * @param W           desired width (default 1.127 so t1=t0+W=11.127)
+ * @param saveAs      optional filename (pdf/png/root) to SaveAs
+ *
+ * @return TCanvas* with 4 pads: sum, CDF+ideal, calibrated, calibrated CDF+ideal
+ */
+TCanvas* plotCalibrateBarRawLeToLinearCDF(int bar=39, int side=1, int layer=1,
+                                      int rebin=1, bool includeUF=false,
+                                      double t0=10.0, double W=1.127,
+                                      const char* saveAs=nullptr)
+{
+  // Expect globals: NumLayers, NumModules, NumBars, NumPaddles, TH1F* hRawLe[]
+  const int NumSides = 2;
+  if (layer<1 || layer>NumLayers || side<1 || side>NumSides){
+    std::cerr << "[calibrate] Bad layer/side\n"; return nullptr;
+  }
+  int mymodule = (bar-1)/NumBars + 1;
+  if (mymodule<1 || mymodule>NumModules){
+    std::cerr << "[calibrate] Bar->module out of range\n"; return nullptr;
+  }
+
+  const int start = flatStartIdx_for_bar(layer, side, bar, NumSides, NumModules, NumBars, NumPaddles);
+
+  // ---- find prototype (binning)
+  TH1* proto = nullptr;
+  for (int i=0;i<NumPaddles;++i){
+    TH1* h = (TH1*)hRawLe[start+i];
+    if (h){ proto = h; break; }
+  }
+  TString cname = Form("c_calib_bar%03d_L%d_S%d", bar, layer, side);
+  TCanvas* c = new TCanvas(cname,cname, 1200, 900);
+  c->Divide(2,2,0.02,0.02);
+
+  if (!proto){ c->cd(1); draw_msg("No RawLe hists for this bar"); return c; }
+
+  // ---- sum the 16 paddles
+  TH1D* hSum = (TH1D*)proto->Clone(Form("hRawLe_bar%03d_L%d_S%d_sum",bar,layer,side));
+  hSum->SetDirectory(nullptr); hSum->Reset("ICES");
+  int added=0;
+  for (int i=0;i<NumPaddles;++i){
+    TH1* h = (TH1*)hRawLe[start+i];
+    if (h) { hSum->Add(h); ++added; }
+  }
+  if (rebin>1) hSum->Rebin(rebin);
+
+  // pad 1: original summed
+  c->cd(1); gPad->SetTicks(1,1);
+  hSum->SetLineWidth(2);
+  hSum->SetTitle(Form("RawLe SUM (L%d S%d M%d bar%03d)  [added %d];TDC;Counts",
+                      layer, side, mymodule, bar, added));
+  hSum->Draw("HIST");
+
+  // ---- empirical CDF (0..1)
+  const int nbx = hSum->GetNbinsX();
+  auto xlow  = hSum->GetXaxis()->GetXmin();
+  auto xhigh = hSum->GetXaxis()->GetXmax();
+
+  double N = includeUF ? (hSum->GetBinContent(0) + hSum->Integral(1,nbx) + hSum->GetBinContent(nbx+1))
+                       :  hSum->Integral(1,nbx);
+  if (N<=0){ c->cd(2); draw_msg("CDF undefined (N=0)"); if (saveAs&&saveAs[0]) c->SaveAs(saveAs); return c; }
+
+  // Build points at bin edges for a nice monotone step → linear interpolation
+  std::vector<double> X, U;
+  X.reserve(nbx+1); U.reserve(nbx+1);
+  double cum = includeUF ? hSum->GetBinContent(0) : 0.0;
+  double x = hSum->GetXaxis()->GetBinLowEdge(1);
+  X.push_back(x); U.push_back(cum/N);
+  for (int b=1; b<=nbx; ++b){
+    cum += hSum->GetBinContent(b);
+    x = hSum->GetXaxis()->GetBinUpEdge(b);
+    X.push_back(x);
+    U.push_back(cum/N);
+  }
+  if (includeUF){ cum += hSum->GetBinContent(nbx+1); U.back() = cum/N; }
+
+  // Make a monotone piecewise-linear "fit": TGraph with linear Eval
+  TGraph* gCDF = new TGraph((int)X.size(), X.data(), U.data());
+  gCDF->SetName(Form("gCDF_bar%03d_L%d_S%d",bar,layer,side));
+
+  // pad 2: show empirical CDF + ideal line
+  c->cd(2); gPad->SetTicks(1,1);
+  TH1D* frame = (TH1D*)hSum->Clone("frameCDF"); frame->Reset("ICES"); frame->SetDirectory(nullptr);
+  frame->SetTitle("Empirical CDF and Ideal;TDC;CDF");
+  frame->GetYaxis()->SetRangeUser(0.0,1.05);
+  frame->Draw(); // frame only
+  gCDF->SetMarkerStyle(20); gCDF->SetMarkerSize(0.6);
+  gCDF->SetLineWidth(2);
+  gCDF->Draw("LP SAME");
+
+  // Ideal CDF: 0 before t0; linear to 1.0 at t0+W; 1 after
+  TLine* L0 = new TLine(xlow,0, t0,0);
+  TLine* L1 = new TLine(t0,0, t0+W,1);
+  TLine* L2 = new TLine(t0+W,1, xhigh,1);
+  L0->SetLineColor(kRed+1); L1->SetLineColor(kRed+1); L2->SetLineColor(kRed+1);
+  L0->SetLineStyle(2); L1->SetLineStyle(2); L2->SetLineStyle(2);
+  L0->Draw("same"); L1->Draw("same"); L2->Draw("same");
+
+  // ---- Quantile mapping: y = t0 + W * F_fit(x)
+  // We'll transform by bin-edge mapping to conserve counts.
+  // Target histogram on [t0, t0+W] with same number of bins as hSum.
+  TH1D* hCal = (TH1D*)hSum->Clone(Form("%s_calibrated", hSum->GetName()));
+  hCal->SetDirectory(nullptr);
+  hCal->Reset("ICES");
+  hCal->GetXaxis()->Set(nbx, t0, t0+W);   // re-bin edges uniformly on desired domain
+  hCal->SetTitle("Calibrated (quantile-mapped to linear CDF);Calibrated TDC;Counts");
+
+  // Precompute target bin edges for overlap
+  std::vector<double> yEdges(nbx+1);
+  for (int b=0; b<=nbx; ++b){
+    // Original bin edge in x:
+    double xe = hSum->GetXaxis()->GetBinLowEdge(1) + (xhigh - hSum->GetXaxis()->GetBinLowEdge(1)) * (double)b / (double)nbx;
+    // But safer: use axis directly
+    if (b==0) xe = hSum->GetXaxis()->GetBinLowEdge(1);
+    else if (b==nbx) xe = hSum->GetXaxis()->GetBinUpEdge(nbx);
+    else xe = hSum->GetXaxis()->GetBinUpEdge(b);
+
+    // F_fit(xe) via linear interpolation of gCDF:
+    double u = std::clamp(gCDF->Eval(xe), 0.0, 1.0);
+    yEdges[b] = t0 + W*u;
+  }
+
+  // For each original bin, distribute its counts uniformly over [y0,y1] into target bins
+  for (int b=1; b<=nbx; ++b){
+    double content = hSum->GetBinContent(b);
+    if (content<=0) continue;
+
+    double x0 = hSum->GetXaxis()->GetBinLowEdge(b);
+    double x1 = hSum->GetXaxis()->GetBinUpEdge(b);
+    // mapped interval:
+    double y0 = t0 + W * std::clamp(gCDF->Eval(x0),0.0,1.0);
+    double y1 = t0 + W * std::clamp(gCDF->Eval(x1),0.0,1.0);
+    if (y1 < y0) std::swap(y0,y1);
+    double span = (y1 - y0);
+    if (span<=0){ // very narrow mapping: put all in nearest bin
+      int tb = hCal->FindBin(0.5*(y0+y1));
+      hCal->AddBinContent(tb, content);
+      continue;
+    }
+    // overlap with each target bin
+    for (int tb=1; tb<=nbx; ++tb){
+      double ty0 = hCal->GetXaxis()->GetBinLowEdge(tb);
+      double ty1 = hCal->GetXaxis()->GetBinUpEdge(tb);
+      double ov = overlap(y0,y1,ty0,ty1);
+      if (ov>0){
+        double frac = ov / span;
+        hCal->AddBinContent(tb, content * frac);
+      }
+    }
+  }
+
+  // pad 3: calibrated histogram
+  c->cd(3); gPad->SetTicks(1,1);
+  hCal->SetLineWidth(2);
+  hCal->Draw("HIST");
+
+  // pad 4: calibrated CDF with ideal
+  c->cd(4); gPad->SetTicks(1,1);
+  // Build CDF of calibrated histogram
+  TH1D* frame2 = (TH1D*)frame->Clone("frameCDF2");
+  frame2->SetTitle("Calibrated CDF vs Ideal;Calibrated TDC;CDF");
+  frame2->Draw();
+
+  std::vector<double> Y, V;
+  Y.reserve(nbx+1); V.reserve(nbx+1);
+  double M = includeUF ? (hCal->GetBinContent(0) + hCal->Integral(1,nbx) + hCal->GetBinContent(nbx+1))
+                       :  hCal->Integral(1,nbx);
+  if (M<=0){ draw_msg("Calibrated CDF undefined (N=0)"); if (saveAs&&saveAs[0]) c->SaveAs(saveAs); return c; }
+  double cum2 = includeUF ? hCal->GetBinContent(0) : 0.0;
+  double ye = hCal->GetXaxis()->GetBinLowEdge(1);
+  Y.push_back(ye); V.push_back(cum2/M);
+  for (int b=1; b<=nbx; ++b){
+    cum2 += hCal->GetBinContent(b);
+    ye = hCal->GetXaxis()->GetBinUpEdge(b);
+    Y.push_back(ye); V.push_back(cum2/M);
+  }
+  if (includeUF){ cum2 += hCal->GetBinContent(nbx+1); V.back() = cum2/M; }
+
+  TGraph* gCDFcal = new TGraph((int)Y.size(), Y.data(), V.data());
+  gCDFcal->SetMarkerStyle(20); gCDFcal->SetMarkerSize(0.6);
+  gCDFcal->SetLineWidth(2);
+  gCDFcal->SetLineColor(kBlue+2);
+  gCDFcal->Draw("LP SAME");
+
+  // Ideal line on calibrated axis (now exactly [t0,t0+W])
+  TLine* J0 = new TLine(t0,0, t0,0);
+  TLine* J1 = new TLine(t0,0, t0+W,1);
+  TLine* J2 = new TLine(t0+W,1, t0+W,1);
+  J1->SetLineColor(kRed+1); J1->SetLineStyle(2);
+  J1->Draw("same");
+
+  if (saveAs && saveAs[0]) c->SaveAs(saveAs);
+  return c;
+}
+
+
+// Build the summed RawLe histogram for (L,S,bar) and return its (x, F(x)) CDF as TGraph
+static TGraph* MakeCDFMapForBar_RawLe(int layer, int side, int bar,
+                                      bool includeUF=false, int rebin=1)
+{
+  const int NumSides = 2;
+  if (layer < 1 || layer > NumLayers || side < 1 || side > NumSides) return nullptr;
+  int mymodule = (bar-1)/NumBars + 1;
+  if (mymodule < 1 || mymodule > NumModules) return nullptr;
+
+  const int start = flatStartIdx_for_bar(layer, side, bar, NumSides, NumModules, NumBars, NumPaddles);
+
+  // Find a prototype to get binning
+  TH1* proto = nullptr;
+  for (int i=0;i<NumPaddles;++i) {
+    if (hRawLe[start+i]) { proto = hRawLe[start+i]; break; }
+  }
+  if (!proto) return nullptr;
+
+  // Sum the 16 paddles
+  TH1D* hSum = (TH1D*)proto->Clone(Form("hRawLe_sum_L%d_S%d_bar%d",layer,side,bar));
+  hSum->SetDirectory(nullptr); hSum->Reset("ICES");
+  for (int i=0;i<NumPaddles;++i) if (hRawLe[start+i]) hSum->Add(hRawLe[start+i]);
+  if (rebin>1) hSum->Rebin(rebin);
+
+  const int nbx = hSum->GetNbinsX();
+  double N = includeUF ? (hSum->GetBinContent(0) + hSum->Integral(1,nbx) + hSum->GetBinContent(nbx+1))
+                       :  hSum->Integral(1,nbx);
+  if (N <= 0) { delete hSum; return nullptr; }
+
+  // Build CDF at bin edges
+  std::vector<double> X; X.reserve(nbx+1);
+  std::vector<double> U; U.reserve(nbx+1);
+  double cum = includeUF ? hSum->GetBinContent(0) : 0.0;
+  X.push_back(hSum->GetXaxis()->GetBinLowEdge(1));
+  U.push_back(cum / N);
+  for (int b=1; b<=nbx; ++b) {
+    cum += hSum->GetBinContent(b);
+    X.push_back(hSum->GetXaxis()->GetBinUpEdge(b));
+    U.push_back(cum / N);
+  }
+  if (includeUF) { cum += hSum->GetBinContent(nbx+1); U.back() = cum / N; }
+
+  auto g = new TGraph((int)X.size(), X.data(), U.data());
+  g->SetName(Form("gCDF_L%d_S%d_M%d_B%02d", layer, side, module, bar_local));
+  delete hSum;
+  return g;
+}
+
+
+// Walk all (layer, side, bar) and write gCDF_* objects to file
+void WriteAllCDFMaps_RawLe(const char* outFile = "tdc_cdf_maps.root",
+                           bool includeUF=false, int rebin=1)
+{
+  TFile* f = TFile::Open(outFile, "RECREATE");
+  if (!f || f->IsZombie()) { std::cerr<<"[WriteAllCDFMaps_RawLe] cannot open "<<outFile<<"\n"; return; }
+
+  for (int L=1; L<=NumLayers; ++L) {
+    for (int S=1; S<=2; ++S) {
+      for (int M=1; M<=NumModules; ++M) {
+        for (int b=1; b<=NumBars; ++b) {
+          int bar = b + (M-1)*NumBars; // your 'bar' parameter indexes within module; this keeps 1..NumBars per module
+          TGraph* g = MakeCDFMapForBar_RawLe(L, S, bar, includeUF, rebin);
+          if (!g) continue;
+          f->WriteObject(g, g->GetName(), "Overwrite");
+          delete g;
+        }
+      }
+    }
+  }
+  f->Close();
+  std::cout << "[WriteAllCDFMaps_RawLe] Wrote maps to " << outFile << std::endl;
+}
+
+// Build summed RawLe hist for a specific (layer, side, module, bar_local)
+static TH1D* MakeSumRawLe(int layer, int side, int module, int bar_local, int rebin=1){
+  const int NumSides = 2;
+  if (layer<1 || layer>NumLayers || side<1 || side>NumSides) return nullptr;
+  if (module<1 || module>NumModules) return nullptr;
+  if (bar_local<1 || bar_local>NumBars) return nullptr;
+
+  const int start = flatStartIdx_for_bar_LSMB(layer, side, module, bar_local,
+                                              NumSides, NumModules, NumBars, NumPaddles);
+
+  TH1* proto = nullptr;
+  for (int i=0;i<NumPaddles;++i){ if (hRawLe[start+i]) { proto = hRawLe[start+i]; break; } }
+  if (!proto) return nullptr;
+
+  TH1D* hSum = (TH1D*)proto->Clone(Form("hRawLe_sum_L%d_S%d_M%d_B%02d",layer,side,module,bar_local));
+  hSum->SetDirectory(nullptr); hSum->Reset("ICES");
+  for (int i=0;i<NumPaddles;++i){ if (hRawLe[start+i]) hSum->Add(hRawLe[start+i]); }
+  if (rebin>1) hSum->Rebin(rebin);
+  return hSum;
+}
+
+// Build empirical CDF graph (points at bin edges). includeUF=false by default.
+static TGraph* MakeEmpiricalCDF(const TH1* h, bool includeUF=false){
+  if (!h) return nullptr;
+  const int nbx = h->GetNbinsX();
+  double N = includeUF ? (h->GetBinContent(0) + h->Integral(1,nbx) + h->GetBinContent(nbx+1))
+                       :  h->Integral(1,nbx);
+  if (N<=0) return nullptr;
+
+  std::vector<double> X; X.reserve(nbx+1);
+  std::vector<double> U; U.reserve(nbx+1);
+
+  double cum = includeUF ? h->GetBinContent(0) : 0.0;
+  X.push_back(h->GetXaxis()->GetBinLowEdge(1));  U.push_back(cum/N);
+  for (int b=1; b<=nbx; ++b){
+    cum += h->GetBinContent(b);
+    X.push_back(h->GetXaxis()->GetBinUpEdge(b));
+    U.push_back(cum/N);
+  }
+  if (includeUF){ cum += h->GetBinContent(nbx+1); U.back() = cum/N; }
+
+  auto g = new TGraph((int)X.size(), X.data(), U.data());
+  g->SetName("gEmpCDF");
+  return g;
+}
+
+// Parametric CDF model: alpha + beta * (sigma/W) [A((x-t0)/sigma) - A((x-t1)/sigma)]
+static double CDF_Model(double *xx, double *pp){
+  const double x  = xx[0];
+  const double t0 = pp[0];
+  const double t1 = pp[1];
+  const double s  = std::max(1e-4, pp[2]);    // sigma >= 1e-4
+  const double a  = pp[3];                    // alpha (baseline)
+  const double b  = pp[4];                    // beta   (scale)
+  const double W  = (t1 - t0);
+
+  const double z0 = (x - t0)/s;
+  const double z1 = (x - t1)/s;
+  const double Fsig = (s/W) * ( Afunc(z0) - Afunc(z1) );
+  return a + b * Fsig;
+}
+
+// Fit per (L,S,bar). Choose what to float:
+//  - Common case: fix t0=10, t1=11.127, a=0, b=1; fit only sigma.
+//  - If needed, set parLimits to let a,b float a bit.
+struct FitResult { double t0, t1, sigma, alpha, beta, chi2, ndf; bool ok; };
+
+static FitResult FitCDFParams_ForBar(int layer, int side, int module, int bar_local,
+                                     bool includeUF=false, int rebin=1,
+                                     bool float_alpha_beta=false, bool float_t0_t1=false,
+                                     double t0_init=10.0, double t1_init=11.127)
+{
+  FitResult R{t0_init,t1_init, 0.05, 0.0, 1.0, 0.0, 0.0, false};
+
+  TH1D* hSum = MakeSumRawLe(layer, side, module, bar_local, rebin);
+  if (!hSum) return R;
+
+  TGraph* g = MakeEmpiricalCDF(hSum, includeUF);
+  if (!g){ delete hSum; return R; }
+
+  TF1 f("fCDF", CDF_Model, hSum->GetXaxis()->GetXmin(), hSum->GetXaxis()->GetXmax(), 5);
+  f.SetParNames("t0","t1","sigma","alpha","beta");
+  f.SetParameters(t0_init, t1_init, 0.05, 0.0, 1.0);
+
+  if (!float_t0_t1){ f.FixParameter(0, t0_init); f.FixParameter(1, t1_init); }
+  f.SetParLimits(2, 1e-4, (t1_init - t0_init));
+  if (!float_alpha_beta){ f.FixParameter(3, 0.0); f.FixParameter(4, 1.0); }
+  else { f.SetParLimits(4, 0.90, 1.10); f.SetParLimits(3, -0.02, 0.02); }
+
+  auto res = g->Fit(&f, "QNR");
+
+  R.ok     = (res==0);
+  R.t0     = f.GetParameter(0);
+  R.t1     = f.GetParameter(1);
+  R.sigma  = f.GetParameter(2);
+  R.alpha  = f.GetParameter(3);
+  R.beta   = f.GetParameter(4);
+  R.chi2   = f.GetChisquare();
+  R.ndf    = f.GetNDF();
+
+  delete g;
+  delete hSum;
+  return R;
+}
+
+// Write one line per (L,S,M,bar_local). Also include a global_bar = (M-1)*NumBars + bar_local for convenience.
+void WriteCDFParamFile(const char* outCsv = "tdc_cdf_params.csv",
+                       bool includeUF=false, int rebin=1,
+                       bool float_alpha_beta=false, bool float_t0_t1=false)
+{
+  std::ofstream os(outCsv);
+  os << "layer,side,module,bar_local,global_bar,t0,t1,sigma,alpha,beta,chi2,ndf,ok\n";
+
+  for (int L=1; L<=NumLayers; ++L){
+    for (int S=1; S<=2; ++S){
+      for (int M=1; M<=NumModules; ++M){
+        for (int B=1; B<=NumBars; ++B){
+          auto R = FitCDFParams_ForBar(L,S,M,B, includeUF,rebin, float_alpha_beta, float_t0_t1);
+          const int global_bar = (M-1)*NumBars + B; // 1..(NumModules*NumBars) e.g. 1..42
+          os << L<<","<<S<<","<<M<<","<<B<<","<<global_bar<<","
+             << R.t0<<","<<R.t1<<","<<R.sigma<<","<<R.alpha<<","<<R.beta<<","
+             << R.chi2<<","<<R.ndf<<","<<(R.ok?1:0)<<"\n";
+        }
+      }
+    }
+  }
+  os.close();
+  std::cout << "[WriteCDFParamFile] wrote " << outCsv << std::endl;
 }
