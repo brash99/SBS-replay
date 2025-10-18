@@ -1,3 +1,5 @@
+#include "replay_ECal.odef"
+
 block earm.cdet.*
 
 cut goodCDettiming earm.cdet.hits.t_tot[I]>=800&&earm.cdet.hits.t_tot[I]<3500&&earm.cdet.hits.t[I]>2000&&earm.cdet.hits.t[I]<5000
@@ -6,8 +8,10 @@ cut goodCDetrawtiming earm.cdet.hits.t[I]>0&&earm.cdet.hits.t[I]<10000
 cut goodCDettimingLayer1 earm.cdet.hits.t_tot[I]>=800&&earm.cdet.hits.t_tot[I]<3500&&earm.cdet.hits.t[I]>500&&earm.cdet.hits.t[I]<10000&&earm.cdet.hits.TDCelemID[I]<1344
 cut goodCDettimingLayer2 earm.cdet.hits.t_tot[I]>=800&&earm.cdet.hits.t_tot[I]<3500&&earm.cdet.hits.t[I]>500&&earm.cdet.hits.t[I]<10000&&earm.cdet.hits.TDCelemID[I]>=1344
 
-variable earm.ecal.x
-variable earm.ecal.y
+#10/2/2025 dont need these now that include ecal odef
+#variable earm.ecal.x
+#variable earm.ecal.y
+#variable earm.ecal.e
 
 #formula dEcalo heep.ecalo/heep.eprime_eth-1.
 #formula detheta heep.etheta-heep.eth_pth

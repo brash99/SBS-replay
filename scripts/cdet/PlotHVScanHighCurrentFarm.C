@@ -33,6 +33,10 @@
 // ====== includes you likely already have ======
 #include <cmath>
 #include <fstream>
+#include <unordered_map>
+#include <tuple>
+#include <string>
+#include <sstream>
 
 static const int NumPaddles = 16;
 static const int NumBars = 14;
@@ -47,6 +51,11 @@ static const int NumHalfModules = NumModules*NumSides*NumLayers;
 static inline double phi(double z){ return std::exp(-0.5*z*z)/std::sqrt(2.0*M_PI); }
 static inline double Phi(double z){ return 0.5*(1.0 + std::erf(z/std::sqrt(2.0))); }
 static inline double Afunc(double z){ return z*Phi(z) + phi(z); }
+
+// --- std-normal helpers and parametric CDF (same model you fitted) ---
+inline double phi_std(double z){ return std::exp(-0.5*z*z)/std::sqrt(2.0*M_PI); }
+inline double Phi_std(double z){ return 0.5*(1.0 + std::erf(z/std::sqrt(2.0))); }
+inline double A_std(double z){ return z*Phi_std(z) + phi_std(z); }
 
 static inline void draw_null_msg(const char* msg="(no data)") {
   TLatex l; l.SetTextSize(0.06); l.DrawLatexNDC(0.2,0.5, msg);
@@ -2649,4 +2658,208 @@ void WriteCDFParamFile(const char* outCsv = "tdc_cdf_params.csv",
   }
   os.close();
   std::cout << "[WriteCDFParamFile] wrote " << outCsv << std::endl;
+}
+
+inline double CDF_model(double x, double t0, double t1, double sigma,
+                        double alpha=0.0, double beta=1.0)
+{
+  if (sigma <= 0.0) {
+    double u = (x<=t0?0.0:(x>=t1?1.0:(x-t0)/(t1-t0)));
+    return alpha + beta*u;
+  }
+  const double W  = (t1 - t0);
+  const double z0 = (x - t0)/sigma;
+  const double z1 = (x - t1)/sigma;
+  return alpha + beta * (sigma/W) * ( A_std(z0) - A_std(z1) );
+}
+
+// ---- CSV param loading (matches the fixed header we wrote) ----
+struct CdfParams { double t0, t1, sigma, alpha, beta; bool ok; };
+using KeyLSMB = std::tuple<int,int,int,int>; // (L,S,M,B_local)
+
+struct KeyHash {
+  size_t operator()(const KeyLSMB& k) const noexcept {
+    auto [L,S,M,B] = k;
+    return (size_t)L*1000003u ^ (size_t)S*10007u ^ (size_t)M*101u ^ (size_t)B;
+  }
+};
+static std::unordered_map<KeyLSMB, CdfParams, KeyHash> gParamsLSMB;
+
+static bool LoadParamCSV_LSMB(const std::string& path){
+  gParamsLSMB.clear();
+  std::ifstream is(path);
+  if (!is.good()) { std::cerr<<"[LoadParamCSV_LSMB] cannot open "<<path<<"\n"; return false; }
+  std::string line; std::getline(is,line); // header
+  // header expected:
+  // layer,side,module,bar_local,global_bar,t0,t1,sigma,alpha,beta,chi2,ndf,ok
+  while (std::getline(is,line)){
+    if (line.empty()) continue;
+    std::istringstream ss(line);
+    int L,S,M,B,global_bar,okint; char c;
+    double t0,t1,sig,a,b,chi2,ndf;
+    if (!(ss>>L>>c>>S>>c>>M>>c>>B>>c>>global_bar>>c
+           >>t0>>c>>t1>>c>>sig>>c>>a>>c>>b>>c>>chi2>>c>>ndf>>c>>okint)) continue;
+    gParamsLSMB.emplace(KeyLSMB{L,S,M,B}, CdfParams{t0,t1,sig,a,b,(okint==1)});
+  }
+  std::cout << "[LoadParamCSV_LSMB] loaded " << gParamsLSMB.size() << " rows\n";
+  return true;
+}
+
+// ---- build summed RawLe for (L,S,M,B_local) ----
+static TH1D* MakeSumRawLe_LSMB(int layer, int side, int module, int bar_local, int rebin=1){
+  const int NumSides = 2;
+  if (layer<1 || layer>NumLayers || side<1 || side>NumSides) return nullptr;
+  if (module<1 || module>NumModules) return nullptr;
+  if (bar_local<1 || bar_local>NumBars) return nullptr;
+
+  const int start = flatStartIdx_for_bar_LSMB(layer,side,module,bar_local,
+                                              NumSides,NumModules,NumBars,NumPaddles);
+  TH1* proto = nullptr;
+  for (int i=0;i<NumPaddles;++i){ if (hRawLe[start+i]) { proto = hRawLe[start+i]; break; } }
+  if (!proto) return nullptr;
+
+  TH1D* hSum = (TH1D*)proto->Clone(Form("hRawLe_sum_L%d_S%d_M%d_B%02d",layer,side,module,bar_local));
+  hSum->SetDirectory(nullptr); hSum->Reset("ICES");
+  for (int i=0;i<NumPaddles;++i) if (hRawLe[start+i]) hSum->Add(hRawLe[start+i]);
+  if (rebin>1) hSum->Rebin(rebin);
+  return hSum;
+}
+
+// ---- distribute counts by mapping original bin interval [x0,x1] -> [y0,y1] ----
+static inline double overlap_len(double a0,double a1,double b0,double b1){
+  if (a1 <= b0 || b1 <= a0) return 0.0;
+  double lo = std::max(a0,b0), hi = std::min(a1,b1);
+  return (hi>lo) ? (hi-lo) : 0.0;
+}
+
+// ---- create ideal uniform reference on [t0,t1] with same nbins & total counts ----
+static TH1D* MakeUniformRef(int nbins, double t0, double t1, double totalCounts){
+  TH1D* href = new TH1D("href_uniform","Uniform reference;Calibrated TDC;Counts",
+                        nbins, t0, t1);
+  href->SetDirectory(nullptr);
+  for (int b=1;b<=nbins;++b){
+    double w = href->GetXaxis()->GetBinWidth(b);
+    // allocate proportional to width so histogram area is flat (counts per width constant)
+    href->SetBinContent(b, totalCounts * w / (t1 - t0));
+  }
+  return href;
+}
+
+/**
+ * TestParamCalibration_LSMB
+ *  - loads params from CSV
+ *  - builds summed RawLe
+ *  - applies parametric mapping to produce calibrated histogram
+ *  - draws 4 pads and prints metrics (KS vs uniform, rough chi2/ndf)
+ */
+TCanvas* TestParamCalibration_LSMB(int layer, int side, int module, int bar_local,
+                                   const char* paramCsv = "tdc_cdf_params.csv",
+                                   int rebin=1, bool includeUF=false,
+                                   const char* saveAs=nullptr)
+{
+  if (gParamsLSMB.empty()){
+    if (!LoadParamCSV_LSMB(paramCsv)){
+      std::cerr << "[TestParamCalibration] No params loaded.\n"; return nullptr;
+    }
+  }
+  auto it = gParamsLSMB.find(KeyLSMB{layer,side,module,bar_local});
+  if (it == gParamsLSMB.end() || !it->second.ok){
+    std::cerr << "[TestParamCalibration] No good params for L"<<layer<<" S"<<side
+              <<" M"<<module<<" B"<<bar_local<<"\n";
+    return nullptr;
+  }
+  const auto P = it->second; // {t0,t1,sigma,alpha,beta}
+
+  // 1) Original summed histogram
+  TH1D* hSum = MakeSumRawLe_LSMB(layer,side,module,bar_local,rebin);
+  if (!hSum){ std::cerr<<"[TestParamCalibration] missing hSum\n"; return nullptr; }
+
+  // 2) Build empirical CDF points + model curve
+  //    (we’ll just draw model as TF1; CDF points as a TGraph)
+  const int nbx = hSum->GetNbinsX();
+  double N = includeUF ? (hSum->GetBinContent(0)+hSum->Integral(1,nbx)+hSum->GetBinContent(nbx+1))
+                       :  hSum->Integral(1,nbx);
+
+  std::vector<double> X, U; X.reserve(nbx+1); U.reserve(nbx+1);
+  double cum = includeUF ? hSum->GetBinContent(0) : 0.0;
+  X.push_back(hSum->GetXaxis()->GetBinLowEdge(1)); U.push_back(N>0?cum/N:0.0);
+  for (int b=1;b<=nbx;++b){
+    cum += hSum->GetBinContent(b);
+    X.push_back(hSum->GetXaxis()->GetBinUpEdge(b));
+    U.push_back(N>0?cum/N:0.0);
+  }
+  TGraph* gEmp = new TGraph((int)X.size(), X.data(), U.data());
+  gEmp->SetMarkerStyle(20); gEmp->SetMarkerSize(0.6); gEmp->SetLineWidth(2);
+
+  TF1* fModel = new TF1("fModel",
+    [P](double* xx, double*){ return CDF_model(xx[0], P.t0, P.t1, P.sigma, P.alpha, P.beta); },
+    hSum->GetXaxis()->GetXmin(), hSum->GetXaxis()->GetXmax(), 0);
+  fModel->SetLineColor(kRed+1); fModel->SetLineStyle(2);
+
+  // 3) Calibrate histogram via bin-interval mapping
+  TH1D* hCal = (TH1D*)hSum->Clone("hCal_param"); hCal->Reset("ICES"); hCal->SetDirectory(nullptr);
+  hCal->GetXaxis()->Set(nbx, P.t0, P.t1);
+  for (int b=1;b<=nbx;++b){
+    double c = hSum->GetBinContent(b);
+    if (c<=0) continue;
+    double x0 = hSum->GetXaxis()->GetBinLowEdge(b);
+    double x1 = hSum->GetXaxis()->GetBinUpEdge(b);
+    double y0 = P.t0 + (P.t1-P.t0)*CDF_model(x0, P.t0,P.t1,P.sigma,P.alpha,P.beta);
+    double y1 = P.t0 + (P.t1-P.t0)*CDF_model(x1, P.t0,P.t1,P.sigma,P.alpha,P.beta);
+    if (y1<y0) std::swap(y0,y1);
+    double span = y1-y0; if (span<=0){ int tb=hCal->FindBin(0.5*(y0+y1)); hCal->AddBinContent(tb,c); continue; }
+    for (int tb=1; tb<=nbx; ++tb){
+      double ty0 = hCal->GetXaxis()->GetBinLowEdge(tb);
+      double ty1 = hCal->GetXaxis()->GetBinUpEdge(tb);
+      double ov = overlap_len(y0,y1,ty0,ty1);
+      if (ov>0) hCal->AddBinContent(tb, c * (ov/span));
+    }
+  }
+
+  // 4) Build a uniform reference with same total counts
+  TH1D* hRef = MakeUniformRef(nbx, P.t0, P.t1, hCal->Integral(1,nbx));
+
+  // 5) Metrics
+  double ks = hCal->KolmogorovTest(hRef, "D");     // D statistic
+  double p  = hCal->KolmogorovTest(hRef, "");      // p-value
+  double chi2 = hCal->Chi2Test(hRef, "CHI2/NDF");  // returns chi2/ndf as text; API varies with ROOT version
+  std::cout << Form("[TestParamCalibration] L%d S%d M%d B%02d  KS D=%.4g  p=%.3g  (chi2/ndf ~ %s)\n",
+                    layer,side,module,bar_local, ks, p, Form("%.3f", chi2)) << std::endl;
+
+  // 6) Draw
+  TCanvas* c = new TCanvas(Form("c_test_L%dS%dM%dB%02d",layer,side,module,bar_local),
+                           "Parametric calibration test", 1200, 900);
+  c->Divide(2,2,0.02,0.02);
+
+  c->cd(1); gPad->SetTicks(1,1);
+  hSum->SetLineWidth(2);
+  hSum->SetTitle(Form("RawLe sum  L%d S%d M%d B%02d;TDC;Counts",layer,side,module,bar_local));
+  hSum->Draw("HIST");
+
+  c->cd(2); gPad->SetTicks(1,1);
+  TH1D* frame = (TH1D*)hSum->Clone("frameCDF"); frame->Reset("ICES"); frame->SetDirectory(nullptr);
+  frame->SetTitle("Empirical CDF vs model;TDC;CDF");
+  frame->SetMinimum(0.0); frame->SetMaximum(1.05);
+  frame->Draw();
+  gEmp->Draw("LP SAME"); fModel->Draw("SAME");
+
+  c->cd(3); gPad->SetTicks(1,1);
+  hCal->SetLineWidth(2); hCal->SetLineColor(kBlue+2);
+  hRef->SetLineColor(kGray+1); hRef->SetLineStyle(2);
+  hCal->SetTitle("Calibrated (blue) vs uniform reference (gray);Calibrated TDC;Counts");
+  hCal->Draw("HIST"); hRef->Draw("HIST SAME");
+
+  c->cd(4); gPad->SetTicks(1,1);
+  // Calibrated CDF
+  std::vector<double> Y,V; Y.reserve(nbx+1); V.reserve(nbx+1);
+  double cum2=0.0; Y.push_back(hCal->GetXaxis()->GetBinLowEdge(1)); V.push_back(0.0);
+  for (int b=1;b<=nbx;++b){ cum2 += hCal->GetBinContent(b); Y.push_back(hCal->GetXaxis()->GetBinUpEdge(b)); V.push_back(N>0?cum2/hCal->Integral(1,nbx):0.0); }
+  TGraph* gCDFcal = new TGraph((int)Y.size(), Y.data(), V.data());
+  gCDFcal->SetLineWidth(2); gCDFcal->SetLineColor(kBlue+2);
+  TH1D* fr2 = (TH1D*)frame->Clone("fr2"); fr2->SetTitle("Calibrated CDF vs ideal;Calibrated TDC;CDF");
+  fr2->Draw(); gCDFcal->Draw("LP SAME");
+  TLine* ideal = new TLine(P.t0,0, P.t1,1); ideal->SetLineColor(kRed+1); ideal->SetLineStyle(2); ideal->Draw("same");
+
+  if (saveAs && saveAs[0]) c->SaveAs(saveAs);
+  return c;
 }
