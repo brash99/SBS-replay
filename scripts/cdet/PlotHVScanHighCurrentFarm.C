@@ -2594,6 +2594,19 @@ static double QuantileFromGraph(const TGraph* g, double u){
   return x0 + t*(x1 - x0);
 }
 
+inline double CDF_model(double x, double t0, double t1, double sigma,
+                        double alpha=0.0, double beta=1.0)
+{
+  if (sigma <= 0.0) {
+    double u = (x<=t0?0.0:(x>=t1?1.0:(x-t0)/(t1-t0)));
+    return alpha + beta*u;
+  }
+  const double W  = (t1 - t0);
+  const double z0 = (x - t0)/sigma;
+  const double z1 = (x - t1)/sigma;
+  return alpha + beta * (sigma/W) * ( A_std(z0) - A_std(z1) );
+}
+
 // Compute warp anchors u10,u50,u90 from summed data + your fitted model
 static void ComputeWarpAnchors_u(const TH1* hSum,
                                  double t0_fit, double t1_fit, double sigma_fit,
@@ -2703,57 +2716,66 @@ static FitResult FitCDFParams_ForBar(int layer, int side, int module, int bar_lo
   return R;
 }
 
-// Write one line per (L,S,M,bar_local). Also include a global_bar = (M-1)*NumBars + bar_local for convenience.
+// Header: layer,side,module,bar_local,global_bar,t0,t1,sigma,alpha,beta,u10,u50,u90,chi2,ndf,ok
+// NOTE: includeUF and rebin here should match your fitting policy.
+
 void WriteCDFParamFile(const char* outCsv = "tdc_cdf_params.csv",
-                       bool includeUF=false, int rebin=1,
-                       bool float_alpha_beta=false, bool float_t0_t1=false)
+                       bool includeUF=false, int rebin=2,
+                       bool float_alpha_beta=true, bool float_t0_t1=true)
 {
   std::ofstream os(outCsv);
-  os << "layer,side,module,bar_local,global_bar,t0,t1,sigma,alpha,beta,chi2,ndf,ok\n";
+  os << "layer,side,module,bar_local,global_bar,"
+        "t0,t1,sigma,alpha,beta,"
+        "u10,u50,u90,"
+        "chi2,ndf,ok\n";
 
   for (int L=1; L<=NumLayers; ++L){
     for (int S=1; S<=2; ++S){
       for (int M=1; M<=NumModules; ++M){
         for (int B=1; B<=NumBars; ++B){
-          auto R = FitCDFParams_ForBar(L,S,M,B, includeUF,rebin, float_alpha_beta, float_t0_t1);
-          // After you compute FitResult R and still have hSum for (L,S,M,B)
-I         double u10=0,u50=0,u90=0;
-          ComputeWarpAnchors_u(hSum, R.t0, R.t1, R.sigma, R.alpha, R.beta, u10, u50, u90, /*includeUF=*/false);
 
+          // 1) Fit params for this (L,S,M,B)
+          auto R = FitCDFParams_ForBar(L,S,M,B,
+                                       /*includeUF=*/includeUF,
+                                       /*rebin=*/rebin,
+                                       /*float_alpha_beta=*/float_alpha_beta,
+                                       /*float_t0_t1=*/float_t0_t1);
 
-          const int global_bar = (M-1)*NumBars + B; // 1..(NumModules*NumBars) e.g. 1..42
-          //os << L<<","<<S<<","<<M<<","<<B<<","<<global_bar<<","
-          //   << R.t0<<","<<R.t1<<","<<R.sigma<<","<<R.alpha<<","<<R.beta<<","
-          //   << R.chi2<<","<<R.ndf<<","<<(R.ok?1:0)<<"\n";
+          // 2) Build the summed RawLe again (same rebin/includeUF as fit),
+          //    then compute warp anchors u10/u50/u90 from the *data + model*
+          TH1D* hSum = MakeSumRawLe(L,S,M,B,rebin);   // or MakeSumRawLe_LSMB if that’s your name
+          double u10=0.1, u50=0.5, u90=0.9;           // sensible defaults
+          if (hSum && R.ok) {
+            ComputeWarpAnchors_u(hSum,
+                                 /*t0_fit=*/R.t0, /*t1_fit=*/R.t1, /*sigma_fit=*/R.sigma,
+                                 /*alpha_fit=*/R.alpha, /*beta_fit=*/R.beta,
+                                 /*out:*/u10, u50, u90,
+                                 /*includeUF=*/includeUF);
+          }
+          if (hSum) delete hSum;
+
+          const int global_bar = (M-1)*NumBars + B;
+
+          // 3) Write row
           os << L<<","<<S<<","<<M<<","<<B<<","<<global_bar<<","
-          << R.t0<<","<<R.t1<<","<<R.sigma<<","<<R.alpha<<","<<R.beta<<","
-          << u10<<","<<u50<<","<<u90<<","
-          << R.chi2<<","<<R.ndf<<","<<(R.ok?1:0)<<"\n";
+             << R.t0<<","<<R.t1<<","<<R.sigma<<","<<R.alpha<<","<<R.beta<<","
+             << u10<<","<<u50<<","<<u90<<","
+             << R.chi2<<","<<R.ndf<<","<<(R.ok?1:0)<<"\n";
         }
       }
     }
   }
+
   os.close();
-  std::cout << "[WriteCDFParamFile] wrote " << outCsv << std::endl;
+  std::cout << "[WriteCDFParamFile] wrote " << outCsv
+            << "  (includeUF="<<includeUF<<", rebin="<<rebin
+            << ", float_ab="<<float_alpha_beta<<", float_t0t1="<<float_t0_t1<<")\n";
 }
 
-inline double CDF_model(double x, double t0, double t1, double sigma,
-                        double alpha=0.0, double beta=1.0)
-{
-  if (sigma <= 0.0) {
-    double u = (x<=t0?0.0:(x>=t1?1.0:(x-t0)/(t1-t0)));
-    return alpha + beta*u;
-  }
-  const double W  = (t1 - t0);
-  const double z0 = (x - t0)/sigma;
-  const double z1 = (x - t1)/sigma;
-  return alpha + beta * (sigma/W) * ( A_std(z0) - A_std(z1) );
-}
+// Flexible loader: supports both old (no u10/u50/u90) and new CSV (with them)
 
-// ---- CSV param loading (matches the fixed header we wrote) ----
-struct CdfParams { double t0, t1, sigma, alpha, beta; bool ok; };
-using KeyLSMB = std::tuple<int,int,int,int>; // (L,S,M,B_local)
-
+struct CdfParams { double t0, t1, sigma, alpha, beta, u10, u50, u90; bool ok; };
+using KeyLSMB = std::tuple<int,int,int,int>; // (layer,side,module,bar_local)
 struct KeyHash {
   size_t operator()(const KeyLSMB& k) const noexcept {
     auto [L,S,M,B] = k;
@@ -2765,20 +2787,45 @@ static std::unordered_map<KeyLSMB, CdfParams, KeyHash> gParamsLSMB;
 static bool LoadParamCSV_LSMB(const std::string& path){
   gParamsLSMB.clear();
   std::ifstream is(path);
-  if (!is.good()) { std::cerr<<"[LoadParamCSV_LSMB] cannot open "<<path<<"\n"; return false; }
-  std::string line; std::getline(is,line); // header
-  // header expected:
-  // layer,side,module,bar_local,global_bar,t0,t1,sigma,alpha,beta,chi2,ndf,ok
+  if (!is.good()) return false;
+
+  std::string line;
+  std::getline(is,line); // header
+
   while (std::getline(is,line)){
     if (line.empty()) continue;
-    std::istringstream ss(line);
-    int L,S,M,B,global_bar,okint; char c;
-    double t0,t1,sig,a,b,chi2,ndf;
-    if (!(ss>>L>>c>>S>>c>>M>>c>>B>>c>>global_bar>>c
-           >>t0>>c>>t1>>c>>sig>>c>>a>>c>>b>>c>>chi2>>c>>ndf>>c>>okint)) continue;
-    gParamsLSMB.emplace(KeyLSMB{L,S,M,B}, CdfParams{t0,t1,sig,a,b,(okint==1)});
+
+    // Split by comma
+    std::vector<std::string> f;
+    f.reserve(20);
+    std::stringstream ss(line);
+    std::string tok;
+    while (std::getline(ss, tok, ',')) f.push_back(tok);
+
+    // Old format: 13 columns
+    // layer,side,module,bar_local,global_bar,t0,t1,sigma,alpha,beta,chi2,ndf,ok
+    // New format: 16 columns
+    // layer,side,module,bar_local,global_bar,t0,t1,sigma,alpha,beta,u10,u50,u90,chi2,ndf,ok
+    if (f.size() != 13 && f.size() != 16) continue;
+
+    auto to_i = [&](int i){ return std::atoi(f[i].c_str()); };
+    auto to_d = [&](int i){ return std::atof(f[i].c_str()); };
+
+    int L = to_i(0), S = to_i(1), M = to_i(2), B = to_i(3);
+    // int global_bar = to_i(4); // unused here
+    double t0 = to_d(5), t1 = to_d(6), sig = to_d(7), a = to_d(8), b = to_d(9);
+    double u10 = 0.10, u50 = 0.50, u90 = 0.90; // defaults for old files
+    int okint;
+
+    if (f.size() == 16) {
+      u10 = to_d(10); u50 = to_d(11); u90 = to_d(12);
+      okint = to_i(15);
+    } else {
+      okint = to_i(12);
+    }
+
+    gParamsLSMB[{L,S,M,B}] = CdfParams{t0,t1,sig,a,b,u10,u50,u90,(okint==1)};
   }
-  std::cout << "[LoadParamCSV_LSMB] loaded " << gParamsLSMB.size() << " rows\n";
   return true;
 }
 
