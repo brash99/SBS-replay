@@ -47,10 +47,11 @@ static const int nBarsADC = 0;
 static const double ADCCUT = 150.;   //100.0
 
 static const double ecal_dist = 6.6;
+static const double cdet z_correc = 0; //correct cdet based on kinematic. db defaults z position to 7.75 (layer1) or 7.85 (layer2) (fine for kin1)
 static const double cdet_dist_offset = 2.0;
 static const double cdet_y_half_length = 0.30;
 
-// List of x-positions (or bins) for unused pixels
+// List of x-positions (or bins) for unused pixels ----- THIS SHOULD BE VERIFIED, unsure if correct as of 10/7
 static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65, 79, 83, 95, 109, 111, 115, 127, 140, 143, 145, 
   156, 172, 175, 176, 188, 195, 199, 213, 220, 236, 239, 244, 255, 268, 271, 284, 287, 300, 303, 307, 319, 332, 335, 339, 
   351, 354, 364, 371, 381, 384, 396, 401, 410, 419, 423, 435, 436, 451, 461, 465, 479, 480, 483, 508, 511, 512, 515, 540, 
@@ -141,6 +142,11 @@ std::vector<double> vRefRawTe;
 std::vector<double> vRefRawTot;
 std::vector<int>    vRefRawPMT;
 
+std::vector<double> vRefGoodLe;
+std::vector<double> vRefGoodTe;
+std::vector<double> vRefGoodTot;
+std::vector<int>    vRefGoodPMT;
+
 std::vector<double> vAllRawLe;
 std::vector<double> vAllRawTe;
 std::vector<double> vAllRawTot;
@@ -166,6 +172,14 @@ std::vector<int> vRowLayer1Side1;
 std::vector<int> vRowLayer2Side1;
 std::vector<int> vRowLayer1Side2;
 std::vector<int> vRowLayer2Side2;
+
+
+std::vector<int> vnhits1;
+std::vector<int> vngoodhits1;
+std::vector<int> vngoodTDChits1;
+std::vector<int> vnhits2;
+std::vector<int> vngoodhits2;
+std::vector<int> vngoodTDChits2;
 
 //2D vectors
 std::vector<std::vector<double>> vRawLe;
@@ -1212,34 +1226,41 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
             vHitX.push_back(GoodX[el]);
             vHitY.push_back(GoodY[el]);
             vHitZ.push_back(GoodZ[el]);
-
-            if (mylayer==0) {
+//------------------------------------------------------- replace hist below
+            if (mylayer==0) { //layer 1 "good" histograms & higher level
+              //i think we can remove these histograms from here, and put them in there own plot routine, they just need vectors for GoodX positions from cdet and ecal
               h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          hHitXY1->Fill(GoodY[el],GoodX[el]);
-          hXECalCDet1->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          hYECalCDet1->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hHitXY1->Fill(GoodY[el],GoodX[el]);
+              hXECalCDet1->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hYECalCDet1->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hXDiffECalCDet1->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hXPlusECalCDet1->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          hEECalCDet1->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            } else {
+              hEECalCDet1->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+            } 
+            else { //layer 2
               h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          hHitXY2->Fill(GoodY[el],GoodX[el]);
-          hXECalCDet2->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          hYECalCDet2->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hHitXY2->Fill(GoodY[el],GoodX[el]);
+              hXECalCDet2->Fill(GoodX[el],(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hYECalCDet2->Fill(GoodY[el],(*GoodECalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hXDiffECalCDet2->Fill(GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hXPlusECalCDet2->Fill(GoodX[el]+(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-          hEECalCDet2->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              hEECalCDet2->Fill(*GoodECalE,GoodX[el]-(*GoodECalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
             }
 
 
           } 
           else {
-          hRefGoodLe->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-          hRefGoodTe->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-          hRefGoodTot->Fill(GoodElTot[el]*TDC_calib_to_ns);
-          hRefGoodPMT->Fill(GoodElID[el]*TDC_calib_to_ns);
+            vRefGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns);
+            vRefGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns);
+            vRefGoodTot.push_back(GoodElTot[el]*TDC_calib_to_ns);
+            vRefGoodPMT.push_back(GoodElID[el]);
+
+            // hRefGoodLe->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+            // hRefGoodTe->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+            // hRefGoodTot->Fill(GoodElTot[el]*TDC_calib_to_ns);
+            // hRefGoodPMT->Fill(GoodElID[el]);
           }
         }
       }
@@ -1250,7 +1271,7 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
     vGoodTot.push_back(thisEvent_GoodTOT);
     vGoodID.push_back(thisEvent_GoodID);
 
-    if (*GoodECalX != 0.00 && *GoodECalY != 0.00) {
+    if (*GoodECalX != 0.00 && *GoodECalY != 0.00) {//double check this later, probably want to fill vectors with ecal hit position
       eff_denominator++;
       hXYECal->Fill(*GoodECalY,*GoodECalX);
       hXECal->Fill(*GoodECalX);
@@ -1258,13 +1279,19 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
       hEECal->Fill(*GoodECalE);
     };
         
-        
-    hnhits1->Fill(nhitsc1);
-    hngoodhits1->Fill(ngoodhitsc1);
-    hngoodTDChits1->Fill(ngoodTDChitsc1);
-    hnhits2->Fill(nhitsc2);
-    hngoodhits2->Fill(ngoodhitsc2);
-    hngoodTDChits2->Fill(ngoodTDChitsc2);
+    vnhits1.push_back(nhitsc1);
+    vngoodhits1.push_backFill(ngoodhitsc1);
+    vngoodTDChits1.push_backFill(ngoodTDChitsc1);
+    vnhits2.push_backFill(nhitsc2);
+    vngoodhits2.push_backFill(ngoodhitsc2);
+    vngoodTDChits2.push_backFill(ngoodTDChitsc2);
+    //
+    // hnhits1->Fill(nhitsc1);
+    // hngoodhits1->Fill(ngoodhitsc1);
+    // hngoodTDChits1->Fill(ngoodTDChitsc1);
+    // hnhits2->Fill(nhitsc2);
+    // hngoodhits2->Fill(ngoodhitsc2);
+    // hngoodTDChits2->Fill(ngoodTDChitsc2);
 
     for (int j=0; j<nTdc; j++) {
       if (ngoodTDChits_paddles[j] > 0) {
@@ -1272,20 +1299,21 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
         //cout << "Paddle = " << j <<  "  nhits = " << ngoodTDChits_paddles[j] << endl;
       }
     }
-        hngoodTDCpaddles->Fill(ngoodTDCpaddles);
+    vngoodTDCpaddles.push_back(ngoodTDCpaddles);
+        // hngoodTDCpaddles->Fill(ngoodTDCpaddles);
 
         //cout << "Element loop: " << NdataMult << endl;
-        for(Int_t tdc=0; tdc<TDCmult.GetSize(); tdc++){
-          if (!check_bad(RawElID[tdc],suppress_bad)) {
-          hMultiplicity->Fill(TDCmult[tdc]);
-      hMultiplicityL[(Int_t)RawElID[tdc]]->Fill(TDCmult[tdc]);
-      if( TDCmult[tdc] != 0 )
-        h2d_Mult->Fill(TDCmult[tdc], (Int_t)RawElID[tdc] );
-          }
-        }// element loop
-
-    }
-  }// event loop
+    for(Int_t tdc=0; tdc<TDCmult.GetSize(); tdc++){
+      if (!check_bad(RawElID[tdc],suppress_bad)) {
+        hMultiplicity->Fill(TDCmult[tdc]);
+        hMultiplicityL[(Int_t)RawElID[tdc]]->Fill(TDCmult[tdc]);
+        if( TDCmult[tdc] != 0 ){
+          h2d_Mult->Fill(TDCmult[tdc], (Int_t)RawElID[tdc] );
+        }
+      }
+    }// element loop
+    }//good elastic bool
+  }//event loop
 
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
   std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer1/eff_denominator  << std::endl;
@@ -1295,20 +1323,21 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
 
   for (Int_t b=0; b<NumCDetPaddles; b++) {
 	//if (hRawLe[b]->GetEntries() > EventCounter/HotChannelRatio) {
-	if (hRawLe[b]->GetEntries() > EventCounter/NumCDetPaddles*2*1000) {
-		int myhotlayer = b/1344 + 1;
-		int myhotside = (b%1344)/672 + 1;
-		int myhotmodule = (b%672)/244 + 1;
-		int myhotbar = (b%672)%224/16 + 1;
-		int myhotpaddle = ((b%672)%224)%16 + 1;
-		int mycable = b/16;
-		//std::cout << "Hot PMT!! ID = " << b << "  layer = " << myhotlayer <<
-		//"   side = " << myhotside << "   module = " << myhotmodule <<
-		//"   bar = " << myhotbar << "   paddle_PMT = " << myhotpaddle << " CDet Cable = " << mycable << "   Entries = " << hRawLe[b]->GetEntries() << std::endl;
-	}
+    if (hRawLe[b]->GetEntries() > EventCounter/NumCDetPaddles*2*1000) {
+      int myhotlayer = b/1344 + 1;
+      int myhotside = (b%1344)/672 + 1;
+      int myhotmodule = (b%672)/244 + 1;
+      int myhotbar = (b%672)%224/16 + 1;
+      int myhotpaddle = ((b%672)%224)%16 + 1;
+      int mycable = b/16;
+      //std::cout << "Hot PMT!! ID = " << b << "  layer = " << myhotlayer <<
+      //"   side = " << myhotside << "   module = " << myhotmodule <<
+      //"   bar = " << myhotbar << "   paddle_PMT = " << myhotpaddle << " CDet Cable = " << mycable << "   Entries = " << hRawLe[b]->GetEntries() << std::endl;
+    }
   }
   
-    
+    /// Get rid of this whole chunk?
+  /**/
     //========================================================== Write histos
   for(Int_t b=0; b<nTdc; b++){
     // hRawLe[b]->GetXaxis()->SetLabelSize(0.06);
@@ -1354,7 +1383,7 @@ void EditingPlotElastic(Int_t RunNumber1=3867, Int_t nevents=50000, Int_t nevent
   h2d_Mult->GetYaxis()->SetTitle("PMT number (Left)");
   h2d_Mult->SetTitle("");
   h2d_Mult->Write();
-
+  
   // Get HV values
   vector<string> HVfilenames = {"l1Left.dat", "l1Right.dat", "l2Left.dat", "l2Right.dat"};
 
