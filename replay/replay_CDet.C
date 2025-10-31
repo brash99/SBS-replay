@@ -73,6 +73,9 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
   // Do not use wildcard filenames with this directory
   if( prefix != "/scratch/GEp/raw" )
     pathlist.push_back( "/scratch/GEp/raw" );
+  
+  if( prefix != "/work/brash/sbs/GEp/raw" )
+    pathlist.push_back( "/work/brash/sbs/GEp/raw" );
 
   if( prefix != "/cache/mss/halla/sbs/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/raw" );
