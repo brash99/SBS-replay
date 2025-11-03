@@ -54,6 +54,10 @@ static const double cdet_z_correc = 0; //correct cdet based on kinematic. db def
 static const double cdet_dist_offset = 2.0;
 static const double cdet_y_half_length = 0.30;
 
+int NXDiffBins;
+double XDiffLow;
+double XDiffHigh;
+
 // List of x-positions (or bins) for unused pixels ----- THIS SHOULD BE VERIFIED, unsure if correct as of 10/7
 static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65, 79, 83, 95, 109, 111, 115, 127, 140, 143, 145, 
   156, 172, 175, 176, 188, 195, 199, 213, 220, 236, 239, 244, 255, 268, 271, 284, 287, 300, 303, 307, 319, 332, 335, 339, 
@@ -73,9 +77,10 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 
-// const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
+
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
-const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
+//const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
 const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
@@ -179,12 +184,12 @@ std::vector<int> vAllGoodBar;
 
 std::vector<int> vhitCdetPMT;
 std::vector<int> vRow;
-std::vector<int> vCol;
-std::vector<int> vLayer;
+std::vector<std::vector<int>> vGoodCol;
+std::vector<std::vector<int>> vGoodLayer;
 
-std::vector<double> vCdetX;
-std::vector<double> vCdetY;
-std::vector<double> vCdetZ;
+std::vector<std::vector<double>> vCdetGoodX;
+std::vector<std::vector<double>> vCdetGoodY;
+std::vector<std::vector<double>> vCdetGoodZ;
 
 std::vector<int> vRowLayer1Side1;
 std::vector<int> vRowLayer2Side1;
@@ -200,6 +205,10 @@ std::vector<int> vngoodTDChits1;
 std::vector<int> vnhits2;
 std::vector<int> vngoodhits2;
 std::vector<int> vngoodTDChits2;
+
+std::vector<double> vGoodEcalX;
+std::vector<double> vGoodEcalY;
+std::vector<double> vGoodEcalE;
 
 //2D vectors
 std::vector<std::vector<double>> vRawLe;
@@ -628,9 +637,9 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
 	NTDCBins = 2*(LeMax-LeMin)/.0160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
 					// 4 ns resolution is the best we can hope for, I think, using only the module trigger time.
 
-	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
-	double XDiffLow = XOffset-XDiffCut;
-	double XDiffHigh = XOffset+XDiffCut;
+	NXDiffBins = (int)((2*XDiffCut)/0.0073);
+	XDiffLow = XOffset-XDiffCut;
+	XDiffHigh = XOffset+XDiffCut;
 
   // InFile is the input file without absolute path and without .root suffix
   // nevents is how many events to analyse, -1 for all
@@ -719,7 +728,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             NTDCBins, TDCBinLow, TDCBinHigh);
   hAllRawTe = new TH1F(TString::Format("hRawTe"),
             TString::Format("hRawTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
   hAllRawTot = new TH1F(TString::Format("hRawTot"),
             TString::Format("hRawTot"),
             NTotBins, TotBinLow, TotBinHigh);
@@ -734,7 +743,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             NTDCBins, TDCBinLow, TDCBinHigh);
   hAllGoodTe = new TH1F(TString::Format("hAllGoodTe"),
             TString::Format("hAllGoodTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
   hAllGoodTot = new TH1F(TString::Format("hAllGoodTot"),
             TString::Format("hAllGoodTot"),
             NTotBins, TotBinLow, TotBinHigh);
@@ -1199,6 +1208,9 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
 
       if (good_CDet_event) {
 
+        vGoodEcalX.push_back(*ecalX);
+        vGoodEcalY.push_back(*ecalY);
+        vGoodEcalE.push_back(*ecalE);
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
           if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
 
@@ -1245,6 +1257,12 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
     std::vector<double> thisEvent_GoodTE;
     std::vector<double> thisEvent_GoodTOT;
     std::vector<int> thisEvent_GoodID;
+
+    std::vector<double> thisEvent_GoodX;
+    std::vector<double> thisEvent_GoodY;
+    std::vector<double> thisEvent_GoodZ;
+    std::vector<int> thisEvent_GoodLayer;
+    std::vector<int> thisEvent_GoodCol;
 
     for(Int_t el=0; el<GoodElID.GetSize(); el++){
       bool goodhit_ecal_reconstruction = *ecalY > -1.2 && *ecalY < 1.2 &&
@@ -1353,14 +1371,14 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
                 //hRowLayer2Side2->Fill((Int_t)GoodRow[el]);
               }
             }	
-            vCol.push_back(myside);
+            thisEvent_GoodCol.push_back(myside);
             //hCol->Fill(myside);
-            vLayer.push_back(mylayer);
+            thisEvent_GoodLayer.push_back(mylayer);
             //hLayer->Fill(mylayer);
 
-            vCdetX.push_back(GoodX[el]);
-            vCdetY.push_back(GoodY[el]);
-            vCdetZ.push_back(GoodZ[el]);
+            thisEvent_GoodX.push_back(GoodX[el]);
+            thisEvent_GoodY.push_back(GoodY[el]);
+            thisEvent_GoodZ.push_back(GoodZ[el]-cdet_dist_offset);
 //------------------------------------------------------- replace hist below
             if (mylayer==0) { //layer 1 "good" histograms & higher level
               //i think we can remove these histograms from here, and put them in there own plot routine, they just need vectors for GoodX positions from cdet and ecal
@@ -1400,6 +1418,15 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
         }
       }
     }// all good tdc hit loop
+
+    vGoodCol.push_back(thisEvent_GoodCol);
+    //hCol->Fill(myside);
+    vGoodLayer.push_back(thisEvent_GoodLayer);
+    //hLayer->Fill(mylayer);
+
+    vCdetGoodX.push_back(thisEvent_GoodX);
+    vCdetGoodY.push_back(thisEvent_GoodY);
+    vCdetGoodZ.push_back(thisEvent_GoodZ);
 
     vGoodLe.push_back(thisEvent_GoodLE);
     vGoodTe.push_back(thisEvent_GoodTE);
@@ -1554,6 +1581,50 @@ TCanvas *plotBarRateHV() {
 	
 
 TCanvas *plotAllTDC(){
+  //define histograms
+  hAllRawLe = new TH1F(TString::Format("hRawLe"),
+            TString::Format("hRawLe"),
+            NTDCBins, TDCBinLow, TDCBinHigh);
+  hAllRawTe = new TH1F(TString::Format("hRawTe"),
+            TString::Format("hRawTe"),
+            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
+  hAllRawTot = new TH1F(TString::Format("hRawTot"),
+            TString::Format("hRawTot"),
+            NTotBins, TotBinLow, TotBinHigh);
+  hAllRawPMT = new TH1F(TString::Format("hRawPMT"),
+            TString::Format("hRawPMT"),
+            nTdc, 0, nTdc);
+  hAllRawBar = new TH1F(TString::Format("hRawBar"),
+            TString::Format("hRawBar"),
+            168, 0, 168);
+  hAllGoodLe = new TH1F(TString::Format("hAllGoodLe"),
+            TString::Format("hAllGoodLe"),
+            NTDCBins, TDCBinLow, TDCBinHigh);
+  hAllGoodTe = new TH1F(TString::Format("hAllGoodTe"),
+            TString::Format("hAllGoodTe"),
+            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
+  hAllGoodTot = new TH1F(TString::Format("hAllGoodTot"),
+            TString::Format("hAllGoodTot"),
+            NTotBins, TotBinLow, TotBinHigh);
+  hAllGoodPMT = new TH1F(TString::Format("hAllGoodPMT"),
+            TString::Format("hAllGoodPMT"),
+            nTdc, 0, nTdc);
+  hAllGoodBar = new TH1F(TString::Format("hAllGoodBar"),
+            TString::Format("hAllGoodBar"),
+            168, 0, 168);
+
+  //fill necessary histograms from vectors
+  for (double x : vAllRawLe) hAllRawLe->Fill(x);
+  for (double x : vAllRawTe) hAllRawTe->Fill(x);
+  for (double x : vAllRawTot) hAllRawTot->Fill(x);
+  for (double x : vAllRawPMT) hAllRawPMT->Fill(x);
+  for (double x : vAllRawBar) hAllRawBar->Fill(x);
+
+  for (double x : vAllGoodLe) hAllGoodLe->Fill(x);
+  for (double x : vAllGoodTe) hAllGoodTe->Fill(x);
+  for (double x : vAllGoodTot) hAllGoodTot->Fill(x);
+  for (double x : vAllGoodPMT) hAllGoodPMT->Fill(x);
+  for (double x : vAllGoodBar) hAllGoodBar->Fill(x);
 
   TCanvas *caa = new TCanvas("All TDC", "All TDC", 50,50,800,800);
   caa->Divide(2,3,0.01,0.01,0);
@@ -1561,6 +1632,7 @@ TCanvas *plotAllTDC(){
   caaa->Divide(2,2,0.01,0.01,0);
 
   caa->cd(1);
+
   hAllRawLe->SetFillColor(kRed);
   hAllRawLe->SetMinimum(0.0);
   hAllRawLe->Draw();
@@ -1617,6 +1689,61 @@ TCanvas *plotAllTDC(){
 
   return caa;
 }
+
+void plotXDiffSections(double le_min = 0, double le_max = 100){
+  //define nonchanging histograms
+  //TH1D* h1 = new TH1D("h1", "xDiffLayer1;xdiff (m);Counts", NXDiffBins,XDiffLow,XDiffHigh);
+  //TH1D* h2 = new TH1D("h2", "xDiffLayer2;xdiff (m);Counts", NXDiffBins,XDiffLow,XDiffHigh);
+  //TH1D* h3 = new TH1D("h3", "good le;le (ns);Counts", NTDCBins, le_min, le_max);
+  std::vector<TH1D*> hxDiff1;
+  std::vector<TH1D*> hxDiff2;
+  std::vector<TH1D*> hGoodLe;
+
+  int step = 2;
+  int N = (int)((le_max-le_min)/step);
+  for (int i = 0; i < N; i++){
+    double low  = le_min + i*step;
+    double high = low + step;
+    TString name1 = Form("hXdiff1_%d", i);
+    TString title1 = Form("xDiff1 for %.1f #leq le #leq %.1f ns; xDiff1 (m); Counts", low, high);
+    TString name2 = Form("hXdiff2_%d", i);
+    TString title2 = Form("xDiff2 for %.1f #leq le #leq %.1f ns; xDiff2 (m); Counts", low, high);
+    TString name3 = Form("GoodLe_%d", i);
+    TString title3 = Form("GoodLe for %.1f #leq le #leq %.1f ns; GoodLe (ns); Counts", low, high);
+
+    TH1D* h1 = new TH1D(name1, title1, NXDiffBins, XDiffLow, XDiffHigh);
+    TH1D* h2 = new TH1D(name2, title2, NXDiffBins, XDiffLow, XDiffHigh);
+    TH1D* h3 = new TH1D(name3, title3, NTDCBins, low, high);
+    const size_t Nev = vCdetGoodX.size();
+    for (size_t ev = 0; ev < Nev; ++ev) {
+      for (int n = 0; n < vCdetGoodX[ev].size(); n++){
+        if (vGoodLe[ev][n] <= high && vGoodLe[ev][n] >= low){
+          if (vGoodLayer[ev][n]==0){ //layer 1
+            h1->Fill(vCdetGoodX[ev][n]-(vGoodEcalX[ev]*vCdetGoodZ[ev][n]/ecal_dist));
+          }
+          else if (vGoodLayer[ev][n]==1){ //layer 2
+            h2->Fill(vCdetGoodX[ev][n]-(vGoodEcalX[ev]*vCdetGoodZ[ev][n]/ecal_dist));
+          }
+          h3->Fill(vGoodLe[ev][n]);
+        }
+      }
+    } // individual time step histograms filled
+    hxDiff1.push_back(h1);
+    hxDiff2.push_back(h2);
+    hGoodLe.push_back(h3);
+  }//all time step histograms filled
+
+  for (int i = 0; i < N; i++){
+    TCanvas* c1 = new TCanvas(Form("c1_%d", i), hxDiff1[i]->GetTitle(), 800, 600);
+    hxDiff1[i]->Draw("HIST");
+
+    TCanvas* c2 = new TCanvas(Form("c2_%d", i), hxDiff2[i]->GetTitle(), 800, 600);
+    hxDiff2[i]->Draw("HIST");
+
+    TCanvas* c3 = new TCanvas(Form("c3_%d", i), hGoodLe[i]->GetTitle(), 800, 600);
+    hGoodLe[i]->Draw("HIST");
+  }
+} //end plotXDiffSections
 
 void plotPMTRates(Int_t mymodule=1, Int_t mylayer=1, Int_t choice = 1){
 
