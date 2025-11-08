@@ -294,8 +294,10 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
 
 //const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
 //const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
-const TString REPLAYED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles";
-const TString ANALYSED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+//const TString REPLAYED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles";
+//const TString ANALYSED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+const TString REPLAYED_DIR = "/home/brash/sbs/CDet_replay/sbs/Rootfiles";
+const TString ANALYSED_DIR = "/home/brash/sbs/CDet_replay/sbs/Rootfiles/cdetFiles/cdet_histfiles";
 
 // // for local analysis at uog (please leave in comments)
 // TString REPLAYED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Replayed";
@@ -707,14 +709,14 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
   
   hXECal = new TH1F("XEcal","XEcal",200,-1.5,1.5);
   hYECal = new TH1F("YEcal","YEcal",200,-1.0,1.0);
-  hEECal = new TH1F("YEcal","YEcal",200,0.0,20.0);
+  hEECal = new TH1F("EEcal","YEcal",200,0.0,20.0);
   
   hXECalCDet1 = new TH2F("XECalCDet1","XECalCDet1",100,-2.0,2.0,100,-2.0,2.0);
   hXECalCDet2 = new TH2F("XECalCDet2","XECalCDet2",100,-2.0,2.0,100,-2.0,2.0);
   hYECalCDet1 = new TH2F("YECalCDet1","YECalCDet1",100,-1.0,1.0,9,-1.0,1.0);
   hYECalCDet2 = new TH2F("YECalCDet2","YECalCDet2",100,-1.0,1.0,9,-1.0,1.0);
   hEECalCDet1 = new TH2F("EECalCDet1","EECalCDet1",100,0.0,20.0,100,-2.0,2.0);
-  hEECalCDet2 = new TH2F("EECalCDet1","EECalCDet1",100,0.0,20.0,100,-2.0,2.0);
+  hEECalCDet2 = new TH2F("EECalCDet2","EECalCDet2",100,0.0,20.0,100,-2.0,2.0);
   
   hXYECal = new TH2F("XYECal","XYECal",200,-2.0,2.0,200,-2.0,2.0);
   
@@ -950,10 +952,10 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
   
   //==================================================== Create output root file
   // root file for viewing fits
-  TString subfile; 
-  subfile = TString::Format("gep5_replayed_nogems_%d_50k_events.root",RunNumber1);
-  TString outrootfile = ANALYSED_DIR + "/RawTDC_" + subfile;
-  TFile *f = new TFile(outrootfile, "RECREATE");
+  //TString subfile; 
+  //subfile = TString::Format("gep5_replayed_nogems_%d_50k_events.root",RunNumber1);
+  //TString outrootfile = ANALYSED_DIR + "/RawTDC_" + subfile;
+  //TFile *f = new TFile(outrootfile, "RECREATE");
 
 
 
@@ -1058,8 +1060,10 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
 	    hAllRawPMT->Fill(TCDet::RawElID[el]);
 	    hAllRawBar->Fill((Int_t)(TCDet::RawElID[el]/16));
 
-	    h2d_RawLE->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)TCDet::RawElID[el]);
-	    h2d_RawTE->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)TCDet::RawElID[el]);
+	    //h2d_RawLE->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)TCDet::RawElID[el]);
+	    //h2d_RawTE->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0, (Int_t)TCDet::RawElID[el]);
+	    h2d_RawLE->Fill(TCDet::RawElLE[el]*TDC_calib_to_ns, (Int_t)TCDet::RawElID[el]);
+	    h2d_RawTE->Fill(TCDet::RawElTE[el]*TDC_calib_to_ns, (Int_t)TCDet::RawElID[el]);
 	    h2d_RawTot->Fill(TCDet::RawElTot[el]*TDC_calib_to_ns, (Int_t)TCDet::RawElID[el]);
 
 	   }
@@ -1216,19 +1220,26 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
 			(layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) )  
 		{
 		eff_numerator++;
-	    	hGoodLe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-	    	hGoodTe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	//hGoodLe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	//hGoodTe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	hGoodLe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
+	    	hGoodTe[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns);
 	    	hGoodTot[(Int_t)TCDet::GoodElID[el]]->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns);
-	    	hAllGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-	    	hAllGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	//hAllGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	//hAllGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	hAllGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
+	    	hAllGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns);
 	    	hAllGoodTot->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns);
 	    	hAllGoodPMT->Fill(TCDet::GoodElID[el]);
 	    	hAllGoodBar->Fill((Int_t)(TCDet::GoodElID[el]/16));
-	    	h2AllGoodLe->Fill(TCDet::GoodElID[el],TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-	    	h2AllGoodTe->Fill(TCDet::GoodElID[el],TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	//h2AllGoodLe->Fill(TCDet::GoodElID[el],TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	//h2AllGoodTe->Fill(TCDet::GoodElID[el],TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	h2AllGoodLe->Fill(TCDet::GoodElID[el],TCDet::GoodElLE[el]*TDC_calib_to_ns);
+	    	h2AllGoodTe->Fill(TCDet::GoodElID[el],TCDet::GoodElTE[el]*TDC_calib_to_ns);
 	    	h2AllGoodTot->Fill(TCDet::GoodElID[el],TCDet::GoodElTot[el]*TDC_calib_to_ns);
 
-	    	h2TDCTOTvsLE->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	//h2TDCTOTvsLE->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    	h2TDCTOTvsLE->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodElLE[el]*TDC_calib_to_ns);
 	  
 	    	hHitPMT->Fill((Int_t)TCDet::GoodElID[el]);
 	    	hRow->Fill((Int_t)TCDet::GoodRow[el]);
@@ -1256,7 +1267,8 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
 	    hHitZ->Fill(TCDet::GoodZ[el]);
 	    if (mylayer==0) {
 	    	h2TOTvsXDiff1->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
-	    	h2LEvsXDiff1->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	//h2LEvsXDiff1->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	h2LEvsXDiff1->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hHitXY1->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
 		hXECalCDet1->Fill(TCDet::GoodX[el],TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hYECalCDet1->Fill(TCDet::GoodY[el],TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
@@ -1265,7 +1277,8 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
 		hEECalCDet1->Fill(TCDet::GoodECalE,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 	    } else {
 	    	h2TOTvsXDiff2->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
-	    	h2LEvsXDiff2->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	//h2LEvsXDiff2->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
+	    	h2LEvsXDiff2->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns,TCDet::GoodX[el]-TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hHitXY2->Fill(TCDet::GoodY[el],TCDet::GoodX[el]);
 		hXECalCDet2->Fill(TCDet::GoodX[el],TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
 		hYECalCDet2->Fill(TCDet::GoodY[el],TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist);
@@ -1276,8 +1289,10 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
 
 
 	   } else {
-	    hRefGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-	    hRefGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    //hRefGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    //hRefGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+	    hRefGoodLe->Fill(TCDet::GoodElLE[el]*TDC_calib_to_ns);
+	    hRefGoodTe->Fill(TCDet::GoodElTE[el]*TDC_calib_to_ns);
 	    hRefGoodTot->Fill(TCDet::GoodElTot[el]*TDC_calib_to_ns);
 	    hRefGoodPMT->Fill(TCDet::GoodElID[el]*TDC_calib_to_ns);
 	   }
@@ -1329,7 +1344,7 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
   std::cout << "Layer 2 Events = " << eff_numerator_layer2 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer2/eff_denominator <<  std::endl;
   std::cout << "One Good Layer Events = " << eff_numerator << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator/eff_denominator <<  std::endl;
 
-
+/*
   for (Int_t b=0; b<NumCDetPaddles; b++) {
 	//if (hRawLe[b]->GetEntries() > EventCounter/HotChannelRatio) {
 	if (hRawLe[b]->GetEntries() > EventCounter/NumCDetPaddles*2*1000) {
@@ -1410,7 +1425,7 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
   //========================================================== Close output file
   f->Close();
 
-
+*/
 
   //================================================================== End Macro
 }// end main
