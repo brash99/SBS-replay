@@ -1058,7 +1058,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       double ref_corr = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++) {
         if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
-          bool good_ref_le_time = RawElLE[el] >= 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
+          bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
           bool good_ref_tot = GoodElTot[el] >= 0.0/TDC_calib_to_ns && GoodElTot[el] <= 200.0/TDC_calib_to_ns;
           bool good_ref_event = good_ref_le_time && good_ref_tot;
           if ( good_ref_event ) {
@@ -1084,7 +1084,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
                 //hRefRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
                 //hRefRawPMT->Fill(RawElID[el]);
 
-                event_ref_tdc = RawElLE[el]*TDC_calib_to_ns;
+                event_ref_tdc = RawElLE[el]*TDC_calib_to_ns - 48 ;
                 ref_int = std::floor(event_ref_tdc);
                 ref_corr = event_ref_tdc - ref_int;
 
@@ -1120,31 +1120,31 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             //if ((Int_t)RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
             
             //fill this events vectors
-            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
-            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - ref_corr);
-            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns - ref_corr);
+            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc); 
+            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc);
+            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns - event_ref_tdc);
             thisEvent_ID.push_back((Int_t)RawElID[el]);
           
             //fill all hits vectors
-            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
-            vAllRawTe.push_back(RawElTE[el]*TDC_calib_to_ns - ref_corr);
+            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);
+            vAllRawTe.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc);
             vAllRawTot.push_back(RawElTot[el]*TDC_calib_to_ns);
             vAllRawPMT.push_back(RawElID[el]);
             vAllRawBar.push_back((Int_t)(RawElID[el]/16));
             /* Comment out histograms for now
-            hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
-            hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
+            hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc);
+            hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc);
             hRawTot[(Int_t)RawElID[el]]->Fill(RawElTot[el]*TDC_calib_to_ns);
-            hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
-            hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
+            hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc);
+            hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc);
             hAllRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
             hAllRawPMT->Fill(RawElID[el]);
             hAllRawBar->Fill((Int_t)(RawElID[el]/16));
 
 
 
-            h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
-            h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
+            h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc, (Int_t)RawElID[el]);
+            h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc, (Int_t)RawElID[el]);
             h2d_RawTot->Fill(RawElTot[el]*TDC_calib_to_ns, (Int_t)RawElID[el]);
             */
           }
@@ -1318,8 +1318,8 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             (layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) ) {
               eff_numerator++;
 
-              thisEvent_GoodLE.push_back(GoodElLE[el]*TDC_calib_to_ns - ref_corr);
-              thisEvent_GoodTE.push_back(GoodElTE[el]*TDC_calib_to_ns - ref_corr);
+              thisEvent_GoodLE.push_back(GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc);
+              thisEvent_GoodTE.push_back(GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc);
               thisEvent_GoodTOT.push_back(GoodElTot[el]*TDC_calib_to_ns);
               thisEvent_GoodID.push_back((Int_t)GoodElID[el]);
 
@@ -1327,8 +1327,8 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
               // hGoodTe[(Int_t)GoodElID[el]]->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
               // hGoodTot[(Int_t)GoodElID[el]]->Fill(GoodElTot[el]*TDC_calib_to_ns);
 
-              vAllGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns - ref_corr);
-              vAllGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns - ref_corr);
+              vAllGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc);
+              vAllGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc);
               vAllGoodTot.push_back(GoodElTot[el]*TDC_calib_to_ns);
               vAllGoodPMT.push_back(GoodElID[el]);
               vAllGoodBar.push_back((Int_t)(GoodElID[el]/16));

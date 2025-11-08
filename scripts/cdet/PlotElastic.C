@@ -1084,7 +1084,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
                 //hRefRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
                 //hRefRawPMT->Fill(RawElID[el]);
 
-                event_ref_tdc = RawElLE[el]*TDC_calib_to_ns;
+                event_ref_tdc = RawElLE[el]*TDC_calib_to_ns - 48; 
                 ref_int = std::floor(event_ref_tdc);
                 ref_corr = event_ref_tdc - ref_int;
 
@@ -1120,31 +1120,31 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             //if ((Int_t)RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
             
             //fill this events vectors
-            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
-            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - ref_corr);
-            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns - ref_corr);
+            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc); 
+            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc);
+            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns - event_ref_tdc);
             thisEvent_ID.push_back((Int_t)RawElID[el]);
-          
+            ////**************** */
             //fill all hits vectors
-            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - ref_corr);
-            vAllRawTe.push_back(RawElTE[el]*TDC_calib_to_ns - ref_corr);
+            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);
+            vAllRawTe.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc);
             vAllRawTot.push_back(RawElTot[el]*TDC_calib_to_ns);
             vAllRawPMT.push_back(RawElID[el]);
             vAllRawBar.push_back((Int_t)(RawElID[el]/16));
             /* Comment out histograms for now
-            hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
-            hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
+            hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc);
+            hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc);
             hRawTot[(Int_t)RawElID[el]]->Fill(RawElTot[el]*TDC_calib_to_ns);
-            hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr);
-            hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr);
+            hAllRawLe->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc);
+            hAllRawTe->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc);
             hAllRawTot->Fill(RawElTot[el]*TDC_calib_to_ns);
             hAllRawPMT->Fill(RawElID[el]);
             hAllRawBar->Fill((Int_t)(RawElID[el]/16));
 
 
 
-            h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
-            h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-ref_corr, (Int_t)RawElID[el]);
+            h2d_RawLE->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc, (Int_t)RawElID[el]);
+            h2d_RawTE->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc, (Int_t)RawElID[el]);
             h2d_RawTot->Fill(RawElTot[el]*TDC_calib_to_ns, (Int_t)RawElID[el]);
             */
           }
@@ -1318,17 +1318,17 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             (layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) ) {
               eff_numerator++;
 
-              thisEvent_GoodLE.push_back(GoodElLE[el]*TDC_calib_to_ns - ref_corr);
-              thisEvent_GoodTE.push_back(GoodElTE[el]*TDC_calib_to_ns - ref_corr);
+              thisEvent_GoodLE.push_back(GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc);
+              thisEvent_GoodTE.push_back(GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc);
               thisEvent_GoodTOT.push_back(GoodElTot[el]*TDC_calib_to_ns);
               thisEvent_GoodID.push_back((Int_t)GoodElID[el]);
 
-              // hGoodLe[(Int_t)GoodElID[el]]->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
-              // hGoodTe[(Int_t)GoodElID[el]]->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
+              // hGoodLe[(Int_t)GoodElID[el]]->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc);
+              // hGoodTe[(Int_t)GoodElID[el]]->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc);
               // hGoodTot[(Int_t)GoodElID[el]]->Fill(GoodElTot[el]*TDC_calib_to_ns);
 
-              vAllGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns - ref_corr);
-              vAllGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns - ref_corr);
+              vAllGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc);
+              vAllGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc);
               vAllGoodTot.push_back(GoodElTot[el]*TDC_calib_to_ns);
               vAllGoodPMT.push_back(GoodElID[el]);
               vAllGoodBar.push_back((Int_t)(GoodElID[el]/16));
@@ -1383,7 +1383,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             if (mylayer==0) { //layer 1 "good" histograms & higher level
               //i think we can remove these histograms from here, and put them in there own plot routine, they just need vectors for GoodX positions from cdet and ecal
               h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hHitXY1->Fill(GoodY[el],GoodX[el]);
               hXECalCDet1->Fill(GoodX[el],(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hYECalCDet1->Fill(GoodY[el],(*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
@@ -1393,7 +1393,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             } 
             else { //layer 2
               h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
+              h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+50.0,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hHitXY2->Fill(GoodY[el],GoodX[el]);
               hXECalCDet2->Fill(GoodX[el],(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
               hYECalCDet2->Fill(GoodY[el],(*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
