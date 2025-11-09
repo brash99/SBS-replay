@@ -294,10 +294,10 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
 
 //const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
 //const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
-//const TString REPLAYED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles";
-//const TString ANALYSED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles/cdetFiles/cdet_histfiles";
-const TString REPLAYED_DIR = "/home/brash/sbs/CDet_replay/sbs/Rootfiles";
-const TString ANALYSED_DIR = "/home/brash/sbs/CDet_replay/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+const TString REPLAYED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles";
+const TString ANALYSED_DIR = "/work/hallc/gep/brash/CDet_replay/sbs/Rootfiles/cdetFiles/cdet_histfiles";
+//const TString REPLAYED_DIR = "/home/brash/sbs/CDet_replay/sbs/Rootfiles";
+//const TString ANALYSED_DIR = "/home/brash/sbs/CDet_replay/sbs/Rootfiles/cdetFiles/cdet_histfiles";
 
 // // for local analysis at uog (please leave in comments)
 // TString REPLAYED_DIR = "/w/work0/home/rachel/HallA/BB_Hodo/FallRun2021/Replayed";
@@ -874,7 +874,8 @@ void PlotHVScanHighCurrentFarm(Int_t RunNumber1=5811, Int_t nevents=103000, Int_
     T->Add(sInFile);
     cout << "Adding " << nruns << " files ... " << endl;
     for (Int_t i=1; i<=nruns; i++) {
-        subfile = TString::Format("cdet_%d_%d_%d",RunNumber1,neventsr,i);
+        subfile = TString::Format("cdet_%d_stream_0_2_seg0_19_firstevent1_nevent%d_%d",RunNumber1,neventsr,i);
+        //subfile = TString::Format("cdet_%d_%d_%d",RunNumber1,neventsr,i);
         //subfile = TString::Format("_%d_1000000_%d",RunNumber1,i);
         sInFile = REPLAYED_DIR + "/" + subfile + ".root";
         cout << "Input ROOT file = " << sInFile << endl;

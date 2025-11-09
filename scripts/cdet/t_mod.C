@@ -278,12 +278,15 @@ TCanvas *plotRef(Double_t cutTotMin = 90, Double_t cutTotMax = 150, Int_t RefNTD
     c->Divide(1,3);
 
     c->cd(1);
+    //gPad->SetLogy();
     hRefLe->Draw("HIST");
 
     c->cd(2);
+    //gPad->SetLogy();
     hRefTe->Draw("HIST");
 
     c->cd(3);
+    //gPad->SetLogy();
     hRefTot->Draw("HIST");
 
     return c;
