@@ -1,4 +1,5 @@
 #include <TROOT.h>
+#include <TLine.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>
 #include <iostream>
@@ -633,7 +634,7 @@ std::vector<int> getLocation(int pixelID) {
   return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
 }
 
-void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, Int_t neventsr=103000,
+void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, Int_t neventsr=103000,Int_t nruns=30, Int_t seg_start=0, Int_t seg_end=14,
 	Double_t LeMin = 9.8, Double_t LeMax = 11.3,
 	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
@@ -641,8 +642,7 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
 	//Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
 	Double_t XDiffCut = 0.32, Double_t XOffset = 0.02,
         Int_t layer_choice=3,	
-	bool suppress_bad = false,
-	Int_t nruns=30
+	bool suppress_bad = false
 	){
 
 	Double_t RefLeMin = 1.0;
@@ -874,7 +874,7 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
     T->Add(sInFile);
     cout << "Adding " << nruns << " files ... " << endl;
     for (Int_t i=1; i<=nruns; i++) {
-        subfile = TString::Format("cdet_%d_stream_0_2_seg0_9_firstevent1_nevent%d_%d",RunNumber1,neventsr,i);
+        subfile = TString::Format("cdet_%d_stream_0_2_seg%d_%d_firstevent1_nevent%d_%d",RunNumber1,seg_start,seg_end,neventsr,i);
         //subfile = TString::Format("cdet_%d_%d_%d",RunNumber1,neventsr,i);
         //subfile = TString::Format("_%d_1000000_%d",RunNumber1,i);
         sInFile = REPLAYED_DIR + "/" + subfile + ".root";
