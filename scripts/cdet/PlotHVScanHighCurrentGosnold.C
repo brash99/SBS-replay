@@ -652,7 +652,8 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
 	Double_t RefTotMax = 251.0;
 
 	//int NTDCBins = 2*(LeMax-LeMin)/.0160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
-	int NTDCBins = 2*(LeMax-LeMin)/.000160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
+	//int NTDCBins = 2*(LeMax-LeMin)/.000160167; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
+	int NTDCBins = 60000; // 4 ns is the trigger time, 0.018 ns is the expected time resolution, if we use a reference TDC ? 
 					// 4 ns resolution is the best we can hope for, I think, using only the module trigger time.
 
 	int NXDiffBins = (int)((2*XDiffCut)/0.0073);
@@ -1109,7 +1110,7 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
 	TCDet::nhits_paddles[mypaddlen]++;
 
         bool good_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
-			TCDet::GoodECalX > -1.5 && TCDet::GoodECalX < 1.5 &&
+			TCDet::GoodECalX > -0.3 && TCDet::GoodECalX < 1.5 &&
 			TCDet::GoodECalX != 0.00 && TCDet::GoodECalY != 0.00 ;
 	bool good_le_time = TCDet::GoodElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::GoodElLE[el] <= LeMax/TDC_calib_to_ns;
 	bool good_tot = TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns;
@@ -1168,7 +1169,7 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
  
     for(Int_t el=0; el<TCDet::NdataGoodElID; el++){
         bool goodhit_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
-			TCDet::GoodECalX > -1.5 && TCDet::GoodECalX < 1.5 &&
+			TCDet::GoodECalX > -0.3 && TCDet::GoodECalX < 1.5 &&
 			TCDet::GoodECalX != 0.00 && TCDet::GoodECalY != 0.00 ;
 	bool goodhit_le_time = TCDet::GoodElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::GoodElLE[el] <= LeMax/TDC_calib_to_ns;
 	bool goodhit_tot = TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns;
