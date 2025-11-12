@@ -36,11 +36,13 @@ namespace TCDet {
   // Vector sizes
   Int_t   NdataGoodX;
   Int_t   NdataGoodY;
+  Int_t   NdataGoodZ;
   Int_t   NdataGoodLayer;
 
   // Hit positions and layer
   Double_t GoodX[nTdc*2];
   Double_t GoodY[nTdc*2];
+  Double_t GoodZ[nTdc*2];
   Double_t GoodLayer[nTdc*2];
 
   // ECal reconstructed position
@@ -68,7 +70,9 @@ const TString REPLAYED_DIR = "/work/brash/CDet_replay/sbs/Rootfiles";
 // ----------------------------------------------------------------------
 void CDet_SetupChainForDisplay(Int_t RunNumber1,
                                Int_t neventsr,
-                               Int_t nruns)
+                               Int_t nruns,
+			       Int_t seg_start,
+			       Int_t seg_end)
 {
   if (T) return; // already set up
 
@@ -77,7 +81,7 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
   TString subfile, sInFile;
 
   // First "main" file (same pattern as your analysis macro)
-  subfile = TString::Format("cdet_%d_%d", RunNumber1, neventsr);
+  subfile = TString::Format("cdet_%d_stream_0_2_seg%d_%d_firstevent1_%d", RunNumber1, seg_start, seg_end, neventsr);
   sInFile = REPLAYED_DIR + "/" + subfile + ".root";
   std::cout << "[CDet display] Adding " << sInFile << std::endl;
   T->Add(sInFile);
@@ -86,8 +90,8 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
   std::cout << "[CDet display] Adding " << nruns << " files..." << std::endl;
   for (Int_t i = 1; i <= nruns; i++) {
     subfile = TString::Format(
-      "cdet_%d_stream_0_2_seg0_9_firstevent1_nevent%d_%d",
-      RunNumber1, neventsr, i
+      "cdet_%d_stream_0_2_seg%d_%d_firstevent1_nevent%d_%d",
+      RunNumber1, seg_start, seg_end, neventsr, i
     );
     sInFile = REPLAYED_DIR + "/" + subfile + ".root";
     std::cout << "  " << sInFile << std::endl;
@@ -104,6 +108,7 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
   // CDet good hit positions and layer
   T->SetBranchAddress("earm.cdet.hit.xhit",  TCDet::GoodX);
   T->SetBranchAddress("earm.cdet.hit.yhit",  TCDet::GoodY);
+  T->SetBranchAddress("earm.cdet.hit.zhit",  TCDet::GoodZ);
   T->SetBranchAddress("earm.cdet.hit.layer", TCDet::GoodLayer);
 
   // Hit counts
@@ -119,6 +124,7 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
   // Ndata branches (vector sizes)
   T->SetBranchAddress("Ndata.earm.cdet.hit.xhit",  &TCDet::NdataGoodX);
   T->SetBranchAddress("Ndata.earm.cdet.hit.yhit",  &TCDet::NdataGoodY);
+  T->SetBranchAddress("Ndata.earm.cdet.hit.zhit",  &TCDet::NdataGoodZ);
   T->SetBranchAddress("Ndata.earm.cdet.hit.layer", &TCDet::NdataGoodLayer);
 
   std::cout << "[CDet display] Chain setup complete." << std::endl;
@@ -139,19 +145,38 @@ void CDet_DrawEvent(Long64_t iev,
 
   // Split hits into layer 1 and layer 2
   for (Int_t ih = 0; ih < TCDet::NdataGoodX; ++ih) {
-    double x = TCDet::GoodX[ih];
-    double y = TCDet::GoodY[ih];
-    int    layer = static_cast<int>(TCDet::GoodLayer[ih]);
+	double XOffset = 0.02;
+	double XDiffCut = 0.04;
+	double ecal_dist = 6.6;
+	double cdet_dist_offset = 2.0;
+	double cdet_y_half_length = 0.30;
+        bool good_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
+		TCDet::GoodECalX > -0.3 && TCDet::GoodECalX < 1.5 &&
+		TCDet::GoodECalX != 0.00 && TCDet::GoodECalY != 0.00;
+	bool good_cdet_X = TCDet::GoodX[ih] < 998;
+	bool good_ecal_diff_x = (TCDet::GoodX[ih]-(TCDet::GoodECalX*(TCDet::GoodZ[ih]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
+					(TCDet::GoodX[ih]-(TCDet::GoodECalX*(TCDet::GoodZ[ih]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut; 
+	bool good_ecal_diff_y = (TCDet::GoodY[ih]-(TCDet::GoodECalY*(TCDet::GoodZ[ih]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
+					(TCDet::GoodY[ih]-(TCDet::GoodECalY*(TCDet::GoodZ[ih]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length; 
+	bool good_CDet_event = good_ecal_reconstruction && good_ecal_diff_x && good_ecal_diff_y && good_cdet_X;
+    
+        double x = TCDet::GoodX[ih];
+        double y = TCDet::GoodY[ih];
+        int    layer = static_cast<int>(TCDet::GoodLayer[ih]);
+    
 
-    if (!std::isfinite(x) || !std::isfinite(y)) continue;
+        if (!std::isfinite(x) || !std::isfinite(y)) continue;
 
-    if (layer == 1) {
-      xL1.push_back(x);
-      yL1.push_back(y);
-    } else if (layer == 2) {
-      xL2.push_back(x);
-      yL2.push_back(y);
-    }
+	if (good_CDet_event) {
+		cout << "cdet hit " << ih << " layer = " << layer << " x = " << x << " y = " << y << endl;
+        	if (layer == 1) {
+          		xL1.push_back(x);
+          		yL1.push_back(y);
+        	} else if (layer == 2) {
+          		xL2.push_back(x);
+          		yL2.push_back(y);
+        	}
+	}
   }
 
   // ---------------- Pad 1: Layer 1 ----------------
@@ -161,9 +186,9 @@ void CDet_DrawEvent(Long64_t iev,
   TGraph *gL1 = nullptr;
   if (!xL1.empty()) {
     gL1 = new TGraph((Int_t)xL1.size(), xL1.data(), yL1.data());
-    gL1->SetMarkerStyle(20);
+    //gL1->SetMarkerStyle(20);
     gL1->SetMarkerColor(kRed+1);
-    gL1->SetMarkerSize(1.1);
+    gL1->SetMarkerSize(2.0);
     gL1->Draw("P SAME");
   }
 
@@ -232,10 +257,12 @@ void CDet_DrawEvent(Long64_t iev,
 // Main driver: side-by-side event display with simple keyboard control
 // ----------------------------------------------------------------------
 void CDet_EventDisplay(Int_t RunNumber1 = 5811,
-                       Int_t neventsr   = 103000,
-                       Int_t nruns      = 30)
+                       Int_t neventsr   = 300000,
+                       Int_t nruns      = 30,
+		       Int_t seg_start = 0,
+		       Int_t seg_end = 14)
 {
-  CDet_SetupChainForDisplay(RunNumber1, neventsr, nruns);
+  CDet_SetupChainForDisplay(RunNumber1, neventsr, nruns, seg_start,seg_end);
 
   Long64_t Nev = T->GetEntries();
   std::cout << "[CDet display] Tree has " << Nev << " events." << std::endl;
@@ -260,9 +287,10 @@ void CDet_EventDisplay(Int_t RunNumber1 = 5811,
       double y = TCDet::GoodY[ih];
       if (!std::isfinite(x) || !std::isfinite(y)) continue;
       xmin = std::min(xmin, x);
-      xmax = std::max(xmax, x);
-      ymin = std::min(ymin, y);
+      xmax = -1.0*xmin;
       ymax = std::max(ymax, y);
+      ymin = -1.0*ymax;
+      //std::cout << "xmin = " << xmin << " xmax = " << xmax << " ymin = " << ymin << " ymax = " << ymax << std::endl;
     }
 
     if (std::isfinite(TCDet::GoodECalX) && std::isfinite(TCDet::GoodECalY)) {
