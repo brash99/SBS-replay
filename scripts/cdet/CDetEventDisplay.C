@@ -183,15 +183,21 @@ void CDet_DrawEvent(Long64_t iev,
   c->cd(1);
   frameL1->Draw("axis");
 
-  TGraph *gL1 = nullptr;
-  if (!xL1.empty()) {
-    gL1 = new TGraph((Int_t)xL1.size(), xL1.data(), yL1.data());
-    //gL1->SetMarkerStyle(20);
-    gL1->SetMarkerColor(kRed+1);
-    gL1->SetMarkerSize(2.0);
-    gL1->Draw("P SAME");
-  }
 
+  // draw rectangles for each hit
+  double half_dx = 0.005;   // total width = 0.01
+  double half_dy = 0.15;    // total height = 0.30
+
+  for (size_t i = 0; i < xL1.size(); ++i) {
+    double x = xL1[i];
+    double y = yL1[i];
+    TBox *box = new TBox(x - half_dx, y - half_dy,
+                       x + half_dx, y + half_dy);
+    box->SetFillColorAlpha(kRed+1, 0.35);   // semi-transparent red fill
+    box->SetLineColor(kRed+2);
+    box->SetLineWidth(2);
+    box->Draw("same");
+  }
   // ECal marker overlaid on both pads (if finite)
   TMarker *mE1 = nullptr;
   if (std::isfinite(TCDet::GoodECalX) && std::isfinite(TCDet::GoodECalY)) {
@@ -224,13 +230,15 @@ void CDet_DrawEvent(Long64_t iev,
   c->cd(2);
   frameL2->Draw("axis");
 
-  TGraph *gL2 = nullptr;
-  if (!xL2.empty()) {
-    gL2 = new TGraph((Int_t)xL2.size(), xL2.data(), yL2.data());
-    gL2->SetMarkerStyle(21);
-    gL2->SetMarkerColor(kBlue+1);
-    gL2->SetMarkerSize(1.1);
-    gL2->Draw("P SAME");
+  for (size_t i = 0; i < xL1.size(); ++i) {
+    double x = xL2[i];
+    double y = yL2[i];
+    TBox *box = new TBox(x - half_dx, y - half_dy,
+                       x + half_dx, y + half_dy);
+    box->SetFillColorAlpha(kRed+1, 0.35);   // semi-transparent red fill
+    box->SetLineColor(kRed+2);
+    box->SetLineWidth(2);
+    box->Draw("same");
   }
 
   TMarker *mE2 = nullptr;
