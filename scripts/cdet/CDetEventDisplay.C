@@ -38,12 +38,14 @@ namespace TCDet {
   Int_t   NdataGoodY;
   Int_t   NdataGoodZ;
   Int_t   NdataGoodLayer;
+  Int_t   NdataGoodElID;
 
   // Hit positions and layer
   Double_t GoodX[nTdc*2];
   Double_t GoodY[nTdc*2];
   Double_t GoodZ[nTdc*2];
   Double_t GoodLayer[nTdc*2];
+  Double_t GoodElID[nTdc*2];
 
   // ECal reconstructed position
   Double_t GoodECalX;
@@ -110,6 +112,7 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
   T->SetBranchAddress("earm.cdet.hit.yhit",  TCDet::GoodY);
   T->SetBranchAddress("earm.cdet.hit.zhit",  TCDet::GoodZ);
   T->SetBranchAddress("earm.cdet.hit.layer", TCDet::GoodLayer);
+  T->SetBranchAddress("earm.cdet.hit.pmtnum", TCDet::GoodElID);
 
   // Hit counts
   T->SetBranchAddress("earm.cdet.nhits",        &TCDet::nhits);
@@ -126,6 +129,7 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
   T->SetBranchAddress("Ndata.earm.cdet.hit.yhit",  &TCDet::NdataGoodY);
   T->SetBranchAddress("Ndata.earm.cdet.hit.zhit",  &TCDet::NdataGoodZ);
   T->SetBranchAddress("Ndata.earm.cdet.hit.layer", &TCDet::NdataGoodLayer);
+  T->SetBranchAddress("Ndata.earm.cdet.hit.pmtnum", &TCDet::NdataGoodElID);
 
   std::cout << "[CDet display] Chain setup complete." << std::endl;
 }
@@ -146,12 +150,12 @@ void CDet_DrawEvent(Long64_t iev,
   // Split hits into layer 1 and layer 2
   for (Int_t ih = 0; ih < TCDet::NdataGoodX; ++ih) {
 	double XOffset = 0.02;
-	double XDiffCut = 0.04;
+	double XDiffCut = 6.04;
 	double ecal_dist = 6.6;
 	double cdet_dist_offset = 2.0;
-	double cdet_y_half_length = 0.30;
+	double cdet_y_half_length = 2.30;
         bool good_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
-		TCDet::GoodECalX > -0.3 && TCDet::GoodECalX < 1.5 &&
+		TCDet::GoodECalX > -1.5 && TCDet::GoodECalX < 1.5 &&
 		TCDet::GoodECalX != 0.00 && TCDet::GoodECalY != 0.00;
 	bool good_cdet_X = TCDet::GoodX[ih] < 998;
 	bool good_ecal_diff_x = (TCDet::GoodX[ih]-(TCDet::GoodECalX*(TCDet::GoodZ[ih]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
@@ -159,7 +163,13 @@ void CDet_DrawEvent(Long64_t iev,
 	bool good_ecal_diff_y = (TCDet::GoodY[ih]-(TCDet::GoodECalY*(TCDet::GoodZ[ih]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
 					(TCDet::GoodY[ih]-(TCDet::GoodECalY*(TCDet::GoodZ[ih]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length; 
 	bool good_CDet_event = good_ecal_reconstruction && good_ecal_diff_x && good_ecal_diff_y && good_cdet_X;
-    
+   
+	//cout << "good_ecal_reconstruction = " << good_ecal_reconstruction <<
+        //		" good_cdet_X = " << good_cdet_X <<
+	//	" good_ecal_diff_x = " << good_ecal_diff_x <<
+	//	" good_ecal_diff_y = " << good_ecal_diff_y <<
+	//	" good_CDet_event = " << good_CDet_event << endl;
+
         double x = TCDet::GoodX[ih];
         double y = TCDet::GoodY[ih];
         int    layer = static_cast<int>(TCDet::GoodLayer[ih]);
@@ -167,8 +177,14 @@ void CDet_DrawEvent(Long64_t iev,
 
         if (!std::isfinite(x) || !std::isfinite(y)) continue;
 
+	if (TCDet::GoodElID[ih] < 1344) {
+		layer = 1;
+	} else {
+		layer = 2;
+	}
+
 	if (good_CDet_event) {
-		cout << "cdet hit " << ih << " layer = " << layer << " x = " << x << " y = " << y << endl;
+		//cout << "cdet hit " << ih << " layer = " << layer << " x = " << x << " y = " << y << endl;
         	if (layer == 1) {
           		xL1.push_back(x);
           		yL1.push_back(y);
@@ -183,15 +199,22 @@ void CDet_DrawEvent(Long64_t iev,
   c->cd(1);
   frameL1->Draw("axis");
 
-  TGraph *gL1 = nullptr;
-  if (!xL1.empty()) {
-    gL1 = new TGraph((Int_t)xL1.size(), xL1.data(), yL1.data());
-    //gL1->SetMarkerStyle(20);
-    gL1->SetMarkerColor(kRed+1);
-    gL1->SetMarkerSize(2.0);
-    gL1->Draw("P SAME");
-  }
 
+  // draw rectangles for each hit
+  double half_dx = 0.005;   // total width = 0.01
+  double half_dy = 0.25;    // total height = 0.50
+  //cout << "xL1 size = " << xL1.size() << endl;
+  for (size_t i = 0; i < xL1.size(); ++i) {
+    double x = xL1[i];
+    double y = yL1[i];
+    //cout << "cdet layer 1 hit " << i+1 << " x = " << x << " y = " << y << endl;
+    TBox *box = new TBox(x - half_dx, y - half_dy,
+                       x + half_dx, y + half_dy);
+    box->SetFillColorAlpha(kRed+1, 0.35);   // semi-transparent red fill
+    box->SetLineColor(kRed+2);
+    box->SetLineWidth(2);
+    box->Draw("same");
+  }
   // ECal marker overlaid on both pads (if finite)
   TMarker *mE1 = nullptr;
   if (std::isfinite(TCDet::GoodECalX) && std::isfinite(TCDet::GoodECalY)) {
@@ -206,7 +229,6 @@ void CDet_DrawEvent(Long64_t iev,
   leg1->SetFillStyle(0);
   leg1->SetTextSize(0.035);
   leg1->SetHeader("Layer 1", "L");
-  if (gL1) leg1->AddEntry(gL1, "CDet L1 hits", "p");
   if (mE1) leg1->AddEntry(mE1, "ECal (X,Y)", "p");
   leg1->Draw();
 
@@ -224,13 +246,16 @@ void CDet_DrawEvent(Long64_t iev,
   c->cd(2);
   frameL2->Draw("axis");
 
-  TGraph *gL2 = nullptr;
-  if (!xL2.empty()) {
-    gL2 = new TGraph((Int_t)xL2.size(), xL2.data(), yL2.data());
-    gL2->SetMarkerStyle(21);
-    gL2->SetMarkerColor(kBlue+1);
-    gL2->SetMarkerSize(1.1);
-    gL2->Draw("P SAME");
+  for (size_t i = 0; i < xL2.size(); ++i) {
+    double x = xL2[i];
+    double y = yL2[i];
+    //cout << "cdet layer 2 hit " << i+1 << " x = " << x << " y = " << y << endl;
+    TBox *box = new TBox(x - half_dx, y - half_dy,
+                       x + half_dx, y + half_dy);
+    box->SetFillColorAlpha(kRed+1, 0.35);   // semi-transparent red fill
+    box->SetLineColor(kRed+2);
+    box->SetLineWidth(2);
+    box->Draw("same");
   }
 
   TMarker *mE2 = nullptr;
@@ -246,7 +271,6 @@ void CDet_DrawEvent(Long64_t iev,
   leg2->SetFillStyle(0);
   leg2->SetTextSize(0.035);
   leg2->SetHeader("Layer 2", "L");
-  if (gL2) leg2->AddEntry(gL2, "CDet L2 hits", "p");
   if (mE2) leg2->AddEntry(mE2, "ECal (X,Y)", "p");
   leg2->Draw();
 
@@ -371,6 +395,7 @@ void CDet_EventDisplay(Int_t RunNumber1 = 5811,
     }
 
     CDet_DrawEvent(iev, frameL1, frameL2, c);
+
   }
 
   std::cout << "[CDet display] Finished." << std::endl;
