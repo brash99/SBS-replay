@@ -140,20 +140,23 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
 void CDet_DrawEvent(Long64_t iev,
                     TH2F *frameL1,
                     TH2F *frameL2,
-                    TCanvas *c)
+                    TCanvas *c,
+		    double XOffset,
+		    double XDiffCut)
 {
   T->GetEntry(iev);
 
   std::vector<double> xL1, yL1;
   std::vector<double> xL2, yL2;
+	
+  double ecal_dist = 6.6;
+  double cdet_dist_offset = 2.0;
+  double cdet_y_half_length = 9.30;
+  double zlayer1 = 0;
+  double zlayer2 = 0;
 
   // Split hits into layer 1 and layer 2
   for (Int_t ih = 0; ih < TCDet::NdataGoodX; ++ih) {
-	double XOffset = 0.02;
-	double XDiffCut = 6.04;
-	double ecal_dist = 6.6;
-	double cdet_dist_offset = 2.0;
-	double cdet_y_half_length = 2.30;
         bool good_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
 		TCDet::GoodECalX > -1.5 && TCDet::GoodECalX < 1.5 &&
 		TCDet::GoodECalX != 0.00 && TCDet::GoodECalY != 0.00;
@@ -179,8 +182,10 @@ void CDet_DrawEvent(Long64_t iev,
 
 	if (TCDet::GoodElID[ih] < 1344) {
 		layer = 1;
+		zlayer1 = TCDet::GoodZ[ih];
 	} else {
 		layer = 2;
+		zlayer2 = TCDet::GoodZ[ih];
 	}
 
 	if (good_CDet_event) {
@@ -197,14 +202,15 @@ void CDet_DrawEvent(Long64_t iev,
 
   // ---------------- Pad 1: Layer 1 ----------------
   c->cd(1);
-  frameL1->Draw("axis");
+  //frameL1->Draw("axis");
 
 
   // draw rectangles for each hit
   double half_dx = 0.005;   // total width = 0.01
   double half_dy = 0.25;    // total height = 0.50
   //cout << "xL1 size = " << xL1.size() << endl;
-  for (size_t i = 0; i < xL1.size(); ++i) {
+
+    for (size_t i = 0; i < xL1.size(); ++i) {
     double x = xL1[i];
     double y = yL1[i];
     //cout << "cdet layer 1 hit " << i+1 << " x = " << x << " y = " << y << endl;
@@ -215,15 +221,16 @@ void CDet_DrawEvent(Long64_t iev,
     box->SetLineWidth(2);
     box->Draw("same");
   }
+
   // ECal marker overlaid on both pads (if finite)
   TMarker *mE1 = nullptr;
   if (std::isfinite(TCDet::GoodECalX) && std::isfinite(TCDet::GoodECalY)) {
-    mE1 = new TMarker(TCDet::GoodECalX, TCDet::GoodECalY, 29);
+    mE1 = new TMarker(TCDet::GoodECalX*(zlayer1-cdet_dist_offset)/ecal_dist, TCDet::GoodECalY*(zlayer1-cdet_dist_offset)/ecal_dist, 29);
     mE1->SetMarkerColor(kGreen+2);
     mE1->SetMarkerSize(2.0);
     mE1->Draw("SAME");
   }
-
+/*
   TLegend *leg1 = new TLegend(0.12, 0.80, 0.55, 0.93);
   leg1->SetBorderSize(0);
   leg1->SetFillStyle(0);
@@ -241,10 +248,12 @@ void CDet_DrawEvent(Long64_t iev,
       Form("Event %lld   nhits=%.0f, ngood=%.0f",
            iev, TCDet::nhits, TCDet::ngoodhits));
   }
+*/
 
   // ---------------- Pad 2: Layer 2 ----------------
   c->cd(2);
-  frameL2->Draw("axis");
+  //frameL2->Draw("axis");
+
 
   for (size_t i = 0; i < xL2.size(); ++i) {
     double x = xL2[i];
@@ -256,16 +265,18 @@ void CDet_DrawEvent(Long64_t iev,
     box->SetLineColor(kRed+2);
     box->SetLineWidth(2);
     box->Draw("same");
+    
   }
+
 
   TMarker *mE2 = nullptr;
   if (std::isfinite(TCDet::GoodECalX) && std::isfinite(TCDet::GoodECalY)) {
-    mE2 = new TMarker(TCDet::GoodECalX, TCDet::GoodECalY, 29);
+    mE2 = new TMarker(TCDet::GoodECalX*(zlayer1-cdet_dist_offset)/ecal_dist, TCDet::GoodECalY*(zlayer1-cdet_dist_offset)/ecal_dist, 29);
     mE2->SetMarkerColor(kGreen+2);
     mE2->SetMarkerSize(2.0);
     mE2->Draw("SAME");
   }
-
+/*
   TLegend *leg2 = new TLegend(0.12, 0.80, 0.55, 0.93);
   leg2->SetBorderSize(0);
   leg2->SetFillStyle(0);
@@ -273,18 +284,20 @@ void CDet_DrawEvent(Long64_t iev,
   leg2->SetHeader("Layer 2", "L");
   if (mE2) leg2->AddEntry(mE2, "ECal (X,Y)", "p");
   leg2->Draw();
-
+*/
   c->Update();
 }
 
 // ----------------------------------------------------------------------
 // Main driver: side-by-side event display with simple keyboard control
 // ----------------------------------------------------------------------
-void CDet_EventDisplay(Int_t RunNumber1 = 5811,
-                       Int_t neventsr   = 300000,
-                       Int_t nruns      = 30,
-		       Int_t seg_start = 0,
-		       Int_t seg_end = 14)
+void CDet_EventDisplay(Int_t RunNumber1  = 5811,
+                       Int_t neventsr    = 300000,
+		       Double_t XOffset  = 0.02,
+		       Double_t XDiffCut = 0.04,
+                       Int_t nruns       = 30,
+		       Int_t seg_start   = 0,
+		       Int_t seg_end     = 14)
 {
   CDet_SetupChainForDisplay(RunNumber1, neventsr, nruns, seg_start,seg_end);
 
@@ -362,7 +375,7 @@ void CDet_EventDisplay(Int_t RunNumber1 = 5811,
   std::cout << "Commands: n = next, p = previous, g = goto, q = quit" << std::endl;
 
   // Draw first event
-  CDet_DrawEvent(iev, frameL1, frameL2, c);
+  CDet_DrawEvent(iev, frameL1, frameL2, c, XOffset, XDiffCut);
 
   while (true) {
     std::cout << "Event " << iev << " / " << (Nev-1) << "  -> command? ";
@@ -393,8 +406,16 @@ void CDet_EventDisplay(Int_t RunNumber1 = 5811,
       std::cout << "  [unknown command: " << cmd << "]" << std::endl;
       continue;
     }
+    
+    c->cd(1);
+    frameL1->Draw("axis");
+    c->cd(2);
+    frameL2->Draw("axis");
 
-    CDet_DrawEvent(iev, frameL1, frameL2, c);
+    for (int ii=iev; ii<iev+1000; ii++) {
+      cout << "Event = " << ii << endl;
+      CDet_DrawEvent(ii, frameL1, frameL2, c, XOffset, XDiffCut);
+    }
 
   }
 
