@@ -868,7 +868,7 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
 
     TString subfile, sInFile;
 
-    subfile = TString::Format("cdet_%d_%d",RunNumber1,neventsr);
+    subfile = TString::Format("cdet_%d_stream_0_2_seg%d_%d_firstevent1_nevent%d",RunNumber1,seg_start,seg_end,neventsr);
     sInFile = REPLAYED_DIR + "/" + subfile + ".root";
     cout << "Input ROOT file = " << sInFile << endl;
     cout << "Adding " << sInFile << endl;
@@ -1110,7 +1110,7 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
 	TCDet::nhits_paddles[mypaddlen]++;
 
         bool good_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
-			TCDet::GoodECalX > -0.3 && TCDet::GoodECalX < 1.5 &&
+			TCDet::GoodECalX > -1.5 && TCDet::GoodECalX < 1.5 &&
 			TCDet::GoodECalX != 0.00 && TCDet::GoodECalY != 0.00 ;
 	bool good_le_time = TCDet::GoodElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::GoodElLE[el] <= LeMax/TDC_calib_to_ns;
 	bool good_tot = TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns;
@@ -1118,8 +1118,8 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
 	bool good_cdet_X = TCDet::GoodX[el] < xcut;
 	bool good_ecal_diff_x = (TCDet::GoodX[el]-(TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
 			(TCDet::GoodX[el]-(TCDet::GoodECalX*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
-	bool good_ecal_diff_y = (TCDet::GoodY[el]-(TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
-			(TCDet::GoodY[el]-(TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
+	bool good_ecal_diff_y = (TCDet::GoodY[el]-(TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= 2.0*cdet_y_half_length && 
+			(TCDet::GoodY[el]-(TCDet::GoodECalY*(TCDet::GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -2.0*cdet_y_half_length;
 	
 
 	bool good_CDet_event = good_ecal_reconstruction && good_ecal_diff_x && good_ecal_diff_y && good_le_time && good_tot && good_hit_mult && good_cdet_X;
@@ -1169,7 +1169,7 @@ void PlotHVScanHighCurrentGosnold(Int_t RunNumber1=5811, Int_t nevents=103000, I
  
     for(Int_t el=0; el<TCDet::NdataGoodElID; el++){
         bool goodhit_ecal_reconstruction = TCDet::GoodECalY > -1.2 && TCDet::GoodECalY < 1.2 &&
-			TCDet::GoodECalX > -0.3 && TCDet::GoodECalX < 1.5 &&
+			TCDet::GoodECalX > -1.5 && TCDet::GoodECalX < 1.5 &&
 			TCDet::GoodECalX != 0.00 && TCDet::GoodECalY != 0.00 ;
 	bool goodhit_le_time = TCDet::GoodElLE[el] >= LeMin/TDC_calib_to_ns && TCDet::GoodElLE[el] <= LeMax/TDC_calib_to_ns;
 	bool goodhit_tot = TCDet::GoodElTot[el] >= TotMin/TDC_calib_to_ns && TCDet::GoodElTot[el] <= TotMax/TDC_calib_to_ns;

@@ -83,7 +83,7 @@ void CDet_SetupChainForDisplay(Int_t RunNumber1,
   TString subfile, sInFile;
 
   // First "main" file (same pattern as your analysis macro)
-  subfile = TString::Format("cdet_%d_stream_0_2_seg%d_%d_firstevent1_%d", RunNumber1, seg_start, seg_end, neventsr);
+  subfile = TString::Format("cdet_%d_stream_0_2_seg%d_%d_firstevent1_nevent%d", RunNumber1, seg_start, seg_end, neventsr);
   sInFile = REPLAYED_DIR + "/" + subfile + ".root";
   std::cout << "[CDet display] Adding " << sInFile << std::endl;
   T->Add(sInFile);
