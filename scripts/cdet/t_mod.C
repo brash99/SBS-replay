@@ -204,7 +204,6 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Dou
             if ( good_raw_event ) {
                 if ( (Int_t)RawElID[el] < 2688 ) {
                     //fill all hits vectors
-                    //std::cout << "event = " << " " << EventCounter << " " << "channel " << RawElID[el] << " time = " << RawElLE[el] << std::endl;
                     double t_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;//ref_corr;
                     double wrapped = fmod(t_ns,2.0);
 
@@ -280,12 +279,15 @@ TCanvas *plotRef(Double_t cutTotMin = 90, Double_t cutTotMax = 150, Int_t RefNTD
     c->Divide(1,3);
 
     c->cd(1);
+    //gPad->SetLogy();
     hRefLe->Draw("HIST");
 
     c->cd(2);
+    //gPad->SetLogy();
     hRefTe->Draw("HIST");
 
     c->cd(3);
+    //gPad->SetLogy();
     hRefTot->Draw("HIST");
 
     return c;
