@@ -2248,6 +2248,20 @@ auto *plotEECalCDet() {
 
 auto plotXYZ(){
 
+  hHitX = new TH1F("HitXposition","HitXPosition",1000,-2.0,2.0);
+  hHitY = new TH1F("HitYposition","HitYPosition",200,-0.5,0.5);
+  hHitZ = new TH1F("HitZposition","HitZPosition",200,5.5,6.0);
+   size_t N = vCdetGoodX.size();
+    for (size_t ev = 0; ev < N; ev++){
+      for (size_t hit = 0; hit < vCdetGoodX[ev].size(); hit++) {
+      //if (vRefRawTot[i] >= cutTotMin && vRefRawTot[i] <= cutTotMax) {
+        hHitX->Fill(vCdetGoodX[ev][hit]);
+        hHitY->Fill(vCdetGoodY[ev][hit]);
+        hHitZ->Fill(vCdetGoodZ[ev][hit]);
+      //}
+      }
+    }
+
    TCanvas *c7 = new TCanvas("c7", "c7", 800,800);
    c7->Draw();
    TPad *p1 = new TPad("p1","p1",0.05,0.0,0.45,1.0);
