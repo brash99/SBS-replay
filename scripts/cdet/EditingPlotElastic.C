@@ -1673,7 +1673,7 @@ TCanvas *plotAllTDC(){
 }
 
 void plotEcalMinusCdetTime(double Width = 1, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130){
-  int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
+  int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
   TH1D* hEcalMinusCdetTime = new TH1D("hEcalMinusCdetTime", "ECal Time vs CDet Time;Time Diff (ns);Counts",TDCBinNum, DiffMin, DiffMax);
   const size_t Nev = std::min(vGoodLe.size(),v_ecalAdcTime.size());
 
