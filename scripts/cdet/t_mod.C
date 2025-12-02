@@ -23,7 +23,7 @@
 
 using namespace std;
 
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));// + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
@@ -178,8 +178,8 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Dou
             bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 252.0/TDC_calib_to_ns;
             bool good_ref_event = good_ref_le_time;
             if ( good_ref_event ) {
-              std::cout << "event = " << " " << EventCounter << " " << "ref time = " << RawElLE[el] << std::endl;
-              std::cout << "ref Tot = " << RawElTot[el] << std::endl;
+              //std::cout << "event = " << " " << EventCounter << " " << "ref time = " << RawElLE[el] << std::endl;
+              //std::cout << "ref Tot = " << RawElTot[el] << std::endl;
               if ( (Int_t)RawElID[el] == 2696 && (Int_t)RawElLE[el] > 0 ) {
                   vRefRawLe.push_back(RawElLE[el] * TDC_calib_to_ns);
                   vRefRawTe.push_back(RawElTE[el] * TDC_calib_to_ns);
@@ -216,6 +216,7 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Dou
             }
         }// all raw tdc hit loop
     }//end event loop 
+    std::cout << "someone cooked here" << std::endl;
 }//end main
 
 TCanvas *plotAllTDC(double TDCBinLow, double TDCBinHigh){
@@ -230,13 +231,13 @@ TCanvas *plotAllTDC(double TDCBinLow, double TDCBinHigh){
     for (double x : vT_mod) hT_mod->Fill(x);
 
     TCanvas *c = new TCanvas("c", "Tmod (0,2)",800,800);
-    c->Divide(2,1);
+    // c->Divide(2,1);
 
     c->cd(1);
     hAllRawLe->Draw();
 
-    c->cd(2);
-    hT_mod->Draw("Fill");
+    // c->cd(2);
+    // hT_mod->Draw("Fill");
     return c;
 }
 
