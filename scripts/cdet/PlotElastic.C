@@ -77,11 +77,12 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
+//const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
+const TString ANALYSED_DIR = "/work/brash/CDet_replay/sbs/Rootfiles/cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
 bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
