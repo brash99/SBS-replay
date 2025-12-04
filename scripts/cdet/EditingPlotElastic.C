@@ -206,10 +206,6 @@ std::vector<int> vnhits2;
 std::vector<int> vngoodhits2;
 std::vector<int> vngoodTDChits2;
 
-std::vector<double> v_GoodEcalX;
-std::vector<double> v_GoodEcalY;
-std::vector<double> v_GoodEcalE;
-
 //2D vectors
 std::vector<std::vector<double>> vRawLe;
 std::vector<std::vector<double>> vRawTe;
@@ -254,6 +250,11 @@ std::vector<double> v_ecalX;
 std::vector<double> v_ecalY;
 std::vector<double> v_ecalE;
 std::vector<double> v_ecalAdcTime;
+//1D Good Ecal Events
+std::vector<double> v_GoodEcalX;
+std::vector<double> v_GoodEcalY;
+std::vector<double> v_GoodEcalE;
+std::vector<double> v_GoodEcalAdcTime;
 
 //copy a TTreeReaderArray<double> into a std::vector<double>, makes it easier to fill the 2D vector
 inline std::vector<double> copyArray(const TTreeReaderArray<double>& arr) {
@@ -622,7 +623,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
 	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
+	Double_t XDiffCut = 0.1, Double_t XOffset = 0.02,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
@@ -1187,10 +1188,6 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
 
 
       if (good_CDet_event) {
-
-        v_GoodEcalX.push_back(*ecalX);
-        v_GoodEcalY.push_back(*ecalY);
-        v_GoodEcalE.push_back(*ecalE);
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
           if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
 
@@ -1244,6 +1241,8 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
     std::vector<int> thisEvent_GoodLayer;
     std::vector<int> thisEvent_GoodCol;
 
+    int cdetPassedBoolCount = 0;
+
     for(Int_t el=0; el<GoodElID.GetSize(); el++){
       bool goodhit_ecal_reconstruction = *ecalY > -1.2 && *ecalY < 1.2 &&
                                          *ecalX > -1.5 && *ecalX < 1.5 &&
@@ -1262,7 +1261,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
         && goodhit_hit_mult && goodhit_cdet_X && goodhit_low && goodhit_high;
 
       if (goodhit_CDet_event) {
-
+        cdetPassedBoolCount++;
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
           if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
                 //cout << "event " << event << endl;
@@ -1400,20 +1399,27 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
         }
       }
     }// all good tdc hit loop
+    if (cdetPassedBoolCount >= 1){
+      v_GoodEcalX.push_back(*ecalX);
+      v_GoodEcalY.push_back(*ecalY);
+      v_GoodEcalE.push_back(*ecalE);
+      v_GoodEcalAdcTime.push_back(*ecalAdcTime);
 
-    vGoodCol.push_back(thisEvent_GoodCol);
-    //hCol->Fill(myside);
-    vGoodLayer.push_back(thisEvent_GoodLayer);
-    //hLayer->Fill(mylayer);
+      vGoodCol.push_back(thisEvent_GoodCol);
+      //hCol->Fill(myside);
+      vGoodLayer.push_back(thisEvent_GoodLayer);
+      //hLayer->Fill(mylayer);
 
-    vCdetGoodX.push_back(thisEvent_GoodX);
-    vCdetGoodY.push_back(thisEvent_GoodY);
-    vCdetGoodZ.push_back(thisEvent_GoodZ);
+      vCdetGoodX.push_back(thisEvent_GoodX);
+      vCdetGoodY.push_back(thisEvent_GoodY);
+      vCdetGoodZ.push_back(thisEvent_GoodZ);
 
-    vGoodLe.push_back(thisEvent_GoodLE);
-    vGoodTe.push_back(thisEvent_GoodTE);
-    vGoodTot.push_back(thisEvent_GoodTOT);
-    vGoodID.push_back(thisEvent_GoodID);
+      vGoodLe.push_back(thisEvent_GoodLE);
+      vGoodTe.push_back(thisEvent_GoodTE);
+      vGoodTot.push_back(thisEvent_GoodTOT);
+      vGoodID.push_back(thisEvent_GoodID);
+    }
+    
 
     if (*ecalX != 0.00 && *ecalY != 0.00) {//double check this later, probably want to fill vectors with ecal hit position
       eff_denominator++;
@@ -1460,6 +1466,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
   }//event loop
   std::cout << "Size of ECalADCtime = " << v_ecalAdcTime.size() << std::endl;
   std::cout << "Size of GoodCDetLE = " << vGoodLe.size() << std::endl;
+  std::cout << "Size of GoodEcalX = " << v_GoodEcalX.size() << std::endl;
 
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
   std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer1/eff_denominator  << std::endl;
@@ -1694,15 +1701,16 @@ void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
 }
 
 
-void plotEcalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetMin = 0, double CDetMax = 60){
-  
+void plotEcalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetMin = 0, double CDetMax = 60,double EcalMin = 62, double EcalMax = 130){
+  int NADCBins = (int)((EcalMax-EcalMin)/4); //4ns bins for ecal, since fADC 4ns resolution
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
-  TH1D* hEcalMinusCdetTime = new TH1D("hEcalMinusCdetTime", "ECal Time vs CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
-  TH1D* hEcalMinusCdetTimeNoCuts = new TH1D("hEcalMinusCdetTimeNoCuts", "ECal Time vs CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
+  TH1D* hEcalMinusCdetTime = new TH1D("hEcalMinusCdetTime", "ECal-Cdet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
+  TH1D* hEcalMinusCdetTimeNoCuts = new TH1D("hEcalMinusCdetTimeNoCuts", "ECal-CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
   TH2D* h2EcalMinusCdetTime = new TH2D("h2EcalMinusCdetTime", "ECal-CDet Time vs CDet Time;CDet 'Good' Time (ns);Ecal-Cdet Time (ns)", TDCBinNum, CDetMin, CDetMax, TDCBinNum, DiffMin, DiffMax);
+  TH2D* hEcalVsCdet = new TH2D("hEcalVsCdet", "ECal Time vs CDet Time;CDet LE Time (ns);Ecal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, EcalMin, EcalMax);
   TH2D* h2EcalxVsCdetx = new TH2D("h2EcalxVsCdetx", "ECal Good x vs CDet Good x;CDet Good x (m);ECal Good x (m)",600,-1.5,1.5,200,-1.5,1.5);
   // TH1I* hGoodHitsPerEvent = new TH1I("hGoodHitsPerEvent", "Good hits per event;N_{good hits};Events", 100, 0, 100);
-  const size_t Nev = std::min(vGoodLe.size(),v_ecalAdcTime.size());
+  const size_t Nev = std::min(vGoodLe.size(),v_GoodEcalAdcTime.size());
   int sumNhits = 0;
   int sumGoodHits1 = 0;
   int sumGoodHits2 = 0;
@@ -1716,7 +1724,7 @@ void plotEcalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
     int countGoodHits1 = 0;
     int countGoodHits2 = 0;
 
-    double t_ecal = v_ecalAdcTime[ev];
+    double t_ecal = v_GoodEcalAdcTime[ev];
   
     const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
     for (size_t ihit = 0; ihit < Nhits; ++ihit) {
@@ -1724,13 +1732,24 @@ void plotEcalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
       double tot = vGoodTot[ev][ihit];
       double t_diff = t_ecal-t_cdet;
       hEcalMinusCdetTimeNoCuts->Fill(t_diff);
+      
 
       if (t_cdet >= LeMin && t_cdet <= LeMax && tot >= TotMin && tot <= TotMax && t_diff >= diffMinCut && t_diff <= diffMaxCut){
         hEcalMinusCdetTime->Fill(t_diff);
         h2EcalMinusCdetTime->Fill(t_cdet,t_diff);
+        hEcalVsCdet->Fill(t_cdet, t_ecal);
         double x_cdet = vCdetGoodX[ev][ihit];
         double x_ecal = v_GoodEcalX[ev]*vCdetGoodZ[ev][ihit]/ecal_dist;
 
+        double xdiff = x_cdet - x_ecal - 0.02;
+        if (std::fabs(xdiff) > 0.1) {
+          std::cout << "Out-of-cut hit: ev=" << ev
+                    << " ihit=" << ihit
+                    << " x_cdet=" << x_cdet
+                    << " x_ecal=" << x_ecal
+                    << " xdiff=" << xdiff << std::endl;
+        }
+      
         h2EcalxVsCdetx->Fill(x_cdet,x_ecal);
 
         int sbselemid = (Int_t)vGoodID[ev][ihit];
@@ -1790,16 +1809,19 @@ void plotEcalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   TCanvas *cXComp = new TCanvas("cXComp", "Ecal x vs Cdet x",900,700);
   h2EcalxVsCdetx->Draw("COLZ");
 
+  TCanvas *cTimeComp = new TCanvas("cTimeComp", "Ecal ADCtime vs Cdet LE",900,700);
+  hEcalVsCdet->Draw("COLZ");
+
 } //end routine
 
 void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double CDetMin = 0, double CDetMax = 60, double EcalMin = 0, double EcalMax = 250){
   int NADCBins = (int)((EcalMax-EcalMin)/4); //4ns bins for ecal, since fADC 4ns resolution
   int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
   TH2D* hEcalVsCdet = new TH2D("hEcalVsCdet", "ECal Time vs CDet Time;CDet LE Time (ns);Ecal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, EcalMin, EcalMax);
-  const size_t Nev = std::min(vGoodLe.size(),v_ecalAdcTime.size());
+  const size_t Nev = std::min(vGoodLe.size(),v_GoodEcalAdcTime.size());
 
   for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
-    double t_ecal = v_ecalAdcTime[ev];
+    double t_ecal = v_GoodEcalAdcTime[ev];
 
     const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
     for (size_t ihit = 0; ihit < Nhits; ++ihit) {
