@@ -80,8 +80,8 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
 const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
-//const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/CDet/rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/CDetFiles";
+//const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
+const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
 bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
@@ -115,7 +115,7 @@ void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegm
       if (f->IsDirectory()) continue; // skip dirs like "." and ".."
 
       TString fname = f->GetName();
-      if (!fname.BeginsWith(Form("CDet_%d_", runnum))) continue;
+      if (!fname.BeginsWith(Form("cdet_%d_", runnum))) continue;
       if (!fname.EndsWith(".root")) continue;
 
       if (onlySegment >= 0) {
@@ -627,7 +627,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.2, Double_t XOffset = 0.02, Double_t YOffset = 0.1;
+	Double_t XDiffCut = 0.2, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
@@ -864,53 +864,53 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
 
   // ******CDet******
   // ----- CDet arrays -----
-  TTreeReaderArray<double> TDCmult(reader, "earm.CDet.tdc_mult");
+  TTreeReaderArray<double> TDCmult(reader, "earm.cdet.tdc_mult");
 
-  TTreeReaderArray<double> RawElID   (reader, "earm.CDet.hits.TDCelemID");
-  TTreeReaderArray<double> RawElLE   (reader, "earm.CDet.hits.t");
-  TTreeReaderArray<double> RawElTE   (reader, "earm.CDet.hits.t_te");
-  TTreeReaderArray<double> RawElTot  (reader, "earm.CDet.hits.t_tot");
+  TTreeReaderArray<double> RawElID   (reader, "earm.cdet.hits.TDCelemID");
+  TTreeReaderArray<double> RawElLE   (reader, "earm.cdet.hits.t");
+  TTreeReaderArray<double> RawElTE   (reader, "earm.cdet.hits.t_te");
+  TTreeReaderArray<double> RawElTot  (reader, "earm.cdet.hits.t_tot");
 
-  TTreeReaderArray<double> GoodElID  (reader, "earm.CDet.hit.pmtnum");
-  TTreeReaderArray<double> GoodElLE  (reader, "earm.CDet.hit.tdc_le");
-  TTreeReaderArray<double> GoodElTE  (reader, "earm.CDet.hit.tdc_te");
-  TTreeReaderArray<double> GoodElTot (reader, "earm.CDet.hit.tdc_tot");
+  TTreeReaderArray<double> GoodElID  (reader, "earm.cdet.hit.pmtnum");
+  TTreeReaderArray<double> GoodElLE  (reader, "earm.cdet.hit.tdc_le");
+  TTreeReaderArray<double> GoodElTE  (reader, "earm.cdet.hit.tdc_te");
+  TTreeReaderArray<double> GoodElTot (reader, "earm.cdet.hit.tdc_tot");
 
-  TTreeReaderArray<double> GoodX     (reader, "earm.CDet.hit.xhit");
-  TTreeReaderArray<double> GoodY     (reader, "earm.CDet.hit.yhit");
-  TTreeReaderArray<double> GoodZ     (reader, "earm.CDet.hit.zhit");
+  TTreeReaderArray<double> GoodX     (reader, "earm.cdet.hit.xhit");
+  TTreeReaderArray<double> GoodY     (reader, "earm.cdet.hit.yhit");
+  TTreeReaderArray<double> GoodZ     (reader, "earm.cdet.hit.zhit");
 
-  TTreeReaderArray<double> GoodCol   (reader, "earm.CDet.hit.row");
-  TTreeReaderArray<double> GoodRow   (reader, "earm.CDet.hit.col");
-  TTreeReaderArray<double> GoodLayer (reader, "earm.CDet.hit.layer");
+  TTreeReaderArray<double> GoodCol   (reader, "earm.cdet.hit.row");
+  TTreeReaderArray<double> GoodRow   (reader, "earm.cdet.hit.col");
+  TTreeReaderArray<double> GoodLayer (reader, "earm.cdet.hit.layer");
 
-  // ----- CDet scalars ----- 
-  TTreeReaderValue<double> nhits        (reader, "earm.CDet.nhits");
-  TTreeReaderValue<double> ngoodhits    (reader, "earm.CDet.ngoodhits");
-  TTreeReaderValue<double> ngoodTDChits (reader, "earm.CDet.ngoodTDChits");
+  // ----- cdet scalars ----- 
+  TTreeReaderValue<double> nhits        (reader, "earm.cdet.nhits");
+  TTreeReaderValue<double> ngoodhits    (reader, "earm.cdet.ngoodhits");
+  TTreeReaderValue<double> ngoodTDChits (reader, "earm.cdet.ngoodTDChits");
 
   //------ECal-------
   // Cluster arrays
-  // TTreeReaderArray<double> ECal_clus_adctime      (reader, "earm.ECal.clus.adctime");
-  // TTreeReaderArray<double> ECal_clus_again        (reader, "earm.ECal.clus.again");
-  // TTreeReaderArray<double> ECal_clus_atimeblk     (reader, "earm.ECal.clus.atimeblk");
-  // TTreeReaderArray<double> ECal_clus_col          (reader, "earm.ECal.clus.col");
-  // TTreeReaderArray<double> ECal_clus_e            (reader, "earm.ECal.clus.e");
-  // TTreeReaderArray<double> ECal_clus_eblk         (reader, "earm.ECal.clus.eblk");
-  // TTreeReaderArray<double> ECal_clus_id           (reader, "earm.ECal.clus.id");
-  // TTreeReaderArray<double> ECal_clus_nblk         (reader, "earm.ECal.clus.nblk");
-  // TTreeReaderArray<double> ECal_clus_row          (reader, "earm.ECal.clus.row");
-  // TTreeReaderArray<double> ECal_clus_x            (reader, "earm.ECal.clus.x");
-  // TTreeReaderArray<double> ECal_clus_y            (reader, "earm.ECal.clus.y");
+  // TTreeReaderArray<double> ECal_clus_adctime      (reader, "earm.ecal.clus.adctime");
+  // TTreeReaderArray<double> ECal_clus_again        (reader, "earm.ecal.clus.again");
+  // TTreeReaderArray<double> ECal_clus_atimeblk     (reader, "earm.ecal.clus.atimeblk");
+  // TTreeReaderArray<double> ECal_clus_col          (reader, "earm.ecal.clus.col");
+  // TTreeReaderArray<double> ECal_clus_e            (reader, "earm.ecal.clus.e");
+  // TTreeReaderArray<double> ECal_clus_eblk         (reader, "earm.ecal.clus.eblk");
+  // TTreeReaderArray<double> ECal_clus_id           (reader, "earm.ecal.clus.id");
+  // TTreeReaderArray<double> ECal_clus_nblk         (reader, "earm.ecal.clus.nblk");
+  // TTreeReaderArray<double> ECal_clus_row          (reader, "earm.ecal.clus.row");
+  // TTreeReaderArray<double> ECal_clus_x            (reader, "earm.ecal.clus.x");
+  // TTreeReaderArray<double> ECal_clus_y            (reader, "earm.ecal.clus.y");
 
   // Cluster count (scalar)
   //TTreeReaderValue<double> ECal_nclus(reader, "earm.ECal.nclus");
 
   //event-level ECal branches
-  TTreeReaderValue<double> ECalX       (reader, "earm.ECal.x");
-  TTreeReaderValue<double> ECalY       (reader, "earm.ECal.y");
-  TTreeReaderValue<double> ECalE       (reader, "earm.ECal.e");
-  TTreeReaderValue<double> ECalAdcTime (reader, "earm.ECal.adctime");
+  TTreeReaderValue<double> ECalX       (reader, "earm.ecal.x");
+  TTreeReaderValue<double> ECalY       (reader, "earm.ecal.y");
+  TTreeReaderValue<double> ECalE       (reader, "earm.ecal.e");
+  TTreeReaderValue<double> ECalAdcTime (reader, "earm.ecal.adctime");
 
   /* ----- SBS branches ----- 
     ------- comment out for now ---------
@@ -1837,12 +1837,30 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
 
 } //end routine
 
-void plotRawXCorrelation(){
+void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
 
-  TH2D* h2ECalxVsCDetx = new TH2D("h2ECalxVsCDetx", "ECal Good x vs CDet Good x;CDet Good x (m);ECal Good x (m)",600,-1.5,1.5,200,-1.5,1.5);
+  TH2D* h2RawECalxVsCDetx = new TH2D("h2ECalxVsCDetx", "ECal Good x vs CDet Good x;CDet Good x (m);ECal Good x (m)",600,-1.5,1.5,200,-1.5,1.5);
 
-  Nev = vCDetX.size();
+  if (vCDetX.size() != v_ECalX.size()){
+    std::cout << "vCDetX and vECalX not the same size" << std::endl;
+  }
+  const size_t Nev = vCDetX.size();
+  for (size_t ev = 0; ev < Nev; ev++){
+    double t_e = v_ECalAdcTime[ev];
 
+    const size_t Nhits = vCDetX[ev].size();
+    for (size_t ihit = 0; ihit < Nhits; ihit++){
+      double t_c = vRawLe[ev][ihit];
+      double t_diff = t_e - t_c;
+      if (t_diff >= tDiffMin && t_diff <= tDiffMax){
+        double x_c = vCDetX[ev][ihit];
+        double x_e = v_ECalX[ev]*(vCDetZ[ev][ihit]/ECal_dist);
+        h2RawECalxVsCDetx->Fill(x_c,x_e);
+      }//if statement for cuts
+    }//end hit loop
+  }//end event loop
+  TCanvas *cRawXComp = new TCanvas("cRawXComp", "ECal x vs Raw CDet x",900,700);
+  h2RawECalxVsCDetx->Draw("COLZ");
 }
 
 void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double CDetMin = 0, double CDetMax = 60, double ECalMin = 0, double ECalMax = 250){
