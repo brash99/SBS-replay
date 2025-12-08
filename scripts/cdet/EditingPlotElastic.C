@@ -1092,9 +1092,10 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
+      bool good_CDet_X = GoodX[el] < xcut;
 
 
-      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult;
+      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
 
       //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
@@ -1854,7 +1855,9 @@ void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
       double t_diff = t_e - t_c;
       if (t_diff >= tDiffMin && t_diff <= tDiffMax){
         double x_c = vCDetX[ev][ihit];
+        double z_c = vCDetZ[ev][ihit];
         double x_e = v_ECalX[ev]*(vCDetZ[ev][ihit]/ECal_dist);
+        std::cout << "CDetX = " << x_c << " ECalX = " << x_e << "CDetZ = " << z_c << std::endl;
         h2RawECalxVsCDetx->Fill(x_c,x_e);
       }//if statement for cuts
     }//end hit loop
