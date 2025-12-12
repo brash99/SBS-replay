@@ -78,7 +78,7 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
 
 
 //const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));// + "/rootfiles";
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
@@ -1093,7 +1093,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
-      bool good_CDet_X = GoodX[el] < xcut;
+      bool good_CDet_X = fabs(GoodX[el]) < xcut;
 
 
       bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
@@ -1111,7 +1111,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             //fill this events vectors
             thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc); 
             thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc);
-            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns - event_ref_tdc);
+            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns); //- event_ref_tdc);
             thisEvent_ID.push_back((Int_t)RawElID[el]);
           
             //fill all hits vectors
@@ -1124,6 +1124,26 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             thisEvent_CDetX.push_back(GoodX[el]);
             thisEvent_CDetY.push_back(GoodY[el]);
             thisEvent_CDetZ.push_back(GoodZ[el]-CDet_dist_offset);
+            //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
+            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << GoodX[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetY = " << GoodY[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << GoodZ[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
+            std::cout << " " <<std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
+            std::cout << "-------------------- " <<std::endl;
+            /*}
+            if (fabs(GoodX[el]) == 999 && GoodZ[el] != -999){
+            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << GoodX[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << GoodZ[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
+            std::cout << " " <<std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
+            }*/
             /* Comment out histograms for now
             hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc);
             hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc);
@@ -1722,7 +1742,7 @@ void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
 }
 
 
-void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
+void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 150, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
   
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
@@ -1730,6 +1750,7 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   TH1D* hECalMinusCDetTime = new TH1D("hECalMinusCDetTime", "ECal-CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
   TH1D* hECalMinusCDetTimeNoCuts = new TH1D("hECalMinusCDetTimeNoCuts", "ECal-CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
   TH2D* h2ECalMinusCDetTime = new TH2D("h2ECalMinusCDetTime", "ECal-CDet Time vs CDet Time;CDet 'Good' Time (ns);ECal-CDet Time (ns)", TDCBinNum, CDetMin, CDetMax, TDCBinNum, DiffMin, DiffMax);
+  TH2D* h2ECalMinusCDetTot = new TH2D("h2ECalMinusCDetTot", "ECal-CDet Time vs CDet Tot;CDet 'Good' Tot (ns);ECal-CDet Time (ns)", TDCBinNum, CDetTotMin, CDetTotMax, TDCBinNum, DiffMin, DiffMax);
   TH2D* hECalVsCDet = new TH2D("hECalVsCDet", "ECal Time vs CDet Time;CDet LE Time (ns);ECal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, ECalMin, ECalMax);
   TH2D* h2ECalxVsCDetx = new TH2D("h2ECalxVsCDetx", "ECal Good x vs CDet Good x;CDet Good x (m);ECal Good x (m)",600,-1.5,1.5,200,-1.5,1.5);
   // TH1I* hGoodHitsPerEvent = new TH1I("hGoodHitsPerEvent", "Good hits per event;N_{good hits};Events", 100, 0, 100);
@@ -1758,21 +1779,12 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
       hECalMinusCDetTimeNoCuts->Fill(t_diff);
       
       if (t_CDet >= LeMin && t_CDet <= LeMax && tot >= TotMin && tot <= TotMax && t_diff >= diffMinCut && t_diff <= diffMaxCut){
-        hECalMinusCDetTime->Fill(t_diff);
-        h2ECalMinusCDetTime->Fill(t_CDet,t_diff);
-        hECalVsCDet->Fill(t_CDet, t_ECal);
         double x_CDet = vCDetGoodX[ev][ihit];
         double x_ECal = v_GoodECalX[ev]*vCDetGoodZ[ev][ihit]/ECal_dist;
-
-        // double xdiff = x_CDet - x_ECal - 0.02;
-        // if (std::fabs(xdiff) > 0.1) {
-        //   std::cout << "Out-of-cut hit: ev=" << ev
-        //             << " ihit=" << ihit
-        //             << " x_CDet=" << x_CDet
-        //             << " x_ECal=" << x_ECal
-        //             << " xdiff=" << xdiff << std::endl;
-        // }
-      
+        hECalMinusCDetTime->Fill(t_diff);
+        h2ECalMinusCDetTime->Fill(t_CDet, t_diff);
+        h2ECalMinusCDetTot->Fill(tot, t_diff);
+        hECalVsCDet->Fill(t_CDet, t_ECal);
         h2ECalxVsCDetx->Fill(x_CDet,x_ECal);
 
         int sbselemid = (Int_t)vGoodID[ev][ihit];
@@ -1822,20 +1834,20 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   leg->AddEntry(hECalMinusCDetTimeNoCuts,"NoCuts","l");
   leg->Draw();
 
-  TCanvas *c2DtimeDiff = new TCanvas("c2DTimeDiff", "ECal-CDet Time vs CDet Time",900,700);
-  h2ECalMinusCDetTime->Draw("COLZ"); //heatmap
-  //prof->SetLineColor(kRed);
-  //prof->SetLineWidth(3);
-  //prof->Draw("SAME");
-
-  // fit->SetLineColor(kBlack);
-  // fit->SetLineWidth(2);
-  // fit->Draw("SAME");
   TCanvas *cXComp = new TCanvas("cXComp", "ECal x vs CDet x",900,700);
   h2ECalxVsCDetx->Draw("COLZ");
 
-  TCanvas *cTimeComp = new TCanvas("cTimeComp", "ECal ADCtime vs CDet LE",900,700);
+  TCanvas *c2DtimeComps = new TCanvas("c2DtimeComps", "ECal-CDet Time Comparisons",900,700);
+  c2DtimeComps->Divide(1,3);
+
+  c2DtimeComps->cd(1);
   hECalVsCDet->Draw("COLZ");
+
+  c2DtimeComps->cd(2);
+  h2ECalMinusCDetTime->Draw("COLZ"); //heatmap
+  
+  c2DtimeComps->cd(3);
+  h2ECalMinusCDetTot->Draw("COLZ"); //heatmap
 
 } //end routine
 
@@ -1849,7 +1861,11 @@ void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
   const size_t Nev = vCDetX.size();
   for (size_t ev = 0; ev < Nev; ev++){
     double t_e = v_ECalAdcTime[ev];
-
+    std::cout << "event = " << ev << " " << "size of cdetX = " << vCDetX[ev].size() << std::endl;
+    std::cout << " " <<std::endl;
+    std::cout << "event = " << ev << " " << "size of cdetLE = " << vRawLe[ev].size() << std::endl;
+    std::cout << "event = " << ev << " " << "size of cdetLE = " << vRawTe[ev].size() << std::endl;
+    std::cout << "event = " << ev << " " << "size of cdetLE = " << vRawTot[ev].size() << std::endl;
     const size_t Nhits = vCDetX[ev].size();
     for (size_t ihit = 0; ihit < Nhits; ihit++){
       double t_c = vRawLe[ev][ihit];
