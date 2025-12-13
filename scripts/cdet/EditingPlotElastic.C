@@ -1184,7 +1184,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             thisEvent_LE.push_back(leg); 
             thisEvent_TE.push_back(teg);
             thisEvent_TOT.push_back(totg); //- event_ref_tdc);
-            thisEvent_ID.push_back((pmtg);
+            thisEvent_ID.push_back(pmtg);
           
             //fill all hits vectors
             vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);
