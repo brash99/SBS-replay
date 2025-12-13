@@ -1144,6 +1144,7 @@ void EditingPlotElastic_fixed2(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t
             thisEvent_CDetY.push_back(gy);
             thisEvent_CDetZ.push_back(gz);
             //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
+	    if (rawEventCounter<20) {
             std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetY = " << gy << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << gz << std::endl;
@@ -1153,6 +1154,7 @@ void EditingPlotElastic_fixed2(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t
             std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
             std::cout << "-------------------- " <<std::endl;
+	    }
             /*}
             if (fabs(GoodX[el]) == 999 && GoodZ[el] != -999){
             std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
