@@ -960,6 +960,11 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
   //================================================================= Event Loop
   // variables outside event loop
   Int_t EventCounter = 0;
+
+  // DEBUG controls
+  const bool DBG = true;        // master on/off
+  const long DBG_ENTRY = -1;    // set to a specific tree entry, or -1 for all
+
   cout << "Starting Event Loop" << endl;
 
     int eff_denominator = 0;
@@ -1149,7 +1154,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             thisEvent_CDetY.push_back(gy);
             thisEvent_CDetZ.push_back(gz);
             //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
-            if (rawEventCounter<20) {
+            if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY) && rawEventCounter<20) {
             std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetY = " << gy << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << gz << std::endl;
