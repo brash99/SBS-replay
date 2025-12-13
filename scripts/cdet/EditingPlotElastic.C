@@ -20,6 +20,7 @@
 #include <TSystem.h>
 #include <TLatex.h>
 #include <vector>
+#include <unordered_map>
 
 std::vector<TCanvas*> canvas_vector;
 
@@ -1137,14 +1138,31 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       std::vector<double> thisEvent_CDetY;
       std::vector<double> thisEvent_CDetZ;
 
+      // Map GoodElID -> index, so we can look up GoodX/Y/Z by PMT id from raw hits
+      std::unordered_map<int,int> goodIdx;
+      goodIdx.reserve(GoodElID.GetSize());
+      for (int ig = 0; ig < (int)GoodElID.GetSize(); ig++) {
+         goodIdx[(int)GoodElID[ig]] = ig;
+      }
+
       int rawEventCounter = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++){
+
+        const int pmt = (int)RawElID[el];
+        auto it = goodIdx.find(pmt);
+        const bool hasGood = (it != goodIdx.end());
+        const int ig = hasGood ? it->second : -1;
+
+        const double xg = hasGood ? GoodX[ig] : 1e9;
+        const double yg = hasGood ? GoodY[ig] : 1e9;
+        const double zg = hasGood ? (GoodZ[ig] - CDet_dist_offset) : 1e9;
+
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
-      bool good_CDet_X = fabs(GoodX[el]) < xcut;
-
+      //bool good_CDet_X = fabs(GoodX[el]) < xcut;
+      bool good_CDet_X = hasGood && (fabs(xg) < xcut);
 
       bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
 
@@ -1171,9 +1189,20 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             vAllRawPMT.push_back(RawElID[el]);
             vAllRawBar.push_back((Int_t)(RawElID[el]/16));
 
-            thisEvent_CDetX.push_back(GoodX[el]);
-            thisEvent_CDetY.push_back(GoodY[el]);
-            thisEvent_CDetZ.push_back(GoodZ[el]-CDet_dist_offset);
+            //thisEvent_CDetX.push_back(GoodX[el]);
+            //thisEvent_CDetY.push_back(GoodY[el]);
+            //thisEvent_CDetZ.push_back(GoodZ[el]-CDet_dist_offset);
+            thisEvent_CDetX.push_back(xg);
+            thisEvent_CDetY.push_back(yg);
+            thisEvent_CDetZ.push_back(zg);
+
+            std::cout << "event=" << rawEventCounter
+                << " pmt=" << pmt
+                << " hasGood=" << hasGood
+                << " cdetX=" << xg
+                << " cdetY=" << yg
+                << " cdetZ=" << zg
+                << std::endl;
             
             //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
             if (rawEventCounter < 20) {
@@ -1272,7 +1301,9 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       bool good_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_hit_mult = TDCmult[el] < TDCmult_cut;
-      bool good_CDet_X = GoodX[el] < xcut;
+      //bool good_CDet_X = GoodX[el] < xcut;
+      bool good_CDet_X = hasGood && (fabs(xg) < xcut);
+
       bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) <= XDiffCut && 
           (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
       bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
