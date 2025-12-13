@@ -1196,13 +1196,16 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             thisEvent_CDetY.push_back(yg);
             thisEvent_CDetZ.push_back(zg);
 
-            std::cout << "event=" << rawEventCounter
+            if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY) && el<20) {
+             std::cout << "event=" << rawEventCounter
+		<< " el= " << el
                 << " pmt=" << pmt
                 << " hasGood=" << hasGood
                 << " cdetX=" << xg
                 << " cdetY=" << yg
                 << " cdetZ=" << zg
                 << std::endl;
+	    }
             
             //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
             if (rawEventCounter < 20) {
@@ -1379,7 +1382,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
     int CDetPassedBoolCount = 0;
 
     for(Int_t el=0; el<GoodElID.GetSize(); el++){
-      if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY)) {
+      if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY) && el<20) {
               std::cout << "GOOD STORE: el=" << el
                         << " GoodElID=" << GoodElID[el]
                         << " LE(ns)=" << GoodElLE[el]*TDC_calib_to_ns
