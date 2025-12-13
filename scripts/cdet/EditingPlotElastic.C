@@ -78,11 +78,11 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
 
 
 //const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));// + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
+const TString ANALYSED_DIR = "/work/brash/CDet_replay/sbs/Rootfiles/cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
 bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
@@ -1136,6 +1136,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       std::vector<double> thisEvent_CDetX;
       std::vector<double> thisEvent_CDetY;
       std::vector<double> thisEvent_CDetZ;
+
       int rawEventCounter = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++){
 
@@ -1329,7 +1330,16 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
     std::vector<double> thisEvent_GoodTOT;
     std::vector<int> thisEvent_GoodID;
 
-    if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY)) {
+    std::vector<double> thisEvent_GoodX;
+    std::vector<double> thisEvent_GoodY;
+    std::vector<double> thisEvent_GoodZ;
+    std::vector<int> thisEvent_GoodLayer;
+    std::vector<int> thisEvent_GoodCol;
+
+    int CDetPassedBoolCount = 0;
+
+    for(Int_t el=0; el<GoodElID.GetSize(); el++){
+      if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY)) {
               std::cout << "GOOD STORE: el=" << el
                         << " GoodElID=" << GoodElID[el]
                         << " LE(ns)=" << GoodElLE[el]*TDC_calib_to_ns
@@ -1341,17 +1351,8 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
                         << " row=" << GoodRow[el]
                         << " col=" << GoodCol[el]
                         << "\n";
-    }
+      }
 
-    std::vector<double> thisEvent_GoodX;
-    std::vector<double> thisEvent_GoodY;
-    std::vector<double> thisEvent_GoodZ;
-    std::vector<int> thisEvent_GoodLayer;
-    std::vector<int> thisEvent_GoodCol;
-
-    int CDetPassedBoolCount = 0;
-
-    for(Int_t el=0; el<GoodElID.GetSize(); el++){
       bool goodhit_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
                                          *ECalX > -1.5 && *ECalX < 1.5 &&
                                          *ECalX != 0.00 && *ECalY != 0.00;
