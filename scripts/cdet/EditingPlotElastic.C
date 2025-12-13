@@ -633,6 +633,10 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
 {
 
+    // DEBUG controls
+  const bool DBG = true;          // master on/off
+  const long DBG_ENTRY = -1;   // set to a specific tree entry to focus on (-1 for all)
+
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
 	Double_t RefLeMax = 251.0;
@@ -966,6 +970,36 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
   // event loop start
   Int_t event = 0;
   while(reader.Next()){
+
+    const Long64_t entry = reader.GetCurrentEntry();
+
+    if (DBG && (DBG_ENTRY < 0 || entry == DBG_ENTRY)) {
+      std::cout << "\n=== ENTRY " << entry << " ===\n";
+      std::cout << "Raw sizes: "
+              << " RawElID=" << RawElID.GetSize()
+              << " RawElLE=" << RawElLE.GetSize()
+              << " RawElTE=" << RawElTE.GetSize()
+              << " RawElTot=" << RawElTot.GetSize()
+              << "\n";
+      std::cout << "Good sizes: "
+              << " GoodElID=" << GoodElID.GetSize()
+              << " GoodElLE=" << GoodElLE.GetSize()
+              << " GoodElTE=" << GoodElTE.GetSize()
+              << " GoodElTot=" << GoodElTot.GetSize()
+              << " GoodX=" << GoodX.GetSize()
+              << " GoodY=" << GoodY.GetSize()
+              << " GoodZ=" << GoodZ.GetSize()
+              << "\n";
+      std::cout << "Scalars: "
+              << " nhits=" << *nhits
+              << " ngoodhits=" << *ngoodhits
+              << " ngoodTDChits=" << *ngoodTDChits
+              << " ECalX=" << *ECalX
+              << " ECalY=" << *ECalY
+              << " ECalE=" << *ECalE
+              << "\n";
+    }
+
     event++;
     event = event - 1;
     EventCounter++;
@@ -1040,6 +1074,23 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       double ref_corr = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++) {
         if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
+          
+          if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY)) {
+            std::cout << "REF CANDIDATE: el=" << el
+                    << " RawElID=" << RawElID[el]
+                    << " RawLE(ns)=" << RawElLE[el]*TDC_calib_to_ns
+                    << " RawTE(ns)=" << RawElTE[el]*TDC_calib_to_ns
+                    << " RawTot(ns)=" << RawElTot[el]*TDC_calib_to_ns;
+
+            // VERY IMPORTANT: compare raw vs good indexing at the same 'el'
+            if (el < (Int_t)GoodElTot.GetSize()) {
+              std::cout << "  GoodTot_at_same_el(ns)=" << GoodElTot[el]*TDC_calib_to_ns;
+            } else {
+              std::cout << "  GoodTot_at_same_el=OUT_OF_RANGE";
+            }
+            std::cout << "\n";
+          }
+
           bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
           bool good_ref_tot = GoodElTot[el] >= 0.0/TDC_calib_to_ns && GoodElTot[el] <= 200.0/TDC_calib_to_ns;
           bool good_ref_event = good_ref_le_time && good_ref_tot;
@@ -1374,6 +1425,20 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             thisEvent_GoodLayer.push_back(mylayer);
             //hLayer->Fill(mylayer);
 
+            if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY)) {
+              std::cout << "GOOD STORE: el=" << el
+                        << " GoodElID=" << GoodElID[el]
+                        << " LE(ns)=" << GoodElLE[el]*TDC_calib_to_ns
+                        << " TOT(ns)=" << GoodElTot[el]*TDC_calib_to_ns
+                        << " X=" << GoodX[el]
+                        << " Y=" << GoodY[el]
+                        << " Z=" << GoodZ[el]
+                        << " layer=" << GoodLayer[el]
+                        << " row=" << GoodRow[el]
+                        << " col=" << GoodCol[el]
+                        << "\n";
+            }
+
             thisEvent_GoodX.push_back(GoodX[el]);
             thisEvent_GoodY.push_back(GoodY[el]);
             thisEvent_GoodZ.push_back(GoodZ[el]-CDet_dist_offset);
@@ -1428,6 +1493,14 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       //hCol->Fill(myside);
       vGoodLayer.push_back(thisEvent_GoodLayer);
       //hLayer->Fill(mylayer);
+
+      if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY)) {
+        std::cout << "PUSHING EVENT: entry=" << reader.GetCurrentEntry()
+                  << " CDetPassedBoolCount=" << CDetPassedBoolCount
+                  << " thisEvent_GoodX.size=" << thisEvent_GoodX.size()
+                  << " saved_index_will_be=" << vCDetGoodX.size()
+                  << "\n";
+      }
 
       vCDetGoodX.push_back(thisEvent_GoodX);
       vCDetGoodY.push_back(thisEvent_GoodY);
