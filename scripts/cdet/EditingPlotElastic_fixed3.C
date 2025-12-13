@@ -1875,12 +1875,15 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   c2DtimeComps->Divide(1,3);
 
   c2DtimeComps->cd(1);
+  gPad->SetLogz();
   hECalVsCDet->Draw("COLZ");
 
   c2DtimeComps->cd(2);
+  gPad->SetLogz();
   h2ECalMinusCDetTime->Draw("COLZ"); //heatmap
   
   c2DtimeComps->cd(3);
+  gPad->SetLogz();
   h2ECalMinusCDetTot->Draw("COLZ"); //heatmap
 
 } //end routine
