@@ -1156,12 +1156,16 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
         const double xg = hasGood ? GoodX[ig] : 1e9;
         const double yg = hasGood ? GoodY[ig] : 1e9;
         const double zg = hasGood ? (GoodZ[ig] - CDet_dist_offset) : 1e9;
+        const int pmtg = hasGood ? (int)RawElID[ig] : 1e9;
+        const double leg = hasGood ? RawElLE[ig]*TDC_calib_to_ns - event_ref_tdc : 1e9;
+        const double teg = hasGood ? RawElTE[ig]*TDC_calib_to_ns - event_ref_tdc : 1e9;
+        const double totg = hasGood ? RawElTot[ig]*TDC_calib_to_ns : 1e9;
+        const double multg = hasGood ? TDCmult[ig] : 1e9;
 
 
-      bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
-      bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
-      bool good_mult = TDCmult[el] < TDCmult_cut;
-      //bool good_CDet_X = fabs(GoodX[el]) < xcut;
+      bool good_raw_le_time = hasGood && leg > LeMin && leg <= LeMax;
+      bool good_raw_tot = hasGood && totg >= TotMin && totg <= TotMax;
+      bool good_mult = hasGood && multg < TDCmult_cut;
       bool good_CDet_X = hasGood && (fabs(xg) < xcut);
 
       bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
@@ -1170,17 +1174,17 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
       if ( good_raw_event ) {
         rawEventCounter++;
-        if ( !check_bad(RawElID[el],suppress_bad) ) {
+        if ( !check_bad(pmtg,suppress_bad) ) {
         //cout << " el = " << el << endl;
         //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
-          if ( (Int_t)RawElID[el] < 2688 ) {
+          if ( pmtg < 2688 ) {
             //if ((Int_t)RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
             
             //fill this events vectors
-            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc); 
-            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc);
-            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns); //- event_ref_tdc);
-            thisEvent_ID.push_back((Int_t)RawElID[el]);
+            thisEvent_LE.push_back(leg); 
+            thisEvent_TE.push_back(teg);
+            thisEvent_TOT.push_back(totg); //- event_ref_tdc);
+            thisEvent_ID.push_back((pmtg);
           
             //fill all hits vectors
             vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);
@@ -1209,14 +1213,14 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             
             //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
             if (rawEventCounter < 20) {
-            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << GoodX[el] << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetY = " << GoodY[el] << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << GoodZ[el] << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << xg << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetY = " << yg << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << zg << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetID = " << pmtg << std::endl;
             std::cout << " " <<std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << leg << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << teg << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << totg << std::endl;
             std::cout << "-------------------- " <<std::endl;
             }
 
