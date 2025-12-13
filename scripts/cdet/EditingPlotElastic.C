@@ -1295,6 +1295,15 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       }
       nhits_paddles[mypaddlen]++;
 
+      const int pmt = (int)RawElID[el];
+      auto it = goodIdx.find(pmt);
+      const bool hasGood = (it != goodIdx.end());
+      const int ig = hasGood ? it->second : -1;
+
+      const double xg = hasGood ? GoodX[ig] : 1e9;
+      const double yg = hasGood ? GoodY[ig] : 1e9;
+      const double zg = hasGood ? (GoodZ[ig] - CDet_dist_offset) : 1e9;
+
       bool good_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
                                       *ECalX > -1.5 && *ECalX < 1.5 &&
                                       *ECalX != 0.00 && *ECalY != 0.00 ;
