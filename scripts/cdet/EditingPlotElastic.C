@@ -20,6 +20,7 @@
 #include <TSystem.h>
 #include <TLatex.h>
 #include <vector>
+#include <unordered_map>
 
 std::vector<TCanvas*> canvas_vector;
 
@@ -78,7 +79,7 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
 
 
 //const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));// + "/rootfiles";
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
@@ -162,6 +163,7 @@ std::vector<std::vector<double>> vsbs_gemFT_track_ngoodhits;
 /* CDet & ECal Vectors */
 //1D vectors
 std::vector<double> vRefRawLe;
+std::vector<double> vGoodRefRawLe; // ref LE time aligned to GOOD-event vectors (same indexing as vGoodLe)
 std::vector<double> vRefRawTe;
 std::vector<double> vRefRawTot;
 std::vector<int>    vRefRawPMT;
@@ -195,6 +197,7 @@ std::vector<std::vector<double>> vCDetZ;
 std::vector<std::vector<double>> vCDetGoodX;
 std::vector<std::vector<double>> vCDetGoodY;
 std::vector<std::vector<double>> vCDetGoodZ;
+std::vector<Long64_t> vTreeEntry; // maps saved passing-event index -> TTree entry
 
 std::vector<int> vRowLayer1Side1;
 std::vector<int> vRowLayer2Side1;
@@ -957,6 +960,11 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
   //================================================================= Event Loop
   // variables outside event loop
   Int_t EventCounter = 0;
+
+  // DEBUG controls
+  const bool DBG = false;        // master on/off
+  const long DBG_ENTRY = -1;    // set to a specific tree entry, or -1 for all
+
   cout << "Starting Event Loop" << endl;
 
     int eff_denominator = 0;
@@ -1034,7 +1042,10 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       vsbs_gemFT_track_nhits.push_back(fill2D(sbs_gemFT_track_nhits));
       vsbs_gemFT_track_ngoodhits.push_back(fill2D(sbs_gemFT_track_ngoodhits));
       */
-      // First pass through hits:  purpose is to get reference LE TDC Value for this event
+            // Per-entry reference time (ns) for aligning with GOOD-event vectors
+      double thisEvent_refRawLe_ns = std::nan("");
+
+// First pass through hits:  purpose is to get reference LE TDC Value for this event
       
       double event_ref_tdc = 0.0;
       double ref_int = 0;
@@ -1042,7 +1053,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       for(Int_t el=0; el<RawElID.GetSize(); el++) {
         if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
           bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
-          bool good_ref_tot = GoodElTot[el] >= 0.0/TDC_calib_to_ns && GoodElTot[el] <= 200.0/TDC_calib_to_ns;
+          bool good_ref_tot = RawElTot[el] >= 0.0/TDC_calib_to_ns && RawElTot[el] <= 200.0/TDC_calib_to_ns;
           bool good_ref_event = good_ref_le_time && good_ref_tot;
           if ( good_ref_event ) {
 
@@ -1058,7 +1069,8 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
                 //cout << " Ref  ID = " << (Int_t)RawElID[el] << " el = " << el << "    LE = " << RawElLE[el]*TDC_calib_to_ns 
                 //		<< "    TE = " << RawElTE[el]*TDC_calib_to_ns << "    ToT = " << RawElTot[el]*TDC_calib_to_ns << endl;
                 
-                vRefRawLe.push_back(RawElLE[el] * TDC_calib_to_ns);
+                thisEvent_refRawLe_ns = RawElLE[el] * TDC_calib_to_ns;
+                vRefRawLe.push_back(thisEvent_refRawLe_ns);
                 vRefRawTe.push_back(RawElTE[el] * TDC_calib_to_ns);
                 vRefRawTot.push_back(RawElTot[el] * TDC_calib_to_ns);
                 vRefRawPMT.push_back((int)RawElID[el]);
@@ -1084,13 +1096,33 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       std::vector<double> thisEvent_TOT;
       std::vector<int> thisEvent_ID;
 
+      std::vector<double> thisEvent_CDetX;
+      std::vector<double> thisEvent_CDetY;
+      std::vector<double> thisEvent_CDetZ;
+
+      // Build lookup from PMT id -> index in Good* arrays for this TTree entry
+      std::unordered_map<int,int> goodIdx;
+      goodIdx.reserve(GoodElID.GetSize());
+      for (int ig = 0; ig < (int)GoodElID.GetSize(); ig++) {
+        goodIdx[(int)GoodElID[ig]] = ig;
+      }
+
       int rawEventCounter = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++){
+
+        const int raw_pmt = (int)RawElID[el];
+        auto itGood = goodIdx.find(raw_pmt);
+        const bool hasGood = (itGood != goodIdx.end());
+        const int ig = hasGood ? itGood->second : -1;
+        const double gx = hasGood ? GoodX[ig] : 1.0e9;
+        const double gy = hasGood ? GoodY[ig] : 1.0e9;
+        const double gz = hasGood ? (GoodZ[ig]-CDet_dist_offset) : 1.0e9;
+
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
-      //bool good_CDet_X = fabs(GoodX[el]) < xcut;
+      bool good_CDet_X = hasGood && (fabs(gx) < xcut);
 
 
       bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
@@ -1118,24 +1150,25 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             vAllRawPMT.push_back(RawElID[el]);
             vAllRawBar.push_back((Int_t)(RawElID[el]/16));
 
-            thisEvent_CDetX.push_back(GoodX[el]);
-            thisEvent_CDetY.push_back(GoodY[el]);
-            thisEvent_CDetZ.push_back(GoodZ[el]-CDet_dist_offset);
-            /*
-            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << GoodX[el] << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetY = " << GoodY[el] << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << GoodZ[el] << std::endl;
+            thisEvent_CDetX.push_back(gx);
+            thisEvent_CDetY.push_back(gy);
+            thisEvent_CDetZ.push_back(gz);
+            //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
+            if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY) && rawEventCounter<20) {
+            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetY = " << gy << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << gz << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "GoodcdetID = " << (Int_t)GoodElID[el] << std::endl;
             std::cout << " " <<std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
             std::cout << "-------------------- " <<std::endl;
-            
+            }
+            /*}
             if (fabs(GoodX[el]) == 999 && GoodZ[el] != -999){
-            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << GoodX[el] << std::endl;
-            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << GoodZ[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << gz << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
             std::cout << " " <<std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
@@ -1167,6 +1200,9 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       vRawTe.push_back(thisEvent_TE);
       vRawTot.push_back(thisEvent_TOT);
       vRawID.push_back(thisEvent_ID);
+      vCDetX.push_back(thisEvent_CDetX);
+      vCDetY.push_back(thisEvent_CDetY);
+      vCDetZ.push_back(thisEvent_CDetZ);
       v_ECalX.push_back(*ECalX);
       v_ECalY.push_back(*ECalY);
       v_ECalE.push_back(*ECalE);
@@ -1192,9 +1228,6 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
     ngoodTDCpaddles=0;
     
     for(Int_t el=0; el<GoodElID.GetSize(); el++){
-      std::vector<double> thisEvent_CDetX;
-      std::vector<double> thisEvent_CDetY;
-      std::vector<double> thisEvent_CDetZ;
       int sbselemid = (Int_t)GoodElID[el];
       int sbsrown = sbselemid%672;
       int sbscoln = sbselemid/672;
@@ -1244,10 +1277,6 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
         }
       }
     }
-    //have no xdiff cut
-    vCDetX.push_back(thisEvent_CDetX);
-    vCDetY.push_back(thisEvent_CDetY);
-    vCDetZ.push_back(thisEvent_CDetZ);
     for (int j=0; j<nTdc; j++) {
       if (nhits_paddles[j] > 0) {
         npaddles++;
@@ -1456,6 +1485,8 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       vCDetGoodX.push_back(thisEvent_GoodX);
       vCDetGoodY.push_back(thisEvent_GoodY);
       vCDetGoodZ.push_back(thisEvent_GoodZ);
+        vTreeEntry.push_back(reader.GetCurrentEntry());
+      vGoodRefRawLe.push_back(thisEvent_refRawLe_ns);
 
       vGoodLe.push_back(thisEvent_GoodLE);
       vGoodTe.push_back(thisEvent_GoodTE);
@@ -1724,18 +1755,19 @@ TCanvas *plotAllTDC(double width = 1, double binLow=0, double binHigh=60){
 
   return caa;
 }
-
 void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
   int TDCBinNum = (int)((tmax-tmin)/width);
   TH2D *h2 = new TH2D("h2","t_ref vs t_scint; t_ref; t_scint",TDCBinNum, tmin, tmax, TDCBinNum, tmin, tmax);
-  
-  const size_t Nev = vRefRawLe.size();
-  for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
-    double t_ref = vRefRawLe[ev];
+
+  // Use reference times that are aligned with the GOOD-event vectors
+  const size_t Nev = std::min(vGoodRefRawLe.size(), vGoodLe.size());
+  for (size_t ev = 0; ev < Nev; ev++) { // iterate through good-selected events
+    const double t_ref = vGoodRefRawLe[ev];
+    if (std::isnan(t_ref)) continue; // if no ref recorded for this entry, skip
 
     const size_t Nhits = vGoodLe[ev].size();
     for (size_t ihit = 0; ihit < Nhits; ihit++) {
-      double t_det = vGoodLe[ev][ihit];
+      const double t_det = vGoodLe[ev][ihit];
       h2->Fill(t_ref,t_det);
     }
   }
@@ -1843,12 +1875,15 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   c2DtimeComps->Divide(1,3);
 
   c2DtimeComps->cd(1);
+  gPad->SetLogz();
   hECalVsCDet->Draw("COLZ");
 
   c2DtimeComps->cd(2);
+  gPad->SetLogz();
   h2ECalMinusCDetTime->Draw("COLZ"); //heatmap
   
   c2DtimeComps->cd(3);
+  gPad->SetLogz();
   h2ECalMinusCDetTot->Draw("COLZ"); //heatmap
 
 } //end routine

@@ -77,11 +77,12 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
+//const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
+const TString ANALYSED_DIR = "/work/brash/CDet_replay/sbs/Rootfiles/cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
 bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
@@ -99,6 +100,36 @@ bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
     return true;
   }
   return false;
+}
+
+void WriteTH2DToCSV(TH2D* h, const char* filename = "hist2d.csv") {
+    std::ofstream out(filename);
+    out << "x_center,y_center,content\n";
+
+    for (int i = 1; i <= h->GetNbinsX(); i++) {
+        double x = h->GetXaxis()->GetBinCenter(i);
+        for (int j = 1; j <= h->GetNbinsY(); j++) {
+            double y = h->GetYaxis()->GetBinCenter(j);
+            double content = h->GetBinContent(i, j);
+            out << x << "," << y << "," << content << "\n";
+        }
+    }
+
+    out.close();
+    std::cout << "Wrote histogram to " << filename << std::endl;
+}
+void WriteTH1DToCSV(TH1D* h, const char* filename = "hist1d.csv") {
+    std::ofstream out(filename);
+    out << "x_center,content\n";
+
+    for (int i = 1; i <= h->GetNbinsX(); i++) {
+        double x = h->GetXaxis()->GetBinCenter(i);
+            double content = h->GetBinContent(i);
+            out << x << "," << content << "\n";
+        }
+
+    out.close();
+    std::cout << "Wrote histogram to " << filename << std::endl;
 }
 
 void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegment = -1) {
@@ -1866,6 +1897,8 @@ void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
 void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double CDetMin = 0, double CDetMax = 60, double ECalMin = 0, double ECalMax = 250){
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
+  TH1D* hECalTime = new TH1D("hECalTime","ECal ADC Time (ns)", NADCBins,ECalMin,ECalMax);
+  TH1D* hCDetTime = new TH1D("hCDetTime","CDet LE Time (ns)", TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDet = new TH2D("hECalVsCDet", "ECal Time vs CDet Time;CDet LE Time (ns);ECal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, ECalMin, ECalMax);
   const size_t Nev = std::min(vGoodLe.size(),v_GoodECalAdcTime.size());
 
@@ -1878,13 +1911,26 @@ void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double 
       double tot = vGoodTot[ev][ihit];
       if (t_CDet >= LeMin && t_CDet <= LeMax && tot >= TotMin && tot <= TotMax){
         hECalVsCDet->Fill(t_CDet, t_ECal);
+	hCDetTime->Fill(t_CDet);
+	hECalTime->Fill(t_ECal);
       }
     }//finished looking at hits
   } //finished looking at all events
 
   //make canvas and draw hist
   TCanvas *cTimeComp = new TCanvas("cTimeComp", "ECal ADCtime vs CDet LE",900,700);
+  cTimeComp->Divide(1,3);
+  cTimeComp->cd(1);
   hECalVsCDet->Draw("COLZ");
+  cTimeComp->cd(2);
+  hCDetTime->Draw();
+  cTimeComp->cd(3);
+  hECalTime->Draw();
+
+  WriteTH1DToCSV(hCDetTime,"CDetTime.csv");
+  WriteTH1DToCSV(hECalTime,"ECalTime.csv");
+
+
 } //end routine
 
 void plotXDiffSections(double le_min = 0, double le_max = 60, double tDiffMin = 80, double tDiffMax = 100){
@@ -2697,3 +2743,4 @@ auto plotECalClusAdcTime()
   TCanvas* c_ECal_clus_adctime = new TCanvas("c_ECal_clus_adctime", "ECal Cluster adctime",800,600);
   h_ECal_clus_adctime->Draw("HIST");
 }
+

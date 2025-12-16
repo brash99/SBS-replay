@@ -65,7 +65,7 @@ TChain *T = nullptr;
 
 // You can swap this to use OUT_DIR if you prefer:
 // const TString REPLAYED_DIR = gSystem->Getenv("OUT_DIR");
-const TString REPLAYED_DIR = "/work/brash/CDet_replay/sbs/Rootfiles";
+const TString REPLAYED_DIR = "/Users/brash/CDet_replay/sbs/Rootfiles";
 
 // ----------------------------------------------------------------------
 // Setup the TChain and branch addresses for the event display
