@@ -78,7 +78,7 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
 
 
 //const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));// + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
@@ -1084,16 +1084,13 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       std::vector<double> thisEvent_TOT;
       std::vector<int> thisEvent_ID;
 
-      std::vector<double> thisEvent_CDetX;
-      std::vector<double> thisEvent_CDetY;
-      std::vector<double> thisEvent_CDetZ;
       int rawEventCounter = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++){
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
-      bool good_CDet_X = fabs(GoodX[el]) < xcut;
+      //bool good_CDet_X = fabs(GoodX[el]) < xcut;
 
 
       bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
@@ -1124,17 +1121,18 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
             thisEvent_CDetX.push_back(GoodX[el]);
             thisEvent_CDetY.push_back(GoodY[el]);
             thisEvent_CDetZ.push_back(GoodZ[el]-CDet_dist_offset);
-            //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
+            /*
             std::cout << "event = " << rawEventCounter << " " << "cdetX = " << GoodX[el] << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetY = " << GoodY[el] << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << GoodZ[el] << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "GoodcdetID = " << (Int_t)GoodElID[el] << std::endl;
             std::cout << " " <<std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
             std::cout << "-------------------- " <<std::endl;
-            /*}
+            
             if (fabs(GoodX[el]) == 999 && GoodZ[el] != -999){
             std::cout << "event = " << rawEventCounter << " " << "cdetX = " << GoodX[el] << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << GoodZ[el] << std::endl;
@@ -1169,9 +1167,6 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
       vRawTe.push_back(thisEvent_TE);
       vRawTot.push_back(thisEvent_TOT);
       vRawID.push_back(thisEvent_ID);
-      vCDetX.push_back(thisEvent_CDetX);
-      vCDetY.push_back(thisEvent_CDetY);
-      vCDetZ.push_back(thisEvent_CDetZ);
       v_ECalX.push_back(*ECalX);
       v_ECalY.push_back(*ECalY);
       v_ECalE.push_back(*ECalE);
@@ -1197,6 +1192,9 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
     ngoodTDCpaddles=0;
     
     for(Int_t el=0; el<GoodElID.GetSize(); el++){
+      std::vector<double> thisEvent_CDetX;
+      std::vector<double> thisEvent_CDetY;
+      std::vector<double> thisEvent_CDetZ;
       int sbselemid = (Int_t)GoodElID[el];
       int sbsrown = sbselemid%672;
       int sbscoln = sbselemid/672;
@@ -1246,6 +1244,10 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
         }
       }
     }
+    //have no xdiff cut
+    vCDetX.push_back(thisEvent_CDetX);
+    vCDetY.push_back(thisEvent_CDetY);
+    vCDetZ.push_back(thisEvent_CDetZ);
     for (int j=0; j<nTdc; j++) {
       if (nhits_paddles[j] > 0) {
         npaddles++;
