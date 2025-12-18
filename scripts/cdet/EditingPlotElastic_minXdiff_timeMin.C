@@ -636,7 +636,7 @@ void EditingPlotElastic_minXdiff_timeMin(Int_t RunNumber1=5811, Int_t nevents=50
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.04, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
+	Double_t XDiffCut = 0.08, Double_t XOffset = 0.00, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
@@ -1820,7 +1820,7 @@ void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
 }
 
 
-void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 150, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
+void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 76, double diffMaxCut = 106, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 150, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
   
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
@@ -1930,8 +1930,10 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   //gPad->SetLogz();
   h2ECalMinusCDetTot->Draw("COLZ"); //heatmap
 
+}
 
-void plotECalCDetTimeCompMin(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115,
+
+void plotECalCDetTimeCompMin(double Width = 1, double diffMinCut = 76, double diffMaxCut = 106,
                              double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150,
                              double DiffMin = 62, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 150,
                              double CDetMin = 0, double CDetMax = 60, double ECalMin = 62, double ECalMax = 130){
@@ -2068,7 +2070,6 @@ void plotECalCDetTimeCompMin(double Width = 1, double diffMinCut = 70, double di
 
   c2DtimeCompsMin->cd(3);
   h2ECalMinusCDetTot_min->Draw("COLZ");
-}
 
 
 } //end routine
