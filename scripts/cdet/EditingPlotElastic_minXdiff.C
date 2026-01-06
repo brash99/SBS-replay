@@ -484,6 +484,9 @@ TH2F *hXECalCDet1;
 TH2F *hXECalCDet2;
 TH2F *hXECalCDet1_min;
 TH2F *hXECalCDet2_min;
+
+TH1F *hXDiffECalCDet1_min;
+TH1F *hXDiffECalCDet2_min;
 TH2F *hYECalCDet1;
 TH2F *hYECalCDet2;
 TH2F *hEECalCDet1;
@@ -628,7 +631,7 @@ std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
   return tmp;
 }
 
-void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=500000, Int_t elastic = 0, Int_t onlySegment = -1,
+void EditingPlotElastic_minXdiff(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=500000, Int_t elastic = 0, Int_t onlySegment = -1,
 	Double_t LeMin = 0.02, Double_t LeMax = 60.0,
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
@@ -707,8 +710,9 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t nevent
   
   hXECalCDet1 = new TH2F("XECalCDet1","XECalCDet1",100,-2.0,2.0,100,-2.0,2.0);
   hXECalCDet2 = new TH2F("XECalCDet2","XECalCDet2",100,-2.0,2.0,100,-2.0,2.0);
+
   hXECalCDet1_min = new TH2F("XECalCDet1_min","XECalCDet1_min (min |x_{CDet}-x_{ECal->CDet}| per event)",100,-2.0,2.0,100,-2.0,2.0);
-hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{ECal->CDet}| per event)",100,-2.0,2.0,100,-2.0,2.0);
+  hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{ECal->CDet}| per event)",100,-2.0,2.0,100,-2.0,2.0);
   hYECalCDet1 = new TH2F("YECalCDet1","YECalCDet1",100,-1.0,1.0,9,-1.0,1.0);
   hYECalCDet2 = new TH2F("YECalCDet2","YECalCDet2",100,-1.0,1.0,9,-1.0,1.0);
   hEECalCDet1 = new TH2F("EECalCDet1","EECalCDet1",100,0.0,20.0,100,-2.0,2.0);
@@ -719,6 +723,9 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   hXDiffECalCDet1 = new TH1F("XDiffECalCDet1","XDiffECalCDet1",NXDiffBins,XDiffLow,XDiffHigh);
   hXPlusECalCDet1 = new TH1F("XPlusECalCDet1","XPlusECalCDet1",NXDiffBins,XDiffLow,XDiffHigh);
   hXDiffECalCDet2 = new TH1F("XDiffECalCDet2","XDiffECalCDet2",NXDiffBins,XDiffLow,XDiffHigh);
+
+  hXDiffECalCDet1_min = new TH1F("XDiffECalCDet1_min","XDiffECalCDet1_min (min |x-diff| hit per event)",NXDiffBins,XDiffLow,XDiffHigh);
+  hXDiffECalCDet2_min = new TH1F("XDiffECalCDet2_min","XDiffECalCDet2_min (min |x-diff| hit per event)",NXDiffBins,XDiffLow,XDiffHigh);
   hXPlusECalCDet2 = new TH1F("XPlusECalCDet2","XPlusECalCDet2",NXDiffBins,XDiffLow,XDiffHigh);
   
   hXCDet1CDet2 = new TH2F("XCDet1CDet2","XCDet1CDet2",200,-0.5,0.5,200,-0.5,0.5);
@@ -1317,14 +1324,15 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     std::vector<int> thisEvent_GoodLayer;
     std::vector<int> thisEvent_GoodCol;
 
-    // --- NEW: per-event best (smallest |x-diff|) hit in each layer
+    int CDetPassedBoolCount = 0;
+
+
+    // --- NEW: per-event best (smallest |x-diff|) hit in each layer (0=L1, 1=L2)
     double bestAbsXDiff[2] = {1e99, 1e99};
+    double bestXDiff[2]    = {0.0, 0.0};   // signed xdiff for the best hit
     double bestXCDet[2]    = {0.0, 0.0};
     double bestXECalProj[2]= {0.0, 0.0};
     bool   foundBest[2]    = {false, false};
-
-    int CDetPassedBoolCount = 0;
-
     for(Int_t el=0; el<GoodElID.GetSize(); el++){
       bool goodhit_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
                                          *ECalX > -1.5 && *ECalX < 1.5 &&
@@ -1441,20 +1449,20 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
             thisEvent_GoodY.push_back(GoodY[el]);
             thisEvent_GoodZ.push_back(GoodZ[el]-CDet_dist_offset);
 
-            // --- NEW: compute projected ECal X at this hit's Z, and update per-layer best if this is smallest |x-diff|
+            // --- NEW: update per-layer best match based on smallest |x-diff|
             if (*ECalX != 0.00) {
-                const double xECalProj = (*ECalX) * (GoodZ[el] - CDet_dist_offset) / ECal_dist;
-                const double xdiff     = GoodX[el] - xECalProj;
-                const double axdiff    = fabs(xdiff);
+              const double xECalProj = (*ECalX) * (GoodZ[el]-CDet_dist_offset) / ECal_dist;
+              const double xdiff     = GoodX[el] - xECalProj;
+              const double axdiff    = fabs(xdiff);
 
-                if (axdiff < bestAbsXDiff[mylayer]) {
-                    bestAbsXDiff[mylayer] = axdiff;
-                    bestXCDet[mylayer]    = GoodX[el];
-                    bestXECalProj[mylayer]= xECalProj;
-                    foundBest[mylayer]    = true;
-                }
+              if (axdiff < bestAbsXDiff[mylayer]) {
+                bestAbsXDiff[mylayer] = axdiff;
+                bestXDiff[mylayer]    = xdiff;
+                bestXCDet[mylayer]    = GoodX[el];
+                bestXECalProj[mylayer]= xECalProj;
+                foundBest[mylayer]    = true;
+              }
             }
-
 //------------------------------------------------------- replace hist below
              if (mylayer==0) { //layer 1 "good" histograms & higher level
                //i think we can remove these histograms from here, and put them in their own plot routine, they just need vectors for GoodX positions from CDet and ECal
@@ -1497,9 +1505,15 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       }
     }// all good tdc hit loop
 
-    // --- NEW: fill ONLY the single best-matching hit per layer for this event
-    if (foundBest[0]) hXECalCDet1_min->Fill(bestXCDet[0], bestXECalProj[0]);
-    if (foundBest[1]) hXECalCDet2_min->Fill(bestXCDet[1], bestXECalProj[1]);
+    // --- NEW: fill min-hit histograms once per event (per layer), using the best |x-diff| hit
+    if (foundBest[0]) {
+      hXECalCDet1_min->Fill(bestXCDet[0], bestXECalProj[0]);
+      hXDiffECalCDet1_min->Fill(bestXDiff[0]);
+    }
+    if (foundBest[1]) {
+      hXECalCDet2_min->Fill(bestXCDet[1], bestXECalProj[1]);
+      hXDiffECalCDet2_min->Fill(bestXDiff[1]);
+    }
 
     if (CDetPassedBoolCount >= 1){
       v_GoodECalX.push_back(*ECalX);
@@ -2562,137 +2576,13 @@ auto plotXYZ(){
 
 }
 
-/*auto plotXYECalCDet(){
-
-   TCanvas *c8 = new TCanvas("c8", "c7", 1200,1200);
-   c8->Divide(3,3);
-
-   c8->cd(1);
-   gPad->SetLogz();
-   hXECalCDet1->Draw("colz");
-
-   c8->cd(2);
-   gPad->SetLogz();
-   hXECalCDet2->Draw("colz");
-   
-   c8->cd(3);
-   hXECal->Draw();
-   
-   c8->cd(4);
-   hYECal->Draw();
-   
-   c8->cd(5);
-    // Define the Gaussian + constant background function
-    TF1* fitFunc = new TF1("fitFunc", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]", -0.12, 0.15);
-
-    // Set initial parameters:
-    // [0] amplitude, [1] mean, [2] sigma, [3] constant background
-    fitFunc->SetParameters(hXDiffECalCDet1->GetMaximum(), 0.02, 0.01, hXDiffECalCDet1->GetMinimum());
-    fitFunc->SetParNames("Amplitude", "Mean", "Sigma", "Background");
-
-    // Optional: set limits on the parameters if needed
-    fitFunc->SetParLimits(1, -0.05, 0.05);  // constrain the mean near 0.02
-    fitFunc->SetParLimits(2, 0.001, 0.05);  // positive sigma
-
-    // Fit the histogram
-    hXDiffECalCDet1->Fit(fitFunc, "R");  // "R" = use function range only
-
-    // Draw the result
-    hXDiffECalCDet1->Draw();
-    fitFunc->Draw("same");
-    // Extract Gaussian parameters
-    double A = fitFunc->GetParameter(0); // Amplitude
-    double mu = fitFunc->GetParameter(1); // Mean
-    double sigma = fitFunc->GetParameter(2); // Sigma
-    double bg = fitFunc->GetParameter(3); // Background level
-
-    // Define integration limits
-    double x_min = mu - 3*sigma;
-    double x_max = mu + 3*sigma;
-
-    // Signal: integral of the Gaussian part only over ±3σ
-    TF1* gausOnly = new TF1("gausOnly", "[0]*exp(-0.5*((x-[1])/[2])^2)", x_min, x_max);
-    gausOnly->SetParameters(A, mu, sigma);
-    double signal = gausOnly->Integral(x_min, x_max);
-
-    // Noise: integral of background over same range
-    double noise = bg * (x_max - x_min);
-
-    // Compute signal-to-noise ratio
-    double snr = (noise > 0) ? signal / noise : 0;
-
-    std::cout << "Signal (Gaussian, ±3σ): " << signal << std::endl;
-    std::cout << "Noise (Background, ±3σ): " << noise << std::endl;
-    std::cout << "Signal-to-Noise Ratio: " << snr << std::endl;
-   
-
-   c8->cd(6);
-    // Define the Gaussian + constant background function
-    TF1* fitFunc2 = new TF1("fitFunc", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]", -0.12, 0.15);
-
-    // Set initial parameters:
-    // [0] amplitude, [1] mean, [2] sigma, [3] constant background
-    fitFunc2->SetParameters(hXDiffECalCDet2->GetMaximum(), 0.02, 0.01, hXDiffECalCDet2->GetMinimum());
-    fitFunc2->SetParNames("Amplitude", "Mean", "Sigma", "Background");
-
-    // Optional: set limits on the parameters if needed
-    fitFunc2->SetParLimits(1, -0.05, 0.05);  // constrain the mean near 0.02
-    fitFunc2->SetParLimits(2, 0.001, 0.05);  // positive sigma
-
-    // Fit the histogram
-    hXDiffECalCDet2->Fit(fitFunc2, "R");  // "R" = use function range only
-
-    // Draw the result
-    hXDiffECalCDet2->Draw();
-    fitFunc2->Draw("same");
-
-    // Extract Gaussian parameters
-    double A2 = fitFunc2->GetParameter(0); // Amplitude
-    double mu2 = fitFunc2->GetParameter(1); // Mean
-    double sigma2 = fitFunc2->GetParameter(2); // Sigma
-    double bg2 = fitFunc2->GetParameter(3); // Background level
-
-    // Define integration limits
-    double x_min2 = mu2 - 3*sigma2;
-    double x_max2 = mu2 + 3*sigma2;
-
-    // Signal: integral of the Gaussian part only over ±3σ
-    TF1* gausOnly2 = new TF1("gausOnly2", "[0]*exp(-0.5*((x-[1])/[2])^2)", x_min, x_max);
-    gausOnly2->SetParameters(A2, mu2, sigma2);
-    double signal2 = gausOnly2->Integral(x_min2, x_max2);
-
-    // Noise: integral of background over same range
-    double noise2 = bg2 * (x_max2 - x_min2);
-
-    // Compute signal-to-noise ratio
-    double snr2 = (noise2 > 0) ? signal2 / noise2 : 0;
-
-    std::cout << "Signal (Gaussian, ±3σ): " << signal2 << std::endl;
-    std::cout << "Noise (Background, ±3σ): " << noise2 << std::endl;
-    std::cout << "Signal-to-Noise Ratio: " << snr2 << std::endl;
-
-   c8->cd(7);
-   hYECalCDet1->Draw();
-   
-   c8->cd(8);
-   hYECalCDet2->Draw();
-
-   
-   c8->cd(9);
-   hXYECal->Draw("colz");
-   
-
-  return c8;
-}*/
-
 auto plotXYECalCDet(){
 
-   // 4x3 layout so we can add the two new "min-hit" histograms cleanly
+   // 4x3 layout so we can show both cut-based and min-hit-based correlations + Xdiffs
    TCanvas *c8 = new TCanvas("c8", "plotXYECalCDet", 1600,1200);
    c8->Divide(4,3);
 
    // ---------------- Row 1: XECal vs XCDet (cut-based and min-hit-based) ----------------
-
    c8->cd(1);
    gPad->SetLogz();
    hXECalCDet1->Draw("colz");
@@ -2709,15 +2599,14 @@ auto plotXYECalCDet(){
    gPad->SetLogz();
    hXECalCDet2_min->Draw("colz");
 
-   // ---------------- Row 2: ECal X/Y + Xdiff fits ----------------
-
+   // ---------------- Row 2: ECal X/Y + Xdiff fits (cut-based) ----------------
    c8->cd(5);
    hXECal->Draw();
 
    c8->cd(6);
    hYECal->Draw();
 
-   // ---- Fit XDiff layer 1 (same code as you had, moved to pad 7)
+   // ---- Fit XDiff layer 1
    c8->cd(7);
    {
      TF1* fitFunc = new TF1("fitFunc1", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]", -0.12, 0.15);
@@ -2752,7 +2641,7 @@ auto plotXYECalCDet(){
      std::cout << "Layer1: Signal-to-Noise Ratio: " << snr << std::endl;
    }
 
-   // ---- Fit XDiff layer 2 (same code as you had, moved to pad 8)
+   // ---- Fit XDiff layer 2
    c8->cd(8);
    {
      TF1* fitFunc2 = new TF1("fitFunc2", "[0]*exp(-0.5*((x-[1])/[2])^2) + [3]", -0.12, 0.15);
@@ -2775,7 +2664,7 @@ auto plotXYECalCDet(){
      double x_min2 = mu2 - 3*sigma2;
      double x_max2 = mu2 + 3*sigma2;
 
-     // IMPORTANT FIX: use (x_min2, x_max2) here (your current file uses x_min/x_max by accident)
+     // Use x_min2/x_max2 here (avoid accidental reuse of x_min/x_max)
      TF1* gausOnly2 = new TF1("gausOnly2", "[0]*exp(-0.5*((x-[1])/[2])^2)", x_min2, x_max2);
      gausOnly2->SetParameters(A2, mu2, sigma2);
 
@@ -2788,8 +2677,7 @@ auto plotXYECalCDet(){
      std::cout << "Layer2: Signal-to-Noise Ratio: " << snr2 << std::endl;
    }
 
-   // ---------------- Row 3: YECal vs YCDet and XY ECal ----------------
-
+   // ---------------- Row 3: YECal vs YCDet + min-hit Xdiff ----------------
    c8->cd(9);
    hYECalCDet1->Draw();
 
@@ -2797,13 +2685,14 @@ auto plotXYECalCDet(){
    hYECalCDet2->Draw();
 
    c8->cd(11);
-   gPad->SetLogz();
-   hXYECal->Draw("colz");
+   hXDiffECalCDet1_min->Draw();
 
-   // pad 12 left intentionally empty for now (room for future additions)
+   c8->cd(12);
+   hXDiffECalCDet2_min->Draw();
 
    return c8;
 }
+
 
 auto plotDpp(int nbins = 100, double xmin = -0.1, double xmax =  0.1)
 {

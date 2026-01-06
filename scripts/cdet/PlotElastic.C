@@ -49,10 +49,10 @@ static const int NumLogicalPaddlesPerSide = NumCDetPaddlesPerSide+nRef; //676
 static const int nBarsADC = 0;
 static const double ADCCUT = 150.;   //100.0
 
-static const double ecal_dist = 6.6;
-static const double cdet_z_correc = 0; //correct cdet based on kinematic. db defaults z position to 7.75 (layer1) or 7.85 (layer2) (fine for kin1)
-static const double cdet_dist_offset = 2.0;
-static const double cdet_y_half_length = 0.30;
+static const double ECal_dist = 6.6;
+static const double CDet_z_correc = 0; //correct CDet based on kinematic. db defaults z position to 7.75 (layer1) or 7.85 (layer2) (fine for kin1)
+static const double CDet_dist_offset = 2.0;
+static const double CDet_y_half_length = 0.30;
 
 int NXDiffBins;
 double XDiffLow;
@@ -77,11 +77,12 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
-const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
+//const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
+const TString ANALYSED_DIR = "/work/brash/CDet_replay/sbs/Rootfiles/cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
 bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
@@ -99,6 +100,36 @@ bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
     return true;
   }
   return false;
+}
+
+void WriteTH2DToCSV(TH2D* h, const char* filename = "hist2d.csv") {
+    std::ofstream out(filename);
+    out << "x_center,y_center,content\n";
+
+    for (int i = 1; i <= h->GetNbinsX(); i++) {
+        double x = h->GetXaxis()->GetBinCenter(i);
+        for (int j = 1; j <= h->GetNbinsY(); j++) {
+            double y = h->GetYaxis()->GetBinCenter(j);
+            double content = h->GetBinContent(i, j);
+            out << x << "," << y << "," << content << "\n";
+        }
+    }
+
+    out.close();
+    std::cout << "Wrote histogram to " << filename << std::endl;
+}
+void WriteTH1DToCSV(TH1D* h, const char* filename = "hist1d.csv") {
+    std::ofstream out(filename);
+    out << "x_center,content\n";
+
+    for (int i = 1; i <= h->GetNbinsX(); i++) {
+        double x = h->GetXaxis()->GetBinCenter(i);
+            double content = h->GetBinContent(i);
+            out << x << "," << content << "\n";
+        }
+
+    out.close();
+    std::cout << "Wrote histogram to " << filename << std::endl;
 }
 
 void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegment = -1) {
@@ -145,10 +176,10 @@ void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegm
 // Scalars (1D vectors)
 std::vector<double> vheep_dpp;
 std::vector<double> vheep_dt_ADC;
-std::vector<double> vheep_ecalo;
+std::vector<double> vheep_ECalo;
 std::vector<double> vheep_eprime_eth;
 std::vector<double> vheep_dxECAL;
-std::vector<double> vearm_ecal_x;
+std::vector<double> vearm_ECal_x;
 std::vector<double> vsbs_gemFPP_track_ntrack;
 std::vector<double> vheep_dyECAL;
 
@@ -182,14 +213,18 @@ std::vector<double> vAllGoodTot;
 std::vector<int> vAllGoodPMT;
 std::vector<int> vAllGoodBar;
 
-std::vector<int> vhitCdetPMT;
+std::vector<int> vhitCDetPMT;
 std::vector<int> vRow;
 std::vector<std::vector<int>> vGoodCol;
 std::vector<std::vector<int>> vGoodLayer;
 
-std::vector<std::vector<double>> vCdetGoodX;
-std::vector<std::vector<double>> vCdetGoodY;
-std::vector<std::vector<double>> vCdetGoodZ;
+std::vector<std::vector<double>> vCDetX;
+std::vector<std::vector<double>> vCDetY;
+std::vector<std::vector<double>> vCDetZ;
+
+std::vector<std::vector<double>> vCDetGoodX;
+std::vector<std::vector<double>> vCDetGoodY;
+std::vector<std::vector<double>> vCDetGoodZ;
 
 std::vector<int> vRowLayer1Side1;
 std::vector<int> vRowLayer2Side1;
@@ -206,10 +241,6 @@ std::vector<int> vnhits2;
 std::vector<int> vngoodhits2;
 std::vector<int> vngoodTDChits2;
 
-std::vector<double> vGoodEcalX;
-std::vector<double> vGoodEcalY;
-std::vector<double> vGoodEcalE;
-
 //2D vectors
 std::vector<std::vector<double>> vRawLe;
 std::vector<std::vector<double>> vRawTe;
@@ -222,38 +253,43 @@ std::vector<std::vector<double>> vGoodTot;
 std::vector<std::vector<int>> vGoodID;
 
 // per-event 1D
-std::vector<double> vCdetMultAll;          // like hMultiplicity
-std::vector<int>    vCdetMultAllPMT;       // ids belonging to those mult values
+std::vector<double> vCDetMultAll;          // like hMultiplicity
+std::vector<int>    vCDetMultAllPMT;       // ids belonging to those mult values
 
 // 2D vectors for all ECal cluster arrays
-std::vector<std::vector<double>> v_ecal_clus_adctime;
-std::vector<std::vector<double>> v_ecal_clus_again;
-std::vector<std::vector<double>> v_ecal_clus_atimeblk;
-std::vector<std::vector<double>> v_ecal_clus_col;
-std::vector<std::vector<double>> v_ecal_clus_col_goodtdc;
-std::vector<std::vector<double>> v_ecal_clus_e;
-std::vector<std::vector<double>> v_ecal_clus_e_goodtdc;
-std::vector<std::vector<double>> v_ecal_clus_eblk;
-std::vector<std::vector<double>> v_ecal_clus_eblk_goodtdc;
-std::vector<std::vector<double>> v_ecal_clus_id;
-std::vector<std::vector<double>> v_ecal_clus_id_goodtdc;
-std::vector<std::vector<double>> v_ecal_clus_nblk;
-std::vector<std::vector<double>> v_ecal_clus_nblk_goodtdc;
-std::vector<std::vector<double>> v_ecal_clus_row;
-std::vector<std::vector<double>> v_ecal_clus_row_goodtdc;
-std::vector<std::vector<double>> v_ecal_clus_tdctime;
-std::vector<std::vector<double>> v_ecal_clus_tdctime_tw;
-std::vector<std::vector<double>> v_ecal_clus_tdctimeblk;
-std::vector<std::vector<double>> v_ecal_clus_tdctimeblk_tw;
-std::vector<std::vector<double>> v_ecal_clus_x;
-std::vector<std::vector<double>> v_ecal_clus_y;
+std::vector<std::vector<double>> v_ECal_clus_adctime;
+std::vector<std::vector<double>> v_ECal_clus_again;
+std::vector<std::vector<double>> v_ECal_clus_atimeblk;
+std::vector<std::vector<double>> v_ECal_clus_col;
+std::vector<std::vector<double>> v_ECal_clus_col_goodtdc;
+std::vector<std::vector<double>> v_ECal_clus_e;
+std::vector<std::vector<double>> v_ECal_clus_e_goodtdc;
+std::vector<std::vector<double>> v_ECal_clus_eblk;
+std::vector<std::vector<double>> v_ECal_clus_eblk_goodtdc;
+std::vector<std::vector<double>> v_ECal_clus_id;
+std::vector<std::vector<double>> v_ECal_clus_id_goodtdc;
+std::vector<std::vector<double>> v_ECal_clus_nblk;
+std::vector<std::vector<double>> v_ECal_clus_nblk_goodtdc;
+std::vector<std::vector<double>> v_ECal_clus_row;
+std::vector<std::vector<double>> v_ECal_clus_row_goodtdc;
+std::vector<std::vector<double>> v_ECal_clus_tdctime;
+std::vector<std::vector<double>> v_ECal_clus_tdctime_tw;
+std::vector<std::vector<double>> v_ECal_clus_tdctimeblk;
+std::vector<std::vector<double>> v_ECal_clus_tdctimeblk_tw;
+std::vector<std::vector<double>> v_ECal_clus_x;
+std::vector<std::vector<double>> v_ECal_clus_y;
 
-// 1D (event-wise) vectors ecal for scalars:
-std::vector<double> v_ecal_nclus;
-std::vector<double> v_ecalX;
-std::vector<double> v_ecalY;
-std::vector<double> v_ecalE;
-std::vector<double> v_ecalAdcTime;
+// 1D (event-wise) vectors ECal for scalars:
+std::vector<double> v_ECal_nclus;
+std::vector<double> v_ECalX;
+std::vector<double> v_ECalY;
+std::vector<double> v_ECalE;
+std::vector<double> v_ECalAdcTime;
+//1D Good ECal Events
+std::vector<double> v_GoodECalX;
+std::vector<double> v_GoodECalY;
+std::vector<double> v_GoodECalE;
+std::vector<double> v_GoodECalAdcTime;
 
 //copy a TTreeReaderArray<double> into a std::vector<double>, makes it easier to fill the 2D vector
 inline std::vector<double> copyArray(const TTreeReaderArray<double>& arr) {
@@ -265,7 +301,7 @@ inline std::vector<double> copyArray(const TTreeReaderArray<double>& arr) {
 
 
 // per-event vectors grouped by PMT index (2D)
-std::vector<std::vector<double>> vCdetMultPerPMT(nTdc); 
+std::vector<std::vector<double>> vCDetMultPerPMT(nTdc); 
 
 
 /*
@@ -305,9 +341,9 @@ namespace TCDet {
   Int_t NdataGoodZ;
   Double_t GoodZ[nTdc*2];
 
-  Double_t ecalX;
-  Double_t ecalY;
-  Double_t ecalE;
+  Double_t ECalX;
+  Double_t ECalY;
+  Double_t ECalE;
   Double_t nhits;
   Double_t ngoodhits;
   Double_t ngoodTDChits;
@@ -618,11 +654,11 @@ std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
 }
 
 void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=500000, Int_t elastic = 0, Int_t onlySegment = -1,
-	Double_t LeMin = 10.0, Double_t LeMax = 35.0,
-	Double_t TotMin = 18.0, Double_t TotMax = 45.0, 
+	Double_t LeMin = 0.02, Double_t LeMax = 60.0,
+	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.08, Double_t XOffset = 0.02,
+	Double_t XDiffCut = 0.2, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
@@ -690,9 +726,9 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
   hHitXY1 = new TH2F("HitXY1position","HitXY1Position",9,-1.0,1.0,800,-2.0,2.0);
   hHitXY2 = new TH2F("HitXY2position","HitXY2Position",9,-1.0,1.0,800,-2.0,2.0);
   
-  hXECal = new TH1F("XEcal","XEcal",200,-1.5,1.5);
-  hYECal = new TH1F("YEcal","YEcal",200,-1.0,1.0);
-  hEECal = new TH1F("YEcal","YEcal",200,0.0,20.0);
+  hXECal = new TH1F("XECal","XECal",200,-1.5,1.5);
+  hYECal = new TH1F("YECal","YECal",200,-1.0,1.0);
+  hEECal = new TH1F("YECal","YECal",200,0.0,20.0);
   
   hXECalCDet1 = new TH2F("XECalCDet1","XECalCDet1",100,-2.0,2.0,100,-2.0,2.0);
   hXECalCDet2 = new TH2F("XECalCDet2","XECalCDet2",100,-2.0,2.0,100,-2.0,2.0);
@@ -879,43 +915,43 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
   TTreeReaderArray<double> GoodRow   (reader, "earm.cdet.hit.col");
   TTreeReaderArray<double> GoodLayer (reader, "earm.cdet.hit.layer");
 
-  // ----- CDet scalars ----- 
+  // ----- cdet scalars ----- 
   TTreeReaderValue<double> nhits        (reader, "earm.cdet.nhits");
   TTreeReaderValue<double> ngoodhits    (reader, "earm.cdet.ngoodhits");
   TTreeReaderValue<double> ngoodTDChits (reader, "earm.cdet.ngoodTDChits");
 
-  //******ECal******
+  //------ECal-------
   // Cluster arrays
-  // TTreeReaderArray<double> ecal_clus_adctime      (reader, "earm.ecal.clus.adctime");
-  // TTreeReaderArray<double> ecal_clus_again        (reader, "earm.ecal.clus.again");
-  // TTreeReaderArray<double> ecal_clus_atimeblk     (reader, "earm.ecal.clus.atimeblk");
-  // TTreeReaderArray<double> ecal_clus_col          (reader, "earm.ecal.clus.col");
-  // TTreeReaderArray<double> ecal_clus_e            (reader, "earm.ecal.clus.e");
-  // TTreeReaderArray<double> ecal_clus_eblk         (reader, "earm.ecal.clus.eblk");
-  // TTreeReaderArray<double> ecal_clus_id           (reader, "earm.ecal.clus.id");
-  // TTreeReaderArray<double> ecal_clus_nblk         (reader, "earm.ecal.clus.nblk");
-  // TTreeReaderArray<double> ecal_clus_row          (reader, "earm.ecal.clus.row");
-  // TTreeReaderArray<double> ecal_clus_x            (reader, "earm.ecal.clus.x");
-  // TTreeReaderArray<double> ecal_clus_y            (reader, "earm.ecal.clus.y");
+  // TTreeReaderArray<double> ECal_clus_adctime      (reader, "earm.ecal.clus.adctime");
+  // TTreeReaderArray<double> ECal_clus_again        (reader, "earm.ecal.clus.again");
+  // TTreeReaderArray<double> ECal_clus_atimeblk     (reader, "earm.ecal.clus.atimeblk");
+  // TTreeReaderArray<double> ECal_clus_col          (reader, "earm.ecal.clus.col");
+  // TTreeReaderArray<double> ECal_clus_e            (reader, "earm.ecal.clus.e");
+  // TTreeReaderArray<double> ECal_clus_eblk         (reader, "earm.ecal.clus.eblk");
+  // TTreeReaderArray<double> ECal_clus_id           (reader, "earm.ecal.clus.id");
+  // TTreeReaderArray<double> ECal_clus_nblk         (reader, "earm.ecal.clus.nblk");
+  // TTreeReaderArray<double> ECal_clus_row          (reader, "earm.ecal.clus.row");
+  // TTreeReaderArray<double> ECal_clus_x            (reader, "earm.ecal.clus.x");
+  // TTreeReaderArray<double> ECal_clus_y            (reader, "earm.ecal.clus.y");
 
   // Cluster count (scalar)
-  //TTreeReaderValue<double> ecal_nclus(reader, "earm.ecal.nclus");
+  //TTreeReaderValue<double> ECal_nclus(reader, "earm.ECal.nclus");
 
-  //event-level ecal branches
-  TTreeReaderValue<double> ecalX       (reader, "earm.ecal.x");
-  TTreeReaderValue<double> ecalY       (reader, "earm.ecal.y");
-  TTreeReaderValue<double> ecalE       (reader, "earm.ecal.e");
-  TTreeReaderValue<double> ecalAdcTime (reader, "earm.ecal.adctime");
+  //event-level ECal branches
+  TTreeReaderValue<double> ECalX       (reader, "earm.ecal.x");
+  TTreeReaderValue<double> ECalY       (reader, "earm.ecal.y");
+  TTreeReaderValue<double> ECalE       (reader, "earm.ecal.e");
+  TTreeReaderValue<double> ECalAdcTime (reader, "earm.ecal.adctime");
 
   /* ----- SBS branches ----- 
     ------- comment out for now ---------
   // Scalars
   TTreeReaderValue<double> heep_dpp(reader, "heep.dpp");
   TTreeReaderValue<double> heep_dt_ADC(reader, "heep.dt_ADC");
-  TTreeReaderValue<double> heep_ecalo(reader, "heep.ecalo");
+  TTreeReaderValue<double> heep_ECalo(reader, "heep.ECalo");
   TTreeReaderValue<double> heep_eprime_eth(reader, "heep.eprime_eth");
   TTreeReaderValue<double> heep_dxECAL(reader, "heep.dxECAL");
-  TTreeReaderValue<double> earm_ecal_x(reader, "earm.ecal.x");
+  TTreeReaderValue<double> earm_ECal_x(reader, "earm.ECal.x");
   TTreeReaderValue<double> sbs_gemFPP_track_ntrack(reader, "sbs.gemFPP.track.ntrack");
   TTreeReaderValue<double> heep_dyECAL(reader, "heep.dyECAL");
 
@@ -980,35 +1016,32 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
     }
 
 
-    /* Fill ECal cluster vectors */
+    /* Fill ECal cluster vectors */ /////-------------- These need to get moved into the if statement after second pass, rawEventCounter>=1
     // ---- Per-event filling ----
-    //v_ecal_clus_adctime.push_back(copyArray(ecal_clus_adctime));
-    //v_ecal_clus_again.push_back(copyArray(ecal_clus_again));
-    // v_ecal_clus_atimeblk.push_back(copyArray(ecal_clus_atimeblk));
+    //v_ECal_clus_adctime.push_back(copyArray(ECal_clus_adctime));
+    //v_ECal_clus_again.push_back(copyArray(ECal_clus_again));
+    // v_ECal_clus_atimeblk.push_back(copyArray(ECal_clus_atimeblk));
 
-    //v_ecal_clus_col.push_back(copyArray(ecal_clus_col));
-    //v_ecal_clus_row.push_back(copyArray(ecal_clus_row));
+    //v_ECal_clus_col.push_back(copyArray(ECal_clus_col));
+    //v_ECal_clus_row.push_back(copyArray(ECal_clus_row));
 
-    //v_ecal_clus_e.push_back(copyArray(ecal_clus_e));
-    //v_ecal_clus_eblk.push_back(copyArray(ecal_clus_eblk));
+    //v_ECal_clus_e.push_back(copyArray(ECal_clus_e));
+    //v_ECal_clus_eblk.push_back(copyArray(ECal_clus_eblk));
 
-    // v_ecal_clus_id.push_back(copyArray(ecal_clus_id));
+    // v_ECal_clus_id.push_back(copyArray(ECal_clus_id));
 
-    // v_ecal_clus_nblk.push_back(copyArray(ecal_clus_nblk));
+    // v_ECal_clus_nblk.push_back(copyArray(ECal_clus_nblk));
     
-    // v_ecal_clus_x.push_back(copyArray(ecal_clus_x));
-    // v_ecal_clus_y.push_back(copyArray(ecal_clus_y));
+    // v_ECal_clus_x.push_back(copyArray(ECal_clus_x));
+    // v_ECal_clus_y.push_back(copyArray(ECal_clus_y));
 
     // Event-level scalars
-    //v_ecal_nclus.push_back(*ecal_nclus);
-    v_ecalX.push_back(*ecalX);
-    v_ecalY.push_back(*ecalY);
-    v_ecalE.push_back(*ecalE);
-    v_ecalAdcTime.push_back(*ecalAdcTime);
+    //v_ECal_nclus.push_back(*ECal_nclus);
+    
     
 
     bool good_elastic;
-    if (elastic == 0) good_elastic = true; //abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ecalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ecal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
+    if (elastic == 0) good_elastic = true; //abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ECalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ECal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
     //currently not using full replays, so elastic cuts dont work, just assume all elastic
     else if (elastic == 1) good_elastic = true; //incase one does not want to use the elastic cut
     if (good_elastic){
@@ -1018,10 +1051,10 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       /* Comment out heep and gems vectors, do not use root files witht them yet
       vheep_dpp.push_back(*heep_dpp);
       vheep_dt_ADC.push_back(*heep_dt_ADC);
-      vheep_ecalo.push_back(*heep_ecalo);
+      vheep_ECalo.push_back(*heep_ECalo);
       vheep_eprime_eth.push_back(*heep_eprime_eth);
       vheep_dxECAL.push_back(*heep_dxECAL);
-      vearm_ecal_x.push_back(*earm_ecal_x);
+      vearm_ECal_x.push_back(*earm_ECal_x);
       vsbs_gemFPP_track_ntrack.push_back(*sbs_gemFPP_track_ntrack);
       vheep_dyECAL.push_back(*heep_dyECAL);
 
@@ -1046,7 +1079,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             //if (RawElID[el] > 2687) {
             //	cout << "el = " << el << " Raw ID = " << RawElID[el] << " raw le = " << 
           //	RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << 
-          //	RawElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ecalX << endl;
+          //	RawElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ECalX << endl;
             //}
             if ( !check_bad(RawElID[el],suppress_bad) ) {
             //cout << " el = " << el << endl;
@@ -1081,6 +1114,10 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       std::vector<double> thisEvent_TOT;
       std::vector<int> thisEvent_ID;
 
+      std::vector<double> thisEvent_CDetX;
+      std::vector<double> thisEvent_CDetY;
+      std::vector<double> thisEvent_CDetZ;
+      int rawEventCounter = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++){
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
@@ -1093,6 +1130,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
       if ( good_raw_event ) {
+        rawEventCounter++;
         if ( !check_bad(RawElID[el],suppress_bad) ) {
         //cout << " el = " << el << endl;
         //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
@@ -1111,6 +1149,10 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             vAllRawTot.push_back(RawElTot[el]*TDC_calib_to_ns);
             vAllRawPMT.push_back(RawElID[el]);
             vAllRawBar.push_back((Int_t)(RawElID[el]/16));
+
+            thisEvent_CDetX.push_back(GoodX[el]);
+            thisEvent_CDetY.push_back(GoodY[el]);
+            thisEvent_CDetZ.push_back(GoodZ[el]-CDet_dist_offset);
             /* Comment out histograms for now
             hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc);
             hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc);
@@ -1131,10 +1173,19 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
         }
       }
     }// all raw tdc hit loop
-    vRawLe.push_back(thisEvent_LE);
-    vRawTe.push_back(thisEvent_TE);
-    vRawTot.push_back(thisEvent_TOT);
-    vRawID.push_back(thisEvent_ID);
+    if (rawEventCounter >= 1){
+      vRawLe.push_back(thisEvent_LE);
+      vRawTe.push_back(thisEvent_TE);
+      vRawTot.push_back(thisEvent_TOT);
+      vRawID.push_back(thisEvent_ID);
+      vCDetX.push_back(thisEvent_CDetX);
+      vCDetY.push_back(thisEvent_CDetY);
+      vCDetZ.push_back(thisEvent_CDetZ);
+      v_ECalX.push_back(*ECalX);
+      v_ECalY.push_back(*ECalY);
+      v_ECalE.push_back(*ECalE);
+      v_ECalAdcTime.push_back(*ECalAdcTime);
+    }
 
 
     // Third pass:  Get layer occupancies
@@ -1170,34 +1221,30 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       }
       nhits_paddles[mypaddlen]++;
 
-      bool good_ecal_reconstruction = *ecalY > -1.2 && *ecalY < 1.2 &&
-                                      *ecalX > -1.5 && *ecalX < 1.5 &&
-                                      *ecalX != 0.00 && *ecalY != 0.00 ;
+      bool good_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
+                                      *ECalX > -1.5 && *ECalX < 1.5 &&
+                                      *ECalX != 0.00 && *ECalY != 0.00 ;
       bool good_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_hit_mult = TDCmult[el] < TDCmult_cut;
-      bool good_cdet_X = GoodX[el] < xcut;
-      bool good_ecal_diff_x = (GoodX[el]-((*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-((*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool good_ecal_diff_y = (GoodY[el]-((*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
-          (GoodY[el]-((*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
+      bool good_CDet_X = GoodX[el] < xcut;
+      bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+          (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       
       
-      bool good_CDet_event = good_ecal_reconstruction && good_ecal_diff_x && good_ecal_diff_y && good_le_time && good_tot && good_hit_mult && good_cdet_X;
+      bool good_CDet_event = good_ECal_reconstruction && good_ECal_diff_x && good_ECal_diff_y && good_le_time && good_tot && good_hit_mult && good_CDet_X;
 
 
       if (good_CDet_event) {
-
-        vGoodEcalX.push_back(*ecalX);
-        vGoodEcalY.push_back(*ecalY);
-        vGoodEcalE.push_back(*ecalE);
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
           if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
 
             //cout << "Hit number " << el << ":    Paddle = " << mypaddlen << " Row = " << sbsrown  << " Col = " << sbscoln  << " hits = " << ngoodTDChits_paddles[mypaddlen] << endl;
             //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
         //	GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
-        //	GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ecalX << endl;
+        //	GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ECalX << endl;
             if (mylayern == 0) {
                 ngoodhitsc1++;
             } else {
@@ -1244,31 +1291,33 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
     std::vector<int> thisEvent_GoodLayer;
     std::vector<int> thisEvent_GoodCol;
 
+    int CDetPassedBoolCount = 0;
+
     for(Int_t el=0; el<GoodElID.GetSize(); el++){
-      bool goodhit_ecal_reconstruction = *ecalY > -1.2 && *ecalY < 1.2 &&
-                                         *ecalX > -1.5 && *ecalX < 1.5 &&
-                                         *ecalX != 0.00 && *ecalY != 0.00;
+      bool goodhit_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
+                                         *ECalX > -1.5 && *ECalX < 1.5 &&
+                                         *ECalX != 0.00 && *ECalY != 0.00;
       bool goodhit_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool goodhit_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool goodhit_hit_mult = TDCmult[el] < TDCmult_cut;
-      bool goodhit_cdet_X = GoodX[el] < xcut;
+      bool goodhit_CDet_X = GoodX[el] < xcut;
       bool goodhit_low = ngoodhitsc1 >= nhitcutlow1  && ngoodhitsc2 >= nhitcutlow2;
       bool goodhit_high  = ngoodhitsc1 <= nhitcuthigh1 && ngoodhitsc2 <= nhitcuthigh2; 
-      bool goodhit_ecal_diff_x = (GoodX[el]-((*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-((*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool goodhit_ecal_diff_y = (GoodY[el]-((*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) <= cdet_y_half_length && 
-          (GoodY[el]-((*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist)) >= -1.0*cdet_y_half_length;
-      bool goodhit_CDet_event = goodhit_ecal_reconstruction && goodhit_ecal_diff_x && goodhit_ecal_diff_y && goodhit_le_time && goodhit_tot 
-        && goodhit_hit_mult && goodhit_cdet_X && goodhit_low && goodhit_high;
+      bool goodhit_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool goodhit_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+          (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
+      bool goodhit_CDet_event = goodhit_ECal_reconstruction && goodhit_ECal_diff_x && goodhit_ECal_diff_y && goodhit_le_time && goodhit_tot 
+        && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high;
 
       if (goodhit_CDet_event) {
-
+        CDetPassedBoolCount++;
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
           if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
                 //cout << "event " << event << endl;
             //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
           //GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
-          //GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ecalX << endl;
+          //GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ECalX << endl;
 
             //cout << "Filling good timing histos ... " << ngoodTDChitsc1 << " " << endl;
             
@@ -1325,7 +1374,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
 
               // h2TDCTOTvsLE->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
               
-              vhitCdetPMT.push_back((Int_t)GoodElID[el]);
+              vhitCDetPMT.push_back((Int_t)GoodElID[el]);
               //hHitPMT->Fill((Int_t)GoodElID[el]);
               vRow.push_back((Int_t)GoodRow[el]);
               //hRow->Fill((Int_t)GoodRow[el]);
@@ -1358,37 +1407,39 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
 
             thisEvent_GoodX.push_back(GoodX[el]);
             thisEvent_GoodY.push_back(GoodY[el]);
-            thisEvent_GoodZ.push_back(GoodZ[el]-cdet_dist_offset);
+            thisEvent_GoodZ.push_back(GoodZ[el]-CDet_dist_offset);
 //------------------------------------------------------- replace hist below
-            if (mylayer==0) { //layer 1 "good" histograms & higher level
-              //i think we can remove these histograms from here, and put them in there own plot routine, they just need vectors for GoodX positions from cdet and ecal
-              h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hHitXY1->Fill(GoodY[el],GoodX[el]);
-              hXECalCDet1->Fill(GoodX[el],(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hYECalCDet1->Fill(GoodY[el],(*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hXDiffECalCDet1->Fill(GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hXPlusECalCDet1->Fill(GoodX[el]+(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hEECalCDet1->Fill(*ecalE,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            } 
-            else { //layer 2
-              h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hHitXY2->Fill(GoodY[el],GoodX[el]);
-              hXECalCDet2->Fill(GoodX[el],(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hYECalCDet2->Fill(GoodY[el],(*ecalY)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hXDiffECalCDet2->Fill(GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hXPlusECalCDet2->Fill(GoodX[el]+(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-              hEECalCDet2->Fill(*ecalE,GoodX[el]-(*ecalX)*(GoodZ[el]-cdet_dist_offset)/ecal_dist);
-            }
+            // if (mylayer==0) { //layer 1 "good" histograms & higher level
+            //   //i think we can remove these histograms from here, and put them in their own plot routine, they just need vectors for GoodX positions from CDet and ECal
+            //   h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hHitXY1->Fill(GoodY[el],GoodX[el]);
+            //   hXECalCDet1->Fill(GoodX[el],(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hYECalCDet1->Fill(GoodY[el],(*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hXDiffECalCDet1->Fill(GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hXPlusECalCDet1->Fill(GoodX[el]+(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hEECalCDet1->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            // } 
+            // else { //layer 2
+            //   h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hHitXY2->Fill(GoodY[el],GoodX[el]);
+            //   hXECalCDet2->Fill(GoodX[el],(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hYECalCDet2->Fill(GoodY[el],(*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hXDiffECalCDet2->Fill(GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hXPlusECalCDet2->Fill(GoodX[el]+(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            //   hEECalCDet2->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+            // }
 
 
           } 
           else {
-            vRefGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns);
-            vRefGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns);
-            vRefGoodTot.push_back(GoodElTot[el]*TDC_calib_to_ns);
-            vRefGoodPMT.push_back(GoodElID[el]);
+            if (GoodElID[el]==2696){
+              vRefGoodLe.push_back(GoodElLE[el]*TDC_calib_to_ns);
+              vRefGoodTe.push_back(GoodElTE[el]*TDC_calib_to_ns);
+              vRefGoodTot.push_back(GoodElTot[el]*TDC_calib_to_ns);
+              vRefGoodPMT.push_back(GoodElID[el]);
+            }
 
             // hRefGoodLe->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
             // hRefGoodTe->Fill(GoodElTE[el]*TDC_calib_to_ns-event_ref_tdc+60.0);
@@ -1398,27 +1449,34 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
         }
       }
     }// all good tdc hit loop
+    if (CDetPassedBoolCount >= 1){
+      v_GoodECalX.push_back(*ECalX);
+      v_GoodECalY.push_back(*ECalY);
+      v_GoodECalE.push_back(*ECalE);
+      v_GoodECalAdcTime.push_back(*ECalAdcTime);
 
-    vGoodCol.push_back(thisEvent_GoodCol);
-    //hCol->Fill(myside);
-    vGoodLayer.push_back(thisEvent_GoodLayer);
-    //hLayer->Fill(mylayer);
+      vGoodCol.push_back(thisEvent_GoodCol);
+      //hCol->Fill(myside);
+      vGoodLayer.push_back(thisEvent_GoodLayer);
+      //hLayer->Fill(mylayer);
 
-    vCdetGoodX.push_back(thisEvent_GoodX);
-    vCdetGoodY.push_back(thisEvent_GoodY);
-    vCdetGoodZ.push_back(thisEvent_GoodZ);
+      vCDetGoodX.push_back(thisEvent_GoodX);
+      vCDetGoodY.push_back(thisEvent_GoodY);
+      vCDetGoodZ.push_back(thisEvent_GoodZ);
 
-    vGoodLe.push_back(thisEvent_GoodLE);
-    vGoodTe.push_back(thisEvent_GoodTE);
-    vGoodTot.push_back(thisEvent_GoodTOT);
-    vGoodID.push_back(thisEvent_GoodID);
+      vGoodLe.push_back(thisEvent_GoodLE);
+      vGoodTe.push_back(thisEvent_GoodTE);
+      vGoodTot.push_back(thisEvent_GoodTOT);
+      vGoodID.push_back(thisEvent_GoodID);
+    }
+    
 
-    if (*ecalX != 0.00 && *ecalY != 0.00) {//double check this later, probably want to fill vectors with ecal hit position
+    if (*ECalX != 0.00 && *ECalY != 0.00) {//double check this later, probably want to fill vectors with ECal hit position
       eff_denominator++;
-      hXYECal->Fill(*ecalY,*ecalX);
-      hXECal->Fill(*ecalX);
-      hYECal->Fill(*ecalY);
-      hEECal->Fill(*ecalE);
+      hXYECal->Fill(*ECalY,*ECalX);
+      hXECal->Fill(*ECalX);
+      hYECal->Fill(*ECalY);
+      hEECal->Fill(*ECalE);
     };
         
     vnhits1.push_back(nhitsc1);
@@ -1455,9 +1513,10 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       }
     }// element loop
     }//good elastic bool
-  }//event loop
-  std::cout << "Size of ECalADCtime = " << v_ecalAdcTime.size() << std::endl;
+  }//event loop 
+  std::cout << "Size of GoodECalADCtime = " << v_GoodECalAdcTime.size() << std::endl;
   std::cout << "Size of GoodCDetLE = " << vGoodLe.size() << std::endl;
+  std::cout << "Size of GoodECalX = " << v_GoodECalX.size() << std::endl;
 
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
   std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer1/eff_denominator  << std::endl;
@@ -1562,14 +1621,15 @@ TCanvas *plotBarRateHV() {
 }
 	
 
-TCanvas *plotAllTDC(){
+TCanvas *plotAllTDC(double width = 1, double binLow=0, double binHigh=60){
+  double Nbins = ((binHigh-binLow)/width);
   //define histograms
   hAllRawLe = new TH1F(TString::Format("hRawLe"),
             TString::Format("hRawLe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            Nbins, binLow, binHigh);
   hAllRawTe = new TH1F(TString::Format("hRawTe"),
             TString::Format("hRawTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
+            Nbins, binLow, binHigh+TotBinHigh);
   hAllRawTot = new TH1F(TString::Format("hRawTot"),
             TString::Format("hRawTot"),
             NTotBins, TotBinLow, TotBinHigh);
@@ -1581,10 +1641,10 @@ TCanvas *plotAllTDC(){
             168, 0, 168);
   hAllGoodLe = new TH1F(TString::Format("hAllGoodLe"),
             TString::Format("hAllGoodLe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
+            Nbins, binLow, binHigh);
   hAllGoodTe = new TH1F(TString::Format("hAllGoodTe"),
             TString::Format("hAllGoodTe"),
-            NTDCBins, TDCBinLow, TDCBinHigh+TotBinHigh);
+            Nbins, binLow, binHigh+TotBinHigh);
   hAllGoodTot = new TH1F(TString::Format("hAllGoodTot"),
             TString::Format("hAllGoodTot"),
             NTotBins, TotBinLow, TotBinHigh);
@@ -1672,107 +1732,241 @@ TCanvas *plotAllTDC(){
   return caa;
 }
 
-void plotEcalMinusCdetTime(double Width = 1, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130){
-  int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
-  TH1D* hEcalMinusCdetTime = new TH1D("hEcalMinusCdetTime", "ECal Time vs CDet Time;Time Diff (ns);Counts",TDCBinNum, DiffMin, DiffMax);
-  const size_t Nev = std::min(vGoodLe.size(),v_ecalAdcTime.size());
-
+void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
+  int TDCBinNum = (int)((tmax-tmin)/width);
+  TH2D *h2 = new TH2D("h2","t_ref vs t_scint; t_ref; t_scint",TDCBinNum, tmin, tmax, TDCBinNum, tmin, tmax);
+  
+  const size_t Nev = vRefRawLe.size();
   for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
-    double t_ecal = v_ecalAdcTime[ev];
+    double t_ref = vRefRawLe[ev];
 
-    const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
-    for (size_t ihit = 0; ihit < Nhits; ++ihit) {
-      double t_cdet = vGoodLe[ev][ihit];
-      double tot = vGoodTot[ev][ihit];
-      if (t_cdet >= LeMin && t_cdet <= LeMax && tot >= TotMin && tot <= TotMax){
-        double t_diff = t_ecal - t_cdet;
-        hEcalMinusCdetTime->Fill(t_diff);
-      }
-    }//finished looking at hits
-  } //finished looking at all events
-
-  //make canvas and draw hist
-  TCanvas *cTimeDiff = new TCanvas("cTimeDiff", "Ecal ADCtime Minus Cdet Good LE",900,700);
-  hEcalMinusCdetTime->Draw("HIST");
-} //end routine
-
-void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double CDetMin = 0, double CDetMax = 60, double EcalMin = 0, double EcalMax = 250){
-  int NADCBins = (int)((EcalMax-EcalMin)/4); //4ns bins for ecal, since fADC 4ns resolution
-  int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
-  TH2D* hEcalVsCdet = new TH2D("hEcalVsCdet", "ECal Time vs CDet Time;CDet LE Time (ns);Ecal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, EcalMin, EcalMax);
-  const size_t Nev = std::min(vGoodLe.size(),v_ecalAdcTime.size());
-
-  for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
-    double t_ecal = v_ecalAdcTime[ev];
-
-    const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
-    for (size_t ihit = 0; ihit < Nhits; ++ihit) {
-      double t_cdet = vGoodLe[ev][ihit];
-      double tot = vGoodTot[ev][ihit];
-      if (t_cdet >= LeMin && t_cdet <= LeMax && tot >= TotMin && tot <= TotMax){
-        hEcalVsCdet->Fill(t_cdet, t_ecal);
-      }
-    }//finished looking at hits
-  } //finished looking at all events
-
-  //make canvas and draw hist
-  TCanvas *cTimeComp = new TCanvas("cTimeComp", "Ecal ADCtime vs Cdet LE",900,700);
-  hEcalVsCdet->Draw("COLZ");
-} //end routine
-
-void plotXDiffSections(double le_min = 0, double le_max = 100){
-  //define nonchanging histograms
-  //TH1D* h1 = new TH1D("h1", "xDiffLayer1;xdiff (m);Counts", NXDiffBins,XDiffLow,XDiffHigh);
-  //TH1D* h2 = new TH1D("h2", "xDiffLayer2;xdiff (m);Counts", NXDiffBins,XDiffLow,XDiffHigh);
-  //TH1D* h3 = new TH1D("h3", "good le;le (ns);Counts", NTDCBins, le_min, le_max);
-  std::vector<TH1D*> hxDiff1;
-  std::vector<TH1D*> hxDiff2;
-  std::vector<TH1D*> hGoodLe;
-
-  int step = 2;
-  int N = (int)((le_max-le_min)/step);
-  for (int i = 0; i < N; i++){
-    double low  = le_min + i*step;
-    double high = low + step;
-    TString name1 = Form("hXdiff1_%d", i);
-    TString title1 = Form("xDiff1 for %.1f #leq le #leq %.1f ns; xDiff1 (m); Counts", low, high);
-    TString name2 = Form("hXdiff2_%d", i);
-    TString title2 = Form("xDiff2 for %.1f #leq le #leq %.1f ns; xDiff2 (m); Counts", low, high);
-    TString name3 = Form("GoodLe_%d", i);
-    TString title3 = Form("GoodLe for %.1f #leq le #leq %.1f ns; GoodLe (ns); Counts", low, high);
-
-    TH1D* h1 = new TH1D(name1, title1, NXDiffBins, XDiffLow, XDiffHigh);
-    TH1D* h2 = new TH1D(name2, title2, NXDiffBins, XDiffLow, XDiffHigh);
-    TH1D* h3 = new TH1D(name3, title3, NTDCBins, low, high);
-    const size_t Nev = vCdetGoodX.size();
-    for (size_t ev = 0; ev < Nev; ++ev) {
-      for (int n = 0; n < vCdetGoodX[ev].size(); n++){
-        if (vGoodLe[ev][n] <= high && vGoodLe[ev][n] >= low){
-          if (vGoodLayer[ev][n]==0){ //layer 1
-            h1->Fill(vCdetGoodX[ev][n]-(vGoodEcalX[ev]*vCdetGoodZ[ev][n]/ecal_dist));
-          }
-          else if (vGoodLayer[ev][n]==1){ //layer 2
-            h2->Fill(vCdetGoodX[ev][n]-(vGoodEcalX[ev]*vCdetGoodZ[ev][n]/ecal_dist));
-          }
-          h3->Fill(vGoodLe[ev][n]);
-        }
-      }
-    } // individual time step histograms filled
-    hxDiff1.push_back(h1);
-    hxDiff2.push_back(h2);
-    hGoodLe.push_back(h3);
-  }//all time step histograms filled
-
-  for (int i = 0; i < N; i++){
-    TCanvas* c1 = new TCanvas(Form("c1_%d", i), hxDiff1[i]->GetTitle(), 800, 600);
-    hxDiff1[i]->Draw("HIST");
-
-    TCanvas* c2 = new TCanvas(Form("c2_%d", i), hxDiff2[i]->GetTitle(), 800, 600);
-    hxDiff2[i]->Draw("HIST");
-
-    TCanvas* c3 = new TCanvas(Form("c3_%d", i), hGoodLe[i]->GetTitle(), 800, 600);
-    hGoodLe[i]->Draw("HIST");
+    const size_t Nhits = vGoodLe[ev].size();
+    for (size_t ihit = 0; ihit < Nhits; ihit++) {
+      double t_det = vGoodLe[ev][ihit];
+      h2->Fill(t_ref,t_det);
+    }
   }
+  TCanvas *crefVSle = new TCanvas("crefVSle", "CDet ref vs LE",900,700);
+  h2->Draw("COLZ");
+}
+
+
+void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
+  
+  int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
+  int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
+
+  TH1D* hECalMinusCDetTime = new TH1D("hECalMinusCDetTime", "ECal-CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
+  TH1D* hECalMinusCDetTimeNoCuts = new TH1D("hECalMinusCDetTimeNoCuts", "ECal-CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
+  TH2D* h2ECalMinusCDetTime = new TH2D("h2ECalMinusCDetTime", "ECal-CDet Time vs CDet Time;CDet 'Good' Time (ns);ECal-CDet Time (ns)", TDCBinNum, CDetMin, CDetMax, TDCBinNum, DiffMin, DiffMax);
+  TH2D* hECalVsCDet = new TH2D("hECalVsCDet", "ECal Time vs CDet Time;CDet LE Time (ns);ECal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, ECalMin, ECalMax);
+  TH2D* h2ECalxVsCDetx = new TH2D("h2ECalxVsCDetx", "ECal Good x vs CDet Good x;CDet Good x (m);ECal Good x (m)",600,-1.5,1.5,200,-1.5,1.5);
+  // TH1I* hGoodHitsPerEvent = new TH1I("hGoodHitsPerEvent", "Good hits per event;N_{good hits};Events", 100, 0, 100);
+
+  const size_t Nev = std::min(vGoodLe.size(),v_GoodECalAdcTime.size());
+  int sumNhits = 0;
+  int sumGoodHits1 = 0;
+  int sumGoodHits2 = 0;
+  //vectors for plotting good hits in layers 1 and 2
+  // std::vector<int> vGoodHits1PerEvent(Nev, 0);
+  // std::vector<int> vGoodHits2PerEvent(Nev, 0);
+  // std::vector<int> vGoodHitsPerEvent(Nev, 0);
+
+  for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
+    sumNhits += vnhits1[ev]+vnhits2[ev];
+    int countGoodHits1 = 0;
+    int countGoodHits2 = 0;
+
+    double t_ECal = v_GoodECalAdcTime[ev];
+  
+    const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
+    for (size_t ihit = 0; ihit < Nhits; ++ihit) {
+      double t_CDet = vGoodLe[ev][ihit];
+      double tot = vGoodTot[ev][ihit];
+      double t_diff = t_ECal-t_CDet;
+      hECalMinusCDetTimeNoCuts->Fill(t_diff);
+      
+      if (t_CDet >= LeMin && t_CDet <= LeMax && tot >= TotMin && tot <= TotMax && t_diff >= diffMinCut && t_diff <= diffMaxCut){
+        hECalMinusCDetTime->Fill(t_diff);
+        h2ECalMinusCDetTime->Fill(t_CDet,t_diff);
+        hECalVsCDet->Fill(t_CDet, t_ECal);
+        double x_CDet = vCDetGoodX[ev][ihit];
+        double x_ECal = v_GoodECalX[ev]*vCDetGoodZ[ev][ihit]/ECal_dist;
+
+        // double xdiff = x_CDet - x_ECal - 0.02;
+        // if (std::fabs(xdiff) > 0.1) {
+        //   std::cout << "Out-of-cut hit: ev=" << ev
+        //             << " ihit=" << ihit
+        //             << " x_CDet=" << x_CDet
+        //             << " x_ECal=" << x_ECal
+        //             << " xdiff=" << xdiff << std::endl;
+        // }
+      
+        h2ECalxVsCDetx->Fill(x_CDet,x_ECal);
+
+        int sbselemid = (Int_t)vGoodID[ev][ihit];
+        int sbsrown = sbselemid%672;
+        int sbscoln = sbselemid/672;
+        int mylayern = sbscoln/2;
+        int mypaddlen = sbscoln*672 + sbsrown;
+
+        if (mylayern == 0) countGoodHits1++;
+        else countGoodHits2++;
+
+	    }//fill histogram with cuts
+    }//finished looking at hits
+    // vGoodHitsPerEvent[ev] = countGoodHits1 + countGoodHits2;
+    // vGoodHits1PerEvent[ev] = countGoodHits1;
+    // vGoodHits2PerEvent[ev] = countGoodHits2;
+    
+    sumGoodHits1 += countGoodHits1; 
+    sumGoodHits2 += countGoodHits2;
+
+  } //finished looking at all events
+  double aveNhits = (sumNhits / Nev);
+  double aveGoodHits = ((sumGoodHits1+sumGoodHits2) / Nev);
+  double aveGoodHits1 = (sumGoodHits1 / Nev);
+  double aveGoodHits2 = (sumGoodHits2 / Nev);
+  std::cout << "ave nhits/event w/o cuts= " << aveNhits << endl;
+  std::cout << "ave nGoodHits/event= " << aveGoodHits << endl;
+  std::cout << "ave nGoodHits Layer 1/event= " << aveGoodHits1 << endl;
+  std::cout << "ave nGoodHits Layer 2/event= " << aveGoodHits2 << endl;
+
+  //make profile to fit time diff vs CDet time with linear fit
+  // TProfile *prof = h2ECalMinusCDetTime->ProfileX("prof");
+  // prof->Fit("pol1");
+
+  // TF1 *fit = prof->GetFunction("pol1");  // retrieve automatic fit
+
+  //make canvas and draw hist
+  TCanvas *cTimeDiff = new TCanvas("cTimeDiff", "ECal ADCtime Minus CDet Good LE",900,700);
+
+  hECalMinusCDetTime->SetLineColor(kRed);
+  hECalMinusCDetTimeNoCuts->SetLineColor(kBlue);
+  hECalMinusCDetTimeNoCuts->Draw("HIST");
+  hECalMinusCDetTime->Draw("SAME");
+
+  auto leg = new TLegend(0.7,0.7,0.9,0.9);
+  leg->AddEntry(hECalMinusCDetTime,"Cuts","l");
+  leg->AddEntry(hECalMinusCDetTimeNoCuts,"NoCuts","l");
+  leg->Draw();
+
+  TCanvas *c2DtimeDiff = new TCanvas("c2DTimeDiff", "ECal-CDet Time vs CDet Time",900,700);
+  h2ECalMinusCDetTime->Draw("COLZ"); //heatmap
+  //prof->SetLineColor(kRed);
+  //prof->SetLineWidth(3);
+  //prof->Draw("SAME");
+
+  // fit->SetLineColor(kBlack);
+  // fit->SetLineWidth(2);
+  // fit->Draw("SAME");
+  TCanvas *cXComp = new TCanvas("cXComp", "ECal x vs CDet x",900,700);
+  h2ECalxVsCDetx->Draw("COLZ");
+
+  TCanvas *cTimeComp = new TCanvas("cTimeComp", "ECal ADCtime vs CDet LE",900,700);
+  hECalVsCDet->Draw("COLZ");
+
+} //end routine
+
+void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
+
+  TH2D* h2RawECalxVsCDetx = new TH2D("h2ECalxVsCDetx", "ECal Good x vs CDet Good x;CDet Good x (m);ECal Good x (m)",600,-1.5,1.5,200,-1.5,1.5);
+
+  if (vCDetX.size() != v_ECalX.size()){
+    std::cout << "vCDetX and vECalX not the same size" << std::endl;
+  }
+  const size_t Nev = vCDetX.size();
+  for (size_t ev = 0; ev < Nev; ev++){
+    double t_e = v_ECalAdcTime[ev];
+
+    const size_t Nhits = vCDetX[ev].size();
+    for (size_t ihit = 0; ihit < Nhits; ihit++){
+      double t_c = vRawLe[ev][ihit];
+      double t_diff = t_e - t_c;
+      if (t_diff >= tDiffMin && t_diff <= tDiffMax){
+        double x_c = vCDetX[ev][ihit];
+        double x_e = v_ECalX[ev]*(vCDetZ[ev][ihit]/ECal_dist);
+        h2RawECalxVsCDetx->Fill(x_c,x_e);
+      }//if statement for cuts
+    }//end hit loop
+  }//end event loop
+  TCanvas *cRawXComp = new TCanvas("cRawXComp", "ECal x vs Raw CDet x",900,700);
+  h2RawECalxVsCDetx->Draw("COLZ");
+}
+
+void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double CDetMin = 0, double CDetMax = 60, double ECalMin = 0, double ECalMax = 250){
+  int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
+  int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
+  TH1D* hECalTime = new TH1D("hECalTime","ECal ADC Time (ns)", NADCBins,ECalMin,ECalMax);
+  TH1D* hCDetTime = new TH1D("hCDetTime","CDet LE Time (ns)", TDCBinNum,CDetMin,CDetMax);
+  TH2D* hECalVsCDet = new TH2D("hECalVsCDet", "ECal Time vs CDet Time;CDet LE Time (ns);ECal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, ECalMin, ECalMax);
+  const size_t Nev = std::min(vGoodLe.size(),v_GoodECalAdcTime.size());
+
+  for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
+    double t_ECal = v_GoodECalAdcTime[ev];
+
+    const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
+    for (size_t ihit = 0; ihit < Nhits; ++ihit) {
+      double t_CDet = vGoodLe[ev][ihit];
+      double tot = vGoodTot[ev][ihit];
+      if (t_CDet >= LeMin && t_CDet <= LeMax && tot >= TotMin && tot <= TotMax){
+        hECalVsCDet->Fill(t_CDet, t_ECal);
+	hCDetTime->Fill(t_CDet);
+	hECalTime->Fill(t_ECal);
+      }
+    }//finished looking at hits
+  } //finished looking at all events
+
+  //make canvas and draw hist
+  TCanvas *cTimeComp = new TCanvas("cTimeComp", "ECal ADCtime vs CDet LE",900,700);
+  cTimeComp->Divide(1,3);
+  cTimeComp->cd(1);
+  hECalVsCDet->Draw("COLZ");
+  cTimeComp->cd(2);
+  hCDetTime->Draw();
+  cTimeComp->cd(3);
+  hECalTime->Draw();
+
+  WriteTH1DToCSV(hCDetTime,"CDetTime.csv");
+  WriteTH1DToCSV(hECalTime,"ECalTime.csv");
+
+
+} //end routine
+
+void plotXDiffSections(double le_min = 0, double le_max = 60, double tDiffMin = 80, double tDiffMax = 100){
+  //define nonchanging histograms
+  TH1D* h1 = new TH1D("h1", "xDiffLayer1;xdiff (m);Counts", NXDiffBins,XDiffLow,XDiffHigh);
+  TH1D* h2 = new TH1D("h2", "xDiffLayer2;xdiff (m);Counts", NXDiffBins,XDiffLow,XDiffHigh);
+  TH1D* h3 = new TH1D("h3", "good le;le (ns);Counts", NTDCBins, le_min, le_max);
+
+  const size_t Nev = vCDetGoodX.size();
+  for (size_t ev = 0; ev < Nev; ++ev) {
+    double t_ECal = v_GoodECalAdcTime[ev];
+    for (int n = 0; n < vCDetGoodX[ev].size(); n++){
+      double t_CDet = vGoodLe[ev][n];
+      double t_diff = t_ECal-t_CDet;
+      if (vGoodLe[ev][n] <= le_max && vGoodLe[ev][n] >= le_min && t_diff >= tDiffMin && t_diff <= tDiffMax){
+        if (vGoodLayer[ev][n]==0){ //layer 1
+          h1->Fill(vCDetGoodX[ev][n]-(v_GoodECalX[ev]*vCDetGoodZ[ev][n]/ECal_dist));
+        }
+        else if (vGoodLayer[ev][n]==1){ //layer 2
+          h2->Fill(vCDetGoodX[ev][n]-(v_GoodECalX[ev]*vCDetGoodZ[ev][n]/ECal_dist));
+        }
+        h3->Fill(vGoodLe[ev][n]);
+      }
+    }
+  } // individual time step histograms filled
+
+  TCanvas *cTimeComp = new TCanvas("cTimeComp", "ECal ADCtime vs CDet LE",900,700);
+  TCanvas* c1 = new TCanvas("c1", "xDiff Layer 1",900,700);
+  h1->Draw("HIST");
+
+  TCanvas* c2 = new TCanvas("c2", "xDiff Layer 2",900,700);
+  h2->Draw("HIST");
+
+  TCanvas* c3 = new TCanvas("c3", "le",900,700);
+  h3->Draw("HIST");
+
 } //end plotXDiffSections
 
 void plotPMTRates(Int_t mymodule=1, Int_t mylayer=1, Int_t choice = 1){
@@ -2281,13 +2475,13 @@ auto plotXYZ(){
   hHitX = new TH1F("HitXposition","HitXPosition",1000,-2.0,2.0);
   hHitY = new TH1F("HitYposition","HitYPosition",200,-0.5,0.5);
   hHitZ = new TH1F("HitZposition","HitZPosition",200,5.5,6.0);
-   size_t N = vCdetGoodX.size();
+   size_t N = vCDetGoodX.size();
     for (size_t ev = 0; ev < N; ev++){
-      for (size_t hit = 0; hit < vCdetGoodX[ev].size(); hit++) {
+      for (size_t hit = 0; hit < vCDetGoodX[ev].size(); hit++) {
       //if (vRefRawTot[i] >= cutTotMin && vRefRawTot[i] <= cutTotMax) {
-        hHitX->Fill(vCdetGoodX[ev][hit]);
-        hHitY->Fill(vCdetGoodY[ev][hit]);
-        hHitZ->Fill(vCdetGoodZ[ev][hit]);
+        hHitX->Fill(vCDetGoodX[ev][hit]);
+        hHitY->Fill(vCDetGoodY[ev][hit]);
+        hHitZ->Fill(vCDetGoodZ[ev][hit]);
       //}
       }
     }
@@ -2479,54 +2673,54 @@ static std::pair<double,double> MinMaxFlat(const std::vector<std::vector<double>
   return {mn, mx};
 }
 
-auto plotEcalClusX(double xmin = -1.5, double xmax = 1.5, bool log=true)
+auto plotECalClusX(double xmin = -1.5, double xmax = 1.5, bool log=true)
 {
   int nbin = std::ceil((xmax - xmin)/0.0425);
-  TH1D* h_ecal_clus_x = new TH1D("h_ecal_clus_x", "hEcalClusX;Clus x (m);Counts", nbin,-1.5,1.5);
+  TH1D* h_ECal_clus_x = new TH1D("h_ECal_clus_x", "hECalClusX;Clus x (m);Counts", nbin,-1.5,1.5);
 
   //fill hist from vectors
-  for (const auto& vec : v_ecal_clus_x) {
+  for (const auto& vec : v_ECal_clus_x) {
     for (double val : vec){
-      h_ecal_clus_x->Fill(val);
+      h_ECal_clus_x->Fill(val);
     }
   }
-  TCanvas* c_ecal_clus_x = new TCanvas("c_ecal_clus_x", "ECal Cluster x",800,600);
+  TCanvas* c_ECal_clus_x = new TCanvas("c_ECal_clus_x", "ECal Cluster x",800,600);
   if (log==true){
-    c_ecal_clus_x->SetLogy();
+    c_ECal_clus_x->SetLogy();
   }
-  h_ecal_clus_x->Draw("HIST");
+  h_ECal_clus_x->Draw("HIST");
 }
-auto plotEcalNclus()
+auto plotECalNclus()
 {
-  int nclus_max = *std::max_element(v_ecal_nclus.begin(), v_ecal_nclus.end());
-  int nclus_min = *std::min_element(v_ecal_nclus.begin(),v_ecal_nclus.end());
-  TH1D* h_ecal_nclus = new TH1D("h_ecal_nclus", "hEcalNclus;Nclus;Counts", nclus_max+1, nclus_min-0.5, nclus_max + 0.5);
-  for (auto val : v_ecal_nclus){
-    h_ecal_nclus->Fill(val);
+  int nclus_max = *std::max_element(v_ECal_nclus.begin(), v_ECal_nclus.end());
+  int nclus_min = *std::min_element(v_ECal_nclus.begin(),v_ECal_nclus.end());
+  TH1D* h_ECal_nclus = new TH1D("h_ECal_nclus", "hECalNclus;Nclus;Counts", nclus_max+1, nclus_min-0.5, nclus_max + 0.5);
+  for (auto val : v_ECal_nclus){
+    h_ECal_nclus->Fill(val);
   }
-  TCanvas* c_ecal_nclus = new TCanvas("c_ecal_nclus", "ECal Cluster Count",800,600);
-  h_ecal_nclus->Draw("HIST");
+  TCanvas* c_ECal_nclus = new TCanvas("c_ECal_nclus", "ECal Cluster Count",800,600);
+  h_ECal_nclus->Draw("HIST");
 }
 
-auto plotEcalClusE(int binlow = 0, int binhigh=12)
+auto plotECalClusE(int binlow = 0, int binhigh=12)
 {
-  TH1D* h_ecal_clus_e = new TH1D("h_ecal_clus_e", "hEcalCluse;Clus E (GeV);Counts", (binhigh+binlow)*100,binlow-0.5,binhigh+0.5);
+  TH1D* h_ECal_clus_e = new TH1D("h_ECal_clus_e", "hECalCluse;Clus E (GeV);Counts", (binhigh+binlow)*100,binlow-0.5,binhigh+0.5);
 
   //fill hist from vectors
-  for (const auto& vec : v_ecal_clus_e) {
+  for (const auto& vec : v_ECal_clus_e) {
     for (double val : vec){
-      h_ecal_clus_e->Fill(val);
+      h_ECal_clus_e->Fill(val);
     }
   }
-  TCanvas* c_ecal_clus_e = new TCanvas("c_ecal_clus_e", "ECal Cluster e",800,600);
-  h_ecal_clus_e->Draw("HIST");
+  TCanvas* c_ECal_clus_e = new TCanvas("c_ECal_clus_e", "ECal Cluster e",800,600);
+  h_ECal_clus_e->Draw("HIST");
 }
-auto plotEcalClusAdcTime()
+auto plotECalClusAdcTime()
 {
   double adctime_min = std::numeric_limits<double>::max();
   double adctime_max = std::numeric_limits<double>::lowest();
 
-  for (const auto& subvec : v_ecal_clus_adctime) {
+  for (const auto& subvec : v_ECal_clus_adctime) {
     if (subvec.empty()) continue; // skip events with no clusters
 
     // find min and max within this event
@@ -2538,14 +2732,15 @@ auto plotEcalClusAdcTime()
     if (local_max > adctime_max) adctime_max = local_max;
   }
 
-  TH1D* h_ecal_clus_adctime = new TH1D("h_ecal_clus_adctime", "hEcalClusAdctime;Clus adctime;Counts", 1000,adctime_min-10,adctime_max+10);
+  TH1D* h_ECal_clus_adctime = new TH1D("h_ECal_clus_adctime", "hECalClusAdctime;Clus adctime;Counts", 1000,adctime_min-10,adctime_max+10);
 
   //fill hist from vectors
-  for (const auto& vec : v_ecal_clus_adctime) {
+  for (const auto& vec : v_ECal_clus_adctime) {
     for (double val : vec){
-      h_ecal_clus_adctime->Fill(val);
+      h_ECal_clus_adctime->Fill(val);
     }
   }
-  TCanvas* c_ecal_clus_adctime = new TCanvas("c_ecal_clus_adctime", "ECal Cluster adctime",800,600);
-  h_ecal_clus_adctime->Draw("HIST");
+  TCanvas* c_ECal_clus_adctime = new TCanvas("c_ECal_clus_adctime", "ECal Cluster adctime",800,600);
+  h_ECal_clus_adctime->Draw("HIST");
 }
+
