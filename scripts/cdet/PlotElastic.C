@@ -20,6 +20,7 @@
 #include <TSystem.h>
 #include <TLatex.h>
 #include <vector>
+#include <unordered_map>
 
 std::vector<TCanvas*> canvas_vector;
 
@@ -58,6 +59,29 @@ int NXDiffBins;
 double XDiffLow;
 double XDiffHigh;
 
+// For generating sorting cdet layer 1 and 2 hits into pairs
+struct Cand {
+  int i1;       // index into layer-1 per-event vectors
+  int j2;       // index into layer-2 per-event vectors
+  double dt;    // t2 - t1
+  double dx;    // x2 - x1
+  double score; // ranking metric (lower = better)
+};
+
+// For storing pairs for cdet layer 1 and layer 2 hits, eventually need to add y,z, tot
+struct PairHit {
+  double t1, x1;
+  int    id1;
+
+  double t2, x2;
+  int    id2;
+
+  double dt, dx;
+  double score;
+};
+
+std::vector<std::vector<PairHit>> pairs_CDet;
+
 // List of x-positions (or bins) for unused pixels ----- THIS SHOULD BE VERIFIED, unsure if correct as of 10/7
 static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65, 79, 83, 95, 109, 111, 115, 127, 140, 143, 145, 
   156, 172, 175, 176, 188, 195, 199, 213, 220, 236, 239, 244, 255, 268, 271, 284, 287, 300, 303, 307, 319, 332, 335, 339, 
@@ -77,12 +101,12 @@ static std::vector<double> missingPixelBins = {3, 13, 28, 31, 41, 42, 57, 59, 65
   2531, 2547, 2544, 2570, 2563, 2591, 2576, 2607, 2592, 2621, 2611, 2636, 2633, 2650, 2643, 2657, 2656, 2679, 2675};
 
 
-const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
+//const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
+const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/rootfiles";
 
 // const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
 //const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
-//const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
-const TString ANALYSED_DIR = "/work/brash/CDet_replay/sbs/Rootfiles/cdetFiles";
+const TString ANALYSED_DIR = "/work/halla/sbs/btspaude/sbs/Rootfiles/cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
 bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
@@ -100,36 +124,6 @@ bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
     return true;
   }
   return false;
-}
-
-void WriteTH2DToCSV(TH2D* h, const char* filename = "hist2d.csv") {
-    std::ofstream out(filename);
-    out << "x_center,y_center,content\n";
-
-    for (int i = 1; i <= h->GetNbinsX(); i++) {
-        double x = h->GetXaxis()->GetBinCenter(i);
-        for (int j = 1; j <= h->GetNbinsY(); j++) {
-            double y = h->GetYaxis()->GetBinCenter(j);
-            double content = h->GetBinContent(i, j);
-            out << x << "," << y << "," << content << "\n";
-        }
-    }
-
-    out.close();
-    std::cout << "Wrote histogram to " << filename << std::endl;
-}
-void WriteTH1DToCSV(TH1D* h, const char* filename = "hist1d.csv") {
-    std::ofstream out(filename);
-    out << "x_center,content\n";
-
-    for (int i = 1; i <= h->GetNbinsX(); i++) {
-        double x = h->GetXaxis()->GetBinCenter(i);
-            double content = h->GetBinContent(i);
-            out << x << "," << content << "\n";
-        }
-
-    out.close();
-    std::cout << "Wrote histogram to " << filename << std::endl;
 }
 
 void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegment = -1) {
@@ -192,6 +186,7 @@ std::vector<std::vector<double>> vsbs_gemFT_track_ngoodhits;
 /* CDet & ECal Vectors */
 //1D vectors
 std::vector<double> vRefRawLe;
+std::vector<double> vGoodRefRawLe; // ref LE time aligned to GOOD-event vectors (same indexing as vGoodLe)
 std::vector<double> vRefRawTe;
 std::vector<double> vRefRawTot;
 std::vector<int>    vRefRawPMT;
@@ -225,6 +220,7 @@ std::vector<std::vector<double>> vCDetZ;
 std::vector<std::vector<double>> vCDetGoodX;
 std::vector<std::vector<double>> vCDetGoodY;
 std::vector<std::vector<double>> vCDetGoodZ;
+std::vector<Long64_t> vTreeEntry; // maps saved passing-event index -> TTree entry
 
 std::vector<int> vRowLayer1Side1;
 std::vector<int> vRowLayer2Side1;
@@ -606,7 +602,7 @@ int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixe
     pixelNum < 1 || pixelNum > 16) {
     std::cerr << "Error: Invalid input values.\n"
               << "  layerNum must be 1 or 2\n"
-              << "  sideNum must be 0 or 1\n"
+              << "  sideNum must be 1 or 2\n"
               << "  submoduleNum must be 1 to 3\n"
               << "  pmtNum must be 1 to 14\n"
               << "  pixelNum must be 1 to 16\n";
@@ -658,7 +654,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.2, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
+	Double_t XDiffCut = 0.1, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
@@ -987,6 +983,11 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
   //================================================================= Event Loop
   // variables outside event loop
   Int_t EventCounter = 0;
+
+  // DEBUG controls
+  const bool DBG = false;        // master on/off
+  const long DBG_ENTRY = -1;    // set to a specific tree entry, or -1 for all
+
   cout << "Starting Event Loop" << endl;
 
     int eff_denominator = 0;
@@ -1014,7 +1015,6 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
     	for (Int_t nfill=0; nfill<ngh; nfill++) {hngoodhits_ev->Fill(EventCounter);}
     	for (Int_t nfill=0; nfill<ngth; nfill++) {hngoodTDChits_ev->Fill(EventCounter);}
     }
-
 
     /* Fill ECal cluster vectors */ /////-------------- These need to get moved into the if statement after second pass, rawEventCounter>=1
     // ---- Per-event filling ----
@@ -1064,7 +1064,10 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       vsbs_gemFT_track_nhits.push_back(fill2D(sbs_gemFT_track_nhits));
       vsbs_gemFT_track_ngoodhits.push_back(fill2D(sbs_gemFT_track_ngoodhits));
       */
-      // First pass through hits:  purpose is to get reference LE TDC Value for this event
+            // Per-entry reference time (ns) for aligning with GOOD-event vectors
+      double thisEvent_refRawLe_ns = std::nan("");
+
+// First pass through hits:  purpose is to get reference LE TDC Value for this event
       
       double event_ref_tdc = 0.0;
       double ref_int = 0;
@@ -1072,7 +1075,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       for(Int_t el=0; el<RawElID.GetSize(); el++) {
         if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
           bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
-          bool good_ref_tot = GoodElTot[el] >= 0.0/TDC_calib_to_ns && GoodElTot[el] <= 200.0/TDC_calib_to_ns;
+          bool good_ref_tot = RawElTot[el] >= 0.0/TDC_calib_to_ns && RawElTot[el] <= 200.0/TDC_calib_to_ns;
           bool good_ref_event = good_ref_le_time && good_ref_tot;
           if ( good_ref_event ) {
 
@@ -1088,7 +1091,8 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
                 //cout << " Ref  ID = " << (Int_t)RawElID[el] << " el = " << el << "    LE = " << RawElLE[el]*TDC_calib_to_ns 
                 //		<< "    TE = " << RawElTE[el]*TDC_calib_to_ns << "    ToT = " << RawElTot[el]*TDC_calib_to_ns << endl;
                 
-                vRefRawLe.push_back(RawElLE[el] * TDC_calib_to_ns);
+                thisEvent_refRawLe_ns = RawElLE[el] * TDC_calib_to_ns;
+                vRefRawLe.push_back(thisEvent_refRawLe_ns);
                 vRefRawTe.push_back(RawElTE[el] * TDC_calib_to_ns);
                 vRefRawTot.push_back(RawElTot[el] * TDC_calib_to_ns);
                 vRefRawPMT.push_back((int)RawElID[el]);
@@ -1117,15 +1121,33 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       std::vector<double> thisEvent_CDetX;
       std::vector<double> thisEvent_CDetY;
       std::vector<double> thisEvent_CDetZ;
+
+      // Build lookup from PMT id -> index in Good* arrays for this TTree entry
+      std::unordered_map<int,int> goodIdx;
+      goodIdx.reserve(GoodElID.GetSize());
+      for (int ig = 0; ig < (int)GoodElID.GetSize(); ig++) {
+        goodIdx[(int)GoodElID[ig]] = ig;
+      }
+
       int rawEventCounter = 0;
       for(Int_t el=0; el<RawElID.GetSize(); el++){
+
+        const int raw_pmt = (int)RawElID[el];
+        auto itGood = goodIdx.find(raw_pmt);
+        const bool hasGood = (itGood != goodIdx.end());
+        const int ig = hasGood ? itGood->second : -1;
+        const double gx = hasGood ? GoodX[ig] : 1.0e9;
+        const double gy = hasGood ? GoodY[ig] : 1.0e9;
+        const double gz = hasGood ? (GoodZ[ig]-CDet_dist_offset) : 1.0e9;
+
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
+      bool good_CDet_X = hasGood && (fabs(gx) < xcut);
 
 
-      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult;
+      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
 
       //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
@@ -1140,7 +1162,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             //fill this events vectors
             thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc); 
             thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc);
-            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns - event_ref_tdc);
+            thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns); //- event_ref_tdc);
             thisEvent_ID.push_back((Int_t)RawElID[el]);
           
             //fill all hits vectors
@@ -1150,9 +1172,31 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
             vAllRawPMT.push_back(RawElID[el]);
             vAllRawBar.push_back((Int_t)(RawElID[el]/16));
 
-            thisEvent_CDetX.push_back(GoodX[el]);
-            thisEvent_CDetY.push_back(GoodY[el]);
-            thisEvent_CDetZ.push_back(GoodZ[el]-CDet_dist_offset);
+            thisEvent_CDetX.push_back(gx);
+            thisEvent_CDetY.push_back(gy);
+            thisEvent_CDetZ.push_back(gz);
+            //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
+            if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY) && rawEventCounter<20) {
+            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetY = " << gy << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << gz << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
+            std::cout << " " <<std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
+            std::cout << "-------------------- " <<std::endl;
+            }
+            /*}
+            if (fabs(GoodX[el]) == 999 && GoodZ[el] != -999){
+            std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << gz << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
+            std::cout << " " <<std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetLE = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTE = " << RawElTE[el]*TDC_calib_to_ns - event_ref_tdc << std::endl;
+            std::cout << "event = " << rawEventCounter << " " << "cdetTot = " << RawElTot[el]*TDC_calib_to_ns << std::endl;
+            }*/
             /* Comment out histograms for now
             hRawLe[(Int_t)RawElID[el]]->Fill(RawElLE[el]*TDC_calib_to_ns-event_ref_tdc);
             hRawTe[(Int_t)RawElID[el]]->Fill(RawElTE[el]*TDC_calib_to_ns-event_ref_tdc);
@@ -1463,6 +1507,8 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
       vCDetGoodX.push_back(thisEvent_GoodX);
       vCDetGoodY.push_back(thisEvent_GoodY);
       vCDetGoodZ.push_back(thisEvent_GoodZ);
+        vTreeEntry.push_back(reader.GetCurrentEntry());
+      vGoodRefRawLe.push_back(thisEvent_refRawLe_ns);
 
       vGoodLe.push_back(thisEvent_GoodLE);
       vGoodTe.push_back(thisEvent_GoodTE);
@@ -1514,10 +1560,6 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t neventsr=5000
     }// element loop
     }//good elastic bool
   }//event loop 
-  std::cout << "Size of GoodECalADCtime = " << v_GoodECalAdcTime.size() << std::endl;
-  std::cout << "Size of GoodCDetLE = " << vGoodLe.size() << std::endl;
-  std::cout << "Size of GoodECalX = " << v_GoodECalX.size() << std::endl;
-
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
   std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer1/eff_denominator  << std::endl;
   std::cout << "Layer 2 Events = " << eff_numerator_layer2 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer2/eff_denominator <<  std::endl;
@@ -1731,18 +1773,19 @@ TCanvas *plotAllTDC(double width = 1, double binLow=0, double binHigh=60){
 
   return caa;
 }
-
 void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
   int TDCBinNum = (int)((tmax-tmin)/width);
   TH2D *h2 = new TH2D("h2","t_ref vs t_scint; t_ref; t_scint",TDCBinNum, tmin, tmax, TDCBinNum, tmin, tmax);
-  
-  const size_t Nev = vRefRawLe.size();
-  for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
-    double t_ref = vRefRawLe[ev];
+
+  // Use reference times that are aligned with the GOOD-event vectors
+  const size_t Nev = std::min(vGoodRefRawLe.size(), vGoodLe.size());
+  for (size_t ev = 0; ev < Nev; ev++) { // iterate through good-selected events
+    const double t_ref = vGoodRefRawLe[ev];
+    if (std::isnan(t_ref)) continue; // if no ref recorded for this entry, skip
 
     const size_t Nhits = vGoodLe[ev].size();
     for (size_t ihit = 0; ihit < Nhits; ihit++) {
-      double t_det = vGoodLe[ev][ihit];
+      const double t_det = vGoodLe[ev][ihit];
       h2->Fill(t_ref,t_det);
     }
   }
@@ -1750,8 +1793,280 @@ void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
   h2->Draw("COLZ");
 }
 
+TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullptr, bool clampNegToZero = true, int firstBin = 1, int lastBin = -1) {
+  if (!hIn || !fFit) {
+    std::cerr << "SubtractFitFromHist ERROR: null input.\n";
+    return nullptr;
+  }
 
-void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 62, double DiffMax = 130, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
+  TH1* hSub = (TH1*)hIn->Clone(outName ? outName : (TString(hIn->GetName()) + "_sub").Data());
+  hSub->SetDirectory(nullptr);
+
+  if (lastBin < 0) lastBin = hSub->GetNbinsX();
+  firstBin = std::max(firstBin, 1);
+  lastBin  = std::min(lastBin, hSub->GetNbinsX());
+
+  for (int ibin = firstBin; ibin <= lastBin; ++ibin) {
+    const double x  = hSub->GetBinCenter(ibin);
+    const double bw = hSub->GetBinWidth(ibin);
+
+    const double content = hSub->GetBinContent(ibin);
+    const double err     = hSub->GetBinError(ibin);
+
+    // Average fit value over the bin (Integral/binwidth) so subtraction matches histogram binning
+    const double fAvg = fFit->Integral(x - bw/2.0, x + bw/2.0) / bw;
+
+    double newContent = content - fAvg;
+    if (clampNegToZero && newContent < 0) newContent = 0;
+
+    hSub->SetBinContent(ibin, newContent);
+    hSub->SetBinError(ibin, err); // keep original errors (common choice)
+  }
+
+  // If you want to subtract everywhere else too, call with firstBin=1,lastBin=nbins.
+  return hSub;
+}
+
+void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.07, double xdiffMaxCut = 0.07, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, bool allowMultiplePairs = true){
+  
+  int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
+  TH1D* hCDetTimeDiff = new TH1D("hCDetTimeDiff", "CDet Layer Time Difference; Time Difference (ns);Counts", TDCBinNum, DiffMin, DiffMax);
+  TH1D* hCDetLe1 = new TH1D("hCDetLe1", "CDet Layer 1 Good Time;Layer 1 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
+  TH1D* hCDetLe2 = new TH1D("hCDetLe2", "CDet Layer 2 Good Time;Layer 2 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDet2vs1 = new TH2D("hCDet2vs1", "CDet Layer 2 Time vs CDet Layer 1 Time;Layer 1 LE (ns);Layer 2 LE (ns)",TDCBinNum,CDetMin,CDetMax,TDCBinNum,CDetMin,CDetMax);
+  TH2D* h2CDetx2VsCDetx1 = new TH2D("h2CDetx2VsCDetx1", "CDet Layer 2 x vs CDet Layer 1 x;CDet Layer 1 x (m);CDet Layer 2 x (m)",600,-1.5,1.5,600,-1.5,1.5);
+  TH1I* hNpairPerEvent = new TH1I("hNpairPerEvent", "CDet accepted pairs per event;N_{pairs};Events", 20, 0, 20);
+
+  const size_t Nev = vGoodLe.size();
+  pairs_CDet.resize(Nev);
+
+  // ------------------------------
+  // Tuning parameters 
+  // ------------------------------
+  static double dt0   = 0.0;   // ns; start 0, later set to peak of dt histogram
+  static double dtWin = diffMaxCut;  // ns; start wide (10–15)
+  static double dxWin = xdiffMaxCut;   // m; ~one bar
+
+  static double sigT  = 1.0;   // ns; timing scale for score
+  static double sigX  = 0.01;   // m; start ~1, later tighten toward 0.5
+
+  // (Optional) diagnostics:
+  // dt histogram for ALL candidate pairs (before unique-matching).
+  // Center it around dt0 and cover the full pairing window.
+  const int dtCandBins = std::max(1, (int)std::round((2.0*dtWin)/Width));
+  TH1D* hDt_allCand = new TH1D("hDt_allCand",
+    "CDet #Delta t candidates (all);t_{2}-t_{1} (ns);Counts",
+    dtCandBins, dt0 - dtWin, dt0 + dtWin);
+
+  // dx histogram for ALL candidate pairs (before unique-matching).
+  // Use a symmetric window around 0 that matches your initial dxWin.
+  const double dxMin = -dxWin;
+  const double dxMax =  dxWin;
+  // Choose a reasonable binning for x; 0.5 cm/bin is a good start.
+  const double dxBinW = 0.5; // cm
+  const int dxBins = std::max(1, (int)std::round((dxMax - dxMin)/dxBinW));
+  TH1D* hDx_allCand = new TH1D("hDx_allCand",
+    "CDet #Delta x candidates (all);x_{2}-x_{1} (cm);Counts",
+    dxBins, dxMin, dxMax);
+
+  // 2D correlation of dx vs dt for ALL candidate pairs.
+  TH2D* hDxVsDt_allCand = new TH2D("hDxVsDt_allCand",
+    "CDet candidates: #Delta x vs #Delta t (all);t_{2}-t_{1} (ns);x_{2}-x_{1} (cm)",
+    dtCandBins, dt0 - dtWin, dt0 + dtWin,
+    dxBins, dxMin, dxMax);
+
+  // Candidate multiplicity per event (how many pass your loose dt/dx windows)
+  TH1I* hNcandPerEvent = new TH1I("hNcandPerEvent",
+    "CDet candidates per event (pass loose #Delta t/#Delta x);N_{cand};Events",
+    200, 0, 200);
+  
+  int sumNhits = 0;
+  int sumGoodHits1 = 0;
+  int sumGoodHits2 = 0;
+  //vectors for plotting good hits in layers 1 and 2
+  // std::vector<int> vGoodHits1PerEvent(Nev, 0);
+  // std::vector<int> vGoodHits2PerEvent(Nev, 0);
+  // std::vector<int> vGoodHitsPerEvent(Nev, 0);
+  
+  for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
+    sumNhits += vnhits1[ev]+vnhits2[ev];
+    int countGoodHits1 = 0;
+    int countGoodHits2 = 0;
+    std::vector<double> vCDet1Time;
+    std::vector<double> vCDet2Time;
+    std::vector<double> vCDet1x;
+    std::vector<double> vCDet2x;
+    std::vector<double> vCDet1ID;
+    std::vector<double> vCDet2ID;
+    // double t_ECal = v_GoodECalAdcTime[ev];
+    // double x_ECal_actal = v_GoodECalX[ev];
+
+    // ------------------------------
+    // First pass: split hits into layers
+    // ------------------------------
+    const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
+    for (size_t ihit = 0; ihit < Nhits; ++ihit) {
+      if (vGoodLe[ev][ihit] >= LeMin && vGoodLe[ev][ihit] <= LeMax){
+        if (vGoodID[ev][ihit] >= 0 && vGoodID[ev][ihit] <= 1343){ //layer 1 hits
+          vCDet1Time.push_back(vGoodLe[ev][ihit]);
+          vCDet1ID.push_back(vGoodID[ev][ihit]);
+          vCDet1x.push_back(vCDetGoodX[ev][ihit]);
+          countGoodHits1++;
+        }
+        else if (vGoodID[ev][ihit] >= 1344 && vGoodID[ev][ihit] <= 2687){//layer 2 hits
+          vCDet2Time.push_back(vGoodLe[ev][ihit]);
+          vCDet2ID.push_back(vGoodID[ev][ihit]);
+          vCDet2x.push_back(vCDetGoodX[ev][ihit]);
+          countGoodHits2++;
+        }
+      }
+    }
+
+    //require at least one hit in each layer to even try pairing:
+    if (vCDet1Time.empty() || vCDet2Time.empty()) continue;
+
+    // ------------------------------
+    // Second pass: build candidate pairs (all pairs that pass dt/dx cuts)
+    // ------------------------------
+    std::vector<Cand> cands;
+    cands.reserve(vCDet1Time.size() * vCDet2Time.size());
+
+    for (int i1 = 0; i1 < (int)vCDet1Time.size(); i1++) {
+      for (int j2 = 0; j2 < (int)vCDet2Time.size(); j2++) {
+
+        const double dt = vCDet2Time[j2] - vCDet1Time[i1];
+        const double dx = vCDet2x[j2] - vCDet1x[i1];
+
+        if (fabs(dt - dt0) > dtWin) continue;
+        if (fabs(dx) > dxWin) continue;
+
+        const double score = (((dt - dt0)*(dt - dt0)) / (sigT*sigT)) + ((dx*dx) / (sigX*sigX));
+
+        cands.push_back({i1, j2, dt, dx, score});
+      }
+    }
+
+    // Optional diagnostics:
+    // hNcandPerEvent->Fill((int)cands.size());
+
+    if (cands.empty()) continue;
+
+    // ------------------------------
+    // Sort candidates by score (best first)
+    // ------------------------------
+    std::sort(cands.begin(), cands.end(),
+              [](const Cand& a, const Cand& b) {
+                return a.score < b.score;
+              });
+
+    // ------------------------------
+    // Select non-conflicting pairs (greedy one-to-one matching)
+    //   - ensures you don’t reuse the same hit in L1 or L2 twice
+    // ------------------------------
+    std::vector<char> used1(vCDet1Time.size(), 0);
+    std::vector<char> used2(vCDet2Time.size(), 0);
+
+    pairs_CDet[ev].clear();
+    pairs_CDet[ev].reserve(std::min(vCDet1Time.size(), vCDet2Time.size())); 
+
+    int nPairs = 0;
+
+    for (const auto &c : cands) {
+      if (used1[c.i1] || used2[c.j2]) continue;
+
+      used1[c.i1] = 1;
+      used2[c.j2] = 1;
+      PairHit p;
+      p.t1 = vCDet1Time[c.i1];
+      p.x1 = vCDet1x[c.i1];
+      p.id1 = vCDet1ID[c.i1];
+
+      p.t2 = vCDet2Time[c.j2];
+      p.x2 = vCDet2x[c.j2];
+      p.id2 = vCDet2ID[c.j2];
+
+      p.dt = c.dt;
+      p.dx = c.dx;
+      p.score = c.score;
+
+      pairs_CDet[ev].push_back(p);
+
+      if (!allowMultiplePairs) break;
+    }
+    hNpairPerEvent->Fill((int)pairs_CDet[ev].size());
+
+    // ------------------------------
+    // Third pass: fill histograms using the ACCEPTED pairs
+    // ------------------------------    
+    if (ev <= 20) {
+      std::cout << "CDet1 Size= " << vCDet1Time.size()
+                << " CDet2 Size= " << vCDet2Time.size()
+                << " Npairs= " << pairs_CDet[ev].size() << "\n";
+    }
+
+    for (size_t ip = 0; ip < pairs_CDet[ev].size(); ip++) {
+      const auto &p = pairs_CDet[ev][ip];
+
+      if (ev <= 20) {
+        if (ip == 0) std::cout << "--------new event ----------\n";
+        std::cout << "pair=" << ip
+                  << " t1=" << p.t1 << " x1=" << p.x1 << " ID1=" << p.id1 << "\n";
+        std::cout << "pair=" << ip
+                  << " t2=" << p.t2 << " x2=" << p.x2 << " ID2=" << p.id2 << "\n";
+        std::cout << "pair=" << ip
+                  << " tdiff=" << p.dt << " xdiff=" << p.dx
+                  << " score=" << p.score << "\n";
+        std::cout << "===============\n";
+      }
+
+      // Apply final/tighter cuts (these can be narrower than dtWin/dxWin)
+      if (p.dt >= diffMinCut && p.dt <= diffMaxCut && p.dx >= xdiffMinCut && p.dx <= xdiffMaxCut) {
+        hCDetTimeDiff->Fill(p.dt);
+        hCDet2vs1->Fill(p.t1, p.t2);
+        hCDetLe1->Fill(p.t1);
+        hCDetLe2->Fill(p.t2);
+        h2CDetx2VsCDetx1->Fill(p.x1,p.x2);
+	    }//fill histogram with cuts
+    }// end pair hits loop
+
+  }// end event loop 
+  TCanvas *cCDetLayerTimes = new TCanvas("cCDetLayerTimes", "CDet Layer 1 and 2 LE",900,700);
+  cCDetLayerTimes->Divide(1,2);
+
+  cCDetLayerTimes->cd(1);
+  //gPad->SetLogz();
+  hCDetLe1->Draw();
+  
+  cCDetLayerTimes->cd(2);
+  //gPad->SetLogz();
+  hCDetLe2->Draw();
+
+  // ---- Gaussian fit on the "NoCuts" histogram ----
+  TF1 *fGaus = new TF1("fGaus", "gaus", DiffMin, DiffMax);
+  int maxBin = hCDetTimeDiff->GetMaximumBin();
+  double peakX = hCDetTimeDiff->GetBinCenter(maxBin);
+  fGaus->SetParameters(hCDetTimeDiff->GetMaximum(), peakX, diffMaxCut/2); // amp, mean, sigma guess
+
+  fGaus->SetRange(diffMinCut, diffMaxCut);
+  hCDetTimeDiff->Fit(fGaus, "R");
+
+  // draw the fit on top of the already-drawn histogram
+  fGaus->SetLineColor(kBlack);
+
+  TCanvas *cCDetTDiff = new TCanvas("cCDetTDiff", "CDet Time Diff",900,700);
+  hCDetTimeDiff->Draw();
+  fGaus->Draw("SAME");
+  TCanvas *cCDetLayer2v1 = new TCanvas("cCDetLayer2v1", "CDet Layer 2 vs 1",900,700);
+  hCDet2vs1->Draw("COLZ");
+
+  TCanvas *cNpair = new TCanvas("cNpair", "CDet accepted pairs per event", 900, 700);
+  hNpairPerEvent->Draw();
+
+  TCanvas *cXplot = new TCanvas("cXplot", "CDet layer 2 vs 1 xposition", 900, 700);
+  h2CDetx2VsCDetx1->Draw("COLZ");
+}
+
+void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 80, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
   
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
@@ -1759,8 +2074,10 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   TH1D* hECalMinusCDetTime = new TH1D("hECalMinusCDetTime", "ECal-CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
   TH1D* hECalMinusCDetTimeNoCuts = new TH1D("hECalMinusCDetTimeNoCuts", "ECal-CDet Time;Time Diff (ns);Counts", TDCBinNum, DiffMin, DiffMax);
   TH2D* h2ECalMinusCDetTime = new TH2D("h2ECalMinusCDetTime", "ECal-CDet Time vs CDet Time;CDet 'Good' Time (ns);ECal-CDet Time (ns)", TDCBinNum, CDetMin, CDetMax, TDCBinNum, DiffMin, DiffMax);
+  TH2D* h2ECalMinusCDetTot = new TH2D("h2ECalMinusCDetTot", "ECal-CDet Time vs CDet Tot;CDet 'Good' Tot (ns);ECal-CDet Time (ns)", TDCBinNum, CDetTotMin, CDetTotMax, TDCBinNum, DiffMin, DiffMax);
   TH2D* hECalVsCDet = new TH2D("hECalVsCDet", "ECal Time vs CDet Time;CDet LE Time (ns);ECal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, ECalMin, ECalMax);
   TH2D* h2ECalxVsCDetx = new TH2D("h2ECalxVsCDetx", "ECal Good x vs CDet Good x;CDet Good x (m);ECal Good x (m)",600,-1.5,1.5,200,-1.5,1.5);
+  TH2D* h2ECalxVsCDetxNoProject = new TH2D("h2ECalxVsCDetxNoProject", "ECal Actual x vs CDet Good x;CDet Good x (m);ECal Actual x (m)",600,-1.5,1.5,200,-1.5,1.5);
   // TH1I* hGoodHitsPerEvent = new TH1I("hGoodHitsPerEvent", "Good hits per event;N_{good hits};Events", 100, 0, 100);
 
   const size_t Nev = std::min(vGoodLe.size(),v_GoodECalAdcTime.size());
@@ -1778,6 +2095,7 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
     int countGoodHits2 = 0;
 
     double t_ECal = v_GoodECalAdcTime[ev];
+    double x_ECal_actal = v_GoodECalX[ev];
   
     const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
     for (size_t ihit = 0; ihit < Nhits; ++ihit) {
@@ -1787,22 +2105,14 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
       hECalMinusCDetTimeNoCuts->Fill(t_diff);
       
       if (t_CDet >= LeMin && t_CDet <= LeMax && tot >= TotMin && tot <= TotMax && t_diff >= diffMinCut && t_diff <= diffMaxCut){
-        hECalMinusCDetTime->Fill(t_diff);
-        h2ECalMinusCDetTime->Fill(t_CDet,t_diff);
-        hECalVsCDet->Fill(t_CDet, t_ECal);
         double x_CDet = vCDetGoodX[ev][ihit];
         double x_ECal = v_GoodECalX[ev]*vCDetGoodZ[ev][ihit]/ECal_dist;
-
-        // double xdiff = x_CDet - x_ECal - 0.02;
-        // if (std::fabs(xdiff) > 0.1) {
-        //   std::cout << "Out-of-cut hit: ev=" << ev
-        //             << " ihit=" << ihit
-        //             << " x_CDet=" << x_CDet
-        //             << " x_ECal=" << x_ECal
-        //             << " xdiff=" << xdiff << std::endl;
-        // }
-      
+        hECalMinusCDetTime->Fill(t_diff);
+        h2ECalMinusCDetTime->Fill(t_CDet, t_diff);
+        h2ECalMinusCDetTot->Fill(tot, t_diff);
+        hECalVsCDet->Fill(t_CDet, t_ECal);
         h2ECalxVsCDetx->Fill(x_CDet,x_ECal);
+        h2ECalxVsCDetxNoProject->Fill(x_CDet,x_ECal_actal);
 
         int sbselemid = (Int_t)vGoodID[ev][ihit];
         int sbsrown = sbselemid%672;
@@ -1846,25 +2156,58 @@ void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffM
   hECalMinusCDetTimeNoCuts->Draw("HIST");
   hECalMinusCDetTime->Draw("SAME");
 
+  // ---- Gaussian fit on the "NoCuts" histogram ----
+  TF1 *fGausNoCuts = new TF1("fGausNoCuts", "gaus", DiffMin, DiffMax);
+  int maxBin = hECalMinusCDetTimeNoCuts->GetMaximumBin();
+  double peakX = hECalMinusCDetTimeNoCuts->GetBinCenter(maxBin);
+  fGausNoCuts->SetParameters(hECalMinusCDetTimeNoCuts->GetMaximum(), peakX, 20.0); // amp, mean, sigma guess
+
+  // (optional) restrict fit range around the peak so you fit the main bump, not the tails/background
+  double fitLo = peakX - 40.0;
+  double fitHi = peakX + 40.0;
+  fGausNoCuts->SetRange(fitLo, fitHi);
+
+  // do the fit ("R" uses the TF1 range, "0" suppresses ROOT fit printout if you want)
+  hECalMinusCDetTimeNoCuts->Fit(fGausNoCuts, "R");
+
+  // draw the fit on top of the already-drawn histogram
+  fGausNoCuts->SetLineColor(kBlack);
+  fGausNoCuts->Draw("SAME");
+
+  std::cout << "NoCuts Gaussian: mean = " << fGausNoCuts->GetParameter(1) << "  sigma = " << fGausNoCuts->GetParameter(2) << std::endl;
+
   auto leg = new TLegend(0.7,0.7,0.9,0.9);
   leg->AddEntry(hECalMinusCDetTime,"Cuts","l");
   leg->AddEntry(hECalMinusCDetTimeNoCuts,"NoCuts","l");
   leg->Draw();
 
-  TCanvas *c2DtimeDiff = new TCanvas("c2DTimeDiff", "ECal-CDet Time vs CDet Time",900,700);
-  h2ECalMinusCDetTime->Draw("COLZ"); //heatmap
-  //prof->SetLineColor(kRed);
-  //prof->SetLineWidth(3);
-  //prof->Draw("SAME");
+  //gaussian subtracted hist
+  TH1* hNoCutsSub = SubtractFitFromHist(hECalMinusCDetTimeNoCuts, fGausNoCuts);
+  hNoCutsSub->SetLineColor(kMagenta);
+  hNoCutsSub->Draw("HIST SAME");
 
-  // fit->SetLineColor(kBlack);
-  // fit->SetLineWidth(2);
-  // fit->Draw("SAME");
   TCanvas *cXComp = new TCanvas("cXComp", "ECal x vs CDet x",900,700);
+  cXComp->SetLogz();
   h2ECalxVsCDetx->Draw("COLZ");
 
-  TCanvas *cTimeComp = new TCanvas("cTimeComp", "ECal ADCtime vs CDet LE",900,700);
+  TCanvas *cECalvsCDet = new TCanvas("cECalvsCDet", "ECal vs CDet Time Comparison",900,700);
+  //cECalvsCDet->SetLogz();
   hECalVsCDet->Draw("COLZ");
+
+  TCanvas *c2DtimeComps = new TCanvas("c2DtimeComps", "ECal-CDet Time Comparisons",900,700);
+  c2DtimeComps->Divide(1,2);
+
+  c2DtimeComps->cd(1);
+  //gPad->SetLogz();
+  h2ECalMinusCDetTime->Draw("COLZ"); //heatmap
+  
+  c2DtimeComps->cd(2);
+  //gPad->SetLogz();
+  h2ECalMinusCDetTot->Draw("COLZ"); //heatmap
+
+  TCanvas *cXCompActual = new TCanvas("cXCompActual", "ECal x vs CDet x w/o projection",900,700); //uses non projected ecal x
+  cXCompActual->SetLogz();
+  h2ECalxVsCDetx->Draw("COLZ");
 
 } //end routine
 
@@ -1878,14 +2221,20 @@ void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
   const size_t Nev = vCDetX.size();
   for (size_t ev = 0; ev < Nev; ev++){
     double t_e = v_ECalAdcTime[ev];
-
+    //std::cout << "event = " << ev << " " << "size of cdetX = " << vCDetX[ev].size() << std::endl;
+    //std::cout << " " <<std::endl;
+    //std::cout << "event = " << ev << " " << "size of cdetLE = " << vRawLe[ev].size() << std::endl;
+    //std::cout << "event = " << ev << " " << "size of cdetLE = " << vRawTe[ev].size() << std::endl;
+    //std::cout << "event = " << ev << " " << "size of cdetLE = " << vRawTot[ev].size() << std::endl;
     const size_t Nhits = vCDetX[ev].size();
     for (size_t ihit = 0; ihit < Nhits; ihit++){
       double t_c = vRawLe[ev][ihit];
       double t_diff = t_e - t_c;
       if (t_diff >= tDiffMin && t_diff <= tDiffMax){
         double x_c = vCDetX[ev][ihit];
+        double z_c = vCDetZ[ev][ihit];
         double x_e = v_ECalX[ev]*(vCDetZ[ev][ihit]/ECal_dist);
+        //std::cout << "CDetX = " << x_c << " ECalX = " << x_e << "CDetZ = " << z_c << std::endl;
         h2RawECalxVsCDetx->Fill(x_c,x_e);
       }//if statement for cuts
     }//end hit loop
@@ -1897,8 +2246,6 @@ void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
 void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double CDetMin = 0, double CDetMax = 60, double ECalMin = 0, double ECalMax = 250){
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
-  TH1D* hECalTime = new TH1D("hECalTime","ECal ADC Time (ns)", NADCBins,ECalMin,ECalMax);
-  TH1D* hCDetTime = new TH1D("hCDetTime","CDet LE Time (ns)", TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDet = new TH2D("hECalVsCDet", "ECal Time vs CDet Time;CDet LE Time (ns);ECal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, ECalMin, ECalMax);
   const size_t Nev = std::min(vGoodLe.size(),v_GoodECalAdcTime.size());
 
@@ -1911,26 +2258,13 @@ void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double 
       double tot = vGoodTot[ev][ihit];
       if (t_CDet >= LeMin && t_CDet <= LeMax && tot >= TotMin && tot <= TotMax){
         hECalVsCDet->Fill(t_CDet, t_ECal);
-	hCDetTime->Fill(t_CDet);
-	hECalTime->Fill(t_ECal);
       }
     }//finished looking at hits
   } //finished looking at all events
 
   //make canvas and draw hist
   TCanvas *cTimeComp = new TCanvas("cTimeComp", "ECal ADCtime vs CDet LE",900,700);
-  cTimeComp->Divide(1,3);
-  cTimeComp->cd(1);
   hECalVsCDet->Draw("COLZ");
-  cTimeComp->cd(2);
-  hCDetTime->Draw();
-  cTimeComp->cd(3);
-  hECalTime->Draw();
-
-  WriteTH1DToCSV(hCDetTime,"CDetTime.csv");
-  WriteTH1DToCSV(hECalTime,"ECalTime.csv");
-
-
 } //end routine
 
 void plotXDiffSections(double le_min = 0, double le_max = 60, double tDiffMin = 80, double tDiffMax = 100){
@@ -2743,4 +3077,3 @@ auto plotECalClusAdcTime()
   TCanvas* c_ECal_clus_adctime = new TCanvas("c_ECal_clus_adctime", "ECal Cluster adctime",800,600);
   h_ECal_clus_adctime->Draw("HIST");
 }
-
