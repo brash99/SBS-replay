@@ -47,7 +47,7 @@ bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
   return false;
 }
 
-void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegment = -1) {
+void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int segMin = -1, int segMax = -1) {
   TString prefix = dir;
   std::vector<TString> runfiles;
 
@@ -64,14 +64,17 @@ void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegm
       if (!fname.BeginsWith(Form("cdet_%d_", runnum))) continue;
       if (!fname.EndsWith(".root")) continue;
 
-      if (onlySegment >= 0) {
+      // Range filtering enabled only if segMin/segMax are set
+      if (segMin >= 0 || segMax >= 0) {
+        if (segMin < 0) segMin = segMax;
+        if (segMax < 0) segMax = segMin;
+        if (segMin > segMax) std::swap(segMin, segMax);
+
         int firstSeg = -1, lastSeg = -1;
-        if (!GetSegRange(fname, firstSeg, lastSeg)) {
-          // If there is no _seg part, skip when filtering by segment
-          continue;
-        }
-        // Accept if onlySegment is within [firstSeg, lastSeg]
-        if (!(onlySegment >= firstSeg && onlySegment <= lastSeg)) continue;
+        if (!GetSegRange(fname, firstSeg, lastSeg)) continue;
+
+        // accept if [firstSeg,lastSeg] overlaps [segMin,segMax]
+        if (lastSeg < segMin || firstSeg > segMax) continue;
       }
 
       runfiles.push_back(prefix + "/" + fname);
@@ -86,6 +89,30 @@ void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int onlySegm
     chain->Add(file);
   }
 }
+
+std::vector<int> getLocation(int pixelID) {
+  // Check valid range
+  if (pixelID < 0 || pixelID > 2687) {
+      std::cerr << "Error: pixelID must be in the range 0 to 2687.\n";
+      return {};  // return empty vector to signal error
+  }
+
+  int layerNum      = pixelID / 1344; //1344 pixels per layer
+  pixelID               %= 1344;
+
+  int sideNum       = pixelID / 672;  //672 pixels per side
+  pixelID               %= 672;
+
+  int submoduleNum  = pixelID / 224; //224 pixels per side of module
+  pixelID               %= 224;
+
+  int pmtNum        = pixelID / 16; //16 pixels per bar
+  pixelID               %= 16;
+  int pixelNum      = pixelID % 16;
+
+  return {layerNum, sideNum, submoduleNum, pmtNum, pixelNum};
+}
+
 
 TChain *T = 0;
 
@@ -108,11 +135,21 @@ std::vector<int>    vAllRawPMT;
 std::vector<double> vT_mod;
 std::vector<double> vAllRefForLe;
 
+std::vector<std::vector<double>> vCDetPaddleRawTot;
+std::vector<std::vector<double>> vCDetPaddleCutTot;
+
+std::vector<int> rawRate(2688, 0); 
+int rateEvTrack = 0;
+std::vector<double> chanRates(2688,0);
+std::vector<int> cutRate(2688, 0); 
+int cutRateEvTrack = 0;
+std::vector<double> cutChanRates(2688,0);
+
 int NTotBins = 200;
 double TotBinLow = 1.;
 double TotBinHigh = 51.;
 
-void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Double_t LeMin = 0.02, Double_t LeMax = 60){
+void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t maxSeg = -1, Double_t LeMin = 0.02, Double_t LeMax = 60){
     RefLeMin = 0.0;
     RefLeMax = 252.0;
     RefNTDCBins = (RefLeMax-RefLeMin)/4;
@@ -127,7 +164,7 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Dou
     if (!T) {
         T = new TChain("T");
         //int onlySegment = -1; // set to >=0 to pick just one
-        AddRunFilesToChain(T, REPLAYED_DIR.Data(), runnum, onlySegment);
+        AddRunFilesToChain(T, REPLAYED_DIR.Data(), runnum, minSeg, maxSeg);
     }
 
     TTreeReader reader(T);
@@ -136,6 +173,14 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Dou
     TTreeReaderArray<double> RawElLE   (reader, "earm.cdet.hits.t");
     TTreeReaderArray<double> RawElTE   (reader, "earm.cdet.hits.t_te");
     TTreeReaderArray<double> RawElTot  (reader, "earm.cdet.hits.t_tot");
+    
+    TTreeReaderArray<double> GoodElID  (reader, "earm.cdet.hit.pmtnum");
+    TTreeReaderArray<double> GoodElLE  (reader, "earm.cdet.hit.tdc_le");
+    TTreeReaderArray<double> GoodElTE  (reader, "earm.cdet.hit.tdc_te");
+    TTreeReaderArray<double> GoodElTot (reader, "earm.cdet.hit.tdc_tot");
+
+    vCDetPaddleRawTot.assign(2688, std::vector<double>{});
+    vCDetPaddleCutTot.assign(2688, std::vector<double>{});
 
     Int_t Nev = T->GetEntries();
     cout << "N entries in tree is " << Nev << endl;
@@ -193,6 +238,25 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Dou
             }
           }
         }// end ref TDC loop
+        int nID  = RawElID.GetSize();
+        int nTot = RawElTot.GetSize();
+        int n    = std::min(nID, nTot);  
+        rateEvTrack++;
+        bool eventHasCutHit = false;
+        for(Int_t el = 0; el < n; el++) {
+          int idx = RawElID[el];
+          if (0 <= idx && idx < 2688) {
+            double tot_ns = RawElTot[el]*TDC_calib_to_ns;
+            rawRate[idx]++;
+            vCDetPaddleRawTot[idx].push_back(tot_ns);
+            if (tot_ns >= 10.0){
+              cutRate[idx]++;
+              vCDetPaddleCutTot[idx].push_back(tot_ns);
+              eventHasCutHit = true;
+            }
+          }
+        }
+        if (eventHasCutHit) cutRateEvTrack++;
 
         for(Int_t el=0; el<RawElID.GetSize(); el++){
 
@@ -216,8 +280,172 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t onlySegment = -1, Dou
             }
         }// all raw tdc hit loop
     }//end event loop 
-    std::cout << "someone cooked here" << std::endl;
+    std::cout << "nevents = " << rateEvTrack << std::endl;
+    for (int i = 0; i < 2688; i++){
+      chanRates[i] = (double)rawRate[i] / (rateEvTrack);
+      cutChanRates[i] = (double)cutRate[i] / cutRateEvTrack;
+      //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
+    }
+
+    std::cout << "someone cooked here - Walter White" << std::endl;
 }//end main
+
+void plotSingleTot(int pixel_base = 0, double width = 1, double totMin=1, double totMax=80){
+  TH1::AddDirectory(kFALSE);
+  if (pixel_base % 16 != 0) {
+    Error("plotSingleTot", "pixel_base = %d is not a multiple of 16", pixel_base);
+    return;
+  }
+
+  const int nPlots = 16;
+  int TDCBinNum = (int)((totMax-totMin)/width);
+
+  // Decode pixel → {layer, side, submodule, pmt, pixel}
+  auto info = getLocation(pixel_base);
+
+  int layer     = info[0] + 1;  // display as 1-based
+  int side      = info[1];      // 0=L, 1=R
+  int submodule = info[2] + 1;
+  int bar       = info[3] + 1;
+
+  TString sideStr = (side == 0) ? "L" : "R";
+
+  TString canvasTitle = Form("Layer %d | %s | Module %d | Bar %d", layer, sideStr.Data(), submodule, bar);
+  // Canvas with 4x4 pads
+  TCanvas* cTot = new TCanvas("cTot", canvasTitle, 1200, 1000);
+  cTot->Divide(4, 4, 0.001, 0.001);
+
+  // Histogram array
+  TH1D* hTot[nPlots];
+
+  for (int i = 0; i < nPlots; i++) {
+
+    int pixel = pixel_base + i;
+
+    TString hname  = Form("hTot_pix%d", pixel);
+    TString htitle = Form("Pixel %d;TOT (ns);Counts", pixel);
+
+    hTot[i] = new TH1D(hname, htitle, TDCBinNum, totMin, totMax);
+
+    // Fill histogram
+    for (const auto& x : vCDetPaddleRawTot[pixel]) {
+      hTot[i]->Fill(x);
+    }
+
+    // Draw
+    cTot->cd(i + 1);
+    hTot[i]->Draw();
+  }
+
+  cTot->Update();
+}
+
+void getRate(int pixel, bool cut = false){
+  if (!cut) std:: cout << "Rate in Pixel " << pixel << " = " << chanRates[pixel] << std::endl;
+  if (cut) std:: cout << "Rate in Pixel " << pixel << " (with Tot Cut) = " << cutChanRates[pixel] << std::endl;
+}
+
+void plotRateVsID(bool raw = true){
+  TH1::AddDirectory(kFALSE);
+    // --- constants ---
+  const int NCHAN_TOTAL = 2688;
+  const int NCHAN_LAYER = 1344;
+  const int NCHAN_SIDE  = 672;
+  const int NMOD        = 3;
+  const int NCHAN_MOD   = NCHAN_SIDE / NMOD; // 224
+
+  // Helper: create one segment histogram and fill from chanRates
+  auto MakeRateHist = [&](const char* hname,
+                          const char* htitle,
+                          int idStart, int idEnd,
+                          double yMax = 1.5) -> TH1D* {
+    const int nbins = idEnd - idStart + 1; // inclusive
+    TH1D* h = new TH1D(hname, htitle, nbins, idStart, idEnd + 1); // [start, end+1)
+    h->SetStats(0);
+    h->SetMinimum(0.0);
+    h->SetMaximum(yMax);
+
+    for (int id = idStart; id <= idEnd; id++) {
+      const int bin = h->FindBin(id);
+      if (raw){
+        h->SetBinContent(bin, chanRates[id]);
+      }
+      if (!raw){
+        h->SetBinContent(bin, cutChanRates[id]);
+      }
+    }
+    return h;
+  };
+
+  struct Seg { int layer; int mod; const char* side; int start; int end; };
+
+  std::vector<Seg> segs;
+  segs.reserve(12);
+
+  auto AddLayerSegs_LeftThenRight = [&](int layer, int base) {
+    const int L0 = base + 0;
+    const int R0 = base + NCHAN_SIDE;
+
+    // Left side: M1, M2, M3
+    for (int m = 0; m < NMOD; m++) {
+      int s = L0 + m*NCHAN_MOD;
+      int e = s + NCHAN_MOD - 1;
+      segs.push_back({layer, m+1, "L", s, e});
+    }
+    // Right side: M1, M2, M3
+    for (int m = 0; m < NMOD; m++) {
+      int s = R0 + m*NCHAN_MOD;
+      int e = s + NCHAN_MOD - 1;
+      segs.push_back({layer, m+1, "R", s, e});
+    }
+  };
+
+  // Layer 1: IDs 0..1343
+  AddLayerSegs_LeftThenRight(1, 0);
+  // Layer 2: IDs 1344..2687
+  AddLayerSegs_LeftThenRight(2, 1344);
+
+  // --- build histograms ---
+  TH1D* hRateSeg[12] = {nullptr};
+
+  for (int i = 0; i < 12; i++) {
+    const auto& s = segs[i];
+    if (raw) {
+      TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
+      TString title = Form("CDet L%d %s M%d Rate vs Paddle ID;Paddle ID;Rate",
+                          s.layer, s.side, s.mod);
+      hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
+    }
+    if (!raw){
+      TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
+      TString title = Form("CDet L%d %s M%d Rate w/Cut vs Paddle ID;Paddle ID;Rate",
+                          s.layer, s.side, s.mod);
+      hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
+    }
+  }
+
+  // --- Draw: Layer 1 canvas (Left M1-3 then Right M1-3) ---
+  TCanvas* cRateL1 = new TCanvas("cRateL1", "CDet Rate vs ID (Layer 1)", 1400, 800);
+  cRateL1->Divide(3,2); // top row: left M1-3, bottom row: right M1-3
+
+  int pad = 1;
+  for (int i = 0; i < 12; i++) {
+    if (segs[i].layer != 1) continue;
+    cRateL1->cd(pad++);
+    hRateSeg[i]->Draw("HIST");
+  }
+
+  // --- Draw: Layer 2 canvas (Left M1-3 then Right M1-3) ---
+  TCanvas* cRateL2 = new TCanvas("cRateL2", "CDet Rate vs ID (Layer 2)", 1400, 800);
+  cRateL2->Divide(3,2);
+
+  pad = 1;
+  for (int i = 0; i < 12; i++) {
+    if (segs[i].layer != 2) continue;
+    cRateL2->cd(pad++);
+    hRateSeg[i]->Draw("HIST");
+  }
+}
 
 TCanvas *plotAllTDC(double TDCBinLow, double TDCBinHigh){
     //define histograms
