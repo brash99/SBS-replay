@@ -21,6 +21,7 @@
 #include <TLatex.h>
 #include <vector>
 #include <unordered_map>
+#include <unordered_set>
 
 std::vector<TCanvas*> canvas_vector;
 
@@ -106,7 +107,32 @@ static std::vector<double> missingPixelBins = {
 2432, 2435, 2448, 2451, 2464, 2479, 2483, 2493, 2499, 2508, 2512, 2513, 2531, 2537, 2544, 2547,
 2563, 2570, 2576, 2591, 2592, 2607, 2611, 2621, 2633, 2636, 2643, 2650, 2656, 2657, 2675, 2679};
 
-  
+static const std::unordered_set<int> kUnusedCDetPixels = {
+3, 13, 28, 31, 41, 42, 57, 59, 65, 79, 83, 95, 109, 111, 115, 127,
+140, 143, 145, 156, 172, 175, 176, 188, 195, 199, 213, 220, 236, 239, 244, 255,
+268, 271, 284, 287, 300, 303, 307, 319, 332, 335, 339, 351, 354, 364, 371, 381,
+384, 396, 401, 410, 419, 423, 435, 436, 451, 461, 465, 479, 480, 483, 508, 511,
+512, 515, 540, 543, 546, 559, 563, 573, 576, 589, 596, 605, 609, 610, 627, 638,
+643, 655, 656, 665, 674, 675, 696, 703, 707, 709, 725, 729, 738, 748, 752, 766,
+777, 780, 784, 791, 800, 812, 818, 828, 844, 847, 850, 860, 867, 868, 884, 885,
+900, 904, 912, 927, 940, 943, 945, 947, 967, 971, 986, 991, 1005, 1007, 1011, 1023,
+1027, 1028, 1043, 1050, 1066, 1068, 1072, 1075, 1088, 1102, 1106, 1119, 1121, 1135, 1148, 1151,
+1162, 1166, 1178, 1182, 1184, 1186, 1203, 1215, 1228, 1231, 1235, 1247, 1249, 1252, 1267, 1274,
+1282, 1285, 1299, 1310, 1317, 1321, 1340, 1341, 1349, 1359, 1372, 1375, 1376, 1391, 1392, 1405,
+1409, 1420, 1428, 1439, 1443, 1455, 1468, 1471, 1486, 1487, 1500, 1503, 1516, 1519, 1520, 1523,
+1536, 1551, 1557, 1567, 1568, 1583, 1584, 1597, 1603, 1615, 1617, 1629, 1646, 1647, 1648, 1654,
+1676, 1679, 1692, 1695, 1708, 1711, 1715, 1725, 1732, 1743, 1744, 1757, 1761, 1770, 1778, 1786,
+1804, 1807, 1820, 1823, 1836, 1839, 1854, 1855, 1856, 1868, 1877, 1887, 1902, 1903, 1916, 1919,
+1934, 1935, 1942, 1951, 1964, 1967, 1973, 1983, 1988, 1999, 2000, 2013, 2028, 2031, 2034, 2047,
+2048, 2051, 2064, 2067, 2080, 2085, 2099, 2104, 2112, 2122, 2131, 2143, 2144, 2147, 2160, 2163,
+2177, 2188, 2202, 2207, 2208, 2221, 2227, 2239, 2243, 2254, 2259, 2271, 2279, 2283, 2300, 2303,
+2307, 2316, 2320, 2334, 2339, 2348, 2355, 2367, 2369, 2383, 2384, 2395, 2405, 2409, 2416, 2422,
+2432, 2435, 2448, 2451, 2464, 2479, 2483, 2493, 2499, 2508, 2512, 2513, 2531, 2537, 2544, 2547,
+2563, 2570, 2576, 2591, 2592, 2607, 2611, 2621, 2633, 2636, 2643, 2650, 2656, 2657, 2675, 2679};
+
+inline bool IsUnusedPixel(int elID) {
+    return kUnusedCDetPixels.count(elID) != 0;
+}
 
 
 //const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
@@ -301,12 +327,16 @@ std::vector<double> v_GoodECalY;
 std::vector<double> v_GoodECalE;
 std::vector<double> v_GoodECalAdcTime;
 
+using Hit = std::pair<int,double>; // (pixelID, tot_ns)
+std::vector<std::vector<Hit>> vEventHits; // [event][hit]
+
 std::vector<int> rawRate(2688, 0); 
 int rateEvTrack = 0;
 std::vector<double> chanRates(2688,0);
 std::vector<int> cutRate(2688, 0); 
 int cutRateEvTrack = 0;
 std::vector<double> cutChanRates(2688,0);
+std::vector<double> ave_tot(2688,0);
 
 //copy a TTreeReaderArray<double> into a std::vector<double>, makes it easier to fill the 2D vector
 inline std::vector<double> copyArray(const TTreeReaderArray<double>& arr) {
@@ -905,6 +935,9 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   T = new TChain("T");
 
   int runnum = RunNumber1;
+
+  vCDetPaddleRawTot.assign(2688, std::vector<double>{});
+  vCDetPaddleCutTot.assign(2688, std::vector<double>{});
   //int onlySegment = -1; // set to >=0 to pick just one
 
   AddRunFilesToChain(T, REPLAYED_DIR.Data(), runnum, minSeg, maxSeg);
@@ -1137,28 +1170,8 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
           }
         }
       }// end ref TDC loop
-      int nID  = RawElID.GetSize();
-      int nTot = RawElTot.GetSize();
-      int n    = std::min(nID, nTot);  
-      rateEvTrack++;
-      bool eventHasCutHit = false;
-      for(Int_t el = 0; el < n; el++) {
-        int idx = RawElID[el];
-        if (0 <= idx && idx < 2688) {
-          double tot_ns = RawElTot[el]*TDC_calib_to_ns;
-          rawRate[idx]++;
-          vCDetPaddleRawTot[idx].push_back(tot_ns);
-          if (tot_ns >= 10.0){
-            cutRate[idx]++;
-            vCDetPaddleCutTot[idx].push_back(tot_ns);
-            eventHasCutHit = true;
-          }
-        }
-      }
-      if (eventHasCutHit) cutRateEvTrack++;
 
       // second pass: fill raw CDet TDC histos
-        
       std::vector<double> thisEvent_LE;
       std::vector<double> thisEvent_TE;
       std::vector<double> thisEvent_TOT;
@@ -1167,6 +1180,8 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       std::vector<double> thisEvent_CDetX;
       std::vector<double> thisEvent_CDetY;
       std::vector<double> thisEvent_CDetZ;
+      std::vector<Hit> eventHits;
+      rateEvTrack++;
 
       // Build lookup from PMT id -> index in Good* arrays for this TTree entry
       std::unordered_map<int,int> goodIdx;
@@ -1197,6 +1212,13 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
       if ( good_raw_event ) {
         rawEventCounter++;
+        int idx = RawElID[el];
+          if (0 <= idx && idx < 2688) {
+            double tot_ns = RawElTot[el]*TDC_calib_to_ns;
+            rawRate[idx]++;
+            vCDetPaddleRawTot[idx].push_back(tot_ns);
+            eventHits.emplace_back(idx, tot_ns);
+          } //getting rates and tot for pixels
         if ( !check_bad(RawElID[el],suppress_bad) ) {
         //cout << " el = " << el << endl;
         //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
@@ -1273,6 +1295,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       v_ECalY.push_back(*ECalY);
       v_ECalE.push_back(*ECalE);
       v_ECalAdcTime.push_back(*ECalAdcTime);
+      vEventHits.push_back(eventHits);
     }
 
 
@@ -1631,11 +1654,34 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     }//good elastic bool
   }//event loop 
   std::cout << "nevents = " << rateEvTrack << std::endl;
-    for (int i = 0; i < 2688; i++){
-      chanRates[i] = (double)rawRate[i] / (rateEvTrack);
-      cutChanRates[i] = (double)cutRate[i] / cutRateEvTrack;
-      //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
+  for (int i = 0; i < 2688; i++){
+    chanRates[i] = (double)rawRate[i] / (rateEvTrack);
+    //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
+  }
+
+  //Second Pass over all events for tot_ave calc
+
+  for (Int_t idx = 0; idx < 2688; idx++){
+    Int_t ihits = vCDetPaddleRawTot[idx].size();
+    double sumTot = 0;
+    for (Int_t i = 0; i < ihits; i++){
+      sumTot += vCDetPaddleRawTot[idx][i];
     }
+    ave_tot[idx] = sumTot / ihits;
+  }
+
+  for (Int_t idx = 0; idx < 2688; idx++){
+    Int_t ihits = vCDetPaddleRawTot[idx].size();
+    for (Int_t i = 0; i < ihits; i++){
+      double hit_tot = vCDetPaddleRawTot[idx][i];
+      if (hit_tot > ave_tot[idx]){
+        vCDetPaddleCutTot[idx].push_back(hit_tot);
+        cutRate[idx]++;
+      }
+    }
+    cutChanRates[idx] = (double)cutRate[idx] / rateEvTrack;
+  }
+
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
   std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer1/eff_denominator  << std::endl;
   std::cout << "Layer 2 Events = " << eff_numerator_layer2 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer2/eff_denominator <<  std::endl;
@@ -1728,7 +1774,24 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   //================================================================== End Macro
 }// end main
 
-void plotSingleTot(int pixel_base = 0, double width = 1, double totMin=1, double totMax=80){
+void plotAveTotPerPixel() {
+  const int nPixels = ave_tot.size();
+
+  TH1::AddDirectory(kFALSE);
+
+  TH1D* hAveTot = new TH1D("hAveTot","Average TOT per CDet pixel;Pixel ID;Average TOT (ns)",nPixels, -0.5, nPixels - 0.5);
+
+  for (int p = 0; p < nPixels; ++p) {
+    if (ave_tot[p] > 0) {   // optional guard
+      hAveTot->SetBinContent(p + 1, ave_tot[p]);
+    }
+  }
+
+  TCanvas* c = new TCanvas("cAveTot", "Average TOT per Pixel", 1200, 500);
+  hAveTot->Draw("HIST");
+}
+
+void plotSingleTot(int pixel_base = 0, bool raw = true, double width = 1, double totMin=1, double totMax=80){
   TH1::AddDirectory(kFALSE);
   if (pixel_base % 16 != 0) {
     Error("plotSingleTot", "pixel_base = %d is not a multiple of 16", pixel_base);
@@ -1750,7 +1813,8 @@ void plotSingleTot(int pixel_base = 0, double width = 1, double totMin=1, double
 
   TString canvasTitle = Form("Layer %d | %s | Module %d | Bar %d", layer, sideStr.Data(), submodule, bar);
   // Canvas with 4x4 pads
-  TCanvas* cTot = new TCanvas("cTot", canvasTitle, 1200, 1000);
+  TString cname = Form("cTot_%d", pixel_base);
+  TCanvas* cTot = new TCanvas(cname, canvasTitle, 1200, 1000);
   cTot->Divide(4, 4, 0.001, 0.001);
 
   // Histogram array
@@ -1761,21 +1825,49 @@ void plotSingleTot(int pixel_base = 0, double width = 1, double totMin=1, double
     int pixel = pixel_base + i;
 
     TString hname  = Form("hTot_pix%d", pixel);
-    TString htitle = Form("Pixel %d;TOT (ns);Counts", pixel);
-
-    hTot[i] = new TH1D(hname, htitle, TDCBinNum, totMin, totMax);
+    if (raw){
+      TString htitle = Form("Pixel %d;TOT (ns);Counts", pixel);
+      hTot[i] = new TH1D(hname, htitle, TDCBinNum, totMin, totMax);
+    }
+    if (!raw){
+      TString htitle = Form("Pixel %d w/ TOT > %f;TOT (ns);Counts", pixel, ave_tot[pixel]);
+      hTot[i] = new TH1D(hname, htitle, TDCBinNum, totMin, totMax);
+    }
 
     // Fill histogram
-    for (const auto& x : vCDetPaddleRawTot[pixel]) {
-      hTot[i]->Fill(x);
+    if (raw){
+      for (const auto& x : vCDetPaddleRawTot[pixel]) {
+        hTot[i]->Fill(x);
+      }
+    }
+    if (!raw){
+      for (const auto& x : vCDetPaddleCutTot[pixel]) {
+        hTot[i]->Fill(x);
+      }
     }
 
     // Draw
     cTot->cd(i + 1);
     hTot[i]->Draw();
+
+    // If unused pixel: draw a black square in the top-right corner of the pad
+    if (kUnusedCDetPixels.count(pixel)) {
+      // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
+      TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
+      flag->SetFillColor(kBlack);
+      flag->SetLineColor(kBlack);
+      flag->SetBorderSize(1);
+      flag->AddText("");       // empty; just a filled box
+      flag->Draw("same");
+    }
   }
 
   cTot->Update();
+}
+
+void getRate(int pixel, bool cut = false){
+  if (!cut) std:: cout << "Rate in Pixel " << pixel << " = " << chanRates[pixel] << std::endl;
+  if (cut) std:: cout << "Rate in Pixel " << pixel << " (with Tot Cut) = " << cutChanRates[pixel] << std::endl;
 }
 
 void plotRateVsID(bool raw = true){
