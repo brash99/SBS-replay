@@ -46,7 +46,7 @@ TDatime get_datime(uint gepconfig)
 }
 
 //NOTE: the "experiment" argument here appears redundant:
-void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString experiment="gep")
+void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString experiment="gep", Int_t nontrackingmode=0)
 {
   SBSGEPEArm* earm = new SBSGEPEArm("earm", "GEP electron arm" );
   earm->AddDetector( new SBSECal("ecal", "ECal") );
@@ -55,8 +55,12 @@ void replay_gep_mc(const char* filebase, uint gepconfig, uint nev = -1, TString 
   gHaApps->Add(earm);
   SBSEArm *harm = new SBSEArm("sbs","Hadron Arm with HCal");
   harm->AddDetector( new SBSHCal("hcal","HCAL") );
-  harm->AddDetector( new SBSGEMSpectrometerTracker("gemFT", "Front tracker") );
-  harm->AddDetector( new SBSGEMPolarimeterTracker("gemFPP", "Focal Plane Polarimeter") );
+  SBSGEMSpectrometerTracker* gemFT = new SBSGEMSpectrometerTracker("gemFT", "Front tracker");
+  gemFT->SetNonTrackingMode( nontrackingmode );
+  SBSGEMPolarimeterTracker* gemFPP = new SBSGEMPolarimeterTracker("gemFPP", "Focal plane polarimeter");
+  gemFPP->SetNonTrackingMode( nontrackingmode );
+  harm->AddDetector( gemFT );
+  harm->AddDetector( gemFPP );
   gHaApps->Add(harm);
   //bigbite->SetDebug(2);
   //harm->SetDebug(2);

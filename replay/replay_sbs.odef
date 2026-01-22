@@ -8,13 +8,27 @@ variable sbs.x_bcp
 variable sbs.y_bcp
 variable sbs.z_bcp
 
+variable sbs.x_fcp_FT
+variable sbs.y_fcp_FT
+variable sbs.z_fcp_FT
+variable sbs.x_bcp_FT
+variable sbs.y_bcp_FT
+variable sbs.z_bcp_FT
+
+variable sbs.x_fcp_FPP
+variable sbs.y_fcp_FPP
+variable sbs.z_fcp_FPP
+variable sbs.x_bcp_FPP
+variable sbs.y_bcp_FPP
+variable sbs.z_bcp_FPP
+
 variable sbs.HCALth_n
 variable sbs.HCALph_n
 variable sbs.HCALdir_x
 variable sbs.HCALdir_y
 variable sbs.HCALdir_z
 
-#block sbs.tdctrig.*
+block sbs.tdctrig.*
 
 block FTROI.*
 

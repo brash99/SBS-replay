@@ -19,6 +19,9 @@ variable bb.hodotdc.nclus
 variable bb.hodotdc.rftime
 variable bb.hodotdc.trigtime
 
+variable bb.hodotdc.trigphase
+variable bb.hodotdc.trigphasecorr
+
 block bb.hodotdc.Ref.*
 
 
