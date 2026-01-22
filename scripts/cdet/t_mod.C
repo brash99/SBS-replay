@@ -336,7 +336,6 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
           }
         }
         vNumAdjacentHits.push_back(nAdjacentHits);
-        std::cout << " new event w/ " << nAdjacentHits << std::endl;
       }
       
     }//end event loop 
@@ -379,13 +378,11 @@ void plotNumAdjacent(int nbins = 50){
   TH1D* hNumAdjacentHits = new TH1D("hNumAdjacentHits", "Number Hits in Adjacent Pixels 260-270", nbins, 0, nbins);
 
   for (const auto& hit : vNumAdjacentHits){
-    hNumAdjacentHits->Fill(hit);
+    if (hit > 0) hNumAdjacentHits->Fill(hit);
   }
 
   TCanvas* cNumAdjacentHits = new TCanvas("cNumAdjacentHits", "Number of Adjacent Hits", 900,700);
   hNumAdjacentHits->Draw();
-
-
 
 }
 
@@ -552,13 +549,13 @@ void plotRateVsID(bool raw = true){
     const auto& s = segs[i];
     if (raw) {
       TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate vs Paddle ID;Paddle ID;Rate",
+      TString title = Form("CDet L%d %s M%d Rate vs Pixel ID;Pixel ID;Rate",
                           s.layer, s.side, s.mod);
       hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
     }
     if (!raw){
       TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate w/Cut vs Paddle ID;Paddle ID;Rate",
+      TString title = Form("CDet L%d %s M%d Rate w/Cut vs Pixel ID;Pixel ID;Rate",
                           s.layer, s.side, s.mod);
       hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
     }
@@ -573,6 +570,17 @@ void plotRateVsID(bool raw = true){
     if (segs[i].layer != 1) continue;
     cRateL1->cd(pad++);
     hRateSeg[i]->Draw("HIST");
+
+    int nb = hRateSeg[i]->GetNbinsX();
+    double avg = hRateSeg[i]->Integral(1,nb) / nb;
+    double xmin = hRateSeg[i]->GetXaxis()->GetXmin();
+    double xmax = hRateSeg[i]->GetXaxis()->GetXmax();
+
+    TLine* lAvg = new TLine(xmin, avg, xmax, avg);
+    lAvg->SetLineColor(kRed);
+    lAvg->SetLineStyle(2);
+    lAvg->SetLineWidth(2);
+    lAvg->Draw("SAME");
   }
 
   // --- Draw: Layer 2 canvas (Left M1-3 then Right M1-3) ---
@@ -584,6 +592,17 @@ void plotRateVsID(bool raw = true){
     if (segs[i].layer != 2) continue;
     cRateL2->cd(pad++);
     hRateSeg[i]->Draw("HIST");
+
+    int nb = hRateSeg[i]->GetNbinsX();
+    double avg = hRateSeg[i]->Integral(1,nb) / nb;
+    double xmin = hRateSeg[i]->GetXaxis()->GetXmin();
+    double xmax = hRateSeg[i]->GetXaxis()->GetXmax();
+
+    TLine* lAvg = new TLine(xmin, avg, xmax, avg);
+    lAvg->SetLineColor(kRed);
+    lAvg->SetLineStyle(2);
+    lAvg->SetLineWidth(2);
+    lAvg->Draw("SAME");
   }
 }
 
