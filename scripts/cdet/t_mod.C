@@ -177,6 +177,7 @@ std::vector<int> cutRate(2688, 0);
 int cutRateEvTrack = 0;
 std::vector<double> cutChanRates(2688,0);
 std::vector<double> ave_tot(2688,0);
+std::vector<int> vNumAdjacentHits;
 
 int NTotBins = 200;
 double TotBinLow = 1.;
@@ -297,6 +298,7 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
             rawRate[idx]++;
             vCDetPaddleRawTot[idx].push_back(tot_ns);
             eventHits.emplace_back(idx, tot_ns);
+
           } //getting rates and tot for pixels
           if ( (Int_t)RawElID[el] < 2688 ) {
             //fill all hits vectors
@@ -314,6 +316,29 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
       if (CDetPassedBoolCount >= 1){
         vEventHits.push_back(eventHits);
       }
+      //check nadjacent pairs for each event (pixels 260-270)
+      if (CDetPassedBoolCount >= 1){
+        std::vector<int> ids;
+        const auto& currentEvent = vEventHits.back();
+        ids.reserve(currentEvent.size());
+
+        for (const auto& hit : currentEvent){
+          int id = hit.first;
+          if (260 <= id && id <= 270) ids.push_back(id);
+        }
+
+        std::sort(ids.begin(), ids.end());
+        ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
+        int nAdjacentHits = 0;
+        for (int i = 0; i + 1 < ids.size(); i++){
+          if (ids[i+1] == ids[i] + 1){
+            nAdjacentHits++;
+          }
+        }
+        vNumAdjacentHits.push_back(nAdjacentHits);
+        std::cout << " new event w/ " << nAdjacentHits << std::endl;
+      }
+      
     }//end event loop 
     std::cout << "nevents = " << rateEvTrack << std::endl;
     for (int i = 0; i < 2688; i++){
@@ -348,6 +373,22 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
   std::cout << "someone cooked here - Walter White" << std::endl;
 }//end main
 
+
+void plotNumAdjacent(int nbins = 50){
+  TH1::AddDirectory(kFALSE);
+  TH1D* hNumAdjacentHits = new TH1D("hNumAdjacentHits", "Number Hits in Adjacent Pixels 260-270", nbins, 0, nbins);
+
+  for (const auto& hit : vNumAdjacentHits){
+    hNumAdjacentHits->Fill(hit);
+  }
+
+  TCanvas* cNumAdjacentHits = new TCanvas("cNumAdjacentHits", "Number of Adjacent Hits", 900,700);
+  hNumAdjacentHits->Draw();
+
+
+
+}
+
 void plotAveTotPerPixel() {
   const int nPixels = ave_tot.size();
 
@@ -361,7 +402,7 @@ void plotAveTotPerPixel() {
     }
   }
 
-  TCanvas* c = new TCanvas("cAveTot", "Average TOT per Pixel", 1200, 500);
+  TCanvas* cAveTot = new TCanvas("cAveTot", "Average TOT per Pixel", 1200, 500);
   hAveTot->Draw("HIST");
 }
 
