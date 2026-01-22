@@ -1,5 +1,7 @@
-bb.tdctrig.detmap = 
-  5     2     122    127     -1 ## 
+bb.tdctrig.detmap =
+  5     2     122    125     -1  
+  5     3     126    126      4  
+  5     2     127    127      5  
 
 bb.tdctrig.chanmap =  0 1  2  3  4  5
 
@@ -29,10 +31,10 @@ bb.tdctrig.reftdc.calib = 0.09376
 bb.tdctrig.reftdc.offset = 0
                 
 bb.tdctrig.crate_rftime = 5
-bb.tdctrig.slot_rftime = 2
+bb.tdctrig.slot_rftime = 3
 bb.tdctrig.chan_rftime = 126
 
 bb.tdctrig.crate_trigtime = 5
-bb.tdctrig.slot_trigtime = 2
+bb.tdctrig.slot_trigtime = 2 #3
 bb.tdctrig.chan_trigtime = 127
 

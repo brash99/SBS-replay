@@ -492,6 +492,37 @@ bb.forwardoptics_parameters =
 
 --------[ 2021-10-21 00:00:00 ] # start of SBS-4 kinematics: 
 
+
+
+# Average TOF to hodoscope based on BigBite magnet distance
+bb.etof_avg =          15.996
+
+bb.etof_order = 2
+
+bb.etof_parameters = 
+    -0.13586973  0 0 0 0 0
+     0.49285441  1 0 0 0 0
+     0.38695143  2 0 0 0 0
+      4.4033443  0 1 0 0 0
+     -6.0252542  1 1 0 0 0
+     -2.1000695  0 2 0 0 0
+    -0.41674241  0 0 1 0 0
+     0.34943012  1 0 1 0 0
+      16.442712  0 1 1 0 0
+      3.2207878  0 0 2 0 0
+     -11.854749  0 0 0 1 0
+      14.926072  1 0 0 1 0
+       5.371021  0 1 0 1 0
+     -43.136912  0 0 1 1 0
+      5.7253436  0 0 0 2 0
+ -2.3366911e-15  0 0 0 0 1
+  -3.158442e-15  1 0 0 0 1
+  4.8057759e-15  0 1 0 0 1
+ -1.0903542e-14  0 0 1 0 1
+ -1.7568273e-16  0 0 0 1 1
+  3.0426278e-15  0 0 0 0 2
+
+
 #bb.frontconstraintwidth_x = 0.0665084
 #bb.frontconstraintwidth_y = 0.0571508
 #bb.backconstraintwidth_x = 0.0503008
@@ -516,7 +547,12 @@ bb.gemorigin_xyz = -0.210082 0.0422169 2.95157
 bb.gemtheta = 8.7746 # degrees
 bb.gemphi = 179.351  # degrees
 
-# note: ZSIEVE = 1.4261 m in this analysis
+# NOTE: if we use this new alignment result below, we'll need to redo the optics and
+# momentum calibrations
+#bb.gemorigin_xyz =   -0.203854266   0.0390732713     2.98058595
+#bb.gemangles_xyz =  -0.0291579305     -8.6401138   0.0241224677
+
+# note: ZSIEVE = 1.42962 m in this analysis
 
 #bb.magdist = 
 
@@ -749,6 +785,35 @@ bb.frontconstraintwidth_y = 0.06
 bb.backconstraintwidth_x = 0.055
 bb.backconstraintwidth_y = 0.065
 
+# Average TOF to hodoscope based on BigBite magnet distance
+bb.etof_order = 2
+
+bb.etof_avg =         16.1632
+
+bb.etof_parameters = 
+    -0.13044068  0 0 0 0 0
+     0.50463494  1 0 0 0 0
+     0.31376919  2 0 0 0 0
+       3.652852  0 1 0 0 0
+     -4.8175472  1 1 0 0 0
+     -1.4857466  0 2 0 0 0
+    -0.43021189  0 0 1 0 0
+      1.0796337  1 0 1 0 0
+      12.986115  0 1 1 0 0
+      1.4126673  0 0 2 0 0
+     -10.042424  0 0 0 1 0
+      12.107772  1 0 0 1 0
+       3.259311  0 1 0 1 0
+     -34.998913  0 0 1 1 0
+      8.1888444  0 0 0 2 0
+ -4.4808932e-15  0 0 0 0 1
+  2.7106932e-15  1 0 0 0 1
+ -1.9790385e-16  0 1 0 0 1
+  4.1082657e-15  0 0 1 0 1
+ -1.1805936e-15  0 0 0 1 1
+ -6.0493784e-15  0 0 0 0 2
+
+
 -----------[ 2021-11-13 09:00:00 ] # zero-field run for SBS-7, open up front constraint
 
 bb.frontconstraintwidth_x = 0.75
@@ -841,6 +906,36 @@ bb.forwardoptics_parameters =
    -3.329797e-14    9.7854803e-14   -5.3467873e-15    4.7323866e-14  0 0 1 0 1
   -5.2949046e-14    6.8924738e-14   -2.5042868e-16    3.5031819e-14  0 0 0 1 1
   -2.3821982e-14    3.3449074e-14   -6.3295719e-15    1.5233745e-14  0 0 0 0 2
+
+
+# Average TOF to hodoscope based on BigBite magnet distance
+bb.etof_avg =      15.1715333
+
+bb.etof_order = 2
+
+bb.etof_parameters = 
+     -0.1298665  0 0 0 0 0
+     0.49773251  1 0 0 0 0
+     0.32971012  2 0 0 0 0
+      3.5291406  0 1 0 0 0
+     -3.8874701  1 1 0 0 0
+     -2.6422244  0 2 0 0 0
+    -0.41532204  0 0 1 0 0
+      1.1334928  1 0 1 0 0
+      10.310699  0 1 1 0 0
+        1.47846  0 0 2 0 0
+     -8.8301526  0 0 0 1 0
+      9.4269828  1 0 0 1 0
+      9.8335718  0 1 0 1 0
+     -25.876746  0 0 1 1 0
+     -2.0953244  0 0 0 2 0
+  7.8227796e-15  0 0 0 0 1
+  1.7855404e-15  1 0 0 0 1
+  2.7404984e-15  0 1 0 0 1
+  9.1313402e-16  0 0 1 0 1
+  2.5823717e-15  0 0 0 1 1
+  1.2520643e-15  0 0 0 0 2
+
 
 
 # for second round of SBS-11 quality checks:
@@ -1009,6 +1104,35 @@ bb.forwardoptics_parameters =
   -7.3157177e-14    7.7249689e-14   -1.1512039e-14    2.4330281e-14  0 0 1 0 1
   -2.5112298e-13   -2.2605161e-14   -7.8957295e-14   -6.4797851e-14  0 0 0 1 1
   -4.1746883e-15   -1.2550901e-14    3.4658026e-16   -5.1417712e-15  0 0 0 0 2
+
+
+# Average TOF to hodoscope based on BigBite magnet distance
+bb.etof_order = 2
+
+bb.etof_avg =      16.1595667
+
+bb.etof_parameters = 
+    -0.12963743  0 0 0 0 0
+     0.52432738  1 0 0 0 0
+     0.31675068  2 0 0 0 0
+      3.1003887  0 1 0 0 0
+     -4.0561045  1 1 0 0 0
+    -0.97070455  0 2 0 0 0
+    -0.50163887  0 0 1 0 0
+       1.138885  1 0 1 0 0
+      10.728944  0 1 1 0 0
+      1.1292351  0 0 2 0 0
+     -8.4941091  0 0 0 1 0
+       9.805232  1 0 0 1 0
+      2.0136726  0 1 0 1 0
+     -27.983253  0 0 1 1 0
+      6.4873123  0 0 0 2 0
+  1.3280354e-16  0 0 0 0 1
+  2.2090987e-15  1 0 0 0 1
+  4.6346133e-15  0 1 0 0 1
+   2.544391e-15  0 0 1 0 1
+  2.2391934e-15  0 0 0 1 1
+  6.1264938e-16  0 0 0 0 2
 
 
 # constraint parameters: 
@@ -1421,8 +1545,11 @@ bb.preconflag = 1
 #bb.C_pth1 = 0.0
 
 # updated momentum parameters (only significant change is recalibration using updated beam energy):
-bb.A_pth1 =     0.27027769
-bb.B_pth1 =     0.88540651
+#bb.A_pth1 =     0.27027769
+#bb.B_pth1 =     0.88540651
+
+bb.A_pth1 = 0.269976675
+bb.B_pth1 = 0.891956786
 bb.C_pth1 = 0.0
 
 #NOTE: angle and vertex reconstruction coefficients are from newfit_sbs9.dat
@@ -1734,6 +1861,31 @@ bb.frontconstraintwidth_x = 0.15
 bb.frontconstraintwidth_y = 0.11
 # no change in back constraint offsets or widths needed
 
+bb.etof_avg =      15.4333333
+
+bb.etof_parameters =
+    -0.12216875  0 0 0 0 0
+     0.45863331  1 0 0 0 0
+     0.15871762  2 0 0 0 0
+      5.6144489  0 1 0 0 0
+     -5.4258221  1 1 0 0 0
+      4.9194518  0 2 0 0 0
+    -0.35392336  0 0 1 0 0
+      1.4521484  1 0 1 0 0
+       12.92422  0 1 1 0 0
+     0.79899171  0 0 2 0 0
+     -13.149674  0 0 0 1 0
+      10.678778  1 0 0 1 0
+     -31.754391  0 1 0 1 0
+     -32.047361  0 0 1 1 0
+      52.142708  0 0 0 2 0
+  3.2015189e-14  0 0 0 0 1
+  4.3749726e-15  1 0 0 0 1
+ -3.9129724e-14  0 1 0 0 1
+ -2.2256589e-13  0 0 1 0 1
+ -1.3175225e-14  0 0 0 1 1
+   9.134013e-14  0 0 0 0 2
+
 
 --------[ 2022-11-07 00:00:00 ]  #start of GEN-3 kinematics, go back to BB 750A current
 
@@ -1802,6 +1954,30 @@ bb.forwardoptics_parameters =
     0.0053157475     -0.017043628    -0.0072124652     0.0083034275  0 0 0 1 1
        1.3313434      -0.16751839        1.2247774      0.041637358  0 0 0 0 2
 
+bb.etof_avg =      15.4166667
+
+bb.etof_parameters =
+    -0.12917339  0 0 0 0 0
+     0.44138404  1 0 0 0 0
+     0.22076896  2 0 0 0 0
+      4.4977984  0 1 0 0 0
+     -3.8729667  1 1 0 0 0
+      1.7567255  0 2 0 0 0
+    -0.32540697  0 0 1 0 0
+     0.96225073  1 0 1 0 0
+      8.7063294  0 1 1 0 0
+      1.3574499  0 0 2 0 0
+     -9.9007385  0 0 0 1 0
+      7.0665187  1 0 0 1 0
+     -13.795856  0 1 0 1 0
+     -20.925686  0 0 1 1 0
+      31.595268  0 0 0 2 0
+    4.55828e-12  0 0 0 0 1
+  6.0299855e-14  1 0 0 0 1
+ -3.3674691e-13  0 1 0 0 1
+ -6.5361865e-13  0 0 1 0 1
+ -2.6586589e-13  0 0 0 1 1
+   1.708707e-13  0 0 0 0 2
 
 --------[ 2022-11-26 15:00:00 ] # start zero-field running for optics
 
@@ -1836,13 +2012,14 @@ bb.optics_order = 2
 
 bb.preconflag = 1
 
-bb.use_beampos = 0
+bb.use_beampos = 1
 
-bb.A_pth1 =       0.2775655
-bb.B_pth1 =        0.974132
-bb.C_pth1 = 0.0
-bb.A_pvy = 0
-bb.B_pvy = 0
+#these parameters are based on the GEN4b H2 elastics, no H2 elastics for GEN4
+bb.A_pth1 = 0.28640     #0.2775655
+bb.B_pth1 = 0.87122905  #0.974132
+bb.C_pth1 = 0.0         #0.0
+bb.A_pvy = -0.005704    #0
+bb.B_pvy = -16.054032   #0
 
 bb.optics_parameters = 
     -0.0190133122  -0.00237508732   0.00119967349  0  0 0 0 0 0
@@ -1893,41 +2070,58 @@ bb.forwardoptics_parameters =
      -0.34886017      0.070426927      -0.44995393      0.024582746  0 0 0 1 1
        1.1328192      -0.23611212        1.6597674      -0.13326304  0 0 0 0 2
 
+bb.frontconstraint_x0 = -0.00348457
+bb.frontconstraint_y0 = 0.00704323
+bb.backconstraint_x0 = 0.000721341
+bb.backconstraint_y0 = -0.00305035
 
-bb.frontconstraint_x0 = 0.054
-bb.frontconstraint_y0 = -0.009
-bb.backconstraint_x0 = 0.003
-bb.backconstraint_y0 = 0.002
+bb.frontconstraintwidth_x = 0.05783
+bb.frontconstraintwidth_y = 0.136533
+bb.backconstraintwidth_x = 0.0514141
+bb.backconstraintwidth_y = 0.0639998
 
-bb.frontconstraintwidth_x = 0.15
-bb.frontconstraintwidth_y = 0.11
-bb.backconstraintwidth_x = 0.05
-bb.backconstraintwidth_y = 0.06
+bb.etof_avg =      15.4333333
 
+bb.etof_parameters =
+    -0.12594367  0 0 0 0 0
+     0.45064828  1 0 0 0 0
+     0.23858884  2 0 0 0 0
+      4.7307181  0 1 0 0 0
+     -3.8410357  1 1 0 0 0
+      2.2786319  0 2 0 0 0
+    -0.35585152  0 0 1 0 0
+     0.85012325  1 0 1 0 0
+      8.3838167  0 1 1 0 0
+      1.3300724  0 0 2 0 0
+     -10.550774  0 0 0 1 0
+      6.9950517  1 0 0 1 0
+     -17.376138  0 1 0 1 0
+     -20.268913  0 0 1 1 0
+      36.324078  0 0 0 2 0
+ -3.4256604e-12  0 0 0 0 1
+ -2.7335773e-14  1 0 0 0 1
+   1.486593e-13  0 1 0 0 1
+  3.8283482e-13  0 0 1 0 1
+  1.1644895e-13  0 0 0 1 1
+ -1.9352185e-13  0 0 0 0 2
 
 --------[ 2023-02-27 22:55:00 ] # start zero-field running for optics-Holly to update tonight
 
 #bb.frontconstraint_x0 = -0.0656
 bb.frontconstraintwidth_x = 0.75
-bb.frontconstraintwidth_y = 0.25	
-
-#-------[ 2023-02-27 XX:07:00 ] # back to full-field running:-Holly to update tonight
-
-#bb.frontconstraint_x0 = 0.0443
-#bb.frontconstraintwidth_x = 0.15
-#bb.frontconstraintwidth_y = 0.11	
-
---------[ 2023-03-01 23:23:00 ] # start zero-field running
-
-bb.frontconstraintwidth_x = 0.75
 bb.frontconstraintwidth_y = 0.25
 
 -------[ 2023-03-02 02:47:00 ] # back to full-field running
 
-#bb.frontconstraint_x0 = 0.0523
+bb.frontconstraint_x0 = -0.00348457
+bb.frontconstraint_y0 = 0.00704323
+bb.backconstraint_x0 = 0.000721341
+bb.backconstraint_y0 = -0.00305035
 
-
-
+bb.frontconstraintwidth_x = 0.05783
+bb.frontconstraintwidth_y = 0.136533
+bb.backconstraintwidth_x = 0.0514141
+bb.backconstraintwidth_y = 0.0639998
 
 -------[ 2023-09-01 00:00:00 ] # GEN-4b start
 
@@ -1943,13 +2137,13 @@ bb.optics_order = 2
 
 bb.preconflag = 1
 
-bb.use_beampos = 0
+bb.use_beampos = 1
 
-bb.A_pth1 = 0.287186374
-bb.B_pth1 = 0.798543608
-bb.C_pth1 = 0.0
-bb.A_pvy = 0
-bb.B_pvy = 0
+bb.A_pth1 = 0.28640     #0.287186374
+bb.B_pth1 = 0.87122905  #0.798543608
+bb.C_pth1 = 0.0         #0.0
+bb.A_pvy = -0.005704    #0
+bb.B_pvy = -16.054032   #0
 
 bb.optics_parameters = 
     -0.0176531785  -0.00510513983   0.00263487381               0  0 0 0 0 0
@@ -2000,20 +2194,13 @@ bb.forwardoptics_parameters =
         -0.50279      0.014872153      0.054740526      0.036410311  0 0 0 1 1
      0.016348603     -0.091233182      -0.12301598     -0.033432539  0 0 0 0 2
 
-
-
 bb.frontconstraint_x0 = 0.05766
-
-bb.frontconstraintwidth_x = 0.15
-bb.frontconstraintwidth_y = 0.11	
-
-bb.frontconstraint_x0 = -0.004
 bb.frontconstraint_y0 = 0.012
 bb.backconstraint_x0 = 0.00
 bb.backconstraint_y0 = 0.00
 
-bb.frontconstraintwidth_x = 0.06
-bb.frontconstraintwidth_y = 0.14
+bb.frontconstraintwidth_x = 0.15
+bb.frontconstraintwidth_y = 0.11
 bb.backconstraintwidth_x = 0.05
 bb.backconstraintwidth_y = 0.07
 
@@ -2026,17 +2213,16 @@ bb.frontconstraintwidth_y = 0.15
 
 --------[ 2023-10-19 15:38:00 ] # back to full field
 
-bb.frontconstraint_x0 = -0.004
-bb.frontconstraintwidth_x = 0.06
-bb.frontconstraintwidth_y = 0.14
-
 bb.frontconstraint_x0 = 0.05766
-
-#bb.backconstraintwidth_x = 0.12
-#bb.backconstraintwidth_y = 0.06
+bb.frontconstraint_y0 = 0.012
+bb.backconstraint_x0 = 0.00
+bb.backconstraint_y0 = 0.00
 
 bb.frontconstraintwidth_x = 0.15
-bb.frontconstraintwidth_y = 0.11	
+bb.frontconstraintwidth_y = 0.11
+bb.backconstraintwidth_x = 0.05
+bb.backconstraintwidth_y = 0.07
+
 
 --------[ 2023-11-01 00:00:00 ] # Start pion-ALL
 

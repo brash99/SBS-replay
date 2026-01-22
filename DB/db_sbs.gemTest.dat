@@ -1,0 +1,126 @@
+## DB for Test Lab GEM Histogramming CM Tests.
+
+
+
+# Start database right before the first test lab data we will analyze.
+-------[ 2025-07-01 00:00:00 ] 
+
+# Database format: the tracker consists of a collection of modules: 
+# database properties will be organized by module, not by "plane" as in old SBS-offline
+ 
+# Define ALL the independent GEM modules used in the tracker.
+sbs.gemTest.modules = m0 m1
+
+# Define to which layer each individual GEM module belongs to.
+sbs.gemTest.m0.layer = 0
+sbs.gemTest.m1.layer = 1
+
+
+# Define APV mapping configurations: 0 = INFN, 1 = UVA X/Y, 2 = UVA U/V or X/W
+sbs.gemTest.m0.apvmap = 2
+sbs.gemTest.m1.apvmap = 2
+
+
+# Positions in internal GEM coordinate system.
+sbs.gemTest.m0.position =   0     0     0
+sbs.gemTest.m1.position =   0     0     0.5
+
+
+# Angles: assume zero for ALL.
+sbs.gemTest.m0.angle =   0     0     0
+sbs.gemTest.m1.angle =   0     0     0
+
+# Define module sizes. Set to nominal sizes.
+sbs.gemTest.m0.size = 0.1 0.1 0.001
+sbs.gemTest.m1.size = 0.1 0.1 0.001
+
+## Layer 0 
+sbs.gemTest.m0.uangle = 180.0
+sbs.gemTest.m0.vangle = 135.0
+sbs.gemTest.m1.uangle = 180.0
+sbs.gemTest.m1.vangle = 135.0
+
+# U offsets:
+sbs.gemTest.m0.uoffset = 0.0176
+sbs.gemTest.m1.uoffset = 0.0176
+
+# V offsets
+sbs.gemTest.m0.voffset = 0.0
+sbs.gemTest.m1.voffset = 0.0 
+
+# Define strip counts:
+sbs.gemTest.m0.nstripsu = 256
+sbs.gemTest.m0.nstripsv = 256
+sbs.gemTest.m1.nstripsu = 256
+sbs.gemTest.m1.nstripsv = 256
+
+
+# Define strip pitch. ALL modules have the same strip pitch along both dimensions, 0.4 mm:
+sbs.gemTest.upitch = 0.0004
+sbs.gemTest.vpitch = 0.0004
+
+# Define module average gains relative to target ADC peak position of 4000
+#U strips
+sbs.gemTest.m0.ugain = 1 
+sbs.gemTest.m1.ugain = 1  
+
+#V Strips
+sbs.gemTest.m0.vgain = 1  
+sbs.gemTest.m1.vgain = 1
+
+
+################### DECODE INFO ########################################################################
+## Channel maps for decoding explained                                                                ##
+## Each entry corresponds to one APV card                                                             ## 
+## Crate = ROC ID = 2 and 4  for SBS VTP                                                              ##
+## Slot = 11 for BigBite VTP                                                                          ##
+## fiber/mpd is fiber number for an MPD module, this is unique for each module within a VTP/SSP       ##
+## gemid is unique "production ID" of a GEM module, not currently used by analysis but useful         ##
+## for bookkeeping/tracking                                                                           ##
+## adc_ch is the unique adc channel of this APV card within its associated MPD                        ##
+## i2c is the "i2c address" of this APV card (not currently used by analysis)                         ##
+## pos maps APV cards to physical locations on the detector                                           ##
+## invert specifies whether strip index runs from "right-to-left" or "left-to-right" within an APV    ##
+## axis specifies which strip orientation/dimension of the readout strips connected to this APV       ##
+## ORDER of entries in the maps is:                                                                   ##
+## vtpcrate  slot  fiber  gemid  adc_ch   i2c   pos     invert   axis                              ##
+########################################################################################################
+
+#Front Layer (L1 - m0): UVAXW L1 (vtp5)
+## vtpcrate  slot    fiber   gemid    adc_ch   i2c     pos   invert   axis  
+sbs.gemTest.m0.chanmap = 
+     3      11       1     100       0       15       0       0       0
+     3      11       1     100       1       14       0       0       1
+
+sbs.gemTest.m1.chanmap =
+     3      11       1     100       2       13       0       0       0
+     3      11       1     100       3       12       0       0       1
+
+
+
+# # # basic flags controlling decoding:
+sbs.gemTest.pedestalmode = 1
+sbs.gemTest.commonmode_flag = 2 # 1 = Danning, 0 = sorting, 2 = histogramming
+sbs.gemTest.chan_cm_flags = 640 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags -(40 x 16) "sbsvtp2" and "sbsvtp4"currently has 36 and 20 MPDs respectively right now. 
+sbs.gemTest.commonmode_nstriplo = 20 # for sorting method
+sbs.gemTest.commonmode_nstriphi = 20 # for sorting method
+sbs.gemTest.commonmode_niter = 3
+sbs.gemTest.commonmode_minstrips = 20
+
+# histogramming-method parameters: 
+sbs.gemTest.commonmode_binwidth_nsigma = 2.0
+sbs.gemTest.commonmode_scanrange_nsigma = 5.0
+sbs.gemTest.commonmode_stepsize_nsigma = 0.25
+
+# attempt to correct common-mode for negative bias:
+sbs.gemTest.correct_common_mode = 0
+sbs.gemTest.correct_common_mode_minstrips = 15
+sbs.gemTest.correct_common_mode_nsigma = 2.0
+
+sbs.gemTest.use_commonmode_rolling_average = 1
+sbs.gemTest.commonmode_nevents_lookback = 10
+
+sbs.gemTest.plot_common_mode = 1
+sbs.gemTest.pedsub_online = 1 # normally this should always be set to 1
+
+#########################################################

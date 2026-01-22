@@ -1,0 +1,55 @@
+#/Users/puckett/SBSrootfiles4/GMN_pass3_TEST/SBS4/LH2/rootfiles/e1209019_fullreplay_11548_*.root
+#/Users/puckett/SBSrootfiles4/GMN_pass3_TEST/SBS4/LH2/rootfiles/e1209019_fullreplay_11573_*.root
+#/Users/puckett/SBSrootfiles4/GMN_pass3_TEST/SBS4/LH2/rootfiles/e1209019_fullreplay_11590_*.root
+/Users/puckett/SBSrootfiles4/GMN_pass3_TEST/SBS4/LH2/rootfiles/e1209019_fullreplay_*.root
+/Users/puckett/SBSrootfiles4/GMN_pass3_TEST/SBS4/LD2/rootfiles/e1209019_fullreplay_*.root
+endlist
+sbs.hcal.nclus>0&&bb.ps.e>0.2&&abs(bb.etot_over_p[0]-1.)<0.3&&abs(bb.tr.vz[0])<0.08&&abs(sbs.hcal.atimeblk-bb.hodotdc.clus.tfinal[0]-1)<10&&sbs.hcal.e>0.02
+endcut
+BBtrig_t0 371.5
+mineventsperbar 100
+etof0 15.996
+RFoffsets RFoffsets_old.txt
+ebeam 3.7393
+sbsmaxfield 1.71
+dSBS 2.25
+# HCAL theta with effective angle to roughly center dy:
+thetaHCAL 31.69
+# effective distance for HCAL SBS-4:
+dHCAL 11.65
+W2min 0.2
+W2max 1.3
+vscint_old hodovscint_old.txt
+walkcorr_old hodowalkcorr_old.txt
+useelasticcut_HCAL 1
+HCAL_ADCtime_offsets hcalt0ADC_old.txt
+BBSH_ADCtime_offsets BBSHt0ADC_old.txt
+BBPS_ADCtime_offsets BBPSt0ADC_old.txt
+fixhodoparams 0
+dx0 -0.056
+dy0 0.0
+dxsigma 0.08
+dysigma 0.06
+dxdy_nsigma_cut 3.5
+dx0_4vect -0.075
+dy0_4vect 0.0
+dxsigma_4vect 0.18
+dysigma_4vect 0.22
+endconfig
+# magnetic field settings: these should be expressed as fractions of sbsmaxfield, which should be ~1.71 T for SBS-4 and ~1.26 T for most other GMN and GEN kinematics
+# 
+11436 11572 0.3
+11573 11588 0.0
+11589 11599 0.5
+endfieldconfig
+11436 11436 0
+11449 11499 1
+11500 11500 0
+11547 11548 0
+11551 11571 1
+11573 11573 0
+11579 11587 1
+11587 11588 0
+11589 11592 0
+11593 11595 1
+endtargetconfig

@@ -76,6 +76,9 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
   
   if( prefix != "/work/brash/sbs/GEp/raw" )
     pathlist.push_back( "/work/brash/sbs/GEp/raw" );
+  
+  if( prefix != "/Users/brash/work/hallc/gep/brash/CDet_replay/sbs/data" )
+    pathlist.push_back( "/Users/brash/work/hallc/gep/brash/sbs/data" );
 
   if( prefix != "/cache/mss/halla/sbs/raw" )
     pathlist.push_back( "/cache/mss/halla/sbs/raw" );

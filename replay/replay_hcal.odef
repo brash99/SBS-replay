@@ -36,7 +36,7 @@ variable sbs.hcal.idblk_goodtdc
 block sbs.hcal.clus.*
 variable sbs.hcal.nclus
 block sbs.hcal.clus_blk.*
-block sbs.hcal.goodblock.*
+#block sbs.hcal.goodblock.*
 variable sbs.hcal.ngoodADChits
 variable sbs.trig.adcelemID
 variable sbs.trig.a_time

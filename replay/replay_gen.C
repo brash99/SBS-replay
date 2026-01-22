@@ -66,7 +66,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
 
   SBSGenericDetector* tdctrig= new SBSGenericDetector("tdctrig","BigBite shower TDC trig");
   tdctrig->SetModeADC(SBSModeADC::kNone);
-  tdctrig->SetModeTDC(SBSModeTDC::kTDC);
+  tdctrig->SetModeTDC(SBSModeTDC::kTDCSimple);
   tdctrig->SetStoreEmptyElements(kFALSE);
   bigbite->AddDetector( tdctrig );
 
@@ -131,7 +131,7 @@ void replay_gen(UInt_t runnum=10491, Long_t nevents=-1, Long_t firstevent=1, con
 
   SBSGenericDetector *tdctrig_sbs = new SBSGenericDetector("tdctrig", "SBS trigger TDCs");
   tdctrig_sbs->SetModeADC(SBSModeADC::kNone);
-  //  tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDC);
+  // tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDC);
   tdctrig_sbs->SetModeTDC(SBSModeTDC::kTDCSimple);
   tdctrig_sbs->SetStoreEmptyElements(kFALSE);
   harm->AddDetector( tdctrig_sbs );

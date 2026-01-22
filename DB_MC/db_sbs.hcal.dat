@@ -204,5 +204,7 @@ sbs.hcal.position = 0.0 0.0 4.895
 
 # offset HCAL position vertically to compensate for vertical offset of GEM coordinate system. The "position" variable specifies the HCAL origin in
 # GEM coordinates (we might need to modify the code too, oh wait, nope, the code already does this correctly):
-sbs.hcal.position = 0.165 0.0 6.315
+#sbs.hcal.position = 0.165 0.0 6.315
 
+# implement "effective z" for HCAL constraint:
+sbs.hcal.position = 0.165 0.0 6.639 

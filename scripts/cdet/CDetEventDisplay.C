@@ -222,6 +222,20 @@ void CDet_DrawEvent(Long64_t iev,
     box->Draw("same");
   }
 
+  // draw rectangles for each hit
+  double half_dx = 0.005;   // total width = 0.01
+  double half_dy = 0.15;    // total height = 0.30
+
+  for (size_t i = 0; i < xL1.size(); ++i) {
+    double x = xL1[i];
+    double y = yL1[i];
+    TBox *box = new TBox(x - half_dx, y - half_dy,
+                       x + half_dx, y + half_dy);
+    box->SetFillColorAlpha(kRed+1, 0.35);   // semi-transparent red fill
+    box->SetLineColor(kRed+2);
+    box->SetLineWidth(2);
+    box->Draw("same");
+  }
   // ECal marker overlaid on both pads (if finite)
   TMarker *mE1 = nullptr;
   if (std::isfinite(TCDet::GoodECalX) && std::isfinite(TCDet::GoodECalY)) {

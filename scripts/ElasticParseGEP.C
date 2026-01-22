@@ -39,6 +39,7 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
   ifstream infile(configfilename);
 
   if( !infile ){
+    cout << "config file " << configfilename << " not opened, quitting..." << endl;
     return;
   } else {
     TString currentline;
@@ -52,6 +53,8 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
       }
     }
 
+    cout << "Finished adding root files, n files = " << C->GetNtrees() << endl;
+    
     TCut globalcut = "";
     
     while( currentline.ReadLine( infile ) && !currentline.BeginsWith("endcut")){
@@ -60,19 +63,23 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
       }
     }
 
+    cout << "Finished defining global cut, cut = \"" << globalcut << "\"" << endl;
+    
     fout->cd();
 
     TTree *Tout = new TTree("Tout", "GEP elastic parsing");
 
     int runnum;
-    double etheta,ephi,ptheta,pphi,ecalo,pp,eprime_eth,pp_eth,pth_eth,pp_pth,eprime_pth,eth_pth,eprime_pp,eth_pp,Q2_pp,Q2_eth,Q2_pth,Q2_p4vect,Q2_e4vect,eps_pp, eps_eth,eps_pth,eps_4vect,K_eth,K_pth,K_pp,K_p4vect,dpp,dpe,dphi,acopl,inel,dxECAL,dyECAL,dxECAL4vect,dyECAL4vect,dtADC;
+    double etheta,ephi,ptheta,pphi,ecalo,pp,eprime_eth,pp_eth,pth_eth,pp_pth,eprime_pth,eth_pth,eprime_pp,eth_pp,Q2_pp,Q2_eth,Q2_pth,Q2_p4vect,Q2_e4vect,eps_pp, eps_eth,eps_pth,eps_4vect,K_eth,K_pth,K_pp,K_p4vect,dpp,dpe,dphi,acopl,inel,dxECAL,dyECAL,dxECAL4vect,dyECAL4vect,dtADC,ecalo_VTP, xECAL_VTP, yECAL_VTP, tECAL_VTP;
+    int nblkECAL_VTP;
 
     Tout->Branch("runnum",&runnum);
     Tout->Branch("etheta",&etheta);
     Tout->Branch("ephi",&ephi);
     Tout->Branch("ptheta",&ptheta);
     Tout->Branch("pphi",&pphi);
-    Tout->Branch("ecalo",&ecalo);
+    Tout->Branch("ECALO",&ecalo);
+    Tout->Branch("ECALO_VTP",&ecalo_VTP);
     Tout->Branch("pp",&pp);
     Tout->Branch("eprime_eth",&eprime_eth);
     Tout->Branch("pp_eth",&pp_eth);
@@ -136,6 +143,9 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
     Tout->Branch("dphfp",&dphfp);
     
     int ntrackFPP,ntrackFT;
+    int nhitsFPP,nhitsFT;
+    int ngoodhitsFPP, ngoodhitsFT;
+    double chi2ndfFT,chi2ndfFPP;
     double thetaFPP,phiFPP,scloseFPP,zcloseFPP;
     double xFPP,yFPP,xpFPP,ypFPP;
 
@@ -149,6 +159,13 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
     Tout->Branch("yFPP",&yFPP);
     Tout->Branch("xpFPP",&xpFPP);
     Tout->Branch("ypFPP",&ypFPP);
+    Tout->Branch("nhitsFPP",&nhitsFPP);
+    Tout->Branch("nhitsFT",&nhitsFT);
+    Tout->Branch("ngoodhitsFPP",&ngoodhitsFPP);
+    Tout->Branch("ngoodhitsFT",&ngoodhitsFT);
+    Tout->Branch("chi2ndfFPP",&chi2ndfFPP);
+    Tout->Branch("chi2ndfFT",&chi2ndfFT);
+   
     
     double xHCAL,yHCAL,EHCAL,tHCAL_ADC;
     double xECAL,yECAL,EECAL,tECAL_ADC;
@@ -164,37 +181,51 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
     Tout->Branch("tECAL_ADC",&tECAL_ADC);
     Tout->Branch("nblkECAL",&nblkECAL);
 
-    int ECAL_MAXBLOCKS = 30;
+    Tout->Branch("xECAL_VTP",&xECAL_VTP);
+    Tout->Branch("yECAL_VTP",&yECAL_VTP);
+    Tout->Branch("tECAL_ADC_VTP", &tECAL_VTP);
+    Tout->Branch("nblkECAL_VTP", &nblkECAL_VTP);
+    
+    int ECAL_MAXBLOCKS = 50;
     
     double ECAL_clusblk_e[ECAL_MAXBLOCKS];
     double ECAL_clusblk_atime[ECAL_MAXBLOCKS];
     double ECAL_clusblk_again[ECAL_MAXBLOCKS];
-    double ECAL_clusblk_id[ECAL_MAXBLOCKS];
+    int ECAL_clusblk_id[ECAL_MAXBLOCKS];
     double ECAL_clusblk_x[ECAL_MAXBLOCKS];
     double ECAL_clusblk_y[ECAL_MAXBLOCKS];
-
-    Tout->Branch("ECAL_clusblk_e", ECAL_clusblk_e);
-    Tout->Branch("ECAL_clusblk_atime", ECAL_clusblk_atime);
-    Tout->Branch("ECAL_clusblk_again", ECAL_clusblk_again);
-    Tout->Branch("ECAL_clusblk_id", ECAL_clusblk_id);
-    Tout->Branch("ECAL_clusblk_x", ECAL_clusblk_x);
-    Tout->Branch("ECAL_clusblk_y", ECAL_clusblk_y);
     
-    int HCAL_MAXBLOCKS = 30;
+    Tout->Branch("ECAL_clusblk_e", ECAL_clusblk_e, "ECAL_clusblk_e[nblkECAL]/D");
+    Tout->Branch("ECAL_clusblk_atime", ECAL_clusblk_atime, "ECAL_clusblk_atime[nblkECAL]/D");
+    Tout->Branch("ECAL_clusblk_again", ECAL_clusblk_again, "ECAL_clusblk_again[nblkECAL]/D");
+    Tout->Branch("ECAL_clusblk_id", ECAL_clusblk_id, "ECAL_clusblk_id[nblkECAL]/I");
+    Tout->Branch("ECAL_clusblk_x", ECAL_clusblk_x, "ECAL_clusblk_x[nblkECAL]/D");
+    Tout->Branch("ECAL_clusblk_y", ECAL_clusblk_y, "ECAL_clusblk_y[nblkECAL]/D");
+    
+    int HCAL_MAXBLOCKS = 50;
     double HCAL_clusblk_e[HCAL_MAXBLOCKS];
     double HCAL_clusblk_atime[HCAL_MAXBLOCKS];
     double HCAL_clusblk_again[HCAL_MAXBLOCKS];
-    double HCAL_clusblk_id[HCAL_MAXBLOCKS];
+    int HCAL_clusblk_id[HCAL_MAXBLOCKS];
     double HCAL_clusblk_x[HCAL_MAXBLOCKS];
     double HCAL_clusblk_y[HCAL_MAXBLOCKS];
+    
+    Tout->Branch("HCAL_clusblk_e", HCAL_clusblk_e, "HCAL_clusblk_e[nblkHCAL]/D");
+    Tout->Branch("HCAL_clusblk_atime", HCAL_clusblk_atime, "HCAL_clusblk_atime[nblkHCAL]/D");
+    Tout->Branch("HCAL_clusblk_again", HCAL_clusblk_again, "HCAL_clusblk_again[nblkHCAL]/D");
+    Tout->Branch("HCAL_clusblk_id", HCAL_clusblk_id, "HCAL_clusblk_id[nblkHCAL]/I");
+    Tout->Branch("HCAL_clusblk_x", HCAL_clusblk_x, "HCAL_clusblk_x[nblkHCAL]/D");
+    Tout->Branch("HCAL_clusblk_y", HCAL_clusblk_y, "HCAL_clusblk_y[nblkHCAL]/D");
 
-    Tout->Branch("HCAL_clusblk_e", HCAL_clusblk_e);
-    Tout->Branch("HCAL_clusblk_atime", HCAL_clusblk_atime);
-    Tout->Branch("HCAL_clusblk_again", HCAL_clusblk_again);
-    Tout->Branch("HCAL_clusblk_id", HCAL_clusblk_id);
-    Tout->Branch("HCAL_clusblk_x", HCAL_clusblk_x);
-    Tout->Branch("HCAL_clusblk_y", HCAL_clusblk_y);
+    double EHCAL_VTP, xHCAL_VTP, yHCAL_VTP, tHCAL_VTP;
+    int nblkHCAL_VTP;
 
+    Tout->Branch( "EHCAL_VTP", &EHCAL_VTP );
+    Tout->Branch( "xHCAL_VTP", &xHCAL_VTP );
+    Tout->Branch( "yHCAL_VTP", &yHCAL_VTP );
+    Tout->Branch( "tHCAL_VTP", &tHCAL_VTP );
+    Tout->Branch( "nblkHCAL_VTP", &nblkHCAL_VTP );
+    
     
     
     double helicity;
@@ -228,10 +259,12 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
     C->SetBranchStatus("sbs.x_bcp",1);
     C->SetBranchStatus("sbs.y_bcp",1);
     C->SetBranchStatus("sbs.y_bcp",1);
-    C->SetBranchStatus("sbs.ecal.clus_blk.*",1);
+    C->SetBranchStatus("earm.ecal.clus_blk.*",1);
     C->SetBranchStatus("sbs.hcal.clus_blk.*",1);
     C->SetBranchStatus("g.*",1);
     C->SetBranchStatus("scalhel.*",1);
+    C->SetBranchStatus("earm.ecal.vtp.*",1);
+    C->SetBranchStatus("sbs.hcal.vtp.*",1);
     C->SetBranchStatus("IGL1I00OD16_16",1);
     //    C->SetBranchStatus("sbs.x_bcp",1);
     
@@ -293,6 +326,57 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
 	dyECAL4vect = T->heep_dyECAL4vect;
 	dtADC = T->heep_dt_ADC;
 
+	//Loop on all the VTP clusters and grab the one with highest energy:
+	int nclusECAL_VTP = T->Ndata_earm_ecal_vtp_clus_e;
+	double emax_VTP = 0.0;
+	int imax_VTP = -1;
+	for( int iclus=0; iclus<nclusECAL_VTP; iclus++ ){
+	  if( iclus == 0 || T->earm_ecal_vtp_clus_e[iclus] > emax_VTP ){
+	    emax_VTP = T->earm_ecal_vtp_clus_e[iclus];
+	    imax_VTP = iclus;
+	  }
+	}
+
+	if( imax_VTP >= 0 ){
+	  ecalo_VTP = T->earm_ecal_vtp_clus_e[imax_VTP];
+	  xECAL_VTP = T->earm_ecal_vtp_clus_x[imax_VTP];
+	  yECAL_VTP = T->earm_ecal_vtp_clus_y[imax_VTP];
+	  tECAL_VTP = T->earm_ecal_vtp_clus_time[imax_VTP];
+	  nblkECAL_VTP = T->earm_ecal_vtp_clus_size[imax_VTP];
+	} else {
+	  ecalo_VTP = -1000.;
+	  xECAL_VTP = -1000.;
+	  yECAL_VTP = -1000.;
+	  tECAL_VTP = -1000.;
+	  nblkECAL_VTP = 0;
+	}
+
+	int nclusHCAL_VTP = T->Ndata_sbs_hcal_vtp_clus_e;
+	emax_VTP = 0.0;
+	imax_VTP = -1;
+	for( int iclus=0; iclus<nclusHCAL_VTP; iclus++ ){
+	  if( iclus == 0 || T->sbs_hcal_vtp_clus_e[iclus] > emax_VTP ){
+	    emax_VTP = T->sbs_hcal_vtp_clus_e[iclus];
+	    imax_VTP = iclus;
+	  }
+	}
+
+	if( imax_VTP >= 0 ){
+	  EHCAL_VTP = T->sbs_hcal_vtp_clus_e[imax_VTP];
+	  xHCAL_VTP = T->sbs_hcal_vtp_clus_x[imax_VTP];
+	  yHCAL_VTP = T->sbs_hcal_vtp_clus_y[imax_VTP];
+	  tHCAL_VTP = T->sbs_hcal_vtp_clus_time[imax_VTP];
+	  nblkHCAL_VTP = T->sbs_hcal_vtp_clus_size[imax_VTP];
+	} else {
+	  EHCAL_VTP = -1000.;
+	  xHCAL_VTP = -1000.;
+	  yHCAL_VTP = -1000.;
+	  tHCAL_VTP = -1000.;
+	  nblkHCAL_VTP = 0;
+	}
+
+	
+	
 	TVector3 pnhat_e_global(sin(pth_eth)*cos(ephi+PI),sin(pth_eth)*sin(ephi+PI),cos(pth_eth));
 
 	pthtar_e = pnhat_e_global.Dot(SBSxaxis)/pnhat_e_global.Dot(SBSzaxis);
@@ -321,6 +405,15 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
 	ntrackFT = int( T->sbs_tr_n );
 	ntrackFPP = int( T->sbs_gemFPP_track_ntrack );
 
+	chi2ndfFT = T->sbs_gemFT_track_chi2ndf[0];
+	
+	//We aren't contemplating situations where there is no front track:
+	nhitsFT = int( T->sbs_gemFT_track_nhits[0] );
+	ngoodhitsFT = int( T->sbs_gemFT_track_ngoodhits[0] );
+
+	nhitsFPP = 0;
+	ngoodhitsFPP = 0;
+	
 	thetaFPP = -10000;
 	phiFPP = -10000.;
 	scloseFPP = -10000.;
@@ -330,6 +423,11 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
 	yFPP = xpFPP = ypFPP = -10000;
 
 	if( ntrackFPP > 0 ){
+	  
+	  nhitsFPP = int( T->sbs_gemFPP_track_nhits[0] );
+	  ngoodhitsFPP = int( T->sbs_gemFPP_track_ngoodhits[0] );
+	  chi2ndfFPP = T->sbs_gemFPP_track_chi2ndf[0];
+	  
 	  thetaFPP = T->sbs_gemFPP_track_theta[0];
 	  phiFPP = T->sbs_gemFPP_track_phi[0];
 	  scloseFPP = T->sbs_gemFPP_track_sclose[0];
@@ -355,6 +453,30 @@ void ElasticParseGEP(const char *configfilename, const char *outfilename="temp.r
 
 	helicity = T->scalhel_true_hel;
 	IHWP = T->IGL1I00OD16_16; //half-wave-plate state
+
+	for( int iblk=0; iblk<nblkHCAL; iblk++ ){
+	  if( iblk < HCAL_MAXBLOCKS ){
+	    HCAL_clusblk_e[iblk] = T->sbs_hcal_clus_blk_e[iblk];
+	    HCAL_clusblk_atime[iblk] = T->sbs_hcal_clus_blk_atime[iblk];
+	    HCAL_clusblk_again[iblk] = T->sbs_hcal_clus_blk_again[iblk];
+	    HCAL_clusblk_id[iblk] = int( T->sbs_hcal_clus_blk_id[iblk] );
+	    HCAL_clusblk_x[iblk] = T->sbs_hcal_clus_blk_x[iblk];
+	    HCAL_clusblk_y[iblk] = T->sbs_hcal_clus_blk_y[iblk];
+	  }
+	}
+
+	for( int iblk=0; iblk<nblkECAL; iblk++ ){
+	  if( iblk < ECAL_MAXBLOCKS ){
+	    ECAL_clusblk_e[iblk] = T->earm_ecal_clus_blk_e[iblk];
+	    ECAL_clusblk_atime[iblk] = T->earm_ecal_clus_blk_atime[iblk];
+	    ECAL_clusblk_again[iblk] = T->earm_ecal_clus_blk_again[iblk];
+	    ECAL_clusblk_id[iblk] = int( T->earm_ecal_clus_blk_id[iblk] );
+	    ECAL_clusblk_x[iblk] = T->earm_ecal_clus_blk_x[iblk];
+	    ECAL_clusblk_y[iblk] = T->earm_ecal_clus_blk_y[iblk];
+	  }
+	}
+
+	      
 	
 	//eventually we want to add the ECAL and HCAL cluster individual block stuff:
 	

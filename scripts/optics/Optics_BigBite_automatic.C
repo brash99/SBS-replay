@@ -159,12 +159,12 @@ void Optics_BigBite_automatic( const char *configfilename, const char *outfilena
 	      for( int itoken = nfoiltemp+2; itoken<ntokens; itoken++ ){
 		TString rootfilename = ( (TObjString*) (*tokens)[itoken] )->GetString();
 		//Check existence of file:
-		std::cout << "Checking for root file " << rootfilename << std::endl;
-		
-		if( gSystem->AccessPathName(rootfilename.Data()) ){
-		  std::cout << "File " << rootfilename << " exists, adding..." << std::endl;
-		  listfilestemp.push_back( rootfilename );
-		}
+		//std::cout << "Checking for root file " << rootfilename << std::endl;
+		//There really isn't a need for this check, and this is an incorrect usage of this function anyway.
+		//if( gSystem->AccessPathName(rootfilename.Data()) ){
+		//  std::cout << "File " << rootfilename << " exists, adding..." << std::endl;
+		listfilestemp.push_back( rootfilename );
+		//}
 	      }
 		
 	      list_of_files_by_target.push_back( listfilestemp );
