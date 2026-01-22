@@ -1,0 +1,42 @@
+/volatile/halla/sbs/sbs-gmn/GMN_REPLAYS/pass3/TEST/SBS14/LH2/rootfiles/e1209019_fullreplay_132*_stream0_seg*_*.root
+endlist
+sbs.hcal.nclus>0&&bb.ps.e>0.2&&abs(bb.etot_over_p[0]-1.)<0.3&&abs(bb.tr.vz[0])<0.08&&abs(sbs.hcal.atimeblk-bb.hodotdc.clus.tfinal[0]-8)<10&&sbs.hcal.e>0.02
+endcut
+BBtrig_t0 361.2
+mineventsperbar 100
+etof0 16.1595667
+etofparams_old etofparams_SBS14_old.txt
+RFoffsets RFoffsets_SBS14_old.txt
+ebeam 5.9828
+sbsmaxfield 1.26
+dSBS 2.25
+# HCAL theta with effective angle to roughly center dy:
+thetaHCAL 17.0
+# effective distance for HCAL SBS-14:
+dHCAL 15.13
+W2min -0.35
+W2max 1.7
+meantime_offsets_old hodot0_SBS14_old.txt
+vscint_old hodovscint_SBS14_old.txt
+walkcorr_old hodowalkcorr_SBS14_old.txt
+useelasticcut_HCAL 0
+HCAL_ADCtime_offsets hcalt0ADC_SBS14_old.txt
+BBSH_ADCtime_offsets BBSHt0ADC_SBS14_old.txt
+BBPS_ADCtime_offsets BBPSt0ADC_SBS14_old.txt
+fixhodoparams 0
+dx0 -0.056
+dy0 0.0
+dxsigma 0.08
+dysigma 0.06
+dxdy_nsigma_cut 3.5
+dx0_4vect -0.075
+dy0_4vect 0.0
+dxsigma_4vect 0.18
+dysigma_4vect 0.22
+endconfig
+# magnetic field settings: these should be expressed as fractions of sbsmaxfield, which should be ~1.71 T for SBS-4 and ~1.26 T for most other GMN and GEN kinematics
+# 
+13239 13244 0.7
+endfieldconfig
+13239 13244 0
+endtargetconfig

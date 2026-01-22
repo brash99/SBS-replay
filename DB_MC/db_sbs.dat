@@ -181,6 +181,7 @@ sbs.nbinsz_fcp = 11
 
 # test GEP tracking mode:
 sbs.geptrackingmode = 1       
+sbs.geptrackingflag = 1
 
 sbs.optics_order = 2
 
@@ -257,6 +258,9 @@ sbs.backconstraintwidth_x = 0.03 0.25
 sbs.backconstraintwidth_y = 0.03 0.21
 
 --------[ 2025-05-04 11:59:00 ] # GEP3
+
+# test "back to front" tracking:
+sbs.geptrackingflag = 1
 
 # here the main change needed (initially) is a new optics model (forward and backward):
 
@@ -388,15 +392,17 @@ sbs.forwardoptics_parameters =
 # set initial constraint offsets and widths for testing:
 # start with the same as we used for GEP-1:
 
+sbs.geptrackingflag = 1
+
 sbs.frontconstraint_x0 = 0.0 0.0
 sbs.frontconstraint_y0 = 0.0 0.0
-sbs.frontconstraintwidth_x = 0.06 0.02
-sbs.frontconstraintwidth_y = 0.06 0.02
+sbs.frontconstraintwidth_x = 0.03 0.03
+sbs.frontconstraintwidth_y = 0.03 0.04
 
 
 
-sbs.backconstraint_x0 = 0.0 0.037
+sbs.backconstraint_x0 = 0.0 0.0
 sbs.backconstraint_y0 = 0.0 0.0
-sbs.backconstraintwidth_x = 0.06 0.25
-sbs.backconstraintwidth_y = 0.06 0.21
+sbs.backconstraintwidth_x = 0.03 0.2
+sbs.backconstraintwidth_y = 0.03 0.2
 

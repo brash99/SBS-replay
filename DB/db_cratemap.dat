@@ -380,3 +380,8 @@
 ==== Crate 70 type vme Bank Decoding
 # slot  model   bank
   11     514     86
+
+# For Test Lab Histogrammingn CM test-bench data.
+==== Crate 3 type vme Bank Decoding
+# slot  model   bank
+  11    3561    3561

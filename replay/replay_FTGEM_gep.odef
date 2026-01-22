@@ -35,8 +35,8 @@ th1d hsbs_gemFT_Nlayers_hitu ';Number of layers with fired U/X strips;' sbs.gemF
 th1d hsbs_gemFT_Nlayers_hitv ';Number of layers with fired V/Y strips;' sbs.gemFT.nlayershitv 9 -0.5 8.5
 th1d hsbs_gemFT_Nlayers_hituv ';Number of layers with 2D hits;' sbs.gemFT.nlayershituv 9 -0.5 8.5
 
-th2d hsbs_gemFT_NstripsU_layer ';layer;Number of U/X strips fired' [I] sbs.gemFT.nstripsu_layer[I] 8 -0.5 7.5 2001 -0.5 2000.5
-th2d hsbs_gemFT_NstripsV_layer ';layer;Number of V/Y strips fired' [I] sbs.gemFT.nstripsv_layer[I] 8 -0.5 7.5 2001 -0.5 2000.5
+th2d hsbs_gemFT_NstripsU_layer ';layer;Number of U/X strips fired' [I] sbs.gemFT.nstripsu_layer[I] 8 -0.5 7.5 2001 -0.5 6002.5
+th2d hsbs_gemFT_NstripsV_layer ';layer;Number of V/Y strips fired' [I] sbs.gemFT.nstripsv_layer[I] 8 -0.5 7.5 2001 -0.5 6002.5
 th2d hsbs_gemFT_NclustU_layer ';layer;Number of U/X clusters' [I] sbs.gemFT.nclustu_layer[I] 8 -0.5 7.5 101 -0.5 100.5
 th2d hsbs_gemFT_NclustV_layer ';layer;Number of V/Y clusters' [I] sbs.gemFT.nclustv_layer[I] 8 -0.5 7.5 101 -0.5 100.5
 th2d hsbs_gemFT_Nclust2D_layer ';layer;Number of 2D hits' [I] sbs.gemFT.n2Dhit_layer[I] 8 -0.5 7.5 101 -0.5 100.5

@@ -1,0 +1,100 @@
+#tree variables: 
+block sbs.gem.track.*
+block sbs.gem.hit.*
+variable sbs.gem.nlayershit
+variable sbs.gem.nlayershitu
+variable sbs.gem.nlayershitv
+variable sbs.gem.nlayershituv
+variable sbs.gem.nstripsu_layer
+variable sbs.gem.nstripsv_layer
+variable sbs.gem.nclustu_layer
+variable sbs.gem.nclustv_layer
+variable sbs.gem.n2Dhit_layer
+#block sbs.gem.*.time.T0_by_APV
+#block sbs.gem.*.time.Tref_coarse
+#block sbs.gem.*.time.Tcoarse_by_APV
+#block sbs.gem.*.time.Tfine_by_APV
+#block sbs.gem.*.time.EventCount_by_APV
+#block sbs.gem.*.time.T_ns_by_APV
+# block sbs.gem.*.strip.nstripsfired
+# block sbs.gem.*.strip.nstrips_keep
+# block sbs.gem.*.strip.nstrips_keep_lmax
+# block sbs.gem.*.strip.nstrips_keepU
+# block sbs.gem.*.strip.nstrips_keepV
+# block sbs.gem.*.strip.nstrips_keep_lmaxU
+# block sbs.gem.*.strip.nstrips_keep_lmaxV
+
+#Cuts: 
+cut singletrack sbs.gem.track.ntrack==1
+cut anytrack sbs.gem.track.ntrack>0
+
+# Histogram definitions: 
+# layers fired, strip and cluster multiplicities
+th1d hsbs_gem_Nlayers_hit ';Number of layers with fired strips (u/x OR v/y);' sbs.gem.nlayershit 9 -0.5 8.5
+th1d hsbs_gem_Nlayers_hitu ';Number of layers with fired U/X strips;' sbs.gem.nlayershitu 9 -0.5 8.5
+th1d hsbs_gem_Nlayers_hitv ';Number of layers with fired V/Y strips;' sbs.gem.nlayershitv 9 -0.5 8.5
+th1d hsbs_gem_Nlayers_hituv ';Number of layers with 2D hits;' sbs.gem.nlayershituv 9 -0.5 8.5
+
+th2d hsbs_gem_NstripsU_layer ';layer;Number of U/X strips fired' [I] sbs.gem.nstripsu_layer[I] 8 -0.5 7.5 2001 -0.5 2000.5
+th2d hsbs_gem_NstripsV_layer ';layer;Number of V/Y strips fired' [I] sbs.gem.nstripsv_layer[I] 8 -0.5 7.5 2001 -0.5 2000.5
+th2d hsbs_gem_NclustU_layer ';layer;Number of U/X clusters' [I] sbs.gem.nclustu_layer[I] 8 -0.5 7.5 101 -0.5 100.5
+th2d hsbs_gem_NclustV_layer ';layer;Number of V/Y clusters' [I] sbs.gem.nclustv_layer[I] 8 -0.5 7.5 101 -0.5 100.5
+th2d hsbs_gem_Nclust2D_layer ';layer;Number of 2D hits' [I] sbs.gem.n2Dhit_layer[I] 8 -0.5 7.5 101 -0.5 100.5
+
+th1d hsbs_gem_clustwidthU 'U/X clusters on tracks; cluster size in strips' sbs.gem.hit.nstripu 10 0.5 10.5 singletrack
+th1d hsbs_gem_clustwidthV 'V/Y clusters on tracks; cluster size in strips' sbs.gem.hit.nstripv 10 0.5 10.5 singletrack
+th2d hsbs_gem_clustwidthVvsU '2D hits on tracks; U/X cluster size ; V/Y cluster size' sbs.gem.hit.nstripu sbs.gem.hit.nstripv 10 0.5 10.5 10 0.5 10.5 singletrack
+th2d hsbs_gem_clustwidthU_vs_module ';module;U/X cluster size' sbs.gem.hit.module sbs.gem.hit.nstripu 32 -0.5 31.5 10 0.5 10.5 singletrack
+th2d hsbs_gem_clustwidthV_vs_module ';module;V/Y cluster size' sbs.gem.hit.module sbs.gem.hit.nstripv 32 -0.5 31.5 10 0.5 10.5 singletrack
+th1d hsbs_gem_clust_Utime ';U/X cluster time (ns);' sbs.gem.hit.Utime 150 0 150 singletrack
+th1d hsbs_gem_clust_Vtime ';V/Y cluster time (ns);' sbs.gem.hit.Vtime 150 0 150 singletrack
+th2d hsbs_gem_clust_UVtime ';U/X cluster time (ns); V/Y cluster time (ns)' sbs.gem.hit.Utime sbs.gem.hit.Vtime 150 0 150 150 0 150 singletrack
+th1d hsbs_gem_clust_deltat ';t_{U/X} - t_{V/Y} (ns);' sbs.gem.hit.deltat 200 -50 50 singletrack
+th2d hsbs_gem_clust_deltat_vs_tavg ';t_{avg} (ns); t_{diff} (ns)' sbs.gem.hit.Tavg sbs.gem.hit.deltat 150 0 150 200 -50 50 singletrack
+th1d hsbs_gem_iSampMaxU ';Peak time sample, U/X strips;' sbs.gem.hit.isampmaxUclust 6 -0.5 5.5
+th1d hsbs_gem_iSampMaxV ';Peak time sample, V/Y strips;' sbs.gem.hit.isampmaxVclust 6 -0.5 5.5
+th1d hsbs_gem_CorrCoeff_clust ';Corr. Coeff., cluster sums;' sbs.gem.hit.ccor_clust 202 -1.01 1.01 singletrack
+th1d hsbs_gem_CorrCoeff_maxstrip ';Corr. Coeff., max strips;' sbs.gem.hit.ccor_strip 202 -1.01 1.01 singletrack
+th1d hsbs_gem_ADCasym ';(ADCU-ADCV)/(ADCU+ADCV)' sbs.gem.hit.ADCasym 202 -1.01 1.01 singletrack
+
+th1d hsbs_gem_ADCavg 'hits on tracks ;(ADCU+ADCV)/2;' sbs.gem.hit.ADCavg 1500 0 30000 singletrack
+th2d hsbs_gem_ADCasym_vs_ADCavg ';ADC avg;ADC asym.' sbs.gem.hit.ADCavg sbs.gem.hit.ADCasym 250 0 25000 250 -1.01 1.01
+th1d hsbs_gem_ADCU_clust ';ADC cluster sum (U/X strips);' sbs.gem.hit.ADCU 1500 0 30000 singletrack
+th1d hsbs_gem_ADCV_clust ';ADC cluster sum (V/Y strips);' sbs.gem.hit.ADCV 1500 0 30000 singletrack
+th2d hsbs_gem_ADCVvsU_clust ';ADC cluster sum (U/X); ADC cluster sum (V/Y)' sbs.gem.hit.ADCU sbs.gem.hit.ADCV 200 0 30000 200 0 30000 singletrack
+th2d hsbs_gem_ADCavg_vs_module ';module; Cluster ADC avg' sbs.gem.hit.module sbs.gem.hit.ADCavg 32 -0.5 31.5 250 0 25000
+th1d hsbs_gem_ADCU_maxstrip ';Max strip ADC sum (U/X strips);' sbs.gem.hit.ADCmaxstripU 1500 0 15000 singletrack
+th1d hsbs_gem_ADCV_maxstrip ';Max strip ADC sum (V/Y strips);' sbs.gem.hit.ADCmaxstripV 1500 0 15000 singletrack
+th2d hsbs_gem_ADCVvsU_maxstrip ';Max strip ADC sum (U/X); Max strip ADC sum (V/Y)' sbs.gem.hit.ADCmaxstripU sbs.gem.hit.ADCmaxstripV 200 0 12000 200 0 12000 singletrack
+th1d hsbs_gem_ADCU_maxsample ';U/X max strip max sample;' sbs.gem.hit.ADCmaxsampU 500 0 4000 singletrack
+th1d hsbs_gem_ADCV_maxsample ';V/Y max strip max sample;' sbs.gem.hit.ADCmaxsampV 500 0 4000 singletrack
+th2d hsbs_gem_ADCVvsU_maxsample ';Max strip max sample (U/X);Max strip max sample (V/Y)' sbs.gem.hit.ADCmaxsampU sbs.gem.hit.ADCmaxsampV 200 0 4000 200 0 4000 singletrack
+th1d hsbs_gem_ADCU_maxclustsample ';Max cluster-summed U/X sample;' sbs.gem.hit.ADCmaxsampUclust 500 0 8000 singletrack
+th1d hsbs_gem_ADCV_maxclustsample ';Max cluster-summed V/Y sample;' sbs.gem.hit.ADCmaxsampVclust 500 0 8000 singletrack
+th2d hsbs_gem_ADCVvsU_maxclustsample ';Max cluster-summed sample (U/X);Max cluster-summed sample (V/Y)' sbs.gem.hit.ADCmaxsampUclust sbs.gem.hit.ADCmaxsampVclust 200 0 8000 200 0 8000 singletrack
+
+th1d hsbs_gem_Ntracks ';Number of tracks found;' sbs.gem.track.ntrack 11 -0.5 10.5
+th1d hsbs_gem_TrackNhits ';Number of hits on first/best track;' sbs.gem.track.nhits[I] 9 -0.5 8.5 singletrack
+th1d hsbs_gem_TrackX ';Best track X(z=0), m;' sbs.gem.track.x[I] 200 -1.1 1.1 singletrack
+th1d hsbs_gem_TrackY ';Best track Y(z=0), m;' sbs.gem.track.y[I] 200 -0.325 0.325 singletrack
+th1d hsbs_gem_TrackXp ';Best track dx/dz;' sbs.gem.track.xp[I] 200 -1.5 1.0 singletrack
+th1d hsbs_gem_TrackYp ';Best track dy/dz;' sbs.gem.track.yp[I] 200 -0.1 0.1 singletrack
+th2d hsbs_gem_TrackXY 'Best track; y(m); x(m)' sbs.gem.track.y[I] sbs.gem.track.x[I] 150 -0.325 0.325 150 -1.1 1.1 singletrack
+th2d hsbs_gem_TrackXpYp 'Best track ;dy/dz;dx/dz' sbs.gem.track.yp[I] sbs.gem.track.xp[I] 150 -0.1 0.1 150 -0.4 0.4 singletrack
+th1d hsbs_gem_TrackChi2NDF ';Best track chi2/ndf;' sbs.gem.track.chi2ndf[I] 150 0 40 singletrack
+
+th1d hsbs_gem_residu_allhits 'All hits; Track u/x incl. residuals (m);' sbs.gem.hit.residu 200 -0.002 0.002 singletrack
+th1d hsbs_gem_residv_allhits 'All hits; Track v/y incl. residuals (m);' sbs.gem.hit.residv 200 -0.002 0.002 singletrack
+th1d hsbs_gem_eresidu_allhits 'All hits; Track u/x excl. residuals (m);' sbs.gem.hit.eresidu 250 -0.0025 0.0025 singletrack
+th1d hsbs_gem_eresidv_allhits 'All hits; Track v/y excl. residuals (m);' sbs.gem.hit.eresidv 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_residu_vs_layer ';layer; Track u/x incl. residuals (m)' sbs.gem.hit.layer sbs.gem.hit.residu 8 -0.5 7.5 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_residv_vs_layer ';layer; Track v/y incl. residuals (m)' sbs.gem.hit.layer sbs.gem.hit.residv 8 -0.5 7.5 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_residu_vs_module ';module; Track u/x incl. residuals (m)' sbs.gem.hit.module sbs.gem.hit.residu 32 -0.5 31.5 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_residv_vs_module ';module; Track v/y incl. residuals (m)' sbs.gem.hit.module sbs.gem.hit.residv 32 -0.5 31.5 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_eresidu_vs_layer ';layer; Track u/x excl. residuals (m)' sbs.gem.hit.layer sbs.gem.hit.eresidu 8 -0.5 7.5 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_eresidv_vs_layer ';layer; Track v/y excl. residuals (m)' sbs.gem.hit.layer sbs.gem.hit.eresidv 8 -0.5 7.5 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_eresidu_vs_module ';module; Track u/x excl. residuals (m)' sbs.gem.hit.module sbs.gem.hit.eresidu 32 -0.5 31.5 250 -0.0025 0.0025 singletrack
+th2d hsbs_gem_eresidv_vs_module ';module; Track v/y excl. residuals (m)' sbs.gem.hit.module sbs.gem.hit.eresidv 32 -0.5 31.5 250 -0.0025 0.0025 singletrack
+
+
+
