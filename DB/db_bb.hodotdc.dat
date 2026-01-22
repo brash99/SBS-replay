@@ -341,7 +341,7 @@ bb.hodotdc.tdcbaroffset = 0
 #               0               0               0               0               0               0               0               0               0 
 
 
--------[ 2021-10-21 06:30:00 ] # GMN SBS-4 
+-------[ 2021-10-18 05:30:00 ] # GMN SBS-4 
 ## Pass-3 calibration from AJRP's TOF_consolidated script ran with a subset of SBS-30% LH2 and LD2 data: ADR on Dec 15, 2025.
 
 bb.hodotdc.trigtime_central = 371.5 # This is the 'BBtrig_t0' value I used in the calibration for SBS-4.
