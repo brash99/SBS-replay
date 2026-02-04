@@ -145,6 +145,9 @@ inline bool IsUnusedPixel(int elID) {
 
 TChain *T = 0;
 
+static const double CDet_y_half_length = 0.30;
+static const double ECal_dist = 6.6;
+
 static const double TDC_calib_to_ns = 0.01;
 
 double TDCBinLow;
@@ -167,8 +170,28 @@ std::vector<double> vAllRefForLe;
 std::vector<std::vector<double>> vCDetPaddleRawTot;
 std::vector<std::vector<double>> vCDetPaddleCutTot;
 
-using Hit = std::pair<int,double>; // (pixelID, tot_ns)
-std::vector<std::vector<Hit>> vEventHits; // [event][hit]
+struct CDetHit {
+  int    id;     // pixelID
+  double le_ns;  // LE
+  double tot_ns; // TOT
+  double te_ns;  // TE
+  double x_pos; //x position in cm
+  double y_pos; //y
+  double z_pos; //z
+};
+
+struct AdjacentHits {
+  int    id;     // pixelID
+  double le_ns;  // LE
+  double tot_ns; // TOT
+  double te_ns;  // TE
+  double x_pos; //x position in cm
+  double y_pos; //y
+  double z_pos; //z
+};
+
+std::vector<std::vector<CDetHit>> vEventHits; // [event][hit]
+std::vector<std::vector<CDetHit>> vAdjEventHits; // [event][hit]
 
 std::vector<int> rawRate(2688, 0); 
 int rateEvTrack = 0;
@@ -178,12 +201,17 @@ int cutRateEvTrack = 0;
 std::vector<double> cutChanRates(2688,0);
 std::vector<double> ave_tot(2688,0);
 std::vector<int> vNumAdjacentHits;
+std::vector<double> adjChanRates(2688,0);
+std::vector<int> goodRate(2688, 0); 
 
 int NTotBins = 200;
 double TotBinLow = 1.;
 double TotBinHigh = 51.;
 
-void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t maxSeg = -1, Double_t LeMin = 0.02, Double_t LeMax = 60, Double_t TotMin = 1, Double_t TotMax = 100){
+void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t maxSeg = -1, 
+          Double_t LeMin = 0.02, Double_t LeMax = 60, Double_t TotMin = 1, Double_t TotMax = 100,
+          Double_t XDiffCut = 0.01, Double_t XOffset = 0.02, Double_t YOffset = 0.1){
+
     RefLeMin = 0.0;
     RefLeMax = 252.0;
     RefNTDCBins = (RefLeMax-RefLeMin)/4;
@@ -195,187 +223,391 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
     TDCBinLow = LeMin;
     TDCBinHigh = LeMax;
 
-    if (!T) {
-        T = new TChain("T");
-        //int onlySegment = -1; // set to >=0 to pick just one
-        AddRunFilesToChain(T, REPLAYED_DIR.Data(), runnum, minSeg, maxSeg);
+  if (!T) {
+      T = new TChain("T");
+      //int onlySegment = -1; // set to >=0 to pick just one
+      AddRunFilesToChain(T, REPLAYED_DIR.Data(), runnum, minSeg, maxSeg);
+  }
+
+  TTreeReader reader(T);
+
+  //Set TTreeReaders
+  /* ----- Earm ----- */ 
+
+  // ******CDet******
+  // ----- CDet arrays -----
+  TTreeReaderArray<double> TDCmult(reader, "earm.cdet.tdc_mult");
+
+  TTreeReaderArray<double> RawElID   (reader, "earm.cdet.hits.TDCelemID");
+  TTreeReaderArray<double> RawElLE   (reader, "earm.cdet.hits.t");
+  TTreeReaderArray<double> RawElTE   (reader, "earm.cdet.hits.t_te");
+  TTreeReaderArray<double> RawElTot  (reader, "earm.cdet.hits.t_tot");
+
+  TTreeReaderArray<double> GoodElID  (reader, "earm.cdet.hit.pmtnum");
+  // TTreeReaderArray<double> GoodElLE  (reader, "earm.cdet.hit.tdc_le");
+  // TTreeReaderArray<double> GoodElTE  (reader, "earm.cdet.hit.tdc_te");
+  // TTreeReaderArray<double> GoodElTot (reader, "earm.cdet.hit.tdc_tot");
+
+  TTreeReaderArray<double> GoodX     (reader, "earm.cdet.hit.xhit");
+  TTreeReaderArray<double> GoodY     (reader, "earm.cdet.hit.yhit");
+  TTreeReaderArray<double> GoodZ     (reader, "earm.cdet.hit.zhit");
+
+  // TTreeReaderArray<double> GoodCol   (reader, "earm.cdet.hit.row");
+  // TTreeReaderArray<double> GoodRow   (reader, "earm.cdet.hit.col");
+  // TTreeReaderArray<double> GoodLayer (reader, "earm.cdet.hit.layer");
+
+  // ----- cdet scalars ----- 
+  TTreeReaderValue<double> nhits        (reader, "earm.cdet.nhits");
+  // TTreeReaderValue<double> ngoodhits    (reader, "earm.cdet.ngoodhits");
+  // TTreeReaderValue<double> ngoodTDChits (reader, "earm.cdet.ngoodTDChits");
+
+  //------ECal-------
+  // Cluster arrays
+  // TTreeReaderArray<double> ECal_clus_adctime      (reader, "earm.ecal.clus.adctime");
+  // TTreeReaderArray<double> ECal_clus_again        (reader, "earm.ecal.clus.again");
+  // TTreeReaderArray<double> ECal_clus_atimeblk     (reader, "earm.ecal.clus.atimeblk");
+  // TTreeReaderArray<double> ECal_clus_col          (reader, "earm.ecal.clus.col");
+  // TTreeReaderArray<double> ECal_clus_e            (reader, "earm.ecal.clus.e");
+  // TTreeReaderArray<double> ECal_clus_eblk         (reader, "earm.ecal.clus.eblk");
+  // TTreeReaderArray<double> ECal_clus_id           (reader, "earm.ecal.clus.id");
+  // TTreeReaderArray<double> ECal_clus_nblk         (reader, "earm.ecal.clus.nblk");
+  // TTreeReaderArray<double> ECal_clus_row          (reader, "earm.ecal.clus.row");
+  // TTreeReaderArray<double> ECal_clus_x            (reader, "earm.ecal.clus.x");
+  // TTreeReaderArray<double> ECal_clus_y            (reader, "earm.ecal.clus.y");
+
+  // Cluster count (scalar)
+  //TTreeReaderValue<double> ECal_nclus(reader, "earm.ECal.nclus");
+
+  //event-level ECal branches
+  TTreeReaderValue<double> ECalX       (reader, "earm.ecal.x");
+  TTreeReaderValue<double> ECalY       (reader, "earm.ecal.y");
+  // TTreeReaderValue<double> ECalE       (reader, "earm.ecal.e");
+  // TTreeReaderValue<double> ECalAdcTime (reader, "earm.ecal.adctime");
+
+  vCDetPaddleRawTot.assign(2688, std::vector<double>{});
+  vCDetPaddleCutTot.assign(2688, std::vector<double>{});
+
+  Int_t Nev = T->GetEntries();
+  cout << "N entries in tree is " << Nev << endl;
+  Int_t NEventsAnalysis;// = Nev;
+  if(neventsr==-1) NEventsAnalysis = Nev;
+  else NEventsAnalysis = neventsr;
+  cout << "Running analysis for " << NEventsAnalysis << " events" << endl;
+
+  //================================================================= Event Loop
+  // variables outside event loop
+  Int_t EventCounter = 0;
+  cout << "Starting Event Loop" << endl;
+
+  // event loop start
+  Int_t event = 0;
+  while(reader.Next()){
+    event++;
+    event = event - 1;
+    EventCounter++;
+    // Only stop early if neventsr > 0
+    if (neventsr > 0 && EventCounter > neventsr) {
+        break;
     }
 
-    TTreeReader reader(T);
-
-    TTreeReaderArray<double> RawElID   (reader, "earm.cdet.hits.TDCelemID");
-    TTreeReaderArray<double> RawElLE   (reader, "earm.cdet.hits.t");
-    TTreeReaderArray<double> RawElTE   (reader, "earm.cdet.hits.t_te");
-    TTreeReaderArray<double> RawElTot  (reader, "earm.cdet.hits.t_tot");
+    Int_t nh = *nhits;
     
-    TTreeReaderArray<double> GoodElID  (reader, "earm.cdet.hit.pmtnum");
-    TTreeReaderArray<double> GoodElLE  (reader, "earm.cdet.hit.tdc_le");
-    TTreeReaderArray<double> GoodElTE  (reader, "earm.cdet.hit.tdc_te");
-    TTreeReaderArray<double> GoodElTot (reader, "earm.cdet.hit.tdc_tot");
-
-    TTreeReaderArray<double> GoodX     (reader, "earm.cdet.hit.xhit");
-    TTreeReaderArray<double> GoodY     (reader, "earm.cdet.hit.yhit");
-    TTreeReaderArray<double> GoodZ     (reader, "earm.cdet.hit.zhit");
-
-    vCDetPaddleRawTot.assign(2688, std::vector<double>{});
-    vCDetPaddleCutTot.assign(2688, std::vector<double>{});
-
-    Int_t Nev = T->GetEntries();
-    cout << "N entries in tree is " << Nev << endl;
-    Int_t NEventsAnalysis;// = Nev;
-    if(neventsr==-1) NEventsAnalysis = Nev;
-    else NEventsAnalysis = neventsr;
-    cout << "Running analysis for " << NEventsAnalysis << " events" << endl;
-
-    //================================================================= Event Loop
-    // variables outside event loop
-    Int_t EventCounter = 0;
-    cout << "Starting Event Loop" << endl;
-
-    // event loop start
-    Int_t event = 0;
-    while(reader.Next()){
-      event++;
-      event = event - 1;
-      EventCounter++;
-      // Only stop early if neventsr > 0
-      if (neventsr > 0 && EventCounter > neventsr) {
-          break;
-      }
-      
-      if (EventCounter % 1000 == 0) {
-      cout << EventCounter << "/" << NEventsAnalysis << endl;
-      }
-
-      // First pass through hits:  purpose is to get reference LE TDC Value for this event
-      
-      double event_ref_tdc = 0.0;
-      double ref_int = 0;
-      double ref_corr = 0;
-      // std::cout << "RawElID Size = " << " " << RawElID.GetSize() << std::endl;
-      // for (auto val : RawElLE) {
-      //   std::cout << " rawLE array= "<< " " << val <<std::endl; 
-      // }
-      for(Int_t el=0; el<RawElID.GetSize(); el++) {
-        if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
-          bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 252.0/TDC_calib_to_ns;
-          bool good_ref_event = good_ref_le_time;
-          if ( good_ref_event ) {
-            //std::cout << "event = " << " " << EventCounter << " " << "ref time = " << RawElLE[el] << std::endl;
-            //std::cout << "ref Tot = " << RawElTot[el] << std::endl;
-            if ( (Int_t)RawElID[el] == 2696 && (Int_t)RawElLE[el] > 0 ) {
-                vRefRawLe.push_back(RawElLE[el] * TDC_calib_to_ns);
-                vRefRawTe.push_back(RawElTE[el] * TDC_calib_to_ns);
-                vRefRawTot.push_back(RawElTot[el] * TDC_calib_to_ns);
-                vRefRawPMT.push_back((int)RawElID[el]);
-
-                event_ref_tdc = RawElLE[el]*TDC_calib_to_ns - 48;
-                ref_int = std::floor(event_ref_tdc);
-                ref_corr = event_ref_tdc - ref_int;
-            }
-          }
-        }
-      }// end ref TDC loop
-        
-      rateEvTrack++;
-      std::vector<Hit> eventHits;
-      int CDetPassedBoolCount = 0;
-      for(Int_t el=0; el<RawElID.GetSize(); el++){
-
-        if (kUnusedCDetPixels.count(RawElID[el])) continue; //checks if pixel is unused, if it is, skip. 
-        bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
-        bool goodhit_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
-        bool good_raw_event = good_raw_le_time && goodhit_tot;
-        
-
-      //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
-      //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
-        if ( good_raw_event ) {
-          CDetPassedBoolCount++;
-          int idx = RawElID[el];
-          if (0 <= idx && idx < 2688) {
-            double tot_ns = RawElTot[el]*TDC_calib_to_ns;
-            rawRate[idx]++;
-            vCDetPaddleRawTot[idx].push_back(tot_ns);
-            eventHits.emplace_back(idx, tot_ns);
-
-          } //getting rates and tot for pixels
-          if ( (Int_t)RawElID[el] < 2688 ) {
-            //fill all hits vectors
-            double t_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;//ref_corr;
-            double wrapped = fmod(t_ns,2.0);
-
-            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);//ref_corr);
-            vAllRawLeNoRef.push_back(RawElLE[el]*TDC_calib_to_ns);//ref_corr);
-            vAllRawPMT.push_back(RawElID[el]);
-            vT_mod.push_back(wrapped);
-            vAllRefForLe.push_back(event_ref_tdc);
-          }
-        }
-      }// all raw tdc hit loop
-      if (CDetPassedBoolCount >= 1){
-        vEventHits.push_back(eventHits);
-      }
-      //check nadjacent pairs for each event (pixels 260-270)
-      if (CDetPassedBoolCount >= 1){
-        std::vector<int> ids;
-        const auto& currentEvent = vEventHits.back();
-        ids.reserve(currentEvent.size());
-
-        for (const auto& hit : currentEvent){
-          int id = hit.first;
-          if (260 <= id && id <= 270) ids.push_back(id);
-        }
-
-        std::sort(ids.begin(), ids.end());
-        ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
-        int nAdjacentHits = 0;
-        for (int i = 0; i + 1 < ids.size(); i++){
-          if (ids[i+1] == ids[i] + 1){
-            nAdjacentHits++;
-          }
-        }
-        vNumAdjacentHits.push_back(nAdjacentHits);
-      }
-      
-    }//end event loop 
-    std::cout << "nevents = " << rateEvTrack << std::endl;
-    for (int i = 0; i < 2688; i++){
-      chanRates[i] = (double)rawRate[i] / (rateEvTrack);
-      //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
+    if (EventCounter % 1000 == 0) {
+      cout << EventCounter << "/" << NEventsAnalysis << "/ Nhits = " << (Int_t)nh << endl;
     }
 
-    //Second Pass over all events for tot_ave calc
-
-    for (Int_t idx = 0; idx < 2688; idx++){
-      Int_t ihits = vCDetPaddleRawTot[idx].size();
-      double sumTot = 0;
-      for (Int_t i = 0; i < ihits; i++){
-        sumTot += vCDetPaddleRawTot[idx][i];
-      }
-      ave_tot[idx] = sumTot / ihits;
-    }
-
-    for (Int_t idx = 0; idx < 2688; idx++){
-      Int_t ihits = vCDetPaddleRawTot[idx].size();
-      for (Int_t i = 0; i < ihits; i++){
-        double hit_tot = vCDetPaddleRawTot[idx][i];
-        if (hit_tot > ave_tot[idx]){
-          vCDetPaddleCutTot[idx].push_back(hit_tot);
-          cutRate[idx]++;
-        }
-      }
-      cutChanRates[idx] = (double)cutRate[idx] / rateEvTrack;
-    }
+    // First pass through hits:  purpose is to get reference LE TDC Value for this event
     
+    double event_ref_tdc = 0.0;
+    double ref_int = 0;
+    double ref_corr = 0;
+    // std::cout << "RawElID Size = " << " " << RawElID.GetSize() << std::endl;
+    // for (auto val : RawElLE) {
+    //   std::cout << " rawLE array= "<< " " << val <<std::endl; 
+    // }
+    for(Int_t el=0; el<RawElID.GetSize(); el++) {
+      if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
+        bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 252.0/TDC_calib_to_ns;
+        bool good_ref_event = good_ref_le_time;
+        if ( good_ref_event ) {
+          //std::cout << "event = " << " " << EventCounter << " " << "ref time = " << RawElLE[el] << std::endl;
+          //std::cout << "ref Tot = " << RawElTot[el] << std::endl;
+          if ( (Int_t)RawElID[el] == 2696 && (Int_t)RawElLE[el] > 0 ) {
+              vRefRawLe.push_back(RawElLE[el] * TDC_calib_to_ns);
+              vRefRawTe.push_back(RawElTE[el] * TDC_calib_to_ns);
+              vRefRawTot.push_back(RawElTot[el] * TDC_calib_to_ns);
+              vRefRawPMT.push_back((int)RawElID[el]);
 
-  std::cout << "someone cooked here - Walter White" << std::endl;
+              event_ref_tdc = RawElLE[el]*TDC_calib_to_ns - 48;
+              ref_int = std::floor(event_ref_tdc);
+              ref_corr = event_ref_tdc - ref_int;
+          }
+        }
+      }
+    }// end ref TDC loop
+      
+    rateEvTrack++;
+    std::vector<CDetHit> eventHits;
+    int CDetPassedBoolCount = 0;
+    // Build lookup from PMT id -> index in Good* arrays for this TTree entry
+    std::unordered_map<int,int> goodIdx;
+    goodIdx.reserve(GoodElID.GetSize());
+    for (int ig = 0; ig < (int)GoodElID.GetSize(); ig++) {
+      goodIdx[(int)GoodElID[ig]] = ig;
+    }
+
+    for(Int_t el=0; el<RawElID.GetSize(); el++){
+
+      const int raw_pmt = (int)RawElID[el];
+      auto itGood = goodIdx.find(raw_pmt);
+      const bool hasGood = (itGood != goodIdx.end());
+      const int ig = hasGood ? itGood->second : -1;
+      const double gx = hasGood ? GoodX[ig] : 1.0e9;
+      const double gy = hasGood ? GoodY[ig] : 1.0e9;
+      const double gz = hasGood ? GoodZ[ig] : 1.0e9;
+
+      if (kUnusedCDetPixels.count(RawElID[el])) continue; //checks if pixel is unused, if it is, skip. 
+      bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
+      bool goodhit_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
+      // bool good_ECal_diff_x = (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) <= XDiffCut && 
+      //     (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      // bool good_ECal_diff_y = (gy-((*ECalY)*(gz)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+      //     (gy-((*ECalY)*(gz)/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
+      bool good_raw_event = good_raw_le_time && goodhit_tot;// && good_ECal_diff_x && good_ECal_diff_y;
+      
+
+    //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
+    //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
+      if ( good_raw_event ) {
+        CDetPassedBoolCount++;
+        int idx = RawElID[el];
+        if (0 <= idx && idx < 2688) {
+          double tot_ns = RawElTot[el]*TDC_calib_to_ns;
+          double le_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;
+          double te_ns = RawElTE[el]*TDC_calib_to_ns - event_ref_tdc;
+          rawRate[idx]++;
+          vCDetPaddleRawTot[idx].push_back(tot_ns);
+          eventHits.push_back({idx, le_ns, tot_ns, te_ns, gx, gy, gz});
+        } //getting rates and tot for pixels
+        if ( (Int_t)RawElID[el] < 2688 ) {
+          //fill all hits vectors
+          double t_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;//ref_corr;
+          double wrapped = fmod(t_ns,2.0);
+
+          vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);//ref_corr);
+          vAllRawLeNoRef.push_back(RawElLE[el]*TDC_calib_to_ns);//ref_corr);
+          vAllRawPMT.push_back(RawElID[el]);
+          vT_mod.push_back(wrapped);
+          vAllRefForLe.push_back(event_ref_tdc);
+        }
+      }
+    }// all raw tdc hit loop
+    if (CDetPassedBoolCount >= 1){
+      vEventHits.push_back(eventHits);
+    }
+    //check nadjacent pairs for each event (pixels 260-270)
+    auto is_unused = [&](int id) -> bool {
+      return kUnusedCDetPixels.count(id) != 0;
+    };
+
+    auto is_adjacent_with_skip = [&](int a, int b) -> bool {
+      if (b == a + 1) {
+        // adjacent normally, but only if that neighbor isn't unused
+        return !is_unused(b);
+      }
+      if (b == a + 2) {
+        // treat as adjacent if the in-between pixel is unused
+        return is_unused(a + 1) && !is_unused(b);
+      }
+      return false;
+    };
+
+    if (CDetPassedBoolCount >= 1) {
+      std::unordered_set<int> adjIDs; //per-event
+      std::vector<int> ids;
+      const auto& currentEvent = vEventHits.back();
+      ids.reserve(currentEvent.size());
+      adjIDs.reserve(currentEvent.size());
+
+      for (const auto& hit : currentEvent) {
+        int id = hit.id;
+        // if (260 <= id && id <= 270) ids.push_back(id);
+        ids.push_back(id);
+      }
+
+      std::sort(ids.begin(), ids.end());
+      ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
+
+      int nAdjacentHits = 0;
+      for (size_t i = 0; i + 1 < ids.size(); i++) {
+        int a = ids[i];
+        int b = ids[i+1];
+        if (is_adjacent_with_skip(a,b)) {
+          adjIDs.insert(a);
+          adjIDs.insert(b);
+          nAdjacentHits++;
+        }
+      }
+
+      for (int id : adjIDs) {
+        if (0 <= id && id < (int)goodRate.size()){
+          goodRate[id]++;
+        }
+      }
+
+      vNumAdjacentHits.push_back(nAdjacentHits);
+
+      //filer hit list for adj pairs only
+      std::vector<CDetHit> adjHitsThisEvent;
+      adjHitsThisEvent.reserve(currentEvent.size());
+
+      for (const auto& hit : currentEvent){
+        if (adjIDs.count(hit.id)){
+          adjHitsThisEvent.push_back(hit);
+        }
+      }
+      vAdjEventHits.push_back(std::move(adjHitsThisEvent)); //should contain adj pairs only
+    }
+
+    //std::cout << "Event = " << rateEvTrack << std::endl;
+    if (CDetPassedBoolCount >= 1){
+      const auto& currEvent = vEventHits.back();
+      for (const auto& hit : currEvent){
+        if (rateEvTrack <= 5){
+          int id = hit.id;
+          double le = hit.le_ns;
+          double tot = hit.tot_ns;
+          //std::cout << " Pixel ID = " << id << ", LE = " << le << ", TOT = " << tot << std::endl;
+        }
+      }
+    }
+
+  }//end event loop 
+  // std::cout << "nevents = " << rateEvTrack << std::endl;
+  for (int i = 0; i < 2688; i++){
+    chanRates[i] = (double)rawRate[i] / (rateEvTrack);
+    adjChanRates[i] = (double)goodRate[i] / (rateEvTrack);
+    //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
+  }
+
+  //Second Pass over all events for tot_ave calc
+
+  for (Int_t idx = 0; idx < 2688; idx++){
+    Int_t ihits = vCDetPaddleRawTot[idx].size();
+    double sumTot = 0;
+    for (Int_t i = 0; i < ihits; i++){
+      sumTot += vCDetPaddleRawTot[idx][i];
+    }
+    ave_tot[idx] = sumTot / ihits;
+  }
+
+  for (Int_t idx = 0; idx < 2688; idx++){
+    Int_t ihits = vCDetPaddleRawTot[idx].size();
+    for (Int_t i = 0; i < ihits; i++){
+      double hit_tot = vCDetPaddleRawTot[idx][i];
+      if (hit_tot > ave_tot[idx]){
+        vCDetPaddleCutTot[idx].push_back(hit_tot);
+        cutRate[idx]++;
+      }
+    }
+    cutChanRates[idx] = (double)cutRate[idx] / rateEvTrack;
+  }
 }//end main
 
+void plotAdjTiming(double width = 4, double leMin=0, double leMax = 65, double totMin = 0, double totMax = 150){
+  int TDCBinNum = (int)((leMax-leMin)/width);
+  TH1D* hLe = new TH1D("hLe", "Leading Edge Pixel; LE (ns);Counts",TDCBinNum,leMin,leMax);
+  TH1D* hTe = new TH1D("hTe", "Trailing Edge Pixel; TE (ns);Counts",TDCBinNum,leMin,leMax+totMax);
+  TH1D* hTot = new TH1D("hTot", "Tot Pixel; Tot (ns);Counts",TDCBinNum,totMin,totMax);
+  TH2D* hLEvsTOT = new TH2D("hLEvsTOT", "LE vs TOT Pixel; TOT (ns);LE (ns)",TDCBinNum,totMin,totMax,TDCBinNum,leMin,leMax); 
+  TH2D* hTEvsLE = new TH2D("hTEvsLE", "TE vs LE Pixel; LE (ns);TE (ns)",TDCBinNum,leMin,leMax,TDCBinNum,0,70);
+
+  for (const auto& event : vAdjEventHits){
+    for (const auto& hit : event){
+      double tot = hit.tot_ns;
+      double le = hit.le_ns;
+      double te = hit.te_ns;
+      hLe->Fill(le);
+      hTe->Fill(te);
+      hTot->Fill(tot);
+      hLEvsTOT->Fill(tot,le);
+      hTEvsLE->Fill(le,te);
+    }
+  }
+
+  //define canvas and plot
+  TCanvas* cTiming = new TCanvas("cTiming", "Timing Plots", 900,700);
+  cTiming->Divide(1,3); //2x3
+  //LE
+  cTiming->cd(1);
+  hLe->Draw();
+  //TE
+  cTiming->cd(2);
+  hTe->Draw();
+  //TOT
+  cTiming->cd(3);
+  hTot->Draw();
+
+  TCanvas* cLEvsTOT = new TCanvas("cLEvsTOT", "Leading Edge vs Tot",900,700);
+  hLEvsTOT->Draw("COLZ");
+
+  TCanvas* cTEvsLE = new TCanvas("cTEvsLE", "TE vs LE",900,700);
+  hTEvsLE->Draw("COLZ");
+
+}
+
+void plotLowRate(double rate = 0.3, bool yesTotCut = true, double Width = 4, double leMin = 0, double leMax = 60, double totMin = 0, double totMax = 100){
+  TH1::AddDirectory(kFALSE);
+  int TDCBinNum = (int)((leMax-leMin)/Width);
+  TH1D* hLe1 = new TH1D("hLe1", "Leading Edge Pixel; LE (ns);Counts",TDCBinNum,leMin,leMax);
+  TH1D* hTe1 = new TH1D("hTe1", "Trailing Edge Pixel; TE (ns);Counts",TDCBinNum,leMin,leMax+totMax);
+  TH1D* hTot1 = new TH1D("hTot1", "Tot Pixel; Tot (ns);Counts",TDCBinNum,totMin,totMax);
+  TH2D* hLEvsTOT1 = new TH2D("hLEvsTOT1", "LE vs TOT Pixel; TOT (ns);LE (ns)",TDCBinNum,totMin,totMax,TDCBinNum,leMin,leMax); 
+  TH2D* hTEvsLE1 = new TH2D("hTEvsLE1", "TE vs LE Pixel; LE (ns);TE (ns)",TDCBinNum,leMin,leMax,TDCBinNum,0,70);
+  
+  //loop through hits and events
+  for (const auto& event : vEventHits){
+    for (const CDetHit& hit : event){
+      int id = hit.id;
+      double totCut = 0;
+      if (yesTotCut) totCut = ave_tot[id];
+      if (chanRates[id] <= rate && hit.tot_ns > totCut){  
+        double tot = hit.tot_ns;
+        double le = hit.le_ns;
+        double te = hit.te_ns;
+        hLe1->Fill(le);
+        hTe1->Fill(te);
+        hTot1->Fill(tot);
+        hLEvsTOT1->Fill(tot,le);
+        hTEvsLE1->Fill(le,te);
+      }
+    }//loop through hits
+  }//loop through events
+
+  //define canvas and plot
+  TCanvas* cTiming = new TCanvas("cTiming", "Timing Plots", 900,700);
+  cTiming->Divide(1,3); //2x3
+  //LE
+  cTiming->cd(1);
+  hLe1->Draw();
+  //TE
+  cTiming->cd(2);
+  hTe1->Draw();
+  //TOT
+  cTiming->cd(3);
+  hTot1->Draw();
+
+  TCanvas* cLEvsTOT = new TCanvas("cLEvsTOT", "Leading Edge vs Tot",900,700);
+  hLEvsTOT1->Draw("COLZ");
+
+  TCanvas* cTEvsLE = new TCanvas("cTEvsLE", "TE vs LE",900,700);
+  hTEvsLE1->Draw("COLZ");
+
+}
 
 void plotNumAdjacent(int nbins = 50){
   TH1::AddDirectory(kFALSE);
-  TH1D* hNumAdjacentHits = new TH1D("hNumAdjacentHits", "Number Hits in Adjacent Pixels 260-270", nbins, 0, nbins);
+  TH1D* hNumAdjacentHits = new TH1D("hNumAdjacentHits", "Number Hits in Adjacent Pixels", nbins, 0, nbins);
 
   for (const auto& hit : vNumAdjacentHits){
     if (hit > 0) hNumAdjacentHits->Fill(hit);
@@ -401,6 +633,81 @@ void plotAveTotPerPixel() {
 
   TCanvas* cAveTot = new TCanvas("cAveTot", "Average TOT per Pixel", 1200, 500);
   hAveTot->Draw("HIST");
+}
+
+void plotPixelComp(int pixel1 = 257, int pixel2 = 261, double Width = 1, double leMin = 0, double leMax = 60, double totMin = 0, double totMax = 100){
+  TH1::AddDirectory(kFALSE);
+  int TDCBinNum = (int)((leMax-leMin)/Width);
+  TH1D* hLe1 = new TH1D("hLe1", Form("Leading Edge Pixel %d; LE (ns);Counts", pixel1),TDCBinNum,leMin,leMax);
+  TH1D* hTe1 = new TH1D("hTe1", Form("Trailing Edge Pixel %d; TE (ns);Counts", pixel1),TDCBinNum,leMin,leMax+totMax);
+  TH1D* hTot1 = new TH1D("hTot1", Form("Tot Pixel %d; Tot (ns);Counts", pixel1),TDCBinNum,totMin,totMax);
+  TH1D* hLe2 = new TH1D("hLe2", Form("Leading Edge Pixel %d; LE (ns);Counts", pixel2),TDCBinNum,leMin,leMax);
+  TH1D* hTe2 = new TH1D("hTe2", Form("Trailing Edge Pixel %d; TE (ns);Counts", pixel2),TDCBinNum,leMin,leMax+totMax);
+  TH1D* hTot2 = new TH1D("hTot2", Form("Tot Pixel %d; Tot (ns);Counts", pixel2),TDCBinNum,totMin,totMax);
+  TH2D* hLEvsTOT1 = new TH2D("hLEvsTOT1", Form("LE vs TOT Pixel %d; TOT (ns);LE (ns)", pixel1),TDCBinNum,totMin,totMax,TDCBinNum,leMin,leMax);
+  TH2D* hLEvsTOT2 = new TH2D("hLEvsTOT2", Form("LE vs TOT Pixel %d; TOT (ns);LE (ns)", pixel2),TDCBinNum,totMin,totMax,TDCBinNum,leMin,leMax);
+  TH2D* hTEvsLE1 = new TH2D("hTEvsLE1", Form("TE vs LE Pixel %d; TE (ns);LE (ns)", pixel1),TDCBinNum,leMin,leMax,TDCBinNum,0,70);
+  TH2D* hTEvsLE2 = new TH2D("hTEvsLE2", Form("TE vs LE Pixel %d; TE (ns);LE (ns)", pixel2),TDCBinNum,leMin,leMax,TDCBinNum,0,70);
+
+  //pick out pixels
+  for (const auto& event : vEventHits){
+    for (const CDetHit& hit : event){
+      int id = hit.id;
+      if (id == pixel1 && hit.tot_ns > totMin){
+        double tot = hit.tot_ns;
+        double le = hit.le_ns;
+        double te = hit.te_ns;
+        hLe1->Fill(le);
+        hTe1->Fill(te);
+        hTot1->Fill(tot);
+        hLEvsTOT1->Fill(tot,le);
+        hTEvsLE1->Fill(le,te);
+      }
+      else if (id == pixel2 && hit.tot_ns > totMin){
+        double tot = hit.tot_ns;
+        double le = hit.le_ns;
+        double te = hit.te_ns;
+        hLe2->Fill(le);
+        hTe2->Fill(te);
+        hTot2->Fill(tot);
+        hLEvsTOT2->Fill(tot,le);
+        hTEvsLE2->Fill(le,te);
+      }
+    }//loop throuh hits
+  }//loop through events
+
+  //define canvas and plot
+  TCanvas* cTiming = new TCanvas("cTiming", "Timing Plots", 900,700);
+  cTiming->Divide(2,3); //2x3
+  //LE
+  cTiming->cd(1);
+  hLe1->Draw();
+  cTiming->cd(2);
+  hLe2->Draw();
+  //TE
+  cTiming->cd(3);
+  hTe1->Draw();
+  cTiming->cd(4);
+  hTe2->Draw();
+  //TOT
+  cTiming->cd(5);
+  hTot1->Draw();
+  cTiming->cd(6);
+  hTot2->Draw();
+
+  TCanvas* cLEvsTOT = new TCanvas("cLEvsTOT", "Leading Edge vs Tot",900,700);
+  cLEvsTOT->Divide(1,2);
+  cLEvsTOT->cd(1);
+  hLEvsTOT1->Draw();
+  cLEvsTOT->cd(2);
+  hLEvsTOT2->Draw();
+
+  TCanvas* cTEvsLE = new TCanvas("cTEvsLE", "TE vs LE",900,700);
+  cTEvsLE->Divide(1,2);
+  cTEvsLE->cd(1);
+  hTEvsLE1->Draw();
+  cTEvsLE->cd(2);
+  hTEvsLE2->Draw();
 }
 
 void plotSingleTot(int pixel_base = 0, bool raw = true, double width = 1, double totMin=1, double totMax=80){
@@ -508,7 +815,7 @@ void plotRateVsID(bool raw = true){
         h->SetBinContent(bin, chanRates[id]);
       }
       if (!raw){
-        h->SetBinContent(bin, cutChanRates[id]);
+        h->SetBinContent(bin, adjChanRates[id]);
       }
     }
     return h;
@@ -555,7 +862,7 @@ void plotRateVsID(bool raw = true){
     }
     if (!raw){
       TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate w/Cut vs Pixel ID;Pixel ID;Rate",
+      TString title = Form("CDet L%d %s M%d Rate w/Adj vs Pixel ID;Pixel ID;Rate",
                           s.layer, s.side, s.mod);
       hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
     }
@@ -606,8 +913,9 @@ void plotRateVsID(bool raw = true){
   }
 }
 
-TCanvas *plotAllTDC(double TDCBinLow, double TDCBinHigh){
+TCanvas *plotAllTDC(double width = 4, double TDCBinLow = 0, double TDCBinHigh = 65){
     //define histograms
+    int TDCBinNum = (int)((TDCBinHigh-TDCBinLow)/width);
     TH1F *hAllRawLe = new TH1F(TString::Format("hRawLe"),
             TString::Format("hRawLe"),
             NTDCBins, TDCBinLow, TDCBinHigh);

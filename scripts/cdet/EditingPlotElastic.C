@@ -52,8 +52,6 @@ static const int nBarsADC = 0;
 static const double ADCCUT = 150.;   //100.0
 
 static const double ECal_dist = 6.6;
-static const double CDet_z_correc = 0; //correct CDet based on kinematic. db defaults z position to 7.75 (layer1) or 7.85 (layer2) (fine for kin1)
-double CDet_dist_offset = 2.0;
 static const double CDet_y_half_length = 0.30;
 
 int NXDiffBins;
@@ -327,8 +325,26 @@ std::vector<double> v_GoodECalY;
 std::vector<double> v_GoodECalE;
 std::vector<double> v_GoodECalAdcTime;
 
-using Hit = std::pair<int,double>; // (pixelID, tot_ns)
-std::vector<std::vector<Hit>> vEventHits; // [event][hit]
+struct CDetHit {
+  int    id;     // pixelID
+  double le_ns;  // LE
+  double tot_ns; // TOT
+  double te_ns;  // TE
+};
+
+struct AdjPair {
+  int event;      // event number/index
+  int id1, id2;   // id1 < id2
+  double le1, te1, tot1;
+  double le2, te2, tot2;
+  int i1, i2;     // hit indices within that pixel for this event (for dedupe)
+};
+
+static std::vector<AdjPair> vAdjPairs;
+
+// using Hit = std::pair<int,double>; // (pixelID, tot_ns)
+std::vector<std::vector<CDetHit>> vEventHits; // [event][hit]
+std::vector<std::vector<CDetHit>> vGoodEventHits;
 
 std::vector<int> rawRate(2688, 0); 
 int rateEvTrack = 0;
@@ -337,6 +353,8 @@ std::vector<int> cutRate(2688, 0);
 int cutRateEvTrack = 0;
 std::vector<double> cutChanRates(2688,0);
 std::vector<double> ave_tot(2688,0);
+std::vector<int> vNumRawAdjacentHits;
+std::vector<int> vNumGoodAdjacentHits;
 
 //copy a TTreeReaderArray<double> into a std::vector<double>, makes it easier to fill the 2D vector
 inline std::vector<double> copyArray(const TTreeReaderArray<double>& arr) {
@@ -707,13 +725,11 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t elasti
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.04, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
+	Double_t XDiffCut = 0.01, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
 {
-  if (RunNumber1 < 3573) CDet_dist_offset = 0;
-
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
 	Double_t RefLeMax = 251.0;
@@ -1180,7 +1196,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       std::vector<double> thisEvent_CDetX;
       std::vector<double> thisEvent_CDetY;
       std::vector<double> thisEvent_CDetZ;
-      std::vector<Hit> eventHits;
+      std::vector<CDetHit> eventHits;
       rateEvTrack++;
 
       // Build lookup from PMT id -> index in Good* arrays for this TTree entry
@@ -1199,26 +1215,32 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       const int ig = hasGood ? itGood->second : -1;
       const double gx = hasGood ? GoodX[ig] : 1.0e9;
       const double gy = hasGood ? GoodY[ig] : 1.0e9;
-      const double gz = hasGood ? (GoodZ[ig]-CDet_dist_offset) : 1.0e9;
+      const double gz = hasGood ? GoodZ[ig] : 1.0e9;
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
       bool good_CDet_X = hasGood && (fabs(gx) < xcut);
+      bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+          (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
 
-      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X;
+      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X && good_ECal_diff_x && good_ECal_diff_y;
 
       //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
       if ( good_raw_event ) {
         rawEventCounter++;
         int idx = RawElID[el];
-          if (0 <= idx && idx < 2688) {
-            double tot_ns = RawElTot[el]*TDC_calib_to_ns;
-            rawRate[idx]++;
-            vCDetPaddleRawTot[idx].push_back(tot_ns);
-            eventHits.emplace_back(idx, tot_ns);
-          } //getting rates and tot for pixels
+        if (0 <= idx && idx < 2688) {
+          double le_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;
+          double tot_ns = RawElTot[el]*TDC_calib_to_ns;
+          double te_ns = RawElTE[el]*TDC_calib_to_ns - event_ref_tdc;
+          rawRate[idx]++;
+          vCDetPaddleRawTot[idx].push_back(tot_ns);
+          eventHits.push_back({idx, le_ns, tot_ns, te_ns});
+        } //getting rates and tot for pixels
         if ( !check_bad(RawElID[el],suppress_bad) ) {
         //cout << " el = " << el << endl;
         //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
@@ -1297,7 +1319,45 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       v_ECalAdcTime.push_back(*ECalAdcTime);
       vEventHits.push_back(eventHits);
     }
+    //check nadjacent pairs for each event 
+    auto is_unused = [&](int id) -> bool {
+      return kUnusedCDetPixels.count(id) != 0;
+    };
 
+    auto is_adjacent_with_skip = [&](int a, int b) -> bool {
+      if (b == a + 1) {
+        // adjacent normally, but only if that neighbor isn't unused
+        return !is_unused(b);
+      }
+      if (b == a + 2) {
+        // treat as adjacent if the in-between pixel is unused
+        return is_unused(a + 1) && !is_unused(b);
+      }
+      return false;
+    };
+    if (rawEventCounter >= 1) {
+      std::vector<int> ids;
+      const auto& currentEvent = vEventHits.back();
+      ids.reserve(currentEvent.size());
+
+      for (const auto& hit : currentEvent) {
+        int id = hit.id;
+        // if (260 <= id && id <= 270) ids.push_back(id);
+        ids.push_back(id);
+      }
+
+      std::sort(ids.begin(), ids.end());
+      ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
+
+      int nAdjacentHits = 0;
+      for (size_t i = 0; i + 1 < ids.size(); i++) {
+        if (is_adjacent_with_skip(ids[i], ids[i + 1])) {
+          nAdjacentHits++;
+        }
+      }
+
+      vNumRawAdjacentHits.push_back(nAdjacentHits);
+    }
 
     // Third pass:  Get layer occupancies
     
@@ -1339,10 +1399,10 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       bool good_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_hit_mult = TDCmult[el] < TDCmult_cut;
       bool good_CDet_X = GoodX[el] < xcut;
-      bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
-          (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
+      bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+          (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       
       
       bool good_CDet_event = good_ECal_reconstruction && good_ECal_diff_x && good_ECal_diff_y && good_le_time && good_tot && good_hit_mult && good_CDet_X;
@@ -1401,6 +1461,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     std::vector<double> thisEvent_GoodZ;
     std::vector<int> thisEvent_GoodLayer;
     std::vector<int> thisEvent_GoodCol;
+    std::vector<CDetHit> goodEventHits;
 
     // --- NEW: per-event best (smallest |x-diff|) hit in each layer
     double bestAbsXDiff[2] = {1e99, 1e99};
@@ -1420,15 +1481,22 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       bool goodhit_CDet_X = GoodX[el] < xcut;
       bool goodhit_low = ngoodhitsc1 >= nhitcutlow1  && ngoodhitsc2 >= nhitcutlow2;
       bool goodhit_high  = ngoodhitsc1 <= nhitcuthigh1 && ngoodhitsc2 <= nhitcuthigh2; 
-      bool goodhit_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-((*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool goodhit_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
-          (GoodY[el]-((*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
+      bool goodhit_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool goodhit_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+          (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       bool goodhit_CDet_event = goodhit_ECal_reconstruction && goodhit_ECal_diff_x && goodhit_ECal_diff_y && goodhit_le_time && goodhit_tot 
         && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high;
 
       if (goodhit_CDet_event) {
         CDetPassedBoolCount++;
+        int idx = GoodElID[el];
+        if (0 <= idx && idx < 2688) {
+          double le_ns = GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc;
+          double tot_ns = GoodElTot[el]*TDC_calib_to_ns;
+          double te_ns = GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc;
+          goodEventHits.push_back({idx, le_ns, tot_ns, te_ns});
+        } //getting rates and tot for pixels
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
           if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
                 //cout << "event " << event << endl;
@@ -1524,11 +1592,11 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
 
             thisEvent_GoodX.push_back(GoodX[el]);
             thisEvent_GoodY.push_back(GoodY[el]);
-            thisEvent_GoodZ.push_back(GoodZ[el]-CDet_dist_offset);
+            thisEvent_GoodZ.push_back(GoodZ[el]);
 
             // --- NEW: compute projected ECal X at this hit's Z, and update per-layer best if this is smallest |x-diff|
             if (*ECalX != 0.00) {
-                const double xECalProj = (*ECalX) * (GoodZ[el] - CDet_dist_offset) / ECal_dist;
+                const double xECalProj = (*ECalX) * (GoodZ[el]) / ECal_dist;
                 const double xdiff     = GoodX[el] - xECalProj;
                 const double axdiff    = fabs(xdiff);
 
@@ -1543,24 +1611,24 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
 //------------------------------------------------------- replace hist below
              if (mylayer==0) { //layer 1 "good" histograms & higher level
                //i think we can remove these histograms from here, and put them in their own plot routine, they just need vectors for GoodX positions from CDet and ECal
-               h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+               h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
+               h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
                hHitXY1->Fill(GoodY[el],GoodX[el]);
-               hXECalCDet1->Fill(GoodX[el],(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hYECalCDet1->Fill(GoodY[el],(*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hXDiffECalCDet1->Fill(GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hXPlusECalCDet1->Fill(GoodX[el]+(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hEECalCDet1->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+               hXECalCDet1->Fill(GoodX[el],(*ECalX)*(GoodZ[el])/ECal_dist);
+               hYECalCDet1->Fill(GoodY[el],(*ECalY)*(GoodZ[el])/ECal_dist);
+               hXDiffECalCDet1->Fill(GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hXPlusECalCDet1->Fill(GoodX[el]+(*ECalX)*(GoodZ[el])/ECal_dist);
+               hEECalCDet1->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
              } 
              else { //layer 2
-               h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+               h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
+               h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
                hHitXY2->Fill(GoodY[el],GoodX[el]);
-               hXECalCDet2->Fill(GoodX[el],(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hYECalCDet2->Fill(GoodY[el],(*ECalY)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hXDiffECalCDet2->Fill(GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hXPlusECalCDet2->Fill(GoodX[el]+(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
-               hEECalCDet2->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el]-CDet_dist_offset)/ECal_dist);
+               hXECalCDet2->Fill(GoodX[el],(*ECalX)*(GoodZ[el])/ECal_dist);
+               hYECalCDet2->Fill(GoodY[el],(*ECalY)*(GoodZ[el])/ECal_dist);
+               hXDiffECalCDet2->Fill(GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hXPlusECalCDet2->Fill(GoodX[el]+(*ECalX)*(GoodZ[el])/ECal_dist);
+               hEECalCDet2->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
              }
 
 
@@ -1607,8 +1675,32 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       vGoodTe.push_back(thisEvent_GoodTE);
       vGoodTot.push_back(thisEvent_GoodTOT);
       vGoodID.push_back(thisEvent_GoodID);
+
+      vGoodEventHits.push_back(goodEventHits);
     }
-    
+    if (CDetPassedBoolCount >= 1) {
+      std::vector<int> ids;
+      const auto& currentEvent = vGoodEventHits.back();
+      ids.reserve(currentEvent.size());
+
+      for (const auto& hit : currentEvent) {
+        int id = hit.id;
+        // if (260 <= id && id <= 270) ids.push_back(id);
+        ids.push_back(id);
+      }
+
+      std::sort(ids.begin(), ids.end());
+      ids.erase(std::unique(ids.begin(), ids.end()), ids.end());
+
+      int nAdjacentHits = 0;
+      for (size_t i = 0; i + 1 < ids.size(); i++) {
+        if (is_adjacent_with_skip(ids[i], ids[i + 1])) {
+          nAdjacentHits++;
+        }
+      }
+
+      vNumGoodAdjacentHits.push_back(nAdjacentHits);
+    }//end adjacent check
 
     if (*ECalX != 0.00 && *ECalY != 0.00) {//double check this later, probably want to fill vectors with ECal hit position
       eff_denominator++;
@@ -1686,7 +1778,6 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   std::cout << "Layer 1 Events = " << eff_numerator_layer1 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer1/eff_denominator  << std::endl;
   std::cout << "Layer 2 Events = " << eff_numerator_layer2 << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator_layer2/eff_denominator <<  std::endl;
   std::cout << "One Good Layer Events = " << eff_numerator << "     Avg Hits Per Candidate Event = " << 1.0*eff_numerator/eff_denominator <<  std::endl;
-  std::cout << "'someone cooked here' - Walter White" << std::endl;
 
 /*
   for (Int_t b=0; b<NumCDetPaddles; b++) {
@@ -1773,6 +1864,27 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
 
   //================================================================== End Macro
 }// end main
+
+void plotNumAdjacent(int nbins = 50){
+  TH1::AddDirectory(kFALSE);
+  TH1D* hNumRawAdjacentHits = new TH1D("hNumRawAdjacentHits", "Number Raw Hits in Adjacent Pixels", nbins, 0, nbins);
+  TH1D* hNumGoodAdjacentHits = new TH1D("hNumGoodAdjacentHits", "Number Raw Hits in Adjacent Pixels", nbins, 0, nbins);
+
+  for (const auto& hit : vNumRawAdjacentHits){
+    if (hit > 0) hNumRawAdjacentHits->Fill(hit);
+  }
+  for (const auto& hit : vNumGoodAdjacentHits){
+    if (hit > 0) hNumGoodAdjacentHits->Fill(hit);
+  }
+
+  TCanvas* cNumAdjacentHits = new TCanvas("cNumAdjacentHits", "Number of Adjacent Hits", 900,700);
+  cNumAdjacentHits->Divide(1,2);
+  cNumAdjacentHits->cd(1);
+  hNumRawAdjacentHits->Draw();
+  cNumAdjacentHits->cd(2);
+  hNumGoodAdjacentHits->Draw();
+
+}
 
 void plotAveTotPerPixel() {
   const int nPixels = ave_tot.size();
@@ -2148,6 +2260,8 @@ TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullpt
 }
 
 void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.07, double xdiffMaxCut = 0.07, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100,bool allowMultiplePairs = true){
+  
+  TH1::AddDirectory(kFALSE);
   
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
