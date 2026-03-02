@@ -48,14 +48,6 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
   earm->AddDetector(ecal);
   gHaApps->Add(earm);  
   
-
-
-  // SBSGenericDetector* scinttrig = new SBSGenericDetector("ecal.scinttrig","HCal trigs");
-  // scinttrig->SetModeADC(SBSModeADC::kWaveform);
-  // //scinttrig->SetStoreRawHits(kTRUE);
-  // scinttrig->SetStoreEmptyElements(kFALSE);
-  // earm->AddDetector( scinttrig );   
-  
   //--- Set up the run we want to replay ---
 
   TString prefix = gSystem->Getenv("DATA_DIR");

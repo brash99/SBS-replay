@@ -209,8 +209,6 @@ void replay_gep(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const cha
 			   firststream, maxstream, firstsegment, lastsegment);
 	}        
     }
-    
-    
 
     analyzer->EnableHelicity();
 
