@@ -725,7 +725,7 @@ void EditingPlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t elasti
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.01, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
+	Double_t XDiffCut = 1, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
@@ -1221,12 +1221,12 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
       bool good_CDet_X = hasGood && (fabs(gx) < xcut);
-      bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
-          (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
+      // bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
+      //     (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      // bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+      //     (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
 
-      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X && good_ECal_diff_x && good_ECal_diff_y;
+      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X ;//&& good_ECal_diff_x && good_ECal_diff_y;
 
       //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
@@ -1489,6 +1489,8 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
         && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high;
 
       if (goodhit_CDet_event) {
+        // GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset
+        // std::cout << " gx = " << GoodX[el] << " & ECalX_Proj = " << (*ECalX)*GoodZ[el]/ECal_dist - XOffset <<std::endl;
         CDetPassedBoolCount++;
         int idx = GoodElID[el];
         if (0 <= idx && idx < 2688) {
@@ -1710,19 +1712,19 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       hEECal->Fill(*ECalE);
     };
         
-    vnhits1.push_back(nhitsc1);
-    vngoodhits1.push_back(ngoodhitsc1);
-    vngoodTDChits1.push_back(ngoodTDChitsc1);
-    vnhits2.push_back(nhitsc2);
-    vngoodhits2.push_back(ngoodhitsc2);
-    vngoodTDChits2.push_back(ngoodTDChitsc2);
+    // vnhits1.push_back(nhitsc1);
+    // vngoodhits1.push_back(ngoodhitsc1);
+    // vngoodTDChits1.push_back(ngoodTDChitsc1);
+    // vnhits2.push_back(nhitsc2);
+    // vngoodhits2.push_back(ngoodhitsc2);
+    // vngoodTDChits2.push_back(ngoodTDChitsc2);
     //
-    // hnhits1->Fill(nhitsc1);
-    // hngoodhits1->Fill(ngoodhitsc1);
-    // hngoodTDChits1->Fill(ngoodTDChitsc1);
-    // hnhits2->Fill(nhitsc2);
-    // hngoodhits2->Fill(ngoodhitsc2);
-    // hngoodTDChits2->Fill(ngoodTDChitsc2);
+    hnhits1->Fill(nhitsc1);
+    hngoodhits1->Fill(ngoodhitsc1);
+    hngoodTDChits1->Fill(ngoodTDChitsc1);
+    hnhits2->Fill(nhitsc2);
+    hngoodhits2->Fill(ngoodhitsc2);
+    hngoodTDChits2->Fill(ngoodTDChitsc2);
 
     for (int j=0; j<nTdc; j++) {
       if (ngoodTDChits_paddles[j] > 0) {
@@ -1730,8 +1732,8 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
         //cout << "Paddle = " << j <<  "  nhits = " << ngoodTDChits_paddles[j] << endl;
       }
     }
-    vngoodTDCpaddles.push_back(ngoodTDCpaddles);
-        // hngoodTDCpaddles->Fill(ngoodTDCpaddles);
+    // vngoodTDCpaddles.push_back(ngoodTDCpaddles);
+        hngoodTDCpaddles->Fill(ngoodTDCpaddles);
 
         //cout << "Element loop: " << NdataMult << endl;
     for(Int_t tdc=0; tdc<TDCmult.GetSize(); tdc++){
@@ -3650,6 +3652,8 @@ auto plotXYECalCDet(){
    return c8;
 }
 
+
+//------------Some routines when Ben getting familiar with branches
 auto plotDpp(int nbins = 100, double xmin = -0.1, double xmax =  0.1)
 {
     TH1D* h = new TH1D("hHeep_dpp", "heep_dpp;#delta p/p;Counts", nbins, xmin, xmax);

@@ -178,6 +178,7 @@ struct CDetHit {
   double x_pos; //x position in cm
   double y_pos; //y
   double z_pos; //z
+  double x_ecal; //ecal x projected to cdet
 };
 
 struct AdjacentHits {
@@ -203,6 +204,9 @@ std::vector<double> ave_tot(2688,0);
 std::vector<int> vNumAdjacentHits;
 std::vector<double> adjChanRates(2688,0);
 std::vector<int> goodRate(2688, 0); 
+std::vector<double> chanPosRates(2688,0);
+std::vector<int> posRate(2688, 0); 
+std::vector<int> posCorrEvents(2688, 0); //track each
 
 int NTotBins = 200;
 double TotBinLow = 1.;
@@ -210,7 +214,7 @@ double TotBinHigh = 51.;
 
 void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t maxSeg = -1, 
           Double_t LeMin = 0.02, Double_t LeMax = 60, Double_t TotMin = 1, Double_t TotMax = 100,
-          Double_t XDiffCut = 0.01, Double_t XOffset = 0.02, Double_t YOffset = 0.1){
+          Double_t XDiffCut = 0.1, Double_t XOffset = 0.02, Double_t YOffset = 0.1){
 
     RefLeMin = 0.0;
     RefLeMax = 252.0;
@@ -281,11 +285,13 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
   //event-level ECal branches
   TTreeReaderValue<double> ECalX       (reader, "earm.ecal.x");
   TTreeReaderValue<double> ECalY       (reader, "earm.ecal.y");
-  // TTreeReaderValue<double> ECalE       (reader, "earm.ecal.e");
+  TTreeReaderValue<double> ECalE       (reader, "earm.ecal.e");
   // TTreeReaderValue<double> ECalAdcTime (reader, "earm.ecal.adctime");
 
   vCDetPaddleRawTot.assign(2688, std::vector<double>{});
   vCDetPaddleCutTot.assign(2688, std::vector<double>{});
+
+  TH1D* hECalE = new TH1D("hECalE", "ECal Energy;Energy (GeV); Counts",15,0,15);
 
   Int_t Nev = T->GetEntries();
   cout << "N entries in tree is " << Nev << endl;
@@ -302,6 +308,7 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
   // event loop start
   Int_t event = 0;
   while(reader.Next()){
+    //hECalE->Fill(*ECalE);
     event++;
     event = event - 1;
     EventCounter++;
@@ -355,7 +362,10 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
     for (int ig = 0; ig < (int)GoodElID.GetSize(); ig++) {
       goodIdx[(int)GoodElID[ig]] = ig;
     }
-
+    
+    // std::cout << " GoodElID Size =  " << GoodElID.GetSize() << std::endl;
+    // std::cout << " RawElID Size = " << RawElID.GetSize() << std::endl;
+    // std::cout << "Event " << rateEvTrack << ", ecal E = " << *ECalE << std::endl;
     for(Int_t el=0; el<RawElID.GetSize(); el++){
 
       const int raw_pmt = (int)RawElID[el];
@@ -368,43 +378,56 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
 
       if (kUnusedCDetPixels.count(RawElID[el])) continue; //checks if pixel is unused, if it is, skip. 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
+      bool rawhit_tot = RawElTot[el] > 0 && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool goodhit_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
-      // bool good_ECal_diff_x = (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) <= XDiffCut && 
-      //     (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool good_ECal_diff_x = (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) <= XDiffCut && 
+          (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool good_ECal_E_min = *ECalE > 4.5;
+      bool good_ECal_E_max = *ECalE < 6.5;
       // bool good_ECal_diff_y = (gy-((*ECalY)*(gz)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
       //     (gy-((*ECalY)*(gz)/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
-      bool good_raw_event = good_raw_le_time && goodhit_tot;// && good_ECal_diff_x && good_ECal_diff_y;
+      bool good_raw_event = good_raw_le_time && rawhit_tot;// && good_ECal_diff_x && good_ECal_diff_y;
+      bool good_raw_pos_event = good_raw_event && goodhit_tot && good_ECal_diff_x && good_ECal_E_min && good_ECal_E_max;
       
 
     //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
     //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
       if ( good_raw_event ) {
         CDetPassedBoolCount++;
+        // std::cout << " gx = " << gx << " & ECalX_Proj = " << (*ECalX)*gz/ECal_dist - XOffset <<std::endl;
         int idx = RawElID[el];
         if (0 <= idx && idx < 2688) {
-          double tot_ns = RawElTot[el]*TDC_calib_to_ns;
-          double le_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;
-          double te_ns = RawElTE[el]*TDC_calib_to_ns - event_ref_tdc;
           rawRate[idx]++;
-          vCDetPaddleRawTot[idx].push_back(tot_ns);
-          eventHits.push_back({idx, le_ns, tot_ns, te_ns, gx, gy, gz});
-        } //getting rates and tot for pixels
-        if ( (Int_t)RawElID[el] < 2688 ) {
-          //fill all hits vectors
-          double t_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;//ref_corr;
-          double wrapped = fmod(t_ns,2.0);
+          
+          if (good_raw_pos_event){
+            // std::cout << "event " << rateEvTrack << " with ecal x = " << *ECalX << " & CDet x = " << gx << std::endl;
 
-          vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);//ref_corr);
-          vAllRawLeNoRef.push_back(RawElLE[el]*TDC_calib_to_ns);//ref_corr);
-          vAllRawPMT.push_back(RawElID[el]);
-          vT_mod.push_back(wrapped);
-          vAllRefForLe.push_back(event_ref_tdc);
+            // std::cout << "hit passed pos cut in event " << rateEvTrack << " for pixel " << idx << std::endl;
+            // if (rateEvTrack == 10) std::cout << " le = " << RawElLE[el]*TDC_calib_to_ns - event_ref_tdc << " & tot = " << RawElTot[el]*TDC_calib_to_ns << " with xdiff = "<< gx-((*ECalX)*(gz)/ECal_dist)-XOffset << std::endl;
+            hECalE->Fill(*ECalE);
+		double le_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;
+            double tot_ns = RawElTot[el]*TDC_calib_to_ns;
+            double te_ns = RawElTE[el]*TDC_calib_to_ns - event_ref_tdc;
+            double xdiff_cdet_ecal = gx - ((*ECalX)*(gz)/ECal_dist)-XOffset;
+            vCDetPaddleRawTot[idx].push_back(tot_ns);
+            eventHits.push_back({idx, le_ns, tot_ns, te_ns, gx, gy, gz, xdiff_cdet_ecal});        
+          
+            double t_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc;//ref_corr;
+            double wrapped = fmod(t_ns,2.0);
+            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc);//ref_corr);
+            vAllRawLeNoRef.push_back(RawElLE[el]*TDC_calib_to_ns);//ref_corr);
+            vAllRawPMT.push_back(RawElID[el]);
+            vT_mod.push_back(wrapped);
+            vAllRefForLe.push_back(event_ref_tdc);
+          }
         }
       }
     }// all raw tdc hit loop
     if (CDetPassedBoolCount >= 1){
       vEventHits.push_back(eventHits);
     }
+
+    /* Comment out for now, dont care about adjaceny atm 
     //check nadjacent pairs for each event (pixels 260-270)
     auto is_unused = [&](int id) -> bool {
       return kUnusedCDetPixels.count(id) != 0;
@@ -422,6 +445,7 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
       return false;
     };
 
+    
     if (CDetPassedBoolCount >= 1) {
       std::unordered_set<int> adjIDs; //per-event
       std::vector<int> ids;
@@ -468,25 +492,29 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
       }
       vAdjEventHits.push_back(std::move(adjHitsThisEvent)); //should contain adj pairs only
     }
-
+    */
     //std::cout << "Event = " << rateEvTrack << std::endl;
-    if (CDetPassedBoolCount >= 1){
-      const auto& currEvent = vEventHits.back();
-      for (const auto& hit : currEvent){
-        if (rateEvTrack <= 5){
-          int id = hit.id;
-          double le = hit.le_ns;
-          double tot = hit.tot_ns;
-          //std::cout << " Pixel ID = " << id << ", LE = " << le << ", TOT = " << tot << std::endl;
-        }
-      }
-    }
+    // if (CDetPassedBoolCount >= 1){
+    //   const auto& currEvent = vEventHits.back();
+    //   for (const auto& hit : currEvent){
+    //     if (rateEvTrack <= 5){
+    //       int id = hit.id;
+    //       double le = hit.le_ns;
+    //       double tot = hit.tot_ns;
+    //       //std::cout << " Pixel ID = " << id << ", LE = " << le << ", TOT = " << tot << std::endl;
+    //     }
+    //   }
+    // }
 
   }//end event loop 
+  TCanvas* cECalE = new TCanvas("cECalE","ECal Energy", 900,700);
+  hECalE->Draw();
+
   // std::cout << "nevents = " << rateEvTrack << std::endl;
+  //get raw rates
   for (int i = 0; i < 2688; i++){
     chanRates[i] = (double)rawRate[i] / (rateEvTrack);
-    adjChanRates[i] = (double)goodRate[i] / (rateEvTrack);
+    chanPosRates[i] = (double)posRate[i] / (rateEvTrack);
     //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
   }
 
@@ -514,7 +542,8 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
   }
 }//end main
 
-void plotAdjTiming(double width = 4, double leMin=0, double leMax = 65, double totMin = 0, double totMax = 150){
+/*void plotAdjTiming(double width = 4, double leMin=0, double leMax = 65, double totMin = 0, double totMax = 150){
+  TH1::AddDirectory(kFALSE);
   int TDCBinNum = (int)((leMax-leMin)/width);
   TH1D* hLe = new TH1D("hLe", "Leading Edge Pixel; LE (ns);Counts",TDCBinNum,leMin,leMax);
   TH1D* hTe = new TH1D("hTe", "Trailing Edge Pixel; TE (ns);Counts",TDCBinNum,leMin,leMax+totMax);
@@ -538,7 +567,7 @@ void plotAdjTiming(double width = 4, double leMin=0, double leMax = 65, double t
   //define canvas and plot
   TCanvas* cTiming = new TCanvas("cTiming", "Timing Plots", 900,700);
   cTiming->Divide(1,3); //2x3
-  //LE
+  //LE 
   cTiming->cd(1);
   hLe->Draw();
   //TE
@@ -554,9 +583,9 @@ void plotAdjTiming(double width = 4, double leMin=0, double leMax = 65, double t
   TCanvas* cTEvsLE = new TCanvas("cTEvsLE", "TE vs LE",900,700);
   hTEvsLE->Draw("COLZ");
 
-}
+}*/
 
-void plotLowRate(double rate = 0.3, bool yesTotCut = true, double Width = 4, double leMin = 0, double leMax = 60, double totMin = 0, double totMax = 100){
+void plotLowRate(double rate = 0.3, bool yesTotCut = false, double Width = 4, double leMin = 0, double leMax = 60, double tot_cut = 6, double totMin = 0, double totMax = 100){
   TH1::AddDirectory(kFALSE);
   int TDCBinNum = (int)((leMax-leMin)/Width);
   TH1D* hLe1 = new TH1D("hLe1", "Leading Edge Pixel; LE (ns);Counts",TDCBinNum,leMin,leMax);
@@ -570,7 +599,7 @@ void plotLowRate(double rate = 0.3, bool yesTotCut = true, double Width = 4, dou
     for (const CDetHit& hit : event){
       int id = hit.id;
       double totCut = 0;
-      if (yesTotCut) totCut = ave_tot[id];
+      if (yesTotCut) totCut = tot_cut;//ave_tot[id];
       if (chanRates[id] <= rate && hit.tot_ns > totCut){  
         double tot = hit.tot_ns;
         double le = hit.le_ns;
@@ -605,18 +634,18 @@ void plotLowRate(double rate = 0.3, bool yesTotCut = true, double Width = 4, dou
 
 }
 
-void plotNumAdjacent(int nbins = 50){
-  TH1::AddDirectory(kFALSE);
-  TH1D* hNumAdjacentHits = new TH1D("hNumAdjacentHits", "Number Hits in Adjacent Pixels", nbins, 0, nbins);
+// void plotNumAdjacent(int nbins = 50){
+//   TH1::AddDirectory(kFALSE);
+//   TH1D* hNumAdjacentHits = new TH1D("hNumAdjacentHits", "Number Hits in Adjacent Pixels", nbins, 0, nbins);
 
-  for (const auto& hit : vNumAdjacentHits){
-    if (hit > 0) hNumAdjacentHits->Fill(hit);
-  }
+//   for (const auto& hit : vNumAdjacentHits){
+//     if (hit > 0) hNumAdjacentHits->Fill(hit);
+//   }
 
-  TCanvas* cNumAdjacentHits = new TCanvas("cNumAdjacentHits", "Number of Adjacent Hits", 900,700);
-  hNumAdjacentHits->Draw();
+//   TCanvas* cNumAdjacentHits = new TCanvas("cNumAdjacentHits", "Number of Adjacent Hits", 900,700);
+//   hNumAdjacentHits->Draw();
 
-}
+// }
 
 void plotAveTotPerPixel() {
   const int nPixels = ave_tot.size();
@@ -633,6 +662,64 @@ void plotAveTotPerPixel() {
 
   TCanvas* cAveTot = new TCanvas("cAveTot", "Average TOT per Pixel", 1200, 500);
   hAveTot->Draw("HIST");
+}
+
+void plotBarTiming(int bar = 0, double rate = 0.3, bool yesTotCut = false, double Width = 4, double leMin = 0, double leMax = 60, double tot_cut = 6, double totMin = 0, double totMax = 100){
+  TH1::AddDirectory(kFALSE);
+  if (bar < 0 || bar > 167) {
+    std::cout << "bar must be between 0-167" << std::endl;
+    return;
+  }
+
+  int TDCBinNum = (int)((leMax-leMin)/Width);
+  TH1D* hLe = new TH1D("hLe1", Form("Leading Edge Bar %d; LE (ns);Counts", bar),TDCBinNum,leMin,leMax);
+  TH1D* hTe = new TH1D("hTe1", Form("Trailing Edge Bar %d; TE (ns);Counts", bar),TDCBinNum,leMin,leMax+totMax);
+  TH1D* hTot = new TH1D("hTot1", Form("Tot Bar %d; Tot (ns);Counts", bar),TDCBinNum,totMin,totMax);
+  TH2D* hLEvsTOT = new TH2D("hLEvsTOT1", Form("LE vs TOT Bar %d; TOT (ns);LE (ns)", bar),TDCBinNum,totMin,totMax,TDCBinNum,leMin,leMax); 
+  TH2D* hTEvsLE = new TH2D("hTEvsLE1", Form("TE vs LE Bar %d; LE (ns);TE (ns)", bar),TDCBinNum,leMin,leMax,TDCBinNum,leMin,leMax+totMax);
+  //should add in something for plotting x pos of ECal, would help gauge where on cdet
+
+
+  //calculate pixel range
+  int firstPixel = bar*16;
+  int lastPixel = firstPixel+15;
+
+  std::cout << "pixels " << firstPixel << " to " << lastPixel << std::endl;
+
+  for (const auto& event : vEventHits){
+    for (const CDetHit& hit : event){
+      int idx = hit.id;
+      if (idx >= firstPixel && idx <= lastPixel){
+        if (chanRates[idx] < rate && hit.tot_ns > tot_cut){
+          hLe->Fill(hit.le_ns);
+          hTe->Fill(hit.te_ns);
+          hTot->Fill(hit.tot_ns);
+          hLEvsTOT->Fill(hit.tot_ns, hit.le_ns);
+          hTEvsLE->Fill(hit.le_ns, hit.te_ns);
+        }//rate
+      }//pixel range
+    }//end hit
+  }//end event
+
+  //define canvas and plot
+  TCanvas* cTiming = new TCanvas("cTiming", "Timing Plots", 900,700);
+  cTiming->Divide(1,3); //1x3
+  //LE
+  cTiming->cd(1);
+  hLe->Draw();
+  //TE
+  cTiming->cd(2);
+  hTe->Draw();
+  //TOT
+  cTiming->cd(3);
+  hTot->Draw();
+
+  TCanvas* cLEvsTOT = new TCanvas("cLEvsTOT", "Leading Edge vs Tot",900,700);
+  hLEvsTOT->Draw("COLZ");
+
+  TCanvas* cTEvsLE = new TCanvas("cTEvsLE", "TE vs LE",900,700);
+  hTEvsLE->Draw("COLZ");
+
 }
 
 void plotPixelComp(int pixel1 = 257, int pixel2 = 261, double Width = 1, double leMin = 0, double leMax = 60, double totMin = 0, double totMax = 100){
@@ -786,7 +873,43 @@ void plotSingleTot(int pixel_base = 0, bool raw = true, double width = 1, double
 
 void getRate(int pixel, bool cut = false){
   if (!cut) std:: cout << "Rate in Pixel " << pixel << " = " << chanRates[pixel] << std::endl;
-  if (cut) std:: cout << "Rate in Pixel " << pixel << " (with Tot Cut) = " << cutChanRates[pixel] << std::endl;
+  if (cut) std:: cout << "Rate in Pixel " << pixel << " with xdiff is " << chanPosRates[pixel] << std::endl;
+}
+
+void plotPosDepRates(){ //routine for getting rates based on position with ecal good x
+  TH1::AddDirectory(kFALSE);
+
+  /*
+   Need to have something that, for each event, gets all IDs within xdiff cut on the ecal good electron.
+   I think that I could just say for all hits with IDs between 0-671, give me min and max ID. Any ID within 
+   that, regardless if it had a hit, should get 1 in the nevents for that pixel. Repeat for 672-1343, etc for L2
+   Also, on the min i should include a min-x range for IDs, and max should have a max+range. Probably should print 
+   some statements to see what the hits are looking like that pass the cut to see how far away the hits are. 
+   I also need to avoid double counting.
+   Also need to ensure that min and max are not crazy far apart. The 0-671 should really only have a few hits around 
+   the same pixel number (i.e, min = 72, max =84 or something like that), but then should be a few hits in the layer 
+   behind that 
+  */
+  for (const auto& event : vEventHits){
+    for (const CDetHit& hits : event){
+      int idx = hits.id;
+      if (idx >=0 && idx <= 671){
+        // Get an iterator to the minimum element --------- i. need to change this. min_element wont work the way i have my vector setup
+        // std::vector<int>::iterator min_it = std::min_element(hits.id.begin(), hits.id.end());
+        // std::cout << hits << std::endl;
+        // std::cout << "min = " << *min_it << std::endl;
+      }
+      if (idx >= 672 && idx <= 1343){
+
+      }
+      if (idx >= 1344 && idx <= 2015){
+
+      }
+      if (idx >= 2016 && idx <= 2687){
+
+      }
+    }
+  }
 }
 
 void plotRateVsID(bool raw = true){
@@ -802,7 +925,7 @@ void plotRateVsID(bool raw = true){
   auto MakeRateHist = [&](const char* hname,
                           const char* htitle,
                           int idStart, int idEnd,
-                          double yMax = 1.5) -> TH1D* {
+                          double yMax = 0.8) -> TH1D* {
     const int nbins = idEnd - idStart + 1; // inclusive
     TH1D* h = new TH1D(hname, htitle, nbins, idStart, idEnd + 1); // [start, end+1)
     h->SetStats(0);
@@ -815,7 +938,7 @@ void plotRateVsID(bool raw = true){
         h->SetBinContent(bin, chanRates[id]);
       }
       if (!raw){
-        h->SetBinContent(bin, adjChanRates[id]);
+        h->SetBinContent(bin, chanPosRates[id]);
       }
     }
     return h;
@@ -862,7 +985,7 @@ void plotRateVsID(bool raw = true){
     }
     if (!raw){
       TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate w/Adj vs Pixel ID;Pixel ID;Rate",
+      TString title = Form("CDet L%d %s M%d Rate w/xdiff cut vs Pixel ID;Pixel ID;Rate",
                           s.layer, s.side, s.mod);
       hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
     }
@@ -879,7 +1002,20 @@ void plotRateVsID(bool raw = true){
     hRateSeg[i]->Draw("HIST");
 
     int nb = hRateSeg[i]->GetNbinsX();
-    double avg = hRateSeg[i]->Integral(1,nb) / nb;
+
+    double sum = 0.0;
+    int    nNonZero = 0;
+
+    for (int b = 1; b <= nb; ++b) {
+      double c = hRateSeg[i]->GetBinContent(b);
+      if (c > 0) {          // ignore zero-rate pixels
+        sum += c;
+        nNonZero++;
+      }
+    }
+
+    double avg = (nNonZero > 0) ? sum / nNonZero : 0.0;
+
     double xmin = hRateSeg[i]->GetXaxis()->GetXmin();
     double xmax = hRateSeg[i]->GetXaxis()->GetXmax();
 
@@ -901,9 +1037,26 @@ void plotRateVsID(bool raw = true){
     hRateSeg[i]->Draw("HIST");
 
     int nb = hRateSeg[i]->GetNbinsX();
-    double avg = hRateSeg[i]->Integral(1,nb) / nb;
+
+    double sum = 0.0;
+    int    nNonZero = 0;
+
+    for (int b = 1; b <= nb; ++b) {
+      double c = hRateSeg[i]->GetBinContent(b);
+      if (c > 0) {          // ignore zero-rate pixels
+        sum += c;
+        nNonZero++;
+      }
+    }
+
+    double avg = (nNonZero > 0) ? sum / nNonZero : 0.0;
+
     double xmin = hRateSeg[i]->GetXaxis()->GetXmin();
     double xmax = hRateSeg[i]->GetXaxis()->GetXmax();
+    // int nb = hRateSeg[i]->GetNbinsX();
+    // double avg = hRateSeg[i]->Integral(1,nb) / nb;
+    // double xmin = hRateSeg[i]->GetXaxis()->GetXmin();
+    // double xmax = hRateSeg[i]->GetXaxis()->GetXmax();
 
     TLine* lAvg = new TLine(xmin, avg, xmax, avg);
     lAvg->SetLineColor(kRed);
@@ -914,43 +1067,46 @@ void plotRateVsID(bool raw = true){
 }
 
 TCanvas *plotAllTDC(double width = 4, double TDCBinLow = 0, double TDCBinHigh = 65){
-    //define histograms
-    int TDCBinNum = (int)((TDCBinHigh-TDCBinLow)/width);
-    TH1F *hAllRawLe = new TH1F(TString::Format("hRawLe"),
-            TString::Format("hRawLe"),
-            NTDCBins, TDCBinLow, TDCBinHigh);
-    TH1F *hT_mod = new TH1F("hT_mod","hT_mod",
-            200, 0, 2.5);
-    //fill necessary histograms from vectors
-    for (double x : vAllRawLe) hAllRawLe->Fill(x);
-    for (double x : vT_mod) hT_mod->Fill(x);
+  TH1::AddDirectory(kFALSE);
+  //define histograms
+  int TDCBinNum = (int)((TDCBinHigh-TDCBinLow)/width);
+  TH1F *hAllRawLe = new TH1F(TString::Format("hRawLe"),
+          TString::Format("hRawLe"),
+          NTDCBins, TDCBinLow, TDCBinHigh);
+  TH1F *hT_mod = new TH1F("hT_mod","hT_mod",
+          200, 0, 2.5);
+  //fill necessary histograms from vectors
+  for (double x : vAllRawLe) hAllRawLe->Fill(x);
+  for (double x : vT_mod) hT_mod->Fill(x);
 
-    TCanvas *c = new TCanvas("c", "Tmod (0,2)",800,800);
-    // c->Divide(2,1);
+  TCanvas *c = new TCanvas("c", "Tmod (0,2)",800,800);
+  // c->Divide(2,1);
 
-    c->cd(1);
-    hAllRawLe->Draw();
+  c->cd(1);
+  hAllRawLe->Draw();
 
-    // c->cd(2);
-    // hT_mod->Draw("Fill");
-    return c;
+  // c->cd(2);
+  // hT_mod->Draw("Fill");
+  return c;
 }
 
 TCanvas *plotNoRef(double TDCBinLow, double TDCBinHigh){
-    //define histograms
-    TH1F *hAllRawLeNoRef = new TH1F("hAllRawLeNoRef",
-            "hAllRawLeNoRef",
-            NTDCBins, TDCBinLow, TDCBinHigh);
-    //fill necessary histograms from vectors
-    for (double x : vAllRawLeNoRef) hAllRawLeNoRef->Fill(x);
+  TH1::AddDirectory(kFALSE);
+  //define histograms
+  TH1F *hAllRawLeNoRef = new TH1F("hAllRawLeNoRef",
+          "hAllRawLeNoRef",
+          NTDCBins, TDCBinLow, TDCBinHigh);
+  //fill necessary histograms from vectors
+  for (double x : vAllRawLeNoRef) hAllRawLeNoRef->Fill(x);
 
-    TCanvas *c = new TCanvas("c", "LE no Ref",800,800);
-    hAllRawLeNoRef->Draw();
-    return c;
+  TCanvas *c = new TCanvas("c", "LE no Ref",800,800);
+  hAllRawLeNoRef->Draw();
+  return c;
 }
 
 TCanvas *plotRef(Double_t cutTotMin = 90, Double_t cutTotMax = 150, Int_t RefNTDCBins = 252, Double_t RefLeMin = 0.0, Double_t RefLeMax = 52.0, Int_t RefNTotBins= 252, Double_t RefTotMin = 1, Double_t RefTotMax = 250 ){
-    //define histograms
+  TH1::AddDirectory(kFALSE);  
+  //define histograms
     TH1F *hRefLe = new TH1F("hRefLe",
             "hRefLe",
             RefNTDCBins, RefLeMin, RefLeMax);
@@ -989,6 +1145,7 @@ TCanvas *plotRef(Double_t cutTotMin = 90, Double_t cutTotMax = 150, Int_t RefNTD
 }
 
 TCanvas *plotRefvsLE(){
+  TH1::AddDirectory(kFALSE);
   TH2F *hRefVsLE = new TH2F("hRefVsLE", "hRefvsLE;LE (ns);Ref time (ns)",NTDCBins,TDCBinLow,TDCBinHigh,RefNTDCBins, RefLeMin, RefLeMax);
 
   for (size_t i = 0; i < vAllRawLe.size(); ++i){
