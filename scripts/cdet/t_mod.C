@@ -382,12 +382,12 @@ void t_mod(int runnum = 5811, Int_t neventsr=500000, Int_t minSeg = -1, Int_t ma
       bool goodhit_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_ECal_diff_x = (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) <= XDiffCut && 
           (gx-((*ECalX)*(gz)/ECal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool good_ECal_E_min = *ECalE > 4.5;
-      bool good_ECal_E_max = *ECalE < 6.5;
+      // bool good_ECal_E_min = *ECalE > 4.5;
+      // bool good_ECal_E_max = *ECalE < 6.5;
       // bool good_ECal_diff_y = (gy-((*ECalY)*(gz)/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
       //     (gy-((*ECalY)*(gz)/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       bool good_raw_event = good_raw_le_time && rawhit_tot;// && good_ECal_diff_x && good_ECal_diff_y;
-      bool good_raw_pos_event = good_raw_event && goodhit_tot && good_ECal_diff_x && good_ECal_E_min && good_ECal_E_max;
+      bool good_raw_pos_event = good_raw_event && goodhit_tot;// && good_ECal_diff_x && good_ECal_E_min && good_ECal_E_max;
       
 
     //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
@@ -979,20 +979,20 @@ void plotRateVsID(bool raw = true){
     const auto& s = segs[i];
     if (raw) {
       TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate vs Pixel ID;Pixel ID;Rate",
+      TString title = Form("CDet L%d %s M%d Occupancy vs Pixel ID;Pixel ID;Occupancy",
                           s.layer, s.side, s.mod);
       hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
     }
     if (!raw){
       TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate w/xdiff cut vs Pixel ID;Pixel ID;Rate",
+      TString title = Form("CDet L%d %s M%d Occupancy w/xdiff cut vs Pixel ID;Pixel ID;Occupancy",
                           s.layer, s.side, s.mod);
       hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
     }
   }
 
   // --- Draw: Layer 1 canvas (Left M1-3 then Right M1-3) ---
-  TCanvas* cRateL1 = new TCanvas("cRateL1", "CDet Rate vs ID (Layer 1)", 1400, 800);
+  TCanvas* cRateL1 = new TCanvas("cRateL1", "CDet Occupancy vs ID (Layer 1)", 1400, 800);
   cRateL1->Divide(3,2); // top row: left M1-3, bottom row: right M1-3
 
   int pad = 1;
@@ -1027,7 +1027,7 @@ void plotRateVsID(bool raw = true){
   }
 
   // --- Draw: Layer 2 canvas (Left M1-3 then Right M1-3) ---
-  TCanvas* cRateL2 = new TCanvas("cRateL2", "CDet Rate vs ID (Layer 2)", 1400, 800);
+  TCanvas* cRateL2 = new TCanvas("cRateL2", "CDet Occupancy vs ID (Layer 2)", 1400, 800);
   cRateL2->Divide(3,2);
 
   pad = 1;

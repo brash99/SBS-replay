@@ -725,7 +725,7 @@ void PlotElastic(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t elastic = 0, 
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 1, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 1, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
+	Double_t XDiffCut = 0.1, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
@@ -1076,7 +1076,6 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     event++;
     event = event - 1;
     EventCounter++;
-    rateEvTrack++;
     // Only stop early if nevents > 0
     if (nevents > 0 && EventCounter > nevents) {
         break;
@@ -2261,7 +2260,7 @@ TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullpt
   return hSub;
 }
 
-void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.07, double xdiffMaxCut = 0.07, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100,bool allowMultiplePairs = true){
+void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100,bool allowMultiplePairs = true){
   
   TH1::AddDirectory(kFALSE);
   
@@ -2286,6 +2285,12 @@ void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double di
   TH2D* hECalVsCDetDtSingle = new TH2D("hECalVsCDetDtSingle", "CDet Single dt vs ECal Time;ECal ADC Time (ns);CDet dt_12 (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,DiffMin,DiffMax);
   TH2D* hECalVsCDetT = new TH2D("hECalVsCDetT", "CDet t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTSingle = new TH2D("hECalVsCDetTSingle", "CDet Single t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,CDetMin,CDetMax);
+
+  TH2D* hCDetTimeDiffvsx1 = new TH2D("hCDetTimeDiffvsx1", "CDet Time Diff vs x1 position; x1 pos (m);CDet dt (ns)", 600,-1.5,1.5,TDCBinNum,DiffMin,DiffMax);
+  TH2D* hCDetTimeDiffvsx2 = new TH2D("hCDetTimeDiffvsx2", "CDet Time Diff vs x2 position; x2 pos (m);CDet dt (ns)", 600,-1.5,1.5,TDCBinNum,DiffMin,DiffMax);
+
+  TH2D* hCDetTimeDiffvsy1 = new TH2D("hCDetTimeDiffvsy1", "CDet Time Diff vs y1 position; y1 pos (m);CDet dt (ns)", 600,-0.5,0.5,TDCBinNum,DiffMin,DiffMax);
+  TH2D* hCDetTimeDiffvsy2 = new TH2D("hCDetTimeDiffvsy2", "CDet Time Diff vs y2 position; y2 pos (m);CDet dt (ns)", 600,-0.5,0.5,TDCBinNum,DiffMin,DiffMax);
 
   TH1D* hDtCDetECal = new TH1D("hDtCDetECal", "CDet t - ECal t;CDet t - ECal t (ns);Counts", TDCBinNum, tdiffECalCDetMin, tdiffECalCDetMax);
   TH2D* hDtvsDxCDetECal = new TH2D("hDtvsDxCDetECal", "CDet ECal dt vs dx;dx_ECalCDet (m);dt_ECalCDet (ns)", NXDiffBins, XDiffLow, XDiffHigh, TDCBinNum, tdiffECalCDetMin, tdiffECalCDetMax);
@@ -2472,6 +2477,7 @@ void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double di
         double dt_EC = t_pair - t_ECal;
         if (dt_EC >= tdiffECalCDetMin && dt_EC <= tdiffECalCDetMax){
           double x_pair = (p.x1 + p.x2) / 2;
+          double y_pair = (p.y1 + p.y2) / 2;
           double z_pair = (p.z1 + p.z2) / 2;
           double x_ECal = v_GoodECalX[ev]*z_pair/ECal_dist;
           double dx_EC = x_pair - x_ECal;
@@ -2486,7 +2492,11 @@ void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double di
           hCDet1LeVsTot->Fill(p.tot1,p.t1);
           hCDet2LeVsTot->Fill(p.tot2,p.t2);
           hECalVsCDetDt->Fill(t_ECal,p.dt);
-          
+          hCDetTimeDiffvsx1->Fill(p.x1, p.dt);
+          hCDetTimeDiffvsx2->Fill(p.x2, p.dt);
+          hCDetTimeDiffvsy1->Fill(p.y1, p.dt);
+          hCDetTimeDiffvsy2->Fill(p.y2, p.dt);
+
           hECalVsCDetT->Fill(t_ECal,t_pair);
 
           hDtCDetECal->Fill(dt_EC);
@@ -2571,27 +2581,29 @@ void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double di
 
   TCanvas *cCDetTDiff = new TCanvas("cCDetTDiff", "CDet Time Diff",900,700);
   // ---- Gaussian fit on the "NoCuts" histogram ----
-  TF1 *fGaus = new TF1("fGaus", "gaus", DiffMin, DiffMax);
-  int maxBin = hCDetTimeDiff->GetMaximumBin();
-  double peakX = hCDetTimeDiff->GetBinCenter(maxBin);
-  fGaus->SetParameters(hCDetTimeDiff->GetMaximum(), peakX, diffMaxCut/2); // amp, mean, sigma guess
+  // TF1 *fGaus = new TF1("fGaus", "gaus", DiffMin, DiffMax);
+  // int maxBin = hCDetTimeDiff->GetMaximumBin();
+  // double peakX = hCDetTimeDiff->GetBinCenter(maxBin);
+  // fGaus->SetParameters(hCDetTimeDiff->GetMaximum(), peakX, diffMaxCut/2); // amp, mean, sigma guess
 
-  fGaus->SetRange(diffMinCut, diffMaxCut);
-  hCDetTimeDiff->Fit(fGaus, "R");
+  // fGaus->SetRange(diffMinCut, diffMaxCut);
+  // hCDetTimeDiff->Fit(fGaus, "R");
 
   // draw the fit on top of the already-drawn histogram
-  fGaus->SetLineColor(kBlack);
+  // fGaus->SetLineColor(kBlack);
 
   hCDetTimeDiff->Draw();
-  fGaus->Draw("SAME");
+  // fGaus->Draw("SAME");
 
   // TCanvas *cCDetXDiff = new TCanvas("cCDetXDiff", "CDet X Diff",900,700);
   // hCDetXDiff->Draw();
 
   TCanvas *cCDetLayer2v1 = new TCanvas("cCDetLayer2v1", "CDet Layer 2 vs 1",900,700);
+  hCDetLe2vs1->SetMinimum(20);
   hCDetLe2vs1->Draw("COLZ");
 
   TCanvas *cCDetTotLayer2v1 = new TCanvas("cCDetTotLayer2v1", "CDet Tot Layer 2 vs 1",900,700);
+  hCDetTot2vs1->SetMinimum(40);
   hCDetTot2vs1->Draw("COLZ");
 
   TCanvas *cNpair = new TCanvas("cNpair", "CDet accepted pairs per event", 900, 700);
@@ -2607,6 +2619,7 @@ void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double di
   // hECalVsCDetDtSingle->Draw("COLZ");
 
   TCanvas * cCDetTvsECalT = new TCanvas("cCDetTvsECalT", " CDet t vs ECal t", 900,700);
+  hECalVsCDetT->SetMinimum(40);
   hECalVsCDetT->Draw("COLZ");
 
   TCanvas * cCDetTvsECalTSingle = new TCanvas("cCDetTvsECalTSingle", " CDet Single t vs ECal t", 900,700);
@@ -2618,6 +2631,20 @@ void plotCDetLayersTimeComp(double Width = 1, double diffMinCut = -15, double di
   TCanvas *cDtvsDxCDetECal = new TCanvas("cDtvsDxCDetECal", "CDet ECal dt vs dx",900,700);
   hDtvsDxCDetECal->Draw("COLZ");
 
+  TCanvas *cDtCDetLayersvsPos = new TCanvas("cDtCDetLayersvsPos", "CDet dt vs position", 900,700);
+  cDtCDetLayersvsPos->Divide(2,2);
+  cDtCDetLayersvsPos->cd(1);
+
+  hCDetTimeDiffvsx1->Draw();
+
+  cDtCDetLayersvsPos->cd(2);
+  hCDetTimeDiffvsx2->Draw();
+
+  cDtCDetLayersvsPos->cd(3);
+  hCDetTimeDiffvsy1->Draw();
+
+  cDtCDetLayersvsPos->cd(4);
+  hCDetTimeDiffvsy2->Draw();
 }
 
 void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 80, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
@@ -3542,18 +3569,22 @@ auto plotXYECalCDet(){
 
    c8->cd(1);
    gPad->SetLogz();
+   hXECalCDet1->SetMinimum(10);
    hXECalCDet1->Draw("colz");
 
    c8->cd(2);
    gPad->SetLogz();
+   hXECalCDet2->SetMinimum(10);
    hXECalCDet2->Draw("colz");
 
    c8->cd(3);
    gPad->SetLogz();
+   hXECalCDet1_min->SetMinimum(10);
    hXECalCDet1_min->Draw("colz");
 
    c8->cd(4);
    gPad->SetLogz();
+   hXECalCDet2_min->SetMinimum(10);
    hXECalCDet2_min->Draw("colz");
 
    // ---------------- Row 2: ECal X/Y + Xdiff fits ----------------
