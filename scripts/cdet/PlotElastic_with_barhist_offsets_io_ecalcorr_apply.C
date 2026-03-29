@@ -245,8 +245,8 @@ std::vector<double> vAllGoodECalT;                 // per-hit ECal ADC time alig
 std::vector<std::vector<double>> vBarGoodLeECalT;        // per-bar per-hit ECal time aligned with vBarGoodLe
 
 // --- ECal-time linear correction: remove correlation t_CDet vs t_ECal, then apply global shift
-double gECalFitP0 = -70.555;    // p0 from fit: <t_CDet> = p0 + p1*t_ECal
-double gECalFitP1 =  0.91682;   // p1 from fit
+double gECalFitP0 = -40.303;    // p0 from fit: <t_CDet> = p0 + p1*t_ECal
+double gECalFitP1 =  0.63615;   // p1 from fit
 double gTargetMeanLE = 30.0;    // desired mean corrected LE (ns)
 double gECalDeltaShift = 0.0;   // computed shift applied after removing correlation
 bool   gUseECalTimeCorr = true; // enable/disable ECal-time correction
