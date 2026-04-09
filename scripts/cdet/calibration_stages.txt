@@ -1,0 +1,8 @@
+0 = no calibration
+1 = fit bar time offsets from raw times
+2 = apply bar time offsets
+3 = fit CDet/ECal timing using bar offsets
+4 = apply bar offsets + ECal timing correction
+5 = inspect time-walk using bar offsets + ECal timing correction
+6 = fit time-walk using bar offsets + ECal timing correction
+7 = apply bar offsets + ECal timing correction + time-walk correction
