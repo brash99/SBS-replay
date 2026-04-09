@@ -120,12 +120,15 @@ void Run_CDet_Calibration_TwoPass_InSession(
     runMain(7);
     plotAllTDC(true, 1.0, 0.0, 60.0);
 
+
+
     stageBanner("final_calibrated_state", 7);
     ResetCalibrationGlobals();
     runMain(7);
     plotAllTDC(false, 1.0, 0.0, 60.0);
     plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
     plotGoodLeVsTotByLayer(false, 15, 45, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
+
 
     std::cout << "\\n[Driver] Two-pass in-session calibration sequence complete.\\n";
     std::cout << "[Driver] Final calibration file should be in: " << calibFile << "\\n";

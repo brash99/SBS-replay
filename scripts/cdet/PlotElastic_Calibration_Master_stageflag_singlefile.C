@@ -312,14 +312,15 @@ bool gTimeWalkParamsLoaded = false;
 bool gCalibrationLoaded = false;
 std::string gCalibrationFile = "CDet_calibration.dat";
 
-// Per-run global timing shift (kept separate from the main detector calibration file).
-double gGlobalTimingShift = 0.0;   // ns, added after other timing corrections
+// Per-run global timing shift, kept separate from the main detector calibration file.
+// Expected file name: CDet_run<RunNumber>.dat
+double gGlobalTimingShift = 0.0;   // ns, additive final timing shift
 bool   gGlobalTimingLoaded = false;
 std::string gRunTimingFile = "";
 
 bool LoadCalibrationConstants(const std::string& fname);
-bool WriteCalibrationConstants(const std::string& fname);
 bool LoadRunTimingConstants(const std::string& fname);
+bool WriteCalibrationConstants(const std::string& fname);
 
 inline double GetBarToffsetCorr(int elID) {
   const int bar = elID / 16;
@@ -336,7 +337,8 @@ enum ECalibrationStage {
   kStage4_ApplyBarOffsetsECal      = 4,
   kStage5_InspectTimeWalk          = 5,
   kStage6_FitTimeWalk              = 6,
-  kStage7_ApplyAllCorrections      = 7
+  kStage7_ApplyAllCorrections      = 7,
+  kStage8_FitECalTiming_TimeWalk   = 8
 };
 
 inline bool StageUsesBarOffsets(int stage) {
@@ -344,11 +346,11 @@ inline bool StageUsesBarOffsets(int stage) {
 }
 
 inline bool StageUsesECalCorrection(int stage) {
-  return stage >= kStage4_ApplyBarOffsetsECal;
+  return stage >= kStage4_ApplyBarOffsetsECal && stage != kStage8_FitECalTiming_TimeWalk;
 }
 
 inline bool StageUsesTimeWalkCorrection(int stage) {
-  return stage >= kStage7_ApplyAllCorrections;
+  return stage >= kStage7_ApplyAllCorrections || stage == kStage8_FitECalTiming_TimeWalk;
 }
 
 inline const char* CalibrationStageDescription(int stage) {
@@ -361,6 +363,7 @@ inline const char* CalibrationStageDescription(int stage) {
     case kStage5_InspectTimeWalk:     return "5 = inspect time-walk using bar offsets + ECal timing correction";
     case kStage6_FitTimeWalk:         return "6 = fit time-walk using bar offsets + ECal timing correction";
     case kStage7_ApplyAllCorrections: return "7 = apply bar offsets + ECal timing correction + time-walk correction";
+    case kStage8_FitECalTiming_TimeWalk: return "8 = fit CDet/ECal timing using bar offsets + time-walk correction (no ECal correction)";
     default:                          return "unknown stage";
   }
 }
@@ -391,6 +394,57 @@ inline void ConfigureCalibrationStage(int stage) {
             << "  applyECalCorr=" << (gUseECalTimeCorr ? "true" : "false")
             << "  applyTimeWalk=" << (gUseTimeWalkCorr ? "true" : "false")
             << std::endl;
+}
+
+
+bool LoadRunTimingConstants(const std::string& fname) {
+  gGlobalTimingShift = 0.0;
+  gGlobalTimingLoaded = false;
+
+  std::ifstream fin(fname.c_str());
+  if (!fin) {
+    std::cout << "[CDet] No run-timing file '" << fname
+              << "' found; using global timing shift = 0 ns.\n";
+    return false;
+  }
+
+  std::string line, section;
+  while (std::getline(fin, line)) {
+    if (line.empty()) continue;
+    if (line[0] == '#') continue;
+    if (line[0] == '[') {
+      section = line;
+      continue;
+    }
+
+    std::istringstream iss(line);
+
+    if (section == "[GlobalTiming]") {
+      std::string key;
+      if (!(iss >> key)) continue;
+
+      if (key == "shift_ns") {
+        if (iss >> std::ws && iss.peek() == '=') {
+          iss.get(); // accept optional '='
+        }
+        double val = 0.0;
+        if (iss >> val) {
+          gGlobalTimingShift = val;
+          gGlobalTimingLoaded = true;
+        }
+      }
+    }
+  }
+
+  if (gGlobalTimingLoaded) {
+    std::cout << "[CDet] Loaded run timing shift from '" << fname
+              << "': shift_ns = " << gGlobalTimingShift << "\n";
+  } else {
+    std::cout << "[CDet] Run-timing file '" << fname
+              << "' did not contain [GlobalTiming] shift_ns; using 0 ns.\n";
+  }
+
+  return gGlobalTimingLoaded;
 }
 
 bool LoadCalibrationConstants(const std::string& fname) {
@@ -463,50 +517,6 @@ bool LoadCalibrationConstants(const std::string& fname) {
   }
 
   return gCalibrationLoaded;
-}
-
-
-bool LoadRunTimingConstants(const std::string& fname) {
-  gGlobalTimingShift = 0.0;
-  gGlobalTimingLoaded = false;
-
-  std::ifstream fin(fname.c_str());
-  if (!fin) {
-    std::cout << "[CDet] No run-timing file '" << fname
-              << "' found; using global timing shift = 0 ns.\n";
-    return false;
-  }
-
-  std::string line, section;
-  while (std::getline(fin, line)) {
-    if (line.empty()) continue;
-    if (line[0] == '#') continue;
-    if (line[0] == '[') {
-      section = line;
-      continue;
-    }
-
-    std::istringstream iss(line);
-    if (section == "[GlobalTiming]") {
-      std::string key;
-      double val = 0.0;
-      if (iss >> key >> val) {
-        if (key == "shift_ns") {
-          gGlobalTimingShift = val;
-          gGlobalTimingLoaded = true;
-        }
-      }
-    }
-  }
-
-  if (gGlobalTimingLoaded) {
-    std::cout << "[CDet] Loaded run timing shift from '" << fname
-              << "': shift_ns = " << gGlobalTimingShift << "\n";
-  } else {
-    std::cout << "[CDet] Run-timing file '" << fname
-              << "' did not contain [GlobalTiming] shift_ns; using 0 ns.\n";
-  }
-  return gGlobalTimingLoaded;
 }
 
 bool WriteCalibrationConstants(const std::string& fname) {
@@ -1037,6 +1047,8 @@ void PlotElastic_Calibration_Master_stageflag_singlefile(Int_t RunNumber1=5811, 
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
 {
+  (void)firstevent; // currently unused
+
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
 	Double_t RefLeMax = 251.0;
@@ -1067,7 +1079,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile(Int_t RunNumber1=5811, 
 // Configure which calibrations are active for this run.
 ConfigureCalibrationStage(calibStage);
 
-// Load optional per-run global timing shift, e.g. CDet_run3575.dat
+// Load optional per-run global timing shift from CDet_run<RunNumber>.dat
 gRunTimingFile = Form("CDet_run%d.dat", (int)RunNumber1);
 LoadRunTimingConstants(gRunTimingFile);
 
@@ -1433,7 +1445,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     
     
 
-    bool good_elastic;
+    bool good_elastic = false;
     if (elastic == 0) good_elastic = true; //abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ECalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ECal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
     //currently not using full replays, so elastic cuts dont work, just assume all elastic
     else if (elastic == 1) good_elastic = true; //incase one does not want to use the elastic cut
@@ -1465,7 +1477,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       double event_ref_tdc = 0.0;
       double ref_int = 0;
       double ref_corr = 0;
-      for(Int_t el=0; el<RawElID.GetSize(); el++) {
+      for (std::size_t el = 0; el < RawElID.GetSize(); ++el) {
         if ((Int_t)RawElID[el] == 2696) {  // only look at ref PMT 
           bool good_ref_le_time = RawElLE[el] > 0.0/TDC_calib_to_ns && RawElLE[el] <= 100.0/TDC_calib_to_ns;
           bool good_ref_tot = RawElTot[el] >= 0.0/TDC_calib_to_ns && RawElTot[el] <= 200.0/TDC_calib_to_ns;
@@ -1524,7 +1536,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       }
 
       int rawEventCounter = 0;
-      for(Int_t el=0; el<RawElID.GetSize(); el++){
+      for (std::size_t el = 0; el < RawElID.GetSize(); ++el){
 
       const int raw_pmt = (int)RawElID[el];
       auto itGood = goodIdx.find(raw_pmt);
@@ -1693,7 +1705,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     ngoodpaddles=0;
     ngoodTDCpaddles=0;
     
-    for(Int_t el=0; el<GoodElID.GetSize(); el++){
+    for (std::size_t el = 0; el < GoodElID.GetSize(); ++el){
       int sbselemid = (Int_t)GoodElID[el];
       int sbsrown = sbselemid%672;
       int sbscoln = sbselemid/672;
@@ -1788,7 +1800,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
 
     int CDetPassedBoolCount = 0;
 
-    for(Int_t el=0; el<GoodElID.GetSize(); el++){
+    for (std::size_t el = 0; el < GoodElID.GetSize(); ++el){
       bool goodhit_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
                                          *ECalX > -1.5 && *ECalX < 1.5 &&
                                          *ECalX != 0.00 && *ECalY != 0.00;
@@ -2064,7 +2076,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
         hngoodTDCpaddles->Fill(ngoodTDCpaddles);
 
         //cout << "Element loop: " << NdataMult << endl;
-    for(Int_t tdc=0; tdc<TDCmult.GetSize(); tdc++){
+    for (std::size_t tdc = 0; tdc < TDCmult.GetSize(); ++tdc){
       if (!check_bad(RawElID[tdc],suppress_bad)) {
         hMultiplicity->Fill(TDCmult[tdc]);
         hMultiplicityL[(Int_t)RawElID[tdc]]->Fill(TDCmult[tdc]);
@@ -2317,25 +2329,20 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       }
     }
   }
-
   //==================================================== Run-dependent global timing shift
   // Apply a simple additive shift read from CDet_run<run>.dat:
   //   [GlobalTiming]
   //   shift_ns <value>
-  // This is kept separate from the detector calibration constants so that
-  // run-to-run trigger/reference shifts do not require hand-editing the main macro.
   if (std::isfinite(gGlobalTimingShift) && std::fabs(gGlobalTimingShift) > 0.0) {
     std::cout << "[CDet] Applying run global timing shift: "
               << gGlobalTimingShift << " ns"
               << (gGlobalTimingLoaded ? " (from file)" : " (default)") << "\n";
 
-    // Flat good-hit vectors used by global timing histograms
     for (std::size_t i = 0; i < vAllGoodLe.size() && i < vAllGoodTe.size(); ++i) {
       vAllGoodLe[i] += gGlobalTimingShift;
       vAllGoodTe[i] += gGlobalTimingShift;
     }
 
-    // Per-bar LE storage used for bar histograms
     if (vBarGoodLe.size() == (std::size_t)NumPMTs) {
       for (int bar = 0; bar < NumPMTs; ++bar) {
         for (std::size_t j = 0; j < vBarGoodLe[bar].size(); ++j) {
@@ -2344,7 +2351,6 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       }
     }
 
-    // Event-level good-hit vectors used by comparison/fit routines
     for (std::size_t ev = 0; ev < vGoodLe.size() && ev < vGoodTe.size(); ++ev) {
       const std::size_t Nh = std::min(vGoodLe[ev].size(), vGoodTe[ev].size());
       for (std::size_t ih = 0; ih < Nh; ++ih) {
@@ -3474,6 +3480,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   TCanvas * cCDetTvsECalT = new TCanvas("cCDetTvsECalT", " CDet t vs ECal t", 900,700);
   hECalVsCDetT->SetMinimum(40);
   hECalVsCDetT->Draw("COLZ");
+  hECalVsCDetT->GetYaxis()->SetRangeUser(20, 40);
 
   // ---------------------------------------------
   // Linear parametrization: <CDet t> vs ECal ADC t
@@ -3482,6 +3489,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   // ---------------------------------------------
   TProfile* pCDetTvsECalT = hECalVsCDetT->ProfileX("pCDetTvsECalT");
   pCDetTvsECalT->SetMarkerStyle(20);
+  pCDetTvsECalT->GetYaxis()->SetRangeUser(20, 40);
   pCDetTvsECalT->SetMarkerSize(0.6);
 
   TF1* fCDetTvsECalT_lin = new TF1("fCDetTvsECalT_lin", "pol1", ECalMin, ECalMax);
@@ -3753,7 +3761,7 @@ void plotXDiffSections(double le_min = 0, double le_max = 60, double tDiffMin = 
   const size_t Nev = vCDetGoodX.size();
   for (size_t ev = 0; ev < Nev; ++ev) {
     double t_ECal = v_GoodECalAdcTime[ev];
-    for (int n = 0; n < vCDetGoodX[ev].size(); n++){
+    for (std::size_t n = 0; n < vCDetGoodX[ev].size(); ++n){
       double t_CDet = vGoodLe[ev][n];
       double t_diff = t_ECal-t_CDet;
       if (vGoodLe[ev][n] <= le_max && vGoodLe[ev][n] >= le_min && t_diff >= tDiffMin && t_diff <= tDiffMax){
