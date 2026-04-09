@@ -26,10 +26,10 @@ void Run_CDet_Calibration_Hydrogen(
     Int_t elastic = 0,
     Int_t minSeg = 0,
     Int_t maxSeg = 5,
-    Double_t LeMin = 0.0,
-    Double_t LeMax = 25.0,
-    Double_t TotMin = 4.0,
-    Double_t TotMax = 50.0,
+    Double_t LeMin = 20.0,
+    Double_t LeMax = 40.0,
+    Double_t TotMin = 8.0,
+    Double_t TotMax = 30.0,
     Int_t nhitcutlow1 = 1,
     Int_t nhitcuthigh1 = 100,
     Int_t nhitcutlow2 = 1,
@@ -77,12 +77,12 @@ void Run_CDet_Calibration_Hydrogen(
 
     // First pass on hydrogen:
     // Fit CDet/ECal timing with bar offsets + timewalk applied, but NO ECal correction.
-    stageBanner("hydrogen_ecal_fit", 8);
-    ResetCalibrationGlobals();
-    runMain(8);
-    plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.05, 0.05,
-                           0, 30, 8, 40, -15, 15, 0, 60, 0, 80,
-                           60, 120, -104, -60);
+    //stageBanner("hydrogen_ecal_fit", 8);
+    //ResetCalibrationGlobals();
+    //runMain(8);
+    //plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.05, 0.05,
+    //                       20, 40, 8, 40, -15, 15, 0, 60, 0, 80,
+    //                       90, 140, -104, -60);
 
     // Final fully calibrated pass on hydrogen
     stageBanner("final_calibrated_state", 7);
@@ -90,9 +90,9 @@ void Run_CDet_Calibration_Hydrogen(
     runMain(7);
     plotAllTDC(false, 1.0, 0.0, 60.0);
     plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.05, 0.05,
-                           0, 30, 8, 40, -15, 15, 0, 60, 0, 80,
-                           60, 120, -104, -60);
-    plotGoodLeVsTotByLayer(false, 0, 30, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
+                           20, 40, 8, 30, -15, 15, 0, 60, 0, 80,
+                           90, 140, -104, -60);
+    plotGoodLeVsTotByLayer(false, 20, 40, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
 
     std::cout << "\n[Driver] Hydrogen calibration/update sequence complete.\n";
     std::cout << "[Driver] Final calibration file should be in: " << calibFile << "\n";
