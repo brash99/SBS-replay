@@ -330,7 +330,8 @@ enum ECalibrationStage {
   kStage4_ApplyBarOffsetsECal      = 4,
   kStage5_InspectTimeWalk          = 5,
   kStage6_FitTimeWalk              = 6,
-  kStage7_ApplyAllCorrections      = 7
+  kStage7_ApplyAllCorrections      = 7,
+  kStage8_FitECalTiming_TimeWalk   = 8
 };
 
 inline bool StageUsesBarOffsets(int stage) {
@@ -338,11 +339,11 @@ inline bool StageUsesBarOffsets(int stage) {
 }
 
 inline bool StageUsesECalCorrection(int stage) {
-  return stage >= kStage4_ApplyBarOffsetsECal;
+  return stage >= kStage4_ApplyBarOffsetsECal && stage != kStage8_FitECalTiming_TimeWalk;
 }
 
 inline bool StageUsesTimeWalkCorrection(int stage) {
-  return stage >= kStage7_ApplyAllCorrections;
+  return stage >= kStage7_ApplyAllCorrections || stage == kStage8_FitECalTiming_TimeWalk;
 }
 
 inline const char* CalibrationStageDescription(int stage) {
@@ -355,6 +356,7 @@ inline const char* CalibrationStageDescription(int stage) {
     case kStage5_InspectTimeWalk:     return "5 = inspect time-walk using bar offsets + ECal timing correction";
     case kStage6_FitTimeWalk:         return "6 = fit time-walk using bar offsets + ECal timing correction";
     case kStage7_ApplyAllCorrections: return "7 = apply bar offsets + ECal timing correction + time-walk correction";
+    case kStage8_FitECalTiming_TimeWalk: return "8 = fit CDet/ECal timing using bar offsets + time-walk correction (no ECal correction)";
     default:                          return "unknown stage";
   }
 }
