@@ -26,8 +26,8 @@ void Run_CDet_Calibration_Hydrogen(
     Int_t elastic = 0,
     Int_t minSeg = 0,
     Int_t maxSeg = 5,
-    Double_t LeMin = 1.0,
-    Double_t LeMax = 60.0,
+    Double_t LeMin = 12.0,
+    Double_t LeMax = 26.0,
     Double_t TotMin = 8.0,
     Double_t TotMax = 30.0,
     Int_t nhitcutlow1 = 1,
@@ -92,9 +92,9 @@ void Run_CDet_Calibration_Hydrogen(
     runMain(7);
     plotAllTDC(false, 1.0, 1, 60);
     plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.05, 0.05,
-                           1, 60, 8, 40, -15, 15, 0, 60, 0, 80,
+                           12, 26, 8, 40, -15, 15, 0, 60, 0, 80,
                            95, 125, -160, -40);
-    plotGoodLeVsTotByLayer(false, 1, 60, 15, 30, 0.2, 0.5, true, false, 5.0, 25.0);
+    plotGoodLeVsTotByLayer(false, 12, 26, 15, 30, 0.2, 0.5, true, false, 5.0, 25.0);
 
     std::cout << "\n[Driver] Hydrogen calibration/update sequence complete.\n";
     std::cout << "[Driver] Final calibration file should be in: " << calibFile << "\n";
