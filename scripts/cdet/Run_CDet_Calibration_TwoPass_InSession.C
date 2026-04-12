@@ -12,7 +12,7 @@
 //
 // Assumptions:
 //   - The master macro file is named:
-//       PlotElastic_Calibration_Master_stageflag_singlefile.C
+//       PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C
 //   - The master macro provides a function:
 //       void ResetCalibrationGlobals();
 //     If that function does not yet exist, add it there.
@@ -46,7 +46,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
     Int_t firstevent = 1,
     bool removeExistingCalibrationFile = true
 ){
-    const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile.C";
+    const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C";
     const TString calibFile   = "CDet_calibration.dat";
 
     if (gSystem->AccessPathName(masterMacro)) {
@@ -62,7 +62,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
     }
 
     auto runMain = [&](Int_t stage) {
-        PlotElastic_Calibration_Master_stageflag_singlefile(
+        PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
             RunNumber1, nevents, stage,elastic, minSeg, maxSeg,
             LeMin, LeMax, TotMin, TotMax,
             nhitcutlow1, nhitcuthigh1, nhitcutlow2, nhitcuthigh2,
@@ -119,9 +119,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
     ResetCalibrationGlobals();
     runMain(7);
     plotAllTDC(true, 1.0, 0.0, 60.0);
-
-
-
+    
     stageBanner("final_calibrated_state", 7);
     ResetCalibrationGlobals();
     runMain(7);

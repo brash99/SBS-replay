@@ -314,13 +314,17 @@ std::string gCalibrationFile = "CDet_calibration.dat";
 
 // Per-run global timing shift, kept separate from the main detector calibration file.
 // Expected file name: CDet_run<RunNumber>.dat
+// Expected contents:
+//   [GlobalTiming]
+//   shift_ns 10.0
 double gGlobalTimingShift = 0.0;   // ns, additive final timing shift
 bool   gGlobalTimingLoaded = false;
 std::string gRunTimingFile = "";
+int gCurrentCalibrationStage = 0; // for stage-aware LE cut handling
 
 bool LoadCalibrationConstants(const std::string& fname);
-bool LoadRunTimingConstants(const std::string& fname);
 bool WriteCalibrationConstants(const std::string& fname);
+bool LoadRunTimingConstants(const std::string& fname);
 
 inline double GetBarToffsetCorr(int elID) {
   const int bar = elID / 16;
@@ -369,6 +373,7 @@ inline const char* CalibrationStageDescription(int stage) {
 }
 
 inline void ConfigureCalibrationStage(int stage) {
+  gCurrentCalibrationStage = stage;
   LoadCalibrationConstants(gCalibrationFile);
 
   const bool useBarOffsets =
@@ -397,54 +402,41 @@ inline void ConfigureCalibrationStage(int stage) {
 }
 
 
-bool LoadRunTimingConstants(const std::string& fname) {
-  gGlobalTimingShift = 0.0;
-  gGlobalTimingLoaded = false;
+// Compute the LE time to use for LeMin/LeMax selection cuts.
+//
+// Philosophy:
+//   - Always include bar offsets if they are active for the stage.
+//   - For stage 3 (fit CDet/ECal timing), DO NOT apply the ECal timing correction
+//     inside the selection cut variable, even if previous ECal parameters are loaded
+//     for a residual refit.  The fit sample should remain in the bar-offset-corrected
+//     space so the correlation can still be measured.
+//   - Apply time-walk in the cut variable only in stages where it is explicitly active.
+inline double GetStageCutLETime(int elID, double t_aligned_ns, double tot_ns, double tEcal_ns) {
+  double t_cut = t_aligned_ns;
 
-  std::ifstream fin(fname.c_str());
-  if (!fin) {
-    std::cout << "[CDet] No run-timing file '" << fname
-              << "' found; using global timing shift = 0 ns.\n";
-    return false;
-  }
+  // Always include bar offsets when they are active.
+  t_cut += GetBarToffsetCorr(elID);
 
-  std::string line, section;
-  while (std::getline(fin, line)) {
-    if (line.empty()) continue;
-    if (line[0] == '#') continue;
-    if (line[0] == '[') {
-      section = line;
-      continue;
+  // For FIT stages, keep the LE cut in the bar-offset-corrected space.
+  // We do NOT want the cut variable to include the correction currently being fitted,
+  // and for ECal correction the centering shift is only known later anyway.
+  const bool isFitStage =
+      (gCurrentCalibrationStage == kStage3_FitECalTiming) ||
+      (gCurrentCalibrationStage == kStage5_InspectTimeWalk) ||
+      (gCurrentCalibrationStage == kStage6_FitTimeWalk);
+
+  if (!isFitStage) {
+    if (gUseECalTimeCorr && std::isfinite(tEcal_ns)) {
+      t_cut = (t_cut - (gECalFitP0 + gECalFitP1*tEcal_ns)) + gECalDeltaShift;
     }
 
-    std::istringstream iss(line);
-
-    if (section == "[GlobalTiming]") {
-      std::string key;
-      if (!(iss >> key)) continue;
-
-      if (key == "shift_ns") {
-        if (iss >> std::ws && iss.peek() == '=') {
-          iss.get(); // accept optional '='
-        }
-        double val = 0.0;
-        if (iss >> val) {
-          gGlobalTimingShift = val;
-          gGlobalTimingLoaded = true;
-        }
-      }
+    if (gUseTimeWalkCorr) {
+      const int layer = GetLayerFromID(elID);
+      t_cut -= GetTimeWalkCorrection(layer, tot_ns);
     }
   }
 
-  if (gGlobalTimingLoaded) {
-    std::cout << "[CDet] Loaded run timing shift from '" << fname
-              << "': shift_ns = " << gGlobalTimingShift << "\n";
-  } else {
-    std::cout << "[CDet] Run-timing file '" << fname
-              << "' did not contain [GlobalTiming] shift_ns; using 0 ns.\n";
-  }
-
-  return gGlobalTimingLoaded;
+  return t_cut;
 }
 
 bool LoadCalibrationConstants(const std::string& fname) {
@@ -517,6 +509,58 @@ bool LoadCalibrationConstants(const std::string& fname) {
   }
 
   return gCalibrationLoaded;
+}
+
+
+bool LoadRunTimingConstants(const std::string& fname) {
+  gGlobalTimingShift = 0.0;
+  gGlobalTimingLoaded = false;
+
+  std::ifstream fin(fname.c_str());
+  if (!fin) {
+    std::cout << "[CDet] No run-timing file '" << fname
+              << "' found; using global timing shift = 0 ns.\n";
+    return false;
+  }
+
+  std::string line, section;
+  while (std::getline(fin, line)) {
+    if (line.empty()) continue;
+    if (line[0] == '#') continue;
+    if (line[0] == '[') {
+      section = line;
+      continue;
+    }
+
+    std::istringstream iss(line);
+
+    if (section == "[GlobalTiming]") {
+      std::string key;
+      if (!(iss >> key)) continue;
+
+      if (key == "shift_ns") {
+        if (iss >> std::ws && iss.peek() == '=') {
+          iss.get();
+        }
+
+        double val = 0.0;
+        if (iss >> val) {
+          gGlobalTimingShift = val;
+          gGlobalTimingLoaded = true;
+        }
+      }
+    }
+  }
+
+  if (gGlobalTimingLoaded) {
+    std::cout << "[CDet] Loaded run timing shift from '" << fname
+              << "': shift_ns = " << gGlobalTimingShift << "\n";
+  } else {
+    std::cout << "[CDet] Run-timing file '" << fname
+              << "' did not contain [GlobalTiming] shift_ns; using 0 ns.\n";
+  }
+
+  return gGlobalTimingLoaded;
 }
 
 bool WriteCalibrationConstants(const std::string& fname) {
@@ -1037,7 +1081,7 @@ std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
   return tmp;
 }
 
-void PlotElastic_Calibration_Master_stageflag_singlefile(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t calibStage = 7, Int_t elastic = 0, Int_t minSeg = -1, Int_t maxSeg = -1,
+void PlotElastic_Calibration_Master_stageflag_singlefile_hydrogen(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t calibStage = 7, Int_t elastic = 0, Int_t minSeg = -1, Int_t maxSeg = -1,
 	Double_t LeMin = 0.02, Double_t LeMax = 60.0,
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
@@ -1546,7 +1590,12 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       const double gy = hasGood ? GoodY[ig] : 1.0e9;
       const double gz = hasGood ? GoodZ[ig] : 1.0e9;
 
-      bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
+      const double raw_le_cut_ns =
+          GetStageCutLETime((Int_t)RawElID[el],
+                            RawElLE[el]*TDC_calib_to_ns - event_ref_tdc,
+                            RawElTot[el]*TDC_calib_to_ns,
+                            *ECalAdcTime);
+      bool good_raw_le_time = raw_le_cut_ns >= LeMin && raw_le_cut_ns <= LeMax;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = TDCmult[el] < TDCmult_cut;
       bool good_CDet_X = hasGood && (fabs(gx) < xcut);
@@ -1724,7 +1773,12 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       bool good_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
                                       *ECalX > -1.5 && *ECalX < 1.5 &&
                                       *ECalX != 0.00 && *ECalY != 0.00 ;
-      bool good_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
+      const double good_le_cut_ns =
+          GetStageCutLETime((Int_t)GoodElID[el],
+                            GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc,
+                            GoodElTot[el]*TDC_calib_to_ns,
+                            *ECalAdcTime);
+      bool good_le_time = good_le_cut_ns >= LeMin && good_le_cut_ns <= LeMax;
       bool good_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_hit_mult = TDCmult[el] < TDCmult_cut;
       bool good_CDet_X = GoodX[el] < xcut;
@@ -1804,7 +1858,12 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       bool goodhit_ECal_reconstruction = *ECalY > -1.2 && *ECalY < 1.2 &&
                                          *ECalX > -1.5 && *ECalX < 1.5 &&
                                          *ECalX != 0.00 && *ECalY != 0.00;
-      bool goodhit_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
+      const double goodhit_le_cut_ns =
+          GetStageCutLETime((Int_t)GoodElID[el],
+                            GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc,
+                            GoodElTot[el]*TDC_calib_to_ns,
+                            *ECalAdcTime);
+      bool goodhit_le_time = goodhit_le_cut_ns >= LeMin && goodhit_le_cut_ns <= LeMax;
       bool goodhit_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool goodhit_hit_mult = TDCmult[el] < TDCmult_cut;
       bool goodhit_CDet_X = GoodX[el] < xcut;
@@ -2333,6 +2392,8 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   // Apply a simple additive shift read from CDet_run<run>.dat:
   //   [GlobalTiming]
   //   shift_ns <value>
+  // This is kept separate from the detector calibration constants so that
+  // run-to-run trigger/reference shifts do not require hand-editing the main macro.
   if (std::isfinite(gGlobalTimingShift) && std::fabs(gGlobalTimingShift) > 0.0) {
     std::cout << "[CDet] Applying run global timing shift: "
               << gGlobalTimingShift << " ns"
@@ -3518,8 +3579,11 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   ptFit->Draw("SAME");
 
   if (overwrite) {
-    gECalFitP0 += p0;
-    gECalFitP1 += p1;
+    // For stage-3 and stage-8 ECal fits, applyECalCorr is false during the event processing,
+    // so the fitted p0,p1 are absolute parameters for the currently selected dataset and
+    // should REPLACE the stored values rather than be added to them.
+    gECalFitP0 = p0;
+    gECalFitP1 = p1;
     gECalParamsLoaded = true;
     WriteCalibrationConstants(gCalibrationFile);
     std::cout << "[CDet] Updated ECal timing parameters in calibration file: "
