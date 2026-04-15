@@ -132,7 +132,6 @@ inline bool IsUnusedPixel(int elID) {
     return kUnusedCDetPixels.count(elID) != 0;
 }
 
-
 //const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
 const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
 
@@ -1166,7 +1165,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
               if ( (Int_t)RawElID[el] == 2696 && (Int_t)RawElLE[el]>0 && (Int_t)RawElTot[el]>0 ) {
                 //cout << " Ref  ID = " << (Int_t)RawElID[el] << " el = " << el << "    LE = " << RawElLE[el]*TDC_calib_to_ns 
                 //		<< "    TE = " << RawElTE[el]*TDC_calib_to_ns << "    ToT = " << RawElTot[el]*TDC_calib_to_ns << endl;
-                
+            
                 thisEvent_refRawLe_ns = RawElLE[el] * TDC_calib_to_ns;
                 vRefRawLe.push_back(thisEvent_refRawLe_ns);
                 vRefRawTe.push_back(RawElTE[el] * TDC_calib_to_ns);

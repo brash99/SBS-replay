@@ -1,0 +1,7 @@
+#How to do many runs on cross target
+
+root -l
+.L PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C+
+.L Run_CDet_Calibration_TwoPass_InSession_BScopy.C
+.L Run_CDet_Calibration_FromList.C
+Run_CDet_Calibration_FromList("runs.txt");

@@ -2844,7 +2844,7 @@ TCanvas *plotBarRateHV() {
   return daa;
 }	
 
-TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0, double binHigh = 60){
+TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0, double binHigh = 60, bool savePlots = false, TString saveTag = "", TString saveDir = "tdcPlots"){
   double Nbins = ((binHigh-binLow)/width);
 
   //define histograms
@@ -3055,11 +3055,43 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
       h->Draw("HIST");
     }
   };
-
+  
   drawBarRange("cBarGoodLe_L1L", "Good LE by Bar: Layer 1 Left (Bars 1-42)",     0,  42);
   drawBarRange("cBarGoodLe_L1R", "Good LE by Bar: Layer 1 Right (Bars 43-84)",   42,  42);
   drawBarRange("cBarGoodLe_L2L", "Good LE by Bar: Layer 2 Left (Bars 85-126)",   84,  42);
   drawBarRange("cBarGoodLe_L2R", "Good LE by Bar: Layer 2 Right (Bars 127-168)",126,  42);
+  // 4/15/2026 -- B. Spaude added this to save these plots to folder. Easier to confirm runs okay
+  if (savePlots) {
+    if (gSystem->AccessPathName(saveDir)) {
+      gSystem->mkdir(saveDir, true);
+    }
+
+    TString suffix = saveTag;
+    if (suffix.Length() > 0) suffix = "_" + suffix;
+
+    cOffsets->SaveAs(TString::Format("%s/cBarGoodLeOffsets%s.png",
+                                     saveDir.Data(), suffix.Data()));
+
+    caa->SaveAs(TString::Format("%s/AllTDC%s.png",
+                                saveDir.Data(), suffix.Data()));
+
+    caaa->SaveAs(TString::Format("%s/AllChan%s.png",
+                                 saveDir.Data(), suffix.Data()));
+
+    TCanvas *c1 = (TCanvas*)gROOT->FindObject("cBarGoodLe_L1L");
+    TCanvas *c2 = (TCanvas*)gROOT->FindObject("cBarGoodLe_L1R");
+    TCanvas *c3 = (TCanvas*)gROOT->FindObject("cBarGoodLe_L2L");
+    TCanvas *c4 = (TCanvas*)gROOT->FindObject("cBarGoodLe_L2R");
+
+    if (c1) c1->SaveAs(TString::Format("%s/cBarGoodLe_L1L%s.png",
+                                       saveDir.Data(), suffix.Data()));
+    if (c2) c2->SaveAs(TString::Format("%s/cBarGoodLe_L1R%s.png",
+                                       saveDir.Data(), suffix.Data()));
+    if (c3) c3->SaveAs(TString::Format("%s/cBarGoodLe_L2L%s.png",
+                                       saveDir.Data(), suffix.Data()));
+    if (c4) c4->SaveAs(TString::Format("%s/cBarGoodLe_L2R%s.png",
+                                       saveDir.Data(), suffix.Data()));
+  }
 
   return caa;
 }
@@ -3188,7 +3220,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   // std::vector<int> vGoodHitsPerEvent(Nev, 0);
   
   for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
-    sumNhits += vnhits1[ev]+vnhits2[ev];
+    //sumNhits += vnhits1[ev]+vnhits2[ev];
     int countGoodHits1 = 0;
     int countGoodHits2 = 0;
     std::vector<double> vCDet1Time;
