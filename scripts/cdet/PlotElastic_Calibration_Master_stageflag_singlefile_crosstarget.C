@@ -151,51 +151,58 @@ const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
 const TString ANALYSED_DIR = TString(gSystem->Getenv("OUT_DIR"))+"cdetFiles";
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
+// -------- 4/21/2026 B.Spaude modified so we can use this for either a single run or put multiple runs in chain
 bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
-  // Find "_seg"
   Ssiz_t pos = fname.Index("_seg");
   if (pos == kNPOS) return false;
 
-  // Tail looks like "9_9.root" or "9_9_1.root"
   TString tail = fname(pos + 4, fname.Length() - (pos + 4));
 
-  // Extract first two ints; ignore any further suffix
   int a = -1, b = -1;
   if (sscanf(tail.Data(), "%d_%d", &a, &b) == 2) {
-    firstSeg = a; lastSeg = b;
+    firstSeg = a;
+    lastSeg  = b;
     return true;
   }
   return false;
 }
 
-void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int segMin = -1, int segMax = -1) {
+void AddRunFilesToChain(TChain *chain, const char *dir, int runnum,
+                        int segMin = -1, int segMax = -1) {
   TString prefix = dir;
   std::vector<TString> runfiles;
+
+  // Normalize requested segment window ONCE
+  bool useSegRange = (segMin >= 0 || segMax >= 0);
+  int reqSegMin = segMin;
+  int reqSegMax = segMax;
+
+  if (useSegRange) {
+    if (reqSegMin < 0) reqSegMin = reqSegMax;
+    if (reqSegMax < 0) reqSegMax = reqSegMin;
+    if (reqSegMin > reqSegMax) std::swap(reqSegMin, reqSegMax);
+  }
 
   TSystemDirectory directory(prefix, prefix);
   TList *files = directory.GetListOfFiles();
 
   if (files) {
     TIter next(files);
-    TSystemFile *f;
+    TSystemFile *f = nullptr;
+
     while ((f = (TSystemFile*) next())) {
-      if (f->IsDirectory()) continue; // skip dirs like "." and ".."
+      if (f->IsDirectory()) continue;
 
       TString fname = f->GetName();
       if (!fname.BeginsWith(Form("cdet_%d_", runnum))) continue;
       if (!fname.EndsWith(".root")) continue;
 
-      // Range filtering enabled only if segMin/segMax are set
-      if (segMin >= 0 || segMax >= 0) {
-        if (segMin < 0) segMin = segMax;
-        if (segMax < 0) segMax = segMin;
-        if (segMin > segMax) std::swap(segMin, segMax);
-
+      if (useSegRange) {
         int firstSeg = -1, lastSeg = -1;
         if (!GetSegRange(fname, firstSeg, lastSeg)) continue;
 
-        // accept if [firstSeg,lastSeg] overlaps [segMin,segMax]
-        if (lastSeg < segMin || firstSeg > segMax) continue;
+        // Keep file only if its segment span overlaps requested range
+        if (lastSeg < reqSegMin || firstSeg > reqSegMax) continue;
       }
 
       runfiles.push_back(prefix + "/" + fname);
@@ -204,10 +211,48 @@ void AddRunFilesToChain(TChain *chain, const char *dir, int runnum, int segMin =
 
   std::sort(runfiles.begin(), runfiles.end());
 
-  std::cout << "Adding " << runfiles.size() << " files for run " << runnum << "...\n";
-  for (auto &file : runfiles) {
+  std::cout << "Adding " << runfiles.size()
+            << " files for run " << runnum << "...\n";
+
+  for (const auto &file : runfiles) {
     std::cout << "  " << file << "\n";
     chain->Add(file);
+  }
+}
+// 4/21/2026 B. Spaude: need this for reading runs.txt to get list of runs into chain
+std::vector<int> ReadRunList(const char *runListFile) {
+  std::vector<int> runs;
+  std::ifstream infile(runListFile);
+
+  if (!infile.is_open()) {
+    std::cerr << "ERROR: Could not open run list file: "
+              << runListFile << "\n";
+    return runs;
+  }
+
+  std::string line;
+  while (std::getline(infile, line)) {
+    // Skip empty lines
+    if (line.empty()) continue;
+
+    // Skip comment lines
+    if (line[0] == '#') continue;
+
+    std::stringstream ss(line);
+    int runnum;
+    if (ss >> runnum) runs.push_back(runnum);
+  }
+  return runs;
+}
+// 4/21/2026 B. Spaude: Use this to get the run list from runs.txt
+void AddRunListFilesToChain(TChain *chain, const char *dir,
+                            const char *runListFile,
+                            int segMin = -1, int segMax = -1) {
+  std::vector<int> runs = ReadRunList(runListFile);
+  
+  for (int runnum : runs) {
+    AddRunFilesToChain(chain, dir, runnum, segMin, segMax);
+
   }
 }
 
@@ -1037,7 +1082,8 @@ std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
   return tmp;
 }
 
-void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t calibStage = 7, Int_t elastic = 0, Int_t minSeg = -1, Int_t maxSeg = -1,
+void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t calibStage = 7,
+  Int_t elastic = 0, Int_t minSeg = -1, Int_t maxSeg = -1,
 	Double_t LeMin = 0.02, Double_t LeMax = 60.0,
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
@@ -1049,6 +1095,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 {
   (void)firstevent; // currently unused
 
+  const char *runListFile = "runs.txt"; //file with run numbers to analyze
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
 	Double_t RefLeMax = 251.0;
@@ -1277,8 +1324,6 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   if (!T) {
   T = new TChain("T");
 
-  int runnum = RunNumber1;
-
   vCDetPaddleRawTot.assign(2688, std::vector<double>{});
   vCDetPaddleCutTot.assign(2688, std::vector<double>{});
   // Per-bar storage for good leading-edge times (bar = GoodElID/16)
@@ -1287,7 +1332,14 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   vAllGoodECalT.clear();
   //int onlySegment = -1; // set to >=0 to pick just one
 
-  AddRunFilesToChain(T, REPLAYED_DIR.Data(), runnum, minSeg, maxSeg);
+  if (RunNumber1 == 0) {
+    std::cout << "RunNumber1 == 0, using hardcoded run list file: "
+              << runListFile << "\n";
+    AddRunListFilesToChain(T, REPLAYED_DIR.Data(), runListFile, minSeg, maxSeg);
+  } else {
+    std::cout << "Using single run mode for run " << RunNumber1 << "\n";
+    AddRunFilesToChain(T, REPLAYED_DIR.Data(), RunNumber1, minSeg, maxSeg);
+  }
 }
 
   TTreeReader reader(T);
@@ -2359,7 +2411,17 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
       }
     }
   }
-
+  //for ben to get cross target individual peaks
+  if (calibStage == 2){
+    double sum = 0;
+    for (double x : vAllGoodLe){
+      sum += x;
+    }
+    double le_det_ave = sum / vAllGoodLe.size();
+    std::ofstream outfile("le_means.csv", std::ios::app);
+    outfile << RunNumber1 << "," << le_det_ave << "\n";
+    outfile.close();
+  }
   //================================================================== End Macro
 }// end main
 

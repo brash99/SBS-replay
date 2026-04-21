@@ -2129,6 +2129,7 @@ TCanvas *plotAllTDC(double width = 1, double binLow=0, double binHigh=60){
   hAllGoodBar = new TH1F(TString::Format("hAllGoodBar"),
             TString::Format("hAllGoodBar"),
             168, 0, 168);
+  TH1F *hECalTime = new TH1F("hECalTime", "hECalTime", 70, 60, 130);
 
   //fill necessary histograms from vectors
   for (double x : vAllRawLe) hAllRawLe->Fill(x);
@@ -2142,6 +2143,7 @@ TCanvas *plotAllTDC(double width = 1, double binLow=0, double binHigh=60){
   for (double x : vAllGoodTot) hAllGoodTot->Fill(x);
   for (double x : vAllGoodPMT) hAllGoodPMT->Fill(x);
   for (double x : vAllGoodBar) hAllGoodBar->Fill(x);
+  for (double x : v_GoodECalAdcTime) hECalTime->Fill(x);
 
   TCanvas *caa = new TCanvas("All TDC", "All TDC", 50,50,800,800);
   caa->Divide(2,3,0.01,0.01,0);
@@ -2203,6 +2205,9 @@ TCanvas *plotAllTDC(double width = 1, double binLow=0, double binHigh=60){
   //hs4->SetMinimum(0.);
   hAllGoodBar->SetFillColor(kBlue);
   hAllGoodBar->Draw();
+
+  TCanvas *cEcalTime = new TCanvas("cECalTime", "ECal Time", 900,700);
+  hECalTime->Draw();
 
   return caa;
 }
