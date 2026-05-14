@@ -350,6 +350,7 @@ std::vector<std::vector<double>> vBarGoodLe;
 std::vector<TH1F*> hBarGoodLe; // one histogram per bar (PMT group), built in plotAllTDC()
 static const int NumPMTs = NumHalfModules*NumBars; // 168 (does not include 4 ref paddles)
 
+std::vector<int> gBarToffsetNhits;        // store Nhits for each bar when computing toffsets
 std::vector<double> gBarToffsetCorr;      // size NumPMTs, correction to ADD to LE/TE: (mean_all - mean_bar)
 bool gBarToffsetLoaded = false;           // true if offsets were read from file
 bool gECalParamsLoaded = false;
@@ -428,6 +429,7 @@ inline void ConfigureCalibrationStage(int stage) {
 
   if (!useBarOffsets) {
     gBarToffsetCorr.assign(NumPMTs, 0.0);
+    gBarToffsetNhits.assign(NumPMTs, 0);
     gBarToffsetLoaded = false;
     std::cout << "[CDet] Stage " << stage
               << ": bar offsets disabled; proceeding with zero bar offsets.\n";
@@ -495,6 +497,7 @@ bool LoadRunTimingConstants(const std::string& fname) {
 bool LoadCalibrationConstants(const std::string& fname) {
   gCalibrationLoaded = false;
   gBarToffsetCorr.assign(NumPMTs, 0.0);
+  gBarToffsetNhits.assign(NumPMTs, 0);
   gBarToffsetLoaded = false;
   gECalParamsLoaded = false;
   gTimeWalkParamsLoaded = false;
@@ -521,9 +524,12 @@ bool LoadCalibrationConstants(const std::string& fname) {
     if (section == "[BarOffsets]") {
       int bar1 = -1;
       double dt = 0.0;
+      int nhits = 0;
       if (!(iss >> bar1 >> dt)) continue;
+      if (!(iss >> nhits)) nhits = 0;
       if (bar1 >= 1 && bar1 <= NumPMTs) {
         gBarToffsetCorr[bar1-1] = dt;
+        gBarToffsetNhits[bar1-1] = nhits;
         nBarRead++;
       }
     } else if (section == "[ECalTiming]") {
@@ -577,7 +583,7 @@ bool WriteCalibrationConstants(const std::string& fname) {
   fout.setf(std::ios::fixed);
   fout.precision(6);
   for (int bar = 0; bar < NumPMTs; ++bar) {
-    fout << (bar+1) << " " << gBarToffsetCorr[bar] << "\n";
+    fout << (bar+1) << " " << gBarToffsetCorr[bar] << " " << gBarToffsetNhits[bar] << "\n";
   }
   fout << "\n";
 
@@ -1024,7 +1030,28 @@ vector<vector<double>> readDataFromFiles(const vector<string>& filenames) {
 
     return allData;
 }
+void pixelsFromBar(int bar)
+{
+    if (bar < 0) {
+        std::cerr << "Error: bar number must be >= 0" << std::endl;
+        return;
+    }
 
+    const int pixelsPerBar = 16;
+
+    int firstPixel = bar * pixelsPerBar;
+    int lastPixel  = firstPixel + pixelsPerBar - 1;
+
+    std::cout << "Bar/PMT " << bar << " has pixel slots: "
+              << firstPixel << " to " << lastPixel << std::endl;
+
+    std::cout << "Pixels: ";
+    for (int pix = firstPixel; pix <= lastPixel; pix++) {
+        std::cout << pix;
+        if (pix < lastPixel) std::cout << ", ";
+    }
+    std::cout << std::endl;
+}
 int getPixelID(int layerNum, int sideNum, int submoduleNum, int pmtNum, int pixelNum){
   // Calculate paddle number, note that missing pixels are included here
   // Validate inputs
@@ -1095,7 +1122,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 {
   (void)firstevent; // currently unused
 
-  const char *runListFile = "runs.txt"; //file with run numbers to analyze
+  const char *runListFile = "crossRuns.txt"; //file with run numbers to analyze
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
 	Double_t RefLeMax = 251.0;
@@ -1447,11 +1474,11 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
 
   cout << "Starting Event Loop" << endl;
 
-    int eff_denominator = 0;
-    int eff_numerator_layer1 = 0;
-    int eff_numerator_layer2 = 0;
-    int eff_numerator = 0;
-
+  int eff_denominator = 0;
+  int eff_numerator_layer1 = 0;
+  int eff_numerator_layer2 = 0;
+  int eff_numerator = 0;
+  int nh0_counter;
   // event loop start
   Int_t event = 0;
   while(reader.Next()){
@@ -1466,6 +1493,9 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     Int_t ngh = *ngoodhits;
     Int_t ngth = *ngoodTDChits;
     
+    if (nh == 0){ 
+      nh0_counter++;
+    }
     if (EventCounter % 10000 == 0) {
 	cout << EventCounter << "/" << NEventsAnalysis << "/ Nhits = " << (Int_t)nh << endl;
     	for (Int_t nfill=0; nfill<nh; nfill++) {hnhits_ev->Fill(EventCounter);}
@@ -2417,11 +2447,62 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     for (double x : vAllGoodLe){
       sum += x;
     }
-    double le_det_ave = sum / vAllGoodLe.size();
+    double le_ave = sum / vAllGoodLe.size();
+    std::vector<double> sum_event_avg_le(3,0);
+    std::vector<int> n_events_with_hit(3,0);
+    const size_t Nev = vGoodLe.size();
+    for (size_t ev = 0; ev < Nev; ev++){
+      std::vector<double> event_le_sum(3,0.0);
+      std::vector<int> event_le_count(3,0);
+      int nhits = vGoodLe[ev].size();
+
+      for (int ihit = 0; ihit < nhits; ihit++){
+        if (vGoodID[ev][ihit] >= 1472 && vGoodID[ev][ihit] <= 1487){
+          event_le_sum[0] += vGoodLe[ev][ihit];
+          event_le_count[0]++;
+        }
+        if (vGoodID[ev][ihit] >= 1200 && vGoodID[ev][ihit] <= 1215){
+          event_le_sum[1] += vGoodLe[ev][ihit];
+          event_le_count[1]++;
+        }
+        if (vGoodID[ev][ihit] >= 480 && vGoodID[ev][ihit] <= 495){
+          event_le_sum[2] += vGoodLe[ev][ihit];
+          event_le_count[2]++;
+        }
+      }
+
+      // Average this event separately for each of the 3 pixel/bar groups
+      std::vector<double> event_avg_le(3, -999.0);
+
+      for (int i = 0; i < 3; i++) {
+
+        // Only average this group if the event had at least one hit in that group
+        if (event_le_count[i] > 0) {
+
+            event_avg_le[i] = event_le_sum[i] / event_le_count[i];
+
+            // Add this event's average LE to the run-level sum
+            sum_event_avg_le[i] += event_avg_le[i];
+
+            // Count this event for this group
+            n_events_with_hit[i]++;
+        }
+      }
+    }
+
+    std::vector<double> le_run_avg(3, -999.0);
+
+    for (int i = 0; i < 3; i++) {
+      if (n_events_with_hit[i] > 0) {
+          le_run_avg[i] = sum_event_avg_le[i] / n_events_with_hit[i];
+      }
+    }
+
     std::ofstream outfile("le_means.csv", std::ios::app);
-    outfile << RunNumber1 << "," << le_det_ave << "\n";
+    outfile << RunNumber1 << "," << le_run_avg[0] << "," << le_run_avg[1] << "," << le_run_avg[2] << "," << le_ave << "\n";
     outfile.close();
   }
+  std::cout << "nevents with 0 hits = " << nh0_counter << std::endl;
   //================================================================== End Macro
 }// end main
 
@@ -2971,10 +3052,12 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
   // ------------------------------------------------------------
   const double meanAllGoodLe = hAllGoodLe->GetMean();
   std::vector<double> vBarResidualOffset(NumPMTs, 0.0);
+  std::vector<int> vBarOffsetNhits(NumPMTs, 0.0);
 
   for (int bar = 0; bar < NumPMTs; ++bar) {
     if (!hBarGoodLe[bar]) continue;
-    const double nent = hBarGoodLe[bar]->GetEntries();
+    const int nent = hBarGoodLe[bar]->GetEntries();
+    vBarOffsetNhits[bar] = nent;
     if (nent >= 20.0) {
       vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
     } else {
@@ -3014,6 +3097,7 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
   if (shouldWriteOffsets) {
     // Update global vector to the new total values
     gBarToffsetCorr = vBarTotalOffset;
+    gBarToffsetNhits = vBarOffsetNhits;
 
     if (WriteCalibrationConstants(gCalibrationFile)) {
       if (overwrite && gBarToffsetLoaded) {
@@ -3131,13 +3215,13 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
     TString suffix = saveTag;
     if (suffix.Length() > 0) suffix = "_" + suffix;
 
-    cOffsets->SaveAs(TString::Format("%s/cBarGoodLeOffsets%s.png",
+    cOffsets->SaveAs(TString::Format("%s/cBarGoodLeOffsets%s.pdf",
                                      saveDir.Data(), suffix.Data()));
 
-    caa->SaveAs(TString::Format("%s/AllTDC%s.png",
+    caa->SaveAs(TString::Format("%s/AllTDC%s.pdf",
                                 saveDir.Data(), suffix.Data()));
 
-    caaa->SaveAs(TString::Format("%s/AllChan%s.png",
+    caaa->SaveAs(TString::Format("%s/AllChan%s.pdf",
                                  saveDir.Data(), suffix.Data()));
 
     TCanvas *c1 = (TCanvas*)gROOT->FindObject("cBarGoodLe_L1L");
@@ -3145,13 +3229,13 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
     TCanvas *c3 = (TCanvas*)gROOT->FindObject("cBarGoodLe_L2L");
     TCanvas *c4 = (TCanvas*)gROOT->FindObject("cBarGoodLe_L2R");
 
-    if (c1) c1->SaveAs(TString::Format("%s/cBarGoodLe_L1L%s.png",
+    if (c1) c1->SaveAs(TString::Format("%s/cBarGoodLe_L1L%s.pdf",
                                        saveDir.Data(), suffix.Data()));
-    if (c2) c2->SaveAs(TString::Format("%s/cBarGoodLe_L1R%s.png",
+    if (c2) c2->SaveAs(TString::Format("%s/cBarGoodLe_L1R%s.pdf",
                                        saveDir.Data(), suffix.Data()));
-    if (c3) c3->SaveAs(TString::Format("%s/cBarGoodLe_L2L%s.png",
+    if (c3) c3->SaveAs(TString::Format("%s/cBarGoodLe_L2L%s.pdf",
                                        saveDir.Data(), suffix.Data()));
-    if (c4) c4->SaveAs(TString::Format("%s/cBarGoodLe_L2R%s.png",
+    if (c4) c4->SaveAs(TString::Format("%s/cBarGoodLe_L2R%s.pdf",
                                        saveDir.Data(), suffix.Data()));
   }
 

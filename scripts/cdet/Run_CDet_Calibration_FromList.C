@@ -6,11 +6,11 @@
 #include <iostream>
 #include <vector>
 #include <string>
+/* Wrapper script to call PlotElastic routine many times for different run numbers in .txt file given in constructor */
 
-void Run_CDet_Calibration_FromList(
-    const char* runlist = "crossRuns.txt"
-){
+void Run_CDet_Calibration_FromList(const char* runlist = "crossRuns.txt", bool removeCalib = true){
     gROOT->SetBatch(kTRUE);
+    TH1::AddDirectory(kFALSE);
     const TString calibFile = "CDet_calibration.dat";
     const TString outDir    = "calibrationFiles";
 
@@ -52,7 +52,7 @@ void Run_CDet_Calibration_FromList(
                   << " (" << i+1 << "/" << runs.size() << ")\n";
         std::cout << "========================================\n";
 
-        Run_CDet_Calibration_TwoPass_InSession_BScopy(
+        Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
             thisRun,   // RunNumber1
             -1,        // nevents
             0,         // elastic

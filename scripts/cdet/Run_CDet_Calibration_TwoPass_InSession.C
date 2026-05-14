@@ -21,13 +21,13 @@
 //   pass 1: 0 -> 1 -> 3 -> 6
 //   pass 2: 1 -> 3 -> 6
 //   final : 7
-
+// RunNumber1 = 0 will add all runs from the .txt file runs.txt
 void Run_CDet_Calibration_TwoPass_InSession(
     Int_t RunNumber1 = 3575,
     Int_t nevents = -1,
     Int_t elastic = 0,
     Int_t minSeg = 0,
-    Int_t maxSeg = 5,
+    Int_t maxSeg = 10,
     Double_t LeMin = 10.0,
     Double_t LeMax = 50.0,
     Double_t TotMin = 4.0,
