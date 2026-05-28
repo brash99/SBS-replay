@@ -219,8 +219,8 @@ void AddRunFilesToChain(TChain *chain, const char *dir, int runnum,
     chain->Add(file);
   }
 }
-// 4/21/2026 B. Spaude: need this for reading runs.txt to get list of runs into chain
-std::vector<int> ReadRunList(const char *runListFile) {
+// 5/18/2026 B. Spaude: modified to allow for chaining different run groups
+std::vector<int> ReadRunList(const char *runListFile, int groupIndex = 0) {
   std::vector<int> runs;
   std::ifstream infile(runListFile);
 
@@ -230,25 +230,66 @@ std::vector<int> ReadRunList(const char *runListFile) {
     return runs;
   }
 
-  std::string line;
-  while (std::getline(infile, line)) {
-    // Skip empty lines
-    if (line.empty()) continue;
+  if (groupIndex < 0) {
+    std::cerr << "ERROR: groupIndex must be >= 0. Got "
+              << groupIndex << "\n";
+    return runs;
+  }
 
-    // Skip comment lines
+  std::string targetHeader = TString::Format("[Group %d]", groupIndex).Data();
+
+  bool inTargetGroup = false;
+  std::string line;
+
+  while (std::getline(infile, line)) {
+    // Trim leading whitespace
+    size_t first = line.find_first_not_of(" \t\r\n");
+    if (first == std::string::npos) continue;
+
+    line = line.substr(first);
+
+    // Skip comments
     if (line[0] == '#') continue;
 
-    std::stringstream ss(line);
-    int runnum;
-    if (ss >> runnum) runs.push_back(runnum);
+    // Header line
+    if (line[0] == '[') {
+      if (line.find(targetHeader) == 0) {
+        inTargetGroup = true;
+      } else if (inTargetGroup) {
+        // We reached the next group, so stop reading
+        break;
+      } else {
+        inTargetGroup = false;
+      }
+
+      continue;
+    }
+
+    // Run lines inside requested group
+    if (inTargetGroup) {
+      std::stringstream ss(line);
+      int runnum;
+
+      if (ss >> runnum) {
+        runs.push_back(runnum);
+      }
+    }
   }
+
+  if (runs.empty()) {
+    std::cerr << "WARNING: No runs found for "
+              << targetHeader
+              << " in file "
+              << runListFile << "\n";
+  }
+
   return runs;
 }
-// 4/21/2026 B. Spaude: Use this to get the run list from runs.txt
+// 4/21/2026 B. Spaude: Use this to get the run list from crossRuns.txt
 void AddRunListFilesToChain(TChain *chain, const char *dir,
                             const char *runListFile,
-                            int segMin = -1, int segMax = -1) {
-  std::vector<int> runs = ReadRunList(runListFile);
+                            int segMin = -1, int segMax = -1, int groupIndex = 0) {
+  std::vector<int> runs = ReadRunList(runListFile, groupIndex);
   
   for (int runnum : runs) {
     AddRunFilesToChain(chain, dir, runnum, segMin, segMax);
@@ -430,7 +471,6 @@ inline void ConfigureCalibrationStage(int stage) {
   if (!useBarOffsets) {
     gBarToffsetCorr.assign(NumPMTs, 0.0);
     gBarToffsetNhits.assign(NumPMTs, 0);
-    gBarToffsetLoaded = false;
     std::cout << "[CDet] Stage " << stage
               << ": bar offsets disabled; proceeding with zero bar offsets.\n";
   }
@@ -1110,7 +1150,7 @@ std::vector<T> fill2D(const TTreeReaderArray<T>& arr) {
 }
 
 void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNumber1=5811, Int_t nevents=50000, Int_t calibStage = 7,
-  Int_t elastic = 0, Int_t minSeg = -1, Int_t maxSeg = -1,
+  Int_t groupIndex = 0, Int_t minSeg = -1, Int_t maxSeg = -1,
 	Double_t LeMin = 0.02, Double_t LeMax = 60.0,
 	Double_t TotMin = 1.0, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
@@ -1121,7 +1161,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
 {
   (void)firstevent; // currently unused
-
+  if (RunNumber1 == 0) gCalibrationFile = TString::Format("CDet_calibration_group%d.dat", groupIndex);
   const char *runListFile = "crossRuns.txt"; //file with run numbers to analyze
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 1.0;
@@ -1200,7 +1240,7 @@ LoadRunTimingConstants(gRunTimingFile);
   hXECalCDet1 = new TH2F("XECalCDet1","XECalCDet1",100,-2.0,2.0,100,-2.0,2.0);
   hXECalCDet2 = new TH2F("XECalCDet2","XECalCDet2",100,-2.0,2.0,100,-2.0,2.0);
   hXECalCDet1_min = new TH2F("XECalCDet1_min","XECalCDet1_min (min |x_{CDet}-x_{ECal->CDet}| per event)",100,-2.0,2.0,100,-2.0,2.0);
-hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{ECal->CDet}| per event)",100,-2.0,2.0,100,-2.0,2.0);
+  hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{ECal->CDet}| per event)",100,-2.0,2.0,100,-2.0,2.0);
   hYECalCDet1 = new TH2F("YECalCDet1","YECalCDet1",100,-1.0,1.0,9,-1.0,1.0);
   hYECalCDet2 = new TH2F("YECalCDet2","YECalCDet2",100,-1.0,1.0,9,-1.0,1.0);
   hEECalCDet1 = new TH2F("EECalCDet1","EECalCDet1",100,0.0,20.0,100,-2.0,2.0);
@@ -1362,7 +1402,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
   if (RunNumber1 == 0) {
     std::cout << "RunNumber1 == 0, using hardcoded run list file: "
               << runListFile << "\n";
-    AddRunListFilesToChain(T, REPLAYED_DIR.Data(), runListFile, minSeg, maxSeg);
+    AddRunListFilesToChain(T, REPLAYED_DIR.Data(), runListFile, minSeg, maxSeg, groupIndex);
   } else {
     std::cout << "Using single run mode for run " << RunNumber1 << "\n";
     AddRunFilesToChain(T, REPLAYED_DIR.Data(), RunNumber1, minSeg, maxSeg);
@@ -1528,9 +1568,9 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     
 
     bool good_elastic = false;
-    if (elastic == 0) good_elastic = true; //abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ECalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ECal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
+    good_elastic = true; //abs(*heep_dt_ADC)<10 && abs(sbs_tr_vz[0]+0.1)<0.18 && *heep_ECalo/(*heep_eprime_eth) > 0.7 && abs(*heep_dxECAL - 0.01 + 0.025 * (*earm_ECal_x)) < 0.05 && *sbs_gemFPP_track_ntrack > 0 && abs(*heep_dyECAL - 0.01) < 0.06 && sbs_gemFPP_track_sclose[0] < 0.01 && (sbs_gemFT_track_nhits[0] > 4 || sbs_gemFT_track_ngoodhits[0] > 2);
     //currently not using full replays, so elastic cuts dont work, just assume all elastic
-    else if (elastic == 1) good_elastic = true; //incase one does not want to use the elastic cut
+    // else if (elastic == 1) good_elastic = true; //incase one does not want to use the elastic cut
     if (good_elastic){
 
       //fill vectors we wish to make cuts on for selecting elastics
@@ -2442,7 +2482,7 @@ hXECalCDet2_min = new TH2F("XECalCDet2_min","XECalCDet2_min (min |x_{CDet}-x_{EC
     }
   }
   //for ben to get cross target individual peaks
-  if (calibStage == 2){
+  if (calibStage == 0){
     double sum = 0;
     for (double x : vAllGoodLe){
       sum += x;
@@ -2988,6 +3028,7 @@ TCanvas *plotBarRateHV() {
 }	
 
 TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0, double binHigh = 60, bool savePlots = false, TString saveTag = "", TString saveDir = "tdcPlots"){
+  TH1::AddDirectory(kFALSE);
   double Nbins = ((binHigh-binLow)/width);
 
   //define histograms
@@ -3051,6 +3092,10 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
   // Bars with < 20 entries get residual = 0.
   // ------------------------------------------------------------
   const double meanAllGoodLe = hAllGoodLe->GetMean();
+  TF1 *fGaus_all = new TF1("fGaus_all", "gaus", binLow + 20, binHigh);
+  fGaus_all->SetParameters(hAllGoodLe->GetMaximum(),meanAllGoodLe,hAllGoodLe->GetRMS());
+  hAllGoodLe->Fit(fGaus_all, "RQ0");
+  double gausFitAllGoodLeMean = fGaus_all->GetParameter(1);
   std::vector<double> vBarResidualOffset(NumPMTs, 0.0);
   std::vector<int> vBarOffsetNhits(NumPMTs, 0.0);
 
@@ -3059,7 +3104,14 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
     const int nent = hBarGoodLe[bar]->GetEntries();
     vBarOffsetNhits[bar] = nent;
     if (nent >= 20.0) {
-      vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
+      //use gaussian fit to get mean value of histogram
+      TF1 *fGaus = new TF1("fGaus", "gaus", binLow + 20, binHigh);
+      fGaus->SetParameters(hBarGoodLe[bar]->GetMaximum(), meanAllGoodLe, hBarGoodLe[bar]->GetRMS());
+      hBarGoodLe[bar]->Fit(fGaus,"RQ0");
+      double gausFitGoodLeMean = fGaus->GetParameter(1);
+      if (gausFitGoodLeMean > 60 || gausFitGoodLeMean < 0) vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
+      else vBarResidualOffset[bar] = gausFitAllGoodLeMean - gausFitGoodLeMean;
+      // vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
     } else {
       vBarResidualOffset[bar] = 0.0;
     }
@@ -3199,9 +3251,36 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
       h->GetXaxis()->SetTitleOffset(0.85);
       h->GetYaxis()->SetTitleOffset(0.85);
       h->Draw("HIST");
+      const int nent = h->GetEntries();
+
+      if (nent >= 20) {
+        int maxBin = h->GetMaximumBin();
+
+        TF1 *fGaus = new TF1(TString::Format("fGaus_bar%d_%s", bar, cname),"gaus", 20, 60);
+        fGaus->SetParameters(h->GetMaximum(), meanAllGoodLe, h->GetRMS());
+
+        fGaus->SetLineColor(kRed);
+        fGaus->SetLineWidth(2);
+
+        int fitStatus = h->Fit(fGaus, "RQ0");
+
+        if (fitStatus == 0) {
+          fGaus->Draw("SAME");
+
+          TLatex lat;
+          lat.SetNDC();
+          lat.SetTextSize(0.055);
+          lat.DrawLatex(
+              0.18, 0.82,
+              TString::Format("#mu = %.2f ns", fGaus->GetParameter(1))
+          );
+        }
+      }
     }
+
+    return c;
   };
-  
+
   drawBarRange("cBarGoodLe_L1L", "Good LE by Bar: Layer 1 Left (Bars 1-42)",     0,  42);
   drawBarRange("cBarGoodLe_L1R", "Good LE by Bar: Layer 1 Right (Bars 43-84)",   42,  42);
   drawBarRange("cBarGoodLe_L2L", "Good LE by Bar: Layer 2 Left (Bars 85-126)",   84,  42);

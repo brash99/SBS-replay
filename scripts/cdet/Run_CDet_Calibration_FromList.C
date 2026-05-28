@@ -1,22 +1,22 @@
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TString.h>
+#include <TH1.h>
 
 #include <fstream>
 #include <iostream>
 #include <vector>
 #include <string>
+#include <sstream>
+
 /* Wrapper script to call PlotElastic routine many times for different run numbers in .txt file given in constructor */
 
 void Run_CDet_Calibration_FromList(const char* runlist = "crossRuns.txt", bool removeCalib = true){
     gROOT->SetBatch(kTRUE);
     TH1::AddDirectory(kFALSE);
+
     const TString calibFile = "CDet_calibration.dat";
     const TString outDir    = "calibrationFiles";
-
-    // // Load your main driver macro ---EDIT DONT USE THESE, COMPILES WEIRD/WRONG
-    // gROOT->ProcessLine(".L PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C+");
-    // gROOT->ProcessLine(".L Run_CDet_Calibration_TwoPass_InSession_BScopy.C");
 
     // Make output directory if needed
     if (gSystem->AccessPathName(outDir)) {
@@ -31,10 +31,28 @@ void Run_CDet_Calibration_FromList(const char* runlist = "crossRuns.txt", bool r
     }
 
     std::vector<int> runs;
-    int run;
+    std::string line;
 
-    while (infile >> run) {
-        runs.push_back(run);
+    while (std::getline(infile, line)) {
+        // Trim leading whitespace
+        size_t first = line.find_first_not_of(" \t\r\n");
+        if (first == std::string::npos) continue;
+
+        line = line.substr(first);
+
+        // Skip comments
+        if (line[0] == '#') continue;
+
+        // Skip group headers like [Group 1], [Group 2], etc.
+        if (line[0] == '[') continue;
+
+        // Read run number from line
+        std::stringstream ss(line);
+        int run = -1;
+
+        if (ss >> run) {
+            runs.push_back(run);
+        }
     }
 
     if (runs.empty()) {
@@ -53,12 +71,12 @@ void Run_CDet_Calibration_FromList(const char* runlist = "crossRuns.txt", bool r
         std::cout << "========================================\n";
 
         Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
-            thisRun,   // RunNumber1
-            -1,        // nevents
-            0,         // elastic
-            0, 5,      // segments
-            10.0, 50.0, // LE min, max
-            4.0, 50.0,  // TOT min, max
+            thisRun,     // RunNumber1
+            -1,          // nevents
+            0,           // elastic
+            0, 5,        // segments
+            10.0, 50.0,  // LE min, max
+            4.0, 50.0,   // TOT min, max
             1, 100,
             1, 100,
             0.10,
