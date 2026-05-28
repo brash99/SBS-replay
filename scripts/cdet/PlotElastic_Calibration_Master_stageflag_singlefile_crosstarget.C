@@ -388,7 +388,11 @@ inline double GetTimeWalkCorrection(int layer, double tot) {
 }
 
 std::vector<std::vector<double>> vBarGoodLe;
+std::vector<std::vector<double>> vPaddleGoodLe;
+std::vector<std::vector<double>> vPaddleGoodTot;
 std::vector<TH1F*> hBarGoodLe; // one histogram per bar (PMT group), built in plotAllTDC()
+std::vector<TH1F*> hPaddleGoodLe; // one histogram per paddle, built in plotAllTDC()
+std::vector<TH2F*> hPaddleLEvsTOT;
 static const int NumPMTs = NumHalfModules*NumBars; // 168 (does not include 4 ref paddles)
 
 std::vector<int> gBarToffsetNhits;        // store Nhits for each bar when computing toffsets
@@ -1395,6 +1399,8 @@ LoadRunTimingConstants(gRunTimingFile);
   vCDetPaddleCutTot.assign(2688, std::vector<double>{});
   // Per-bar storage for good leading-edge times (bar = GoodElID/16)
   vBarGoodLe.assign(NumPMTs, std::vector<double>{});
+  vPaddleGoodLe.assign(2688, std::vector<double>{});
+  vPaddleGoodTot.assign(2688, std::vector<double>{});
   vBarGoodLeECalT.assign(NumPMTs, std::vector<double>{});
   vAllGoodECalT.clear();
   //int onlySegment = -1; // set to >=0 to pick just one
@@ -1934,8 +1940,8 @@ LoadRunTimingConstants(gRunTimingFile);
       bool goodhit_high  = ngoodhitsc1 <= nhitcuthigh1 && ngoodhitsc2 <= nhitcuthigh2; 
       bool goodhit_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
           (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
-      bool goodhit_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
-          (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
+      bool goodhit_ECal_diff_y = true;//(GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
+      //     (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       bool goodhit_CDet_event = goodhit_ECal_reconstruction && goodhit_ECal_diff_x && goodhit_ECal_diff_y && goodhit_le_time && goodhit_tot 
         && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high;
 
@@ -2008,6 +2014,11 @@ LoadRunTimingConstants(gRunTimingFile);
                 if (0 <= bar && bar < NumPMTs) {
                   vBarGoodLe[bar].push_back(tLE_bar);
                   vBarGoodLeECalT[bar].push_back(t_ECal_event);
+                }
+                const int paddle = GoodElID[el];
+                if (0 <= paddle && paddle < 2688){
+                  vPaddleGoodLe[paddle].push_back(tLE_bar);
+                  vPaddleGoodTot[paddle].push_back(GoodElTot[el]*TDC_calib_to_ns);
                 }
               }
 
@@ -2209,6 +2220,7 @@ LoadRunTimingConstants(gRunTimingFile);
     }// element loop
     }//good elastic bool
   }//event loop 
+
   std::cout << "nevents = " << rateEvTrack << std::endl;
   for (int i = 0; i < 2688; i++){
     chanRates[i] = (double)rawRate[i] / (rateEvTrack);
@@ -2543,6 +2555,9 @@ LoadRunTimingConstants(gRunTimingFile);
     outfile.close();
   }
   std::cout << "nevents with 0 hits = " << nh0_counter << std::endl;
+
+  std::cout << "nhits paddle 464 le = " << vPaddleGoodLe[467].size() << std::endl;
+  std::cout << "nhits paddle 464 tot = " << vPaddleGoodTot[467].size() << std::endl;
   //================================================================== End Macro
 }// end main
 
@@ -3027,9 +3042,119 @@ TCanvas *plotBarRateHV() {
   return daa;
 }	
 
+void plotPaddles(double width = 1, double LeMin = 0, double LeMax = 60, double TotMin = 0, double TotMax = 40, double binLow = 0, double binHigh = 60){
+  TH1::AddDirectory(kFALSE);
+  int Nbins = (int)((binHigh-binLow)/width);
+
+  std::vector<TF1*> fPixelGaussFit;
+
+  fPixelGaussFit.assign(32,nullptr);
+  hPaddleGoodLe.assign(32, nullptr);
+  hPaddleLEvsTOT.assign(32, nullptr);
+  int paddle_base = 464;
+  TCanvas* cPaddles = new TCanvas("cPaddles", "Bar 29 Pixels", 1200, 1000);
+  cPaddles->Divide(4, 4, 0.001, 0.001);
+  TCanvas* cPaddlesB30 = new TCanvas("cPaddlesB30", "Bar 30 Pixels", 1200, 1000);
+  cPaddlesB30->Divide(4, 4, 0.001, 0.001);
+  TCanvas* cPaddles2D = new TCanvas("cPaddles2D", "Bar 29 Pixels", 1200, 1000);
+  cPaddles2D->Divide(4, 4, 0.001, 0.001);
+  TCanvas* cPaddles2D_B30 = new TCanvas("cPaddles2D_B30", "Bar 30 Pixels", 1200, 1000);
+  cPaddles2D_B30->Divide(4, 4, 0.001, 0.001);
+
+  for (int paddle = 0; paddle < 32 ; ++paddle){
+    int global_paddle = paddle + paddle_base;
+    hPaddleGoodLe[paddle] = new TH1F(TString::Format("hBarGoodLe_Paddle%d", paddle+paddle_base),
+                               TString::Format("Good LE (Paddle %d)", paddle+paddle_base),
+                               Nbins, binLow, binHigh);
+    hPaddleLEvsTOT[paddle] = new TH2F(TString::Format("hPaddleLEvsTOT_Paddle%d", paddle + paddle_base),
+                                TString::Format("Good LE vs TOT (Paddle %d);TOT [ns];LE [ns]", paddle + paddle_base),
+                                Nbins, TotMin, TotMax,
+                                Nbins,  binLow,  binHigh);
+    for (double x : vPaddleGoodLe[paddle+paddle_base]) hPaddleGoodLe[paddle]->Fill(x);
+    double paddleMeanLe = hPaddleGoodLe[paddle]->GetMean();
+    double fit_low = paddleMeanLe - 15;
+    double fit_high = paddleMeanLe + 15;
+    fPixelGaussFit[paddle] = new TF1(TString::Format("fPixelGaussFit_Paddle%d", global_paddle), "gaus", fit_low, fit_high);
+
+    if (hPaddleGoodLe[paddle]->GetEntries() > 20){
+      fPixelGaussFit[paddle]->SetParameters(hPaddleGoodLe[paddle]->GetMaximum(), paddleMeanLe, hPaddleGoodLe[paddle]->GetRMS());
+      hPaddleGoodLe[paddle]->Fit(fPixelGaussFit[paddle], "RQ0");
+    }
+
+    for (int ihit = 0; ihit < vPaddleGoodLe[paddle+paddle_base].size();ihit++){
+      double le = vPaddleGoodLe[paddle+paddle_base][ihit];
+      double tot = vPaddleGoodTot[paddle+paddle_base][ihit];
+      hPaddleLEvsTOT[paddle]->Fill(tot,le);
+    }
+    // Draw
+    if (paddle >= 0 && paddle < 16){
+      cPaddles->cd(paddle + 1);
+      hPaddleGoodLe[paddle]->Draw();
+      if (hPaddleGoodLe[paddle]->GetEntries() > 20) fPixelGaussFit[paddle]->Draw("SAME");
+      // If unused pixel: draw a black square in the top-right corner of the pad
+      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
+        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
+        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
+        flag->SetFillColor(kBlack);
+        flag->SetLineColor(kBlack);
+        flag->SetBorderSize(1);
+        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
+        flag->Draw("same");
+      }
+      cPaddles2D->cd(paddle + 1);
+      hPaddleLEvsTOT[paddle]->Draw("COLZ");
+      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
+        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
+        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
+        flag->SetFillColor(kBlack);
+        flag->SetLineColor(kBlack);
+        flag->SetBorderSize(1);
+        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
+        flag->Draw("same");
+      }
+    }
+    else if (paddle >= 16 && paddle < 32){
+      int local_paddle = paddle - 16;
+      cPaddlesB30->cd(local_paddle + 1);
+      hPaddleGoodLe[paddle]->Draw();
+      if (hPaddleGoodLe[paddle]->GetEntries() > 20) fPixelGaussFit[paddle]->Draw("SAME");
+      // If unused pixel: draw a black square in the top-right corner of the pad
+      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
+        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
+        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
+        flag->SetFillColor(kBlack);
+        flag->SetLineColor(kBlack);
+        flag->SetBorderSize(1);
+        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
+        flag->Draw("same");
+      }
+      cPaddles2D_B30->cd(local_paddle + 1);
+      hPaddleLEvsTOT[paddle]->Draw("COLZ");
+      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
+        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
+        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
+        flag->SetFillColor(kBlack);
+        flag->SetLineColor(kBlack);
+        flag->SetBorderSize(1);
+        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
+        flag->Draw("same");
+      }
+    }
+  }
+  cPaddles->Update();
+  cPaddles->SaveAs("PaddleOffsetBar29.pdf");
+  cPaddlesB30->Update();
+  cPaddlesB30->SaveAs("PaddleOffsetBar30.pdf");
+  cPaddles2D->Update();
+  cPaddles2D->SaveAs("PaddleOffset2DBar29.pdf");
+  cPaddles2D_B30->Update();
+  cPaddles2D_B30->SaveAs("PaddleOffset2DBar30.pdf");
+
+}
+
 TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0, double binHigh = 60, bool savePlots = false, TString saveTag = "", TString saveDir = "tdcPlots"){
   TH1::AddDirectory(kFALSE);
-  double Nbins = ((binHigh-binLow)/width);
+  int Nbins = (int)((binHigh-binLow)/width);
 
   //define histograms
   hAllRawLe = new TH1F(TString::Format("hRawLe"),
