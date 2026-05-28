@@ -7,28 +7,27 @@ import matplotlib.pyplot as plt
 # -----------------------------
 # User settings
 # -----------------------------
-calib_dir = "calibrationFiles"
-
 bars_to_plot = [92, 75, 32]      # bars as written in the .dat files
 NumBars = 168                    # bars 1 through 168 in the .dat file
 
-file_pattern = f"{calib_dir}/CDet_calibration.dat.*"
+file_pattern = "CDet_calibration_group*.dat"
 
-output_run_pdf = "bar_offsets_vs_run.pdf"
-
-output_nhits_pdf = "bar_offsets_vs_nhits.pdf"
+output_group_pdf = "bar_offsets_vs_group.pdf"
+output_nhits_pdf = "bar_offsets_vs_nhits_by_group.pdf"
 
 
 # -----------------------------
 # Helper functions
 # -----------------------------
-def get_run_number(filename):
+def get_group_number(filename):
     """
-    Extract run number from filename like:
-    CDet_calibration.dat.4735
+    Extract group number from filename like:
+    CDet_calibration_group0.dat
+    CDet_calibration_group1.dat
+    CDet_calibration_group2.dat
     """
     base = os.path.basename(filename)
-    match = re.search(r"CDet_calibration\.dat\.(\d+)$", base)
+    match = re.search(r"CDet_calibration_group(\d+)\.dat$", base)
 
     if match:
         return int(match.group(1))
@@ -58,7 +57,7 @@ def read_bar_offsets(filename):
             if not line or line.startswith("#"):
                 continue
 
-            # Detect section headers more robustly
+            # Detect section headers
             if line.startswith("[") and line.endswith("]"):
                 section_name = line.strip()
 
@@ -77,7 +76,7 @@ def read_bar_offsets(filename):
                 # Expected:
                 # bar offset nhits
                 #
-                # But this also handles older two-column files:
+                # Also handles old two-column files:
                 # bar offset
                 if len(parts) >= 2:
                     try:
@@ -95,7 +94,6 @@ def read_bar_offsets(filename):
 
                     if 1 <= bar <= NumBars:
                         row = bar - 1
-
                         offsets[row, 0] = offset
                         offsets[row, 1] = nhits
                         n_bars_read += 1
@@ -114,7 +112,7 @@ def read_bar_offsets(filename):
 # -----------------------------
 # Main loop
 # -----------------------------
-data_vs_run = {bar: [] for bar in bars_to_plot}
+data_vs_group = {bar: [] for bar in bars_to_plot}
 data_vs_nhits = {bar: [] for bar in bars_to_plot}
 
 files = sorted(glob.glob(file_pattern))
@@ -123,9 +121,9 @@ if len(files) == 0:
     raise RuntimeError(f"No files found matching pattern: {file_pattern}")
 
 for filename in files:
-    run = get_run_number(filename)
+    group = get_group_number(filename)
 
-    if run is None:
+    if group is None:
         print(f"Skipping file with unexpected name: {filename}")
         continue
 
@@ -145,37 +143,36 @@ for filename in files:
             print(f"Warning: bar {bar} missing from [BarOffsets] in file {filename}")
             continue
 
-        data_vs_run[bar].append((run, offset))
-        data_vs_nhits[bar].append((nhits, offset))
+        data_vs_group[bar].append((group, offset))
+        data_vs_nhits[bar].append((nhits, offset, group))
 
 
 # -----------------------------
-# Plot 1: offset vs run number
+# Plot 1: offset vs group number
 # -----------------------------
 plt.figure(figsize=(8, 5))
 
 for bar in bars_to_plot:
-    bar_data = sorted(data_vs_run[bar], key=lambda x: x[0])
+    bar_data = sorted(data_vs_group[bar], key=lambda x: x[0])
 
     if len(bar_data) == 0:
-        print(f"No run data found for bar {bar}")
+        print(f"No group data found for bar {bar}")
         continue
 
-    runs = [x[0] for x in bar_data]
+    groups = [x[0] for x in bar_data]
     offsets_bar = [x[1] for x in bar_data]
 
-    plt.plot(runs, offsets_bar, marker="o", linestyle="-", label=f"Bar {bar}")
+    plt.plot(groups, offsets_bar, marker="o", linestyle="-", label=f"Bar {bar}")
 
-plt.xlabel("Run Number")
+plt.xlabel("Run Group")
 plt.ylabel("Bar Offset [ns]")
-plt.title("CDet Bar Offsets vs Run Number")
+plt.title("CDet Bar Offsets vs Run Group")
 plt.grid(True, alpha=0.3)
 plt.legend()
 plt.tight_layout()
 
-plt.savefig(output_run_pdf)
-
-print(f"Saved plot to {output_run_pdf}")
+plt.savefig(output_group_pdf)
+print(f"Saved plot to {output_group_pdf}")
 
 
 # -----------------------------
@@ -184,7 +181,7 @@ print(f"Saved plot to {output_run_pdf}")
 plt.figure(figsize=(8, 5))
 
 for bar in bars_to_plot:
-    bar_data = sorted(data_vs_nhits[bar], key=lambda x: x[0])
+    bar_data = sorted(data_vs_nhits[bar], key=lambda x: x[2])
 
     if len(bar_data) == 0:
         print(f"No nhits data found for bar {bar}")
@@ -203,7 +200,6 @@ plt.legend()
 plt.tight_layout()
 
 plt.savefig(output_nhits_pdf)
-
 print(f"Saved plot to {output_nhits_pdf}")
 
 plt.show()
