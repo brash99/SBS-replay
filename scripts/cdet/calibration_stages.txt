@@ -6,3 +6,4 @@
 5 = inspect time-walk using bar offsets + ECal timing correction
 6 = fit time-walk using bar offsets + ECal timing correction
 7 = apply bar offsets + ECal timing correction + time-walk correction
+8 = apply bar offsets + No ECal timing correction + time-walk correction (hydrogen)
