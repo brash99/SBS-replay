@@ -146,9 +146,17 @@ inline bool IsUnusedPixel(int elID) {
 //const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR")) + "/wrongdbRootfiles";
 const TString REPLAYED_DIR = TString(gSystem->Getenv("OUT_DIR"));
 
-// const TString ANALYSED_DIR = gSystem->Getenv("ANALYSED_DIR");
-//const TString REPLAYED_DIR = "/volatile/halla/sbs/btspaude/cdet/rootfiles";
-const TString ANALYSED_DIR = TString(gSystem->Getenv("OUT_DIR"))+"cdetFiles";
+TString GetAnalysedDir() {
+  const char *analysed = gSystem->Getenv("ANALYSED_DIR");
+  if (analysed && *analysed) return TString(analysed);
+
+  const char *out = gSystem->Getenv("OUT_DIR");
+  if (out && *out) return TString(out) + "/cdetFiles";
+
+  return TString();
+}
+
+const TString ANALYSED_DIR = GetAnalysedDir();
 
 // Parse the "segX_Y" part: returns true and fills firstSeg/lastSeg if found.
 // -------- 4/21/2026 B.Spaude modified so we can use this for either a single run or put multiple runs in chain
@@ -222,6 +230,7 @@ void AddRunFilesToChain(TChain *chain, const char *dir, int runnum,
 // 5/18/2026 B. Spaude: modified to allow for chaining different run groups
 std::vector<int> ReadRunList(const char *runListFile, int groupIndex = 0) {
   std::vector<int> runs;
+  std::unordered_set<int> seenRuns;
   std::ifstream infile(runListFile);
 
   if (!infile.is_open()) {
@@ -271,7 +280,12 @@ std::vector<int> ReadRunList(const char *runListFile, int groupIndex = 0) {
       int runnum;
 
       if (ss >> runnum) {
-        runs.push_back(runnum);
+        if (seenRuns.insert(runnum).second) {
+          runs.push_back(runnum);
+        } else {
+          std::cerr << "WARNING: Duplicate run " << runnum
+                    << " ignored in " << runListFile << "\n";
+        }
       }
     }
   }
@@ -1183,6 +1197,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
 {
   gRunNumber = RunNumber1;
+  gNumEventsInRun = 0;
   (void)firstevent; // currently unused
   if (RunNumber1 == 0) gCalibrationFile = TString::Format("CDet_calibration_group%d.dat", groupIndex);
   const char *runListFile = "crossRuns.txt"; //file with run numbers to analyze
@@ -1551,19 +1566,19 @@ LoadRunTimingConstants(gRunTimingFile);
   int eff_numerator_layer1 = 0;
   int eff_numerator_layer2 = 0;
   int eff_numerator = 0;
-  int nh0_counter;
+  int nh0_counter = 0;
   int goodEvCount = 0;
   // event loop start
   Int_t event = 0;
   while(reader.Next()){
     event++;
-    gNumEventsInRun++;
     event = event - 1;
     EventCounter++;
     // Only stop early if nevents > 0
     if (nevents > 0 && EventCounter > nevents) {
         break;
     }
+    gNumEventsInRun++;
     Int_t nh = *nhits;
     Int_t ngh = *ngoodhits;
     Int_t ngth = *ngoodTDChits;
@@ -1699,6 +1714,14 @@ LoadRunTimingConstants(gRunTimingFile);
         goodIdx[(int)GoodElID[ig]] = ig;
       }
 
+      // Raw hits and good-hit multiplicities have different indexing. Count
+      // raw hits by channel so the raw-hit cut uses the collection it filters.
+      std::unordered_map<int,int> rawMultiplicity;
+      rawMultiplicity.reserve(RawElID.GetSize());
+      for (std::size_t iraw = 0; iraw < RawElID.GetSize(); ++iraw) {
+        ++rawMultiplicity[(int)RawElID[iraw]];
+      }
+
       int rawEventCounter = 0;
       for (std::size_t el = 0; el < RawElID.GetSize(); ++el){
 
@@ -1712,7 +1735,7 @@ LoadRunTimingConstants(gRunTimingFile);
 
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
-      bool good_mult = TDCmult[el] < TDCmult_cut;
+      bool good_mult = rawMultiplicity[raw_pmt] < TDCmult_cut;
       bool good_CDet_X = hasGood && (fabs(gx) < xcut);
       // bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
       //     (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
