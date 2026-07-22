@@ -22,19 +22,19 @@
 //   pass 2: 1 -> 3 -> 6
 //   final : 7
 // RunNumber1 = 0 will add all runs from the .txt file runs.txt
-void Run_CDet_Calibration_TwoPass_InSession(
-    Int_t RunNumber1 = 3575,
+void Run_CDet_Calibration_TwoPass_InSession_AllCross(
+    Int_t groupIndex = 0,
+    Int_t RunNumber1 = 0,
     Int_t nevents = -1,
-    Int_t elastic = 0,
     Int_t minSeg = 0,
-    Int_t maxSeg = 10,
+    Int_t maxSeg = 20,
     Double_t LeMin = 10.0,
-    Double_t LeMax = 50.0,
+    Double_t LeMax = 60.0,
     Double_t TotMin = 4.0,
     Double_t TotMax = 50.0,
-    Int_t nhitcutlow1 = 1,
+    Int_t nhitcutlow1 = 0,
     Int_t nhitcuthigh1 = 100,
-    Int_t nhitcutlow2 = 1,
+    Int_t nhitcutlow2 = 0,
     Int_t nhitcuthigh2 = 100,
     Double_t XDiffCut = 0.10,
     Double_t XOffset = 0.02,
@@ -47,7 +47,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
     bool removeExistingCalibrationFile = true
 ){
     const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C";
-    const TString calibFile   = "CDet_calibration.dat";
+    const TString calibFile   = TString::Format("CDet_calibration_group%d.dat",groupIndex);
 
     if (gSystem->AccessPathName(masterMacro)) {
         std::cerr << "[Driver] ERROR: Could not find master macro " << masterMacro << "\\n";
@@ -63,7 +63,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
 
     auto runMain = [&](Int_t stage) {
         PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
-            RunNumber1, nevents, stage,elastic, minSeg, maxSeg,
+            RunNumber1, nevents, stage,groupIndex, minSeg, maxSeg,
             LeMin, LeMax, TotMin, TotMax,
             nhitcutlow1, nhitcuthigh1, nhitcutlow2, nhitcuthigh2,
             XDiffCut, XOffset, YOffset, layer_choice,
