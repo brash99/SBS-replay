@@ -20,7 +20,7 @@
 //       void ResetCalibrationGlobals();
 //   - Stage 8 exists in the master macro.
 
-void Run_CDet_Calibration_Hydrogen(
+void Run_CDet_Calibration_Hydrogen_Basic(
     Int_t RunNumber1 = 6077,
     Int_t nevents = -1,
     Int_t elastic = 0,
@@ -76,16 +76,24 @@ void Run_CDet_Calibration_Hydrogen(
     };
 
 
+    stageBanner("pass1_raw_inspection", 0);
+    ResetCalibrationGlobals();
+    runMain(0);
+    plotAllTDC(false, 1.0, 0.0, 60.0);
 
-    // First pass on hydrogen:
-    // Fit CDet/ECal timing with bar offsets + timewalk applied, but NO ECal correction.
-    stageBanner("hydrogen_ecal_fit", 3);
+    stageBanner("pass1_timeoffset_fit", 1);
+    ResetCalibrationGlobals();
+    runMain(1);
+    plotAllTDC(true, 1.0, 0.0, 60.0);
+/*    
+    stageBanner("pass1_timeoffset_fit", 3);
     ResetCalibrationGlobals();
     runMain(3);
-    plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.05, 0.05,
+    plotAllTDC(false, 1.0, 0.0, 60.0);
+    plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.02, 0.02,
                            LeMin, LeMax, TotMin, TotMax, -15, 15, 0, 60, 0, 80,
-                           70, 125, -160, -40);
-
+                           70, 130, -160, -40);
+*/
 
 /*  
     // Final fully calibrated pass on hydrogen
