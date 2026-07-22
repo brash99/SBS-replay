@@ -46,6 +46,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     Int_t firstevent = 1,
     bool removeExistingCalibrationFile = true
 ){
+    gLastCalibrationSequenceSucceeded = false;
     const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C";
     const TString calibFile   = "CDet_calibration.dat";
 
@@ -61,7 +62,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
         gSystem->Unlink(calibFile);
     }
 
-    auto runMain = [&](Int_t stage) {
+    auto runMain = [&](Int_t stage) -> bool {
         PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
             RunNumber1, nevents, stage,elastic, minSeg, maxSeg,
             LeMin, LeMax, TotMin, TotMax,
@@ -69,6 +70,9 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
             XDiffCut, XOffset, YOffset, layer_choice,
             suppress_bad, nruns, maxstream, firstevent
         );
+        if (!gLastCalibrationStageSucceeded)
+            std::cerr << "[Driver] ERROR: stage " << stage << " failed; stopping sequence.\\n";
+        return gLastCalibrationStageSucceeded;
     };
 
     auto stageBanner = [&](const char* name, Int_t stage) {
@@ -79,7 +83,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     
     stageBanner("before_bar_offsets", 0);
     ResetCalibrationGlobals();
-    runMain(0);
+    if (!runMain(0)) return;
     plotAllPaddles(1, 0, 60, 0, 60, 0, 60, TString::Format("%d", RunNumber1));
     runStats();
     // plotAllTDC(false, 1.0, 0.0, 60.0, true,
@@ -88,56 +92,65 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
 
     stageBanner("pass1_timeoffset_fit", 1);
     ResetCalibrationGlobals();
-    runMain(1);
+    if (!runMain(1)) return;
     plotAllTDC(true, 1.0, 0.0, 60.0);
+    if (!gLastCalibrationFitSucceeded) return;
 
     // Apply offsets and then plot corrected spectra
     stageBanner("after_bar_offsets_applied", 2);
     ResetCalibrationGlobals();
-    runMain(2);
+    if (!runMain(2)) return;
     plotAllTDC(false, 1.0, 0.0, 60.0, true,
            "stage2_afterOffsets",
            TString::Format("tdcPlots/run%d", RunNumber1));
+    if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass1_ecal_fit", 3);
     ResetCalibrationGlobals();
-    runMain(3);
+    if (!runMain(3)) return;
     plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass1_timewalk_fit", 6);
     ResetCalibrationGlobals();
-    runMain(6);
+    if (!runMain(6)) return;
     plotGoodLeVsTotByLayer(true, 15, 45, 4, 30, 0.2, 0.5, true, true, 5.0, 25.0);
+    if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_timeoffset_refit", 1);
     ResetCalibrationGlobals();
-    runMain(1);
+    if (!runMain(1)) return;
     plotAllTDC(true, 1.0, 0.0, 60.0);
+    if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_ecal_refit", 3);
     ResetCalibrationGlobals();
-    runMain(3);
+    if (!runMain(3)) return;
     plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_timewalk_refit", 6);
     ResetCalibrationGlobals();
-    runMain(6);
+    if (!runMain(6)) return;
     plotGoodLeVsTotByLayer(true, 15, 45, 4, 30, 0.2, 0.5, true, true, 5.0, 25.0);
+    if (!gLastCalibrationFitSucceeded) return;
 
     // -----------------------------
     // FINAL BAR-OFFSET CLOSURE PASS
     // -----------------------------
     stageBanner("pass3_fullclosure_offsets", 7);
     ResetCalibrationGlobals();
-    runMain(7);
+    if (!runMain(7)) return;
     plotAllTDC(true, 1.0, 0.0, 60.0);
+    if (!gLastCalibrationFitSucceeded) return;
     
     stageBanner("final_calibrated_state", 7);
     ResetCalibrationGlobals();
-    runMain(7);
+    if (!runMain(7)) return;
     plotAllTDC(false, 1.0, 0.0, 60.0);
     plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
     plotGoodLeVsTotByLayer(false, 15, 45, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
+    gLastCalibrationSequenceSucceeded = true;
     std::cout << "\\n[Driver] Two-pass in-session calibration sequence complete.\\n";
     std::cout << "[Driver] Final calibration file should be in: " << calibFile << "\\n";
 }

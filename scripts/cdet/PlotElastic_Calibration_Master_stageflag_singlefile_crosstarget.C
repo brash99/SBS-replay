@@ -421,6 +421,9 @@ std::string gCalibrationFile = "CDet_calibration.dat";
 Int_t gNumEventsInRun = 0;
 Int_t gRunNumber = 0;
 Int_t gCalibrationStage = 0;
+bool gLastCalibrationStageSucceeded = false;
+bool gLastCalibrationFitSucceeded = false;
+bool gLastCalibrationSequenceSucceeded = false;
 
 // Per-run global timing shift, kept separate from the main detector calibration file.
 // Expected file name: CDet_run<RunNumber>.dat
@@ -1259,6 +1262,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1,
         bool useReferenceTiming = false)
 {
+  gLastCalibrationStageSucceeded = false;
   gRunNumber = RunNumber1;
   gCalibrationStage = calibStage;
   gNumEventsInRun = 0;
@@ -2107,16 +2111,7 @@ std::cout << "[CDet] Reference timing subtraction is "
         // std::cout << " gx = " << GoodX[el] << " & ECalX_Proj = " << (*ECalX)*GoodZ[el]/ECal_dist - XOffset <<std::endl;
         CDetPassedBoolCount++;
         int idx = GoodElID[el];
-        //get ecal info before cdet
-        for (int ihit = 0; ihit < ECal_a_p.GetSize(); ihit++ ){ //this is where i want to fill a_p & adctime. I assume i will need to use a method similar to thisEvent_GoodLE that eventually fills vGoodLe
-          if (ECal_a_p[ihit] > 0.0){
-            thisEvent_ECal_a_amp_p.push_back(ECal_a_amp_p[ihit]);
-            thisEvent_ECal_a_p.push_back(ECal_a_p[ihit]);
-            thisEvent_ECal_a_time.push_back(ECal_a_time[ihit]);
-            thisEvent_ECal_adcxpos.push_back(ECal_adcxpos[ihit]);
-          }
-        }
-          if (0 <= idx && idx < 2688) {
+        if (0 <= idx && idx < 2688) {
           double le_ns = GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
           double tot_ns = GoodElTot[el]*TDC_calib_to_ns;
           double te_ns = GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
@@ -2298,6 +2293,17 @@ std::cout << "[CDet] Reference timing subtraction is "
     if (foundBest[1]) hXECalCDet2_min->Fill(bestXCDet[1], bestXECalProj[1]);
 
     if (CDetPassedBoolCount >= 1){
+      const auto nECalBlocks = std::min(
+          std::min(ECal_a_p.GetSize(), ECal_a_amp_p.GetSize()),
+          std::min(ECal_a_time.GetSize(), ECal_adcxpos.GetSize()));
+      for (std::size_t ihit = 0; ihit < nECalBlocks; ++ihit) {
+        if (ECal_a_p[ihit] > 0.0) {
+          thisEvent_ECal_a_amp_p.push_back(ECal_a_amp_p[ihit]);
+          thisEvent_ECal_a_p.push_back(ECal_a_p[ihit]);
+          thisEvent_ECal_a_time.push_back(ECal_a_time[ihit]);
+          thisEvent_ECal_adcxpos.push_back(ECal_adcxpos[ihit]);
+        }
+      }
       goodEvCount++;
       v_GoodECalX.push_back(*ECalX);
       v_GoodECalY.push_back(*ECalY);
@@ -2384,12 +2390,13 @@ std::cout << "[CDet] Reference timing subtraction is "
         hngoodTDCpaddles->Fill(ngoodTDCpaddles);
 
         //cout << "Element loop: " << NdataMult << endl;
-    for (std::size_t tdc = 0; tdc < TDCmult.GetSize(); ++tdc){
-      if (!check_bad(RawElID[tdc],suppress_bad)) {
+    const auto nGoodMultiplicity = std::min(TDCmult.GetSize(), GoodElID.GetSize());
+    for (std::size_t tdc = 0; tdc < nGoodMultiplicity; ++tdc){
+      if (!check_bad(GoodElID[tdc],suppress_bad)) {
         hMultiplicity->Fill(TDCmult[tdc]);
-        hMultiplicityL[(Int_t)RawElID[tdc]]->Fill(TDCmult[tdc]);
+        hMultiplicityL[(Int_t)GoodElID[tdc]]->Fill(TDCmult[tdc]);
         if( TDCmult[tdc] != 0 ){
-          h2d_Mult->Fill(TDCmult[tdc], (Int_t)RawElID[tdc] );
+          h2d_Mult->Fill(TDCmult[tdc], (Int_t)GoodElID[tdc] );
         }
       }
     }// element loop
@@ -2398,7 +2405,7 @@ std::cout << "[CDet] Reference timing subtraction is "
 
   std::cout << "nevents = " << rateEvTrack << std::endl;
   for (int i = 0; i < 2688; i++){
-    chanRates[i] = (double)rawRate[i] / (rateEvTrack);
+    chanRates[i] = rateEvTrack > 0 ? (double)rawRate[i] / rateEvTrack : 0.0;
     //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
   }
 
@@ -2410,7 +2417,7 @@ std::cout << "[CDet] Reference timing subtraction is "
     for (Int_t i = 0; i < ihits; i++){
       sumTot += vCDetPaddleRawTot[idx][i];
     }
-    ave_tot[idx] = sumTot / ihits;
+    ave_tot[idx] = ihits > 0 ? sumTot / ihits : 0.0;
   }
 
   for (Int_t idx = 0; idx < 2688; idx++){
@@ -2422,7 +2429,7 @@ std::cout << "[CDet] Reference timing subtraction is "
         cutRate[idx]++;
       }
     }
-    cutChanRates[idx] = (double)cutRate[idx] / rateEvTrack;
+    cutChanRates[idx] = rateEvTrack > 0 ? (double)cutRate[idx] / rateEvTrack : 0.0;
   }
 
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
@@ -2499,7 +2506,10 @@ std::cout << "[CDet] Reference timing subtraction is "
   vector<vector<double>> data = readDataFromFiles(HVfilenames);
   std::vector<double> barRateContents = extractBinContents(hAllRawBar);
   Double_t xval,yval;
-  for (int ii=0;ii<4;ii++) {
+  if (data.size() != HVfilenames.size()) {
+    std::cerr << "[CDet] WARNING: skipping HV/rate correlation because one or more HV files are incomplete.\n";
+  }
+  for (std::size_t ii=0; ii<data.size() && ii<HVfilenames.size(); ++ii) {
     for (int jj=0;jj<42;jj++) {
       xval = data[ii][jj];
             yval = barRateContents[ii*42+jj];
@@ -2731,6 +2741,9 @@ std::cout << "[CDet] Reference timing subtraction is "
   // }
   std::cout << "nevents with 0 hits = " << nh0_counter << std::endl;
   std::cout << "nGoodEvents = " << goodEvCount << std::endl;
+  gLastCalibrationStageSucceeded = gNumEventsInRun > 0;
+  if (!gLastCalibrationStageSucceeded)
+    std::cerr << "[CDet] ERROR: calibration stage processed no events.\n";
   /* 7/6/2026 BS : debugging stuff, dont need normally
   TH1F*hForMean = new TH1F("hForMean", "hForMean", 61, -1, 60);
   TH1F*hForMeanRef = new TH1F("hForMeanRef", "hForMeanRef", 100, 0, 100);
@@ -2833,11 +2846,35 @@ void ResetCalibrationGlobals()
     v_GoodECalY.clear();
     v_GoodECalE.clear();
     v_GoodECalAdcTime.clear();
+    v_GoodHCalAdcTime.clear();
+    v_GoodHCalE.clear();
+
+    v_ECal_a_p.clear();
+    v_ECal_a_amp_p.clear();
+    v_ECal_a_time.clear();
+    v_ECal_adcxpos.clear();
 
     v_ECalX.clear();
     v_ECalY.clear();
     v_ECalE.clear();
     v_ECalAdcTime.clear();
+
+    vTestLe.clear();
+    vTestTe.clear();
+    vTestTot.clear();
+    vTestID.clear();
+
+    vhitCDetPMT.clear();
+    vRow.clear();
+    vGoodCol.clear();
+    vGoodLayer.clear();
+    vRowLayer1Side1.clear();
+    vRowLayer2Side1.clear();
+    vRowLayer1Side2.clear();
+    vRowLayer2Side2.clear();
+    vnpaddles.clear();
+    vngoodpaddles.clear();
+    vngoodTDCpaddles.clear();
 
     vEventHits.clear();
     vGoodEventHits.clear();
@@ -3035,6 +3072,7 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
                             double fitTotMin = 5.0,
                             double fitTotMax = 25.0)
 {
+  gLastCalibrationFitSucceeded = !fitTimeWalk;
   TH1::AddDirectory(kFALSE);
 
   int nLeBins  = std::max(1, (int)((leMax  - leMin ) / leBinWidth));
@@ -3085,6 +3123,7 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
 
   TProfile* pL1 = nullptr;
   TF1* fTW_L1 = nullptr;
+  bool fitL1OK = false;
   if (drawProfiles) {
     pL1 = hGoodLeVsTot_L1->ProfileX("pGoodLeVsTot_L1");
     pL1->SetMarkerStyle(20);
@@ -3099,7 +3138,7 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
         fTW_L1 = new TF1("fTW_L1", "[0] + [1]/sqrt(x)", fitMin, fitMax);
         const double yMean = pL1->GetMean(2);
         fTW_L1->SetParameters(std::isfinite(yMean) ? yMean : 30.0, 5.0);
-        pL1->Fit(fTW_L1, "QR");
+        const int fitStatus = pL1->Fit(fTW_L1, "QRS");
         fTW_L1->SetLineColor(kRed);
         fTW_L1->SetLineWidth(2);
         fTW_L1->Draw("SAME");
@@ -3108,8 +3147,11 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
         const double p1 = fTW_L1->GetParameter(1);
         const double e0 = fTW_L1->GetParError(0);
         const double e1 = fTW_L1->GetParError(1);
-        gTimeWalkFitP0_L1 = p0;
-        gTimeWalkFitP1_L1 = p1;
+        fitL1OK = fitStatus == 0 && std::isfinite(p0) && std::isfinite(p1);
+        if (fitL1OK) {
+          gTimeWalkFitP0_L1 = p0;
+          gTimeWalkFitP1_L1 = p1;
+        }
         std::cout << "\n[plotGoodLeVsTotByLayer] Layer 1 time-walk fit:\n"
                   << "  LE(TOT) = p0 + p1/sqrt(TOT)\n"
                   << "  fit range: " << fitMin << " to " << fitMax << " ns\n"
@@ -3132,6 +3174,7 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
 
   TProfile* pL2 = nullptr;
   TF1* fTW_L2 = nullptr;
+  bool fitL2OK = false;
   if (drawProfiles) {
     pL2 = hGoodLeVsTot_L2->ProfileX("pGoodLeVsTot_L2");
     pL2->SetMarkerStyle(20);
@@ -3146,7 +3189,7 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
         fTW_L2 = new TF1("fTW_L2", "[0] + [1]/sqrt(x)", fitMin, fitMax);
         const double yMean = pL2->GetMean(2);
         fTW_L2->SetParameters(std::isfinite(yMean) ? yMean : 30.0, 5.0);
-        pL2->Fit(fTW_L2, "QR");
+        const int fitStatus = pL2->Fit(fTW_L2, "QRS");
         fTW_L2->SetLineColor(kRed);
         fTW_L2->SetLineWidth(2);
         fTW_L2->Draw("SAME");
@@ -3155,8 +3198,11 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
         const double p1 = fTW_L2->GetParameter(1);
         const double e0 = fTW_L2->GetParError(0);
         const double e1 = fTW_L2->GetParError(1);
-        gTimeWalkFitP0_L2 = p0;
-        gTimeWalkFitP1_L2 = p1;
+        fitL2OK = fitStatus == 0 && std::isfinite(p0) && std::isfinite(p1);
+        if (fitL2OK) {
+          gTimeWalkFitP0_L2 = p0;
+          gTimeWalkFitP1_L2 = p1;
+        }
         std::cout << "\n[plotGoodLeVsTotByLayer] Layer 2 time-walk fit:\n"
                   << "  LE(TOT) = p0 + p1/sqrt(TOT)\n"
                   << "  fit range: " << fitMin << " to " << fitMax << " ns\n"
@@ -3174,22 +3220,28 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
   }
 
   if (overwrite && fitTimeWalk) {
+    if (!fitL1OK || !fitL2OK) {
+      std::cerr << "[CDet] ERROR: time-walk fit failed for one or more layers; constants were not written.\n";
+      return;
+    }
     bool updated = false;
-    if (std::isfinite(gTimeWalkFitP1_L1)) {
+    if (fitL1OK) {
       gTimeWalkP1_L1 += gTimeWalkFitP1_L1;
       updated = true;
     }
-    if (std::isfinite(gTimeWalkFitP1_L2)) {
+    if (fitL2OK) {
       gTimeWalkP1_L2 += gTimeWalkFitP1_L2;
       updated = true;
     }
     if (updated) {
       gTimeWalkParamsLoaded = true;
-      WriteCalibrationConstants(gCalibrationFile);
+      gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
       std::cout << "[CDet] Updated time-walk parameters in calibration file: "
                 << "p1_L1=" << gTimeWalkP1_L1
                 << "  p1_L2=" << gTimeWalkP1_L2 << "\n";
     }
+  } else if (fitTimeWalk) {
+    gLastCalibrationFitSucceeded = fitL1OK && fitL2OK;
   }
 }
 
@@ -3831,6 +3883,7 @@ void plotAllPaddles(double width = 1, double LeMin = 0, double LeMax = 60, doubl
 }
 
 TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0, double binHigh = 60, bool savePlots = false, TString saveTag = "", TString saveDir = "tdcPlots"){
+  gLastCalibrationFitSucceeded = false;
   TH1::AddDirectory(kFALSE);
   int Nbins = (int)((binHigh-binLow)/width);
 
@@ -3895,10 +3948,18 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
   // Bars with < 20 entries get residual = 0.
   // ------------------------------------------------------------
   const double meanAllGoodLe = hAllGoodLe->GetMean();
+  if (hAllGoodLe->GetEntries() < 20 || !std::isfinite(meanAllGoodLe)) {
+    std::cerr << "[CDet] ERROR: insufficient good-hit statistics for bar-offset fitting.\n";
+    return nullptr;
+  }
   TF1 *fGaus_all = new TF1("fGaus_all", "gaus", binLow + 20, binHigh);
   fGaus_all->SetParameters(hAllGoodLe->GetMaximum(),meanAllGoodLe,hAllGoodLe->GetRMS());
-  hAllGoodLe->Fit(fGaus_all, "RQ0");
+  const int globalFitStatus = hAllGoodLe->Fit(fGaus_all, "RQS0");
   double gausFitAllGoodLeMean = fGaus_all->GetParameter(1);
+  if (globalFitStatus != 0 || !std::isfinite(gausFitAllGoodLeMean)) {
+    std::cerr << "[CDet] ERROR: global bar-offset fit failed; constants were not written.\n";
+    return nullptr;
+  }
   std::vector<double> vBarResidualOffset(NumPMTs, 0.0);
   std::vector<int> vBarOffsetNhits(NumPMTs, 0.0);
 
@@ -3910,9 +3971,11 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
       //use gaussian fit to get mean value of histogram
       TF1 *fGaus = new TF1("fGaus", "gaus", binLow + 20, binHigh);
       fGaus->SetParameters(hBarGoodLe[bar]->GetMaximum(), meanAllGoodLe, hBarGoodLe[bar]->GetRMS());
-      hBarGoodLe[bar]->Fit(fGaus,"RQ0");
+      const int barFitStatus = hBarGoodLe[bar]->Fit(fGaus,"RQS0");
       double gausFitGoodLeMean = fGaus->GetParameter(1);
-      if (gausFitGoodLeMean > 60 || gausFitGoodLeMean < 0) vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
+      if (barFitStatus != 0 || !std::isfinite(gausFitGoodLeMean) ||
+          gausFitGoodLeMean > 60 || gausFitGoodLeMean < 0)
+        vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
       else vBarResidualOffset[bar] = gausFitAllGoodLeMean - gausFitGoodLeMean;
       // vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
     } else {
@@ -3960,7 +4023,7 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
       } else {
         std::cout << "[CDet] Wrote bar offsets to calibration file from current pass\n";
       }
-    }
+    } else return nullptr;
   }
 
   // Plot offsets vs bar number
@@ -4121,6 +4184,7 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
                                        saveDir.Data(), suffix.Data()));
   }
 
+  gLastCalibrationFitSucceeded = true;
   return caa;
 }
 
@@ -4180,6 +4244,7 @@ TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullpt
 }
 
 void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100,bool allowMultiplePairs = true){
+  gLastCalibrationFitSucceeded = false;
   
   TH1::AddDirectory(kFALSE);
   
@@ -4557,7 +4622,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
 
   TF1* fCDetTvsECalT_lin = new TF1("fCDetTvsECalT_lin", "pol1", ECalMin, ECalMax);
   // Quiet fit, respect range
-  pCDetTvsECalT->Fit(fCDetTvsECalT_lin, "QR");
+  const int ecalFitStatus = pCDetTvsECalT->Fit(fCDetTvsECalT_lin, "QRS");
 
   // Overlay the profile points and fit on top of the COLZ plot
   pCDetTvsECalT->Draw("SAME");
@@ -4580,13 +4645,19 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   ptFit->AddText(Form("p1 = %.5f #pm %.5f", p1, e1));
   ptFit->Draw("SAME");
 
-  if (overwrite) {
+  const bool ecalFitOK = ecalFitStatus == 0 && pCDetTvsECalT->GetEntries() >= 3 &&
+                         std::isfinite(p0) && std::isfinite(p1);
+  if (overwrite && ecalFitOK) {
     gECalFitP0 += p0;
     gECalFitP1 += p1;
     gECalParamsLoaded = true;
-    WriteCalibrationConstants(gCalibrationFile);
+    gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
     std::cout << "[CDet] Updated ECal timing parameters in calibration file: "
               << "p0=" << gECalFitP0 << "  p1=" << gECalFitP1 << "\n";
+  } else if (overwrite) {
+    std::cerr << "[CDet] ERROR: ECal timing fit failed; constants were not written.\n";
+  } else {
+    gLastCalibrationFitSucceeded = ecalFitOK;
   }
 
   TCanvas* cCDetFrontvsBackID = new TCanvas("cCDetFrontvsBackID", "CDet Front Paddle vs Back Paddle ID", 1000, 620);

@@ -90,6 +90,12 @@ void Run_CDet_Calibration_FromList(const char* runlist = "crossRuns.txt", bool r
             removeCalib
         );
 
+        if (!gLastCalibrationSequenceSucceeded) {
+            std::cerr << "[Wrapper] ERROR: calibration failed for run "
+                      << thisRun << "; no output will be archived.\n";
+            continue;
+        }
+
         // After the run finishes, save a copy of the calibration file
         if (gSystem->AccessPathName(calibFile)) {
             std::cerr << "[Wrapper] WARNING: " << calibFile
