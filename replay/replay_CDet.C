@@ -1,4 +1,7 @@
 #include <iostream>
+#include <vector>
+#include <string>
+using namespace std;
 
 #include "TSystem.h"
 #include "TString.h"
@@ -17,10 +20,19 @@
 #include "SBSBBShower.h"
 
 #include "SBSEArm.h"
-#include "SBSECal.h"
-#include "SBSCDet.h"
-#include "SBSCDet_Hit.h"
 #include "SBSGEPEArm.h"
+#include "SBSCDet.h"
+#include "SBSHCal.h"
+#include "SBSECal.h"
+#include "SBSGEMSpectrometerTracker.h"
+#include "SBSGEMPolarimeterTracker.h"
+#include "SBSGEMTrackerBase.h"
+#include "SBSGEPRegionOfInterestModule.h"
+#include "SBSRasteredBeam.h"
+#include "LHRSScalerEvtHandler.h"
+#include "SBSScalerEvtHandler.h"
+#include "SBSScalerHelicity.h"
+#include "SBSGEPHeepCoinModule.h"
 #include "SBSVTP.h"
 
 
@@ -47,6 +59,26 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
   earm->AddDetector(cdet);
   earm->AddDetector(ecal);
   gHaApps->Add(earm);  
+
+  // Initialize Hadron Arm.
+  SBSEArm* harm = new SBSEArm("sbs", "GEP hadron arm");
+  // // HCal
+  SBSHCal* hcal = new SBSHCal("hcal", "HCAL");
+  //Commenting these for production replays
+  hcal->SetStoreRawHits(kTRUE);
+  hcal->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector( hcal );
+  // VTP
+  SBSVTP* hcalvtp = new SBSVTP("hcal.vtp", "HCal VTP");
+    harm->AddDetector( hcalvtp );
+  // // HCal trigs
+  SBSGenericDetector* sbstrig = new SBSGenericDetector("trig","HCal trigs");
+  sbstrig->SetModeADC(SBSModeADC::kWaveform);
+  sbstrig->SetStoreRawHits(kTRUE);
+  sbstrig->SetStoreEmptyElements(kFALSE);
+  harm->AddDetector( sbstrig );
+
+  gHaApps->Add(harm);
   
   //--- Set up the run we want to replay ---
 
@@ -72,14 +104,14 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
   if( prefix != "/Users/brash/work/hallc/gep/brash/CDet_replay/sbs/data" )
     pathlist.push_back( "/Users/brash/work/hallc/gep/brash/sbs/data" );
 
-  if( prefix != "/cache/mss/halla/sbs/raw" )
-    pathlist.push_back( "/cache/mss/halla/sbs/raw" );
+  if( prefix != "/cache/halla/sbs/raw" )
+    pathlist.push_back( "/cache/halla/sbs/raw" );
 
-  if( prefix != "/cache/mss/halla/sbs/GEnRP/raw" )
-    pathlist.push_back( "/cache/mss/halla/sbs/GEnRP/raw" );
+  if( prefix != "/cache/halla/sbs/GEnRP/raw" )
+    pathlist.push_back( "/cache/halla/sbs/GEnRP/raw" );
 
-  if( prefix != "/cache/mss/halla/sbs/GEp/raw" )
-    pathlist.push_back( "/cache/mss/halla/sbs/GEp/raw" );
+  if( prefix != "/cache/halla/sbs/GEp/raw" )
+    pathlist.push_back( "/cache/halla/sbs/GEp/raw" );
   
   if( prefix != "/adaqfs/home/a-onl/sbs/Rootfiles/cdetFiles/cdet_datfiles/")
     pathlist.push_back( "/adaqfs/home/a-onl/sbs/Rootfiles/cdetFiles/cdet_datfiles/");

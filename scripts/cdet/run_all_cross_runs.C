@@ -1,4 +1,4 @@
-
+//macro to run all cross runs in a single session
 void run_all_cross_runs(Int_t nGroups) {
 
   // Compile heavy macro

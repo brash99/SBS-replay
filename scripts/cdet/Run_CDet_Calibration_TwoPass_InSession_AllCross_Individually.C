@@ -28,7 +28,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     Int_t elastic = 0,
     Int_t minSeg = 0,
     Int_t maxSeg = 5,
-    Double_t LeMin = 5.0,
+    Double_t LeMin = 0.02,
     Double_t LeMax = 60.0,
     Double_t TotMin = 4.0,
     Double_t TotMax = 50.0,
@@ -80,10 +80,13 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     stageBanner("before_bar_offsets", 0);
     ResetCalibrationGlobals();
     runMain(0);
-    plotAllTDC(false, 1.0, 0.0, 60.0, true,
-            "stage0_beforeOffsets",
-           TString::Format("tdcPlots/run%d", RunNumber1));
+    plotAllPaddles(1, 0, 60, 0, 60, 0, 60, TString::Format("%d", RunNumber1));
+    runStats();
+    // plotAllTDC(false, 1.0, 0.0, 60.0, true,
+    //         "stage0_beforeOffsets",
+    //        TString::Format("tdcPlots/run%d", RunNumber1));
 
+    /* Temp comment out. Want to investigate all paddles for the time being
     stageBanner("pass1_timeoffset_fit", 1);
     ResetCalibrationGlobals();
     runMain(1);
@@ -96,6 +99,8 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     plotAllTDC(false, 1.0, 0.0, 60.0, true,
            "stage2_afterOffsets",
            TString::Format("tdcPlots/run%d", RunNumber1));
+
+    */
     /*
     -------- For the time being, we can comment out all this, 
     ----------- i just want to check the cross target runs are okay ------------
