@@ -86,7 +86,6 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     //         "stage0_beforeOffsets",
     //        TString::Format("tdcPlots/run%d", RunNumber1));
 
-    /* Temp comment out. Want to investigate all paddles for the time being
     stageBanner("pass1_timeoffset_fit", 1);
     ResetCalibrationGlobals();
     runMain(1);
@@ -100,10 +99,6 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
            "stage2_afterOffsets",
            TString::Format("tdcPlots/run%d", RunNumber1));
 
-    */
-    /*
-    -------- For the time being, we can comment out all this, 
-    ----------- i just want to check the cross target runs are okay ------------
     stageBanner("pass1_ecal_fit", 3);
     ResetCalibrationGlobals();
     runMain(3);
@@ -132,7 +127,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     // -----------------------------
     // FINAL BAR-OFFSET CLOSURE PASS
     // -----------------------------
-    stageBanner("pass3_fullclosure_offsets", 1);
+    stageBanner("pass3_fullclosure_offsets", 7);
     ResetCalibrationGlobals();
     runMain(7);
     plotAllTDC(true, 1.0, 0.0, 60.0);
@@ -143,8 +138,6 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     plotAllTDC(false, 1.0, 0.0, 60.0);
     plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
     plotGoodLeVsTotByLayer(false, 15, 45, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
-    */
-
     std::cout << "\\n[Driver] Two-pass in-session calibration sequence complete.\\n";
     std::cout << "[Driver] Final calibration file should be in: " << calibFile << "\\n";
 }

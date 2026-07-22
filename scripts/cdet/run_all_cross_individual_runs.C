@@ -8,5 +8,5 @@ void run_all_cross_individual_runs() {
   gROOT->ProcessLine(".L Run_CDet_Calibration_FromList.C");
 
   // Run everything
-  gROOT->ProcessLine("Run_CDet_Calibration_FromList(\"crossRuns.txt\", false);");
+  gROOT->ProcessLine("Run_CDet_Calibration_FromList(\"crossRuns.txt\", true);");
 }

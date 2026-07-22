@@ -418,6 +418,9 @@ bool gECalParamsLoaded = false;
 bool gTimeWalkParamsLoaded = false;
 bool gCalibrationLoaded = false;
 std::string gCalibrationFile = "CDet_calibration.dat";
+Int_t gNumEventsInRun = 0;
+Int_t gRunNumber = 0;
+Int_t gCalibrationStage = 0;
 
 // Per-run global timing shift, kept separate from the main detector calibration file.
 // Expected file name: CDet_run<RunNumber>.dat
@@ -569,7 +572,17 @@ bool LoadCalibrationConstants(const std::string& fname) {
   }
 
   std::string line, section;
-  int nBarRead = 0;
+  std::vector<bool> barSeen(NumPMTs, false);
+  std::vector<double> barCorr(NumPMTs, 0.0);
+  std::vector<int> barNhits(NumPMTs, 0);
+  double ecalP0 = gECalFitP0, ecalP1 = gECalFitP1;
+  double twP1L1 = gTimeWalkP1_L1, twP1L2 = gTimeWalkP1_L2;
+  double twRefL1 = gTimeWalkTotRef_L1, twRefL2 = gTimeWalkTotRef_L2;
+  double twMin = gTimeWalkTotMin, twMax = gTimeWalkTotMax;
+  bool ecalP0Seen = false, ecalP1Seen = false;
+  bool twP1L1Seen = false, twP1L2Seen = false;
+  bool twRefL1Seen = false, twRefL2Seen = false;
+  bool twMinSeen = false, twMaxSeen = false;
 
   while (std::getline(fin, line)) {
     if (line.empty()) continue;
@@ -588,31 +601,62 @@ bool LoadCalibrationConstants(const std::string& fname) {
       if (!(iss >> bar1 >> dt)) continue;
       if (!(iss >> nhits)) nhits = 0;
       if (bar1 >= 1 && bar1 <= NumPMTs) {
-        gBarToffsetCorr[bar1-1] = dt;
-        gBarToffsetNhits[bar1-1] = nhits;
-        nBarRead++;
+        barCorr[bar1-1] = dt;
+        barNhits[bar1-1] = nhits;
+        barSeen[bar1-1] = true;
       }
     } else if (section == "[ECalTiming]") {
       std::string key;
       double val = 0.0;
       if (!(iss >> key >> val)) continue;
-      if (key == "p0") { gECalFitP0 = val; gECalParamsLoaded = true; }
-      else if (key == "p1") { gECalFitP1 = val; gECalParamsLoaded = true; }
+      if (key == "p0") { ecalP0 = val; ecalP0Seen = true; }
+      else if (key == "p1") { ecalP1 = val; ecalP1Seen = true; }
     } else if (section == "[TimeWalk]") {
       std::string key;
       double val = 0.0;
       if (!(iss >> key >> val)) continue;
-      if (key == "p1_L1") { gTimeWalkP1_L1 = val; gTimeWalkParamsLoaded = true; }
-      else if (key == "p1_L2") { gTimeWalkP1_L2 = val; gTimeWalkParamsLoaded = true; }
-      else if (key == "totref_L1") { gTimeWalkTotRef_L1 = val; gTimeWalkParamsLoaded = true; }
-      else if (key == "totref_L2") { gTimeWalkTotRef_L2 = val; gTimeWalkParamsLoaded = true; }
-      else if (key == "totmin") { gTimeWalkTotMin = val; gTimeWalkParamsLoaded = true; }
-      else if (key == "totmax") { gTimeWalkTotMax = val; gTimeWalkParamsLoaded = true; }
+      if (key == "p1_L1") { twP1L1 = val; twP1L1Seen = true; }
+      else if (key == "p1_L2") { twP1L2 = val; twP1L2Seen = true; }
+      else if (key == "totref_L1") { twRefL1 = val; twRefL1Seen = true; }
+      else if (key == "totref_L2") { twRefL2 = val; twRefL2Seen = true; }
+      else if (key == "totmin") { twMin = val; twMinSeen = true; }
+      else if (key == "totmax") { twMax = val; twMaxSeen = true; }
     }
   }
 
-  gBarToffsetLoaded = (nBarRead > 0);
+  const int nBarRead = std::count(barSeen.begin(), barSeen.end(), true);
+  gBarToffsetLoaded = (nBarRead == NumPMTs);
+  gECalParamsLoaded = ecalP0Seen && ecalP1Seen;
+  gTimeWalkParamsLoaded = twP1L1Seen && twP1L2Seen && twRefL1Seen &&
+                          twRefL2Seen && twMinSeen && twMaxSeen;
+  if (gBarToffsetLoaded) {
+    gBarToffsetCorr.swap(barCorr);
+    gBarToffsetNhits.swap(barNhits);
+  }
+  if (gECalParamsLoaded) {
+    gECalFitP0 = ecalP0;
+    gECalFitP1 = ecalP1;
+  }
+  if (gTimeWalkParamsLoaded) {
+    gTimeWalkP1_L1 = twP1L1;
+    gTimeWalkP1_L2 = twP1L2;
+    gTimeWalkTotRef_L1 = twRefL1;
+    gTimeWalkTotRef_L2 = twRefL2;
+    gTimeWalkTotMin = twMin;
+    gTimeWalkTotMax = twMax;
+  }
   gCalibrationLoaded = gBarToffsetLoaded || gECalParamsLoaded || gTimeWalkParamsLoaded;
+
+  if (nBarRead > 0 && !gBarToffsetLoaded)
+    std::cerr << "[CDet] WARNING: ignoring incomplete [BarOffsets] section ("
+              << nBarRead << "/" << NumPMTs << ") in '" << fname << "'.\n";
+  if ((ecalP0Seen || ecalP1Seen) && !gECalParamsLoaded)
+    std::cerr << "[CDet] WARNING: ignoring incomplete [ECalTiming] section in '"
+              << fname << "'.\n";
+  if ((twP1L1Seen || twP1L2Seen || twRefL1Seen || twRefL2Seen || twMinSeen || twMaxSeen) &&
+      !gTimeWalkParamsLoaded)
+    std::cerr << "[CDet] WARNING: ignoring incomplete [TimeWalk] section in '"
+              << fname << "'.\n";
 
   if (gBarToffsetLoaded) {
     std::cout << "[CDet] Loaded " << nBarRead << " bar offsets from '" << fname << "'.\n";
@@ -631,13 +675,21 @@ bool LoadCalibrationConstants(const std::string& fname) {
 }
 
 bool WriteCalibrationConstants(const std::string& fname) {
-  std::ofstream fout(fname.c_str());
+  if (gBarToffsetCorr.size() != NumPMTs || gBarToffsetNhits.size() != NumPMTs) {
+    std::cerr << "[CDet] ERROR: refusing to write incomplete bar-offset vectors.\n";
+    return false;
+  }
+  const std::string tmpname = fname + ".tmp";
+  std::ofstream fout(tmpname.c_str(), std::ios::out | std::ios::trunc);
   if (!fout) {
     std::cout << "[CDet] ERROR: could not write calibration file '" << fname << "'\n";
     return false;
   }
 
-  fout << "# CDet master calibration constants\n\n";
+  fout << "# CDet master calibration constants\n"
+       << "# run " << gRunNumber << "\n"
+       << "# calibration_stage " << gCalibrationStage << "\n"
+       << "# events_processed " << gNumEventsInRun << "\n\n";
 
   fout << "[BarOffsets]\n";
   fout.setf(std::ios::fixed);
@@ -659,12 +711,22 @@ bool WriteCalibrationConstants(const std::string& fname) {
   fout << "totmin " << gTimeWalkTotMin << "\n";
   fout << "totmax " << gTimeWalkTotMax << "\n";
 
-  std::cout << "[CDet] Wrote calibration constants to '" << fname << "'.\n";
+  fout.flush();
+  if (!fout) {
+    std::cerr << "[CDet] ERROR: failed while writing '" << tmpname << "'.\n";
+    fout.close();
+    std::remove(tmpname.c_str());
+    return false;
+  }
+  fout.close();
+  if (std::rename(tmpname.c_str(), fname.c_str()) != 0) {
+    std::cerr << "[CDet] ERROR: could not replace calibration file '" << fname << "'.\n";
+    std::remove(tmpname.c_str());
+    return false;
+  }
+  std::cout << "[CDet] Wrote calibration constants atomically to '" << fname << "'.\n";
   return true;
 }
-
-Int_t gNumEventsInRun = 0;
-Int_t gRunNumber;
 
 std::vector<double> vAllGoodTe;
 std::vector<double> vAllGoodTot;
@@ -1194,12 +1256,16 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 	Double_t XDiffCut = 0.05, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
-	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1)
+	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1,
+        bool useReferenceTiming = false)
 {
   gRunNumber = RunNumber1;
+  gCalibrationStage = calibStage;
   gNumEventsInRun = 0;
   (void)firstevent; // currently unused
-  if (RunNumber1 == 0) gCalibrationFile = TString::Format("CDet_calibration_group%d.dat", groupIndex);
+  gCalibrationFile = RunNumber1 == 0
+      ? TString::Format("CDet_calibration_group%d.dat", groupIndex).Data()
+      : "CDet_calibration.dat";
   const char *runListFile = "crossRuns.txt"; //file with run numbers to analyze
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 0.02;
@@ -1231,9 +1297,20 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 // Configure which calibrations are active for this run.
 ConfigureCalibrationStage(calibStage);
 
-// Load optional per-run global timing shift from CDet_run<RunNumber>.dat
-gRunTimingFile = Form("CDet_run%d.dat", (int)RunNumber1);
-LoadRunTimingConstants(gRunTimingFile);
+// A single shift is meaningful only for single-run chains. Applying a
+// CDet_run0.dat shift to a mixed-run group would silently bias every run.
+if (RunNumber1 != 0) {
+  gRunTimingFile = Form("CDet_run%d.dat", (int)RunNumber1);
+  LoadRunTimingConstants(gRunTimingFile);
+} else {
+  gRunTimingFile.clear();
+  gGlobalTimingShift = 0.0;
+  gGlobalTimingLoaded = false;
+  std::cout << "[CDet] Group mode: per-run global timing shifts are disabled.\n";
+}
+
+std::cout << "[CDet] Reference timing subtraction is "
+          << (useReferenceTiming ? "enabled" : "disabled") << ".\n";
 
   
   // hit channel id
@@ -1449,6 +1526,13 @@ LoadRunTimingConstants(gRunTimingFile);
     AddRunFilesToChain(T, REPLAYED_DIR.Data(), RunNumber1, minSeg, maxSeg);
   }
 }
+
+  if (!T || T->GetEntries() <= 0) {
+    std::cerr << "[CDet] ERROR: no input events were found; aborting calibration stage.\n";
+    delete T;
+    T = nullptr;
+    return;
+  }
 
   TTreeReader reader(T);
   
@@ -1681,8 +1765,7 @@ LoadRunTimingConstants(gRunTimingFile);
                 event_ref_tdc = RawElLE[el]*TDC_calib_to_ns;
                 ref_int = std::floor(event_ref_tdc);
                 ref_corr = event_ref_tdc - ref_int;
-                //Temp disable ref signal -- dont need on cross target for time being
-                event_ref_tdc = 0.0;
+                if (!useReferenceTiming) event_ref_tdc = 0.0;
 
               }
             }

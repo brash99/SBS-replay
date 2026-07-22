@@ -115,7 +115,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross(
     // -----------------------------
     // FINAL BAR-OFFSET CLOSURE PASS
     // -----------------------------
-    stageBanner("pass3_fullclosure_offsets", 1);
+    stageBanner("pass3_fullclosure_offsets", 7);
     ResetCalibrationGlobals();
     runMain(7);
     plotAllTDC(true, 1.0, 0.0, 60.0);

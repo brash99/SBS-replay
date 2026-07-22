@@ -157,6 +157,7 @@ for bar in bars_to_plot:
     plt.tight_layout()
 
     output_pdf = f"bar_{bar}_offset_vs_run_nhits.pdf"
+    output_png = f"bar_{bar}_offset_vs_run_nhits.png"
 
     plt.savefig(output_pdf)
     plt.savefig(output_png)

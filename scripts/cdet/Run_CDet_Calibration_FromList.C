@@ -87,7 +87,7 @@ void Run_CDet_Calibration_FromList(const char* runlist = "crossRuns.txt", bool r
             30,
             2,
             1,
-            true
+            removeCalib
         );
 
         // After the run finishes, save a copy of the calibration file
