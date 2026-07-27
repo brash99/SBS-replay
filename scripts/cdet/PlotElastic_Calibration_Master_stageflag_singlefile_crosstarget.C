@@ -3731,6 +3731,7 @@ void plotAllPaddles(double width = 1, double LeMin = 0, double LeMax = 60, doubl
   
   TH1::AddDirectory(kFALSE);
 
+  const Bool_t previousBatchMode = gROOT->IsBatch();
   gROOT->SetBatch(kTRUE);
 
   constexpr int nBars          = 168;
@@ -3753,6 +3754,7 @@ void plotAllPaddles(double width = 1, double LeMin = 0, double LeMax = 60, doubl
               << nTotalPaddles
               << " are required."
               << std::endl;
+    gROOT->SetBatch(previousBatchMode);
     return;
   }
 
@@ -3879,7 +3881,7 @@ void plotAllPaddles(double width = 1, double LeMin = 0, double LeMax = 60, doubl
             << " bars in CDetPaddleTimes/"
             << std::endl;
 
-  gROOT->SetBatch(kFALSE);
+  gROOT->SetBatch(previousBatchMode);
 }
 
 TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0, double binHigh = 60, bool savePlots = false, TString saveTag = "", TString saveDir = "tdcPlots"){
