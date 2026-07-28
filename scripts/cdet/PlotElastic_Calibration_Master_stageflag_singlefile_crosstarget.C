@@ -2424,10 +2424,9 @@ std::cout << "[CDet] Reference timing subtraction is "
   }
   hRawSinglesRateVsID = new TH1D(
       "hRawSinglesRateVsID",
-      "CDet Raw Singles Rate vs Channel;Channel ID;Raw singles rate [hits/s]",
+      "CDet Raw Singles Rate vs Channel;Channel ID;Raw singles rate [kHz]",
       NumCDetPaddles, 0, NumCDetPaddles);
   hRawSinglesRateVsID->SetDirectory(nullptr);
-  hRawSinglesRateVsID->SetStats(0);
 
   for (int i = 0; i < 2688; i++){
     rawHitOccupancy[i] = occupancyEventCount > 0
@@ -2441,8 +2440,8 @@ std::cout << "[CDet] Reference timing subtraction is "
         : 0.0;
 
     const int bin = i + 1;
-    hRawSinglesRateVsID->SetBinContent(bin, rawSinglesRateHz[i]);
-    hRawSinglesRateVsID->SetBinError(bin, rawSinglesRateErrorHz[i]);
+    hRawSinglesRateVsID->SetBinContent(bin, rawSinglesRateHz[i] / 1000); //values in units of kHz for histogram
+    hRawSinglesRateVsID->SetBinError(bin, rawSinglesRateErrorHz[i] / 1000);
   }
 
   hRawSinglesRateVsID->GetListOfFunctions()->Add(
@@ -3432,103 +3431,94 @@ void printOccupancy(int pixel, bool applyTotCut = false){
             << " mean hits/event" << std::endl;
 }
 
-void plotOccupancyVsID(bool applyTotCut = false){
-  TH1::AddDirectory(kFALSE);
-    // --- constants ---
-  const int NCHAN_TOTAL = 2688;
-  const int NCHAN_LAYER = 1344;
-  const int NCHAN_SIDE  = 672;
-  const int NMOD        = 3;
-  const int NCHAN_MOD   = NCHAN_SIDE / NMOD; // 224
+TCanvas* plotOccupancyVsID(bool applyTotCut = false, bool savePdf = false){
+  if (occupancyEventCount <= 0) {
+    std::cerr << "Occupancies are unavailable; run the analysis first."
+              << std::endl;
+    return nullptr;
+  }
 
-  const auto& occupancy = applyTotCut ? totCutHitOccupancy : rawHitOccupancy;
-
-  // Helper: create one segment histogram and fill it with mean hits per event.
-  auto MakeOccupancyHist = [&](const char* hname,
-                               const char* htitle,
-                               int idStart, int idEnd,
-                               double yMax = 1.5) -> TH1D* {
-    const int nbins = idEnd - idStart + 1; // inclusive
-    TH1D* h = new TH1D(hname, htitle, nbins, idStart, idEnd + 1); // [start, end+1)
-    h->SetStats(0);
-    h->SetMinimum(0.0);
-    h->SetMaximum(yMax);
-
-    for (int id = idStart; id <= idEnd; id++) {
-      const int bin = h->FindBin(id);
-      h->SetBinContent(bin, occupancy[id]);
-    }
-    return h;
+  struct OccupancyPanel {
+    const char* title;
+    int firstChannel;
+    int lastChannel;
   };
 
-  struct Seg { int layer; int mod; const char* side; int start; int end; };
-
-  std::vector<Seg> segs;
-  segs.reserve(12);
-
-  auto AddLayerSegs_LeftThenRight = [&](int layer, int base) {
-    const int L0 = base + 0;
-    const int R0 = base + NCHAN_SIDE;
-
-    // Left side: M1, M2, M3
-    for (int m = 0; m < NMOD; m++) {
-      int s = L0 + m*NCHAN_MOD;
-      int e = s + NCHAN_MOD - 1;
-      segs.push_back({layer, m+1, "L", s, e});
-    }
-    // Right side: M1, M2, M3
-    for (int m = 0; m < NMOD; m++) {
-      int s = R0 + m*NCHAN_MOD;
-      int e = s + NCHAN_MOD - 1;
-      segs.push_back({layer, m+1, "R", s, e});
-    }
+  const OccupancyPanel panels[4] = {
+      {"Layer 1 Left",     0,  671},
+      {"Layer 1 Right",  672, 1343},
+      {"Layer 2 Left",  1344, 2015},
+      {"Layer 2 Right", 2016, 2687}
   };
 
-  // Layer 1: IDs 0..1343
-  AddLayerSegs_LeftThenRight(1, 0);
-  // Layer 2: IDs 1344..2687
-  AddLayerSegs_LeftThenRight(2, 1344);
+  const auto& occupancy = applyTotCut
+      ? totCutHitOccupancy
+      : rawHitOccupancy;
+  const auto& hitCount = applyTotCut
+      ? totCutHitCount
+      : rawHitCount;
+  const char* modeName = applyTotCut ? "TotCut" : "Raw";
+  const char* modeTitle = applyTotCut ? "TOT-cut" : "Raw-hit";
 
-  // --- build histograms ---
-  TH1D* hOccupancySeg[12] = {nullptr};
+  const TString canvasName = TString::Format("c%sOccupancyVsID", modeName);
+  TCanvas* cOccupancy = new TCanvas(
+      canvasName.Data(),
+      TString::Format("CDet %s Occupancy vs Channel", modeTitle).Data(),
+      1500, 900);
+  cOccupancy->Divide(2, 2);
 
-  for (int i = 0; i < 12; i++) {
-    const auto& s = segs[i];
-    TString name = Form(applyTotCut
-                            ? "hTotCutOccupancyVsIDL%dM%d%s"
-                            : "hRawOccupancyVsIDL%dM%d%s",
-                        s.layer, s.mod, s.side);
-    TString title = Form("CDet L%d %s M%d %s Occupancy vs Pixel ID;"
-                         "Pixel ID;Mean accepted hits per event",
-                         s.layer, s.side, s.mod,
-                         applyTotCut ? "TOT-cut" : "Raw-hit");
-    hOccupancySeg[i] = MakeOccupancyHist(
-        name.Data(), title.Data(), s.start, s.end, 1.5);
+  for (int panel = 0; panel < 4; panel++) {
+    cOccupancy->cd(panel + 1);
+
+    const TString frameName = TString::Format(
+        "h%sOccupancyPanel%d", modeName, panel);
+    TH1D* hPanel = new TH1D(
+        frameName.Data(),
+        TString::Format("CDet %s %s;Channel ID;Mean accepted hits/event",
+                        panels[panel].title, modeTitle).Data(),
+        panels[panel].lastChannel - panels[panel].firstChannel + 1,
+        panels[panel].firstChannel,
+        panels[panel].lastChannel + 1);
+    hPanel->SetDirectory(nullptr);
+    hPanel->SetStats(0);
+
+    TGraphErrors* gPanel = new TGraphErrors();
+    gPanel->SetName(TString::Format(
+        "g%sOccupancyPanel%d", modeName, panel));
+    gPanel->SetMarkerStyle(20);
+    gPanel->SetMarkerSize(0.35);
+
+    double panelMaximum = 0.0;
+    for (int channel = panels[panel].firstChannel;
+         channel <= panels[panel].lastChannel;
+         channel++) {
+      if (kUnusedCDetPixels.count(channel)) continue;
+
+      const double occupancyError =
+          std::sqrt(static_cast<double>(hitCount[channel])) /
+          occupancyEventCount;
+      const int point = gPanel->GetN();
+      gPanel->SetPoint(point, channel, occupancy[channel]);
+      gPanel->SetPointError(point, 0.0, occupancyError);
+      panelMaximum = std::max(
+          panelMaximum, occupancy[channel] + occupancyError);
+    }
+
+    hPanel->SetMinimum(0.0);
+    hPanel->SetMaximum(panelMaximum > 0.0 ? 1.10 * panelMaximum : 1.0);
+    hPanel->Draw("AXIS");
+    gPanel->Draw("PZ SAME");
   }
 
-  // --- Draw: Layer 1 canvas (Left M1-3 then Right M1-3) ---
-  TCanvas* cOccupancyL1 = new TCanvas(
-      "cOccupancyL1", "CDet Occupancy vs ID (Layer 1)", 1400, 800);
-  cOccupancyL1->Divide(3,2); // top row: left M1-3, bottom row: right M1-3
+  cOccupancy->Update();
 
-  int pad = 1;
-  for (int i = 0; i < 12; i++) {
-    if (segs[i].layer != 1) continue;
-    cOccupancyL1->cd(pad++);
-    hOccupancySeg[i]->Draw("HIST");
+  if (savePdf) {
+    const TString pdfName = TString::Format(
+        "%sOccupancyVsID_run%d.pdf", modeName, gRunNumber);
+    cOccupancy->SaveAs(pdfName);
   }
 
-  // --- Draw: Layer 2 canvas (Left M1-3 then Right M1-3) ---
-  TCanvas* cOccupancyL2 = new TCanvas(
-      "cOccupancyL2", "CDet Occupancy vs ID (Layer 2)", 1400, 800);
-  cOccupancyL2->Divide(3,2);
-
-  pad = 1;
-  for (int i = 0; i < 12; i++) {
-    if (segs[i].layer != 2) continue;
-    cOccupancyL2->cd(pad++);
-    hOccupancySeg[i]->Draw("HIST");
-  }
+  return cOccupancy;
 }
 
 TCanvas* plotRawSinglesRateVsID(bool savePdf = false){
@@ -3538,9 +3528,61 @@ TCanvas* plotRawSinglesRateVsID(bool savePdf = false){
     return nullptr;
   }
 
+  struct RatePanel {
+    const char* name;
+    const char* title;
+    int firstChannel;
+    int lastChannel;
+  };
+
+  const RatePanel panels[4] = {
+      {"hRawSinglesRateL1L", "Layer 1 Left",     0,  671},
+      {"hRawSinglesRateL1R", "Layer 1 Right",  672, 1343},
+      {"hRawSinglesRateL2L", "Layer 2 Left",  1344, 2015},
+      {"hRawSinglesRateL2R", "Layer 2 Right", 2016, 2687}
+  };
+
   TCanvas* cRawSinglesRate = new TCanvas(
-      "cRawSinglesRateVsID", "CDet Raw Singles Rate vs Channel", 1400, 800);
-  hRawSinglesRateVsID->Draw("E1");
+      "cRawSinglesRateVsID", "CDet Raw Singles Rate vs Channel", 1500, 900);
+  cRawSinglesRate->Divide(2, 2);
+
+  for (int panel = 0; panel < 4; panel++) {
+    cRawSinglesRate->cd(panel + 1);
+
+    TH1D* hPanel = static_cast<TH1D*>(
+        hRawSinglesRateVsID->Clone(panels[panel].name));
+    hPanel->SetTitle(TString::Format(
+        "CDet %s;Channel ID;Raw singles rate [kHz]",
+        panels[panel].title));
+    hPanel->GetXaxis()->SetRange(
+        panels[panel].firstChannel + 1,
+        panels[panel].lastChannel + 1);
+
+    TGraphErrors* gPanel = new TGraphErrors();
+    gPanel->SetName(TString::Format("gRawSinglesRatePanel%d", panel));
+    gPanel->SetMarkerStyle(20);
+    gPanel->SetMarkerSize(0.35);
+
+    double panelMaximumKHz = 0.0;
+    for (int channel = panels[panel].firstChannel;
+         channel <= panels[panel].lastChannel;
+         channel++) {
+      if (kUnusedCDetPixels.count(channel)) continue;
+
+      const double rateKHz = rawSinglesRateHz[channel] / 1000.0;
+      const double rateErrorKHz = rawSinglesRateErrorHz[channel] / 1000.0;
+      const int point = gPanel->GetN();
+      gPanel->SetPoint(point, channel, rateKHz);
+      gPanel->SetPointError(point, 0.0, rateErrorKHz);
+      panelMaximumKHz = std::max(panelMaximumKHz, rateKHz + rateErrorKHz);
+    }
+
+    hPanel->SetMinimum(0.0);
+    hPanel->SetMaximum(panelMaximumKHz > 0.0 ? 1.10 * panelMaximumKHz : 1.0);
+    hPanel->Draw("AXIS");
+    gPanel->Draw("PZ SAME");
+  }
+
   cRawSinglesRate->Update();
 
   if (savePdf) {
