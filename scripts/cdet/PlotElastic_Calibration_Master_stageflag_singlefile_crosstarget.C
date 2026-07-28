@@ -2427,6 +2427,7 @@ std::cout << "[CDet] Reference timing subtraction is "
       "CDet Raw Singles Rate vs Channel;Channel ID;Raw singles rate [kHz]",
       NumCDetPaddles, 0, NumCDetPaddles);
   hRawSinglesRateVsID->SetDirectory(nullptr);
+  hRawSinglesRateVsID->SetStats(0);
 
   for (int i = 0; i < 2688; i++){
     rawHitOccupancy[i] = occupancyEventCount > 0
