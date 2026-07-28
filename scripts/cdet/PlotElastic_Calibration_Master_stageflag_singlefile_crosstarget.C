@@ -3506,7 +3506,7 @@ TCanvas* plotOccupancyVsID(bool applyTotCut = false, bool savePdf = false){
 
     hPanel->SetMinimum(0.0);
     hPanel->SetMaximum(panelMaximum > 0.0 ? 1.10 * panelMaximum : 1.0);
-    hPanel->Draw("AXIS");
+    hPanel->Draw();
     gPanel->Draw("PZ SAME");
   }
 
@@ -3551,6 +3551,7 @@ TCanvas* plotRawSinglesRateVsID(bool savePdf = false){
 
     TH1D* hPanel = static_cast<TH1D*>(
         hRawSinglesRateVsID->Clone(panels[panel].name));
+    hPanel->Reset("ICES");
     hPanel->SetTitle(TString::Format(
         "CDet %s;Channel ID;Raw singles rate [kHz]",
         panels[panel].title));
@@ -3579,7 +3580,7 @@ TCanvas* plotRawSinglesRateVsID(bool savePdf = false){
 
     hPanel->SetMinimum(0.0);
     hPanel->SetMaximum(panelMaximumKHz > 0.0 ? 1.10 * panelMaximumKHz : 1.0);
-    hPanel->Draw("AXIS");
+    hPanel->Draw();
     gPanel->Draw("PZ SAME");
   }
 
