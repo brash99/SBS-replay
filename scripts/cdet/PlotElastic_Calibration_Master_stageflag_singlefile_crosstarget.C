@@ -1353,8 +1353,8 @@ std::cout << "[CDet] Reference timing subtraction is "
   hHitY = new TH1F("HitYposition","HitYPosition",200,-0.5,0.5);
   hHitZ = new TH1F("HitZposition","HitZPosition",200,7.5,8.0);
   
-  hHitXY1 = new TH2F("HitXY1position","HitXY1Position",9,-1.0,1.0,800,-2.0,2.0);
-  hHitXY2 = new TH2F("HitXY2position","HitXY2Position",9,-1.0,1.0,800,-2.0,2.0);
+  hHitXY1 = new TH2F("HitXY1position","HitXY1Position",200,-0.5,0.5,800,-2.0,2.0);
+  hHitXY2 = new TH2F("HitXY2position","HitXY2Position",200,-0.5,0.5,800,-2.0,2.0);
   
   hXECal = new TH1F("XECal","XECal",200,-1.5,1.5);
   hYECal = new TH1F("YECal","YECal",200,-1.0,1.0);
