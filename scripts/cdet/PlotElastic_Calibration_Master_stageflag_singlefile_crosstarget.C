@@ -29,6 +29,7 @@
 #include <TLatex.h>
 #include <TProfile.h>
 #include <TPaveText.h>
+#include <TParameter.h>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
@@ -41,6 +42,7 @@ static const double xcut = 998.0;
 //static const int nhitcuthigh = 20;
 static const double TDC_calib_to_ns = 0.01;
 static const double HotChannelRatio = .01;
+static const double RawSinglesWindowSeconds = 60.0e-9;
 
 static const int NumPaddles = 16;
 static const int NumBars = 14;
@@ -852,12 +854,14 @@ static std::vector<AdjPair> vAdjPairs;
 std::vector<std::vector<CDetHit>> vEventHits; // [event][hit]
 std::vector<std::vector<CDetHit>> vGoodEventHits;
 
-std::vector<int> rawRate(2688, 0); 
-int rateEvTrack = 0;
-std::vector<double> chanRates(2688,0);
-std::vector<int> cutRate(2688, 0); 
-int cutRateEvTrack = 0;
-std::vector<double> cutChanRates(2688,0);
+std::vector<int> rawHitCount(2688, 0);
+int occupancyEventCount = 0;
+std::vector<double> rawHitOccupancy(2688, 0.0);
+std::vector<double> rawSinglesRateHz(2688, 0.0);
+std::vector<double> rawSinglesRateErrorHz(2688, 0.0);
+TH1D* hRawSinglesRateVsID = nullptr;
+std::vector<int> totCutHitCount(2688, 0);
+std::vector<double> totCutHitOccupancy(2688, 0.0);
 std::vector<double> ave_tot(2688,0);
 std::vector<int> vNumRawAdjacentHits;
 std::vector<int> vNumGoodAdjacentHits;
@@ -1792,7 +1796,7 @@ std::cout << "[CDet] Reference timing subtraction is "
       std::vector<double> thisEvent_CDetY;
       std::vector<double> thisEvent_CDetZ;
       std::vector<CDetHit> eventHits;
-      rateEvTrack++;
+      occupancyEventCount++;
 
       // Build lookup from PMT id -> index in Good* arrays for this TTree entry
       std::unordered_map<int,int> goodIdx;
@@ -1820,6 +1824,14 @@ std::cout << "[CDet] Reference timing subtraction is "
       const double gy = hasGood ? GoodY[ig] : 1.0e9;
       const double gz = hasGood ? GoodZ[ig] : 1.0e9;
 
+      // Singles occupancy/rate uses every accepted raw leading edge on a
+      // physical CDet channel. Do not apply analysis-level cuts here, and do
+      // not deduplicate repeated hits from the same channel in one event.
+      const int raw_channel = static_cast<int>(RawElID[el]);
+      if (0 <= raw_channel && raw_channel < NumCDetPaddles) {
+        rawHitCount[raw_channel]++;
+      }
+
       bool good_raw_le_time = RawElLE[el] >= LeMin/TDC_calib_to_ns && RawElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = rawMultiplicity[raw_pmt] < TDCmult_cut;
@@ -1840,10 +1852,9 @@ std::cout << "[CDet] Reference timing subtraction is "
           double le_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
           double tot_ns = RawElTot[el]*TDC_calib_to_ns;
           double te_ns = RawElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
-          rawRate[idx]++;
           vCDetPaddleRawTot[idx].push_back(tot_ns);
           eventHits.push_back({idx, le_ns, tot_ns, te_ns});
-        } //getting rates and tot for pixels
+        } // collecting hit counts and TOT values for pixel occupancy
         if ( !check_bad(RawElID[el],suppress_bad) ) {
         //cout << " el = " << el << endl;
         //cout << " tdc = " << RawElLE[el]*TDC_calib_to_ns << endl;
@@ -2116,7 +2127,7 @@ std::cout << "[CDet] Reference timing subtraction is "
           double tot_ns = GoodElTot[el]*TDC_calib_to_ns;
           double te_ns = GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
           goodEventHits.push_back({idx, le_ns, tot_ns, te_ns});
-        } //getting rates and tot for pixels
+        } // collecting good-hit information for pixels
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
           if ( (Int_t)GoodElID[el]%NumSidesTotal < NumCDetPaddlesPerSide )  {
                 //cout << "event " << event << endl;
@@ -2403,11 +2414,50 @@ std::cout << "[CDet] Reference timing subtraction is "
     }//good elastic bool
   }//event loop 
 
-  std::cout << "nevents = " << rateEvTrack << std::endl;
-  for (int i = 0; i < 2688; i++){
-    chanRates[i] = rateEvTrack > 0 ? (double)rawRate[i] / rateEvTrack : 0.0;
-    //std::cout << "triggered Rate in Pixel " << 417 + i << " = " << chanRates << " & with time window Rate = " << chanRates / winWidth <<std::endl;
+  std::cout << "events used for occupancy = " << occupancyEventCount << std::endl;
+  const double observedTimeSeconds =
+      static_cast<double>(occupancyEventCount) * RawSinglesWindowSeconds;
+
+  if (hRawSinglesRateVsID) {
+    delete hRawSinglesRateVsID;
+    hRawSinglesRateVsID = nullptr;
   }
+  hRawSinglesRateVsID = new TH1D(
+      "hRawSinglesRateVsID",
+      "CDet Raw Singles Rate vs Channel;Channel ID;Raw singles rate [hits/s]",
+      NumCDetPaddles, 0, NumCDetPaddles);
+  hRawSinglesRateVsID->SetDirectory(nullptr);
+  hRawSinglesRateVsID->SetStats(0);
+
+  for (int i = 0; i < 2688; i++){
+    rawHitOccupancy[i] = occupancyEventCount > 0
+        ? static_cast<double>(rawHitCount[i]) / occupancyEventCount
+        : 0.0;
+    rawSinglesRateHz[i] = observedTimeSeconds > 0.0
+        ? static_cast<double>(rawHitCount[i]) / observedTimeSeconds
+        : 0.0;
+    rawSinglesRateErrorHz[i] = observedTimeSeconds > 0.0
+        ? std::sqrt(static_cast<double>(rawHitCount[i])) / observedTimeSeconds
+        : 0.0;
+
+    const int bin = i + 1;
+    hRawSinglesRateVsID->SetBinContent(bin, rawSinglesRateHz[i]);
+    hRawSinglesRateVsID->SetBinError(bin, rawSinglesRateErrorHz[i]);
+  }
+
+  hRawSinglesRateVsID->GetListOfFunctions()->Add(
+      new TParameter<double>("raw_singles_window_s", RawSinglesWindowSeconds));
+  hRawSinglesRateVsID->GetListOfFunctions()->Add(
+      new TParameter<int>("processed_event_count", occupancyEventCount));
+
+  const double validationRateHz =
+      300.0 / (50000.0 * RawSinglesWindowSeconds);
+  std::cout << "Raw singles-rate validation: 300 hits / (50000 events x 60 ns) = "
+            << validationRateHz << " hits/s"
+            << (std::fabs(validationRateHz - 100000.0) < 1.0e-9
+                    ? " (expected 100000 hits/s)"
+                    : " (VALIDATION FAILED)")
+            << std::endl;
 
   //Second Pass over all events for tot_ave calc
 
@@ -2426,10 +2476,12 @@ std::cout << "[CDet] Reference timing subtraction is "
       double hit_tot = vCDetPaddleRawTot[idx][i];
       if (hit_tot > ave_tot[idx]){
         vCDetPaddleCutTot[idx].push_back(hit_tot);
-        cutRate[idx]++;
+        totCutHitCount[idx]++;
       }
     }
-    cutChanRates[idx] = rateEvTrack > 0 ? (double)cutRate[idx] / rateEvTrack : 0.0;
+    totCutHitOccupancy[idx] = occupancyEventCount > 0
+        ? static_cast<double>(totCutHitCount[idx]) / occupancyEventCount
+        : 0.0;
   }
 
   std::cout << "Candidate Events = " << eff_denominator << std::endl;
@@ -2883,14 +2935,20 @@ void ResetCalibrationGlobals()
     vNumRawAdjacentHits.clear();
     vNumGoodAdjacentHits.clear();
 
-    rawRate.assign(2688, 0);
-    chanRates.assign(2688, 0.0);
-    cutRate.assign(2688, 0);
-    cutChanRates.assign(2688, 0.0);
+    rawHitCount.assign(2688, 0);
+    rawHitOccupancy.assign(2688, 0.0);
+    rawSinglesRateHz.assign(2688, 0.0);
+    rawSinglesRateErrorHz.assign(2688, 0.0);
+    totCutHitCount.assign(2688, 0);
+    totCutHitOccupancy.assign(2688, 0.0);
     ave_tot.assign(2688, 0.0);
 
-    rateEvTrack = 0;
-    cutRateEvTrack = 0;
+    occupancyEventCount = 0;
+
+    if (hRawSinglesRateVsID) {
+        delete hRawSinglesRateVsID;
+        hRawSinglesRateVsID = nullptr;
+    }
 
     if (T) {
         delete T;
@@ -3358,12 +3416,23 @@ void plotSingleTot(int pixel_base = 0, bool raw = true, double width = 1, double
   cTot->Update();
 }
 
-void getRate(int pixel, bool cut = false){
-  if (!cut) std:: cout << "Rate in Pixel " << pixel << " = " << chanRates[pixel] << std::endl;
-  if (cut) std:: cout << "Rate in Pixel " << pixel << " (with Tot Cut) = " << cutChanRates[pixel] << std::endl;
+void printOccupancy(int pixel, bool applyTotCut = false){
+  if (pixel < 0 || pixel >= 2688) {
+    std::cerr << "Invalid CDet pixel ID: " << pixel << std::endl;
+    return;
+  }
+
+  const double occupancy = applyTotCut
+      ? totCutHitOccupancy[pixel]
+      : rawHitOccupancy[pixel];
+
+  std::cout << (applyTotCut ? "TOT-cut" : "Raw-hit")
+            << " occupancy for pixel " << pixel
+            << " = " << occupancy
+            << " mean hits/event" << std::endl;
 }
 
-void plotRateVsID(bool raw = true){
+void plotOccupancyVsID(bool applyTotCut = false){
   TH1::AddDirectory(kFALSE);
     // --- constants ---
   const int NCHAN_TOTAL = 2688;
@@ -3372,11 +3441,13 @@ void plotRateVsID(bool raw = true){
   const int NMOD        = 3;
   const int NCHAN_MOD   = NCHAN_SIDE / NMOD; // 224
 
-  // Helper: create one segment histogram and fill from chanRates
-  auto MakeRateHist = [&](const char* hname,
-                          const char* htitle,
-                          int idStart, int idEnd,
-                          double yMax = 1.5) -> TH1D* {
+  const auto& occupancy = applyTotCut ? totCutHitOccupancy : rawHitOccupancy;
+
+  // Helper: create one segment histogram and fill it with mean hits per event.
+  auto MakeOccupancyHist = [&](const char* hname,
+                               const char* htitle,
+                               int idStart, int idEnd,
+                               double yMax = 1.5) -> TH1D* {
     const int nbins = idEnd - idStart + 1; // inclusive
     TH1D* h = new TH1D(hname, htitle, nbins, idStart, idEnd + 1); // [start, end+1)
     h->SetStats(0);
@@ -3385,12 +3456,7 @@ void plotRateVsID(bool raw = true){
 
     for (int id = idStart; id <= idEnd; id++) {
       const int bin = h->FindBin(id);
-      if (raw){
-        h->SetBinContent(bin, chanRates[id]);
-      }
-      if (!raw){
-        h->SetBinContent(bin, cutChanRates[id]);
-      }
+      h->SetBinContent(bin, occupancy[id]);
     }
     return h;
   };
@@ -3424,45 +3490,66 @@ void plotRateVsID(bool raw = true){
   AddLayerSegs_LeftThenRight(2, 1344);
 
   // --- build histograms ---
-  TH1D* hRateSeg[12] = {nullptr};
+  TH1D* hOccupancySeg[12] = {nullptr};
 
   for (int i = 0; i < 12; i++) {
     const auto& s = segs[i];
-    if (raw) {
-      TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate vs Paddle ID;Paddle ID;Rate",
-                          s.layer, s.side, s.mod);
-      hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
-    }
-    if (!raw){
-      TString name  = Form("hRateVsIDL%dM%d%s", s.layer, s.mod, s.side);
-      TString title = Form("CDet L%d %s M%d Rate w/Cut vs Paddle ID;Paddle ID;Rate",
-                          s.layer, s.side, s.mod);
-      hRateSeg[i] = MakeRateHist(name.Data(), title.Data(), s.start, s.end, 1.5);
-    }
+    TString name = Form(applyTotCut
+                            ? "hTotCutOccupancyVsIDL%dM%d%s"
+                            : "hRawOccupancyVsIDL%dM%d%s",
+                        s.layer, s.mod, s.side);
+    TString title = Form("CDet L%d %s M%d %s Occupancy vs Pixel ID;"
+                         "Pixel ID;Mean accepted hits per event",
+                         s.layer, s.side, s.mod,
+                         applyTotCut ? "TOT-cut" : "Raw-hit");
+    hOccupancySeg[i] = MakeOccupancyHist(
+        name.Data(), title.Data(), s.start, s.end, 1.5);
   }
 
   // --- Draw: Layer 1 canvas (Left M1-3 then Right M1-3) ---
-  TCanvas* cRateL1 = new TCanvas("cRateL1", "CDet Rate vs ID (Layer 1)", 1400, 800);
-  cRateL1->Divide(3,2); // top row: left M1-3, bottom row: right M1-3
+  TCanvas* cOccupancyL1 = new TCanvas(
+      "cOccupancyL1", "CDet Occupancy vs ID (Layer 1)", 1400, 800);
+  cOccupancyL1->Divide(3,2); // top row: left M1-3, bottom row: right M1-3
 
   int pad = 1;
   for (int i = 0; i < 12; i++) {
     if (segs[i].layer != 1) continue;
-    cRateL1->cd(pad++);
-    hRateSeg[i]->Draw("HIST");
+    cOccupancyL1->cd(pad++);
+    hOccupancySeg[i]->Draw("HIST");
   }
 
   // --- Draw: Layer 2 canvas (Left M1-3 then Right M1-3) ---
-  TCanvas* cRateL2 = new TCanvas("cRateL2", "CDet Rate vs ID (Layer 2)", 1400, 800);
-  cRateL2->Divide(3,2);
+  TCanvas* cOccupancyL2 = new TCanvas(
+      "cOccupancyL2", "CDet Occupancy vs ID (Layer 2)", 1400, 800);
+  cOccupancyL2->Divide(3,2);
 
   pad = 1;
   for (int i = 0; i < 12; i++) {
     if (segs[i].layer != 2) continue;
-    cRateL2->cd(pad++);
-    hRateSeg[i]->Draw("HIST");
+    cOccupancyL2->cd(pad++);
+    hOccupancySeg[i]->Draw("HIST");
   }
+}
+
+TCanvas* plotRawSinglesRateVsID(bool savePdf = false){
+  if (!hRawSinglesRateVsID) {
+    std::cerr << "Raw singles rates are unavailable; run the analysis first."
+              << std::endl;
+    return nullptr;
+  }
+
+  TCanvas* cRawSinglesRate = new TCanvas(
+      "cRawSinglesRateVsID", "CDet Raw Singles Rate vs Channel", 1400, 800);
+  hRawSinglesRateVsID->Draw("E1");
+  cRawSinglesRate->Update();
+
+  if (savePdf) {
+    const TString pdfName =
+        TString::Format("RawSinglesRateVsID_run%d.pdf", gRunNumber);
+    cRawSinglesRate->SaveAs(pdfName);
+  }
+
+  return cRawSinglesRate;
 }
 
 TCanvas *plotBarRateHV() {
