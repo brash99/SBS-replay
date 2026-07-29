@@ -37,7 +37,7 @@ bb.gem.m7.apvmap = 1 # UVA X/Y
 bb.gem.pedestalmode = 0
 bb.gem.commonmode_flag = 0 # 0 = sorting, 1 = "Danning method", 2 = histogramming method cm subtraction
 bb.gem.commonmode_online_flag = 3 # 3 = Danning method during GMn, 4 = Danning \
-method during GEn
+method during GEn, 6 = Danning method during the latter part of GEp
 # commenting out definition of cm flags channel
 #bb.gem.chan_cm_flags = 512 # defines the "dummy" reference channel for storing the cm_enable and build_all_samples flags
 bb.gem.commonmode_nstriplo = 28
@@ -60,7 +60,7 @@ bb.gem.commonmode_scanrange_nsigma = 10.0
 bb.gem.commonmode_stepsize_nsigma = 0.25
 
 bb.gem.correct_common_mode = 1
-bb.gem.correct_common_mode_minstrips = 15
+bb.gem.correct_common_mode_minstrips = 20
 bb.gem.correct_common_mode_nsigma = 2.0
 
 bb.gem.use_commonmode_rolling_average = 1
@@ -2220,11 +2220,13 @@ bb.gem.m3.suppressfirstlast = 0
 
 -------[ 2022-02-01 12:00:00 ] # at start of SBS-9 kinematics, we need to adjust limits for optics and track slope constraints:
 
-bb.gem.use_enhanced_chi2 = 1
+bb.gem.use_enhanced_chi2 = 0
 bb.gem.trackchi2cut_hitquality = 10.0 30.0 30.0
 bb.gem.trackchi2cut = 15.0 30.0 50.0
 
-bb.gem.suppressfirstlast = -1
+bb.gem.minhighqualityhitsontrack = 0 0 0
+
+bb.gem.suppressfirstlast = 0
 bb.gem.m1.suppressfirstlast = 0
 bb.gem.m3.suppressfirstlast = 0
 
@@ -2237,7 +2239,7 @@ bb.gem.corrcoeff_cut = 0.5
 bb.gem.filterflag1D = -1
 bb.gem.filterflag2D = -1
 
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 
 bb.gem.addstrip_tcut = 35.0
 bb.gem.addstrip_ccor_cut = 0.4
@@ -2558,6 +2560,362 @@ bb.gem.cuttrackt0 = 20.0
 bb.gem.constraintwidth_theta = 0.045
 bb.gem.constraintwidth_phi = 0.035
 
+#############################################################################################
+#                                                                                           #
+#   Parameters to calculate and apply threshold to (weighted and/or unweighted) GEM strip   #
+#   correlation with expected shape in the time domain, as a function of trigger phase      #
+#                                                                                           #
+#############################################################################################
+
+bb.gem.useTSfracTrigPhaseCorr = 1
+
+# Parameters for module 0 (bb.gem.m0):
+
+bb.gem.m0.TSfrac_vs_trigphase_Umean = 
+ 0.026424  0.020644  0.016407  0.013026    0.0411  0.033346      # time sample 0
+  0.10071  0.087314  0.074212  0.062423   0.12759   0.11421      # time sample 1
+  0.19683   0.18898   0.17996   0.16865   0.20642   0.20265      # time sample 2
+  0.24043   0.24349   0.24561   0.24641   0.23135   0.23639      # time sample 3
+  0.23355   0.24439   0.25514    0.2659   0.21341   0.22333      # time sample 4
+  0.19892   0.21118   0.22434    0.2385   0.17635   0.18717      # time sample 5
+
+bb.gem.m0.TSfrac_vs_trigphase_Vmean = 
+  0.02298  0.017421  0.013599  0.010085  0.038433  0.030352      # time sample 0
+  0.10153  0.086846  0.072643  0.059518   0.13172   0.11683      # time sample 1
+  0.20359   0.19575   0.18698   0.17389    0.2123   0.20935      # time sample 2
+  0.24398   0.24798   0.25051    0.2517   0.23344   0.23949      # time sample 3
+  0.23154   0.24257   0.25435   0.26588   0.20997   0.22046      # time sample 4
+  0.19248   0.20495   0.21865   0.23269   0.16931   0.18029      # time sample 5
+
+bb.gem.m0.TSfrac_vs_trigphase_Usigma = 
+ 0.022279  0.018433  0.016771  0.015292  0.027718  0.024678      # time sample 0
+ 0.038864  0.038635  0.037315  0.034648  0.036869   0.03821      # time sample 1
+ 0.019967  0.023923  0.028772  0.033177  0.012712  0.016651      # time sample 2
+   0.0152  0.013823  0.013058  0.013069  0.017767  0.016358      # time sample 3
+ 0.030889   0.03167  0.032344  0.032854  0.028722  0.029845      # time sample 4
+ 0.035455  0.037801  0.040065  0.042651  0.031308  0.033331      # time sample 5
+
+bb.gem.m0.TSfrac_vs_trigphase_Vsigma = 
+  0.01952  0.016605  0.014514  0.012161  0.027836  0.023123      # time sample 0
+ 0.041549  0.040588  0.038314  0.035731  0.039392  0.040948      # time sample 1
+  0.01974  0.024246  0.030629  0.034224   0.01197  0.014863      # time sample 2
+ 0.016047  0.013975  0.012806  0.012804  0.018964   0.01766      # time sample 3
+ 0.031257  0.032035  0.033077  0.033505  0.028741  0.029864      # time sample 4
+ 0.034367  0.036566  0.039068  0.041356  0.030158  0.032621      # time sample 5
+
+bb.gem.m0.threshU_wTScorr_vs_trigphase = 
+     0.59       0.7     0.755      0.78      0.35      0.48 
+bb.gem.m0.threshV_wTScorr_vs_trigphase = 
+     0.63     0.735     0.805     0.835     0.345     0.485 
+bb.gem.m0.threshU_uTScorr_vs_trigphase = 
+    0.395     0.455     0.515     0.555     0.205      0.31 
+bb.gem.m0.threshV_uTScorr_vs_trigphase = 
+    0.395     0.465     0.515     0.565     0.215     0.305 
+
+# Parameters for module 1 (bb.gem.m1):
+
+bb.gem.m1.TSfrac_vs_trigphase_Umean = 
+ 0.068387  0.060237  0.053824   0.04689  0.084886   0.07602      # time sample 0
+  0.14156   0.13248   0.12321   0.11435   0.15876   0.15033      # time sample 1
+  0.19671   0.19443   0.19066   0.18651   0.19975   0.19837      # time sample 2
+  0.21094   0.21341   0.21555   0.21767   0.20532   0.20833      # time sample 3
+  0.20269   0.21037   0.21739   0.22487   0.18743   0.19495      # time sample 4
+  0.16813   0.17693   0.18526   0.19564   0.15165   0.15961      # time sample 5
+
+bb.gem.m1.TSfrac_vs_trigphase_Vmean = 
+ 0.065879  0.058528  0.050356  0.042896  0.082832   0.07379      # time sample 0
+  0.14387   0.13414   0.12434   0.11487   0.16078   0.15277      # time sample 1
+  0.20005   0.19829   0.19535   0.19182    0.2018   0.20136      # time sample 2
+  0.21167   0.21456   0.21692   0.21941   0.20545   0.20877      # time sample 3
+  0.20033   0.20855   0.21639    0.2239   0.18557   0.19334      # time sample 4
+  0.16358   0.17281   0.18229   0.19247   0.14743   0.15542      # time sample 5
+
+bb.gem.m1.TSfrac_vs_trigphase_Usigma = 
+ 0.045331  0.042517  0.038872  0.036315   0.05271  0.048629      # time sample 0
+ 0.054389  0.053827  0.053422  0.052875   0.05132  0.053326      # time sample 1
+ 0.017927  0.020382  0.024239  0.028232  0.014109  0.015881      # time sample 2
+ 0.022663  0.021935  0.021683  0.021273  0.023721  0.023122      # time sample 3
+ 0.044815  0.044459  0.044936  0.044498  0.043925   0.04428      # time sample 4
+ 0.052087  0.053602  0.057143  0.060265  0.046124  0.048807      # time sample 5
+
+bb.gem.m1.TSfrac_vs_trigphase_Vsigma = 
+   0.0466  0.041611  0.038494  0.035788  0.054913  0.050623      # time sample 0
+ 0.056593  0.057276  0.057013  0.056668  0.051653  0.054741      # time sample 1
+ 0.017545  0.020106  0.024774  0.029612  0.014628   0.01539      # time sample 2
+ 0.024033  0.023536  0.022825  0.022389  0.025288  0.024729      # time sample 3
+ 0.045909  0.046275  0.045909  0.046608   0.04409  0.044967      # time sample 4
+ 0.051933  0.055232  0.056874   0.05912  0.046416  0.050115      # time sample 5
+
+bb.gem.m1.threshU_wTScorr_vs_trigphase = 
+   -0.465    -0.495     -0.48    -0.355     -0.25     -0.38 
+bb.gem.m1.threshV_wTScorr_vs_trigphase = 
+    -0.42     -0.49    -0.495    -0.375     -0.23    -0.325 
+bb.gem.m1.threshU_uTScorr_vs_trigphase = 
+    -0.58    -0.585    -0.555    -0.475     -0.49     -0.55 
+bb.gem.m1.threshV_uTScorr_vs_trigphase = 
+    -0.56    -0.575     -0.56     -0.48     -0.45     -0.52 
+
+# Parameters for module 2 (bb.gem.m2):
+
+bb.gem.m2.TSfrac_vs_trigphase_Umean = 
+ 0.022845  0.017539  0.014079  0.011106  0.036514  0.029095      # time sample 0
+ 0.093413  0.079911   0.06765  0.056108    0.1203    0.1067      # time sample 1
+  0.19194   0.18411   0.17416   0.16203   0.20392   0.19892      # time sample 2
+  0.24216   0.24429   0.24559    0.2459   0.23405   0.23837      # time sample 3
+  0.23946   0.25052   0.26138   0.27215     0.219   0.22918      # time sample 4
+  0.20612   0.21933   0.23285   0.24754   0.18269   0.19397      # time sample 5
+
+bb.gem.m2.TSfrac_vs_trigphase_Vmean = 
+ 0.019544  0.014672  0.011563  0.0088665   0.03276  0.025775      # time sample 0
+ 0.091684  0.077317  0.064421  0.052181   0.12089   0.10637      # time sample 1
+  0.19642   0.18812   0.17658   0.16421   0.20835   0.20353      # time sample 2
+  0.24565   0.24842   0.24996   0.25038    0.2364   0.24162      # time sample 3
+  0.23932   0.25067   0.26217   0.27386    0.2176   0.22817      # time sample 4
+   0.2029    0.2163   0.23018   0.24485    0.1791   0.19052      # time sample 5
+
+bb.gem.m2.TSfrac_vs_trigphase_Usigma = 
+ 0.019433  0.016843  0.014933  0.013487  0.026241  0.021936      # time sample 0
+ 0.038731  0.038105  0.036185  0.034095   0.03693  0.038174      # time sample 1
+ 0.021292  0.026941  0.031381   0.03449  0.013906  0.017177      # time sample 2
+ 0.013795  0.013078  0.012385  0.012751  0.016996  0.015582      # time sample 3
+ 0.030705  0.031882  0.032541   0.03292  0.028728  0.029855      # time sample 4
+ 0.035803  0.038425  0.040579  0.043287  0.031285  0.033604      # time sample 5
+
+bb.gem.m2.TSfrac_vs_trigphase_Vsigma = 
+ 0.017369  0.014683  0.012622  0.011211   0.02508  0.020093      # time sample 0
+ 0.040846  0.039373   0.03636  0.033124  0.039756  0.040958      # time sample 1
+ 0.021324  0.028702  0.032329  0.038395  0.013101  0.016663      # time sample 2
+ 0.014516  0.013124  0.012247  0.012483  0.018006  0.015969      # time sample 3
+  0.03152  0.032573  0.033224  0.033693  0.029369  0.030412      # time sample 4
+ 0.035268  0.037981  0.040088  0.042948  0.031653  0.033191      # time sample 5
+
+bb.gem.m2.threshU_wTScorr_vs_trigphase = 
+    0.685      0.77     0.815      0.83      0.42     0.575 
+bb.gem.m2.threshV_wTScorr_vs_trigphase = 
+    0.725     0.815     0.855     0.875     0.435       0.6 
+bb.gem.m2.threshU_uTScorr_vs_trigphase = 
+     0.44     0.495     0.555      0.59     0.265     0.365 
+bb.gem.m2.threshV_uTScorr_vs_trigphase = 
+    0.425      0.48      0.54     0.585      0.24      0.34 
+
+# Parameters for module 3 (bb.gem.m3):
+
+bb.gem.m3.TSfrac_vs_trigphase_Umean = 
+ 0.050428  0.043423  0.036771  0.032167  0.065643  0.057344      # time sample 0
+  0.12194   0.11216   0.10235  0.092926   0.14223   0.13211      # time sample 1
+  0.19329   0.18927   0.18396   0.17726   0.19841   0.19656      # time sample 2
+  0.21628   0.21882   0.22092   0.22322   0.21093   0.21369      # time sample 3
+  0.21785   0.22519   0.23336   0.24082   0.20254   0.20993      # time sample 4
+  0.18533   0.19421   0.20544   0.21557   0.16541   0.17506      # time sample 5
+
+bb.gem.m3.TSfrac_vs_trigphase_Vmean = 
+ 0.048085  0.040137  0.034917   0.02844  0.064088  0.054826      # time sample 0
+  0.12479   0.11412   0.10291  0.092801   0.14341   0.13568      # time sample 1
+  0.19657   0.19302   0.18835   0.18215   0.20101   0.19944      # time sample 2
+  0.21723   0.21993   0.22265   0.22499   0.21101   0.21424      # time sample 3
+  0.21553   0.22335   0.23192   0.23982   0.19985   0.20735      # time sample 4
+  0.18035     0.191   0.20088   0.21089   0.16135    0.1707      # time sample 5
+
+bb.gem.m3.TSfrac_vs_trigphase_Usigma = 
+ 0.034481  0.031695  0.029408  0.024976  0.041989  0.039631      # time sample 0
+ 0.054816  0.053454  0.051685   0.04967  0.057321  0.056286      # time sample 1
+ 0.026245  0.031033   0.03513  0.039609  0.018906  0.021681      # time sample 2
+ 0.021207  0.020898  0.020781  0.020632  0.021989  0.021304      # time sample 3
+ 0.044758  0.044328  0.043788  0.042847  0.044275  0.045394      # time sample 4
+ 0.057368  0.061906  0.062407  0.065984  0.052757  0.054908      # time sample 5
+
+bb.gem.m3.TSfrac_vs_trigphase_Vsigma = 
+ 0.035261   0.03134  0.026475  0.022376  0.044672  0.041493      # time sample 0
+  0.06028  0.058242  0.055685  0.052788  0.057785  0.061077      # time sample 1
+ 0.024382  0.029238  0.033839  0.040057  0.017398  0.019943      # time sample 2
+ 0.022648  0.021992  0.022185  0.021582  0.023456  0.022858      # time sample 3
+ 0.046268  0.046581  0.045769  0.045289  0.045627  0.046892      # time sample 4
+ 0.058036  0.059918  0.063958  0.067354  0.053898  0.054954      # time sample 5
+
+bb.gem.m3.threshU_wTScorr_vs_trigphase = 
+   -0.465     -0.24     0.055     0.355    -0.465    -0.495 
+bb.gem.m3.threshV_wTScorr_vs_trigphase = 
+   -0.495     -0.37    -0.025     0.325     -0.43     -0.48 
+bb.gem.m3.threshU_uTScorr_vs_trigphase = 
+    -0.52      -0.4     -0.25    -0.055     -0.55    -0.555 
+bb.gem.m3.threshV_uTScorr_vs_trigphase = 
+   -0.535     -0.46    -0.315     -0.14     -0.54     -0.56 
+
+# Parameters for module 4 (bb.gem.m4):
+
+bb.gem.m4.TSfrac_vs_trigphase_Umean = 
+ 0.018026  0.013538  0.010752  0.0083414  0.029792  0.024083      # time sample 0
+ 0.087227  0.073528  0.060347  0.048656   0.11776   0.10251      # time sample 1
+  0.19639   0.18639   0.17501   0.16305   0.20668   0.20189      # time sample 2
+  0.24394   0.24651   0.24759   0.24868   0.23551   0.24015      # time sample 3
+  0.24087   0.25196   0.26308    0.2745   0.21957   0.22996      # time sample 4
+  0.20856   0.22127   0.23489   0.24912   0.18487   0.19627      # time sample 5
+
+bb.gem.m4.TSfrac_vs_trigphase_Vmean = 
+ 0.020743    0.0172  0.013647  0.010751  0.034319  0.028103      # time sample 0
+ 0.088688  0.075968  0.064654  0.053634   0.11639   0.10187      # time sample 1
+  0.18604   0.17929   0.17039   0.15918   0.19531   0.19172      # time sample 2
+  0.23529   0.23742   0.23855   0.23901    0.2273   0.23191      # time sample 3
+  0.24071   0.25014   0.25992   0.27056   0.22158   0.23074      # time sample 4
+  0.22163   0.23279   0.24532   0.25867   0.19936   0.20936      # time sample 5
+
+bb.gem.m4.TSfrac_vs_trigphase_Usigma = 
+ 0.014559  0.011746  0.010329  0.0087333  0.023156  0.017149      # time sample 0
+ 0.044065  0.040636  0.037145  0.031728  0.043251   0.04409      # time sample 1
+ 0.023192  0.030381   0.03664  0.042722  0.012243   0.01778      # time sample 2
+  0.01341  0.011829  0.011664  0.011196  0.017982  0.014765      # time sample 3
+ 0.033878  0.034148  0.034848    0.0353  0.031314   0.03206      # time sample 4
+ 0.039581  0.040012  0.043259  0.045759  0.033129  0.035855      # time sample 5
+
+bb.gem.m4.TSfrac_vs_trigphase_Vsigma = 
+ 0.014898  0.012089  0.010729  0.0093712  0.021798   0.01783      # time sample 0
+ 0.036243  0.033758  0.031846  0.029213  0.040067  0.035699      # time sample 1
+ 0.020471  0.026874  0.032934  0.037624  0.010948  0.014577      # time sample 2
+ 0.011881  0.011728  0.010889  0.011266   0.01581  0.012983      # time sample 3
+ 0.029292  0.030221  0.031598  0.031912  0.027243  0.027843      # time sample 4
+ 0.034475  0.035662  0.038195  0.040773  0.029894  0.031375      # time sample 5
+
+bb.gem.m4.threshU_wTScorr_vs_trigphase = 
+    0.745      0.84     0.855      0.86     0.405     0.635 
+bb.gem.m4.threshV_wTScorr_vs_trigphase = 
+    0.795      0.87       0.9     0.905     0.435      0.64 
+bb.gem.m4.threshU_uTScorr_vs_trigphase = 
+     0.36     0.425      0.48     0.505     0.185     0.275 
+bb.gem.m4.threshV_uTScorr_vs_trigphase = 
+    0.455      0.53     0.575     0.605     0.145       0.3 
+
+# Parameters for module 5 (bb.gem.m5):
+
+bb.gem.m5.TSfrac_vs_trigphase_Umean = 
+ 0.019554   0.01576  0.012713  0.010264   0.03038  0.024818      # time sample 0
+ 0.081186  0.068647  0.057337  0.046821   0.10795  0.094544      # time sample 1
+  0.18558   0.17481   0.16328   0.14997    0.1988   0.19289      # time sample 2
+  0.24226   0.24386   0.24427   0.24372   0.23659   0.24045      # time sample 3
+  0.24861    0.2595   0.27004   0.28107   0.22759    0.2381      # time sample 4
+  0.21793   0.23144    0.2454   0.26076    0.1934    0.2052      # time sample 5
+
+bb.gem.m5.TSfrac_vs_trigphase_Vmean = 
+ 0.019668  0.015955  0.013059  0.010663  0.029497  0.023554      # time sample 0
+ 0.075427  0.064628  0.054936  0.045973  0.098853  0.087054      # time sample 1
+  0.17313   0.16259   0.15165     0.139   0.18662   0.18025      # time sample 2
+  0.23585   0.23682    0.2364   0.23578   0.23233   0.23461      # time sample 3
+  0.25477   0.26473   0.27433   0.28382   0.23564    0.2452      # time sample 4
+  0.23622   0.24959   0.26287   0.27766   0.21211   0.22415      # time sample 5
+
+bb.gem.m5.TSfrac_vs_trigphase_Usigma = 
+  0.01446    0.0132  0.011945  0.010754  0.020667  0.017006      # time sample 0
+ 0.037923  0.035629  0.032858  0.028302   0.03952   0.03878      # time sample 1
+ 0.027669  0.031072   0.03666  0.039552  0.015995  0.019583      # time sample 2
+ 0.011804  0.011118  0.011362  0.012671  0.014558  0.012509      # time sample 3
+ 0.031532  0.032365  0.032605  0.031864  0.030566  0.031223      # time sample 4
+ 0.038263  0.040824  0.043209  0.045541  0.034032  0.036362      # time sample 5
+
+bb.gem.m5.TSfrac_vs_trigphase_Vsigma = 
+ 0.013729  0.012567  0.011431  0.010342  0.018065  0.015942      # time sample 0
+  0.03247  0.030011  0.027807  0.024844    0.0344  0.033438      # time sample 1
+ 0.027223  0.030268  0.033692  0.034869  0.017483  0.021005      # time sample 2
+ 0.010437   0.01017  0.011402  0.012598  0.011791  0.010531      # time sample 3
+ 0.028803  0.029159   0.02885   0.02846  0.027663  0.028278      # time sample 4
+  0.03768  0.039846  0.042093  0.044361  0.033687  0.035383      # time sample 5
+
+bb.gem.m5.threshU_wTScorr_vs_trigphase = 
+    0.755     0.785     0.785      0.78     0.525      0.65 
+bb.gem.m5.threshV_wTScorr_vs_trigphase = 
+    0.815     0.835     0.835     0.825     0.675      0.75 
+bb.gem.m5.threshU_uTScorr_vs_trigphase = 
+    0.485      0.52     0.545      0.58     0.345      0.41 
+bb.gem.m5.threshV_uTScorr_vs_trigphase = 
+    0.555      0.59       0.6     0.625      0.44     0.505 
+
+# Parameters for module 6 (bb.gem.m6):
+
+bb.gem.m6.TSfrac_vs_trigphase_Umean = 
+ 0.016254  0.012767  0.010053  0.0080147  0.026264  0.021066      # time sample 0
+ 0.075236  0.063015  0.051565  0.041992   0.10247  0.088307      # time sample 1
+  0.18213   0.17184   0.15814    0.1443    0.1991   0.19184      # time sample 2
+  0.24521   0.24617   0.24647   0.24603   0.23964   0.24298      # time sample 3
+  0.25276   0.26388   0.27532   0.28618   0.23114   0.24176      # time sample 4
+  0.22233   0.23606    0.2512   0.26634   0.19689   0.20934      # time sample 5
+
+bb.gem.m6.TSfrac_vs_trigphase_Vmean = 
+ 0.019084   0.01537  0.012394  0.010127   0.02947  0.024216      # time sample 0
+ 0.077431  0.065831   0.05527  0.046515   0.10213  0.089599      # time sample 1
+  0.17754   0.16765   0.15499   0.14259   0.19223   0.18543      # time sample 2
+  0.24023    0.2409   0.24082   0.23974   0.23608   0.23853      # time sample 3
+  0.25353   0.26382   0.27429   0.28414   0.23324   0.24328      # time sample 4
+  0.22771   0.24123     0.256   0.27068   0.20278    0.2148      # time sample 5
+
+bb.gem.m6.TSfrac_vs_trigphase_Usigma = 
+ 0.012976  0.011484  0.010212  0.0090792  0.019088  0.015453      # time sample 0
+   0.0362  0.033084  0.029795  0.026242   0.03865  0.038361      # time sample 1
+ 0.027825  0.033669  0.037984  0.040522  0.017413  0.022179      # time sample 2
+ 0.011632  0.011611  0.011967    0.0128  0.014017  0.012721      # time sample 3
+ 0.031296  0.032187  0.032032   0.03195  0.029579  0.030582      # time sample 4
+ 0.037945  0.040062  0.042641   0.04558  0.033766  0.035398      # time sample 5
+
+bb.gem.m6.TSfrac_vs_trigphase_Vsigma = 
+ 0.014833  0.013522  0.012253  0.010899  0.020376  0.017128      # time sample 0
+ 0.034786  0.032684  0.030452  0.026839  0.035911  0.035713      # time sample 1
+ 0.027074  0.031396  0.034768  0.036629  0.018017  0.021355      # time sample 2
+ 0.011161  0.011257  0.011833  0.013557  0.012741  0.012085      # time sample 3
+ 0.030085  0.030573  0.030552  0.030354  0.028642  0.029544      # time sample 4
+ 0.037923  0.040657  0.042685  0.045284  0.033686  0.035696      # time sample 5
+
+bb.gem.m6.threshU_wTScorr_vs_trigphase = 
+      0.8      0.83     0.845      0.83     0.575      0.72 
+bb.gem.m6.threshV_wTScorr_vs_trigphase = 
+    0.775       0.8      0.81       0.8       0.6     0.705 
+bb.gem.m6.threshU_uTScorr_vs_trigphase = 
+     0.44     0.495     0.535     0.575      0.29      0.37 
+bb.gem.m6.threshV_uTScorr_vs_trigphase = 
+    0.505      0.54     0.575     0.595     0.385      0.45 
+
+# Parameters for module 7 (bb.gem.m7):
+
+bb.gem.m7.TSfrac_vs_trigphase_Umean = 
+ 0.021802  0.016561  0.013217  0.010307  0.036235  0.028415      # time sample 0
+ 0.097209  0.082333  0.068767  0.055453   0.12732   0.11162      # time sample 1
+  0.20134   0.19298    0.1847   0.17003   0.21065   0.20678      # time sample 2
+  0.24365   0.24632   0.24811   0.24945   0.23378   0.23928      # time sample 3
+  0.23471   0.24569   0.25704   0.26899   0.21296   0.22407      # time sample 4
+  0.19717   0.20969   0.22334   0.23815   0.17374   0.18584      # time sample 5
+
+bb.gem.m7.TSfrac_vs_trigphase_Vmean = 
+ 0.024192  0.019217  0.015534  0.011792  0.038591  0.030937      # time sample 0
+ 0.095534  0.082034  0.069946  0.058502   0.12356   0.10897      # time sample 1
+  0.19406   0.18587   0.17649   0.16423   0.20526   0.20061      # time sample 2
+    0.241   0.24343   0.24505   0.24569   0.23199   0.23705      # time sample 3
+  0.23659    0.2472   0.25779   0.26954   0.21572   0.22608      # time sample 4
+   0.2038   0.21626   0.22924   0.24415   0.18061    0.1919      # time sample 5
+
+bb.gem.m7.TSfrac_vs_trigphase_Usigma = 
+ 0.016579   0.01384  0.012489  0.010803  0.026397  0.020592      # time sample 0
+ 0.044404  0.042561  0.039482  0.035207   0.04342  0.044817      # time sample 1
+ 0.019304  0.025321  0.035489  0.038454  0.011804  0.015156      # time sample 2
+ 0.014188  0.012632  0.012277  0.011843   0.01783  0.016271      # time sample 3
+ 0.033305  0.034294  0.034682  0.034576  0.031003  0.032887      # time sample 4
+ 0.037052  0.039964  0.042746  0.044376  0.033377  0.036201      # time sample 5
+
+bb.gem.m7.TSfrac_vs_trigphase_Vsigma = 
+ 0.017521  0.014104  0.012996  0.010532  0.024313  0.019836      # time sample 0
+ 0.036518  0.036151  0.034078  0.030461  0.036211  0.036894      # time sample 1
+ 0.019568  0.024071  0.031048  0.034483   0.01127  0.014853      # time sample 2
+ 0.012807  0.012349    0.0115  0.011598  0.016072  0.015006      # time sample 3
+ 0.028989   0.03001   0.03039  0.030546  0.027537  0.028006      # time sample 4
+  0.03336  0.035606  0.037254  0.039799  0.029528  0.030964      # time sample 5
+
+bb.gem.m7.threshU_wTScorr_vs_trigphase = 
+     0.58     0.735     0.775     0.775     0.315     0.465 
+bb.gem.m7.threshV_wTScorr_vs_trigphase = 
+     0.63     0.755     0.805      0.85     0.315     0.505 
+bb.gem.m7.threshU_uTScorr_vs_trigphase = 
+    0.285     0.395      0.41      0.49     0.135     0.225 
+bb.gem.m7.threshV_uTScorr_vs_trigphase = 
+     0.32     0.405      0.45     0.525     0.105      0.23 
+
+
+
+
 
 
 -------[ 2022-02-02 17:25:00 ] # start zero-field running for optics
@@ -2603,7 +2961,7 @@ bb.gem.usestriptimingcut = 0
 
 --------[ 2022-02-04 19:40:00 ] # Back to production
 
-bb.gem.suppressfirstlast = -1
+bb.gem.suppressfirstlast = 0
 bb.gem.m1.suppressfirstlast = 0
 bb.gem.m3.suppressfirstlast = 0
 
@@ -2612,7 +2970,7 @@ bb.gem.useopticsconstraint = 1
 bb.gem.useforwardopticsconstraint = 1
 bb.gem.useslopeconstraint = 1
 
-bb.gem.usestriptimingcut = 1
+bb.gem.usestriptimingcut = 0
 
 --------[ 2022-02-07 20:20:00 ] # Full readout runs for high current study
 
