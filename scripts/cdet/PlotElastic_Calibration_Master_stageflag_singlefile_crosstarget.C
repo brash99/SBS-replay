@@ -4949,7 +4949,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   // hCDetTimeDiffvsy2->Draw();
 }
 
-void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, double dtMinCut = 70.0, double dtMaxCut = 115.0, double DiffMin = 0.0, double DiffMax = 130.0, double LeMin = 0.0, double LeMax = 60.0, double TeMin = 0.0, double TeMax = 80.0, double TotMin = 0.0, double TotMax = 80.0, bool drawDtVsTot = false){
+void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, double dtMinCut = 70.0, double dtMaxCut = 115.0, double DiffMin = 0.0, double DiffMax = 130.0, double LeMin = 0.0, double LeMax = 60.0, double TeMin = 0.0, double TeMax = 80.0, double TotMin = 0.0, double TotMax = 80.0, double ECalMin = 62.0, double ECalMax = 140.0, bool drawDtVsTot = false){
   TH1::AddDirectory(kFALSE);
 
   if (logicalPixelID < 0 || logicalPixelID >= NumCDetPaddles) {
@@ -4964,7 +4964,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     return;
   }
   if (Width <= 0.0 || DiffMin >= DiffMax || LeMin >= LeMax ||
-      TeMin >= TeMax || TotMin >= TotMax) {
+      TeMin >= TeMax || TotMin >= TotMax || ECalMin >= ECalMax) {
     std::cerr << "[CDet timing-cut study] ERROR: invalid histogram binning or range.\n";
     return;
   }
@@ -4979,6 +4979,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   int NLeBins = (int)((LeMax - LeMin)/Width);
   int NTeBins = (int)((TeMax - TeMin)/Width);
   int NTotBinsStudy = (int)((TotMax - TotMin)/Width);
+  int NADCBins = (int)((ECalMax - ECalMin)/4.0);
 
   static unsigned long invocation = 0;
   const unsigned long tag = ++invocation;
@@ -4988,17 +4989,20 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
 
   TH2D *hDtVsPixel = new TH2D(uniqueName("hCDetECalCutStudyDtVsPixel"), "Uncut ECal-CDet #Deltat versus CDet logical pixel ID;CDet logical pixel ID;t_{ECal}-t_{CDet,LE} (ns)", NumCDetPaddles, -0.5, NumCDetPaddles - 0.5, NDiffBins, DiffMin, DiffMax);
   TH1D *hDt = new TH1D(uniqueName("hCDetECalCutStudyDt"), "Uncut ECal-CDet #Deltat;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", NDiffBins, DiffMin, DiffMax);
+  TH1D *hSelectedPixelDt = new TH1D(uniqueName("hCDetECalCutStudySelectedPixelDt"), TString::Format("Uncut ECal-CDet #Deltat, logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", logicalPixelID), NDiffBins, DiffMin, DiffMax);
   TH1D *hLePass = new TH1D(uniqueName("hCDetECalCutStudyLePass"), "CDet LE after #Deltat cut;CDet LE time (ns);Passing hits", NLeBins, LeMin, LeMax);
   TH1D *hTePass = new TH1D(uniqueName("hCDetECalCutStudyTePass"), "CDet TE after #Deltat cut;CDet TE time (ns);Passing hits", NTeBins, TeMin, TeMax);
   TH1D *hTotPass = new TH1D(uniqueName("hCDetECalCutStudyTotPass"), "CDet TOT after #Deltat cut;CDet TOT (ns);Passing hits", NTotBinsStudy, TotMin, TotMax);
   TH1D *hSelectedPixelLe = new TH1D(uniqueName("hCDetECalCutStudySelectedPixelLe"), TString::Format("CDet LE after #Deltat cut, logical pixel ID %d;CDet LE time (ns);Passing hits", logicalPixelID), NLeBins, LeMin, LeMax);
+  TH2D *hECalVsCDetPass = new TH2D(uniqueName("hCDetECalCutStudyECalVsCDetPass"), "ECal time versus CDet LE after #Deltat cut;CDet LE time (ns);ECal ADC time (ns)", NLeBins, LeMin, LeMax, NADCBins, ECalMin, ECalMax);
+  TH2D *hECalVsSelectedPixelPass = new TH2D(uniqueName("hCDetECalCutStudyECalVsSelectedPixelPass"), TString::Format("ECal time versus CDet LE after #Deltat cut, logical pixel ID %d;CDet LE time (ns);ECal ADC time (ns)", logicalPixelID), NLeBins, LeMin, LeMax, NADCBins, ECalMin, ECalMax);
   TH2D *hDtVsTot = nullptr;
   if (drawDtVsTot) {
     hDtVsTot = new TH2D(uniqueName("hCDetECalCutStudyDtVsTot"), "Uncut ECal-CDet #Deltat versus CDet TOT;CDet TOT (ns);t_{ECal}-t_{CDet,LE} (ns)", NTotBinsStudy, TotMin, TotMax, NDiffBins, DiffMin, DiffMax);
   }
 
-  std::vector<unsigned long> baselinePerPixel(NumCDetPaddles, 0);
-  std::vector<unsigned long> passingPerPixel(NumCDetPaddles, 0);
+  // std::vector<unsigned long> baselinePerPixel(NumCDetPaddles, 0);
+  // std::vector<unsigned long> passingPerPixel(NumCDetPaddles, 0);
   size_t baselineHitCount = 0;
   size_t passingHitCount = 0;
   size_t selectedPixelPassingCount = 0;
@@ -5014,42 +5018,44 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
 
       hDtVsPixel->Fill(pixelID, dt);
       hDt->Fill(dt);
+      if (pixelID == logicalPixelID) hSelectedPixelDt->Fill(dt);
       if (hDtVsTot) hDtVsTot->Fill(tot, dt);
       ++baselineHitCount;
-      ++baselinePerPixel[pixelID];
+      // ++baselinePerPixel[pixelID];
 
       // This is the only additional hit-quality requirement in this routine.
       if (dtMinCut <= dt && dt <= dtMaxCut) {
         ++passingHitCount;
-        ++passingPerPixel[pixelID];
+        // ++passingPerPixel[pixelID];
         hLePass->Fill(le);
         hTePass->Fill(te);
         hTotPass->Fill(tot);
+        hECalVsCDetPass->Fill(le, tECal);
         if (pixelID == logicalPixelID) {
           ++selectedPixelPassingCount;
           hSelectedPixelLe->Fill(le);
+          hECalVsSelectedPixelPass->Fill(le, tECal);
         }
       }
     }
   }
 
-  TGraphErrors *gEfficiency = new TGraphErrors();
-  gEfficiency->SetName(uniqueName("gCDetECalCutStudyEfficiency"));
-  gEfficiency->SetTitle("ECal-CDet #Deltat-cut efficiency versus CDet logical pixel ID;"
-                        "CDet logical pixel ID;Hit efficiency");
-  for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
-    const double denominator = baselinePerPixel[pixelID];
-    if (denominator == 0.0) continue;
-    const double efficiency = passingPerPixel[pixelID] / denominator;
-    const double uncertainty = std::sqrt(efficiency * (1.0 - efficiency) / denominator);
-    const int point = gEfficiency->GetN();
-    gEfficiency->SetPoint(point, pixelID, efficiency);
-    gEfficiency->SetPointError(point, 0.0, uncertainty);
-  }
-  gEfficiency->SetMarkerStyle(20);
-  gEfficiency->SetMarkerSize(0.45);
-  gEfficiency->SetMinimum(0.0);
-  gEfficiency->SetMaximum(1.05);
+  // TGraphErrors *gEfficiency = new TGraphErrors();
+  // gEfficiency->SetName(uniqueName("gCDetECalCutStudyEfficiency"));
+  // gEfficiency->SetTitle("ECal-CDet #Deltat-cut efficiency versus CDet logical pixel ID;CDet logical pixel ID;Hit efficiency");
+  // for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+  //   const double denominator = baselinePerPixel[pixelID];
+  //   if (denominator == 0.0) continue;
+  //   const double efficiency = passingPerPixel[pixelID] / denominator;
+  //   const double uncertainty = std::sqrt(efficiency * (1.0 - efficiency) / denominator);
+  //   const int point = gEfficiency->GetN();
+  //   gEfficiency->SetPoint(point, pixelID, efficiency);
+  //   gEfficiency->SetPointError(point, 0.0, uncertainty);
+  // }
+  // gEfficiency->SetMarkerStyle(20);
+  // gEfficiency->SetMarkerSize(0.45);
+  // gEfficiency->SetMinimum(0.0);
+  // gEfficiency->SetMaximum(1.05);
 
   TCanvas *cDtVsPixel = new TCanvas(uniqueName("cCDetECalCutStudyDtVsPixel"), "Uncut ECal-CDet delta-t versus logical pixel ID", 1100, 700);
   hDtVsPixel->Draw("COLZ");
@@ -5068,6 +5074,20 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   dtMinLine->Draw("SAME");
   dtMaxLine->Draw("SAME");
 
+  TCanvas *cSelectedPixelDt = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDt"), TString::Format("Uncut ECal-CDet delta-t, logical pixel ID %d", logicalPixelID), 900, 700);
+  hSelectedPixelDt->Draw("HIST");
+  const double selectedPixelLineTop = std::max(1.0, 1.05 * hSelectedPixelDt->GetMaximum());
+  TLine *selectedPixelDtMinLine = new TLine(dtMinCut, 0.0, dtMinCut, selectedPixelLineTop);
+  TLine *selectedPixelDtMaxLine = new TLine(dtMaxCut, 0.0, dtMaxCut, selectedPixelLineTop);
+  selectedPixelDtMinLine->SetLineColor(kRed + 1);
+  selectedPixelDtMaxLine->SetLineColor(kRed + 1);
+  selectedPixelDtMinLine->SetLineWidth(2);
+  selectedPixelDtMaxLine->SetLineWidth(2);
+  selectedPixelDtMinLine->SetLineStyle(2);
+  selectedPixelDtMaxLine->SetLineStyle(2);
+  selectedPixelDtMinLine->Draw("SAME");
+  selectedPixelDtMaxLine->Draw("SAME");
+
   TCanvas *cPassingTiming = new TCanvas(uniqueName("cCDetECalCutStudyPassingTiming"), "CDet timing after ECal-CDet delta-t cut", 1500, 500);
   cPassingTiming->Divide(3, 1);
   cPassingTiming->cd(1);
@@ -5080,29 +5100,34 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   TCanvas *cSelectedPixel = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixel"), TString::Format("CDet logical pixel ID %d after delta-t cut", logicalPixelID), 900, 700);
   hSelectedPixelLe->Draw("HIST");
 
-  TCanvas *cEfficiency = new TCanvas(uniqueName("cCDetECalCutStudyEfficiency"), "ECal-CDet delta-t-cut efficiency", 1100, 700);
-  gEfficiency->Draw("AP");
-  gEfficiency->GetXaxis()->SetLimits(-0.5, NumCDetPaddles - 0.5);
-  if (IsCrossTargetRun(gRunNumber)) {
-    TPaveText *crossTargetNote = new TPaveText(0.14, 0.82, 0.39, 0.89, "NDC");
-    crossTargetNote->SetFillColor(0);
-    crossTargetNote->SetBorderSize(1);
-    crossTargetNote->SetTextAlign(22);
-    crossTargetNote->AddText(TString::Format("Cross-target run %d", gRunNumber));
-    crossTargetNote->Draw();
-  }
+  TCanvas *cECalVsCDetPass = new TCanvas(uniqueName("cCDetECalCutStudyECalVsCDetPass"), "ECal time versus CDet LE after delta-t cut", 900, 700);
+  hECalVsCDetPass->Draw("COLZ");
+
+  TCanvas *cECalVsSelectedPixelPass = new TCanvas(uniqueName("cCDetECalCutStudyECalVsSelectedPixelPass"), TString::Format("ECal time versus CDet logical pixel ID %d after delta-t cut", logicalPixelID), 900, 700);
+  hECalVsSelectedPixelPass->Draw("COLZ");
+
+  // TCanvas *cEfficiency = new TCanvas(uniqueName("cCDetECalCutStudyEfficiency"), "ECal-CDet delta-t-cut efficiency", 1100, 700);
+  // gEfficiency->Draw("AP");
+  // gEfficiency->GetXaxis()->SetLimits(-0.5, NumCDetPaddles - 0.5);
+  // if (IsCrossTargetRun(gRunNumber)) {
+  //   TPaveText *crossTargetNote = new TPaveText(0.14, 0.82, 0.39, 0.89, "NDC");
+  //   crossTargetNote->SetFillColor(0);
+  //   crossTargetNote->SetBorderSize(1);
+  //   crossTargetNote->SetTextAlign(22);
+  //   crossTargetNote->AddText(TString::Format("Cross-target run %d", gRunNumber));
+  //   crossTargetNote->Draw();
+  // }
 
   if (hDtVsTot) {
     TCanvas *cDtVsTot = new TCanvas(uniqueName("cCDetECalCutStudyDtVsTot"), "Uncut ECal-CDet delta-t versus CDet TOT", 900, 700);
     hDtVsTot->Draw("COLZ");
   }
 
-  const double overallEfficiency = baselineHitCount > 0
-      ? static_cast<double>(passingHitCount) / baselineHitCount : 0.0;
+  // const double overallEfficiency = baselineHitCount > 0 ? static_cast<double>(passingHitCount) / baselineHitCount : 0.0;
   std::cout << "[CDet timing-cut study]\n"
             << "  baseline hits: " << baselineHitCount << "\n"
             << "  passing hits: " << passingHitCount << "\n"
-            << "  overall efficiency: " << overallEfficiency << "\n"
+            // << "  overall efficiency: " << overallEfficiency << "\n"
             << "  selected logical pixel ID: " << logicalPixelID << "\n"
             << "  selected-pixel passing hits: " << selectedPixelPassingCount << "\n";
 }
