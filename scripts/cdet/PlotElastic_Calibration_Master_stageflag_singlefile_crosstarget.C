@@ -43,6 +43,8 @@ static const double xcut = 998.0;
 static const double TDC_calib_to_ns = 0.01;
 static const double HotChannelRatio = .01;
 static const double RawSinglesWindowSeconds = 60.0e-9;
+static const double ECalClusterWindowSeconds = 250.0e-9;
+static const double ECalClusterEnergyBinWidthGeV = 0.01;
 
 static const int NumPaddles = 16;
 static const int NumBars = 14;
@@ -875,6 +877,12 @@ std::vector<double> rawHitOccupancy(2688, 0.0);
 std::vector<double> rawSinglesRateHz(2688, 0.0);
 std::vector<double> rawSinglesRateErrorHz(2688, 0.0);
 TH1D* hRawSinglesRateVsID = nullptr;
+std::vector<double> ecalClusterEnergiesGeV;
+int ecalClusterProcessedEventCount = 0;
+int ecalClusterCountMismatchEvents = 0;
+int ecalClusterNonFiniteEnergyCount = 0;
+int ecalClusterGroupIndex = 0;
+TH1D* hECalClusterEnergySpectrum = nullptr;
 std::vector<int> totCutHitCount(2688, 0);
 std::vector<double> totCutHitOccupancy(2688, 0.0);
 std::vector<double> ave_tot(2688,0);
@@ -1285,6 +1293,11 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
   gRunNumber = RunNumber1;
   gCalibrationStage = calibStage;
   gNumEventsInRun = 0;
+  ecalClusterGroupIndex = groupIndex;
+  ecalClusterEnergiesGeV.clear();
+  ecalClusterProcessedEventCount = 0;
+  ecalClusterCountMismatchEvents = 0;
+  ecalClusterNonFiniteEnergyCount = 0;
   (void)firstevent; // currently unused
   gCalibrationFile = RunNumber1 == 0
       ? TString::Format("CDet_calibration_group%d.dat", groupIndex).Data()
@@ -1594,7 +1607,7 @@ std::cout << "[CDet] Reference timing subtraction is "
   // // TTreeReaderArray<double> ECal_clus_again        (reader, "earm.ecal.clus.again");
   // TTreeReaderArray<double> ECal_clus_atimeblk     (reader, "earm.ecal.clus.atimeblk");
   // // TTreeReaderArray<double> ECal_clus_col          (reader, "earm.ecal.clus.col");
-  // TTreeReaderArray<double> ECal_clus_e            (reader, "earm.ecal.clus.e");
+  TTreeReaderArray<double> ECal_clus_e            (reader, "earm.ecal.clus.e");
   // TTreeReaderArray<double> ECal_clus_eblk         (reader, "earm.ecal.clus.eblk");
   // TTreeReaderArray<double> ECal_clus_id           (reader, "earm.ecal.clus.id");
   // TTreeReaderArray<double> ECal_clus_nblk         (reader, "earm.ecal.clus.nblk");
@@ -1607,7 +1620,7 @@ std::cout << "[CDet] Reference timing subtraction is "
   TTreeReaderArray<double> ECal_adcxpos         (reader, "earm.ecal.adcxpos");
 
   // Cluster count (scalar)
-  //TTreeReaderValue<double> ECal_nclus(reader, "earm.ECal.nclus");
+  TTreeReaderValue<double> ECal_nclus(reader, "earm.ecal.nclus");
 
   //event-level ECal branches
   TTreeReaderValue<double> ECalX       (reader, "earm.ecal.x");
@@ -1686,6 +1699,33 @@ std::cout << "[CDet] Reference timing subtraction is "
         break;
     }
     gNumEventsInRun++;
+    ecalClusterProcessedEventCount++;
+
+    const std::size_t storedECalClusterCount = ECal_clus_e.GetSize();
+    const double reportedECalClusterCount = *ECal_nclus;
+    const bool ecalClusterCountMatches =
+        std::isfinite(reportedECalClusterCount) &&
+        reportedECalClusterCount >= 0.0 &&
+        std::floor(reportedECalClusterCount) == reportedECalClusterCount &&
+        static_cast<std::size_t>(reportedECalClusterCount) == storedECalClusterCount;
+    if (!ecalClusterCountMatches) {
+      ecalClusterCountMismatchEvents++;
+      if (ecalClusterCountMismatchEvents <= 10) {
+        std::cerr << "[ECal rate] Cluster-count mismatch at tree entry "
+                  << reader.GetCurrentEntry() << ": earm.ecal.nclus="
+                  << reportedECalClusterCount << ", clus.e size="
+                  << storedECalClusterCount << std::endl;
+      }
+    }
+    for (std::size_t iclus = 0; iclus < storedECalClusterCount; ++iclus) {
+      const double energyGeV = ECal_clus_e[iclus];
+      if (std::isfinite(energyGeV)) {
+        ecalClusterEnergiesGeV.push_back(energyGeV);
+      } else {
+        ecalClusterNonFiniteEnergyCount++;
+      }
+    }
+
     Int_t nh = *nhits;
     Int_t ngh = *ngoodhits;
     Int_t ngth = *ngoodTDChits;
@@ -2858,6 +2898,74 @@ std::cout << "[CDet] Reference timing subtraction is "
   //================================================================== End Macro
 }// end main
 
+void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGeV = ECalClusterEnergyBinWidthGeV)
+{
+  if (ecalClusterProcessedEventCount <= 0) {
+    std::cerr << "[ECal rate] No processed-event data are available. Run the main analysis first." << std::endl;
+    return;
+  }
+  if (!std::isfinite(energyThresholdGeV)) {
+    std::cerr << "[ECal rate] Energy threshold must be finite." << std::endl;
+    return;
+  }
+  if (!std::isfinite(energyBinWidthGeV) || energyBinWidthGeV <= 0.0) {
+    std::cerr << "[ECal rate] Energy-bin width must be positive and finite." << std::endl;
+    return;
+  }
+
+  if (hECalClusterEnergySpectrum) {
+    delete hECalClusterEnergySpectrum;
+    hECalClusterEnergySpectrum = nullptr;
+  }
+  double ecalEnergyMinimumGeV = 0.0;
+  double ecalEnergyMaximumGeV = energyBinWidthGeV;
+  if (!ecalClusterEnergiesGeV.empty()) {
+    const auto energyRange = std::minmax_element(ecalClusterEnergiesGeV.begin(), ecalClusterEnergiesGeV.end());
+    ecalEnergyMinimumGeV = std::min(0.0, std::floor(*energyRange.first / energyBinWidthGeV) * energyBinWidthGeV);
+    ecalEnergyMaximumGeV = std::max(energyBinWidthGeV, (std::floor(*energyRange.second / energyBinWidthGeV) + 1.0) * energyBinWidthGeV);
+  }
+  ecalEnergyMinimumGeV = std::min(ecalEnergyMinimumGeV, std::floor(energyThresholdGeV / energyBinWidthGeV) * energyBinWidthGeV);
+  ecalEnergyMaximumGeV = std::max(ecalEnergyMaximumGeV, (std::floor(energyThresholdGeV / energyBinWidthGeV) + 1.0) * energyBinWidthGeV);
+  const int ecalEnergyBinCount = std::max(1, static_cast<int>(std::llround((ecalEnergyMaximumGeV - ecalEnergyMinimumGeV) / energyBinWidthGeV)));
+  hECalClusterEnergySpectrum = new TH1D("hECalClusterEnergySpectrum", "ECal reconstructed-cluster energy;Cluster energy [GeV];Clusters / bin", ecalEnergyBinCount, ecalEnergyMinimumGeV, ecalEnergyMaximumGeV);
+  hECalClusterEnergySpectrum->SetDirectory(nullptr);
+  hECalClusterEnergySpectrum->SetStats(0);
+  for (const double energyGeV : ecalClusterEnergiesGeV) hECalClusterEnergySpectrum->Fill(energyGeV);
+
+  const double ecalObservedTimeSeconds = static_cast<double>(ecalClusterProcessedEventCount) * ECalClusterWindowSeconds;
+  const Long64_t passingClusterCount = static_cast<Long64_t>(std::count_if(ecalClusterEnergiesGeV.begin(), ecalClusterEnergiesGeV.end(), [energyThresholdGeV](double energyGeV) { return energyGeV >= energyThresholdGeV; }));
+  const double rateHz = static_cast<double>(passingClusterCount) / ecalObservedTimeSeconds;
+  const double rateErrorHz = std::sqrt(static_cast<double>(passingClusterCount)) / ecalObservedTimeSeconds;
+
+  hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("ecal_cluster_window_s", ECalClusterWindowSeconds));
+  hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("energy_threshold_gev", energyThresholdGeV));
+  hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("energy_bin_width_gev", energyBinWidthGeV));
+  hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<int>("processed_event_count", ecalClusterProcessedEventCount));
+
+  TObject *existingCanvas = gROOT->FindObject("cECalClusterEnergySpectrum");
+  if (existingCanvas) delete existingCanvas;
+  TCanvas *cECalClusterEnergySpectrum = new TCanvas("cECalClusterEnergySpectrum", "ECal reconstructed-cluster energy", 1000, 700);
+  hECalClusterEnergySpectrum->Draw("HIST");
+  const double lineMaximum = std::max(1.0, 1.05 * hECalClusterEnergySpectrum->GetMaximum());
+  TLine *energyThresholdLine = new TLine(energyThresholdGeV, 0.0, energyThresholdGeV, lineMaximum);
+  energyThresholdLine->SetLineColor(kRed + 1);
+  energyThresholdLine->SetLineWidth(3);
+  energyThresholdLine->SetLineStyle(2);
+  energyThresholdLine->Draw("SAME");
+  TLegend *thresholdLegend = new TLegend(0.58, 0.76, 0.88, 0.88);
+  thresholdLegend->AddEntry(energyThresholdLine, TString::Format("E_{thr} = %.3f GeV", energyThresholdGeV), "l");
+  thresholdLegend->AddEntry((TObject*)nullptr, TString::Format("Rate = %.3g #pm %.2g Hz", rateHz, rateErrorHz), "");
+  thresholdLegend->Draw();
+  cECalClusterEnergySpectrum->Update();
+
+  std::cout << "[ECal rate] Processed events: " << ecalClusterProcessedEventCount
+            << ", cluster entries: " << ecalClusterEnergiesGeV.size() + ecalClusterNonFiniteEnergyCount
+            << ", nclus/array mismatches: " << ecalClusterCountMismatchEvents
+            << ", nonfinite energies: " << ecalClusterNonFiniteEnergyCount << std::endl;
+  std::cout << "[ECal rate] E >= " << energyThresholdGeV << " GeV: " << passingClusterCount
+            << " clusters, rate = " << rateHz << " +/- " << rateErrorHz << " Hz" << std::endl;
+}
+
 void ResetCalibrationGlobals()
 {
     canvas_vector.clear();
@@ -2959,10 +3067,18 @@ void ResetCalibrationGlobals()
     ave_tot.assign(2688, 0.0);
 
     occupancyEventCount = 0;
+    ecalClusterEnergiesGeV.clear();
+    ecalClusterProcessedEventCount = 0;
+    ecalClusterCountMismatchEvents = 0;
+    ecalClusterNonFiniteEnergyCount = 0;
 
     if (hRawSinglesRateVsID) {
         delete hRawSinglesRateVsID;
         hRawSinglesRateVsID = nullptr;
+    }
+    if (hECalClusterEnergySpectrum) {
+        delete hECalClusterEnergySpectrum;
+        hECalClusterEnergySpectrum = nullptr;
     }
 
     if (T) {
@@ -4995,7 +5111,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
 }
 
 void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 80, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
-  
+  TH1::AddDirectory(kFALSE);
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
 
