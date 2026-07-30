@@ -2898,7 +2898,7 @@ std::cout << "[CDet] Reference timing subtraction is "
   //================================================================== End Macro
 }// end main
 
-void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGeV = ECalClusterEnergyBinWidthGeV)
+void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGeV = ECalClusterEnergyBinWidthGeV, double binMinGeV = 0.0, double binMaxGeV = 12.0)
 {
   if (ecalClusterProcessedEventCount <= 0) {
     std::cerr << "[ECal rate] No processed-event data are available. Run the main analysis first." << std::endl;
@@ -2912,22 +2912,17 @@ void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGe
     std::cerr << "[ECal rate] Energy-bin width must be positive and finite." << std::endl;
     return;
   }
+  if (!std::isfinite(binMinGeV) || !std::isfinite(binMaxGeV) || binMaxGeV <= binMinGeV) {
+    std::cerr << "[ECal rate] Energy bounds must be finite, with maximum greater than minimum." << std::endl;
+    return;
+  }
 
   if (hECalClusterEnergySpectrum) {
     delete hECalClusterEnergySpectrum;
     hECalClusterEnergySpectrum = nullptr;
   }
-  double ecalEnergyMinimumGeV = 0.0;
-  double ecalEnergyMaximumGeV = energyBinWidthGeV;
-  if (!ecalClusterEnergiesGeV.empty()) {
-    const auto energyRange = std::minmax_element(ecalClusterEnergiesGeV.begin(), ecalClusterEnergiesGeV.end());
-    ecalEnergyMinimumGeV = std::min(0.0, std::floor(*energyRange.first / energyBinWidthGeV) * energyBinWidthGeV);
-    ecalEnergyMaximumGeV = std::max(energyBinWidthGeV, (std::floor(*energyRange.second / energyBinWidthGeV) + 1.0) * energyBinWidthGeV);
-  }
-  ecalEnergyMinimumGeV = std::min(ecalEnergyMinimumGeV, std::floor(energyThresholdGeV / energyBinWidthGeV) * energyBinWidthGeV);
-  ecalEnergyMaximumGeV = std::max(ecalEnergyMaximumGeV, (std::floor(energyThresholdGeV / energyBinWidthGeV) + 1.0) * energyBinWidthGeV);
-  const int ecalEnergyBinCount = std::max(1, static_cast<int>(std::llround((ecalEnergyMaximumGeV - ecalEnergyMinimumGeV) / energyBinWidthGeV)));
-  hECalClusterEnergySpectrum = new TH1D("hECalClusterEnergySpectrum", "ECal reconstructed-cluster energy;Cluster energy [GeV];Clusters / bin", ecalEnergyBinCount, ecalEnergyMinimumGeV, ecalEnergyMaximumGeV);
+  const int ecalEnergyBinCount = std::max(1, static_cast<int>(std::ceil((binMaxGeV - binMinGeV) / energyBinWidthGeV)));
+  hECalClusterEnergySpectrum = new TH1D("hECalClusterEnergySpectrum", "ECal reconstructed-cluster energy;Cluster energy [GeV];Clusters / bin", ecalEnergyBinCount, binMinGeV, binMaxGeV);
   hECalClusterEnergySpectrum->SetDirectory(nullptr);
   hECalClusterEnergySpectrum->SetStats(0);
   for (const double energyGeV : ecalClusterEnergiesGeV) hECalClusterEnergySpectrum->Fill(energyGeV);
@@ -2940,6 +2935,8 @@ void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGe
   hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("ecal_cluster_window_s", ECalClusterWindowSeconds));
   hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("energy_threshold_gev", energyThresholdGeV));
   hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("energy_bin_width_gev", energyBinWidthGeV));
+  hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("bin_min_gev", binMinGeV));
+  hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("bin_max_gev", binMaxGeV));
   hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<int>("processed_event_count", ecalClusterProcessedEventCount));
 
   TObject *existingCanvas = gROOT->FindObject("cECalClusterEnergySpectrum");
