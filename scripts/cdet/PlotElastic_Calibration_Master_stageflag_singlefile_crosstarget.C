@@ -4990,6 +4990,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   TH2D *hDtVsPixel = new TH2D(uniqueName("hCDetECalCutStudyDtVsPixel"), "Uncut ECal-CDet #Deltat versus CDet logical pixel ID;CDet logical pixel ID;t_{ECal}-t_{CDet,LE} (ns)", NumCDetPaddles, -0.5, NumCDetPaddles - 0.5, NDiffBins, DiffMin, DiffMax);
   TH1D *hDt = new TH1D(uniqueName("hCDetECalCutStudyDt"), "Uncut ECal-CDet #Deltat;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", NDiffBins, DiffMin, DiffMax);
   TH1D *hSelectedPixelDt = new TH1D(uniqueName("hCDetECalCutStudySelectedPixelDt"), TString::Format("Uncut ECal-CDet #Deltat, logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", logicalPixelID), NDiffBins, DiffMin, DiffMax);
+  TF1 *fSelectedPixelDt = new TF1(uniqueName("fCDetECalCutStudySelectedPixelDt"), "gaus(0)+pol1(3)", dtMinCut, dtMaxCut);
   TH1D *hLePass = new TH1D(uniqueName("hCDetECalCutStudyLePass"), "CDet LE after #Deltat cut;CDet LE time (ns);Passing hits", NLeBins, LeMin, LeMax);
   TH1D *hTePass = new TH1D(uniqueName("hCDetECalCutStudyTePass"), "CDet TE after #Deltat cut;CDet TE time (ns);Passing hits", NTeBins, TeMin, TeMax);
   TH1D *hTotPass = new TH1D(uniqueName("hCDetECalCutStudyTotPass"), "CDet TOT after #Deltat cut;CDet TOT (ns);Passing hits", NTotBinsStudy, TotMin, TotMax);
@@ -5076,6 +5077,17 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
 
   TCanvas *cSelectedPixelDt = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDt"), TString::Format("Uncut ECal-CDet delta-t, logical pixel ID %d", logicalPixelID), 900, 700);
   hSelectedPixelDt->Draw("HIST");
+  if (hSelectedPixelDt->Integral(hSelectedPixelDt->FindBin(dtMinCut), hSelectedPixelDt->FindBin(dtMaxCut)) > 0.0) {
+    int selectedPixelPeakBin = hSelectedPixelDt->FindBin(dtMinCut);
+    for (int bin = selectedPixelPeakBin + 1; bin <= hSelectedPixelDt->FindBin(dtMaxCut); ++bin) {
+      if (hSelectedPixelDt->GetBinContent(bin) > hSelectedPixelDt->GetBinContent(selectedPixelPeakBin)) selectedPixelPeakBin = bin;
+    }
+    const double selectedPixelPeak = hSelectedPixelDt->GetBinCenter(selectedPixelPeakBin);
+    const double selectedPixelBackground = 0.5*(hSelectedPixelDt->GetBinContent(hSelectedPixelDt->FindBin(dtMinCut)) + hSelectedPixelDt->GetBinContent(hSelectedPixelDt->FindBin(dtMaxCut)));
+    fSelectedPixelDt->SetParameters(std::max(1.0, hSelectedPixelDt->GetBinContent(selectedPixelPeakBin) - selectedPixelBackground), selectedPixelPeak, std::max(Width, (dtMaxCut - dtMinCut)/10.0), selectedPixelBackground, 0.0);
+    fSelectedPixelDt->SetParNames("Gaussian amplitude", "Gaussian mean", "Gaussian sigma", "Background intercept", "Background slope");
+    hSelectedPixelDt->Fit(fSelectedPixelDt, "R");
+  }
   const double selectedPixelLineTop = std::max(1.0, 1.05 * hSelectedPixelDt->GetMaximum());
   TLine *selectedPixelDtMinLine = new TLine(dtMinCut, 0.0, dtMinCut, selectedPixelLineTop);
   TLine *selectedPixelDtMaxLine = new TLine(dtMaxCut, 0.0, dtMaxCut, selectedPixelLineTop);
