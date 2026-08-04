@@ -5390,11 +5390,11 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
     cBarFits->cd(localPixel + 1);
     hPixelDt[localPixel]->Draw("HIST");
     if (fPixelDt[localPixel]) fPixelDt[localPixel]->Draw("SAME");
-    TPaveText *status = new TPaveText(0.12, 0.72, 0.88, 0.89, "NDC");
+    TPaveText *status = new TPaveText(0.52, 0.75, 0.95, 0.89, "NDC");
     status->SetFillColor(IsUnusedPixel(pixelID) ? kBlack : kWhite);
     status->SetTextColor(IsUnusedPixel(pixelID) ? kWhite : kBlack);
     status->SetBorderSize(1);
-    status->SetTextSize(0.045);
+    status->SetTextSize(0.035);
     status->AddText(TString::Format("ID %d: %s", pixelID, failureReason[localPixel].c_str()));
     if (validFit[localPixel]) status->AddText(TString::Format("#mu = %.3f #pm %.3f ns", centroid[localPixel], centroidErr[localPixel]));
     status->Draw();
