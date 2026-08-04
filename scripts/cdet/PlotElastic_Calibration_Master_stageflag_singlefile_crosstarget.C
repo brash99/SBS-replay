@@ -5087,6 +5087,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     fSelectedPixelDt->SetParameters(std::max(1.0, hSelectedPixelDt->GetBinContent(selectedPixelPeakBin) - selectedPixelBackground), selectedPixelPeak, std::max(Width, (dtMaxCut - dtMinCut)/10.0), selectedPixelBackground, 0.0);
     fSelectedPixelDt->SetParNames("Gaussian amplitude", "Gaussian mean", "Gaussian sigma", "Background intercept", "Background slope");
     hSelectedPixelDt->Fit(fSelectedPixelDt, "R");
+    fSelectedPixelDt->Draw("SAME");
   }
   const double selectedPixelLineTop = std::max(1.0, 1.05 * hSelectedPixelDt->GetMaximum());
   TLine *selectedPixelDtMinLine = new TLine(dtMinCut, 0.0, dtMinCut, selectedPixelLineTop);
@@ -5142,6 +5143,349 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
             // << "  overall efficiency: " << overallEfficiency << "\n"
             << "  selected logical pixel ID: " << logicalPixelID << "\n"
             << "  selected-pixel passing hits: " << selectedPixelPassingCount << "\n";
+}
+
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 40.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 105.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat") {
+  TH1::AddDirectory(kFALSE);
+
+  if (pixelBase < 0 || pixelBase >= NumCDetPaddles) {
+    std::cerr << "[CDet pixel timing] ERROR: requested logical pixel ID " << pixelBase << " is outside [0, " << NumCDetPaddles - 1 << "].\n";
+    return;
+  }
+  if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0) {
+    std::cerr << "[CDet pixel timing] ERROR: invalid histogram, fit, or quality-limit argument.\n";
+    return;
+  }
+
+  const int requestedPixel = pixelBase;
+  pixelBase = (pixelBase/NumPaddles)*NumPaddles;
+  const int bar = pixelBase/NumPaddles;
+  const int nBins = (int)((HistMax - HistMin)/Width);
+  if (nBins < 1) {
+    std::cerr << "[CDet pixel timing] ERROR: histogram binning produces fewer than one bin.\n";
+    return;
+  }
+
+  const size_t nEvents = vGoodLe.size();
+  if (vGoodID.size() != nEvents || v_GoodECalAdcTime.size() != nEvents) {
+    std::cerr << "[CDet pixel timing] ERROR: event vectors are not aligned: LE=" << vGoodLe.size() << ", ID=" << vGoodID.size() << ", ECal time=" << v_GoodECalAdcTime.size() << ".\n";
+    return;
+  }
+  for (size_t ev = 0; ev < nEvents; ++ev) {
+    if (vGoodID[ev].size() != vGoodLe[ev].size()) {
+      std::cerr << "[CDet pixel timing] ERROR: LE and ID vectors differ in event " << ev << ": LE=" << vGoodLe[ev].size() << ", ID=" << vGoodID[ev].size() << ".\n";
+      return;
+    }
+  }
+
+  static unsigned long invocation = 0;
+  const unsigned long tag = ++invocation;
+  auto uniqueName = [tag](const char *base) { return TString::Format("%s_%lu", base, tag); };
+
+  std::vector<TH1D*> hPixelDt(NumPaddles, nullptr);
+  std::vector<TF1*> fPixelDt(NumPaddles, nullptr);
+  std::vector<int> fitEntries(NumPaddles, 0);
+  std::vector<int> fitStatus(NumPaddles, -1);
+  std::vector<int> validityCode(NumPaddles, 0);
+  std::vector<std::string> failureReason(NumPaddles, "not processed");
+  std::vector<double> amplitude(NumPaddles, NAN), amplitudeErr(NumPaddles, NAN);
+  std::vector<double> centroid(NumPaddles, NAN), centroidErr(NumPaddles, NAN);
+  std::vector<double> sigma(NumPaddles, NAN), sigmaErr(NumPaddles, NAN);
+  std::vector<double> backgroundP0(NumPaddles, NAN), backgroundP1(NumPaddles, NAN);
+  std::vector<double> chi2(NumPaddles, NAN), chi2Ndf(NumPaddles, NAN);
+  std::vector<int> ndf(NumPaddles, 0);
+  std::vector<bool> validFit(NumPaddles, false);
+  std::vector<double> correction(NumPaddles, NAN), correctionErr(NumPaddles, NAN);
+
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    const int pixelID = pixelBase + localPixel;
+    hPixelDt[localPixel] = new TH1D(uniqueName(TString::Format("hCDetPixelTimingDt_%d", pixelID)), TString::Format("Logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", pixelID), nBins, HistMin, HistMax);
+  }
+  TH1D *hValidity = new TH1D(uniqueName("hCDetBarPixelValidity"), "Pixel fit status;CDet logical pixel ID;Status code", NumPaddles, pixelBase - 0.5, pixelBase + NumPaddles - 0.5);
+  TH1D *hCentroidDistribution = new TH1D(uniqueName("hCDetBarPixelCentroidDistribution"), "Reliable fitted centroids;#mu_{i} (ns);Pixels", nBins, HistMin, HistMax);
+  TH1D *hPredictedCentroidDistribution = new TH1D(uniqueName("hCDetBarPixelPredictedCentroidDistribution"), "Predicted centroids after candidate corrections;#mu_{i}-c_{i} (ns);Pixels", nBins, HistMin, HistMax);
+
+  for (size_t ev = 0; ev < nEvents; ++ev) {
+    const double tECal = v_GoodECalAdcTime[ev];
+    for (size_t ihit = 0; ihit < vGoodLe[ev].size(); ++ihit) {
+      const int pixelID = vGoodID[ev][ihit];
+      if (pixelID < pixelBase || pixelID >= pixelBase + NumPaddles) continue;
+      hPixelDt[pixelID - pixelBase]->Fill(tECal - vGoodLe[ev][ihit]);
+    }
+  }
+
+  int instrumentedPixels = 0;
+  int sufficientStatistics = 0;
+  int successfulFits = 0;
+  int lowStatisticsCount = 0;
+  int rootFitFailureCount = 0;
+  int invalidParameterCount = 0;
+  int boundaryCount = 0;
+  int sigmaCount = 0;
+  int amplitudeCount = 0;
+  int ndfCount = 0;
+  int chi2Count = 0;
+
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    const int pixelID = pixelBase + localPixel;
+    if (IsUnusedPixel(pixelID)) {
+      validityCode[localPixel] = 1;
+      failureReason[localPixel] = "unused pixel";
+      continue;
+    }
+    ++instrumentedPixels;
+
+    const int fitBinMin = hPixelDt[localPixel]->FindBin(FitMin);
+    const int fitBinMax = hPixelDt[localPixel]->FindBin(FitMax);
+    fitEntries[localPixel] = (int)hPixelDt[localPixel]->Integral(fitBinMin, fitBinMax);
+    if (fitEntries[localPixel] < minEntries) {
+      validityCode[localPixel] = 2;
+      failureReason[localPixel] = "insufficient entries";
+      ++lowStatisticsCount;
+      continue;
+    }
+    ++sufficientStatistics;
+
+    int peakBin = fitBinMin;
+    for (int binIndex = fitBinMin + 1; binIndex <= fitBinMax; ++binIndex) {
+      if (hPixelDt[localPixel]->GetBinContent(binIndex) > hPixelDt[localPixel]->GetBinContent(peakBin)) peakBin = binIndex;
+    }
+    const double peak = hPixelDt[localPixel]->GetBinCenter(peakBin);
+    const double edgeBackground = 0.5*(hPixelDt[localPixel]->GetBinContent(fitBinMin) + hPixelDt[localPixel]->GetBinContent(fitBinMax));
+    fPixelDt[localPixel] = new TF1(uniqueName(TString::Format("fCDetPixelTimingDt_%d", pixelID)), "gaus(0)+pol1(3)", FitMin, FitMax);
+    fPixelDt[localPixel]->SetParameters(std::max(1.0, hPixelDt[localPixel]->GetBinContent(peakBin) - edgeBackground), peak, std::max(Width, (FitMax - FitMin)/10.0), edgeBackground, 0.0);
+    fPixelDt[localPixel]->SetParNames("Gaussian amplitude", "Gaussian mean", "Gaussian sigma", "Background intercept", "Background slope");
+    fitStatus[localPixel] = hPixelDt[localPixel]->Fit(fPixelDt[localPixel], "RQ0");
+
+    amplitude[localPixel] = fPixelDt[localPixel]->GetParameter(0);
+    amplitudeErr[localPixel] = fPixelDt[localPixel]->GetParError(0);
+    centroid[localPixel] = fPixelDt[localPixel]->GetParameter(1);
+    centroidErr[localPixel] = fPixelDt[localPixel]->GetParError(1);
+    sigma[localPixel] = std::fabs(fPixelDt[localPixel]->GetParameter(2));
+    sigmaErr[localPixel] = fPixelDt[localPixel]->GetParError(2);
+    backgroundP0[localPixel] = fPixelDt[localPixel]->GetParameter(3);
+    backgroundP1[localPixel] = fPixelDt[localPixel]->GetParameter(4);
+    chi2[localPixel] = fPixelDt[localPixel]->GetChisquare();
+    ndf[localPixel] = fPixelDt[localPixel]->GetNDF();
+    chi2Ndf[localPixel] = ndf[localPixel] > 0 ? chi2[localPixel]/ndf[localPixel] : NAN;
+
+    if (fitStatus[localPixel] != 0) {
+      validityCode[localPixel] = 3;
+      failureReason[localPixel] = "ROOT fit failure";
+      ++rootFitFailureCount;
+      continue;
+    }
+    ++successfulFits;
+    if (!std::isfinite(amplitude[localPixel]) || !std::isfinite(amplitudeErr[localPixel]) || !std::isfinite(centroid[localPixel]) || !std::isfinite(centroidErr[localPixel]) || !std::isfinite(sigma[localPixel]) || !std::isfinite(sigmaErr[localPixel]) || !std::isfinite(backgroundP0[localPixel]) || !std::isfinite(backgroundP1[localPixel]) || !std::isfinite(chi2[localPixel]) || centroidErr[localPixel] <= 0.0 || sigmaErr[localPixel] <= 0.0) {
+      validityCode[localPixel] = 4;
+      failureReason[localPixel] = "invalid parameter or uncertainty";
+      ++invalidParameterCount;
+      continue;
+    }
+    if (centroid[localPixel] - FitMin <= centroidEdgeMargin || FitMax - centroid[localPixel] <= centroidEdgeMargin) {
+      validityCode[localPixel] = 5;
+      failureReason[localPixel] = "centroid near fit boundary";
+      ++boundaryCount;
+      continue;
+    }
+    if (sigma[localPixel] < minSigma || sigma[localPixel] > maxSigma) {
+      validityCode[localPixel] = 6;
+      failureReason[localPixel] = "sigma outside limits";
+      ++sigmaCount;
+      continue;
+    }
+    if (amplitude[localPixel] <= 0.0) {
+      validityCode[localPixel] = 7;
+      failureReason[localPixel] = "nonpositive Gaussian amplitude";
+      ++amplitudeCount;
+      continue;
+    }
+    if (ndf[localPixel] <= 0) {
+      validityCode[localPixel] = 8;
+      failureReason[localPixel] = "invalid NDF";
+      ++ndfCount;
+      continue;
+    }
+    if (!std::isfinite(chi2Ndf[localPixel]) || chi2Ndf[localPixel] > maxChi2Ndf) {
+      validityCode[localPixel] = 9;
+      failureReason[localPixel] = "chi2/NDF outside limit";
+      ++chi2Count;
+      continue;
+    }
+
+    validityCode[localPixel] = 10;
+    failureReason[localPixel] = "valid";
+    validFit[localPixel] = true;
+  }
+
+  double weightSum = 0.0;
+  double weightedCentroidSum = 0.0;
+  int referencePixels = 0;
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    if (!validFit[localPixel]) continue;
+    const double weight = 1.0/(centroidErr[localPixel]*centroidErr[localPixel]);
+    weightSum += weight;
+    weightedCentroidSum += centroid[localPixel]*weight;
+    ++referencePixels;
+  }
+
+  const bool referenceValid = referencePixels >= 2 && weightSum > 0.0;
+  const double referenceCentroid = referenceValid ? weightedCentroidSum/weightSum : NAN;
+  const double referenceCentroidErr = referenceValid ? std::sqrt(1.0/weightSum) : NAN;
+  if (referenceValid) {
+    for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+      if (!validFit[localPixel]) continue;
+      correction[localPixel] = centroid[localPixel] - referenceCentroid;
+      const double correlatedVariance = centroidErr[localPixel]*centroidErr[localPixel] - referenceCentroidErr*referenceCentroidErr;
+      correctionErr[localPixel] = correlatedVariance > 0.0 ? std::sqrt(correlatedVariance) : std::sqrt(centroidErr[localPixel]*centroidErr[localPixel] + referenceCentroidErr*referenceCentroidErr);
+    }
+  }
+
+  TGraphErrors *gCentroid = new TGraphErrors();
+  TGraphErrors *gCorrection = new TGraphErrors();
+  TGraphErrors *gSigma = new TGraphErrors();
+  TGraph *gEntries = new TGraph();
+  TGraph *gChi2Ndf = new TGraph();
+  gCentroid->SetName(uniqueName("gCDetBarPixelCentroid"));
+  gCorrection->SetName(uniqueName("gCDetBarPixelCorrection"));
+  gSigma->SetName(uniqueName("gCDetBarPixelSigma"));
+  gEntries->SetName(uniqueName("gCDetBarPixelEntries"));
+  gChi2Ndf->SetName(uniqueName("gCDetBarPixelChi2Ndf"));
+  gCentroid->SetTitle("Reliable fitted centroids;CDet logical pixel ID;#mu_{i} (ns)");
+  gCorrection->SetTitle("Candidate additive pixel corrections;CDet logical pixel ID;c_{i}=#mu_{i}-#mu_{0} (ns)");
+  gSigma->SetTitle("Reliable fitted Gaussian widths;CDet logical pixel ID;Gaussian #sigma_{i} (ns)");
+  gEntries->SetTitle("Fit-region entries;CDet logical pixel ID;Entries");
+  gChi2Ndf->SetTitle("Fit quality;CDet logical pixel ID;#chi^{2}/NDF");
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    const int pixelID = pixelBase + localPixel;
+    hValidity->SetBinContent(localPixel + 1, validityCode[localPixel]);
+    int point = gEntries->GetN();
+    gEntries->SetPoint(point, pixelID, fitEntries[localPixel]);
+    if (std::isfinite(chi2Ndf[localPixel])) gChi2Ndf->SetPoint(gChi2Ndf->GetN(), pixelID, chi2Ndf[localPixel]);
+    if (!validFit[localPixel]) continue;
+    point = gCentroid->GetN();
+    gCentroid->SetPoint(point, pixelID, centroid[localPixel]);
+    gCentroid->SetPointError(point, 0.0, centroidErr[localPixel]);
+    point = gSigma->GetN();
+    gSigma->SetPoint(point, pixelID, sigma[localPixel]);
+    gSigma->SetPointError(point, 0.0, sigmaErr[localPixel]);
+    hCentroidDistribution->Fill(centroid[localPixel]);
+    if (referenceValid) {
+      point = gCorrection->GetN();
+      gCorrection->SetPoint(point, pixelID, correction[localPixel]);
+      gCorrection->SetPointError(point, 0.0, correctionErr[localPixel]);
+      hPredictedCentroidDistribution->Fill(centroid[localPixel] - correction[localPixel]);
+    }
+  }
+
+  for (TGraph *graph : {static_cast<TGraph*>(gCentroid), static_cast<TGraph*>(gCorrection), static_cast<TGraph*>(gSigma), gEntries, gChi2Ndf}) {
+    graph->SetMarkerStyle(20);
+    graph->SetMarkerSize(0.8);
+  }
+
+  TCanvas *cBarFits = new TCanvas(uniqueName("cCDetBarPixelTimingFits"), TString::Format("CDet bar %d pixel timing fits", bar), 1400, 1100);
+  cBarFits->Divide(4, 4, 0.001, 0.001);
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    const int pixelID = pixelBase + localPixel;
+    cBarFits->cd(localPixel + 1);
+    hPixelDt[localPixel]->Draw("HIST");
+    if (fPixelDt[localPixel]) fPixelDt[localPixel]->Draw("SAME");
+    TPaveText *status = new TPaveText(0.12, 0.72, 0.88, 0.89, "NDC");
+    status->SetFillColor(IsUnusedPixel(pixelID) ? kBlack : kWhite);
+    status->SetTextColor(IsUnusedPixel(pixelID) ? kWhite : kBlack);
+    status->SetBorderSize(1);
+    status->SetTextSize(0.045);
+    status->AddText(TString::Format("ID %d: %s", pixelID, failureReason[localPixel].c_str()));
+    if (validFit[localPixel]) status->AddText(TString::Format("#mu = %.3f #pm %.3f ns", centroid[localPixel], centroidErr[localPixel]));
+    status->Draw();
+  }
+
+  TCanvas *cBarSummary = new TCanvas(uniqueName("cCDetBarPixelTimingSummary"), TString::Format("CDet bar %d timing summary", bar), 1500, 900);
+  cBarSummary->Divide(4, 2);
+  cBarSummary->cd(1); gCentroid->Draw("AP"); gCentroid->GetXaxis()->SetLimits(pixelBase - 0.5, pixelBase + NumPaddles - 0.5);
+  cBarSummary->cd(2); gCorrection->Draw("AP"); gCorrection->GetXaxis()->SetLimits(pixelBase - 0.5, pixelBase + NumPaddles - 0.5);
+  cBarSummary->cd(3); gSigma->Draw("AP"); gSigma->GetXaxis()->SetLimits(pixelBase - 0.5, pixelBase + NumPaddles - 0.5);
+  cBarSummary->cd(4); gEntries->Draw("AP"); gEntries->GetXaxis()->SetLimits(pixelBase - 0.5, pixelBase + NumPaddles - 0.5);
+  cBarSummary->cd(5); gChi2Ndf->Draw("AP"); gChi2Ndf->GetXaxis()->SetLimits(pixelBase - 0.5, pixelBase + NumPaddles - 0.5);
+  cBarSummary->cd(6); hValidity->SetMinimum(0.0); hValidity->SetMaximum(10.5); hValidity->Draw("HIST");
+  cBarSummary->cd(7); hCentroidDistribution->Draw("HIST");
+  cBarSummary->cd(8); hPredictedCentroidDistribution->Draw("HIST");
+  if (referenceValid) {
+    cBarSummary->cd(1);
+    TPaveText *referenceNote = new TPaveText(0.14, 0.78, 0.58, 0.89, "NDC");
+    referenceNote->SetFillColor(0);
+    referenceNote->SetBorderSize(1);
+    referenceNote->AddText(TString::Format("Bar-local #mu_{0} = %.4f #pm %.4f ns", referenceCentroid, referenceCentroidErr));
+    referenceNote->Draw();
+  }
+
+  if (saveFitCanvases) {
+    TString saveDir = TString::Format("%s/run_%d_stage_%d", fitCanvasDir.Data(), gRunNumber, gCalibrationStage);
+    gSystem->mkdir(saveDir, kTRUE);
+    cBarFits->SaveAs(TString::Format("%s/bar_%03d_pixels_%d-%d.pdf", saveDir.Data(), bar, pixelBase, pixelBase + NumPaddles - 1));
+    cBarSummary->SaveAs(TString::Format("%s/bar_%03d_summary.pdf", saveDir.Data(), bar));
+  }
+
+  if (saveCandidateTable) {
+    const TString requestedBaseName = gSystem->BaseName(candidateOutput.Data());
+    const TString activeBaseName = gSystem->BaseName(gCalibrationFile.c_str());
+    if (requestedBaseName == "CDet_calibration.dat" || requestedBaseName == activeBaseName) {
+      std::cerr << "[CDet pixel timing] ERROR: refusing to overwrite active calibration file with candidate output '" << candidateOutput << "'.\n";
+    } else {
+      std::ofstream output(candidateOutput.Data());
+      if (!output.is_open()) {
+        std::cerr << "[CDet pixel timing] ERROR: could not open candidate output '" << candidateOutput << "'.\n";
+      } else {
+        output << "# CANDIDATE DIAGNOSTIC PRODUCT -- NOT AN ACTIVE CALIBRATION\n"
+               << "# run " << gRunNumber << "\n"
+               << "# calibration_stage " << gCalibrationStage << "\n"
+               << "# timing_units ns\n"
+               << "# selection fourth-pass baseline good-hit vectors; instrumented physical logical IDs only\n"
+               << "# dt = tECal - tCDetLE\n"
+               << "# fit_interval_ns " << FitMin << " " << FitMax << "\n"
+               << "# reference_scope bar-local\n"
+               << "# mu0_ns " << referenceCentroid << " mu0_err_ns " << referenceCentroidErr << "\n"
+               << "# correction c_i = mu_i - mu0; proposed convention tCDet_i' = tCDet_i + c_i\n"
+               << "# pixel_id entries fit_status valid mu_ns mu_err_ns sigma_ns sigma_err_ns correction_ns correction_err_ns chi2 ndf chi2_ndf amplitude amplitude_err background_p0 background_p1 validity_code failure_reason\n";
+        for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+          output << pixelBase + localPixel << " " << fitEntries[localPixel] << " " << fitStatus[localPixel] << " " << validFit[localPixel] << " " << centroid[localPixel] << " " << centroidErr[localPixel] << " " << sigma[localPixel] << " " << sigmaErr[localPixel] << " " << correction[localPixel] << " " << correctionErr[localPixel] << " " << chi2[localPixel] << " " << ndf[localPixel] << " " << chi2Ndf[localPixel] << " " << amplitude[localPixel] << " " << amplitudeErr[localPixel] << " " << backgroundP0[localPixel] << " " << backgroundP1[localPixel] << " " << validityCode[localPixel] << " \"" << failureReason[localPixel] << "\"\n";
+        }
+      }
+    }
+  }
+
+  double correctionSum = 0.0;
+  double correctionSquareSum = 0.0;
+  double correctionMin = 0.0;
+  double correctionMax = 0.0;
+  int correctionCount = 0;
+  if (referenceValid) {
+    for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+      if (!validFit[localPixel]) continue;
+      if (correctionCount == 0) correctionMin = correctionMax = correction[localPixel];
+      correctionMin = std::min(correctionMin, correction[localPixel]);
+      correctionMax = std::max(correctionMax, correction[localPixel]);
+      correctionSum += correction[localPixel];
+      correctionSquareSum += correction[localPixel]*correction[localPixel];
+      ++correctionCount;
+    }
+  }
+  const double correctionMean = correctionCount > 0 ? correctionSum/correctionCount : NAN;
+  const double correctionRms = correctionCount > 0 ? std::sqrt(std::max(0.0, correctionSquareSum/correctionCount - correctionMean*correctionMean)) : NAN;
+
+  std::cout << "[CDet pixel timing]\n"
+            << "  requested logical pixel ID: " << requestedPixel << "\n"
+            << "  normalized bar pixel base: " << pixelBase << "\n"
+            << "  processed logical pixel IDs: " << pixelBase << "-" << pixelBase + NumPaddles - 1 << "\n"
+            << "  physical instrumented pixels considered: " << instrumentedPixels << "\n"
+            << "  pixels with sufficient statistics: " << sufficientStatistics << "\n"
+            << "  successful ROOT fits: " << successfulFits << "\n"
+            << "  pixels included in bar-local reference: " << referencePixels << "\n"
+            << "  bar-local mu0: " << referenceCentroid << " +/- " << referenceCentroidErr << " ns\n"
+            << "  candidate correction mean/RMS: " << correctionMean << " / " << correctionRms << " ns\n"
+            << "  candidate correction range: [" << correctionMin << ", " << correctionMax << "] ns\n"
+            << "  failures -- low statistics: " << lowStatisticsCount << ", ROOT fit: " << rootFitFailureCount << ", invalid parameters: " << invalidParameterCount << ", boundary: " << boundaryCount << ", sigma: " << sigmaCount << ", amplitude: " << amplitudeCount << ", NDF: " << ndfCount << ", chi2/NDF: " << chi2Count << "\n"
+            << "  proposed sign: tCDet_i' = tCDet_i + c_i; no corrections were applied\n";
 }
 
 void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 80, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
