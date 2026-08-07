@@ -384,7 +384,7 @@ double gECalDeltaShift = 0.0;   // computed shift applied after removing correla
 bool   gUseECalTimeCorr = true; // enable/disable ECal-time correction
 
 // --- TOT time-walk correction (layer-dependent)
-// Correction applied after bar-offset and ECal-time corrections:
+// Correction applied after pixel-offset and ECal-time corrections:
 //   t_corr = t - p1*(1/sqrt(TOT) - 1/sqrt(TOT_ref))
 // so that the correction is zero at TOT_ref.  Update the p1 values below
 // with those obtained from plotGoodLeVsTotByLayer(...).
@@ -430,9 +430,9 @@ std::vector<TH1F*> hPaddleGoodTot;
 std::vector<TH2F*> hPaddleLEvsTOT;
 static const int NumPMTs = NumHalfModules*NumBars; // 168 (does not include 4 ref paddles)
 
-std::vector<int> gBarToffsetNhits;        // store Nhits for each bar when computing toffsets
-std::vector<double> gBarToffsetCorr;      // size NumPMTs, correction to ADD to LE/TE: (mean_all - mean_bar)
-bool gBarToffsetLoaded = false;           // true if offsets were read from file
+std::vector<int> gPixelToffsetNhits;      // store Nhits for each physical logical pixel when computing toffsets
+std::vector<double> gPixelToffsetCorr;    // size NumCDetPaddles, correction to ADD to LE/TE: (mean_all - mean_pixel)
+bool gPixelToffsetLoaded = false;         // true if offsets were read from file
 bool gECalParamsLoaded = false;
 bool gTimeWalkParamsLoaded = false;
 bool gCalibrationLoaded = false;
@@ -454,31 +454,30 @@ bool LoadCalibrationConstants(const std::string& fname);
 bool LoadRunTimingConstants(const std::string& fname);
 bool WriteCalibrationConstants(const std::string& fname);
 
-inline double GetBarToffsetCorr(int elID) {
-  const int bar = elID / 16;
-  if (0 <= bar && bar < NumPMTs && (int)gBarToffsetCorr.size() == NumPMTs) return gBarToffsetCorr[bar];
+inline double GetPixelToffsetCorr(int elID) {
+  if (0 <= elID && elID < NumCDetPaddles && (int)gPixelToffsetCorr.size() == NumCDetPaddles) return gPixelToffsetCorr[elID];
   return 0.0;
 }
 
 
 enum ECalibrationStage {
   kStage0_NoCalibration            = 0,
-  kStage1_FitBarOffsets            = 1,
-  kStage2_ApplyBarOffsets          = 2,
+  kStage1_FitPixelOffsets          = 1,
+  kStage2_ApplyPixelOffsets        = 2,
   kStage3_FitECalTiming            = 3,
-  kStage4_ApplyBarOffsetsECal      = 4,
+  kStage4_ApplyPixelOffsetsECal    = 4,
   kStage5_InspectTimeWalk          = 5,
   kStage6_FitTimeWalk              = 6,
   kStage7_ApplyAllCorrections      = 7,
   kStage8_FitECalTiming_TimeWalk   = 8
 };
 
-inline bool StageUsesBarOffsets(int stage) {
-  return stage >= kStage2_ApplyBarOffsets;
+inline bool StageUsesPixelOffsets(int stage) {
+  return stage >= kStage2_ApplyPixelOffsets;
 }
 
 inline bool StageUsesECalCorrection(int stage) {
-  return stage >= kStage4_ApplyBarOffsetsECal && stage != kStage8_FitECalTiming_TimeWalk;
+  return stage >= kStage4_ApplyPixelOffsetsECal && stage != kStage8_FitECalTiming_TimeWalk;
 }
 
 inline bool StageUsesTimeWalkCorrection(int stage) {
@@ -488,14 +487,14 @@ inline bool StageUsesTimeWalkCorrection(int stage) {
 inline const char* CalibrationStageDescription(int stage) {
   switch (stage) {
     case kStage0_NoCalibration:       return "0 = no calibration";
-    case kStage1_FitBarOffsets:       return "1 = fit bar time offsets from raw times";
-    case kStage2_ApplyBarOffsets:     return "2 = apply bar time offsets";
-    case kStage3_FitECalTiming:       return "3 = fit CDet/ECal timing using bar offsets";
-    case kStage4_ApplyBarOffsetsECal: return "4 = apply bar offsets + ECal timing correction";
-    case kStage5_InspectTimeWalk:     return "5 = inspect time-walk using bar offsets + ECal timing correction";
-    case kStage6_FitTimeWalk:         return "6 = fit time-walk using bar offsets + ECal timing correction";
-    case kStage7_ApplyAllCorrections: return "7 = apply bar offsets + ECal timing correction + time-walk correction";
-    case kStage8_FitECalTiming_TimeWalk: return "8 = fit CDet/ECal timing using bar offsets + time-walk correction (no ECal correction)";
+    case kStage1_FitPixelOffsets:       return "1 = fit pixel time offsets from CDet LE";
+    case kStage2_ApplyPixelOffsets:     return "2 = apply pixel time offsets";
+    case kStage3_FitECalTiming:         return "3 = fit CDet/ECal timing using pixel offsets";
+    case kStage4_ApplyPixelOffsetsECal: return "4 = apply pixel offsets + ECal timing correction";
+    case kStage5_InspectTimeWalk:       return "5 = inspect time-walk using pixel offsets + ECal timing correction";
+    case kStage6_FitTimeWalk:           return "6 = fit time-walk using pixel offsets + ECal timing correction";
+    case kStage7_ApplyAllCorrections:   return "7 = apply pixel offsets + ECal timing correction + time-walk correction";
+    case kStage8_FitECalTiming_TimeWalk: return "8 = fit CDet/ECal timing using pixel offsets + time-walk correction (no ECal correction)";
     default:                          return "unknown stage";
   }
 }
@@ -503,8 +502,8 @@ inline const char* CalibrationStageDescription(int stage) {
 inline void ConfigureCalibrationStage(int stage) {
   LoadCalibrationConstants(gCalibrationFile);
 
-  const bool useBarOffsets =
-      StageUsesBarOffsets(stage) || (stage == kStage1_FitBarOffsets && gBarToffsetLoaded);
+  const bool usePixelOffsets =
+      StageUsesPixelOffsets(stage) || (stage == kStage1_FitPixelOffsets && gPixelToffsetLoaded);
   const bool useECalCorrection =
       StageUsesECalCorrection(stage) || (stage == kStage3_FitECalTiming && gECalParamsLoaded);
   const bool useTimeWalkCorrection =
@@ -513,16 +512,16 @@ inline void ConfigureCalibrationStage(int stage) {
   gUseECalTimeCorr = useECalCorrection;
   gUseTimeWalkCorr = useTimeWalkCorrection;
 
-  if (!useBarOffsets) {
-    gBarToffsetCorr.assign(NumPMTs, 0.0);
-    gBarToffsetNhits.assign(NumPMTs, 0);
+  if (!usePixelOffsets) {
+    gPixelToffsetCorr.assign(NumCDetPaddles, 0.0);
+    gPixelToffsetNhits.assign(NumCDetPaddles, 0);
     std::cout << "[CDet] Stage " << stage
-              << ": bar offsets disabled; proceeding with zero bar offsets.\n";
+              << ": pixel offsets disabled; proceeding with zero pixel offsets.\n";
   }
 
   std::cout << "[CDet] Calibration stage " << stage << ": "
             << CalibrationStageDescription(stage) << "\n"
-            << "        applyBarOffsets=" << (useBarOffsets ? "true" : "false")
+            << "        applyPixelOffsets=" << (usePixelOffsets ? "true" : "false")
             << "  applyECalCorr=" << (gUseECalTimeCorr ? "true" : "false")
             << "  applyTimeWalk=" << (gUseTimeWalkCorr ? "true" : "false")
             << std::endl;
@@ -581,9 +580,9 @@ bool LoadRunTimingConstants(const std::string& fname) {
 
 bool LoadCalibrationConstants(const std::string& fname) {
   gCalibrationLoaded = false;
-  gBarToffsetCorr.assign(NumPMTs, 0.0);
-  gBarToffsetNhits.assign(NumPMTs, 0);
-  gBarToffsetLoaded = false;
+  gPixelToffsetCorr.assign(NumCDetPaddles, 0.0);
+  gPixelToffsetNhits.assign(NumCDetPaddles, 0);
+  gPixelToffsetLoaded = false;
   gECalParamsLoaded = false;
   gTimeWalkParamsLoaded = false;
 
@@ -594,9 +593,9 @@ bool LoadCalibrationConstants(const std::string& fname) {
   }
 
   std::string line, section;
-  std::vector<bool> barSeen(NumPMTs, false);
-  std::vector<double> barCorr(NumPMTs, 0.0);
-  std::vector<int> barNhits(NumPMTs, 0);
+  std::vector<bool> pixelSeen(NumCDetPaddles, false);
+  std::vector<double> pixelCorr(NumCDetPaddles, 0.0);
+  std::vector<int> pixelNhits(NumCDetPaddles, 0);
   double ecalP0 = gECalFitP0, ecalP1 = gECalFitP1;
   double twP1L1 = gTimeWalkP1_L1, twP1L2 = gTimeWalkP1_L2;
   double twRefL1 = gTimeWalkTotRef_L1, twRefL2 = gTimeWalkTotRef_L2;
@@ -605,27 +604,29 @@ bool LoadCalibrationConstants(const std::string& fname) {
   bool twP1L1Seen = false, twP1L2Seen = false;
   bool twRefL1Seen = false, twRefL2Seen = false;
   bool twMinSeen = false, twMaxSeen = false;
+  bool legacyBarOffsetsSeen = false;
 
   while (std::getline(fin, line)) {
     if (line.empty()) continue;
     if (line[0] == '#') continue;
     if (line[0] == '[') {
       section = line;
+      if (section == "[BarOffsets]") legacyBarOffsetsSeen = true;
       continue;
     }
 
     std::istringstream iss(line);
 
-    if (section == "[BarOffsets]") {
-      int bar1 = -1;
+    if (section == "[PixelOffsets]") {
+      int pixelID = -1;
       double dt = 0.0;
       int nhits = 0;
-      if (!(iss >> bar1 >> dt)) continue;
+      if (!(iss >> pixelID >> dt)) continue;
       if (!(iss >> nhits)) nhits = 0;
-      if (bar1 >= 1 && bar1 <= NumPMTs) {
-        barCorr[bar1-1] = dt;
-        barNhits[bar1-1] = nhits;
-        barSeen[bar1-1] = true;
+      if (pixelID >= 0 && pixelID < NumCDetPaddles) {
+        pixelCorr[pixelID] = dt;
+        pixelNhits[pixelID] = nhits;
+        pixelSeen[pixelID] = true;
       }
     } else if (section == "[ECalTiming]") {
       std::string key;
@@ -646,14 +647,14 @@ bool LoadCalibrationConstants(const std::string& fname) {
     }
   }
 
-  const int nBarRead = std::count(barSeen.begin(), barSeen.end(), true);
-  gBarToffsetLoaded = (nBarRead == NumPMTs);
+  const int nPixelRead = std::count(pixelSeen.begin(), pixelSeen.end(), true);
+  gPixelToffsetLoaded = (nPixelRead == NumCDetPaddles);
   gECalParamsLoaded = ecalP0Seen && ecalP1Seen;
   gTimeWalkParamsLoaded = twP1L1Seen && twP1L2Seen && twRefL1Seen &&
                           twRefL2Seen && twMinSeen && twMaxSeen;
-  if (gBarToffsetLoaded) {
-    gBarToffsetCorr.swap(barCorr);
-    gBarToffsetNhits.swap(barNhits);
+  if (gPixelToffsetLoaded) {
+    gPixelToffsetCorr.swap(pixelCorr);
+    gPixelToffsetNhits.swap(pixelNhits);
   }
   if (gECalParamsLoaded) {
     gECalFitP0 = ecalP0;
@@ -667,11 +668,13 @@ bool LoadCalibrationConstants(const std::string& fname) {
     gTimeWalkTotMin = twMin;
     gTimeWalkTotMax = twMax;
   }
-  gCalibrationLoaded = gBarToffsetLoaded || gECalParamsLoaded || gTimeWalkParamsLoaded;
+  gCalibrationLoaded = gPixelToffsetLoaded || gECalParamsLoaded || gTimeWalkParamsLoaded;
 
-  if (nBarRead > 0 && !gBarToffsetLoaded)
-    std::cerr << "[CDet] WARNING: ignoring incomplete [BarOffsets] section ("
-              << nBarRead << "/" << NumPMTs << ") in '" << fname << "'.\n";
+  if (nPixelRead > 0 && !gPixelToffsetLoaded)
+    std::cerr << "[CDet] WARNING: ignoring incomplete [PixelOffsets] section ("
+              << nPixelRead << "/" << NumCDetPaddles << ") in '" << fname << "'.\n";
+  if (legacyBarOffsetsSeen)
+    std::cerr << "[CDet] WARNING: ignoring legacy [BarOffsets] section in '" << fname << "'; regenerate this calibration to produce [PixelOffsets].\n";
   if ((ecalP0Seen || ecalP1Seen) && !gECalParamsLoaded)
     std::cerr << "[CDet] WARNING: ignoring incomplete [ECalTiming] section in '"
               << fname << "'.\n";
@@ -680,8 +683,8 @@ bool LoadCalibrationConstants(const std::string& fname) {
     std::cerr << "[CDet] WARNING: ignoring incomplete [TimeWalk] section in '"
               << fname << "'.\n";
 
-  if (gBarToffsetLoaded) {
-    std::cout << "[CDet] Loaded " << nBarRead << " bar offsets from '" << fname << "'.\n";
+  if (gPixelToffsetLoaded) {
+    std::cout << "[CDet] Loaded " << nPixelRead << " pixel offsets from '" << fname << "'.\n";
   }
   if (gECalParamsLoaded) {
     std::cout << "[CDet] Loaded ECal timing parameters from '" << fname
@@ -697,8 +700,8 @@ bool LoadCalibrationConstants(const std::string& fname) {
 }
 
 bool WriteCalibrationConstants(const std::string& fname) {
-  if (gBarToffsetCorr.size() != NumPMTs || gBarToffsetNhits.size() != NumPMTs) {
-    std::cerr << "[CDet] ERROR: refusing to write incomplete bar-offset vectors.\n";
+  if (gPixelToffsetCorr.size() != NumCDetPaddles || gPixelToffsetNhits.size() != NumCDetPaddles) {
+    std::cerr << "[CDet] ERROR: refusing to write incomplete pixel-offset vectors.\n";
     return false;
   }
   const std::string tmpname = fname + ".tmp";
@@ -713,11 +716,11 @@ bool WriteCalibrationConstants(const std::string& fname) {
        << "# calibration_stage " << gCalibrationStage << "\n"
        << "# events_processed " << gNumEventsInRun << "\n\n";
 
-  fout << "[BarOffsets]\n";
+  fout << "[PixelOffsets]\n";
   fout.setf(std::ios::fixed);
   fout.precision(6);
-  for (int bar = 0; bar < NumPMTs; ++bar) {
-    fout << (bar+1) << " " << gBarToffsetCorr[bar] << " " << gBarToffsetNhits[bar] << "\n";
+  for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+    fout << pixelID << " " << gPixelToffsetCorr[pixelID] << " " << gPixelToffsetNhits[pixelID] << "\n";
   }
   fout << "\n";
 
@@ -1904,9 +1907,9 @@ std::cout << "[CDet] Reference timing subtraction is "
         rawEventCounter++;
         int idx = RawElID[el];
         if (0 <= idx && idx < 2688) {
-          double le_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
+          double le_ns = RawElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr(idx);
           double tot_ns = RawElTot[el]*TDC_calib_to_ns;
-          double te_ns = RawElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
+          double te_ns = RawElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr(idx);
           vCDetPaddleRawTot[idx].push_back(tot_ns);
           eventHits.push_back({idx, le_ns, tot_ns, te_ns});
         } // collecting hit counts and TOT values for pixel occupancy
@@ -1923,14 +1926,14 @@ std::cout << "[CDet] Reference timing subtraction is "
             //if ((Int_t)RawElID[el] > nTdc) cout << " CDet ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
             
             //fill this events vectors
-            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)RawElID[el])); 
-            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)RawElID[el]));
+            thisEvent_LE.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)RawElID[el]));
+            thisEvent_TE.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)RawElID[el]));
             thisEvent_TOT.push_back(RawElTot[el]*TDC_calib_to_ns); //- event_ref_tdc);
             thisEvent_ID.push_back((Int_t)RawElID[el]);
           
             //fill all hits vectors
-            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)RawElID[el]));
-            vAllRawTe.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)RawElID[el]));
+            vAllRawLe.push_back(RawElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)RawElID[el]));
+            vAllRawTe.push_back(RawElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)RawElID[el]));
             vAllRawTot.push_back(RawElTot[el]*TDC_calib_to_ns);
             vAllRawPMT.push_back(RawElID[el]);
             vAllRawBar.push_back((Int_t)(RawElID[el]/16));
@@ -2178,9 +2181,9 @@ std::cout << "[CDet] Reference timing subtraction is "
         CDetPassedBoolCount++;
         int idx = GoodElID[el];
         if (0 <= idx && idx < 2688) {
-          double le_ns = GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
+          double le_ns = GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr(idx);
           double tot_ns = GoodElTot[el]*TDC_calib_to_ns;
-          double te_ns = GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr(idx);
+          double te_ns = GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr(idx);
           goodEventHits.push_back({idx, le_ns, tot_ns, te_ns});
         } // collecting good-hit information for pixels
         if ( !check_bad(GoodElID[el], suppress_bad) ) {
@@ -2218,8 +2221,8 @@ std::cout << "[CDet] Reference timing subtraction is "
             (layer_choice == 3 && ngoodhitsc1>=1 && ngoodhitsc2 >= 1) ) {
               eff_numerator++;
 
-              thisEvent_GoodLE.push_back(GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)GoodElID[el]));
-              thisEvent_GoodTE.push_back(GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)GoodElID[el]));
+              thisEvent_GoodLE.push_back(GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)GoodElID[el]));
+              thisEvent_GoodTE.push_back(GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)GoodElID[el]));
               thisEvent_GoodTOT.push_back(GoodElTot[el]*TDC_calib_to_ns);
               thisEvent_GoodID.push_back((Int_t)GoodElID[el]);
 
@@ -2229,8 +2232,8 @@ std::cout << "[CDet] Reference timing subtraction is "
 
               double t_ECal_event = *ECalAdcTime;
               double t_HCal_event = *HCalAdcTime;
-              double tLE_bar = GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)GoodElID[el]);
-              double tTE_bar = GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetBarToffsetCorr((Int_t)GoodElID[el]);
+              double tLE_bar = GoodElLE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)GoodElID[el]);
+              double tTE_bar = GoodElTE[el]*TDC_calib_to_ns - event_ref_tdc + GetPixelToffsetCorr((Int_t)GoodElID[el]);
               vAllGoodLe.push_back(tLE_bar);
               vAllGoodTe.push_back(tTE_bar);
               vAllGoodTot.push_back(GoodElTot[el]*TDC_calib_to_ns);
@@ -2646,7 +2649,7 @@ std::cout << "[CDet] Reference timing subtraction is "
       for (size_t ih = 0; ih < Nh; ++ih) {
         const int bar = vGoodID[ev][ih] / 16;
         if (bar < 0 || bar >= NumPMTs) continue;
-        const double tLE = vGoodLe[ev][ih]; // already includes bar offset correction
+        const double tLE = vGoodLe[ev][ih]; // already includes pixel offset correction
         const double res = tLE - (gECalFitP0 + gECalFitP1*tE);
         sumResLE += res;
         nResLE++;
@@ -4180,13 +4183,11 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
             TString::Format("hAllGoodBar"),
             168, 0, 168);
 
-  // Per-bar good leading-edge histograms (bar = GoodElID/16)
-  hBarGoodLe.assign(NumPMTs, nullptr);
-  for (int bar = 0; bar < NumPMTs; ++bar) {
-    hBarGoodLe[bar] = new TH1F(TString::Format("hBarGoodLe_Bar%d", bar),
-                               TString::Format("Good LE (Bar %d)", bar),
-                               Nbins, binLow, binHigh);
-    for (double x : vBarGoodLe[bar]) hBarGoodLe[bar]->Fill(x);
+  // Per-pixel good leading-edge histograms (pixelID = GoodElID)
+  hPaddleGoodLe.assign(NumCDetPaddles, nullptr);
+  for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+    hPaddleGoodLe[pixelID] = new TH1F(TString::Format("hPixelGoodLe_Pixel%d", pixelID), TString::Format("Good LE (logical pixel ID %d)", pixelID), Nbins, binLow, binHigh);
+    for (double x : vPaddleGoodLe[pixelID]) hPaddleGoodLe[pixelID]->Fill(x);
   }
 
   // fill necessary histograms from vectors
@@ -4203,14 +4204,14 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
   for (double x : vAllGoodBar) hAllGoodBar->Fill(x);
 
   // ------------------------------------------------------------
-  // Compute per-bar residual offsets relative to the global good-LE mean
-  // residual[bar] = mean(all) - mean(bar)
+  // Compute per-pixel residual offsets relative to the global good-LE mean
+  // residual[pixel] = mean(all) - mean(pixel)
   // This is the correction to ADD on top of whatever is already applied.
-  // Bars with < 20 entries get residual = 0.
+  // Pixels with < 20 entries and known unused pixels get residual = 0.
   // ------------------------------------------------------------
   const double meanAllGoodLe = hAllGoodLe->GetMean();
   if (hAllGoodLe->GetEntries() < 20 || !std::isfinite(meanAllGoodLe)) {
-    std::cerr << "[CDet] ERROR: insufficient good-hit statistics for bar-offset fitting.\n";
+    std::cerr << "[CDet] ERROR: insufficient good-hit statistics for pixel-offset fitting.\n";
     return nullptr;
   }
   TF1 *fGaus_all = new TF1("fGaus_all", "gaus", binLow + 20, binHigh);
@@ -4218,29 +4219,28 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
   const int globalFitStatus = hAllGoodLe->Fit(fGaus_all, "RQS0");
   double gausFitAllGoodLeMean = fGaus_all->GetParameter(1);
   if (globalFitStatus != 0 || !std::isfinite(gausFitAllGoodLeMean)) {
-    std::cerr << "[CDet] ERROR: global bar-offset fit failed; constants were not written.\n";
+    std::cerr << "[CDet] ERROR: global pixel-offset fit failed; constants were not written.\n";
     return nullptr;
   }
-  std::vector<double> vBarResidualOffset(NumPMTs, 0.0);
-  std::vector<int> vBarOffsetNhits(NumPMTs, 0.0);
+  std::vector<double> vPixelResidualOffset(NumCDetPaddles, 0.0);
+  std::vector<int> vPixelOffsetNhits(NumCDetPaddles, 0);
 
-  for (int bar = 0; bar < NumPMTs; ++bar) {
-    if (!hBarGoodLe[bar]) continue;
-    const int nent = hBarGoodLe[bar]->GetEntries();
-    vBarOffsetNhits[bar] = nent;
-    if (nent >= 20.0) {
+  for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+    if (!hPaddleGoodLe[pixelID]) continue;
+    const int nent = hPaddleGoodLe[pixelID]->GetEntries();
+    vPixelOffsetNhits[pixelID] = nent;
+    if (!IsUnusedPixel(pixelID) && nent >= 20) {
       //use gaussian fit to get mean value of histogram
-      TF1 *fGaus = new TF1("fGaus", "gaus", binLow + 20, binHigh);
-      fGaus->SetParameters(hBarGoodLe[bar]->GetMaximum(), meanAllGoodLe, hBarGoodLe[bar]->GetRMS());
-      const int barFitStatus = hBarGoodLe[bar]->Fit(fGaus,"RQS0");
+      TF1 *fGaus = new TF1(TString::Format("fGaus_pixel%d", pixelID), "gaus", binLow + 20, binHigh);
+      fGaus->SetParameters(hPaddleGoodLe[pixelID]->GetMaximum(), meanAllGoodLe, hPaddleGoodLe[pixelID]->GetRMS());
+      const int pixelFitStatus = hPaddleGoodLe[pixelID]->Fit(fGaus,"RQS0");
       double gausFitGoodLeMean = fGaus->GetParameter(1);
-      if (barFitStatus != 0 || !std::isfinite(gausFitGoodLeMean) ||
+      if (pixelFitStatus != 0 || !std::isfinite(gausFitGoodLeMean) ||
           gausFitGoodLeMean > 60 || gausFitGoodLeMean < 0)
-        vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
-      else vBarResidualOffset[bar] = gausFitAllGoodLeMean - gausFitGoodLeMean;
-      // vBarResidualOffset[bar] = meanAllGoodLe - hBarGoodLe[bar]->GetMean();
+        vPixelResidualOffset[pixelID] = meanAllGoodLe - hPaddleGoodLe[pixelID]->GetMean();
+      else vPixelResidualOffset[pixelID] = gausFitAllGoodLeMean - gausFitGoodLeMean;
     } else {
-      vBarResidualOffset[bar] = 0.0;
+      vPixelResidualOffset[pixelID] = 0.0;
     }
   }
 
@@ -4256,53 +4256,51 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
   // Case 3: file was loaded and overwrite==false
   //   do not write file
   // ------------------------------------------------------------
-  std::vector<double> vBarTotalOffset(NumPMTs, 0.0);
+  std::vector<double> vPixelTotalOffset(NumCDetPaddles, 0.0);
 
-  if ((int)gBarToffsetCorr.size() == NumPMTs) {
-    for (int bar = 0; bar < NumPMTs; ++bar) {
-      vBarTotalOffset[bar] = gBarToffsetCorr[bar] + vBarResidualOffset[bar];
+  if ((int)gPixelToffsetCorr.size() == NumCDetPaddles) {
+    for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+      vPixelTotalOffset[pixelID] = gPixelToffsetCorr[pixelID] + vPixelResidualOffset[pixelID];
     }
   } else {
-    for (int bar = 0; bar < NumPMTs; ++bar) {
-      vBarTotalOffset[bar] = vBarResidualOffset[bar];
+    for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+      vPixelTotalOffset[pixelID] = vPixelResidualOffset[pixelID];
     }
   }
 
   // Write file if:
   //   - no offsets were loaded originally, OR
   //   - overwrite requested
-  const bool shouldWriteOffsets = (!gBarToffsetLoaded) || overwrite;
+  const bool shouldWriteOffsets = (!gPixelToffsetLoaded) || overwrite;
 
   if (shouldWriteOffsets) {
     // Update global vector to the new total values
-    gBarToffsetCorr = vBarTotalOffset;
-    gBarToffsetNhits = vBarOffsetNhits;
+    gPixelToffsetCorr = vPixelTotalOffset;
+    gPixelToffsetNhits = vPixelOffsetNhits;
 
     if (WriteCalibrationConstants(gCalibrationFile)) {
-      if (overwrite && gBarToffsetLoaded) {
-        std::cout << "[CDet] Updated bar offsets in calibration file using total = old + residual\n";
+      if (overwrite && gPixelToffsetLoaded) {
+        std::cout << "[CDet] Updated pixel offsets in calibration file using total = old + residual\n";
       } else {
-        std::cout << "[CDet] Wrote bar offsets to calibration file from current pass\n";
+        std::cout << "[CDet] Wrote pixel offsets to calibration file from current pass\n";
       }
     } else return nullptr;
   }
 
-  // Plot offsets vs bar number
+  // Plot offsets vs logical pixel ID
   // Show residual offsets by default, since that is what current spectra imply.
-  TCanvas* cOffsets = new TCanvas("cBarGoodLeOffsets", "Mean LE offsets vs Bar", 50, 900, 1200, 500);
-  std::vector<double> xBar(NumPMTs), yOff(NumPMTs);
-  for (int bar = 0; bar < NumPMTs; ++bar) {
-    xBar[bar] = bar + 1;
-    yOff[bar] = vBarResidualOffset[bar];
+  TCanvas* cOffsets = new TCanvas("cPixelGoodLeOffsets", "Mean LE offsets vs logical pixel ID", 50, 900, 1200, 500);
+  std::vector<double> xPixel(NumCDetPaddles), yOff(NumCDetPaddles);
+  for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+    xPixel[pixelID] = pixelID;
+    yOff[pixelID] = vPixelResidualOffset[pixelID];
   }
-  TGraph* grBarOffsets = new TGraph(NumPMTs, xBar.data(), yOff.data());
-  grBarOffsets->SetName("grBarGoodLeOffsets");
-  grBarOffsets->SetTitle(TString::Format(
-      "Residual LE offsets vs Bar;Bar number;#mu_{all} - #mu_{bar} (ns)  (global mean = %.3f ns)",
-      meanAllGoodLe));
-  grBarOffsets->SetMarkerStyle(20);
-  grBarOffsets->SetMarkerSize(0.8);
-  grBarOffsets->Draw("AP");
+  TGraph* grPixelOffsets = new TGraph(NumCDetPaddles, xPixel.data(), yOff.data());
+  grPixelOffsets->SetName("grPixelGoodLeOffsets");
+  grPixelOffsets->SetTitle(TString::Format("Residual LE offsets vs logical pixel ID;Logical pixel ID;#mu_{all} - #mu_{pixel} (ns)  (global mean = %.3f ns)", gausFitAllGoodLeMean));
+  grPixelOffsets->SetMarkerStyle(20);
+  grPixelOffsets->SetMarkerSize(0.4);
+  grPixelOffsets->Draw("AP");
 
   TCanvas *caa = new TCanvas("All TDC", "All TDC", 50,50,800,800);
   caa->Divide(2,3,0.01,0.01,0);

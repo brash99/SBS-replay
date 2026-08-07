@@ -124,7 +124,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross(
     if (!gLastCalibrationFitSucceeded) return;
 
     // -----------------------------
-    // FINAL BAR-OFFSET CLOSURE PASS
+    // FINAL PIXEL-OFFSET CLOSURE PASS
     // -----------------------------
     stageBanner("pass3_fullclosure_offsets", 7);
     ResetCalibrationGlobals();
