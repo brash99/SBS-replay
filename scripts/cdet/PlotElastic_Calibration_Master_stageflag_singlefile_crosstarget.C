@@ -4949,7 +4949,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   // hCDetTimeDiffvsy2->Draw();
 }
 
-void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, double dtMinCut = 70.0, double dtMaxCut = 115.0, double DiffMin = 0.0, double DiffMax = 130.0, double LeMin = 0.0, double LeMax = 60.0, double TeMin = 0.0, double TeMax = 80.0, double TotMin = 0.0, double TotMax = 80.0, double ECalMin = 62.0, double ECalMax = 140.0, bool drawDtVsTot = false){
+void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, double dtMinCut = 70.0, double dtMaxCut = 115.0, double DiffMin = 0.0, double DiffMax = 130.0, double LeMin = 0.0, double LeMax = 60.0, double TeMin = 0.0, double TeMax = 80.0, double TotMin = 0.0, double TotMax = 80.0, double ECalMin = 62.0, double ECalMax = 140.0, bool drawDtVsTot = false, double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0){
   TH1::AddDirectory(kFALSE);
 
   if (logicalPixelID < 0 || logicalPixelID >= NumCDetPaddles) {
@@ -4964,7 +4964,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     return;
   }
   if (Width <= 0.0 || DiffMin >= DiffMax || LeMin >= LeMax ||
-      TeMin >= TeMax || TotMin >= TotMax || ECalMin >= ECalMax) {
+      TeMin >= TeMax || TotMin >= TotMax || ECalMin >= ECalMax || ECalEnergyMin >= ECalEnergyMax) {
     std::cerr << "[CDet timing-cut study] ERROR: invalid histogram binning or range.\n";
     return;
   }
@@ -4972,6 +4972,10 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   const size_t nEvents = vGoodLe.size();
   if (nEvents == 0) {
     std::cerr << "[CDet timing-cut study] ERROR: no fourth-pass baseline events are available.\n";
+    return;
+  }
+  if (v_GoodECalE.size() != nEvents) {
+    std::cerr << "[CDet timing-cut study] ERROR: ECal energy vector is not aligned with the fourth-pass baseline events: events=" << nEvents << ", ECal energy=" << v_GoodECalE.size() << ".\n";
     return;
   }
 
@@ -4987,9 +4991,9 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     return TString::Format("%s_%lu", base, tag);
   };
 
-  TH2D *hDtVsPixel = new TH2D(uniqueName("hCDetECalCutStudyDtVsPixel"), "Uncut ECal-CDet #Deltat versus CDet logical pixel ID;CDet logical pixel ID;t_{ECal}-t_{CDet,LE} (ns)", NumCDetPaddles, -0.5, NumCDetPaddles - 0.5, NDiffBins, DiffMin, DiffMax);
-  TH1D *hDt = new TH1D(uniqueName("hCDetECalCutStudyDt"), "Uncut ECal-CDet #Deltat;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", NDiffBins, DiffMin, DiffMax);
-  TH1D *hSelectedPixelDt = new TH1D(uniqueName("hCDetECalCutStudySelectedPixelDt"), TString::Format("Uncut ECal-CDet #Deltat, logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", logicalPixelID), NDiffBins, DiffMin, DiffMax);
+  TH2D *hDtVsPixel = new TH2D(uniqueName("hCDetECalCutStudyDtVsPixel"), "Before #Deltat cut, after ECal energy cut;CDet logical pixel ID;t_{ECal}-t_{CDet,LE} (ns)", NumCDetPaddles, -0.5, NumCDetPaddles - 0.5, NDiffBins, DiffMin, DiffMax);
+  TH1D *hDt = new TH1D(uniqueName("hCDetECalCutStudyDt"), "Before #Deltat cut, after ECal energy cut;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", NDiffBins, DiffMin, DiffMax);
+  TH1D *hSelectedPixelDt = new TH1D(uniqueName("hCDetECalCutStudySelectedPixelDt"), TString::Format("Before #Deltat cut, after ECal energy cut, logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", logicalPixelID), NDiffBins, DiffMin, DiffMax);
   TF1 *fSelectedPixelDt = new TF1(uniqueName("fCDetECalCutStudySelectedPixelDt"), "gaus(0)+pol1(3)", dtMinCut, dtMaxCut);
   TH1D *hLePass = new TH1D(uniqueName("hCDetECalCutStudyLePass"), "CDet LE after #Deltat cut;CDet LE time (ns);Passing hits", NLeBins, LeMin, LeMax);
   TH1D *hTePass = new TH1D(uniqueName("hCDetECalCutStudyTePass"), "CDet TE after #Deltat cut;CDet TE time (ns);Passing hits", NTeBins, TeMin, TeMax);
@@ -5007,8 +5011,12 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   size_t baselineHitCount = 0;
   size_t passingHitCount = 0;
   size_t selectedPixelPassingCount = 0;
+  size_t energySelectedEventCount = 0;
 
   for (size_t ev = 0; ev < nEvents; ++ev) {
+    const double ecalEnergy = v_GoodECalE[ev];
+    if (ecalEnergy < ECalEnergyMin || ecalEnergy > ECalEnergyMax) continue;
+    ++energySelectedEventCount;
     const double tECal = v_GoodECalAdcTime[ev];
     for (size_t ihit = 0; ihit < vGoodLe[ev].size(); ++ihit) {
       const double le = vGoodLe[ev][ihit];
@@ -5138,6 +5146,8 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
 
   // const double overallEfficiency = baselineHitCount > 0 ? static_cast<double>(passingHitCount) / baselineHitCount : 0.0;
   std::cout << "[CDet timing-cut study]\n"
+            << "  ECal energy cut: [" << ECalEnergyMin << ", " << ECalEnergyMax << "] GeV\n"
+            << "  events passing ECal energy cut: " << energySelectedEventCount << " / " << nEvents << "\n"
             << "  baseline hits: " << baselineHitCount << "\n"
             << "  passing hits: " << passingHitCount << "\n"
             // << "  overall efficiency: " << overallEfficiency << "\n"
@@ -5145,14 +5155,14 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
             << "  selected-pixel passing hits: " << selectedPixelPassingCount << "\n";
 }
 
-void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 40.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 105.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat") {
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 40.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 105.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0) {
   TH1::AddDirectory(kFALSE);
 
   if (pixelBase < 0 || pixelBase >= NumCDetPaddles) {
     std::cerr << "[CDet pixel timing] ERROR: requested logical pixel ID " << pixelBase << " is outside [0, " << NumCDetPaddles - 1 << "].\n";
     return;
   }
-  if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0) {
+  if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0 || ECalEnergyMin >= ECalEnergyMax) {
     std::cerr << "[CDet pixel timing] ERROR: invalid histogram, fit, or quality-limit argument.\n";
     return;
   }
@@ -5167,8 +5177,8 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
   }
 
   const size_t nEvents = vGoodLe.size();
-  if (vGoodID.size() != nEvents || v_GoodECalAdcTime.size() != nEvents) {
-    std::cerr << "[CDet pixel timing] ERROR: event vectors are not aligned: LE=" << vGoodLe.size() << ", ID=" << vGoodID.size() << ", ECal time=" << v_GoodECalAdcTime.size() << ".\n";
+  if (vGoodID.size() != nEvents || v_GoodECalAdcTime.size() != nEvents || v_GoodECalE.size() != nEvents) {
+    std::cerr << "[CDet pixel timing] ERROR: event vectors are not aligned: LE=" << vGoodLe.size() << ", ID=" << vGoodID.size() << ", ECal time=" << v_GoodECalAdcTime.size() << ", ECal energy=" << v_GoodECalE.size() << ".\n";
     return;
   }
   for (size_t ev = 0; ev < nEvents; ++ev) {
@@ -5199,13 +5209,17 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
 
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
     const int pixelID = pixelBase + localPixel;
-    hPixelDt[localPixel] = new TH1D(uniqueName(TString::Format("hCDetPixelTimingDt_%d", pixelID)), TString::Format("Logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", pixelID), nBins, HistMin, HistMax);
+    hPixelDt[localPixel] = new TH1D(uniqueName(TString::Format("hCDetPixelTimingDt_%d", pixelID)), TString::Format("After ECal energy cut, logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Baseline hits", pixelID), nBins, HistMin, HistMax);
   }
   TH1D *hValidity = new TH1D(uniqueName("hCDetBarPixelValidity"), "Pixel fit status;CDet logical pixel ID;Status code", NumPaddles, pixelBase - 0.5, pixelBase + NumPaddles - 0.5);
   TH1D *hCentroidDistribution = new TH1D(uniqueName("hCDetBarPixelCentroidDistribution"), "Reliable fitted centroids;#mu_{i} (ns);Pixels", nBins, HistMin, HistMax);
   TH1D *hPredictedCentroidDistribution = new TH1D(uniqueName("hCDetBarPixelPredictedCentroidDistribution"), "Predicted centroids after candidate corrections;#mu_{i}-c_{i} (ns);Pixels", nBins, HistMin, HistMax);
 
+  size_t energySelectedEventCount = 0;
   for (size_t ev = 0; ev < nEvents; ++ev) {
+    const double ecalEnergy = v_GoodECalE[ev];
+    if (ecalEnergy < ECalEnergyMin || ecalEnergy > ECalEnergyMax) continue;
+    ++energySelectedEventCount;
     const double tECal = v_GoodECalAdcTime[ev];
     for (size_t ihit = 0; ihit < vGoodLe[ev].size(); ++ihit) {
       const int pixelID = vGoodID[ev][ihit];
@@ -5441,6 +5455,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
                << "# calibration_stage " << gCalibrationStage << "\n"
                << "# timing_units ns\n"
                << "# selection fourth-pass baseline good-hit vectors; instrumented physical logical IDs only\n"
+               << "# ecal_energy_cut_gev " << ECalEnergyMin << " " << ECalEnergyMax << "\n"
                << "# dt = tECal - tCDetLE\n"
                << "# fit_interval_ns " << FitMin << " " << FitMax << "\n"
                << "# reference_scope bar-local\n"
@@ -5477,6 +5492,8 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
             << "  requested logical pixel ID: " << requestedPixel << "\n"
             << "  normalized bar pixel base: " << pixelBase << "\n"
             << "  processed logical pixel IDs: " << pixelBase << "-" << pixelBase + NumPaddles - 1 << "\n"
+            << "  ECal energy cut: [" << ECalEnergyMin << ", " << ECalEnergyMax << "] GeV\n"
+            << "  events passing ECal energy cut: " << energySelectedEventCount << " / " << nEvents << "\n"
             << "  physical instrumented pixels considered: " << instrumentedPixels << "\n"
             << "  pixels with sufficient statistics: " << sufficientStatistics << "\n"
             << "  successful ROOT fits: " << successfulFits << "\n"
