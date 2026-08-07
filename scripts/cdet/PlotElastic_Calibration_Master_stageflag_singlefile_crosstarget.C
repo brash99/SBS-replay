@@ -27,8 +27,10 @@
 #include <TLegend.h>
 #include <TSystem.h>
 #include <TLatex.h>
+#include <TText.h>
 #include <TProfile.h>
 #include <TPaveText.h>
+#include <TPaveStats.h>
 #include <TParameter.h>
 #include <vector>
 #include <unordered_map>
@@ -316,6 +318,33 @@ bool IsCrossTargetRun(int runNumber, const char *runListFile = "runs.txt") {
     if (listedRun == runNumber) return true;
   }
   return false;
+}
+
+void AddFitResultsToStatsBox(TH1 *hist, double fitMean, double fitMeanError, double fitChi2Ndf) {
+  if (!hist || !gPad) return;
+  gPad->Update();
+  TPaveStats *stats = (TPaveStats*)hist->FindObject("stats");
+  if (!stats) return;
+  stats->SetName(TString::Format("stats_%s", hist->GetName()));
+  TLatex *meanLine = new TLatex(0.0, 0.0, TString::Format("#mu_{fit} = %.3f #pm %.3f ns", fitMean, fitMeanError));
+  TLatex *chi2Line = new TLatex(0.0, 0.0, TString::Format("#chi^{2}/NDF = %.2f", fitChi2Ndf));
+  TText *defaultLine = (TText*)stats->GetListOfLines()->At(1);
+  if (defaultLine) {
+    meanLine->SetTextFont(defaultLine->GetTextFont());
+    meanLine->SetTextSize(defaultLine->GetTextSize());
+    meanLine->SetTextColor(defaultLine->GetTextColor());
+    meanLine->SetTextAlign(defaultLine->GetTextAlign());
+    chi2Line->SetTextFont(defaultLine->GetTextFont());
+    chi2Line->SetTextSize(defaultLine->GetTextSize());
+    chi2Line->SetTextColor(defaultLine->GetTextColor());
+    chi2Line->SetTextAlign(defaultLine->GetTextAlign());
+  }
+  stats->GetListOfLines()->Add(meanLine);
+  stats->GetListOfLines()->Add(chi2Line);
+  hist->SetStats(kFALSE);
+  stats->Draw("SAME");
+  gPad->Modified();
+  gPad->Update();
 }
 
 // 4/21/2026 B. Spaude: Use this to get the run list from crossRuns.txt
@@ -5082,6 +5111,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   dtMaxLine->Draw("SAME");
 
   TCanvas *cSelectedPixelDt = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDt"), TString::Format("Uncut ECal-CDet delta-t, logical pixel ID %d", logicalPixelID), 900, 700);
+  hSelectedPixelDt->SetStats(kTRUE);
   hSelectedPixelDt->Draw("HIST");
   if (hSelectedPixelDt->Integral(hSelectedPixelDt->FindBin(dtMinCut), hSelectedPixelDt->FindBin(dtMaxCut)) > 0.0) {
     int selectedPixelPeakBin = hSelectedPixelDt->FindBin(dtMinCut);
@@ -5092,8 +5122,9 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     const double selectedPixelBackground = 0.5*(hSelectedPixelDt->GetBinContent(hSelectedPixelDt->FindBin(dtMinCut)) + hSelectedPixelDt->GetBinContent(hSelectedPixelDt->FindBin(dtMaxCut)));
     fSelectedPixelDt->SetParameters(std::max(1.0, hSelectedPixelDt->GetBinContent(selectedPixelPeakBin) - selectedPixelBackground), selectedPixelPeak, std::max(Width, (dtMaxCut - dtMinCut)/10.0), selectedPixelBackground, 0.0);
     fSelectedPixelDt->SetParNames("Gaussian amplitude", "Gaussian mean", "Gaussian sigma", "Background intercept", "Background slope");
-    hSelectedPixelDt->Fit(fSelectedPixelDt, "R");
+    const int selectedPixelFitStatus = hSelectedPixelDt->Fit(fSelectedPixelDt, "R");
     fSelectedPixelDt->Draw("SAME");
+    if (selectedPixelFitStatus == 0 && fSelectedPixelDt->GetNDF() > 0) AddFitResultsToStatsBox(hSelectedPixelDt, fSelectedPixelDt->GetParameter(1), fSelectedPixelDt->GetParError(1), fSelectedPixelDt->GetChisquare()/fSelectedPixelDt->GetNDF());
   }
   const double selectedPixelLineTop = std::max(1.0, 1.05 * hSelectedPixelDt->GetMaximum());
   TLine *selectedPixelDtMinLine = new TLine(dtMinCut, 0.0, dtMinCut, selectedPixelLineTop);
@@ -5153,7 +5184,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
             << "  selected-pixel passing hits: " << selectedPixelPassingCount << "\n";
 }
 
-void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 40.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 105.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0) {
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 105.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0) {
   TH1::AddDirectory(kFALSE);
 
   if (pixelBase < 0 || pixelBase >= NumCDetPaddles) {
@@ -5398,18 +5429,13 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
   TCanvas *cBarFits = new TCanvas(uniqueName("cCDetBarPixelTimingFits"), TString::Format("CDet bar %d pixel timing fits", bar), 1400, 1100);
   cBarFits->Divide(4, 4, 0.001, 0.001);
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
-    const int pixelID = pixelBase + localPixel;
     cBarFits->cd(localPixel + 1);
+    hPixelDt[localPixel]->SetStats(kTRUE);
     hPixelDt[localPixel]->Draw("HIST");
-    if (fPixelDt[localPixel]) fPixelDt[localPixel]->Draw("SAME");
-    TPaveText *status = new TPaveText(0.52, 0.75, 0.95, 0.89, "NDC");
-    status->SetFillColor(IsUnusedPixel(pixelID) ? kBlack : kWhite);
-    status->SetTextColor(IsUnusedPixel(pixelID) ? kWhite : kBlack);
-    status->SetBorderSize(1);
-    status->SetTextSize(0.035);
-    status->AddText(TString::Format("ID %d: %s", pixelID, failureReason[localPixel].c_str()));
-    if (validFit[localPixel]) status->AddText(TString::Format("#mu = %.3f #pm %.3f ns", centroid[localPixel], centroidErr[localPixel]));
-    status->Draw();
+    if (validFit[localPixel]) {
+      fPixelDt[localPixel]->Draw("SAME");
+      AddFitResultsToStatsBox(hPixelDt[localPixel], centroid[localPixel], centroidErr[localPixel], chi2Ndf[localPixel]);
+    }
   }
 
   TCanvas *cBarSummary = new TCanvas(uniqueName("cCDetBarPixelTimingSummary"), TString::Format("CDet bar %d timing summary", bar), 1500, 900);
