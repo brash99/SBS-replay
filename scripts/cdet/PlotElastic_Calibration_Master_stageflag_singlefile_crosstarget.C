@@ -5148,13 +5148,14 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     const double selectedPixelPeak = hSelectedPixelDt->GetBinCenter(selectedPixelPeakBin);
     const double localFitMin = std::max(dtMinCut, selectedPixelPeak - localFitHalfWidth);
     const double localFitMax = std::min(dtMaxCut, selectedPixelPeak + localFitHalfWidth);
-    fSelectedPixelLocal = new TF1(uniqueName("fCDetECalCutStudySelectedPixelLocal"), "gaus", localFitMin, localFitMax);
-    fSelectedPixelLocal->SetParameters(std::max(1.0, hSelectedPixelDt->GetBinContent(selectedPixelPeakBin)), selectedPixelPeak, std::max(Width, localFitHalfWidth/3.0));
-    fSelectedPixelLocal->SetParNames("Local amplitude", "Local mean", "Local sigma");
+    const double selectedPixelLocalBackground = 0.5*(hSelectedPixelDt->GetBinContent(hSelectedPixelDt->FindBin(localFitMin)) + hSelectedPixelDt->GetBinContent(hSelectedPixelDt->FindBin(localFitMax)));
+    fSelectedPixelLocal = new TF1(uniqueName("fCDetECalCutStudySelectedPixelLocal"), "gaus(0)+pol1(3)", localFitMin, localFitMax);
+    fSelectedPixelLocal->SetParameters(std::max(1.0, hSelectedPixelDt->GetBinContent(selectedPixelPeakBin) - selectedPixelLocalBackground), selectedPixelPeak, std::max(Width, localFitHalfWidth/3.0), selectedPixelLocalBackground, 0.0);
+    fSelectedPixelLocal->SetParNames("Local amplitude", "Local mean", "Local sigma", "Local background intercept", "Local background slope");
     selectedPixelLocalStatus = hSelectedPixelDt->Fit(fSelectedPixelLocal, "RQN0");
     selectedPixelLocalMean = fSelectedPixelLocal->GetParameter(1);
     selectedPixelLocalSigma = std::fabs(fSelectedPixelLocal->GetParameter(2));
-    selectedPixelLocalValid = selectedPixelLocalStatus == 0 && std::isfinite(selectedPixelLocalMean) && std::isfinite(selectedPixelLocalSigma) && selectedPixelLocalSigma >= Width/2.0 && selectedPixelLocalSigma < (dtMaxCut - dtMinCut)/2.0 && selectedPixelLocalMean > dtMinCut && selectedPixelLocalMean < dtMaxCut;
+    selectedPixelLocalValid = selectedPixelLocalStatus == 0 && std::isfinite(fSelectedPixelLocal->GetParameter(0)) && fSelectedPixelLocal->GetParameter(0) > 0.0 && std::isfinite(selectedPixelLocalMean) && std::isfinite(selectedPixelLocalSigma) && std::isfinite(fSelectedPixelLocal->GetParameter(3)) && std::isfinite(fSelectedPixelLocal->GetParameter(4)) && selectedPixelLocalSigma >= Width/2.0 && selectedPixelLocalSigma < (dtMaxCut - dtMinCut)/2.0 && selectedPixelLocalMean > dtMinCut && selectedPixelLocalMean < dtMaxCut;
 
     if (selectedPixelLocalValid) {
       selectedPixelRejectLow = std::max(DiffMin, selectedPixelLocalMean - NReject*selectedPixelLocalSigma);
@@ -5431,12 +5432,14 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
     const double peak = hPixelDt[localPixel]->GetBinCenter(peakBin);
     const double localFitMin = std::max(FitMin, peak - localFitHalfWidth);
     const double localFitMax = std::min(FitMax, peak + localFitHalfWidth);
-    fPixelLocal[localPixel] = new TF1(uniqueName(TString::Format("fCDetPixelTimingLocal_%d", pixelID)), "gaus", localFitMin, localFitMax);
-    fPixelLocal[localPixel]->SetParameters(std::max(1.0, hPixelDt[localPixel]->GetBinContent(peakBin)), peak, std::max(Width, localFitHalfWidth/3.0));
+    const double localBackground = 0.5*(hPixelDt[localPixel]->GetBinContent(hPixelDt[localPixel]->FindBin(localFitMin)) + hPixelDt[localPixel]->GetBinContent(hPixelDt[localPixel]->FindBin(localFitMax)));
+    fPixelLocal[localPixel] = new TF1(uniqueName(TString::Format("fCDetPixelTimingLocal_%d", pixelID)), "gaus(0)+pol1(3)", localFitMin, localFitMax);
+    fPixelLocal[localPixel]->SetParameters(std::max(1.0, hPixelDt[localPixel]->GetBinContent(peakBin) - localBackground), peak, std::max(Width, localFitHalfWidth/3.0), localBackground, 0.0);
+    fPixelLocal[localPixel]->SetParNames("Local amplitude", "Local mean", "Local sigma", "Local background intercept", "Local background slope");
     const int localFitStatus = hPixelDt[localPixel]->Fit(fPixelLocal[localPixel], "RQN0");
     const double localMean = fPixelLocal[localPixel]->GetParameter(1);
     const double localSigma = std::fabs(fPixelLocal[localPixel]->GetParameter(2));
-    if (localFitStatus != 0 || !std::isfinite(localMean) || !std::isfinite(localSigma) || localSigma < minSigma || localSigma > maxSigma || localMean <= FitMin || localMean >= FitMax) {
+    if (localFitStatus != 0 || !std::isfinite(fPixelLocal[localPixel]->GetParameter(0)) || fPixelLocal[localPixel]->GetParameter(0) <= 0.0 || !std::isfinite(localMean) || !std::isfinite(localSigma) || !std::isfinite(fPixelLocal[localPixel]->GetParameter(3)) || !std::isfinite(fPixelLocal[localPixel]->GetParameter(4)) || localSigma < minSigma || localSigma > maxSigma || localMean <= FitMin || localMean >= FitMax) {
       validityCode[localPixel] = 3;
       failureReason[localPixel] = "invalid local signal fit";
       ++rootFitFailureCount;
