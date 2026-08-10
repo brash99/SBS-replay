@@ -5219,11 +5219,9 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     fSelectedPixelBackground->Draw("SAME");
     selectedPixelLegend->AddEntry(fSelectedPixelBackground, "Broad Gaussian background", "l");
     hSelectedPixelDtClean->SetLineColor(kGreen + 2);
-    hSelectedPixelDtClean->SetMarkerColor(kGreen + 2);
-    hSelectedPixelDtClean->SetMarkerStyle(20);
-    hSelectedPixelDtClean->SetMarkerSize(0.65);
-    hSelectedPixelDtClean->Draw("E1 SAME");
-    selectedPixelLegend->AddEntry(hSelectedPixelDtClean, "Background-subtracted #Deltat", "lep");
+    hSelectedPixelDtClean->SetLineWidth(2);
+    hSelectedPixelDtClean->Draw("HIST SAME");
+    selectedPixelLegend->AddEntry(hSelectedPixelDtClean, "Background-subtracted #Deltat", "l");
   }
   if (selectedPixelCleanValid) {
     fSelectedPixelClean->SetLineColor(kRed + 1);
@@ -5237,10 +5235,10 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   if (hSelectedPixelDtClean) {
     hSelectedPixelDtClean->SetStats(kFALSE);
     hSelectedPixelDtClean->SetLineColor(kGreen + 2);
-    hSelectedPixelDtClean->SetMarkerColor(kGreen + 2);
-    hSelectedPixelDtClean->Draw("E1");
+    hSelectedPixelDtClean->SetLineWidth(2);
+    hSelectedPixelDtClean->Draw("HIST");
     TLegend *cleanLegend = new TLegend(0.55, 0.76, 0.88, 0.88);
-    cleanLegend->AddEntry(hSelectedPixelDtClean, "Background-subtracted #Deltat", "lep");
+    cleanLegend->AddEntry(hSelectedPixelDtClean, "Background-subtracted #Deltat", "l");
     if (selectedPixelCleanValid) {
       fSelectedPixelClean->Draw("SAME");
       cleanLegend->AddEntry(fSelectedPixelClean, "Final cleaned-peak Gaussian", "l");
@@ -5611,9 +5609,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
     if (hPixelDtClean[localPixel]) {
       hPixelDt[localPixel]->SetMinimum(std::min(0.0, 1.15*hPixelDtClean[localPixel]->GetMinimum()));
       hPixelDtClean[localPixel]->SetLineColor(kGreen + 2);
-      hPixelDtClean[localPixel]->SetMarkerColor(kGreen + 2);
-      hPixelDtClean[localPixel]->SetMarkerStyle(20);
-      hPixelDtClean[localPixel]->SetMarkerSize(0.35);
+      hPixelDtClean[localPixel]->SetLineWidth(2);
     }
     hPixelDt[localPixel]->Draw("HIST");
     if (fPixelLocal[localPixel]) {
@@ -5626,7 +5622,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
       fPixelBackground[localPixel]->SetLineStyle(3);
       fPixelBackground[localPixel]->Draw("SAME");
     }
-    if (hPixelDtClean[localPixel]) hPixelDtClean[localPixel]->Draw("E1 SAME");
+    if (hPixelDtClean[localPixel]) hPixelDtClean[localPixel]->Draw("HIST SAME");
     if (validFit[localPixel]) {
       fPixelClean[localPixel]->SetLineColor(kRed + 1);
       fPixelClean[localPixel]->SetLineWidth(2);
