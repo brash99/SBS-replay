@@ -5309,14 +5309,15 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   std::cout << "\n";
 }
 
-void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 105.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5) {
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 100.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5) {
   TH1::AddDirectory(kFALSE);
+  (void)localFitHalfWidth; // Retained for positional compatibility; extraction fits now use FitMin-FitMax exactly.
 
   if (pixelBase < 0 || pixelBase >= NumCDetPaddles) {
     std::cerr << "[CDet pixel timing] ERROR: requested logical pixel ID " << pixelBase << " is outside [0, " << NumCDetPaddles - 1 << "].\n";
     return;
   }
-  if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0 || ECalEnergyMin >= ECalEnergyMax || TotMin >= TotMax || localFitHalfWidth <= 0.0 || NReject <= 0.0) {
+  if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0 || ECalEnergyMin >= ECalEnergyMax || TotMin >= TotMax || NReject <= 0.0) {
     std::cerr << "[CDet pixel timing] ERROR: invalid histogram, fit, or quality-limit argument.\n";
     return;
   }
@@ -5430,11 +5431,11 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
       if (hPixelDt[localPixel]->GetBinContent(binIndex) > hPixelDt[localPixel]->GetBinContent(peakBin)) peakBin = binIndex;
     }
     const double peak = hPixelDt[localPixel]->GetBinCenter(peakBin);
-    const double localFitMin = std::max(FitMin, peak - localFitHalfWidth);
-    const double localFitMax = std::min(FitMax, peak + localFitHalfWidth);
+    const double localFitMin = FitMin;
+    const double localFitMax = FitMax;
     const double localBackground = 0.5*(hPixelDt[localPixel]->GetBinContent(hPixelDt[localPixel]->FindBin(localFitMin)) + hPixelDt[localPixel]->GetBinContent(hPixelDt[localPixel]->FindBin(localFitMax)));
     fPixelLocal[localPixel] = new TF1(uniqueName(TString::Format("fCDetPixelTimingLocal_%d", pixelID)), "gaus(0)+pol1(3)", localFitMin, localFitMax);
-    fPixelLocal[localPixel]->SetParameters(std::max(1.0, hPixelDt[localPixel]->GetBinContent(peakBin) - localBackground), peak, std::max(Width, localFitHalfWidth/3.0), localBackground, 0.0);
+    fPixelLocal[localPixel]->SetParameters(std::max(1.0, hPixelDt[localPixel]->GetBinContent(peakBin) - localBackground), peak, std::max(Width, (FitMax - FitMin)/10.0), localBackground, 0.0);
     fPixelLocal[localPixel]->SetParNames("Local amplitude", "Local mean", "Local sigma", "Local background intercept", "Local background slope");
     const int localFitStatus = hPixelDt[localPixel]->Fit(fPixelLocal[localPixel], "RQN0");
     const double localMean = fPixelLocal[localPixel]->GetParameter(1);
@@ -5473,8 +5474,8 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
       hPixelDtClean[localPixel]->SetBinError(bin, originalError);
     }
 
-    const double cleanFitMin = std::max(FitMin, localMean - localFitHalfWidth);
-    const double cleanFitMax = std::min(FitMax, localMean + localFitHalfWidth);
+    const double cleanFitMin = FitMin;
+    const double cleanFitMax = FitMax;
     fPixelClean[localPixel] = new TF1(uniqueName(TString::Format("fCDetPixelTimingClean_%d", pixelID)), "gaus", cleanFitMin, cleanFitMax);
     fPixelClean[localPixel]->SetParameters(std::max(1.0, fPixelLocal[localPixel]->GetParameter(0)), localMean, localSigma);
     fitStatus[localPixel] = hPixelDtClean[localPixel]->Fit(fPixelClean[localPixel], "RQN0");
@@ -5688,7 +5689,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
                << "# dt = tECal - tCDetLE\n"
                << "# fit_interval_ns " << FitMin << " " << FitMax << "\n"
                << "# background_fit_interval_ns " << HistMin << " " << HistMax << "\n"
-               << "# local_fit_half_width_ns " << localFitHalfWidth << "\n"
+               << "# local_and_clean_fit_interval_ns " << FitMin << " " << FitMax << "\n"
                << "# background_rejection_nsigma " << NReject << "\n"
                << "# reference_scope bar-local\n"
                << "# mu0_ns " << referenceCentroid << " mu0_err_ns " << referenceCentroidErr << "\n"
@@ -5727,7 +5728,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
             << "  ECal energy cut: [" << ECalEnergyMin << ", " << ECalEnergyMax << "] GeV\n"
             << "  peak search interval: [" << FitMin << ", " << FitMax << "] ns\n"
             << "  broad background fit interval: [" << HistMin << ", " << HistMax << "] ns\n"
-            << "  local fit half-width / background rejection: " << localFitHalfWidth << " ns / " << NReject << " sigma\n"
+            << "  local and clean fits use the full peak-search interval; background rejection: " << NReject << " sigma\n"
             << "  events passing ECal energy cut: " << energySelectedEventCount << " / " << nEvents << "\n"
             << "  physical instrumented pixels considered: " << instrumentedPixels << "\n"
             << "  pixels with sufficient statistics: " << sufficientStatistics << "\n"
