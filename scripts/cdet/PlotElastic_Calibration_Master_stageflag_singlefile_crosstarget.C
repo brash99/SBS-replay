@@ -5309,7 +5309,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   std::cout << "\n";
 }
 
-void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 100.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5) {
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 100.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0) {
   TH1::AddDirectory(kFALSE);
   (void)localFitHalfWidth; // Retained for positional compatibility; extraction fits now use FitMin-FitMax exactly.
 
@@ -5317,7 +5317,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
     std::cerr << "[CDet pixel timing] ERROR: requested logical pixel ID " << pixelBase << " is outside [0, " << NumCDetPaddles - 1 << "].\n";
     return;
   }
-  if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0 || ECalEnergyMin >= ECalEnergyMax || TotMin >= TotMax || NReject <= 0.0) {
+  if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || PeakSeedMin >= PeakSeedMax || PeakSeedMin < FitMin || PeakSeedMax > FitMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0 || ECalEnergyMin >= ECalEnergyMax || TotMin >= TotMax || NReject <= 0.0) {
     std::cerr << "[CDet pixel timing] ERROR: invalid histogram, fit, or quality-limit argument.\n";
     return;
   }
@@ -5363,6 +5363,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
   std::vector<double> centroid(NumPaddles, NAN), centroidErr(NumPaddles, NAN);
   std::vector<double> sigma(NumPaddles, NAN), sigmaErr(NumPaddles, NAN);
   std::vector<double> backgroundAmplitude(NumPaddles, NAN), backgroundMean(NumPaddles, NAN), backgroundSigma(NumPaddles, NAN);
+  std::vector<double> backgroundAmplitudeLimit(NumPaddles, NAN);
   std::vector<double> rejectLow(NumPaddles, NAN), rejectHigh(NumPaddles, NAN);
   std::vector<double> chi2(NumPaddles, NAN), chi2Ndf(NumPaddles, NAN);
   std::vector<int> ndf(NumPaddles, 0);
@@ -5405,6 +5406,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
   int amplitudeCount = 0;
   int ndfCount = 0;
   int chi2Count = 0;
+  int peakSeedFallbackCount = 0;
 
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
     const int pixelID = pixelBase + localPixel;
@@ -5426,9 +5428,20 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
     }
     ++sufficientStatistics;
 
-    int peakBin = fitBinMin;
-    for (int binIndex = fitBinMin + 1; binIndex <= fitBinMax; ++binIndex) {
+    int peakBinMin = hPixelDt[localPixel]->FindBin(PeakSeedMin);
+    int peakBinMax = hPixelDt[localPixel]->FindBin(PeakSeedMax);
+    int peakBin = peakBinMin;
+    for (int binIndex = peakBinMin + 1; binIndex <= peakBinMax; ++binIndex) {
       if (hPixelDt[localPixel]->GetBinContent(binIndex) > hPixelDt[localPixel]->GetBinContent(peakBin)) peakBin = binIndex;
+    }
+    if (hPixelDt[localPixel]->GetBinContent(peakBin) <= 0.0) {
+      peakBinMin = fitBinMin;
+      peakBinMax = fitBinMax;
+      peakBin = peakBinMin;
+      for (int binIndex = peakBinMin + 1; binIndex <= peakBinMax; ++binIndex) {
+        if (hPixelDt[localPixel]->GetBinContent(binIndex) > hPixelDt[localPixel]->GetBinContent(peakBin)) peakBin = binIndex;
+      }
+      ++peakSeedFallbackCount;
     }
     const double peak = hPixelDt[localPixel]->GetBinCenter(peakBin);
     const double localFitMin = FitMin;
@@ -5451,8 +5464,28 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
     rejectHigh[localPixel] = std::min(HistMax, localMean + NReject*localSigma);
     CDetTimingBackgroundRejectLow = rejectLow[localPixel];
     CDetTimingBackgroundRejectHigh = rejectHigh[localPixel];
+    double maxSidebandBinContent = 0.0;
+    int leftSidebandBins = 0;
+    int rightSidebandBins = 0;
+    for (int bin = 1; bin <= hPixelDt[localPixel]->GetNbinsX(); ++bin) {
+      const double binCenter = hPixelDt[localPixel]->GetBinCenter(bin);
+      if (binCenter < HistMin || binCenter > HistMax || (rejectLow[localPixel] <= binCenter && binCenter <= rejectHigh[localPixel])) continue;
+      maxSidebandBinContent = std::max(maxSidebandBinContent, hPixelDt[localPixel]->GetBinContent(bin));
+      if (binCenter < rejectLow[localPixel]) ++leftSidebandBins;
+      if (binCenter > rejectHigh[localPixel]) ++rightSidebandBins;
+    }
+    backgroundAmplitudeLimit[localPixel] = maxSidebandBinContent;
+    if (maxSidebandBinContent <= 0.0 || leftSidebandBins < 3 || rightSidebandBins < 3) {
+      validityCode[localPixel] = 3;
+      failureReason[localPixel] = "insufficient sidebands for background fit";
+      ++rootFitFailureCount;
+      continue;
+    }
     fPixelBackgroundReject[localPixel] = new TF1(uniqueName(TString::Format("fCDetPixelTimingBackgroundReject_%d", pixelID)), CDetTimingBackgroundGaussianReject, HistMin, HistMax, 3);
-    fPixelBackgroundReject[localPixel]->SetParameters(std::max(1.0, hPixelDt[localPixel]->GetBinContent(hPixelDt[localPixel]->FindBin(HistMin))), 0.5*(HistMin + HistMax), std::max(Width, (HistMax - HistMin)/3.0));
+    fPixelBackgroundReject[localPixel]->SetParameters(0.8*maxSidebandBinContent, 0.5*(HistMin + HistMax), std::max(Width, (HistMax - HistMin)/3.0));
+    fPixelBackgroundReject[localPixel]->SetParLimits(0, 0.0, maxSidebandBinContent);
+    fPixelBackgroundReject[localPixel]->SetParLimits(1, HistMin, HistMax);
+    fPixelBackgroundReject[localPixel]->SetParLimits(2, Width, HistMax - HistMin);
     const int backgroundFitStatus = hPixelDt[localPixel]->Fit(fPixelBackgroundReject[localPixel], "RQN0");
     backgroundAmplitude[localPixel] = fPixelBackgroundReject[localPixel]->GetParameter(0);
     backgroundMean[localPixel] = fPixelBackgroundReject[localPixel]->GetParameter(1);
@@ -5690,13 +5723,14 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
                << "# fit_interval_ns " << FitMin << " " << FitMax << "\n"
                << "# background_fit_interval_ns " << HistMin << " " << HistMax << "\n"
                << "# local_and_clean_fit_interval_ns " << FitMin << " " << FitMax << "\n"
+               << "# peak_seed_interval_ns " << PeakSeedMin << " " << PeakSeedMax << "\n"
                << "# background_rejection_nsigma " << NReject << "\n"
                << "# reference_scope bar-local\n"
                << "# mu0_ns " << referenceCentroid << " mu0_err_ns " << referenceCentroidErr << "\n"
                << "# correction c_i = mu_i - mu0; proposed convention tCDet_i' = tCDet_i + c_i\n"
-               << "# pixel_id entries fit_status valid mu_ns mu_err_ns sigma_ns sigma_err_ns correction_ns correction_err_ns chi2 ndf chi2_ndf amplitude amplitude_err background_amplitude background_mean_ns background_sigma_ns reject_low_ns reject_high_ns validity_code failure_reason\n";
+               << "# pixel_id entries fit_status valid mu_ns mu_err_ns sigma_ns sigma_err_ns correction_ns correction_err_ns chi2 ndf chi2_ndf amplitude amplitude_err background_amplitude background_amplitude_limit background_mean_ns background_sigma_ns reject_low_ns reject_high_ns validity_code failure_reason\n";
         for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
-          output << pixelBase + localPixel << " " << fitEntries[localPixel] << " " << fitStatus[localPixel] << " " << validFit[localPixel] << " " << centroid[localPixel] << " " << centroidErr[localPixel] << " " << sigma[localPixel] << " " << sigmaErr[localPixel] << " " << correction[localPixel] << " " << correctionErr[localPixel] << " " << chi2[localPixel] << " " << ndf[localPixel] << " " << chi2Ndf[localPixel] << " " << amplitude[localPixel] << " " << amplitudeErr[localPixel] << " " << backgroundAmplitude[localPixel] << " " << backgroundMean[localPixel] << " " << backgroundSigma[localPixel] << " " << rejectLow[localPixel] << " " << rejectHigh[localPixel] << " " << validityCode[localPixel] << " \"" << failureReason[localPixel] << "\"\n";
+          output << pixelBase + localPixel << " " << fitEntries[localPixel] << " " << fitStatus[localPixel] << " " << validFit[localPixel] << " " << centroid[localPixel] << " " << centroidErr[localPixel] << " " << sigma[localPixel] << " " << sigmaErr[localPixel] << " " << correction[localPixel] << " " << correctionErr[localPixel] << " " << chi2[localPixel] << " " << ndf[localPixel] << " " << chi2Ndf[localPixel] << " " << amplitude[localPixel] << " " << amplitudeErr[localPixel] << " " << backgroundAmplitude[localPixel] << " " << backgroundAmplitudeLimit[localPixel] << " " << backgroundMean[localPixel] << " " << backgroundSigma[localPixel] << " " << rejectLow[localPixel] << " " << rejectHigh[localPixel] << " " << validityCode[localPixel] << " \"" << failureReason[localPixel] << "\"\n";
         }
       }
     }
@@ -5727,6 +5761,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
             << "  processed logical pixel IDs: " << pixelBase << "-" << pixelBase + NumPaddles - 1 << "\n"
             << "  ECal energy cut: [" << ECalEnergyMin << ", " << ECalEnergyMax << "] GeV\n"
             << "  peak search interval: [" << FitMin << ", " << FitMax << "] ns\n"
+            << "  preferred peak-seed interval: [" << PeakSeedMin << ", " << PeakSeedMax << "] ns; fallbacks: " << peakSeedFallbackCount << "\n"
             << "  broad background fit interval: [" << HistMin << ", " << HistMax << "] ns\n"
             << "  local and clean fits use the full peak-search interval; background rejection: " << NReject << " sigma\n"
             << "  events passing ECal energy cut: " << energySelectedEventCount << " / " << nEvents << "\n"
