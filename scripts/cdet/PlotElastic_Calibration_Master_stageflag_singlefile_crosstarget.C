@@ -5192,7 +5192,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   }
 
   TCanvas *cSelectedPixelDt = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDt"), TString::Format("ECal-CDet delta-t signal and background, logical pixel ID %d", logicalPixelID), 1000, 750);
-  hSelectedPixelDt->SetStats(kFALSE);
+  hSelectedPixelDt->SetStats(kTRUE);
   hSelectedPixelDt->SetLineColor(kBlack);
   hSelectedPixelDt->SetLineWidth(2);
   double selectedPixelPlotMin = 0.0;
@@ -5231,10 +5231,11 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
     selectedPixelLegend->AddEntry(fSelectedPixelClean, "Final cleaned-peak Gaussian", "l");
   }
   selectedPixelLegend->Draw();
+  if (selectedPixelLocalValid && fSelectedPixelLocal->GetNDF() > 0) AddFitResultsToStatsBox(hSelectedPixelDt, selectedPixelLocalMean, fSelectedPixelLocal->GetParError(1), fSelectedPixelLocal->GetChisquare()/fSelectedPixelLocal->GetNDF());
 
   TCanvas *cSelectedPixelDtClean = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDtClean"), TString::Format("Background-subtracted ECal-CDet delta-t, logical pixel ID %d", logicalPixelID), 900, 700);
   if (hSelectedPixelDtClean) {
-    hSelectedPixelDtClean->SetStats(kFALSE);
+    hSelectedPixelDtClean->SetStats(kTRUE);
     hSelectedPixelDtClean->SetLineColor(kGreen + 2);
     hSelectedPixelDtClean->SetLineWidth(2);
     hSelectedPixelDtClean->Draw("HIST");
@@ -5245,6 +5246,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
       cleanLegend->AddEntry(fSelectedPixelClean, "Final cleaned-peak Gaussian", "l");
     }
     cleanLegend->Draw();
+    if (selectedPixelCleanValid && fSelectedPixelClean->GetNDF() > 0) AddFitResultsToStatsBox(hSelectedPixelDtClean, fSelectedPixelClean->GetParameter(1), fSelectedPixelClean->GetParError(1), fSelectedPixelClean->GetChisquare()/fSelectedPixelClean->GetNDF());
   } else {
     TPaveText *fitFailureNote = new TPaveText(0.18, 0.42, 0.82, 0.58, "NDC");
     fitFailureNote->SetFillColor(0);
@@ -5367,6 +5369,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
   std::vector<double> rejectLow(NumPaddles, NAN), rejectHigh(NumPaddles, NAN);
   std::vector<double> chi2(NumPaddles, NAN), chi2Ndf(NumPaddles, NAN);
   std::vector<int> ndf(NumPaddles, 0);
+  std::vector<bool> validLocalFit(NumPaddles, false);
   std::vector<bool> validFit(NumPaddles, false);
   std::vector<double> correction(NumPaddles, NAN), correctionErr(NumPaddles, NAN);
 
@@ -5459,6 +5462,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
       ++rootFitFailureCount;
       continue;
     }
+    validLocalFit[localPixel] = true;
 
     rejectLow[localPixel] = std::max(HistMin, localMean - NReject*localSigma);
     rejectHigh[localPixel] = std::min(HistMax, localMean + NReject*localSigma);
@@ -5664,8 +5668,8 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
       fPixelClean[localPixel]->SetLineColor(kRed + 1);
       fPixelClean[localPixel]->SetLineWidth(2);
       fPixelClean[localPixel]->Draw("SAME");
-      AddFitResultsToStatsBox(hPixelDt[localPixel], centroid[localPixel], centroidErr[localPixel], chi2Ndf[localPixel]);
     }
+    if (validLocalFit[localPixel] && fPixelLocal[localPixel]->GetNDF() > 0) AddFitResultsToStatsBox(hPixelDt[localPixel], fPixelLocal[localPixel]->GetParameter(1), fPixelLocal[localPixel]->GetParError(1), fPixelLocal[localPixel]->GetChisquare()/fPixelLocal[localPixel]->GetNDF());
   }
 
   TCanvas *cBarDtVsTot = new TCanvas(uniqueName("cCDetBarPixelTimingDtVsTot"), TString::Format("CDet bar %d pixel delta-t versus TOT", bar), 1400, 1100);
