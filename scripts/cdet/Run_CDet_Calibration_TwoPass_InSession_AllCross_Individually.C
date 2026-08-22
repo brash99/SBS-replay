@@ -81,7 +81,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
         std::cout << "[Driver] ==================================================\\n";
     };
     
-    stageBanner("before_bar_offsets", 0);
+    stageBanner("before_pixel_offsets", 0);
     ResetCalibrationGlobals();
     if (!runMain(0)) return;
     plotAllPaddles(1, 0, 60, 0, 60, 0, 60, TString::Format("%d", RunNumber1));
@@ -97,7 +97,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     if (!gLastCalibrationFitSucceeded) return;
 
     // Apply offsets and then plot corrected spectra
-    stageBanner("after_bar_offsets_applied", 2);
+    stageBanner("after_pixel_offsets_applied", 2);
     ResetCalibrationGlobals();
     if (!runMain(2)) return;
     plotAllTDC(false, 1.0, 0.0, 60.0, true,
@@ -136,7 +136,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     if (!gLastCalibrationFitSucceeded) return;
 
     // -----------------------------
-    // FINAL BAR-OFFSET CLOSURE PASS
+    // FINAL PIXEL-OFFSET CLOSURE PASS
     // -----------------------------
     stageBanner("pass3_fullclosure_offsets", 7);
     ResetCalibrationGlobals();
