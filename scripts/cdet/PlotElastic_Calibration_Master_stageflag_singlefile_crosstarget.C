@@ -4513,7 +4513,7 @@ TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullpt
   return hSub;
 }
 
-void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100, bool allowMultiplePairs = true, double XBinWidth = 0.005, double XMin = -1.5, double XMax = 1.5){
+void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100, bool allowMultiplePairs = true, double XBinWidth = 0.005, double XMin = -1.5, double XMax = 1.5, double ZBinWidth = 0.01, double ZMin = 0.0, double ZMax = 7.0){
   gLastCalibrationFitSucceeded = false;
   
   TH1::AddDirectory(kFALSE);
@@ -4522,14 +4522,16 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     std::cerr << "[plotCDetLayersTimeComp] ERROR: Layer 1 pixel ID must be in [0, " << NumCDetPaddles/2 - 1 << "].\n";
     return;
   }
-  if (XBinWidth <= 0.0 || XMin >= XMax) {
-    std::cerr << "[plotCDetLayersTimeComp] ERROR: invalid x-position binning or range.\n";
+  if (Width <= 0.0 || CDetMin >= CDetMax || XBinWidth <= 0.0 || XMin >= XMax || ZBinWidth <= 0.0 || ZMin >= ZMax) {
+    std::cerr << "[plotCDetLayersTimeComp] ERROR: invalid timing, x-position, or z-position binning or range.\n";
     return;
   }
   
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
+  const int NPairedLeBins = std::max(1, (int)((CDetMax-CDetMin)/Width));
   const int NXBins = std::max(1, (int)((XMax-XMin)/XBinWidth));
+  const int NZBins = std::max(1, (int)((ZMax-ZMin)/ZBinWidth));
   const int selectedLayer1BarBase = (pixelBase/NumPaddles)*NumPaddles;
   const int selectedLayer2BarBase = selectedLayer1BarBase + NumCDetPaddles/2;
   const int selectedBarNumber = selectedLayer1BarBase/NumPaddles;
@@ -4569,6 +4571,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   TH2D* hSelectedBarECalXVsX1 = new TH2D("hSelectedBarECalXVsX1", TString::Format("ECal projection at Layer 1 vs CDet x, Layer 1 bar %d;Layer 1 x (m);ECal x projected to Layer 1 (m)", selectedBarNumber), NXBins, XMin, XMax, NXBins, XMin, XMax);
   TH2D* hSelectedBarECalXVsX2 = new TH2D("hSelectedBarECalXVsX2", TString::Format("ECal projection at Layer 2 vs matched CDet x, Layer 1 bar %d;Matched Layer 2 x (m);ECal x projected to Layer 2 (m)", selectedBarNumber), NXBins, XMin, XMax, NXBins, XMin, XMax);
   TH2D* hSelectedBarXByPlane = new TH2D("hSelectedBarXByPlane", TString::Format("Hit x through CDet and ECal, Layer 1 bar %d;Detector plane;x position (m)", selectedBarNumber), 3, 0.5, 3.5, NXBins, XMin, XMax);
+  TH2D* hSelectedBarXVsZ = new TH2D("hSelectedBarXVsZ", TString::Format("Hit positions through CDet and ECal, Layer 1 bar %d;z position (m);x position (m)", selectedBarNumber), NZBins, ZMin, ZMax, NXBins, XMin, XMax);
+  std::vector<TH1D*> hSelectedBarPairedLe(NumPaddles, nullptr);
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    const int globalPixel = selectedLayer1BarBase + localPixel;
+    hSelectedBarPairedLe[localPixel] = new TH1D(TString::Format("hSelectedBarPairedLe_Pixel%d", globalPixel), TString::Format("Paired Good LE (Pixel %d);LE (ns);Counts", globalPixel), NPairedLeBins, CDetMin, CDetMax);
+  }
   hSelectedBarXByPlane->GetXaxis()->SetBinLabel(1, "CDet L1");
   hSelectedBarXByPlane->GetXaxis()->SetBinLabel(2, "CDet L2");
   hSelectedBarXByPlane->GetXaxis()->SetBinLabel(3, "ECal");
@@ -4759,6 +4767,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           if (isSelectedLayer1Bar) {
             hCDetBarLe1->Fill(p.t1);
             hCDet1BarLeVsTot->Fill(p.tot1, p.t1);
+            hSelectedBarPairedLe[(int)p.id1 - selectedLayer1BarBase]->Fill(p.t1);
             const double xECalAtLayer1 = v_GoodECalX[ev]*p.z1/ECal_dist;
             const double xECalAtLayer2 = v_GoodECalX[ev]*p.z2/ECal_dist;
             hSelectedBarX2VsX1->Fill(p.x1, p.x2);
@@ -4767,6 +4776,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             hSelectedBarXByPlane->Fill(1.0, p.x1);
             hSelectedBarXByPlane->Fill(2.0, p.x2);
             hSelectedBarXByPlane->Fill(3.0, v_GoodECalX[ev]);
+            hSelectedBarXVsZ->Fill(p.z1, p.x1);
+            hSelectedBarXVsZ->Fill(p.z2, p.x2);
+            hSelectedBarXVsZ->Fill(ECal_dist, v_GoodECalX[ev]);
           }
           if (isSelectedLayer2Bar) {
             hCDetBarLe2->Fill(p.t2);
@@ -4783,7 +4795,34 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   }// end event loop 
   // ------------------------------
   // Make Plots
-  // ------------------------------    
+  // ------------------------------
+  std::vector<TF1*> fSelectedBarPairedLe(NumPaddles, nullptr);
+  TCanvas *cSelectedBarPairedLe = new TCanvas("cSelectedBarPairedLe", TString::Format("Paired-hit LE spectra for Layer 1 bar %d", selectedBarNumber), 1200,1000);
+  cSelectedBarPairedLe->Divide(4,4,0.001,0.001);
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    const int globalPixel = selectedLayer1BarBase + localPixel;
+    const double meanLe = hSelectedBarPairedLe[localPixel]->GetMean();
+    fSelectedBarPairedLe[localPixel] = new TF1(TString::Format("fSelectedBarPairedLe_Pixel%d", globalPixel), "gaus", meanLe - 15.0, meanLe + 15.0);
+    if (hSelectedBarPairedLe[localPixel]->GetEntries() > 20) {
+      fSelectedBarPairedLe[localPixel]->SetParameters(hSelectedBarPairedLe[localPixel]->GetMaximum(), meanLe, hSelectedBarPairedLe[localPixel]->GetRMS());
+      hSelectedBarPairedLe[localPixel]->Fit(fSelectedBarPairedLe[localPixel], "RQ0");
+    }
+
+    cSelectedBarPairedLe->cd(localPixel + 1);
+    hSelectedBarPairedLe[localPixel]->Draw();
+    if (hSelectedBarPairedLe[localPixel]->GetEntries() > 20) fSelectedBarPairedLe[localPixel]->Draw("SAME");
+    if (kUnusedCDetPixels.count(globalPixel)) {
+      TPaveText *flag = new TPaveText(0.82,0.82,0.95,0.95,"NDC");
+      flag->SetFillColor(kBlack);
+      flag->SetLineColor(kBlack);
+      flag->SetTextColor(kWhite);
+      flag->SetBorderSize(1);
+      flag->AddText("UNUSED PIXEL");
+      flag->Draw("SAME");
+    }
+  }
+  cSelectedBarPairedLe->Update();
+
   TCanvas *cCDetLayerTimes = new TCanvas("cCDetLayerTimes", "CDet Layer 1 and 2 LE",900,700);
   cCDetLayerTimes->Divide(1,2);
 
@@ -4961,6 +5000,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   hSelectedBarECalXVsX2->Draw("COLZ");
   cSelectedBarXMap->cd(4);
   hSelectedBarXByPlane->Draw("COLZ");
+
+  TCanvas *cSelectedBarXVsZ = new TCanvas("cSelectedBarXVsZ", TString::Format("CDet-to-ECal x-z map for Layer 1 bar %d", selectedBarNumber), 1100,700);
+  hSelectedBarXVsZ->Draw("COLZ");
 }
 
 void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, double dtMinCut = 70.0, double dtMaxCut = 115.0, double DiffMin = 0.0, double DiffMax = 130.0, double LeMin = 0.0, double LeMax = 60.0, double TeMin = 0.0, double TeMax = 80.0, double TotMin = 0.0, double TotMax = 80.0, double ECalMin = 62.0, double ECalMax = 140.0, bool drawDtVsTot = false, double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0){
