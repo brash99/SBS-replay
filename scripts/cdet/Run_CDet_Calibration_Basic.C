@@ -47,7 +47,7 @@ void Run_CDet_Calibration_Basic(
     bool removeExistingCalibrationFile = true
 ){
     const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C";
-    const TString calibFile   = "CDet_calibration.dat";
+    const TString calibFile   = "CDet_calibration_dt.dat";
 
     if (gSystem->AccessPathName(masterMacro)) {
         std::cerr << "[Driver] ERROR: Could not find master macro " << masterMacro << "\\n";

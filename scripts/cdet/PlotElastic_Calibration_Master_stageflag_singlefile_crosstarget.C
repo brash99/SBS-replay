@@ -482,7 +482,7 @@ bool gPixelToffsetLoaded = false;         // true if offsets were read from file
 bool gECalParamsLoaded = false;
 bool gTimeWalkParamsLoaded = false;
 bool gCalibrationLoaded = false;
-std::string gCalibrationFile = "CDet_calibration.dat";
+std::string gCalibrationFile = "CDet_calibration_dt.dat";
 Int_t gNumEventsInRun = 0;
 Int_t gRunNumber = 0;
 Int_t gCalibrationStage = 0;
@@ -1349,8 +1349,8 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
   ecalClusterNonFiniteEnergyCount = 0;
   (void)firstevent; // currently unused
   gCalibrationFile = RunNumber1 == 0
-      ? TString::Format("CDet_calibration_group%d.dat", groupIndex).Data()
-      : "CDet_calibration.dat";
+      ? TString::Format("CDet_calibration_dt_group%d.dat", groupIndex).Data()
+      : "CDet_calibration_dt.dat";
   const char *runListFile = "crossRuns.txt"; //file with run numbers to analyze
   Int_t nseg = nruns/(maxstream+1);
 	Double_t RefLeMin = 0.02;
@@ -2947,6 +2947,19 @@ std::cout << "[CDet] Reference timing subtraction is "
   //================================================================== End Macro
 }// end main
 
+void testFunction(){
+
+  //define histograms
+
+  //loop through hits
+
+  //fill histograms
+
+  //draw histograms/canvas
+  //save histograms??
+
+}
+
 void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGeV = ECalClusterEnergyBinWidthGeV, double binMinGeV = 0.0, double binMaxGeV = 12.0)
 {
   if (ecalClusterProcessedEventCount <= 0) {
@@ -2988,8 +3001,6 @@ void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGe
   hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<double>("bin_max_gev", binMaxGeV));
   hECalClusterEnergySpectrum->GetListOfFunctions()->Add(new TParameter<int>("processed_event_count", ecalClusterProcessedEventCount));
 
-  TObject *existingCanvas = gROOT->FindObject("cECalClusterEnergySpectrum");
-  if (existingCanvas) delete existingCanvas;
   TCanvas *cECalClusterEnergySpectrum = new TCanvas("cECalClusterEnergySpectrum", "ECal reconstructed-cluster energy", 1000, 700);
   hECalClusterEnergySpectrum->Draw("HIST");
   const double lineMaximum = std::max(1.0, 1.05 * hECalClusterEnergySpectrum->GetMaximum());
@@ -3924,115 +3935,69 @@ void plotPaddleTOT(
   cPaddlesLE->Update();
 }
 
-void plotPaddles(double width = 1, double LeMin = 0, double LeMax = 60, double TotCutLow = 0, double TotCutMax = 60, double TotMin = 0, double TotMax = 60, double binLow = 0, double binHigh = 60){
+void plotPaddles(int bar = 29, double width = 1, double LeMin = 0, double LeMax = 60, double TotCutLow = 0, double TotCutMax = 60, double TotMin = 0, double TotMax = 60, double binLow = 0, double binHigh = 60){
   TH1::AddDirectory(kFALSE);
-  int Nbins = (int)((binHigh-binLow)/width);
+  if (bar < 0 || bar >= NumCDetPaddles/NumPaddles || width <= 0.0 || TotMin >= TotMax || binLow >= binHigh) {
+    std::cerr << "[CDet paddle plots] ERROR: invalid bar, bin width, or histogram range.\n";
+    return;
+  }
+  const int Nbins = (int)((binHigh-binLow)/width);
+  const int paddle_base = bar*NumPaddles;
+  (void)LeMin;
+  (void)LeMax;
+  (void)TotCutLow;
+  (void)TotCutMax;
 
-  std::vector<TF1*> fPixelGaussFit;
-
-  fPixelGaussFit.assign(32,nullptr);
-  hPaddleGoodLe.assign(32, nullptr);
-  hPaddleLEvsTOT.assign(32, nullptr);
-  int paddle_base = 464;
-  TCanvas* cPaddles = new TCanvas("cPaddles", "Bar 29 Pixels", 1200, 1000);
+  std::vector<TF1*> fPixelGaussFit(NumPaddles, nullptr);
+  hPaddleGoodLe.assign(NumPaddles, nullptr);
+  hPaddleLEvsTOT.assign(NumPaddles, nullptr);
+  TCanvas* cPaddles = new TCanvas(TString::Format("cPaddlesBar%d", bar), TString::Format("Bar %d Pixels", bar), 1200, 1000);
   cPaddles->Divide(4, 4, 0.001, 0.001);
-  TCanvas* cPaddlesB30 = new TCanvas("cPaddlesB30", "Bar 30 Pixels", 1200, 1000);
-  cPaddlesB30->Divide(4, 4, 0.001, 0.001);
-  TCanvas* cPaddles2D = new TCanvas("cPaddles2D", "Bar 29 Pixels", 1200, 1000);
+  TCanvas* cPaddles2D = new TCanvas(TString::Format("cPaddles2DBar%d", bar), TString::Format("Bar %d Pixels LE versus TOT", bar), 1200, 1000);
   cPaddles2D->Divide(4, 4, 0.001, 0.001);
-  TCanvas* cPaddles2D_B30 = new TCanvas("cPaddles2D_B30", "Bar 30 Pixels", 1200, 1000);
-  cPaddles2D_B30->Divide(4, 4, 0.001, 0.001);
 
-  for (int paddle = 0; paddle < 32 ; ++paddle){
-    int global_paddle = paddle + paddle_base;
-    hPaddleGoodLe[paddle] = new TH1F(TString::Format("hBarGoodLe_Paddle%d", paddle+paddle_base),
-                               TString::Format("Good LE (Paddle %d)", paddle+paddle_base),
-                               Nbins, binLow, binHigh);
-    hPaddleLEvsTOT[paddle] = new TH2F(TString::Format("hPaddleLEvsTOT_Paddle%d", paddle + paddle_base),
-                                TString::Format("Good LE vs TOT (Paddle %d);TOT [ns];LE [ns]", paddle + paddle_base),
-                                Nbins, TotMin, TotMax,
-                                Nbins,  binLow,  binHigh);
+  for (int paddle = 0; paddle < NumPaddles; ++paddle){
+    const int global_paddle = paddle + paddle_base;
+    hPaddleGoodLe[paddle] = new TH1F(TString::Format("hBarGoodLe_Paddle%d", global_paddle), TString::Format("Good LE (Paddle %d)", global_paddle), Nbins, binLow, binHigh);
+    hPaddleLEvsTOT[paddle] = new TH2F(TString::Format("hPaddleLEvsTOT_Paddle%d", global_paddle), TString::Format("Good LE vs TOT (Paddle %d);TOT [ns];LE [ns]", global_paddle), Nbins, TotMin, TotMax, Nbins, binLow, binHigh);
 
-    for (double x : vPaddleGoodLe[paddle+paddle_base]) hPaddleGoodLe[paddle]->Fill(x);
-    double paddleMeanLe = hPaddleGoodLe[paddle]->GetMean();
-    double fit_low = paddleMeanLe - 15;
-    double fit_high = paddleMeanLe + 15;
-    fPixelGaussFit[paddle] = new TF1(TString::Format("fPixelGaussFit_Paddle%d", global_paddle), "gaus", fit_low, fit_high);
-
+    for (double x : vPaddleGoodLe[global_paddle]) hPaddleGoodLe[paddle]->Fill(x);
+    const double paddleMeanLe = hPaddleGoodLe[paddle]->GetMean();
+    fPixelGaussFit[paddle] = new TF1(TString::Format("fPixelGaussFit_Paddle%d", global_paddle), "gaus", paddleMeanLe - 15.0, paddleMeanLe + 15.0);
     if (hPaddleGoodLe[paddle]->GetEntries() > 20){
       fPixelGaussFit[paddle]->SetParameters(hPaddleGoodLe[paddle]->GetMaximum(), paddleMeanLe, hPaddleGoodLe[paddle]->GetRMS());
       hPaddleGoodLe[paddle]->Fit(fPixelGaussFit[paddle], "RQ0");
     }
 
-    for (int ihit = 0; ihit < vPaddleGoodLe[paddle+paddle_base].size();ihit++){
-      double tot = vPaddleGoodTot[paddle+paddle_base][ihit];
-      double le = vPaddleGoodLe[paddle+paddle_base][ihit];
-      hPaddleLEvsTOT[paddle]->Fill(tot,le);
+    for (size_t ihit = 0; ihit < vPaddleGoodLe[global_paddle].size(); ++ihit) hPaddleLEvsTOT[paddle]->Fill(vPaddleGoodTot[global_paddle][ihit], vPaddleGoodLe[global_paddle][ihit]);
+
+    cPaddles->cd(paddle + 1);
+    hPaddleGoodLe[paddle]->Draw();
+    if (hPaddleGoodLe[paddle]->GetEntries() > 20) fPixelGaussFit[paddle]->Draw("SAME");
+    if (kUnusedCDetPixels.count(global_paddle)) {
+      TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
+      flag->SetFillColor(kBlack);
+      flag->SetLineColor(kBlack);
+      flag->SetBorderSize(1);
+      flag->AddText("UNUSED PIXEL");
+      flag->Draw("same");
     }
-    // Draw
-    if (paddle >= 0 && paddle < 16){
-      cPaddles->cd(paddle + 1);
-      hPaddleGoodLe[paddle]->Draw();
-      if (hPaddleGoodLe[paddle]->GetEntries() > 20) fPixelGaussFit[paddle]->Draw("SAME");
-      // If unused pixel: draw a black square in the top-right corner of the pad
-      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
-        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
-        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
-        flag->SetFillColor(kBlack);
-        flag->SetLineColor(kBlack);
-        flag->SetBorderSize(1);
-        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
-        flag->Draw("same");
-      }
-      cPaddles2D->cd(paddle + 1);
-      hPaddleLEvsTOT[paddle]->Draw("COLZ");
-      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
-        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
-        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
-        flag->SetFillColor(kBlack);
-        flag->SetLineColor(kBlack);
-        flag->SetBorderSize(1);
-        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
-        flag->Draw("same");
-      }
-    }
-    else if (paddle >= 16 && paddle < 32){
-      int local_paddle = paddle - 16;
-      cPaddlesB30->cd(local_paddle + 1);
-      hPaddleGoodLe[paddle]->Draw();
-      if (hPaddleGoodLe[paddle]->GetEntries() > 20) fPixelGaussFit[paddle]->Draw("SAME");
-      // If unused pixel: draw a black square in the top-right corner of the pad
-      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
-        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
-        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
-        flag->SetFillColor(kBlack);
-        flag->SetLineColor(kBlack);
-        flag->SetBorderSize(1);
-        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
-        flag->Draw("same");
-      }
-      cPaddles2D_B30->cd(local_paddle + 1);
-      hPaddleLEvsTOT[paddle]->Draw("COLZ");
-      if (kUnusedCDetPixels.count(paddle+paddle_base)) {
-        // NDC coordinates: (x1,y1,x2,y2) in [0,1] pad coordinates
-        TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
-        flag->SetFillColor(kBlack);
-        flag->SetLineColor(kBlack);
-        flag->SetBorderSize(1);
-        flag->AddText("UNUSED PIXEL");       // empty; just a filled box
-        flag->Draw("same");
-      }
+
+    cPaddles2D->cd(paddle + 1);
+    hPaddleLEvsTOT[paddle]->Draw("COLZ");
+    if (kUnusedCDetPixels.count(global_paddle)) {
+      TPaveText* flag = new TPaveText(0.82, 0.82, 0.95, 0.95, "NDC");
+      flag->SetFillColor(kBlack);
+      flag->SetLineColor(kBlack);
+      flag->SetBorderSize(1);
+      flag->AddText("UNUSED PIXEL");
+      flag->Draw("same");
     }
   }
   cPaddles->Update();
-  cPaddles->SaveAs("PaddleOffsetBar29.pdf");
-  cPaddlesB30->Update();
-  cPaddlesB30->SaveAs("PaddleOffsetBar30.pdf");
+  cPaddles->SaveAs(TString::Format("PaddleOffsetBar%d.pdf", bar));
   cPaddles2D->Update();
-  cPaddles2D->SaveAs("PaddleOffset2DBar29.pdf");
-  cPaddles2D_B30->Update();
-  cPaddles2D_B30->SaveAs("PaddleOffset2DBar30.pdf");
-
+  cPaddles2D->SaveAs(TString::Format("PaddleOffset2DBar%d.pdf", bar));
 }
 
 void plotAllPaddles(double width = 1, double LeMin = 0, double LeMax = 60, double TotMin = 0, double TotMax = 40, double binLow = 0, double binHigh = 60, TString saveTag = "") {
@@ -5353,7 +5318,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   std::cout << "\n";
 }
 
-void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 100.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0) {
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 115.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0) {
   TH1::AddDirectory(kFALSE);
   (void)localFitHalfWidth; // Retained for positional compatibility; extraction fits now use FitMin-FitMax exactly.
 
@@ -5849,8 +5814,18 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
             << "  proposed sign: tCDet_i' = tCDet_i + c_i; no corrections were applied\n";
 }
 
-void extractAllCDetPixelTimingOffsets(double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 100.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, TString calibrationOutput = "CDet_calibration_dt_candidate.dat", TString fitResultsOutput = "CDet_pixel_timing_fit_results.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double NReject = 2.5, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0) {
+void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 115.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, TString calibrationOutput = "", TString fitResultsOutput = "", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double NReject = 2.5, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0) {
   TH1::AddDirectory(kFALSE);
+  gLastCalibrationFitSucceeded = false;
+
+  if (!generateOffsets) {
+    std::cout << "[CDet all-pixel timing] Offset generation disabled. Call extractAllCDetPixelTimingOffsets(true) to fit pixels and write updated calibration constants.\n";
+    return;
+  }
+
+  if (calibrationOutput.IsNull()) calibrationOutput = gCalibrationFile.c_str();
+  if (fitResultsOutput.IsNull()) fitResultsOutput = gRunNumber == 0 ? TString::Format("CDet_pixel_timing_fit_results_group%d.dat", ecalClusterGroupIndex) : "CDet_pixel_timing_fit_results.dat";
+  const bool hadLoadedPixelOffsets = gPixelToffsetLoaded;
 
   if (Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || PeakSeedMin >= PeakSeedMax || PeakSeedMin < FitMin || PeakSeedMax > FitMax || minEntries < 1 || minSigma <= 0.0 || minSigma >= maxSigma || maxChi2Ndf <= 0.0 || centroidEdgeMargin < 0.0 || ECalEnergyMin >= ECalEnergyMax || NReject <= 0.0) {
     std::cerr << "[CDet all-pixel timing] ERROR: invalid histogram, fit, or quality-limit argument.\n";
@@ -5859,9 +5834,8 @@ void extractAllCDetPixelTimingOffsets(double Width = 1.0, double HistMin = 0.0, 
 
   const TString calibrationBaseName = gSystem->BaseName(calibrationOutput.Data());
   const TString fitResultsBaseName = gSystem->BaseName(fitResultsOutput.Data());
-  const TString activeBaseName = gSystem->BaseName(gCalibrationFile.c_str());
-  if (calibrationBaseName == "CDet_calibration.dat" || calibrationBaseName == activeBaseName) {
-    std::cerr << "[CDet all-pixel timing] ERROR: refusing to overwrite active calibration file with candidate output '" << calibrationOutput << "'.\n";
+  if (calibrationBaseName == "CDet_calibration.dat") {
+    std::cerr << "[CDet all-pixel timing] ERROR: refusing to overwrite the legacy-method calibration file '" << calibrationOutput << "'.\n";
     return;
   }
   if (calibrationOutput == fitResultsOutput || calibrationBaseName == fitResultsBaseName) {
@@ -6073,14 +6047,145 @@ void extractAllCDetPixelTimingOffsets(double Width = 1.0, double HistMin = 0.0, 
     fitResults << pixelID << " " << bar << " " << fitEntries[pixelID] << " " << fitStatus[pixelID] << " " << validFit[pixelID] << " " << detectorReferenceValid << " " << centroid[pixelID] << " " << centroidErr[pixelID] << " " << sigma[pixelID] << " " << sigmaErr[pixelID] << " " << correction[pixelID] << " " << correctionErr[pixelID] << " " << totalOffset[pixelID] << " " << detectorReference << " " << detectorReferenceErr << " " << chi2[pixelID] << " " << ndf[pixelID] << " " << chi2Ndf[pixelID] << " " << amplitude[pixelID] << " " << amplitudeErr[pixelID] << " " << backgroundAmplitude[pixelID] << " " << backgroundAmplitudeLimit[pixelID] << " " << backgroundMean[pixelID] << " " << backgroundSigma[pixelID] << " " << rejectLow[pixelID] << " " << rejectHigh[pixelID] << " " << validityCode[pixelID] << " \"" << failureReason[pixelID] << "\"\n";
   }
   fitResults.close();
+  gPixelToffsetCorr = totalOffset;
+  gPixelToffsetNhits = fitEntries;
+  gPixelToffsetLoaded = true;
+  gCalibrationLoaded = true;
+  gLastCalibrationFitSucceeded = true;
 
   std::cout << "[CDet all-pixel timing]\n"
             << "  events passing ECal energy cut: " << energySelectedEventCount << " / " << nEvents << "\n"
             << "  valid pixel fits: " << validPixelCount << " / " << NumCDetPaddles << "\n"
             << "  detector-wide weighted centroid: " << detectorReference << " +/- " << detectorReferenceErr << " ns\n"
-            << "  calibration candidate: " << calibrationOutput << "\n"
+            << "  calibration file: " << calibrationOutput << "\n"
             << "  detailed fit results: " << fitResultsOutput << "\n"
-            << "  existing loaded offsets were " << (gPixelToffsetLoaded ? "retained and incremented" : "not present; candidates start from zero") << "\n";
+            << "  existing loaded offsets were " << (hadLoadedPixelOffsets ? "retained and incremented" : "not present; constants start from zero") << "\n";
+}
+
+bool ReadCDetPixelOffsetsForComparison(const TString& calibrationFile, std::vector<double>& offsets, std::vector<bool>& found) {
+  offsets.assign(NumCDetPaddles, 0.0);
+  found.assign(NumCDetPaddles, false);
+  std::ifstream input(calibrationFile.Data());
+  if (!input.is_open()) {
+    std::cerr << "[CDet offset comparison] ERROR: could not open '" << calibrationFile << "'.\n";
+    return false;
+  }
+
+  std::string line;
+  std::string section;
+  while (std::getline(input, line)) {
+    if (line.empty() || line[0] == '#') continue;
+    if (line[0] == '[') {
+      section = line;
+      continue;
+    }
+    if (section != "[PixelOffsets]") continue;
+    std::istringstream row(line);
+    int pixelID = -1;
+    double offset = 0.0;
+    if (row >> pixelID >> offset && pixelID >= 0 && pixelID < NumCDetPaddles) {
+      offsets[pixelID] = offset;
+      found[pixelID] = true;
+    }
+  }
+  const int offsetsRead = std::count(found.begin(), found.end(), true);
+  if (offsetsRead != NumCDetPaddles) {
+    std::cerr << "[CDet offset comparison] ERROR: incomplete [PixelOffsets] section in '" << calibrationFile << "': " << offsetsRead << " / " << NumCDetPaddles << " rows found.\n";
+    return false;
+  }
+  return true;
+}
+
+void plotCDetPixelOffsetMethodDifference(TString regularCalibrationFile = "CDet_calibration.dat", TString dtCalibrationFile = "CDet_calibration_dt.dat") {
+  TGraph *gOffsetDifference = new TGraph();
+  gOffsetDifference->SetName("gCDetPixelOffsetMethodDifference");
+  gOffsetDifference->SetTitle("CDet pixel-offset method comparison;CDet logical pixel ID;#Deltat-method correction - regular correction (ns)");
+
+  std::vector<double> regularOffsets;
+  std::vector<double> dtOffsets;
+  std::vector<bool> regularFound;
+  std::vector<bool> dtFound;
+  if (!ReadCDetPixelOffsetsForComparison(regularCalibrationFile, regularOffsets, regularFound) || !ReadCDetPixelOffsetsForComparison(dtCalibrationFile, dtOffsets, dtFound)) return;
+
+  int skippedZero = 0;
+  for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
+    if (!regularFound[pixelID] || !dtFound[pixelID]) continue;
+    if (regularOffsets[pixelID] == 0.0 || dtOffsets[pixelID] == 0.0) {
+      ++skippedZero;
+      continue;
+    }
+    gOffsetDifference->SetPoint(gOffsetDifference->GetN(), pixelID, dtOffsets[pixelID] - regularOffsets[pixelID]);
+  }
+  gOffsetDifference->SetMarkerStyle(20);
+  gOffsetDifference->SetMarkerSize(0.45);
+
+  TCanvas *cOffsetDifference = new TCanvas("cCDetPixelOffsetMethodDifference", "CDet pixel-offset method comparison", 1200, 700);
+  gOffsetDifference->Draw("AP");
+  gOffsetDifference->GetXaxis()->SetLimits(-0.5, NumCDetPaddles - 0.5);
+
+  std::cout << "[CDet offset comparison]\n"
+            << "  regular calibration: " << regularCalibrationFile << "\n"
+            << "  delta-t calibration: " << dtCalibrationFile << "\n"
+            << "  plotted pixels: " << gOffsetDifference->GetN() << "\n"
+            << "  skipped because either correction was exactly zero: " << skippedZero << "\n";
+}
+
+void plotCDetPixelLeAndDtSpectra(int logicalPixelID = 485, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 100.0, double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double LeMin = 0.0, double LeMax = 60.0, TString regularCalibrationFile = "CDet_calibration.dat", TString dtCalibrationFile = "CDet_calibration_dt.dat") {
+  TH1::AddDirectory(kFALSE);
+  if (logicalPixelID < 0 || logicalPixelID >= NumCDetPaddles || Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || ECalEnergyMin >= ECalEnergyMax || LeMin >= LeMax) {
+    std::cerr << "[CDet selected-pixel spectra] ERROR: invalid pixel ID, bin width, or range.\n";
+    return;
+  }
+
+  const int NLeBins = (int)((LeMax - LeMin)/Width);
+  const int NDtBins = (int)((HistMax - HistMin)/Width);
+  static unsigned long invocation = 0;
+  const unsigned long tag = ++invocation;
+
+  TH1D *hPixelLeSpectrum = new TH1D(TString::Format("hCDetPixelLeSpectrum_%d_%lu", logicalPixelID, tag), TString::Format("CDet good-hit LE, logical pixel ID %d;CDet LE time (ns);Good hits", logicalPixelID), NLeBins, LeMin, LeMax);
+  TH1D *hPixelDtSpectrum = new TH1D(TString::Format("hCDetPixelDtSpectrum_%d_%lu", logicalPixelID, tag), TString::Format("ECal-CDet #Deltat, logical pixel ID %d;t_{ECal}-t_{CDet,LE} (ns);Good hits after ECal energy cut", logicalPixelID), NDtBins, HistMin, HistMax);
+
+  for (size_t ev = 0; ev < vGoodLe.size(); ++ev) {
+    const bool passesECalEnergyCut = ECalEnergyMin <= v_GoodECalE[ev] && v_GoodECalE[ev] <= ECalEnergyMax;
+    for (size_t ihit = 0; ihit < vGoodLe[ev].size(); ++ihit) {
+      if (vGoodID[ev][ihit] != logicalPixelID) continue;
+      hPixelLeSpectrum->Fill(vGoodLe[ev][ihit]);
+      if (passesECalEnergyCut) hPixelDtSpectrum->Fill(v_GoodECalAdcTime[ev] - vGoodLe[ev][ihit]);
+    }
+  }
+
+  TCanvas *cPixelLeSpectrum = new TCanvas(TString::Format("cCDetPixelLeSpectrum_%d_%lu", logicalPixelID, tag), TString::Format("CDet LE spectrum, logical pixel ID %d", logicalPixelID), 900, 700);
+  hPixelLeSpectrum->Draw("HIST");
+
+  TCanvas *cPixelDtSpectrum = new TCanvas(TString::Format("cCDetPixelDtSpectrum_%d_%lu", logicalPixelID, tag), TString::Format("ECal-CDet delta-t spectrum, logical pixel ID %d", logicalPixelID), 900, 700);
+  hPixelDtSpectrum->Draw("HIST");
+  const double dtLineTop = std::max(1.0, 1.05*hPixelDtSpectrum->GetMaximum());
+  TLine *fitMinLine = new TLine(FitMin, 0.0, FitMin, dtLineTop);
+  TLine *fitMaxLine = new TLine(FitMax, 0.0, FitMax, dtLineTop);
+  fitMinLine->SetLineColor(kRed + 1);
+  fitMaxLine->SetLineColor(kRed + 1);
+  fitMinLine->SetLineStyle(2);
+  fitMaxLine->SetLineStyle(2);
+  fitMinLine->SetLineWidth(2);
+  fitMaxLine->SetLineWidth(2);
+  fitMinLine->Draw("SAME");
+  fitMaxLine->Draw("SAME");
+
+  std::vector<double> regularOffsets;
+  std::vector<double> dtOffsets;
+  std::vector<bool> regularFound;
+  std::vector<bool> dtFound;
+  if (!ReadCDetPixelOffsetsForComparison(regularCalibrationFile, regularOffsets, regularFound) || !ReadCDetPixelOffsetsForComparison(dtCalibrationFile, dtOffsets, dtFound)) return;
+
+  const double offsetDifference = dtOffsets[logicalPixelID] - regularOffsets[logicalPixelID];
+  std::cout << "[CDet selected-pixel spectra]\n"
+            << "  logical pixel ID: " << logicalPixelID << "\n"
+            << "  LE-spectrum entries: " << hPixelLeSpectrum->GetEntries() << "\n"
+            << "  delta-t-spectrum entries after ECal energy cut [" << ECalEnergyMin << ", " << ECalEnergyMax << "] GeV: " << hPixelDtSpectrum->GetEntries() << "\n"
+            << "  delta-t fit interval shown: [" << FitMin << ", " << FitMax << "] ns\n"
+            << "  regular-method correction from " << regularCalibrationFile << ": " << regularOffsets[logicalPixelID] << " ns\n"
+            << "  delta-t-method correction from " << dtCalibrationFile << ": " << dtOffsets[logicalPixelID] << " ns\n"
+            << "  delta-t minus regular correction: " << offsetDifference << " ns\n";
 }
 
 void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 80, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
