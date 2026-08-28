@@ -4513,13 +4513,21 @@ TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullpt
   return hSub;
 }
 
-void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100,bool allowMultiplePairs = true){
+void plotCDetLayersTimeComp(bool overwrite = false, int selectedBarNumber = 26, double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = -100, double tdiffECalCDetMax = 100, bool allowMultiplePairs = true){
   gLastCalibrationFitSucceeded = false;
   
   TH1::AddDirectory(kFALSE);
+
+  const int barsPerLayer = NumCDetPaddles/(2*NumPaddles);
+  if (selectedBarNumber < 0 || selectedBarNumber >= barsPerLayer) {
+    std::cerr << "[plotCDetLayersTimeComp] ERROR: selected bar number must be in [0, " << barsPerLayer - 1 << "].\n";
+    return;
+  }
   
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
+  const int selectedLayer1BarBase = selectedBarNumber*NumPaddles;
+  const int selectedLayer2BarBase = selectedLayer1BarBase + NumCDetPaddles/2;
 
   TH1D* hCDetTimeDiff = new TH1D("hCDetTimeDiff", "CDet Layer Time Difference; Time Difference (ns);Counts", TDCBinNum, DiffMin, DiffMax);
   TH1D* hCDetXDiff = new TH1D("hCDetXDiff", "CDet Layer X Difference; X Diff (m);Counts", 600,-1.5,1.5);
@@ -4529,10 +4537,10 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   TH2D* hCDetTot2vs1 = new TH2D("hCDetTot2vs1", "CDet Layer 2 Tot vs CDet Layer 1 Tot;Layer 1 LE (ns);Layer 2 LE (ns)",TDCBinNum,CDetTotMin,CDetTotMax,TDCBinNum,CDetTotMin,CDetTotMax);
   TH2D* h2CDetx2VsCDetx1 = new TH2D("h2CDetx2VsCDetx1", "CDet Layer 2 x vs CDet Layer 1 x;CDet Layer 1 x (m);CDet Layer 2 x (m)",600,-1.5,1.5,600,-1.5,1.5);
   TH1I* hNpairPerEvent = new TH1I("hNpairPerEvent", "CDet accepted pairs per event;N_{pairs};Events", 20, 0, 20);
-  TH1D* hCDetBarLe1 = new TH1D("hCDetBarLe1", "CDet Bar 1L27 Good Time;Layer 1 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
-  TH1D* hCDetBarLe2 = new TH1D("hCDetBarLe2", "CDet Bar 2L27 Good Time;Layer 2 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
-  TH2D* hCDet1BarLeVsTot = new TH2D("hCDet1BarLeVsTot", "CDet Bar 1L27 Le vs Tot;Tot (ns);LE (ns)", TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
-  TH2D* hCDet2BarLeVsTot = new TH2D("hCDet2BarLeVsTot", "CDet Bar 2L27 Le vs Tot;Tot (ns);LE (ns)", TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
+  TH1D* hCDetBarLe1 = new TH1D("hCDetBarLe1", TString::Format("CDet Bar 1L%d Good Time;Layer 1 LE (ns);Counts", selectedBarNumber), TDCBinNum, CDetMin, CDetMax);
+  TH1D* hCDetBarLe2 = new TH1D("hCDetBarLe2", TString::Format("CDet Bar 2L%d Good Time;Layer 2 LE (ns);Counts", selectedBarNumber), TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDet1BarLeVsTot = new TH2D("hCDet1BarLeVsTot", TString::Format("CDet Bar 1L%d LE vs TOT;TOT (ns);LE (ns)", selectedBarNumber), TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDet2BarLeVsTot = new TH2D("hCDet2BarLeVsTot", TString::Format("CDet Bar 2L%d LE vs TOT;TOT (ns);LE (ns)", selectedBarNumber), TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
   TH2D* hCDet1LeVsTot = new TH2D("hCDet1LeVsTot", "CDet Layer 1 Le vs Tot;Tot (ns);LE (ns)", TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
   TH2D* hCDet2LeVsTot = new TH2D("hCDet2LeVsTot", "CDet Layer 2 Le vs Tot;Tot (ns);LE (ns)", TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
   TH2D* hECalVsCDetDt = new TH2D("hECalVsCDetDt", "ECal Time vs CDet dt;ECal ADC Time (ns);CDet dt_12 (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,DiffMin,DiffMax);
@@ -4550,9 +4558,6 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   TH1D* hDtCDetECal = new TH1D("hDtCDetECal", "CDet t - ECal t;CDet t - ECal t (ns);Counts", TDCBinNum, tdiffECalCDetMin, tdiffECalCDetMax);
   TH2D* hDtvsDxCDetECal = new TH2D("hDtvsDxCDetECal", "CDet ECal dt vs dx;dx_ECalCDet (m);dt_ECalCDet (ns)", NXDiffBins, XDiffLow, XDiffHigh, TDCBinNum, tdiffECalCDetMin, tdiffECalCDetMax);
 
-  TH1D* hCDet1800Le = new TH1D("hCDet1800Le", "CDet Pixel 1800 Good Time; LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
-  TH1D* hCDet1107Le = new TH1D("hCDet1107Le", "CDet Pixel 1107 Good Time; LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
-
   const size_t Nev = vGoodLe.size();
   pairs_CDet.clear();
   pairs_CDet.resize(Nev);
@@ -4567,26 +4572,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   double sigT  = 1.0;   // ns; timing scale for score
   double sigX  = 0.01;   // m; start ~1, later tighten toward 0.5
 
-  // dx histogram for ALL candidate pairs (before unique-matching).
-  // Use a symmetric window around 0 that matches your initial dxWin.
-  const double dxMin = -dxWin;
-  const double dxMax =  dxWin;
-  // Choose a reasonable binning for x; 0.5 cm/bin is a good start.
-  const double dxBinW = 0.5; // cm
-  const int dxBins = std::max(1, (int)std::round((dxMax - dxMin)/dxBinW));
-  
-  int sumNhits = 0;
-  int sumGoodHits1 = 0;
-  int sumGoodHits2 = 0;
-  //vectors for plotting good hits in layers 1 and 2
-  // std::vector<int> vGoodHits1PerEvent(Nev, 0);
-  // std::vector<int> vGoodHits2PerEvent(Nev, 0);
-  // std::vector<int> vGoodHitsPerEvent(Nev, 0);
-  
   for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
-    //sumNhits += vnhits1[ev]+vnhits2[ev];
-    int countGoodHits1 = 0;
-    int countGoodHits2 = 0;
     std::vector<double> vCDet1Time;
     std::vector<double> vCDet2Time;
     std::vector<double> vCDet1Tot;
@@ -4600,7 +4586,6 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
     std::vector<double> vCDet1ID;
     std::vector<double> vCDet2ID;
     double t_ECal = v_GoodECalAdcTime[ev];
-    // double x_ECal_actal = v_GoodECalX[ev];
 
     // ------------------------------
     // First pass: split hits into layers
@@ -4615,7 +4600,6 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
           vCDet1x.push_back(vCDetGoodX[ev][ihit]);
           vCDet1y.push_back(vCDetGoodY[ev][ihit]);
           vCDet1z.push_back(vCDetGoodZ[ev][ihit]);
-          countGoodHits1++;
         }
         else if (vGoodID[ev][ihit] >= 1344 && vGoodID[ev][ihit] <= 2687){//layer 2 hits
           vCDet2Time.push_back(vGoodLe[ev][ihit]);
@@ -4624,7 +4608,6 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
           vCDet2x.push_back(vCDetGoodX[ev][ihit]);
           vCDet2y.push_back(vCDetGoodY[ev][ihit]);
           vCDet2z.push_back(vCDetGoodZ[ev][ihit]);
-          countGoodHits2++;
         }
       }
     }
@@ -4673,8 +4656,6 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
 
     pairs_CDet[ev].clear();
     pairs_CDet[ev].reserve(std::min(vCDet1Time.size(), vCDet2Time.size())); 
-
-    int nPairs = 0;
 
     for (const auto &c : cands) {
       if (used1[c.i1] || used2[c.j2]) continue;
@@ -4733,7 +4714,6 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
         double dt_EC = t_pair - t_ECal;
         if (dt_EC >= tdiffECalCDetMin && dt_EC <= tdiffECalCDetMax){
           double x_pair = (p.x1 + p.x2) / 2;
-          double y_pair = (p.y1 + p.y2) / 2;
           double z_pair = (p.z1 + p.z2) / 2;
           double x_ECal = v_GoodECalX[ev]*z_pair/ECal_dist;
           double dx_EC = x_pair - x_ECal;
@@ -4759,25 +4739,20 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
           hDtCDetECal->Fill(dt_EC);
           hDtvsDxCDetECal->Fill(dx_EC, dt_EC);
 
-          //if (p.id1 >= 432 && p.id1 <= 447){
-          if (p.id1 == 429){//417 hot hot hot
+          const bool isSelectedLayer1Bar = p.id1 >= selectedLayer1BarBase && p.id1 < selectedLayer1BarBase + NumPaddles;
+          const bool isSelectedLayer2Bar = p.id2 >= selectedLayer2BarBase && p.id2 < selectedLayer2BarBase + NumPaddles;
+          if (isSelectedLayer1Bar) {
             hCDetBarLe1->Fill(p.t1);
             hCDet1BarLeVsTot->Fill(p.tot1, p.t1);
+          }
+          if (isSelectedLayer2Bar) {
             hCDetBarLe2->Fill(p.t2);
             hCDet2BarLeVsTot->Fill(p.tot2, p.t2);
+          }
+          if (isSelectedLayer1Bar && isSelectedLayer2Bar) {
             hECalVsCDetDtSingle->Fill(t_ECal,p.dt);
             hECalVsCDetTSingle->Fill(t_ECal,p.t1);
           }
-          if (p.id1 == 1107){
-            hCDet1107Le->Fill(p.t1);
-          }
-          if (p.id2 == 1800){
-            hCDet1800Le->Fill(p.t1);
-          }
-          //if (p.id2 >= 1776 && p.id2 <= 1791){
-            //hCDetBarLe2->Fill(p.t2);
-            //hCDet2BarLeVsTot->Fill(p.tot2, p.t2);
-          //}
         }//ecal cdet tdiff cut
 	    }//fill histogram with cuts
     }// end pair hits loop
@@ -4809,22 +4784,18 @@ void plotCDetLayersTimeComp(bool overwrite = false, double Width = 1, double dif
   // hCDet2LeVsTot->Draw();
 
 
-  // // ----- plots for 1 bar ----- 
-  // TCanvas *cCDetLayerTimes1Bar = new TCanvas("cCDetLayerTimes1Bar", "CDet Single Paddles",900,700);
-  // cCDetLayerTimes1Bar->Divide(1,3);
+  // // ----- plots for selected bars -----
+  // TCanvas *cCDetLayerTimes1Bar = new TCanvas("cCDetLayerTimes1Bar", "CDet Selected Bars",900,700);
+  // cCDetLayerTimes1Bar->Divide(1,2);
 
   // cCDetLayerTimes1Bar->cd(1);
   // //gPad->SetLogz();
   // hCDetBarLe1->Draw();
-  
+
   // cCDetLayerTimes1Bar->cd(2);
-  // //gPad->SetLogz();
-  // hCDet1107Le->Draw();
+  // hCDetBarLe2->Draw();
 
-  // cCDetLayerTimes1Bar->cd(3);
-  // hCDet1800Le->Draw();
-
-  // TCanvas *cCDetLeVsTotBar = new TCanvas("cCDetLeVsTotBar", "CDet LE vs Tot (1 Paddle)",900,700);
+  // TCanvas *cCDetLeVsTotBar = new TCanvas("cCDetLeVsTotBar", "CDet LE vs TOT (Selected Bars)",900,700);
   // cCDetLeVsTotBar->Divide(1,2);
 
   // cCDetLeVsTotBar->cd(1);
