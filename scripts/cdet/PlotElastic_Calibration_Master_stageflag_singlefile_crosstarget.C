@@ -5365,7 +5365,7 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   std::cout << "\n";
 }
 
-void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 115.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0) {
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 120.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double PeakSeedMin = 75.0, double PeakSeedMax = 100.0) {
   TH1::AddDirectory(kFALSE);
   (void)localFitHalfWidth; // Retained for positional compatibility; extraction fits now use FitMin-FitMax exactly.
 
@@ -5855,7 +5855,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
             << "  proposed sign: tCDet_i' = tCDet_i + c_i; no corrections were applied\n";
 }
 
-void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 65.0, double FitMax = 115.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, TString calibrationOutput = "", TString fitResultsOutput = "", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double NReject = 2.5, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0) {
+void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 120.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, TString calibrationOutput = "", TString fitResultsOutput = "", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double NReject = 2.5, double PeakSeedMin = 75.0, double PeakSeedMax = 100.0) {
   TH1::AddDirectory(kFALSE);
   gLastCalibrationFitSucceeded = false;
 
