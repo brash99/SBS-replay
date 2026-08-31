@@ -67,7 +67,7 @@ static const int NumLogicalPaddlesPerSide = NumCDetPaddlesPerSide+nRef; //676
 static const int nBarsADC = 0;
 static const double ADCCUT = 150.;   //100.0
 
-static const double ECal_dist = 6.6;
+static const double ECal_dist = 6; // might be 6.6m? 8/31/2026 -BS
 static const double CDet_y_half_length = 0.30;
 
 int NXDiffBins;
