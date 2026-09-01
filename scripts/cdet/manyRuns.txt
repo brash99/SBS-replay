@@ -1,0 +1,14 @@
+#How to do many runs on cross target
+
+./run_all_cross.sh will open root and execute script run_all_cross_runs.C
+That macro loads the relevant root macros, PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C+ and Run_CDet_Calibration_TwoPass_InSession_AllCross.C
+It will then run the main routine of the latter script. This will do all calibration passes on the cross target data listed in crossRuns.txt. As of 4/22/2026 i still need to 
+adjust it so that it saves some of the plots
+
+
+#ignore below
+root -l
+.L PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C+
+.L Run_CDet_Calibration_TwoPass_InSession_BScopy.C
+.L Run_CDet_Calibration_FromList.C
+Run_CDet_Calibration_FromList("runs.txt");
