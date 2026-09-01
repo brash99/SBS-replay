@@ -48,7 +48,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross(
 ){
     gLastCalibrationSequenceSucceeded = false;
     const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C";
-    const TString calibFile   = TString::Format("CDet_calibration_group%d.dat",groupIndex);
+    const TString calibFile   = TString::Format("CDet_calibration_dt_group%d.dat",groupIndex);
 
     if (gSystem->AccessPathName(masterMacro)) {
         std::cerr << "[Driver] ERROR: Could not find master macro " << masterMacro << "\\n";
@@ -90,7 +90,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross(
     stageBanner("pass1_timeoffset_fit", 1);
     ResetCalibrationGlobals();
     if (!runMain(1)) return;
-    plotAllTDC(true, 1.0, 0.0, 60.0);
+    extractAllCDetPixelTimingOffsets(true);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass1_ecal_fit", 3);
@@ -108,7 +108,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross(
     stageBanner("pass2_timeoffset_refit", 1);
     ResetCalibrationGlobals();
     if (!runMain(1)) return;
-    plotAllTDC(true, 1.0, 0.0, 60.0);
+    extractAllCDetPixelTimingOffsets(true);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_ecal_refit", 3);
@@ -129,7 +129,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross(
     stageBanner("pass3_fullclosure_offsets", 7);
     ResetCalibrationGlobals();
     if (!runMain(7)) return;
-    plotAllTDC(true, 1.0, 0.0, 60.0);
+    extractAllCDetPixelTimingOffsets(true);
     if (!gLastCalibrationFitSucceeded) return;
     
     stageBanner("final_calibrated_state", 7);

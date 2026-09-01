@@ -15,7 +15,7 @@ void Run_CDet_Calibration_FromList(const char* runlist = "crossRuns.txt", bool r
     gROOT->SetBatch(kTRUE);
     TH1::AddDirectory(kFALSE);
 
-    const TString calibFile = "CDet_calibration.dat";
+    const TString calibFile = "CDet_calibration_dt.dat";
     const TString outDir    = "calibrationFiles";
 
     // Make output directory if needed
