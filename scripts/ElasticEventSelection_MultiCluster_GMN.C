@@ -37,7 +37,7 @@ double PI = TMath::Pi();
 double Mp = 0.938272;
 double Mn = 0.939565;
 
-void ElasticEventSelection_MultiCluster( const char *configfilename, const char *outputfilename="ElasticTemp.root" ){
+void ElasticEventSelection_MultiCluster_GMN( const char *configfilename, const char *outputfilename="ElasticTemp.root" ){
 
   gStyle->SetOptFit();
   
@@ -183,8 +183,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   int hcal_selectionflag = 0; //0 = choose highest-energy passing ADC coincidence time cut
                               //1 = choose smallest thetapq (proton or neutron)
                               //2 = choose highest-energy regardless of ADC time.
-
-  int HCALatimeflag = 0; //default = use sbs.hcal.clus.atimeblk (current). 1 = OLD = use sbs.hcal.clus.atime
   
   while( currentline.ReadLine( configfile ) && !currentline.BeginsWith("endconfig") ){
     if( !currentline.BeginsWith("#") ){
@@ -208,11 +206,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	//   TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
 	//   order_ptheta = stemp.Atoi();
 	// }
-
-	if( skey == "HCALatimeflag" ){
-	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
-	  HCALatimeflag = stemp.Atoi();
-	}
 	
 	if( skey == "dEdx" ){ //assumed to be given in GeV/(g/cm^2)
 	  TString stemp = ( (TObjString*) (*tokens)[1] )->GetString();
@@ -465,14 +458,11 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 
   int MAXHCALCLUSTERS=100;
   //Declare variables to hold branch addresses:
-  int MAXNBLKBBCAL = 50;
   
   double ntrack;
   double px[MAXNTRACKS], py[MAXNTRACKS], pz[MAXNTRACKS], p[MAXNTRACKS];
   double vx[MAXNTRACKS], vy[MAXNTRACKS], vz[MAXNTRACKS];
 
-  double pathL[MAXNTRACKS];
-  
   //Use "rotated" versions of the focal plane variables:
   double xfp[MAXNTRACKS], yfp[MAXNTRACKS], thfp[MAXNTRACKS], phfp[MAXNTRACKS];
   double xfp0[MAXNTRACKS], yfp0[MAXNTRACKS], thfp0[MAXNTRACKS], phfp0[MAXNTRACKS];
@@ -489,13 +479,12 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   int nclustHCAL;
   double xHCAL[MAXHCALCLUSTERS], yHCAL[MAXHCALCLUSTERS], EHCAL[MAXHCALCLUSTERS];
   double ADCTIMEHCAL[MAXHCALCLUSTERS], TDCTIMEHCAL[MAXHCALCLUSTERS], EMAXHCAL[MAXHCALCLUSTERS], NBLKHCAL[MAXHCALCLUSTERS];
-  double EPS, ESH, xSH, ySH, xPS, TPS, TSH;
+  double EPS, ESH, xSH, ySH, xPS, yPS, TPS, TSH;
 
   int maxhodoclusters=100;
   
   double hodotmean[maxhodoclusters];
   double hodotdiff[maxhodoclusters];
-  double hodotfinal[maxhodoclusters];
 
   int nhodoclust; //number of TRACK-MATCHED hodo clusters:
 
@@ -544,7 +533,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchStatus("sbs.hcal.e",1);
   C->SetBranchStatus("sbs.hcal.atimeblk",1);
   C->SetBranchStatus("sbs.hcal.tdctimeblk",1);
-  C->SetBranchStatus("sbs.hcal.index",1);
 
   // block information for best cluster:
   C->SetBranchStatus("sbs.hcal.nblk",1);
@@ -559,7 +547,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchStatus("sbs.hcal.clus_blk.col",1);
   C->SetBranchStatus("sbs.hcal.clus_blk.tdctime",1);
 
-  double indexHCAL;
   double nblkHCAL;
   double againHCAL[MAXHCALCLUSTERS];
   double atimeHCAL[MAXHCALCLUSTERS];
@@ -571,7 +558,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double yblkHCAL[MAXHCALCLUSTERS];
   double tdctimeblkHCAL[MAXHCALCLUSTERS];
 
-  C->SetBranchAddress("sbs.hcal.index",&indexHCAL);
   C->SetBranchAddress("sbs.hcal.nblk",&nblkHCAL);
   C->SetBranchAddress("sbs.hcal.clus_blk.again",againHCAL);
   C->SetBranchAddress("sbs.hcal.clus_blk.atime",atimeHCAL);
@@ -582,62 +568,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchAddress("sbs.hcal.clus_blk.x",xblkHCAL);
   C->SetBranchAddress("sbs.hcal.clus_blk.y",yblkHCAL);
   C->SetBranchAddress("sbs.hcal.clus_blk.tdctime",tdctimeblkHCAL);
-
-  //Block information for BBCAL:
-
-  C->SetBranchStatus("bb.ps.index",1);
-  C->SetBranchStatus("bb.sh.index",1);
-  C->SetBranchStatus("bb.ps.nblk",1);
-  C->SetBranchStatus("bb.sh.nblk",1);
-  C->SetBranchStatus("bb.sh.clus_blk.*",1);
-  C->SetBranchStatus("bb.ps.clus_blk.*",1);
   
-  double indexBBSH;
-  double nblkBBSH;
-  double againBBSH[MAXNBLKBBCAL];
-  double atimeBBSH[MAXNBLKBBCAL];
-  double eblkBBSH[MAXNBLKBBCAL];
-  double idblkBBSH[MAXNBLKBBCAL];
-  double rowblkBBSH[MAXNBLKBBCAL];
-  double colblkBBSH[MAXNBLKBBCAL];
-  double xblkBBSH[MAXNBLKBBCAL];
-  double yblkBBSH[MAXNBLKBBCAL];
-  //double tdctimeblkBBSH[MAXNBLKBBCAL];
-
-  C->SetBranchAddress("bb.sh.index",&indexBBSH);
-  C->SetBranchAddress("bb.sh.nblk",&nblkBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.again",againBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.atime",atimeBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.e",eblkBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.id",idblkBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.row",rowblkBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.col",colblkBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.x",xblkBBSH);
-  C->SetBranchAddress("bb.sh.clus_blk.y",yblkBBSH);
-  
-  
-  double indexBBPS;
-  double nblkBBPS;
-  double againBBPS[MAXNBLKBBCAL];
-  double atimeBBPS[MAXNBLKBBCAL];
-  double eblkBBPS[MAXNBLKBBCAL];
-  double idblkBBPS[MAXNBLKBBCAL];
-  double rowblkBBPS[MAXNBLKBBCAL];
-  double colblkBBPS[MAXNBLKBBCAL];
-  double xblkBBPS[MAXNBLKBBCAL];
-  double yblkBBPS[MAXNBLKBBCAL];
-  //  double tdctimeblkBBPS[MAXNBLKBBCAL];
-
-  C->SetBranchAddress("bb.ps.index",&indexBBPS);
-  C->SetBranchAddress("bb.ps.nblk",&nblkBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.again",againBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.atime",atimeBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.e",eblkBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.id",idblkBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.row",rowblkBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.col",colblkBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.x",xblkBBPS);
-  C->SetBranchAddress("bb.ps.clus_blk.y",yblkBBPS);
   
   //minimal set of hodoscope branches:
   C->SetBranchStatus("Ndata.bb.hodotdc.clus.tmean",1);
@@ -648,8 +579,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   //Variables for all HCAL clusters:
   C->SetBranchStatus("Ndata.sbs.hcal.clus.e",1);
   C->SetBranchStatus("sbs.hcal.nclus",1);
-  C->SetBranchStatus("sbs.hcal.clus.adctime",1);
-  C->SetBranchStatus("sbs.hcal.clus.atimeblk",1);
+  C->SetBranchStatus("sbs.hcal.clus.atime",1);
   C->SetBranchStatus("sbs.hcal.clus.e",1);
   C->SetBranchStatus("sbs.hcal.clus.eblk",1);
   C->SetBranchStatus("sbs.hcal.clus.nblk",1);
@@ -662,7 +592,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchStatus("bb.etot_over_p",1);
 
   //BigBite track variables:
-  C->SetBranchStatus("bb.tr.*",1);
   C->SetBranchStatus("bb.tr.n",1);
   C->SetBranchStatus("bb.tr.px",1);
   C->SetBranchStatus("bb.tr.py",1);
@@ -721,7 +650,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchAddress("bb.tr.vx",vx);
   C->SetBranchAddress("bb.tr.vy",vy);
   C->SetBranchAddress("bb.tr.vz",vz);
-  C->SetBranchAddress("bb.tr.pathl",pathL);
 
   //Focal-plane track variables (use "rotated" versions):
   C->SetBranchAddress("bb.tr.r_x",xfp);
@@ -759,12 +687,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchAddress("sbs.hcal.clus.x",xHCAL);
   C->SetBranchAddress("sbs.hcal.clus.y",yHCAL);
   C->SetBranchAddress("sbs.hcal.clus.e",EHCAL);
-  //  C->SetBranchAddress("sbs.hcal.clus.adctime",ADCTIMEHCAL);
-  if( HCALatimeflag == 0 ){
-    C->SetBranchAddress("sbs.hcal.clus.atimeblk",ADCTIMEHCAL);
-  } else {
-    C->SetBranchAddress("sbs.hcal.clus.atime",ADCTIMEHCAL);
-  }
+  C->SetBranchAddress("sbs.hcal.clus.atime",ADCTIMEHCAL);
   C->SetBranchAddress("sbs.hcal.clus.tdctime",TDCTIMEHCAL);
   C->SetBranchAddress("sbs.hcal.clus.eblk",EMAXHCAL);
   C->SetBranchAddress("sbs.hcal.clus.nblk",NBLKHCAL);
@@ -772,14 +695,15 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   C->SetBranchAddress("bb.ps.e",&EPS);
   C->SetBranchAddress("bb.sh.e",&ESH);
   C->SetBranchAddress("bb.ps.x",&xPS);
+  C->SetBranchAddress("bb.ps.y",&yPS);
   C->SetBranchAddress("bb.sh.x",&xSH);
   C->SetBranchAddress("bb.sh.y",&ySH);
   C->SetBranchAddress("bb.sh.atimeblk", &TSH );
   C->SetBranchAddress("bb.ps.atimeblk", &TPS );
 
-  C->SetBranchAddress("bb.hodotdc.clus.tmean",hodotmean);
+  //  C->SetBranchAddress("bb.hodotdc.clus.tfinal",
+  C->SetBranchAddress("bb.hodotdc.clus.tfinal",hodotmean);
   C->SetBranchAddress("bb.hodotdc.clus.tdiff",hodotdiff);
-  C->SetBranchAddress("bb.hodotdc.clus.tfinal",hodotfinal);
   C->SetBranchAddress("Ndata.bb.hodotdc.clus.tmean",&nhodoclust);
   
 
@@ -843,7 +767,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double T_vx, T_vy, T_vz;
   double T_BBdist, T_BBtheta;
   double T_HCALdist, T_HCALtheta;
-  int T_nclHCAL;
   double T_xHCAL, T_yHCAL, T_EHCAL, T_THCAL_adc, T_THCAL_tdc, T_deltax, T_deltay;
   double T_xHCAL_expect, T_yHCAL_expect;
   double T_xHCAL_expect_4vect, T_yHCAL_expect_4vect;
@@ -859,18 +782,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   double T_dx_4vect, T_dy_4vect; //Here we want to use the 4-vector momentum transfer to calculate dx/dy
   double T_dt;
   double T_dta;
-  double T_Thodo;
-  
   double T_protondeflect, T_protondeflect_4vect, T_protondeflect_exact, T_protondeflect_exact_4vect;
-
-  // These are "expected" TOF values for neutron and proton elastic/QE hypotheses; to be calculated from
-  // BigBite vertex and q-vector information (angles-only and 4-vector methods)
-  double T_nTOF, T_nTOF_4vect, T_pTOF, T_pTOF_4vect, T_pTOF_exact, T_pTOF_exact_4vect;
-
-  double T_pathLnHCAL; //straight-line path from vertex to ***measured*** HCAL cluster
-  // We can also calculate the straight-line path length to the actual measured HCAL cluster. What should we call this? 
-  // Without tracking in SBS, we can't directly calculate charged-particle path length. 
-  
   int T_grinch_tridx;
   int T_grinch_clustersize;
   double T_grinch_tmean;
@@ -932,7 +844,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "BBtheta", &T_BBtheta, "BBtheta/D");
   Tout->Branch( "HCALdist", &T_HCALdist, "HCALdist/D");
   Tout->Branch( "HCALtheta", &T_HCALtheta, "HCALtheta/D");
-  Tout->Branch( "nclHCAL", &T_nclHCAL, "nclHCAL/I" );
   Tout->Branch( "xHCAL", &T_xHCAL, "xHCAL/D");
   Tout->Branch( "yHCAL", &T_yHCAL, "yHCAL/D");
   Tout->Branch( "xHCAL_expect", &T_xHCAL_expect, "xHCAL_expect/D");
@@ -987,23 +898,8 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "protondeflection_exact", &T_protondeflect_exact, "protondeflection_exact/D");
   Tout->Branch( "protondeflection_4vect", &T_protondeflect, "protondeflection_4vect/D");
   Tout->Branch( "protondeflection_exact_4vect", &T_protondeflect_exact, "protondeflection_exact_4vect/D");
-
-  Tout->Branch( "nTOF", &T_nTOF, "nTOF/D");
-  Tout->Branch( "nTOF_4vect", &T_nTOF_4vect, "nTOF_4vect/D");
-  Tout->Branch( "pTOF", &T_pTOF, "pTOF/D");
-  Tout->Branch( "pTOF_4vect", &T_pTOF_4vect, "pTOF_4vect/D");
-  Tout->Branch( "pTOF_exact", &T_pTOF_exact, "pTOF_exact/D");
-  Tout->Branch( "pTOF_4vect_exact", &T_pTOF_exact_4vect, "pTOF_4vect_exact/D");
-
-  Tout->Branch( "pathLnHCAL", &T_pathLnHCAL, "pathLnHCAL/D");
-  
   Tout->Branch( "ibest_HCAL", &bestHCALcluster, "ibest_HCAL/I" );
 
-  Tout->Branch( "THODO", &T_Thodo, "THODO/D" );
-
-  int T_HCALindex;
-  Tout->Branch("indexHCAL", &T_HCALindex, "indexHCAL/I");
-  
   int T_HCALnblk;
   //Write out all the blocks in the best HCAL cluster:
   Tout->Branch( "nblkHCAL", &T_HCALnblk, "nblkHCAL/I" );
@@ -1017,29 +913,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "colblkHCAL", colblkHCAL, "colblkHCAL[nblkHCAL]/D" );
   Tout->Branch( "xblkHCAL", xblkHCAL, "xblkHCAL[nblkHCAL]/D" );
   Tout->Branch( "yblkHCAL", yblkHCAL, "yblkHCAL[nblkHCAL]/D" );
-
-  int T_BBPSnblk;
-  Tout->Branch("nblkBBPS", &T_BBPSnblk, "nblkBBPS/I" );
-  Tout->Branch("againblkBBPS", againBBPS, "againblkBBPS[nblkBBPS]/D" );
-  Tout->Branch("atimeblkBBPS", atimeBBPS, "atimeblkBBPS[nblkBBPS]/D" );
-  Tout->Branch("eblkBBPS", eblkBBPS, "eblkBBPS[nblkBBPS]/D" );
-  Tout->Branch("idblkBBPS", idblkBBPS, "idblkBBPS[nblkBBPS]/D" );
-  Tout->Branch("rowblkBBPS", rowblkBBPS, "rowblkBBPS[nblkBBPS]/D" );
-  Tout->Branch("colblkBBPS", colblkBBPS, "colblkBBPS[nblkBBPS]/D" );
-  Tout->Branch("xblkBBPS", xblkBBPS, "xblkBBPS[nblkBBPS]/D" );
-  Tout->Branch("yblkBBPS", yblkBBPS, "yblkBBPS[nblkBBPS]/D" );
-
-  int T_BBSHnblk;
-  Tout->Branch("nblkBBSH", &T_BBSHnblk, "nblkBBSH/I" );
-  Tout->Branch("againblkBBSH", againBBSH, "againblkBBSH[nblkBBSH]/D" );
-  Tout->Branch("atimeblkBBSH", atimeBBSH, "atimeblkBBSH[nblkBBSH]/D" );
-  Tout->Branch("eblkBBSH", eblkBBSH, "eblkBBSH[nblkBBSH]/D" );
-  Tout->Branch("idblkBBSH", idblkBBSH, "idblkBBSH[nblkBBSH]/D" );
-  Tout->Branch("rowblkBBSH", rowblkBBSH, "rowblkBBSH[nblkBBSH]/D" );
-  Tout->Branch("colblkBBSH", colblkBBSH, "colblkBBSH[nblkBBSH]/D" );
-  Tout->Branch("xblkBBSH", xblkBBSH, "xblkBBSH[nblkBBSH]/D" );
-  Tout->Branch("yblkBBSH", yblkBBSH, "yblkBBSH[nblkBBSH]/D" );
-
   
   Tout->Branch( "grinch_clsize", &T_grinch_clustersize, "grinch_clsize/I");
   Tout->Branch( "grinch_tridx", &T_grinch_tridx, "grinch_tridx/I");
@@ -1047,8 +920,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
   Tout->Branch( "grinch_xmean", &T_grinch_xmean, "grinch_xmean/D"); 
   Tout->Branch( "grinch_ymean", &T_grinch_ymean, "grinch_ymean/D");
   Tout->Branch( "grinch_adc", &T_grinch_adc, "grinch_adc/D");
-
-  
 
   
   Long64_t NTOT = C->GetEntriesFast();
@@ -1106,17 +977,12 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 
     T_HCALnblk = int(nblkHCAL);
 
-    T_BBPSnblk = int(nblkBBPS);
-    T_BBSHnblk = int(nblkBBSH);
-    
     //T_runnum = int(runnumber);
     
     if( int(ntrack) >= 1 && passed_global_cut ){
       //The first thing we want to do is to calculate the "true" electron momentum incident on BigBite:
       double Ebeam_corrected = ebeam - MeanEloss;
 
-      T_HCALindex = int( indexHCAL ); //best cluster selected by "online" replay
-      
       T_xfcp = xfcp[0];
       T_yfcp = yfcp[0];
       T_zfcp = zfcp[0];
@@ -1130,8 +996,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       T_thfp0 = thfp0[0];
       T_phfp0 = phfp0[0];
       
-      T_Thodo = hodotfinal[0];
-      
+
       T_ebeam = Ebeam_corrected;
       
       double etheta = acos(pz[0]/p[0]);
@@ -1273,8 +1138,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       T_yHCAL_expect_4vect = (HCAL_intersect4 - HCAL_origin).Dot( HCAL_yaxis );
 
       int nhcalclust=nclustHCAL;
-
-      T_nclHCAL = nhcalclust;
       
       int ibest_HCAL = -1;
 
@@ -1287,118 +1150,56 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       //Calculate expected proton deflection using crude model:
       double BdL = sbsfield * sbsmaxfield * Dgap;
 
+      
+      double R_cyclotron = pp_expect / 0.3 / (sbsfield * sbsmaxfield);
+      
+      double thtarSBS_expect = atan( pNhat.Dot( HCAL_xaxis )/ pNhat.Dot(HCAL_zaxis) );
+      //x and z where the proton track enters the SBS effective field boundary:
+      double x_in = ( sbsdist - vertex.Dot(HCAL_zaxis) ) * tan(thtarSBS_expect);
+      double z_in = sbsdist;
+      //Center coordinates of the circle:
+      double x_center = x_in - R_cyclotron * cos(thtarSBS_expect);
+      double z_center = z_in + R_cyclotron * sin(thtarSBS_expect);
+      double z_out = sbsdist + Dgap;
+      //equation is (x_out - x_center)^2 + (z_out - z_center)^2 = R^2
+      // A * x^2 + B * x + C = 0, where:
+      // A = 1
+      // B = -2 x_center
+      // C = x_center^2 + (z_out - z_center)^2 - R^2 
+      double Atemp = 1.0;
+      double Btemp = -2.0*x_center;
+      double Ctemp = pow(x_center,2) + pow( z_out - z_center, 2 ) - pow(R_cyclotron,2);
+      double x_out_plus = (-Btemp + sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp);
+      //double x_out_minus = (-Btemp - sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp); 
+      //In virtually all PHYSICAL cases, we are interested in the + solution:
+      double theta_out = asin( (z_center - z_out)/R_cyclotron );
+
+      //now we project to HCAL and get:
+      double xHCAL_expect_proton = x_out_plus + tan(theta_out) * (hcaldist - z_out);
+
+      bool goodpcalc = pow( R_cyclotron, 2 ) > pow( z_out - z_center, 2 );
+      // this leads to a negative discriminant
+      
+      double R_cyclotron_4vect = qvect.Mag() / 0.3 / (sbsfield * sbsmaxfield);
+
+      thtarSBS_expect = atan( qunit.Dot(HCAL_xaxis)/qunit.Dot(HCAL_zaxis) );
+      x_in = ( sbsdist - vertex.Dot(HCAL_zaxis) ) * tan(thtarSBS_expect);
+      x_center = x_in - R_cyclotron_4vect * cos(thtarSBS_expect);
+      z_center = z_in + R_cyclotron_4vect * sin(thtarSBS_expect);
+
+      Btemp = -2.0*x_center;
+      Ctemp = pow(x_center,2) + pow( z_out - z_center, 2 ) - pow(R_cyclotron_4vect,2);
+      x_out_plus = (-Btemp + sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp);
+      theta_out = asin( (z_center-z_out)/R_cyclotron_4vect );
+
+      double xHCAL_expect_proton_4vect = x_out_plus + tan(theta_out) * (hcaldist - z_out);
+
+      bool goodpcalc_4vect = pow( R_cyclotron_4vect, 2 ) > pow( z_out - z_center, 2 );
+      
       //thetabend = 0.3 * BdL/p: 
       double proton_deflection_4vect = tan( 0.3 * BdL / qvect.Mag() ) * (hcaldist - (sbsdist + Dgap/2.0) );
 
       double proton_deflection = tan( 0.3 * BdL / pp_expect ) * (hcaldist - (sbsdist + Dgap/2.0) );
-      
-      double xHCAL_expect_proton, xHCAL_expect_proton_4vect;
-
-      //      T_pathLnHCAL = (HCAL_origin - vertex).Mag();
-
-      double betan = pp_expect / sqrt(pow(pp_expect,2)+pow(Mn,2));
-      double betap = pp_expect / sqrt(pow(pp_expect,2)+pow(Mp,2));
-      double betan4 = qvect.Mag()/sqrt(pow(qvect.Mag(),2)+pow(Mn,2));
-      double betap4 = qvect.Mag()/sqrt(pow(qvect.Mag(),2)+pow(Mp,2));
-      
-      T_nTOF = (HCAL_intersect - vertex).Mag()/0.299792458/betan;
-      T_nTOF_4vect = (HCAL_intersect4 - vertex).Mag()/0.299792458/betan4;
-
-      TVector3 gapmidpoint = (sbsdist + Dgap/2.0)*HCAL_zaxis;
-
-      double sgapmid = (gapmidpoint-vertex).Dot(HCAL_zaxis)/(pNhat.Dot(HCAL_zaxis));
-      double sgapmid4 = (gapmidpoint-vertex).Dot(HCAL_zaxis)/(qunit.Dot(HCAL_zaxis));
-
-      TVector3 GapMidInt = vertex + sgapmid * pNhat;
-      TVector3 GapMidInt4 = vertex + sgapmid4 * qunit;
-
-      //double BendAngle = 0.299792458 * BdL / pp_expect;
-      //double BendAngle4 = 0.299792458 * BdL / T_qmag; 
-
-
-      TVector3 HCALint_proton = HCAL_intersect - proton_deflection * HCAL_xaxis;
-      TVector3 HCALint_proton4 = HCAL_intersect4 - proton_deflection_4vect * HCAL_xaxis;
-      
-      double pathLp = (GapMidInt - vertex).Mag() + (HCALint_proton - GapMidInt).Mag();
-      double pathLp4vect = (GapMidInt4 - vertex).Mag() + (HCALint_proton4 - GapMidInt4).Mag();
-
-      T_pTOF = pathLp/0.299792458/betap;
-      T_pTOF_4vect = pathLp4vect/0.299792458/betap4;
-
-      
-      //default to no deflection assumption.
-      //double pathLp = T_pathLnHCAL, pathLp4vect = T_pathLnHCAL;
-      
-      bool goodpcalc = true, goodpcalc_4vect = true;
-      if( BdL > 0 ){ //do more "precise" calculation:
-	double R_cyclotron = pp_expect / 0.3 / (sbsfield * sbsmaxfield);
-	
-	double thtarSBS_expect = atan( pNhat.Dot( HCAL_xaxis )/ pNhat.Dot(HCAL_zaxis) );
-	//x and z where the proton track enters the SBS effective field boundary:
-	double x_in = ( sbsdist - vertex.Dot(HCAL_zaxis) ) * tan(thtarSBS_expect);
-	double z_in = sbsdist;
-	//Center coordinates of the circle:
-	double x_center = x_in - R_cyclotron * cos(thtarSBS_expect);
-	double z_center = z_in + R_cyclotron * sin(thtarSBS_expect);
-	double z_out = sbsdist + Dgap;
-	//equation is (x_out - x_center)^2 + (z_out - z_center)^2 = R^2
-	// A * x^2 + B * x + C = 0, where:
-	// A = 1
-	// B = -2 x_center
-	// C = x_center^2 + (z_out - z_center)^2 - R^2 
-	double Atemp = 1.0;
-	double Btemp = -2.0*x_center;
-	double Ctemp = pow(x_center,2) + pow( z_out - z_center, 2 ) - pow(R_cyclotron,2);
-	double x_out_plus = (-Btemp + sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp);
-	//double x_out_minus = (-Btemp - sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp); 
-	//In virtually all PHYSICAL cases, we are interested in the + solution:
-	double theta_out = asin( (z_center - z_out)/R_cyclotron );
-
-	double phtarSBS_expect = atan( pNhat.Dot( HCAL_yaxis )/pNhat.Dot(HCAL_zaxis));
-	
-	//now we project to HCAL and get:
-	xHCAL_expect_proton = x_out_plus + tan(theta_out) * (hcaldist - z_out);
-
-	pathLp = (sbsdist - vertex.Dot( HCAL_zaxis ))*sqrt(1.0 + pow(tan(thtarSBS_expect),2) + pow( tan(phtarSBS_expect),2)) + R_cyclotron * (thtarSBS_expect - theta_out) + (hcaldist - z_out)*sqrt(1.0+pow(tan(theta_out),2) + pow(tan(phtarSBS_expect),2));
-
-	T_pTOF_exact = pathLp/0.299792458/betap; //ns
-	
-	goodpcalc = pow( R_cyclotron, 2 ) > pow( z_out - z_center, 2 );
-	// this leads to a negative discriminant
-	
-	double R_cyclotron_4vect = qvect.Mag() / 0.3 / (sbsfield * sbsmaxfield);
-
-	thtarSBS_expect = atan( qunit.Dot(HCAL_xaxis)/qunit.Dot(HCAL_zaxis) );
-	phtarSBS_expect = atan( qunit.Dot(HCAL_yaxis)/qunit.Dot(HCAL_zaxis) );
-	x_in = ( sbsdist - vertex.Dot(HCAL_zaxis) ) * tan(thtarSBS_expect);
-	x_center = x_in - R_cyclotron_4vect * cos(thtarSBS_expect);
-	z_center = z_in + R_cyclotron_4vect * sin(thtarSBS_expect);
-	
-	Btemp = -2.0*x_center;
-	Ctemp = pow(x_center,2) + pow( z_out - z_center, 2 ) - pow(R_cyclotron_4vect,2);
-	x_out_plus = (-Btemp + sqrt(pow(Btemp,2)-4.0*Atemp*Ctemp))/(2.0*Atemp);
-	theta_out = asin( (z_center-z_out)/R_cyclotron_4vect );
-
-	xHCAL_expect_proton_4vect = x_out_plus + tan(theta_out) * (hcaldist - z_out);
-
-	pathLp4vect = (sbsdist - vertex.Dot( HCAL_zaxis))*sqrt(1.0 + pow(tan(thtarSBS_expect),2)+pow(tan(phtarSBS_expect),2)) +
-	  R_cyclotron_4vect * (thtarSBS_expect - theta_out) + (hcaldist - z_out)*sqrt(1.0+pow(tan(theta_out),2)+pow(tan(phtarSBS_expect),2));
-
-	T_pTOF_exact_4vect = pathLp4vect / 0.299792458 / betap4;
-	
-	goodpcalc_4vect = pow( R_cyclotron_4vect, 2 ) > pow( z_out - z_center, 2 );
-      }
-
-      //Fall back to "regular" calculation:
-      if( !goodpcalc ){
-	xHCAL_expect_proton = xexpect_HCAL - proton_deflection;
-	T_pTOF_exact = T_pTOF;
-      }
-      if( !goodpcalc_4vect ){
-	xHCAL_expect_proton_4vect = xexpect_HCAL - proton_deflection_4vect;
-	T_pTOF_exact_4vect = T_pTOF_4vect;
-      }
-      
       
       T_protondeflect = proton_deflection;
       T_protondeflect_4vect = proton_deflection_4vect;
@@ -1407,9 +1208,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       T_protondeflect_exact_4vect = goodpcalc_4vect ? T_xHCAL_expect_4vect - xHCAL_expect_proton_4vect : -1000.0;
       
       T_dt = -1000.0;
-
-      T_THCAL_adc = -1000.0;
-      T_THCAL_tdc = -1000.0;
       
       for( int iclust=0; iclust<nhcalclust; iclust++ ){
 	
@@ -1457,8 +1255,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	  //if( ibest_HCAL < 0 || std::min( thpq_p_temp, thpq_n_temp ) < minthpq ){
 	    ibest_HCAL = iclust;
 	    
-
-	    T_pathLnHCAL = (HCALpos-vertex).Mag();
 	    
 	    T_theta_recon_n = acos( NeutronDirection.Z() );
 	    T_phi_recon_n = TMath::ATan2( NeutronDirection.Y(), NeutronDirection.X() );
@@ -1513,9 +1309,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
       
 	double deltat_temp = ADCTIMEHCAL[ibest_HCAL] - TSH;
 
-	T_pathLnHCAL = (HCALpos - vertex).Mag();
-	
-	
+      
 	T_theta_recon_n = acos( NeutronDirection.Z() );
 	T_phi_recon_n = TMath::ATan2( NeutronDirection.Y(), NeutronDirection.X() );
 	    
@@ -1583,12 +1377,7 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	T_EHCAL = EHCAL[ibest_HCAL];
 	T_deltax = xHCAL[ibest_HCAL] - xexpect_HCAL - dx0;
 	T_deltay = yHCAL[ibest_HCAL] - yexpect_HCAL - dy0;
-
-	T_THCAL_adc = ADCTIMEHCAL[ibest_HCAL];
-	T_THCAL_tdc = TDCTIMEHCAL[ibest_HCAL];
-
-	T_dta = ADCTIMEHCAL[ibest_HCAL] - TSH;
-	
+	  	  
 	if( usehcalcut != 0 ){
 	  passed_HCAL_cut = pow( (xHCAL[ibest_HCAL]-xexpect_HCAL - dx0)/dxsigma, 2 ) +
 	    pow( (yHCAL[ibest_HCAL]-yexpect_HCAL - dy0)/dysigma, 2 ) <= pow(2.5,2); 
@@ -1607,12 +1396,6 @@ void ElasticEventSelection_MultiCluster( const char *configfilename, const char 
 	T_deltay = -1000.;
 	T_dx_4vect = -1000.;
 	T_dy_4vect = -1000.;
-	T_nclHCAL = 0;
-	T_THCAL_adc = -1000.;
-	T_THCAL_tdc = -1000.;
-	T_dt = -1000;
-	T_dta = -1000.;
-	T_pathLnHCAL = 1000.;
       }
       BBcut = Wrecon >= Wmin_fit && Wrecon <= Wmax_fit && dpel >= dpelmin_fit && dpel <= dpelmax_fit;
       
