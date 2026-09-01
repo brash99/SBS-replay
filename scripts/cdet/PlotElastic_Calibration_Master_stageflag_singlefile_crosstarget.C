@@ -70,6 +70,8 @@ static const double ADCCUT = 150.;   //100.0
 static const double ECal_dist = 6.144; // from db_run.dat as of 2026-08-31
 static const double CDet_y_half_length = 0.30;
 
+static const double XCorr = 1.12; //correct cdet x position for 45 degree slope wiht ecal x projection
+
 int NXDiffBins;
 double XDiffLow;
 double XDiffHigh;
@@ -1855,7 +1857,7 @@ std::cout << "[CDet] Reference timing subtraction is "
             //if (RawElID[el] > 2687) {
             //	cout << "el = " << el << " Raw ID = " << RawElID[el] << " raw le = " << 
           //	RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << 
-          //	RawElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ECalX << endl;
+          //	RawElTot[el] << " CDet X = " << GoodX[el]*XCorr << " ECal X = " << ECalX << endl;
             //}
             if ( !check_bad(RawElID[el],suppress_bad) ) {
             //cout << " el = " << el << endl;
@@ -1940,8 +1942,8 @@ std::cout << "[CDet] Reference timing subtraction is "
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = rawMultiplicity[raw_pmt] < TDCmult_cut;
       bool good_CDet_X = hasGood && (fabs(gx) < xcut);
-      // bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
-      //     (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      // bool good_ECal_diff_x = (GoodX[el]*XCorr-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
+      //     (GoodX[el]*XCorr-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
       // bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
       //     (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
 
@@ -1987,7 +1989,7 @@ std::cout << "[CDet] Reference timing subtraction is "
             thisEvent_CDetX.push_back(gx);
             thisEvent_CDetY.push_back(gy);
             thisEvent_CDetZ.push_back(gz);
-            //if (fabs(GoodX[el]) == 999 && GoodZ[el] != 999){
+            //if (fabs(GoodX[el]*XCorr) == 999 && GoodZ[el] != 999){
             if (DBG && (DBG_ENTRY < 0 || reader.GetCurrentEntry() == DBG_ENTRY) && rawEventCounter<20) {
             std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetY = " << gy << std::endl;
@@ -2000,7 +2002,7 @@ std::cout << "[CDet] Reference timing subtraction is "
             std::cout << "-------------------- " <<std::endl;
             }
             /*}
-            if (fabs(GoodX[el]) == 999 && GoodZ[el] != -999){
+            if (fabs(GoodX[el]*XCorr) == 999 && GoodZ[el] != -999){
             std::cout << "event = " << rawEventCounter << " " << "cdetX = " << gx << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetZ = " << gz << std::endl;
             std::cout << "event = " << rawEventCounter << " " << "cdetID = " << (Int_t)RawElID[el] << std::endl;
@@ -2126,9 +2128,9 @@ std::cout << "[CDet] Reference timing subtraction is "
       bool good_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool good_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_hit_mult = TDCmult[el] < TDCmult_cut;
-      bool good_CDet_X = GoodX[el] < xcut;
-      bool good_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool good_CDet_X = GoodX[el]*XCorr < xcut;
+      bool good_ECal_diff_x = (GoodX[el]*XCorr-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]*XCorr-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
       bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
           (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       
@@ -2143,7 +2145,7 @@ std::cout << "[CDet] Reference timing subtraction is "
             //cout << "Hit number " << el << ":    Paddle = " << mypaddlen << " Row = " << sbsrown  << " Col = " << sbscoln  << " hits = " << ngoodTDChits_paddles[mypaddlen] << endl;
             //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
         //	GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
-        //	GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ECalX << endl;
+        //	GoodElTot[el] << " CDet X = " << GoodX[el]*XCorr << " ECal X = " << ECalX << endl;
             if (mylayern == 0) {
                 ngoodhitsc1++;
             } else {
@@ -2211,19 +2213,19 @@ std::cout << "[CDet] Reference timing subtraction is "
       bool goodhit_le_time = GoodElLE[el] >= LeMin/TDC_calib_to_ns && GoodElLE[el] <= LeMax/TDC_calib_to_ns;
       bool goodhit_tot = GoodElTot[el] >= TotMin/TDC_calib_to_ns && GoodElTot[el] <= TotMax/TDC_calib_to_ns;
       bool goodhit_hit_mult = TDCmult[el] < TDCmult_cut;
-      bool goodhit_CDet_X = GoodX[el] < xcut;
+      bool goodhit_CDet_X = GoodX[el]*XCorr < xcut;
       bool goodhit_low = ngoodhitsc1 >= nhitcutlow1  && ngoodhitsc2 >= nhitcutlow2;
       bool goodhit_high  = ngoodhitsc1 <= nhitcuthigh1 && ngoodhitsc2 <= nhitcuthigh2; 
-      bool goodhit_ECal_diff_x = (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
-          (GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
+      bool goodhit_ECal_diff_x = (GoodX[el]*XCorr-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut && 
+          (GoodX[el]*XCorr-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
       bool goodhit_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length && 
            (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       bool goodhit_CDet_event = goodhit_ECal_reconstruction && goodhit_ECal_diff_x && goodhit_ECal_diff_y && goodhit_le_time && goodhit_tot 
         && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high;
 
       if (goodhit_CDet_event) {
-        // GoodX[el]-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset
-        // std::cout << " gx = " << GoodX[el] << " & ECalX_Proj = " << (*ECalX)*GoodZ[el]/ECal_dist - XOffset <<std::endl;
+        // GoodX[el]*XCorr-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset
+        // std::cout << " gx = " << GoodX[el]*XCorr << " & ECalX_Proj = " << (*ECalX)*GoodZ[el]/ECal_dist - XOffset <<std::endl;
         CDetPassedBoolCount++;
         int idx = GoodElID[el];
         if (0 <= idx && idx < 2688) {
@@ -2237,7 +2239,7 @@ std::cout << "[CDet] Reference timing subtraction is "
                 //cout << "event " << event << endl;
             //cout << "el = " << el << " Good ID = " << GoodElID[el] << " Good le = " << 
           //GoodElLE[el] << " Good te = " << GoodElTE[el] << " Good tot = " << 
-          //GoodElTot[el] << " CDet X = " << GoodX[el] << " ECal X = " << ECalX << endl;
+          //GoodElTot[el] << " CDet X = " << GoodX[el]*XCorr << " ECal X = " << ECalX << endl;
 
             //cout << "Filling good timing histos ... " << ngoodTDChitsc1 << " " << endl;
             
@@ -2343,19 +2345,19 @@ std::cout << "[CDet] Reference timing subtraction is "
             thisEvent_GoodLayer.push_back(mylayer);
             //hLayer->Fill(mylayer);
 
-            thisEvent_GoodX.push_back(GoodX[el]);
+            thisEvent_GoodX.push_back(GoodX[el]*XCorr);
             thisEvent_GoodY.push_back(GoodY[el]);
             thisEvent_GoodZ.push_back(GoodZ[el]);
 
             // --- NEW: compute projected ECal X at this hit's Z, and update per-layer best if this is smallest |x-diff|
             if (*ECalX != 0.00) {
                 const double xECalProj = (*ECalX) * (GoodZ[el]) / ECal_dist;
-                const double xdiff     = GoodX[el] - xECalProj;
+                const double xdiff     = GoodX[el]*XCorr - xECalProj;
                 const double axdiff    = fabs(xdiff);
 
                 if (axdiff < bestAbsXDiff[mylayer]) {
                     bestAbsXDiff[mylayer] = axdiff;
-                    bestXCDet[mylayer]    = GoodX[el];
+                    bestXCDet[mylayer]    = GoodX[el]*XCorr;
                     bestXECalProj[mylayer]= xECalProj;
                     foundBest[mylayer]    = true;
                 }
@@ -2364,24 +2366,24 @@ std::cout << "[CDet] Reference timing subtraction is "
 //------------------------------------------------------- replace hist below
              if (mylayer==0) { //layer 1 "good" histograms & higher level
                //i think we can remove these histograms from here, and put them in their own plot routine, they just need vectors for GoodX positions from CDet and ECal
-               h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
-               h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
-               hHitXY1->Fill(GoodY[el],GoodX[el]);
-               hXECalCDet1->Fill(GoodX[el],(*ECalX)*(GoodZ[el])/ECal_dist);
+               h2TOTvsXDiff1->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
+               h2LEvsXDiff1->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hHitXY1->Fill(GoodY[el],GoodX[el]*XCorr);
+               hXECalCDet1->Fill(GoodX[el]*XCorr,(*ECalX)*(GoodZ[el])/ECal_dist);
                hYECalCDet1->Fill(GoodY[el],(*ECalY)*(GoodZ[el])/ECal_dist);
-               hXDiffECalCDet1->Fill(GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
-               hXPlusECalCDet1->Fill(GoodX[el]+(*ECalX)*(GoodZ[el])/ECal_dist);
-               hEECalCDet1->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hXDiffECalCDet1->Fill(GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hXPlusECalCDet1->Fill(GoodX[el]*XCorr+(*ECalX)*(GoodZ[el])/ECal_dist);
+               hEECalCDet1->Fill(*ECalE,GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
              } 
              else { //layer 2
-               h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
-               h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
-               hHitXY2->Fill(GoodY[el],GoodX[el]);
-               hXECalCDet2->Fill(GoodX[el],(*ECalX)*(GoodZ[el])/ECal_dist);
+               h2TOTvsXDiff2->Fill(GoodElTot[el]*TDC_calib_to_ns,GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
+               h2LEvsXDiff2->Fill(GoodElLE[el]*TDC_calib_to_ns-event_ref_tdc+60.0,GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hHitXY2->Fill(GoodY[el],GoodX[el]*XCorr);
+               hXECalCDet2->Fill(GoodX[el]*XCorr,(*ECalX)*(GoodZ[el])/ECal_dist);
                hYECalCDet2->Fill(GoodY[el],(*ECalY)*(GoodZ[el])/ECal_dist);
-               hXDiffECalCDet2->Fill(GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
-               hXPlusECalCDet2->Fill(GoodX[el]+(*ECalX)*(GoodZ[el])/ECal_dist);
-               hEECalCDet2->Fill(*ECalE,GoodX[el]-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hXDiffECalCDet2->Fill(GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
+               hXPlusECalCDet2->Fill(GoodX[el]*XCorr+(*ECalX)*(GoodZ[el])/ECal_dist);
+               hEECalCDet2->Fill(*ECalE,GoodX[el]*XCorr-(*ECalX)*(GoodZ[el])/ECal_dist);
              }
 
 
@@ -4734,7 +4736,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       // Apply final/tighter cuts (these can be narrower than dtWin/dxWin)
       if (p.dt >= diffMinCut && p.dt <= diffMaxCut && p.dx >= xdiffMinCut && p.dx <= xdiffMaxCut) {
         double t_pair = (p.t1 + p.t2) / 2;
-        double dt_EC = t_pair - t_ECal;
+        double dt_EC = t_ECal - t_pair;
         if (dt_EC >= tdiffECalCDetMin && dt_EC <= tdiffECalCDetMax){
           double x_pair = (p.x1 + p.x2) / 2;
           double z_pair = (p.z1 + p.z2) / 2;
