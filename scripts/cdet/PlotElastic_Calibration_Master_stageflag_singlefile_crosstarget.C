@@ -3154,7 +3154,13 @@ void runStats(){
     outfile.close();
 }
 
-void plotECalHCalTimeComp(double threshold = 200, int binSizeAmp = 100, int ampMin = 0, int ampMax = 1000, int paddleA = 485, int paddleB = 489, double cdet_shift = 82.0, double leMinA = 10, double leMaxA = 30, double leMinB = 25, double leMaxB = 45, double hcalCutMin = 90, double hcalCutMax = 100, double tMinECal = 0, double tMaxECal = 250, double tMinHCal = 0, double tMaxHCal = 250, double tMinCDet = 0, double tMaxCDet = 60)
+void plotECalHCalTimeComp(double threshold = 200, int binSizeAmp = 100, int ampMin = 0, int ampMax = 1000,
+                         int paddleA = 485, int paddleB = 489, double cdet_shift = 82.0,
+                         double leMinA = 10, double leMaxA = 30, double leMinB = 25, double leMaxB = 45,
+                         double hcalCutMin = 90, double hcalCutMax = 100,
+                         double tMinECal = 0, double tMaxECal = 250,
+                         double tMinHCal = 0, double tMaxHCal = 250,
+                         double tMinCDet = 0, double tMaxCDet = 60)
 {
   TH1::AddDirectory(kFALSE);
   int nbinsECal = tMaxECal - tMinECal;
@@ -3937,7 +3943,9 @@ void plotPaddleTOT(
   cPaddlesLE->Update();
 }
 
-void plotPaddles(int bar = 29, double width = 1, double LeMin = 0, double LeMax = 60, double TotCutLow = 0, double TotCutMax = 60, double TotMin = 0, double TotMax = 60, double binLow = 0, double binHigh = 60){
+void plotPaddles(int bar = 29, double width = 1, double LeMin = 0, double LeMax = 60,
+                 double TotCutLow = 0, double TotCutMax = 60,
+                 double TotMin = 0, double TotMax = 60, double binLow = 0, double binHigh = 60){
   TH1::AddDirectory(kFALSE);
   if (bar < 0 || bar >= NumCDetPaddles/NumPaddles || width <= 0.0 || TotMin >= TotMax || binLow >= binHigh) {
     std::cerr << "[CDet paddle plots] ERROR: invalid bar, bin width, or histogram range.\n";
@@ -4002,7 +4010,9 @@ void plotPaddles(int bar = 29, double width = 1, double LeMin = 0, double LeMax 
   cPaddles2D->SaveAs(TString::Format("PaddleOffset2DBar%d.pdf", bar));
 }
 
-void plotAllPaddles(double width = 1, double LeMin = 0, double LeMax = 60, double TotMin = 0, double TotMax = 40, double binLow = 0, double binHigh = 60, TString saveTag = "") {
+void plotAllPaddles(double width = 1, double LeMin = 0, double LeMax = 60,
+                    double TotMin = 0, double TotMax = 40,
+                    double binLow = 0, double binHigh = 60, TString saveTag = "") {
   
   TH1::AddDirectory(kFALSE);
 
@@ -4481,7 +4491,8 @@ void plot2DrefVsLE(double width = 1, double tmin=0, double tmax=60){
   h2->Draw("COLZ");
 }
 
-TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullptr, bool clampNegToZero = true, int firstBin = 1, int lastBin = -1) {
+TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullptr,
+                         bool clampNegToZero = true, int firstBin = 1, int lastBin = -1) {
   if (!hIn || !fFit) {
     std::cerr << "SubtractFitFromHist ERROR: null input.\n";
     return nullptr;
@@ -4515,7 +4526,19 @@ TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullpt
   return hSub;
 }
 
-void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double Width = 1, double diffMinCut = -15, double diffMaxCut = 15, double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01, double LeMin = 0.02, double LeMax = 60, double TotMinCut = 0, double TotMaxCut = 70, double DiffMin = -20, double DiffMax = 20, double CDetMin = 0, double CDetMax = 60, double CDetTotMin = 0, double CDetTotMax = 80, double ECalMin = 62, double ECalMax = 130, double tdiffECalCDetMin = 0, double tdiffECalCDetMax = 130, bool allowMultiplePairs = true, double XBinWidth = 0.005, double XMin = -1.5, double XMax = 1.5, double ZBinWidth = 0.01, double ZMin = 0.0, double ZMax = 7.0){
+void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double Width = 1,
+                            double diffMinCut = -15, double diffMaxCut = 15,
+                            double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01,
+                            double LeMin = 0.02, double LeMax = 60,
+                            double TotMinCut = 0, double TotMaxCut = 70,
+                            double DiffMin = -20, double DiffMax = 20,
+                            double CDetMin = 0, double CDetMax = 60,
+                            double CDetTotMin = 0, double CDetTotMax = 80,
+                            double ECalMin = 62, double ECalMax = 130,
+                            double tdiffECalCDetMin = 0, double tdiffECalCDetMax = 130,
+                            bool allowMultiplePairs = true,
+                            double XBinWidth = 0.005, double XMin = -1.5, double XMax = 1.5,
+                            double ZBinWidth = 0.01, double ZMin = 0.0, double ZMax = 7.0){
   gLastCalibrationFitSucceeded = false;
   
   TH1::AddDirectory(kFALSE);
@@ -5007,7 +5030,19 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   hSelectedBarXVsZ->Draw("COLZ");
 }
 
-void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, double dtMinCut = 70.0, double dtMaxCut = 115.0, double DiffMin = 0.0, double DiffMax = 130.0, double LeMin = 0.0, double LeMax = 60.0, double TeMin = 0.0, double TeMax = 80.0, double TotMin = 0.0, double TotMax = 80.0, double ECalMin = 62.0, double ECalMax = 140.0, bool drawDtVsTot = false, double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, double PeakSeedMin = 78.0, double PeakSeedMax = 90.0){
+void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485,
+                              double dtMinCut = 70.0, double dtMaxCut = 115.0,
+                              double DiffMin = 0.0, double DiffMax = 130.0,
+                              double LeMin = 0.0, double LeMax = 60.0,
+                              double TeMin = 0.0, double TeMax = 80.0,
+                              double TotMin = 0.0, double TotMax = 80.0,
+                              double ECalMin = 62.0, double ECalMax = 140.0,
+                              bool drawDtVsTot = false,
+                              double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0,
+                              double localFitHalfWidth = 8.0, double NReject = 2.5,
+                              double minSigma = 0.5, double maxSigma = 20.0,
+                              double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0,
+                              double PeakSeedMin = 78.0, double PeakSeedMax = 90.0){
   TH1::AddDirectory(kFALSE);
   (void)localFitHalfWidth; // Retained for positional compatibility; timing-study fits now use dtMinCut-dtMaxCut exactly.
 
@@ -5367,7 +5402,18 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485, doub
   std::cout << "\n";
 }
 
-void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 120.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits", bool saveCandidateTable = false, TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double TotMin = 0.0, double TotMax = 80.0, double localFitHalfWidth = 8.0, double NReject = 2.5, double PeakSeedMin = 75.0, double PeakSeedMax = 100.0) {
+void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
+                                      double HistMin = 0.0, double HistMax = 130.0,
+                                      double FitMin = 70.0, double FitMax = 120.0,
+                                      int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0,
+                                      double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0,
+                                      bool saveFitCanvases = false, TString fitCanvasDir = "CDetPixelTimingFits",
+                                      bool saveCandidateTable = false,
+                                      TString candidateOutput = "CDet_pixel_timing_offsets_candidate.dat",
+                                      double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0,
+                                      double TotMin = 0.0, double TotMax = 80.0,
+                                      double localFitHalfWidth = 8.0, double NReject = 2.5,
+                                      double PeakSeedMin = 75.0, double PeakSeedMax = 100.0) {
   TH1::AddDirectory(kFALSE);
   (void)localFitHalfWidth; // Retained for positional compatibility; extraction fits now use FitMin-FitMax exactly.
 
@@ -5857,7 +5903,15 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0, d
             << "  proposed sign: tCDet_i' = tCDet_i + c_i; no corrections were applied\n";
 }
 
-void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 120.0, int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0, double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0, TString calibrationOutput = "", TString fitResultsOutput = "", double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double NReject = 2.5, double PeakSeedMin = 75.0, double PeakSeedMax = 100.0) {
+void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width = 1.0,
+                                      double HistMin = 0.0, double HistMax = 130.0,
+                                      double FitMin = 70.0, double FitMax = 120.0,
+                                      int minEntries = 100, double minSigma = 0.5, double maxSigma = 20.0,
+                                      double maxChi2Ndf = 10.0, double centroidEdgeMargin = 1.0,
+                                      TString calibrationOutput = "", TString fitResultsOutput = "",
+                                      double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0,
+                                      double NReject = 2.5,
+                                      double PeakSeedMin = 75.0, double PeakSeedMax = 100.0) {
   TH1::AddDirectory(kFALSE);
   gLastCalibrationFitSucceeded = false;
 
@@ -6172,7 +6226,13 @@ void plotCDetPixelOffsetMethodDifference(TString regularCalibrationFile = "CDet_
             << "  skipped because either correction was exactly zero: " << skippedZero << "\n";
 }
 
-void plotCDetPixelLeAndDtSpectra(int logicalPixelID = 485, double Width = 1.0, double HistMin = 0.0, double HistMax = 130.0, double FitMin = 70.0, double FitMax = 100.0, double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0, double LeMin = 0.0, double LeMax = 60.0, TString regularCalibrationFile = "CDet_calibration.dat", TString dtCalibrationFile = "CDet_calibration_dt.dat") {
+void plotCDetPixelLeAndDtSpectra(int logicalPixelID = 485, double Width = 1.0,
+                                 double HistMin = 0.0, double HistMax = 130.0,
+                                 double FitMin = 70.0, double FitMax = 100.0,
+                                 double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0,
+                                 double LeMin = 0.0, double LeMax = 60.0,
+                                 TString regularCalibrationFile = "CDet_calibration.dat",
+                                 TString dtCalibrationFile = "CDet_calibration_dt.dat") {
   TH1::AddDirectory(kFALSE);
   if (logicalPixelID < 0 || logicalPixelID >= NumCDetPaddles || Width <= 0.0 || HistMin >= HistMax || FitMin >= FitMax || FitMin < HistMin || FitMax > HistMax || ECalEnergyMin >= ECalEnergyMax || LeMin >= LeMax) {
     std::cerr << "[CDet selected-pixel spectra] ERROR: invalid pixel ID, bin width, or range.\n";
@@ -6230,7 +6290,13 @@ void plotCDetPixelLeAndDtSpectra(int logicalPixelID = 485, double Width = 1.0, d
             << "  delta-t minus regular correction: " << offsetDifference << " ns\n";
 }
 
-void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double DiffMin = 0, double DiffMax = 130, double CDetTotMin = 0, double CDetTotMax = 80, double CDetMin = 0, double CDetMax = 60,double ECalMin = 62, double ECalMax = 130){
+void plotECalCDetTimeComp(double Width = 1, double diffMinCut = 70, double diffMaxCut = 115,
+                          double LeMin = 0.02, double LeMax = 60,
+                          double TotMin = 0, double TotMax = 150,
+                          double DiffMin = 0, double DiffMax = 130,
+                          double CDetTotMin = 0, double CDetTotMax = 80,
+                          double CDetMin = 0, double CDetMax = 60,
+                          double ECalMin = 62, double ECalMax = 130){
   TH1::AddDirectory(kFALSE);
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((DiffMax-DiffMin)/Width);
@@ -6407,7 +6473,11 @@ void plotRawXCorrelation(double tDiffMin = 80, double tDiffMax = 100){
   h2RawECalxVsCDetx->Draw("COLZ");
 }
 
-void plotTimeECalVsCDet(double Width = 0.0160167/2, double LeMin = 0.02, double LeMax = 60, double TotMin = 0, double TotMax = 150, double CDetMin = 0, double CDetMax = 60, double ECalMin = 0, double ECalMax = 250){
+void plotTimeECalVsCDet(double Width = 0.0160167/2,
+                        double LeMin = 0.02, double LeMax = 60,
+                        double TotMin = 0, double TotMax = 150,
+                        double CDetMin = 0, double CDetMax = 60,
+                        double ECalMin = 0, double ECalMax = 250){
   int NADCBins = (int)((ECalMax-ECalMin)/4); //4ns bins for ECal, since fADC 4ns resolution
   int TDCBinNum = (int)((CDetMax-CDetMin)/Width);
   TH2D* hECalVsCDet = new TH2D("hECalVsCDet", "ECal Time vs CDet Time;CDet LE Time (ns);ECal ADC Time (ns)",TDCBinNum,CDetMin,CDetMax, NADCBins, ECalMin, ECalMax);
