@@ -72,8 +72,8 @@ static const double ADCCUT = 150.;   //100.0
 static const double ECal_dist = 6.144; // from db_run.dat as of 2026-08-31
 static const double CDet_y_half_length = 0.30;
 
-static const double XCorr1 = 1.07; // Layer 1 CDet x scale relative to the ECal projection
-static const double XCorr2 = 1.07; // Layer 2 CDet x scale relative to the ECal projection
+static const double XCorr1 = 1.08; // Layer 1 CDet x scale relative to the ECal projection
+static const double XCorr2 = 1.08; // Layer 2 CDet x scale relative to the ECal projection
 static const double CDetXOffset1 = 0.03; // subtract from scaled Layer 1 x (m)
 static const double CDetXOffset2 = 0.03; // subtract from scaled Layer 2 x (m)
 
@@ -1388,7 +1388,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 	Double_t TotMin = 0.02, Double_t TotMax = 150.0, 
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 0, Int_t nhitcuthigh2 = 100,
-	Double_t XDiffCut = 0.05, Double_t XOffset = 0.02, Double_t YOffset = 0.1,
+	Double_t XDiffCut = 0.05, Double_t XOffset = 0.0, Double_t YOffset = 0.1,
         Int_t layer_choice=3,	
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1,
