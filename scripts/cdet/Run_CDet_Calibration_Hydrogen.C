@@ -82,9 +82,9 @@ void Run_CDet_Calibration_Hydrogen(
     stageBanner("hydrogen_ecal_fit", 3);
     ResetCalibrationGlobals();
     runMain(3);
-    plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.05, 0.05,
+    plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.05, 0.05,
                            LeMin, LeMax, TotMin, TotMax, -15, 15, 0, 60, 0, 80,
-                           70, 125, -160, -40);
+                           70, 125, 40, 160);
 
 
 /*  
@@ -93,9 +93,9 @@ void Run_CDet_Calibration_Hydrogen(
     ResetCalibrationGlobals();
     runMain(7);
     plotAllTDC(false, 1.0, 1, 60);
-    plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.02, 0.02,
+    plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.02, 0.02,
                            LeMin, LeMax, TotMin, TotMax, -15, 15, 0, 60, 0, 80,
-                           85, 115, -160, -40);
+                           85, 115, 40, 160);
     plotGoodLeVsTotByLayer(false, LeMin, LeMax, TotMin, TotMax, 0.2, 0.5, true, false, 5.0, 25.0);
 */
 
