@@ -66,6 +66,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
         PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
             RunNumber1, nevents, stage,elastic, minSeg, maxSeg,
             LeMin, LeMax, TotMin, TotMax,
+            10.0, 35.0,
             nhitcutlow1, nhitcuthigh1, nhitcutlow2, nhitcuthigh2,
             XDiffCut, XOffset, YOffset, layer_choice,
             suppress_bad, nruns, maxstream, firstevent

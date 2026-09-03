@@ -63,6 +63,7 @@ void Run_CDet_Calibration_Hydrogen(
         PlotElastic_Calibration_Master_stageflag_singlefile_hydrogen(
             RunNumber1, nevents, stage, elastic, minSeg, maxSeg,
             LeMin, LeMax, TotMin, TotMax,
+            -35.0, 35.0,
             nhitcutlow1, nhitcuthigh1, nhitcutlow2, nhitcuthigh2,
             XDiffCut, XOffset, YOffset, layer_choice,
             suppress_bad, nruns, maxstream, firstevent

@@ -1386,6 +1386,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_hydrogen(Int_t RunNumbe
   Int_t groupIndex = 0, Int_t minSeg = -1, Int_t maxSeg = -1,
 	Double_t LeMin = 0.02, Double_t LeMax = 100,
 	Double_t TotMin = 0.02, Double_t TotMax = 150.0,
+  Double_t ECalMinT = -35.0, Double_t ECalMaxT = 35.0,
 	Int_t nhitcutlow1 = 1, Int_t nhitcuthigh1 = 100,
 	Int_t nhitcutlow2 = 0, Int_t nhitcuthigh2 = 100,
 	Double_t XDiffCut = 0.05, Double_t XOffset = 0.0, Double_t YOffset = 0.1,
@@ -1985,11 +1986,12 @@ std::cout << "[CDet] Reference timing subtraction is "
       bool good_raw_tot = RawElTot[el] >= TotMin/TDC_calib_to_ns && RawElTot[el] <= TotMax/TDC_calib_to_ns;
       bool good_mult = rawMultiplicity[raw_pmt] < TDCmult_cut;
       bool good_CDet_X = hasGood && (fabs(gx) < xcut);
+      bool good_ECal_atime = *ECalAdcTime > ECalMinT && *ECalAdcTime < ECalMaxT;
       // Apply the appropriate layer-specific CDet x correction before comparing to ECal.
       // bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length &&
       //     (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
 
-      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X ;//&& good_ECal_diff_x && good_ECal_diff_y;
+      bool good_raw_event = good_raw_le_time && good_raw_tot && good_mult && good_CDet_X && good_ECal_atime;
 
       //if ((Int_t)RawElID[el] > 1000) cout << "el = " << el << " Hit ID = " << (Int_t)RawElID[el] << "    TDC = " << RawElLE[el]*TDC_calib_to_ns << endl;
       //cout << "Raw ID = " << RawElID[el] << " raw le = " << RawElLE[el] << " raw te = " << RawElTE[el] << " raw tot = " << RawElTot[el] << endl;
@@ -2176,9 +2178,10 @@ std::cout << "[CDet] Reference timing subtraction is "
           (correctedX-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
       bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length &&
           (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
+      bool good_ECal_atime = *ECalAdcTime > ECalMinT && *ECalAdcTime < ECalMaxT;
 
 
-      bool good_CDet_event = good_ECal_reconstruction && good_ECal_diff_x && good_ECal_diff_y && good_le_time && good_tot && good_hit_mult && good_CDet_X;
+      bool good_CDet_event = good_ECal_reconstruction && good_ECal_diff_x && good_ECal_diff_y && good_le_time && good_tot && good_hit_mult && good_CDet_X && good_ECal_atime;
 
 
       if (good_CDet_event) {
@@ -2261,12 +2264,13 @@ std::cout << "[CDet] Reference timing subtraction is "
       bool goodhit_CDet_X = correctedHitX < xcut;
       bool goodhit_low = ngoodhitsc1 >= nhitcutlow1  && ngoodhitsc2 >= nhitcutlow2;
       bool goodhit_high  = ngoodhitsc1 <= nhitcuthigh1 && ngoodhitsc2 <= nhitcuthigh2;
+      bool goodhit_ECal_atime = *ECalAdcTime > ECalMinT && *ECalAdcTime < ECalMaxT;
       bool goodhit_ECal_diff_x = (correctedHitX-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut &&
           (correctedHitX-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
       bool goodhit_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length &&
            (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       bool goodhit_CDet_event = goodhit_ECal_reconstruction && goodhit_ECal_diff_x && goodhit_ECal_diff_y && goodhit_le_time && goodhit_tot
-        && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high;
+        && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high && goodhit_ECal_atime;
 
       if (goodhit_CDet_event) {
         // correctedHitX-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset
