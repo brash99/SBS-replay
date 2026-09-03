@@ -7,7 +7,7 @@
 //
 // Intended workflow for hydrogen:
 //   1) Fit UPDATED CDet/ECal timing in a stage where
-//        - bar offsets are applied
+//        - pixel offsets are applied
 //        - timewalk is applied
 //        - existing ECal correction is NOT applied
 //      i.e. stage 8
@@ -45,7 +45,7 @@ void Run_CDet_Calibration_Hydrogen_Basic(
     bool removeExistingCalibrationFile = false
 ){
     const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile_hydrogen.C";
-    const TString calibFile   = "CDet_calibration.dat";
+    const TString calibFile   = "CDet_calibration_dt_hydrogen.dat";
 
     if (gSystem->AccessPathName(masterMacro)) {
         std::cerr << "[Driver] ERROR: Could not find master macro " << masterMacro << "\n";
@@ -92,7 +92,7 @@ void Run_CDet_Calibration_Hydrogen_Basic(
     plotAllTDC(false, 1.0, 0.0, 60.0);
     plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.02, 0.02,
                            LeMin, LeMax, TotMin, TotMax, -15, 15, 0, 60, 0, 80,
-                           70, 130, 40, 160);
+                           -40, 40, -60, 30);
 */
 
 /*  
@@ -103,7 +103,7 @@ void Run_CDet_Calibration_Hydrogen_Basic(
     plotAllTDC(false, 1.0, 1, 60);
     plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.02, 0.02,
                            LeMin, LeMax, TotMin, TotMax, -15, 15, 0, 60, 0, 80,
-                           85, 115, 40, 160);
+                           -40, 40, -60, 30);
     plotGoodLeVsTotByLayer(false, LeMin, LeMax, TotMin, TotMax, 0.2, 0.5, true, false, 5.0, 25.0);
 */
 
