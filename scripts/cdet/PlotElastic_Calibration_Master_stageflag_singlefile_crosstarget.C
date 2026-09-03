@@ -1,6 +1,7 @@
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include <TList.h>
+#include <THashList.h>
 #include <TTreeReader.h>
 #include <TTreeReaderArray.h>
 #include <TTreeReaderValue.h>
@@ -34,9 +35,69 @@
 #include <TPaveText.h>
 #include <TPaveStats.h>
 #include <TParameter.h>
+#include <TEnv.h>
 #include <vector>
 #include <unordered_map>
 #include <unordered_set>
+
+static const std::unordered_set<std::string>& CDetConfigurationKeys()
+{
+  static const std::unordered_set<std::string> keys = {
+    "config.version",
+    "analysis.run_number", "analysis.events", "analysis.calibration_stage",
+    "analysis.group_index", "analysis.min_segment", "analysis.max_segment",
+    "analysis.le_min", "analysis.le_max", "analysis.tot_min", "analysis.tot_max",
+    "analysis.ecal_time_min", "analysis.ecal_time_max",
+    "analysis.layer1_hits_min", "analysis.layer1_hits_max",
+    "analysis.layer2_hits_min", "analysis.layer2_hits_max",
+    "analysis.x_difference_max", "analysis.x_offset", "analysis.y_offset",
+    "analysis.layer_choice", "analysis.suppress_bad", "analysis.number_of_runs",
+    "analysis.max_stream", "analysis.first_event", "analysis.use_reference_timing",
+    "display.overwrite", "display.pixel", "display.histogram_width",
+    "display.layer_dt_min", "display.layer_dt_max",
+    "display.layer_dx_min", "display.layer_dx_max",
+    "display.le_min", "display.le_max", "display.tot_min", "display.tot_max",
+    "display.dt_hist_min", "display.dt_hist_max",
+    "display.cdet_time_min", "display.cdet_time_max",
+    "display.cdet_tot_min", "display.cdet_tot_max",
+    "display.ecal_time_min", "display.ecal_time_max",
+    "display.ecal_cdet_dt_min", "display.ecal_cdet_dt_max",
+    "display.allow_multiple_pairs", "display.x_bin_width", "display.x_min", "display.x_max",
+    "display.z_bin_width", "display.z_min", "display.z_max"
+  };
+  return keys;
+}
+
+static bool LoadCDetConfiguration(TEnv& env, const char *configFile,
+                                  const char *caller)
+{
+  if (!configFile || !configFile[0]) {
+    std::cerr << "[" << caller << "] ERROR: configuration filename is empty.\n";
+    return false;
+  }
+  if (env.ReadFile(configFile, kEnvLocal) != 0) {
+    std::cerr << "[" << caller << "] ERROR: cannot read configuration file "
+              << configFile << ".\n";
+    return false;
+  }
+  if (env.GetValue("config.version", 0) != 1) {
+    std::cerr << "[" << caller << "] ERROR: " << configFile
+              << " must set config.version = 1.\n";
+    return false;
+  }
+
+  TIter next(env.GetTable());
+  while (TObject *record = next()) {
+    const std::string key = record->GetName();
+    if (CDetConfigurationKeys().count(key) == 0) {
+      std::cerr << "[" << caller << "] ERROR: unknown configuration key '"
+                << key << "' in " << configFile << ".\n";
+      return false;
+    }
+  }
+  std::cout << "[" << caller << "] Loaded configuration " << configFile << ".\n";
+  return true;
+}
 
 std::vector<TCanvas*> canvas_vector;
 
@@ -3202,6 +3263,59 @@ void ResetCalibrationGlobals()
     }
 }
 
+void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(const char *configFile)
+{
+  TEnv env;
+  const char *caller = "CDet cross-target analysis";
+  if (!LoadCDetConfiguration(env, configFile, caller)) return;
+
+  const Int_t runNumber = env.GetValue("analysis.run_number", 5811);
+  const Int_t events = env.GetValue("analysis.events", 50000);
+  const Int_t calibrationStage = env.GetValue("analysis.calibration_stage", 7);
+  const Int_t groupIndex = env.GetValue("analysis.group_index", 0);
+  const Int_t minSegment = env.GetValue("analysis.min_segment", -1);
+  const Int_t maxSegment = env.GetValue("analysis.max_segment", -1);
+  const Double_t leMin = env.GetValue("analysis.le_min", 0.02);
+  const Double_t leMax = env.GetValue("analysis.le_max", 100.0);
+  const Double_t totMin = env.GetValue("analysis.tot_min", 0.02);
+  const Double_t totMax = env.GetValue("analysis.tot_max", 150.0);
+  const Double_t ecalTimeMin = env.GetValue("analysis.ecal_time_min", 10.0);
+  const Double_t ecalTimeMax = env.GetValue("analysis.ecal_time_max", 35.0);
+  const Int_t layer1HitsMin = env.GetValue("analysis.layer1_hits_min", 1);
+  const Int_t layer1HitsMax = env.GetValue("analysis.layer1_hits_max", 100);
+  const Int_t layer2HitsMin = env.GetValue("analysis.layer2_hits_min", 0);
+  const Int_t layer2HitsMax = env.GetValue("analysis.layer2_hits_max", 100);
+  const Double_t xDifferenceMax = env.GetValue("analysis.x_difference_max", 0.05);
+  const Double_t xOffset = env.GetValue("analysis.x_offset", 0.0);
+  const Double_t yOffset = env.GetValue("analysis.y_offset", 0.1);
+  const Int_t layerChoice = env.GetValue("analysis.layer_choice", 3);
+  const Bool_t suppressBad = env.GetValue("analysis.suppress_bad", false);
+  const Int_t numberOfRuns = env.GetValue("analysis.number_of_runs", 30);
+  const Int_t maxStream = env.GetValue("analysis.max_stream", 2);
+  const Int_t firstEvent = env.GetValue("analysis.first_event", 1);
+  const Bool_t useReferenceTiming = env.GetValue("analysis.use_reference_timing", false);
+
+  if (leMin >= leMax || totMin >= totMax || ecalTimeMin >= ecalTimeMax ||
+      layer1HitsMin < 0 || layer1HitsMin > layer1HitsMax ||
+      layer2HitsMin < 0 || layer2HitsMin > layer2HitsMax || xDifferenceMax <= 0.0) {
+    std::cerr << "[" << caller << "] ERROR: invalid min/max range or occupancy cut in "
+              << configFile << ".\n";
+    return;
+  }
+
+  std::cout << "[" << caller << "] Effective cuts: ECal ADC time "
+            << ecalTimeMin << " to " << ecalTimeMax << " ns; Layer 1 hits "
+            << layer1HitsMin << " to " << layer1HitsMax << "; Layer 2 hits "
+            << layer2HitsMin << " to " << layer2HitsMax << ".\n";
+
+  PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+      runNumber, events, calibrationStage, groupIndex, minSegment, maxSegment,
+      leMin, leMax, totMin, totMax, ecalTimeMin, ecalTimeMax,
+      layer1HitsMin, layer1HitsMax, layer2HitsMin, layer2HitsMax,
+      xDifferenceMax, xOffset, yOffset, layerChoice, suppressBad,
+      numberOfRuns, maxStream, firstEvent, useReferenceTiming);
+}
+
 void runStats(){
     std::ofstream outfile("RunStats.csv", std::ios::app);
 
@@ -5094,6 +5208,60 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
                           tdiffECalCDetMin, tdiffECalCDetMax,
                           XMin, XMax, ZMin, ZMax);
   }
+}
+
+void plotCDetLayersTimeComp(const char *configFile)
+{
+  TEnv env;
+  const char *caller = "CDet layer comparison";
+  if (!LoadCDetConfiguration(env, configFile, caller)) return;
+
+  const Bool_t overwrite = env.GetValue("display.overwrite", false);
+  const Int_t pixel = env.GetValue("display.pixel", 416);
+  const Double_t width = env.GetValue("display.histogram_width", 1.0);
+  const Double_t layerDtMin = env.GetValue("display.layer_dt_min", -15.0);
+  const Double_t layerDtMax = env.GetValue("display.layer_dt_max", 15.0);
+  const Double_t layerDxMin = env.GetValue("display.layer_dx_min", -0.01);
+  const Double_t layerDxMax = env.GetValue("display.layer_dx_max", 0.01);
+  const Double_t leMin = env.GetValue("display.le_min", 0.02);
+  const Double_t leMax = env.GetValue("display.le_max", 60.0);
+  const Double_t totMin = env.GetValue("display.tot_min", 0.0);
+  const Double_t totMax = env.GetValue("display.tot_max", 70.0);
+  const Double_t dtHistMin = env.GetValue("display.dt_hist_min", -20.0);
+  const Double_t dtHistMax = env.GetValue("display.dt_hist_max", 20.0);
+  const Double_t cdetTimeMin = env.GetValue("display.cdet_time_min", 0.0);
+  const Double_t cdetTimeMax = env.GetValue("display.cdet_time_max", 60.0);
+  const Double_t cdetTotMin = env.GetValue("display.cdet_tot_min", 0.0);
+  const Double_t cdetTotMax = env.GetValue("display.cdet_tot_max", 80.0);
+  const Double_t ecalTimeMin = env.GetValue("display.ecal_time_min", -40.0);
+  const Double_t ecalTimeMax = env.GetValue("display.ecal_time_max", 40.0);
+  const Double_t ecalCdetDtMin = env.GetValue("display.ecal_cdet_dt_min", -60.0);
+  const Double_t ecalCdetDtMax = env.GetValue("display.ecal_cdet_dt_max", 30.0);
+  const Bool_t allowMultiplePairs = env.GetValue("display.allow_multiple_pairs", true);
+  const Double_t xBinWidth = env.GetValue("display.x_bin_width", 0.005);
+  const Double_t xMin = env.GetValue("display.x_min", -1.5);
+  const Double_t xMax = env.GetValue("display.x_max", 1.5);
+  const Double_t zBinWidth = env.GetValue("display.z_bin_width", 0.01);
+  const Double_t zMin = env.GetValue("display.z_min", 0.0);
+  const Double_t zMax = env.GetValue("display.z_max", 7.0);
+
+  if (pixel < 0 || pixel >= NumCDetPaddles/2 || width <= 0.0 ||
+      layerDtMin >= layerDtMax || layerDxMin >= layerDxMax ||
+      leMin >= leMax || totMin >= totMax || dtHistMin >= dtHistMax ||
+      cdetTimeMin >= cdetTimeMax || cdetTotMin >= cdetTotMax ||
+      ecalTimeMin >= ecalTimeMax || ecalCdetDtMin >= ecalCdetDtMax ||
+      xBinWidth <= 0.0 || xMin >= xMax || zBinWidth <= 0.0 || zMin >= zMax) {
+    std::cerr << "[" << caller << "] ERROR: invalid pixel, binning, or min/max range in "
+              << configFile << ".\n";
+    return;
+  }
+
+  plotCDetLayersTimeComp(overwrite, pixel, width, layerDtMin, layerDtMax,
+                         layerDxMin, layerDxMax, leMin, leMax, totMin, totMax,
+                         dtHistMin, dtHistMax, cdetTimeMin, cdetTimeMax,
+                         cdetTotMin, cdetTotMax, ecalTimeMin, ecalTimeMax,
+                         ecalCdetDtMin, ecalCdetDtMax, allowMultiplePairs,
+                         xBinWidth, xMin, xMax, zBinWidth, zMin, zMax);
 }
 
 void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut,

@@ -35,28 +35,39 @@ macro, use:
 For the run-5710 example:
 
 ```cpp
-PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(5710,-1,2,0,-1,-1,0.02,60,0.02,60,1,100,1,100,0.15,0.0275)
+PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+    "CDet_run5710_event_display.conf"
+)
 ```
 
 Wait for this call to finish. It reads the replayed ROOT data, applies the
 stage-2 analysis selections, and populates the per-event CDet and ECal vectors
-used by the event display.
+used by the event display. The configuration applies the new 10--35 ns ECal
+ADC timing cut and the Layer-1/Layer-2 hit-count limits without relying on
+positional arguments. Unknown keys, invalid ranges, and unsupported
+configuration versions are rejected before the analysis starts.
 
 ## 4. Select a CDet bar and build the display
 
-The event browser is built by `plotCDetLayersTimeComp`. Its second argument is
-the first pixel ID of the selected Layer-1 bar. Each bar contains 16 pixels, so
-the conversion is:
+The event browser is built by `plotCDetLayersTimeComp`. Its second argument can
+be any pixel ID in the selected Layer-1 bar. Each bar contains 16 pixels; the
+macro normalizes the supplied ID to the bar's first pixel using:
 
 ```text
 pixelBase = 16 * barNumber
 ```
 
-For Layer-1 bar 29, `pixelBase` is 464:
+For example, the configuration selects pixel 471, which is in Layer-1 bar 29
+and is normalized to that bar's base pixel, 464. Run the configured display
+with:
 
 ```cpp
-plotCDetLayersTimeComp(false,464)
+plotCDetLayersTimeComp("CDet_run5710_event_display.conf")
 ```
+
+Both calls read the same file, but each uses only its own `analysis.*` or
+`display.*` settings. The complete file is
+[`CDet_run5710_event_display.conf`](CDet_run5710_event_display.conf).
 
 This call creates the aggregate timing and position plots, including the
 selected-bar x-versus-z plot. In an interactive Analyzer session it also:
@@ -96,7 +107,7 @@ Layer 1: corrected x = GoodX * XCorr1 - CDetXOffset1
 Layer 2: corrected x = GoodX * XCorr2 - CDetXOffset2
 ```
 
-The macro currently defines `XCorr1 = 1.07`, `XCorr2 = 1.07`, and both offsets
+The macro currently defines `XCorr1 = 1.08`, `XCorr2 = 1.08`, and both offsets
 as 0.03 m. The constants remain separate so either layer can be retuned
 independently. ECal x is unchanged. Pairing and its x-difference use these
 corrected CDet coordinates as well.
@@ -178,7 +189,11 @@ plotCDetLayersTimeComp(
 For example, bar 29 with a wider Layer-1/Layer-2 x-difference window:
 
 ```cpp
-plotCDetLayersTimeComp(false,464,1,-15,15,-0.02,0.02)
+plotCDetLayersTimeComp(
+    false, 464, 1,
+    -15, 15,
+    -0.02, 0.02
+)
 ```
 
 ## Rebuilding the browser manually
