@@ -62,6 +62,7 @@ Use `false` for inspection unless an update is intentional.
 | `writeAllCDetBarECalTimingDiagnostics` | Write the Layer-1 CDet-versus-ECal timing profile and fit for all 84 bars | Writes diagnostic ROOT/text files only |
 | `showCDetBarECalTiming` | Safely reconstruct one bar's CDet-versus-ECal timing canvas | No |
 | `plotAllCDetBarECalTiming` | Display all 168 half-bar ECal timing trends as four 7-by-6 canvases | Writes diagnostic ROOT/text files only |
+| `calibrateCDetHalfBarIntercepts` | Compare and optionally align half-bar timing intercepts at one common ECal reference time | Optional |
 | `plotECalCDetTimeCutStudy` | Study an ECal-minus-CDet timing cut and selected-pixel fits | No |
 | `plotCDetPixelOffsetMethodDifference` | Compare two calibration files' pixel offsets | No |
 | `plotCDetPixelLeAndDtSpectra` | Inspect LE and ECal-CDet delta-t for one pixel | No |
@@ -135,6 +136,38 @@ The integer `pixelBase`/`display.pixel` may be any Layer-1 pixel in the desired
 bar; the function normalizes it to the first pixel of that 16-pixel bar. In an
 interactive session it also constructs the event browser described below. In
 ROOT batch mode the event browser is intentionally omitted.
+
+After `plotCDetLayersTimeComp` has established that the common unbinned
+within-half-bar slope is closed, diagnose the remaining between-half-bar timing
+spread with:
+
+```cpp
+calibrateCDetHalfBarIntercepts(false)
+```
+
+The function projects every half-bar's mean CDet time to the same ECal
+reference time (22 ns by default) using the common unbinned fixed-effects
+slope. It reports and writes the proposed offset increment required to align
+each validated half-bar to the hit-weighted detector reference. A half-bar must
+have at least 100 accepted hits and an intercept uncertainty no larger than 1
+ns. The diagnostic ROOT file contains intercept and correction graphs and
+distributions; the text file contains one auditable row per half-bar.
+
+The default `overwrite = false` does not modify calibration constants. After
+inspecting the proposal, apply it explicitly with:
+
+```cpp
+calibrateCDetHalfBarIntercepts(
+    true, 22.0, 100, 1.0,
+    "CDet_halfbar_intercept_diagnostics_applied.root",
+    "CDet_halfbar_intercept_corrections_applied.dat")
+```
+
+An accepted correction is added uniformly to all 16 pixel offsets belonging
+to that half-bar. This changes relative half-bar intercepts without changing
+the common ECal slope. Rerun the full analysis afterward and verify both the
+fixed-effects slope and detector-wide timing width before accepting the new
+calibration.
 
 After this function has built the accepted hit pairs, write all paired-hit LE
 spectra to a hierarchical ROOT file with:

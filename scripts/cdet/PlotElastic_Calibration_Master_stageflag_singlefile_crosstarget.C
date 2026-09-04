@@ -185,6 +185,7 @@ struct PairHit {
 std::vector<std::vector<PairHit>> pairs_CDet;
 std::vector<TH1D*> gCDetPairedLeSpectra;
 std::vector<TH2D*> gCDetBarECalTimingSpectra;
+std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalTimingSamples;
 
 struct CDetDisplayHit {
   int id, layer, side, module, bar, pixel;
@@ -244,6 +245,11 @@ void showCDetBarECalTiming(
 void plotAllCDetBarECalTiming(
     TString outputFile = "CDet_bar_ecal_timing_overview.root",
     TString summaryFile = "CDet_bar_ecal_timing_overview_summary.dat");
+void calibrateCDetHalfBarIntercepts(
+    bool overwrite = false, double referenceECalTime = 22.0,
+    int minEntries = 100, double maxInterceptError = 1.0,
+    TString outputRoot = "CDet_halfbar_intercept_diagnostics.root",
+    TString outputSummary = "CDet_halfbar_intercept_corrections.dat");
 void ResetCalibrationGlobals();
 
 // Interactive, persistent LE-versus-TOT selections for pixels whose physical
@@ -5321,8 +5327,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // Preserve unbinned accepted-hit coordinates for the fixed-effects timing
   // regression.  The TH2D bank below is intentionally visualization-only:
   // its coarse ECal bins attenuate changes in the applied slope.
-  std::vector<std::vector<std::pair<double,double>>> cdetBarECalTimingSamples(
-      NumLayers*barsPerLayer);
+  gCDetHalfBarECalTimingSamples.assign(NumLayers*barsPerLayer, {});
   for (int layer = 0; layer < NumLayers; ++layer) {
     for (int halfBar = 0; halfBar < barsPerLayer; ++halfBar) {
       const int index = layer*barsPerLayer + halfBar;
@@ -5528,7 +5533,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             const int index = layer*barsPerLayer + halfBar;
             if (index >= 0 && index < (int)gCDetBarECalTimingSpectra.size()) {
               gCDetBarECalTimingSpectra[index]->Fill(t_ECal, time);
-              cdetBarECalTimingSamples[index].push_back(std::make_pair(t_ECal, time));
+              gCDetHalfBarECalTimingSamples[index].push_back(std::make_pair(t_ECal, time));
             }
           };
           fillHalfBarTiming(p.id1, p.t1);
@@ -5816,7 +5821,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     std::vector<GroupMean> means;
     for (int index = firstIndex; index < lastIndex; ++index) {
       const std::vector<std::pair<double,double>> &samples =
-          cdetBarECalTimingSamples[index];
+          gCDetHalfBarECalTimingSamples[index];
       if (samples.size() < 3) continue;
       double weight = 0.0, sumX = 0.0, sumY = 0.0;
       for (const std::pair<double,double> &sample : samples) {
@@ -5830,7 +5835,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     result.groups = means.size();
     for (const GroupMean &group : means) {
       const std::vector<std::pair<double,double>> &samples =
-          cdetBarECalTimingSamples[group.index];
+          gCDetHalfBarECalTimingSamples[group.index];
       for (const std::pair<double,double> &sample : samples) {
         const double dx = sample.first - group.x;
         const double dy = sample.second - group.y;
@@ -5844,7 +5849,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     result.slope = result.withinCovariance/result.withinVarianceX;
     for (const GroupMean &group : means) {
       const std::vector<std::pair<double,double>> &samples =
-          cdetBarECalTimingSamples[group.index];
+          gCDetHalfBarECalTimingSamples[group.index];
       for (const std::pair<double,double> &sample : samples) {
         const double dx = sample.first - group.x;
         const double dy = sample.second - group.y;
@@ -6399,6 +6404,191 @@ void plotAllCDetBarECalTiming(TString outputFile, TString summaryFile)
   std::cout << "[CDet half-bar/ECal overview] Displayed and wrote four 7x6 canvases to "
             << outputFile << ", with fit results in " << summaryFile
             << " (" << successfulFits << " successful fits of 168).\n";
+}
+
+void calibrateCDetHalfBarIntercepts(bool overwrite, double referenceECalTime,
+                                    int minEntries, double maxInterceptError,
+                                    TString outputRoot, TString outputSummary)
+{
+  const int halfBarsPerLayer = NumCDetPaddles/(NumLayers*NumPaddles);
+  const int totalHalfBars = NumLayers*halfBarsPerLayer;
+  if ((int)gCDetHalfBarECalTimingSamples.size() != totalHalfBars) {
+    std::cerr << "[CDet half-bar intercepts] ERROR: unbinned samples are unavailable. "
+              << "Run plotCDetLayersTimeComp first.\n";
+    return;
+  }
+  if (minEntries < 3 || maxInterceptError <= 0.0) {
+    std::cerr << "[CDet half-bar intercepts] ERROR: invalid quality thresholds.\n";
+    return;
+  }
+
+  struct GroupResult {
+    int entries = 0;
+    double meanX = NAN, meanY = NAN, intercept = NAN, error = NAN;
+    double correction = 0.0;
+    bool valid = false;
+  };
+  std::vector<GroupResult> groups(totalHalfBars);
+
+  // Estimate the common within-half-bar slope directly from unbinned hits.
+  double withinXY = 0.0, withinXX = 0.0;
+  for (int index = 0; index < totalHalfBars; ++index) {
+    const auto &samples = gCDetHalfBarECalTimingSamples[index];
+    if ((int)samples.size() < minEntries) continue;
+    double sx = 0.0, sy = 0.0;
+    for (const auto &sample : samples) { sx += sample.first; sy += sample.second; }
+    const double mx = sx/samples.size(), my = sy/samples.size();
+    for (const auto &sample : samples) {
+      const double dx = sample.first - mx;
+      withinXY += dx*(sample.second - my);
+      withinXX += dx*dx;
+    }
+  }
+  if (withinXX <= 0.0) {
+    std::cerr << "[CDet half-bar intercepts] ERROR: insufficient within-group variation.\n";
+    return;
+  }
+  const double commonSlope = withinXY/withinXX;
+
+  double targetNumerator = 0.0, targetDenominator = 0.0;
+  for (int index = 0; index < totalHalfBars; ++index) {
+    const auto &samples = gCDetHalfBarECalTimingSamples[index];
+    GroupResult &group = groups[index];
+    group.entries = samples.size();
+    if (samples.empty()) continue;
+    double sx = 0.0, sy = 0.0;
+    for (const auto &sample : samples) { sx += sample.first; sy += sample.second; }
+    group.meanX = sx/samples.size();
+    group.meanY = sy/samples.size();
+    group.intercept = group.meanY + commonSlope*(referenceECalTime - group.meanX);
+    if (samples.size() >= 2) {
+      double sse = 0.0;
+      for (const auto &sample : samples) {
+        const double predicted = group.intercept + commonSlope*(sample.first - referenceECalTime);
+        const double residual = sample.second - predicted;
+        sse += residual*residual;
+      }
+      group.error = std::sqrt((sse/(samples.size() - 1))/samples.size());
+    }
+    group.valid = group.entries >= minEntries && std::isfinite(group.error) &&
+                  group.error <= maxInterceptError;
+    if (group.valid) {
+      targetNumerator += group.entries*group.intercept;
+      targetDenominator += group.entries;
+    }
+  }
+  if (targetDenominator <= 0.0) {
+    std::cerr << "[CDet half-bar intercepts] ERROR: no half-bars passed validation.\n";
+    return;
+  }
+  const double detectorReference = targetNumerator/targetDenominator;
+  double betweenVariance = 0.0, withinResidualSquares = 0.0;
+  int validGroups = 0;
+  for (int index = 0; index < totalHalfBars; ++index) {
+    GroupResult &group = groups[index];
+    if (!group.valid) continue;
+    group.correction = detectorReference - group.intercept;
+    betweenVariance += group.entries*std::pow(group.intercept - detectorReference, 2);
+    for (const auto &sample : gCDetHalfBarECalTimingSamples[index]) {
+      const double predicted = group.intercept + commonSlope*(sample.first - referenceECalTime);
+      withinResidualSquares += std::pow(sample.second - predicted, 2);
+    }
+    ++validGroups;
+  }
+  const double betweenRms = std::sqrt(betweenVariance/targetDenominator);
+  const double withinRms = std::sqrt(withinResidualSquares/targetDenominator);
+  const double totalRmsBefore = std::sqrt(
+      (withinResidualSquares + betweenVariance)/targetDenominator);
+  const double predictedTotalRmsAfter = withinRms;
+
+  std::ofstream summary(outputSummary.Data());
+  TFile rootOutput(outputRoot, "RECREATE");
+  if (!summary || rootOutput.IsZombie()) {
+    std::cerr << "[CDet half-bar intercepts] ERROR: cannot create diagnostic outputs.\n";
+    return;
+  }
+  summary << "# CDet half-bar intercept alignment at common ECal time\n"
+          << "# reference_ecal_time_ns " << referenceECalTime << "\n"
+          << "# common_within_slope_ns_per_ns " << commonSlope << "\n"
+          << "# detector_reference_ns " << detectorReference << "\n"
+          << "# layer half_bar entries mean_ecal_ns mean_cdet_ns projected_cdet_at_reference_ns intercept_error_ns valid proposed_offset_increment_ns\n";
+
+  rootOutput.cd();
+  std::vector<double> xValid, yValid, eyValid, correctionValid;
+  xValid.reserve(validGroups); yValid.reserve(validGroups);
+  eyValid.reserve(validGroups); correctionValid.reserve(validGroups);
+  TH1D *hIntercepts = new TH1D("hCDetHalfBarIntercepts",
+      "Half-bar times at common ECal reference;CDet time at reference (ns);Half-bars", 120, 15, 45);
+  TH1D *hCorrections = new TH1D("hCDetHalfBarCorrections",
+      "Proposed half-bar offset increments;Offset increment (ns);Half-bars", 120, -15, 15);
+  for (int index = 0; index < totalHalfBars; ++index) {
+    const int layer = index/halfBarsPerLayer;
+    const int halfBar = index%halfBarsPerLayer;
+    const GroupResult &group = groups[index];
+    if (group.valid) {
+      xValid.push_back(index);
+      yValid.push_back(group.intercept);
+      eyValid.push_back(group.error);
+      correctionValid.push_back(group.correction);
+      hIntercepts->Fill(group.intercept);
+      hCorrections->Fill(group.correction);
+    }
+    summary << layer + 1 << " " << halfBar << " " << group.entries << " "
+            << group.meanX << " " << group.meanY << " " << group.intercept << " "
+            << group.error << " " << group.valid << " " << group.correction << "\n";
+  }
+  TGraphErrors *gIntercepts = new TGraphErrors(validGroups, xValid.data(), yValid.data(),
+                                                nullptr, eyValid.data());
+  gIntercepts->SetName("gCDetHalfBarInterceptsAtReference");
+  gIntercepts->SetTitle(TString::Format(
+      "Half-bar CDet time at ECal reference %.1f ns;Layer/half-bar index;Projected CDet time (ns)",
+      referenceECalTime));
+  TGraph *gCorrections = new TGraph(validGroups, xValid.data(), correctionValid.data());
+  gCorrections->SetName("gCDetHalfBarProposedOffsetIncrements");
+  gCorrections->SetTitle("Proposed half-bar offset increments;Layer/half-bar index;Offset increment (ns)");
+  TCanvas *canvas = new TCanvas("cCDetHalfBarInterceptAlignment",
+      "CDet half-bar intercept alignment", 1200, 900);
+  canvas->Divide(2, 2);
+  canvas->cd(1); gIntercepts->SetMarkerStyle(20); gIntercepts->SetMarkerSize(0.45); gIntercepts->Draw("AP");
+  canvas->cd(2); hIntercepts->Draw();
+  canvas->cd(3); gCorrections->SetMarkerStyle(20); gCorrections->SetMarkerSize(0.45); gCorrections->Draw("AP");
+  canvas->cd(4); hCorrections->Draw();
+  rootOutput.Write();
+  rootOutput.Close();
+  summary.close();
+
+  std::cout << "\n[CDet half-bar intercept alignment]\n"
+            << "  common unbinned within-half-bar slope: " << commonSlope << " ns/ns\n"
+            << "  ECal reference time: " << referenceECalTime << " ns\n"
+            << "  validated half-bars: " << validGroups << " / " << totalHalfBars << "\n"
+            << "  detector reference at common ECal time: " << detectorReference << " ns\n"
+            << "  within-half-bar residual RMS: " << withinRms << " ns\n"
+            << "  between-half-bar intercept RMS: " << betweenRms << " ns\n"
+            << "  total timing RMS before proposed alignment: " << totalRmsBefore << " ns\n"
+            << "  predicted total timing RMS after proposed alignment: "
+            << predictedTotalRmsAfter << " ns\n"
+            << "  diagnostics: " << outputRoot << "\n"
+            << "  proposed corrections: " << outputSummary << "\n";
+
+  if (!overwrite) {
+    std::cout << "  diagnostic only: calibration constants were not changed.\n";
+    return;
+  }
+  if (!gPixelToffsetLoaded || (int)gPixelToffsetCorr.size() != NumCDetPaddles) {
+    std::cerr << "[CDet half-bar intercepts] ERROR: active pixel offsets are unavailable; nothing written.\n";
+    return;
+  }
+  const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+  for (int index = 0; index < totalHalfBars; ++index) {
+    if (!groups[index].valid) continue;
+    const int layer = index/halfBarsPerLayer;
+    const int halfBar = index%halfBarsPerLayer;
+    const int pixelBase = layer*pixelsPerLayer + halfBar*NumPaddles;
+    for (int localPixel = 0; localPixel < NumPaddles; ++localPixel)
+      gPixelToffsetCorr[pixelBase + localPixel] += groups[index].correction;
+  }
+  gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
+  std::cout << "  applied validated half-bar corrections to " << gCalibrationFile << ".\n";
 }
 
 void plotCDetLayersTimeComp(const char *configFile)

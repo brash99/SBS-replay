@@ -488,3 +488,29 @@ the combined residual slope was `-0.000491710 +/- 0.00165043 ns/ns`, with both
 layers independently consistent with zero. The archive README records the
 full extraction counts, provenance, interpretation, and primary-file
 checksums.
+
+### Final half-bar intercept alignment
+
+The remaining pooled timing dependence was traced to different half-bar
+intercepts rather than a common within-half-bar ECal slope. The
+`calibrateCDetHalfBarIntercepts()` diagnostic projects each half-bar to a
+common ECal time, validates its intercept, and optionally adds one common
+increment to the 16 pixel offsets belonging to that half-bar.
+
+For run 5710, 123 of 168 half-bars passed the default requirements of at least
+100 accepted hits and an intercept uncertainty no larger than 1 ns. Applying
+the proposed increments reduced the hit-weighted between-half-bar intercept
+RMS from `1.61545 ns` to `0.03961 ns`. The final common fixed-effects slope was
+`0.000000028 +/- 0.00166039 ns/ns`, and the paired-layer mean-time width was
+approximately `2.27 ns`. A subsequent diagnostic predicted only `0.00026 ns`
+additional RMS improvement, so no further intercept iteration was applied.
+
+The definitive matched bundle is:
+
+```text
+CDet_run5710_halfbar_aligned_final_archive/
+```
+
+Its calibration uses `p0 = 74.192800 ns` and `p1 = 0.817261 ns/ns`. The bundle
+contains the applied and closure correction tables, matched polygon cuts and
+pixel diagnostics, final canvases, provenance, and checksums.
