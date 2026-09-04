@@ -420,3 +420,71 @@ tdcPlots/hierarchical_final_closure/
 
 The combined-run driver prefixes these output tags with `groupN_` so products
 from different ECal cross-target groups do not overwrite one another.
+
+### Optional manual LE-versus-TOT population cuts
+
+Cross-talk can create a one-dimensional timing peak that is larger than the
+physical population. For an ambiguous pixel, draw a persistent two-dimensional
+selection around the physical LE-versus-TOT band after running the analysis:
+
+```cpp
+editCDetPixelLeTotCut(468);
+editCDetPixelLeTotCut(471);
+```
+
+The default output is `CDet_pixel_quality_cuts.root`. Each pixel directory
+contains the `TCutG`, the reference LE-versus-TOT histogram, and the source run
+and calibration stage. Inspect a saved selection without editing it with:
+
+```cpp
+plotCDetPixelLeVsTot(468);
+```
+
+Manual cuts are not applied implicitly. Opt in when running a hierarchical
+offset pass:
+
+```cpp
+extractHierarchicalCDetPixelTimingOffsets(
+    true, "manual_le_tot", "CDet_pixel_quality_cuts.root");
+```
+
+The polygon filters only the named pixel before its delta-t histogram and its
+eight-pixel group sum are constructed. Pixels without a saved polygon retain
+the automatic procedure. Because the polygon uses the corrected LE coordinate,
+draw and apply it at the same calibration stage; do not silently reuse it after
+changing offsets or time-walk constants.
+
+### Preserved Simpson's-paradox diagnostic
+
+Before changing the ECal timing-slope calibration, the run-5710 state that
+revealed a pooled-versus-within-half-bar slope reversal was archived under:
+
+```text
+simpsons_paradox_run5710_before_correction/
+```
+
+The archive contains the source ROOT file, the 168-row half-bar fit summary,
+all four 7-by-6 overview canvases, the pooled diagnostic canvas, checksums, and
+a quantitative account of the covariance decomposition. In brief, 130 of
+135 successful half-bar fits had negative slopes (122 by more than two
+standard errors), even though the pooled CDet-versus-ECal relationship was
+nearly flat. The negative within-half-bar covariance is almost cancelled by
+positive covariance between half-bar means. See the archive's `README.md`
+for the preserved evidence and numerical results.
+
+### Definitive run-5710 fixed-effects calibration
+
+The final matched calibration bundle is preserved under:
+
+```text
+CDet_run5710_fixed_effects_final_archive/
+```
+
+It contains the final calibration (`p0 = 74.192800 ns`, `p1 = 0.812267
+ns/ns`), the 102 manual polygon cuts, the complete per-pixel results and ROOT
+diagnostics from the final hierarchical extraction, selected fit canvases, and
+the final ECal fixed-effects closure plot. After the final pixel-offset pass,
+the combined residual slope was `-0.000491710 +/- 0.00165043 ns/ns`, with both
+layers independently consistent with zero. The archive README records the
+full extraction counts, provenance, interpretation, and primary-file
+checksums.

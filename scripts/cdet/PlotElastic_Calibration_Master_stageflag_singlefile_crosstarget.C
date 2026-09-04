@@ -15,7 +15,9 @@
 #include <sstream>
 #include <cmath>
 #include <cstdio>      // for sscanf
+#include <cstdlib>     // for strtod
 #include <algorithm>   // for std::sort
+#include <limits>
 #include <TMath.h>
 #include <TH1.h>
 #include <TH1D.h>
@@ -35,6 +37,7 @@
 #include <TPaveText.h>
 #include <TPaveStats.h>
 #include <TParameter.h>
+#include <TCutG.h>
 #include <TEnv.h>
 #include <vector>
 #include <unordered_map>
@@ -113,6 +116,7 @@ static const double ECalClusterEnergyBinWidthGeV = 0.01;
 
 static const int NumPaddles = 16;
 static const int NumBars = 14;
+static const int NumHalfBarsPerBank = NumBars/2;
 static const int NumLayers = 2;
 static const int NumSides = 2;
 static const int NumModules = 3;
@@ -179,6 +183,8 @@ struct PairHit {
 };
 
 std::vector<std::vector<PairHit>> pairs_CDet;
+std::vector<TH1D*> gCDetPairedLeSpectra;
+std::vector<TH2D*> gCDetBarECalTimingSpectra;
 
 struct CDetDisplayHit {
   int id, layer, side, module, bar, pixel;
@@ -195,6 +201,17 @@ struct CDetDisplayEvent {
   std::vector<PairHit> selectedPairs;
 };
 
+struct CDetPixelReviewCandidate {
+  int pixel;
+  int entries;
+  double score;
+  double broadGroupDifference;
+  double usedGroupDifference;
+  double usedSigma;
+  std::string source;
+  std::string reasons;
+};
+
 std::vector<CDetDisplayEvent> gCDetDisplayEvents;
 Long64_t gCDetDisplayIndex = -1;
 TCanvas *gCDetEventCanvas = nullptr;
@@ -203,6 +220,9 @@ double gCDetDisplayXMin = -1.5;
 double gCDetDisplayXMax = 1.5;
 double gCDetDisplayZMin = 0.0;
 double gCDetDisplayZMax = 7.0;
+std::vector<CDetPixelReviewCandidate> gCDetPixelReviewQueue;
+Long64_t gCDetPixelReviewIndex = -1;
+TString gCDetPixelReviewCutFile = "CDet_pixel_quality_cuts.root";
 
 void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut,
                            double xdiffMinCut, double xdiffMaxCut,
@@ -213,6 +233,41 @@ void NextCDetEvent();
 void PreviousCDetEvent();
 void PrintCDetEvent();
 void SaveCDetEvent();
+void writeAllCDetPairedLeSpectra(TString outputFile = "CDet_all_bars_paired_le.root");
+void showCDetPairedLeBar(int bar = 29,
+                         TString inputFile = "CDet_all_bars_paired_le.root");
+void writeAllCDetBarECalTimingDiagnostics(
+    TString outputFile = "CDet_bar_ecal_timing.root",
+    TString summaryFile = "CDet_bar_ecal_timing_summary.dat");
+void showCDetBarECalTiming(
+    int bar = 29, TString inputFile = "CDet_bar_ecal_timing.root");
+void plotAllCDetBarECalTiming(
+    TString outputFile = "CDet_bar_ecal_timing_overview.root",
+    TString summaryFile = "CDet_bar_ecal_timing_overview_summary.dat");
+void ResetCalibrationGlobals();
+
+// Interactive, persistent LE-versus-TOT selections for pixels whose physical
+// population cannot be isolated reliably by the automatic one-dimensional fit.
+void plotCDetPixelLeVsTot(int logicalPixelID = 468,
+                          TString cutFile = "CDet_pixel_quality_cuts.root",
+                          double totMin = 0.0, double totMax = 60.0,
+                          double leMin = 0.0, double leMax = 60.0,
+                          double binWidth = 0.5);
+void editCDetPixelLeTotCut(int logicalPixelID = 468,
+                           TString cutFile = "CDet_pixel_quality_cuts.root",
+                           double totMin = 0.0, double totMax = 60.0,
+                           double leMin = 0.0, double leMax = 60.0,
+                           double binWidth = 0.5);
+void buildCDetPixelLeTotReviewQueue(
+    TString resultsFile = "CDet_pixel_timing_fit_results_manual_le_tot.dat",
+    TString cutFile = "CDet_pixel_quality_cuts.root",
+    TString queueOutput = "CDet_pixel_le_tot_review_queue.dat",
+    int minEntries = 35, double centroidDifference = 2.0,
+    double sigmaThreshold = 3.0);
+void printCDetPixelLeTotReviewQueue(int maximumRows = 25);
+void reviewCurrentCDetPixelLeTotCandidate();
+void reviewNextCDetPixelLeTotCandidate();
+void reviewPreviousCDetPixelLeTotCandidate();
 
 // List of x-positions (or bins) for unused pixels ----- 1/19 verified correct
 static std::vector<double> missingPixelBins = {
@@ -595,6 +650,12 @@ static const int NumPMTs = NumHalfModules*NumBars; // 168 (does not include 4 re
 
 std::vector<int> gPixelToffsetNhits;      // store Nhits for each physical logical pixel when computing toffsets
 std::vector<double> gPixelToffsetCorr;    // size NumCDetPaddles, correction to ADD to LE/TE: (mean_all - mean_pixel)
+// Immutable baseline corresponding to the currently populated analysis vectors.
+// Offset extraction must add residuals to this snapshot, not to constants that
+// may already have been updated by an earlier extraction in the same session.
+std::vector<int> gAnalysisPixelToffsetNhits;
+std::vector<double> gAnalysisPixelToffsetCorr;
+bool gAnalysisPixelToffsetSnapshotValid = false;
 bool gPixelToffsetLoaded = false;         // true if offsets were read from file
 bool gECalParamsLoaded = false;
 bool gTimeWalkParamsLoaded = false;
@@ -1456,6 +1517,10 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1,
         bool useReferenceTiming = false)
 {
+  // Each invocation owns a fresh analysis sample. Without this reset, calling
+  // the main macro twice in one ROOT process appends duplicate events to the
+  // global vectors and corrupts fit counts and uncertainties.
+  ResetCalibrationGlobals();
   gLastCalibrationStageSucceeded = false;
   gRunNumber = RunNumber1;
   gCalibrationStage = calibStage;
@@ -1499,6 +1564,10 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
 
 // Configure which calibrations are active for this run.
 ConfigureCalibrationStage(calibStage);
+  gAnalysisPixelToffsetCorr = gPixelToffsetCorr;
+  gAnalysisPixelToffsetNhits = gPixelToffsetNhits;
+  gAnalysisPixelToffsetSnapshotValid =
+      (int)gAnalysisPixelToffsetCorr.size() == NumCDetPaddles;
 
 // A single shift is meaningful only for single-run chains. Applying a
 // CDet_run0.dat shift to a mixed-run group would silently bias every run.
@@ -4113,6 +4182,457 @@ void plotPaddleTOT(
   cPaddlesLE->Update();
 }
 
+static TString CDetPixelCutDirectory(int logicalPixelID)
+{
+  return TString::Format("pixel_%04d", logicalPixelID);
+}
+
+static TCutG *LoadCDetPixelLeTotCut(TFile& input, int logicalPixelID)
+{
+  if (input.IsZombie()) return nullptr;
+  const TString objectPath = CDetPixelCutDirectory(logicalPixelID) + "/cut_le_vs_tot";
+  TCutG *stored = dynamic_cast<TCutG*>(input.Get(objectPath));
+  if (!stored) return nullptr;
+  TCutG *copy = static_cast<TCutG*>(stored->Clone(
+      TString::Format("cut_le_vs_tot_pixel_%04d_loaded", logicalPixelID)));
+  copy->SetVarX("TOT_ns");
+  copy->SetVarY("LE_ns");
+  return copy;
+}
+
+static TH2D *BuildCDetPixelLeVsTotHistogram(int logicalPixelID,
+                                             double totMin, double totMax,
+                                             double leMin, double leMax,
+                                             double binWidth,
+                                             const TString& name)
+{
+  if (logicalPixelID < 0 || logicalPixelID >= NumCDetPaddles ||
+      totMin >= totMax || leMin >= leMax || binWidth <= 0.0) return nullptr;
+  const int nTotBins = std::max(1, (int)((totMax - totMin)/binWidth));
+  const int nLeBins = std::max(1, (int)((leMax - leMin)/binWidth));
+  TH2D *histogram = new TH2D(
+      name,
+      TString::Format("Good LE vs TOT (Pixel %d);TOT [ns];LE [ns]", logicalPixelID),
+      nTotBins, totMin, totMax, nLeBins, leMin, leMax);
+  histogram->SetDirectory(nullptr);
+  if ((int)vPaddleGoodLe.size() <= logicalPixelID ||
+      (int)vPaddleGoodTot.size() <= logicalPixelID) return histogram;
+  const size_t nHits = std::min(vPaddleGoodLe[logicalPixelID].size(),
+                                vPaddleGoodTot[logicalPixelID].size());
+  for (size_t hit = 0; hit < nHits; ++hit)
+    histogram->Fill(vPaddleGoodTot[logicalPixelID][hit],
+                    vPaddleGoodLe[logicalPixelID][hit]);
+  return histogram;
+}
+
+void plotCDetPixelLeVsTot(int logicalPixelID, TString cutFile,
+                          double totMin, double totMax,
+                          double leMin, double leMax, double binWidth)
+{
+  static unsigned long invocation = 0;
+  TH2D *histogram = BuildCDetPixelLeVsTotHistogram(
+      logicalPixelID, totMin, totMax, leMin, leMax, binWidth,
+      TString::Format("hCDetPixelLeVsTot_%04d_%lu", logicalPixelID, ++invocation));
+  if (!histogram) {
+    std::cerr << "[CDet pixel LE/TOT] ERROR: invalid pixel ID or histogram range.\n";
+    return;
+  }
+  TCanvas *canvas = new TCanvas(
+      TString::Format("cCDetPixelLeVsTot_%04d_%lu", logicalPixelID, invocation),
+      TString::Format("Pixel %d LE versus TOT", logicalPixelID), 900, 750);
+  canvas->SetLogz();
+  histogram->Draw("COLZ");
+
+  TCutG *cut = nullptr;
+  if (!cutFile.IsNull() && !gSystem->AccessPathName(cutFile)) {
+    TFile input(cutFile, "READ");
+    cut = LoadCDetPixelLeTotCut(input, logicalPixelID);
+    input.Close();
+  }
+  if (cut) {
+    cut->SetLineColor(kRed + 1);
+    cut->SetLineWidth(3);
+    cut->SetFillStyle(0);
+    cut->Draw("L SAME");
+    std::cout << "[CDet pixel LE/TOT] Displaying saved cut for pixel "
+              << logicalPixelID << " from " << cutFile << ".\n";
+  } else {
+    std::cout << "[CDet pixel LE/TOT] No saved cut for pixel "
+              << logicalPixelID << " in " << cutFile << ".\n";
+  }
+  canvas->Modified();
+  canvas->Update();
+}
+
+void editCDetPixelLeTotCut(int logicalPixelID, TString cutFile,
+                           double totMin, double totMax,
+                           double leMin, double leMax, double binWidth)
+{
+  if (gROOT->IsBatch()) {
+    std::cerr << "[CDet pixel-cut editor] ERROR: interactive ROOT mode is required.\n";
+    return;
+  }
+  static unsigned long invocation = 0;
+  TH2D *histogram = BuildCDetPixelLeVsTotHistogram(
+      logicalPixelID, totMin, totMax, leMin, leMax, binWidth,
+      TString::Format("hCDetPixelLeVsTotEdit_%04d_%lu", logicalPixelID, ++invocation));
+  if (!histogram) {
+    std::cerr << "[CDet pixel-cut editor] ERROR: invalid pixel ID or histogram range.\n";
+    return;
+  }
+  if (histogram->GetEntries() <= 0) {
+    std::cerr << "[CDet pixel-cut editor] ERROR: no good hits are available for pixel "
+              << logicalPixelID << ". Run the main analysis first.\n";
+    return;
+  }
+
+  TCanvas *canvas = new TCanvas(
+      TString::Format("cCDetPixelLeTotCutEdit_%04d_%lu", logicalPixelID, invocation),
+      TString::Format("Draw physical-population cut for pixel %d", logicalPixelID),
+      950, 800);
+  canvas->SetLogz();
+  histogram->Draw("COLZ");
+
+  TCutG *oldCut = nullptr;
+  if (!cutFile.IsNull() && !gSystem->AccessPathName(cutFile)) {
+    TFile oldFile(cutFile, "READ");
+    oldCut = LoadCDetPixelLeTotCut(oldFile, logicalPixelID);
+    oldFile.Close();
+  }
+  if (oldCut) {
+    oldCut->SetLineColor(kGreen + 2);
+    oldCut->SetLineStyle(2);
+    oldCut->SetLineWidth(3);
+    oldCut->SetFillStyle(0);
+    oldCut->Draw("L SAME");
+  }
+  canvas->Modified();
+  canvas->Update();
+
+  std::cout << "\n[CDet pixel-cut editor] Pixel " << logicalPixelID << "\n"
+            << "  Draw a polygon around the physical LE-versus-TOT population.\n"
+            << "  Left-click to add vertices and double-click to close the polygon.\n"
+            << "  The dashed green line, when present, is the previously saved cut.\n"
+            << "  Press Escape to cancel without changing the cut file.\n";
+  TObject *primitive = gPad->WaitPrimitive("CUTG", "CutG");
+  TCutG *drawnCut = dynamic_cast<TCutG*>(primitive);
+  if (drawnCut) drawnCut->SetName(
+      TString::Format("drawn_cut_pixel_%04d_%lu", logicalPixelID, invocation));
+  double twiceArea = 0.0;
+  if (drawnCut && drawnCut->GetN() >= 4) {
+    for (int point = 0; point < drawnCut->GetN() - 1; ++point)
+      twiceArea += drawnCut->GetPointX(point)*drawnCut->GetPointY(point + 1) -
+                   drawnCut->GetPointX(point + 1)*drawnCut->GetPointY(point);
+  }
+  if (!drawnCut || drawnCut->GetN() < 4 || std::fabs(twiceArea) < 1.0e-6) {
+    std::cout << "[CDet pixel-cut editor] No valid polygon was drawn. A cut needs at "
+              << "least three distinct vertices and nonzero area; nothing saved.\n";
+    return;
+  }
+
+  size_t selectedHits = 0;
+  if ((int)vPaddleGoodLe.size() > logicalPixelID &&
+      (int)vPaddleGoodTot.size() > logicalPixelID) {
+    const size_t nHits = std::min(vPaddleGoodLe[logicalPixelID].size(),
+                                  vPaddleGoodTot[logicalPixelID].size());
+    for (size_t hit = 0; hit < nHits; ++hit)
+      if (drawnCut->IsInside(vPaddleGoodTot[logicalPixelID][hit],
+                             vPaddleGoodLe[logicalPixelID][hit])) ++selectedHits;
+  }
+  if (selectedHits == 0) {
+    std::cout << "[CDet pixel-cut editor] The polygon contains zero pixel hits; "
+              << "nothing saved.\n";
+    return;
+  }
+
+  TCutG *savedCut = static_cast<TCutG*>(drawnCut->Clone("cut_le_vs_tot"));
+  savedCut->SetTitle(TString::Format(
+      "Pixel %d physical population;TOT [ns];LE [ns]", logicalPixelID));
+  savedCut->SetVarX("TOT_ns");
+  savedCut->SetVarY("LE_ns");
+  savedCut->SetLineColor(kRed + 1);
+  savedCut->SetLineStyle(1);
+  savedCut->SetLineWidth(3);
+  savedCut->SetFillStyle(0);
+
+  TFile output(cutFile, "UPDATE");
+  if (output.IsZombie()) {
+    std::cerr << "[CDet pixel-cut editor] ERROR: could not update " << cutFile << ".\n";
+    return;
+  }
+  const TString directoryName = CDetPixelCutDirectory(logicalPixelID);
+  TDirectory *directory = output.GetDirectory(directoryName);
+  if (!directory) directory = output.mkdir(directoryName);
+  if (!directory) {
+    std::cerr << "[CDet pixel-cut editor] ERROR: could not create directory "
+              << directoryName << " in " << cutFile << ".\n";
+    output.Close();
+    return;
+  }
+  directory->cd();
+  savedCut->Write("cut_le_vs_tot", TObject::kOverwrite);
+  histogram->Write("h_le_vs_tot_reference", TObject::kOverwrite);
+  TParameter<int>("logical_pixel_id", logicalPixelID).Write("logical_pixel_id", TObject::kOverwrite);
+  TParameter<int>("source_run", gRunNumber).Write("source_run", TObject::kOverwrite);
+  TParameter<int>("calibration_stage", gCalibrationStage).Write("calibration_stage", TObject::kOverwrite);
+  output.Close();
+
+  savedCut->Draw("L SAME");
+  canvas->Modified();
+  canvas->Update();
+  std::cout << "[CDet pixel-cut editor] Saved pixel " << logicalPixelID
+            << " cut to " << cutFile << " (" << selectedHits
+            << " of " << histogram->GetEntries() << " displayed hits selected).\n";
+}
+
+static double ParseCDetFitResultNumber(const std::string& token)
+{
+  char *end = nullptr;
+  const double value = std::strtod(token.c_str(), &end);
+  return end && end != token.c_str() ? value : NAN;
+}
+
+bool writeCDetCalibrationBaselineFromFitResults(
+    TString resultsFile = "CDet_pixel_timing_fit_results.after_2_manual_cuts.dat",
+    TString templateCalibration = "CDet_calibration_dt.after_2_manual_cuts.dat",
+    TString baselineOutput = "CDet_calibration_dt.before_manual_le_tot.dat")
+{
+  if (!LoadCalibrationConstants(templateCalibration.Data())) {
+    std::cerr << "[CDet baseline recovery] ERROR: could not load calibration template "
+              << templateCalibration << ".\n";
+    return false;
+  }
+  std::ifstream input(resultsFile.Data());
+  if (!input) {
+    std::cerr << "[CDet baseline recovery] ERROR: could not open " << resultsFile << ".\n";
+    return false;
+  }
+  std::vector<double> recovered(NumCDetPaddles, NAN);
+  std::string line;
+  while (std::getline(input, line)) {
+    if (line.empty() || line[0] == '#') continue;
+    std::istringstream row(line);
+    int pixel = -1, bar = -1, group = -1, entries = 0, manualCut = 0, fitStatus = -1;
+    std::string source, broadText, groupText, usedText, usedErrorText,
+                sigmaText, correctionText, totalText;
+    if (!(row >> pixel >> bar >> group >> entries >> manualCut >> source >>
+          broadText >> groupText >> usedText >> usedErrorText >> sigmaText >>
+          correctionText >> totalText >> fitStatus)) continue;
+    if (pixel < 0 || pixel >= NumCDetPaddles) continue;
+    const double correctionValue = ParseCDetFitResultNumber(correctionText);
+    const double totalValue = ParseCDetFitResultNumber(totalText);
+    if (std::isfinite(correctionValue) && std::isfinite(totalValue))
+      recovered[pixel] = totalValue - correctionValue;
+  }
+  int recoveredCount = 0;
+  for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+    if (!std::isfinite(recovered[pixel])) continue;
+    gPixelToffsetCorr[pixel] = recovered[pixel];
+    ++recoveredCount;
+  }
+  if (recoveredCount != NumCDetPaddles) {
+    std::cerr << "[CDet baseline recovery] ERROR: recovered " << recoveredCount
+              << " / " << NumCDetPaddles << " offsets; no file written.\n";
+    return false;
+  }
+  if (!WriteCalibrationConstants(baselineOutput.Data())) return false;
+  std::cout << "[CDet baseline recovery] Reconstructed the analysis-time baseline in "
+            << baselineOutput << " from " << recoveredCount << " pixel rows.\n";
+  return true;
+}
+
+void buildCDetPixelLeTotReviewQueue(TString resultsFile, TString cutFile,
+                                    TString queueOutput, int minEntries,
+                                    double centroidDifference,
+                                    double sigmaThreshold)
+{
+  gCDetPixelReviewQueue.clear();
+  gCDetPixelReviewIndex = -1;
+  gCDetPixelReviewCutFile = cutFile;
+  if (minEntries < 1 || centroidDifference <= 0.0 || sigmaThreshold <= 0.0) {
+    std::cerr << "[CDet pixel review] ERROR: invalid review threshold.\n";
+    return;
+  }
+
+  std::ifstream input(resultsFile.Data());
+  if (!input) {
+    std::cerr << "[CDet pixel review] ERROR: could not open " << resultsFile << ".\n";
+    return;
+  }
+
+  std::vector<bool> hasSavedCut(NumCDetPaddles, false);
+  if (!cutFile.IsNull() && !gSystem->AccessPathName(cutFile)) {
+    TFile cutInput(cutFile, "READ");
+    if (!cutInput.IsZombie()) {
+      for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+        const TString path = CDetPixelCutDirectory(pixel) + "/cut_le_vs_tot";
+        hasSavedCut[pixel] = cutInput.Get(path) != nullptr;
+      }
+    }
+    cutInput.Close();
+  }
+
+  int rowsRead = 0;
+  int alreadyCut = 0;
+  std::string line;
+  while (std::getline(input, line)) {
+    if (line.empty() || line[0] == '#') continue;
+    std::istringstream row(line);
+    int pixel = -1, bar = -1, group = -1, entries = 0, manualCut = 0, fitStatus = -1;
+    std::string source, broadText, groupText, usedText, usedErrorText,
+                sigmaText, correctionText, totalText;
+    if (!(row >> pixel >> bar >> group >> entries >> manualCut >> source >>
+          broadText >> groupText >> usedText >> usedErrorText >> sigmaText >>
+          correctionText >> totalText >> fitStatus)) continue;
+    ++rowsRead;
+    if (pixel < 0 || pixel >= NumCDetPaddles || IsUnusedPixel(pixel) ||
+        entries < minEntries) continue;
+    if (hasSavedCut[pixel] || manualCut != 0) {
+      ++alreadyCut;
+      continue;
+    }
+
+    const double broadMean = ParseCDetFitResultNumber(broadText);
+    const double groupMeanValue = ParseCDetFitResultNumber(groupText);
+    const double usedMeanValue = ParseCDetFitResultNumber(usedText);
+    const double usedSigmaValue = ParseCDetFitResultNumber(sigmaText);
+    const double broadGroupDifference =
+        std::isfinite(broadMean) && std::isfinite(groupMeanValue)
+            ? std::fabs(broadMean - groupMeanValue) : NAN;
+    const double usedGroupDifference =
+        std::isfinite(usedMeanValue) && std::isfinite(groupMeanValue)
+            ? std::fabs(usedMeanValue - groupMeanValue) : NAN;
+
+    double score = 0.0;
+    std::vector<std::string> reasons;
+    if (source != "individual_fit") {
+      score += source == "individual_broad_fallback" ? 100.0 : 80.0;
+      reasons.push_back("nonstandard fit source=" + source);
+    }
+    if (std::isfinite(broadGroupDifference) &&
+        broadGroupDifference >= centroidDifference) {
+      score += 20.0 + 5.0*std::min(10.0, broadGroupDifference);
+      reasons.push_back(TString::Format("broad-group=%.2f ns", broadGroupDifference).Data());
+    }
+    if (std::isfinite(usedGroupDifference) &&
+        usedGroupDifference >= centroidDifference) {
+      score += 15.0 + 4.0*std::min(10.0, usedGroupDifference);
+      reasons.push_back(TString::Format("used-group=%.2f ns", usedGroupDifference).Data());
+    }
+    if (std::isfinite(usedSigmaValue) && usedSigmaValue >= sigmaThreshold) {
+      score += 10.0 + 4.0*std::min(8.0, usedSigmaValue - sigmaThreshold);
+      reasons.push_back(TString::Format("sigma=%.2f ns", usedSigmaValue).Data());
+    }
+    if (score <= 0.0) continue;
+
+    std::ostringstream reasonText;
+    for (size_t reason = 0; reason < reasons.size(); ++reason) {
+      if (reason) reasonText << "; ";
+      reasonText << reasons[reason];
+    }
+    gCDetPixelReviewQueue.push_back({pixel, entries, score,
+        broadGroupDifference, usedGroupDifference, usedSigmaValue,
+        source, reasonText.str()});
+  }
+  input.close();
+
+  std::sort(gCDetPixelReviewQueue.begin(), gCDetPixelReviewQueue.end(),
+      [](const CDetPixelReviewCandidate& left,
+         const CDetPixelReviewCandidate& right) {
+        if (left.score != right.score) return left.score > right.score;
+        return left.pixel < right.pixel;
+      });
+
+  std::ofstream output(queueOutput.Data());
+  if (output) {
+    output << "# Ranked conservative CDet LE-versus-TOT manual-review queue\n"
+           << "# source results: " << resultsFile << "\n"
+           << "# saved cuts skipped from: " << cutFile << "\n"
+           << "# thresholds: entries >= " << minEntries
+           << ", centroid difference >= " << centroidDifference
+           << " ns, sigma >= " << sigmaThreshold << " ns\n"
+           << "# rank pixel bar entries score source broad_group_ns used_group_ns sigma_ns reasons\n";
+    for (size_t index = 0; index < gCDetPixelReviewQueue.size(); ++index) {
+      const auto& candidate = gCDetPixelReviewQueue[index];
+      output << index + 1 << " " << candidate.pixel << " " << candidate.pixel/16
+             << " " << candidate.entries << " " << candidate.score << " "
+             << candidate.source << " " << candidate.broadGroupDifference << " "
+             << candidate.usedGroupDifference << " " << candidate.usedSigma
+             << " \"" << candidate.reasons << "\"\n";
+    }
+  }
+
+  std::cout << "[CDet pixel review]\n"
+            << "  fit-result rows read: " << rowsRead << "\n"
+            << "  pixels skipped because a manual cut already exists: " << alreadyCut << "\n"
+            << "  conservative review candidates: " << gCDetPixelReviewQueue.size() << "\n"
+            << "  ranked queue: " << queueOutput << "\n"
+            << "Call printCDetPixelLeTotReviewQueue() to inspect the highest-ranked pixels,\n"
+            << "then reviewNextCDetPixelLeTotCandidate() to begin.\n";
+}
+
+void printCDetPixelLeTotReviewQueue(int maximumRows)
+{
+  if (gCDetPixelReviewQueue.empty()) {
+    std::cout << "[CDet pixel review] The queue is empty. Build it first.\n";
+    return;
+  }
+  const int rows = std::min(std::max(1, maximumRows),
+                            (int)gCDetPixelReviewQueue.size());
+  std::cout << "[CDet pixel review] Highest-ranked " << rows << " of "
+            << gCDetPixelReviewQueue.size() << " candidates:\n";
+  for (int index = 0; index < rows; ++index) {
+    const auto& candidate = gCDetPixelReviewQueue[index];
+    std::cout << "  " << index + 1 << ". pixel " << candidate.pixel
+              << " (bar " << candidate.pixel/16 << ", entries "
+              << candidate.entries << ", score " << candidate.score << "): "
+              << candidate.reasons << "\n";
+  }
+}
+
+void reviewCurrentCDetPixelLeTotCandidate()
+{
+  if (gCDetPixelReviewIndex < 0 ||
+      gCDetPixelReviewIndex >= (Long64_t)gCDetPixelReviewQueue.size()) {
+    std::cout << "[CDet pixel review] No current candidate. Call the Next function.\n";
+    return;
+  }
+  const auto& candidate = gCDetPixelReviewQueue[gCDetPixelReviewIndex];
+  std::cout << "[CDet pixel review] Candidate " << gCDetPixelReviewIndex + 1
+            << " / " << gCDetPixelReviewQueue.size() << ": pixel "
+            << candidate.pixel << " -- " << candidate.reasons << "\n";
+  editCDetPixelLeTotCut(candidate.pixel, gCDetPixelReviewCutFile);
+}
+
+void reviewNextCDetPixelLeTotCandidate()
+{
+  if (gCDetPixelReviewQueue.empty()) {
+    std::cout << "[CDet pixel review] The queue is empty. Build it first.\n";
+    return;
+  }
+  if (gCDetPixelReviewIndex + 1 >= (Long64_t)gCDetPixelReviewQueue.size()) {
+    std::cout << "[CDet pixel review] End of queue.\n";
+    return;
+  }
+  ++gCDetPixelReviewIndex;
+  reviewCurrentCDetPixelLeTotCandidate();
+}
+
+void reviewPreviousCDetPixelLeTotCandidate()
+{
+  if (gCDetPixelReviewQueue.empty()) {
+    std::cout << "[CDet pixel review] The queue is empty. Build it first.\n";
+    return;
+  }
+  if (gCDetPixelReviewIndex <= 0) {
+    gCDetPixelReviewIndex = 0;
+    std::cout << "[CDet pixel review] At the beginning of the queue.\n";
+  } else {
+    --gCDetPixelReviewIndex;
+  }
+  reviewCurrentCDetPixelLeTotCandidate();
+}
+
 void plotPaddles(int bar = 29, double width = 1, double LeMin = 0, double LeMax = 60,
                  double TotCutLow = 0, double TotCutMax = 60,
                  double TotMin = 0, double TotMax = 60, double binLow = 0, double binHigh = 60){
@@ -4764,6 +5284,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   TH2D* hECalVsCDetDt = new TH2D("hECalVsCDetDt", "ECal Time vs CDet dt;ECal ADC Time (ns);CDet dt_12 (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,DiffMin,DiffMax);
   TH2D* hECalVsCDetDtSingle = new TH2D("hECalVsCDetDtSingle", "CDet Single dt vs ECal Time;ECal ADC Time (ns);CDet dt_12 (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,DiffMin,DiffMax);
   TH2D* hECalVsCDetT = new TH2D("hECalVsCDetT", "CDet t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  TH2D* hECalVsCDetTL1 = new TH2D("hECalVsCDetTL1", "CDet Layer 1 t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  TH2D* hECalVsCDetTL2 = new TH2D("hECalVsCDetTL2", "CDet Layer 2 t vs ECal Time;ECal ADC Time (ns);Layer 2 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  TH2D* hECalVsSelectedBarT = new TH2D("hECalVsSelectedBarT", TString::Format("CDet Layer 1 bar %d t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", selectedBarNumber), NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTSingle = new TH2D("hECalVsCDetTSingle", "CDet Single t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,CDetMin,CDetMax);
 
   TH2D* hCDet1IDvs2ID = new TH2D("hCDet1IDvs2ID", "CDet Front Paddle vs Back Paddle ID;Back Paddle;Front Paddle", 1344, 1343.5, 2687.5, 1344, -0.5, 1343.5);
@@ -4784,6 +5307,32 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
     const int globalPixel = selectedLayer1BarBase + localPixel;
     hSelectedBarPairedLe[localPixel] = new TH1D(TString::Format("hSelectedBarPairedLe_Pixel%d", globalPixel), TString::Format("Paired Good LE (Pixel %d);LE (ns);Counts", globalPixel), NPairedLeBins, CDetMin, CDetMax);
+  }
+  gCDetPairedLeSpectra.assign(NumCDetPaddles, nullptr);
+  for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+    gCDetPairedLeSpectra[pixel] = new TH1D(
+        TString::Format("hPairedGoodLe_Pixel%04d", pixel),
+        TString::Format("Paired Good LE (Pixel %d);LE (ns);Counts", pixel),
+        NPairedLeBins, CDetMin, CDetMax);
+    gCDetPairedLeSpectra[pixel]->SetDirectory(nullptr);
+  }
+  const int barsPerLayer = NumCDetPaddles/(NumLayers*NumPaddles);
+  gCDetBarECalTimingSpectra.assign(NumLayers*barsPerLayer, nullptr);
+  // Preserve unbinned accepted-hit coordinates for the fixed-effects timing
+  // regression.  The TH2D bank below is intentionally visualization-only:
+  // its coarse ECal bins attenuate changes in the applied slope.
+  std::vector<std::vector<std::pair<double,double>>> cdetBarECalTimingSamples(
+      NumLayers*barsPerLayer);
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int halfBar = 0; halfBar < barsPerLayer; ++halfBar) {
+      const int index = layer*barsPerLayer + halfBar;
+      gCDetBarECalTimingSpectra[index] = new TH2D(
+          TString::Format("hCDetL%dHalfBar%03dTvsECalT", layer + 1, halfBar),
+          TString::Format("CDet Layer %d half-bar %d t vs ECal Time;ECal ADC Time (ns);CDet t (ns)",
+                          layer + 1, halfBar),
+          NADCBins, ECalMin, ECalMax, TDCBinNum, CDetMin, CDetMax);
+      gCDetBarECalTimingSpectra[index]->SetDirectory(nullptr);
+    }
   }
   hSelectedBarXByPlane->GetXaxis()->SetBinLabel(1, "CDet L1");
   hSelectedBarXByPlane->GetXaxis()->SetBinLabel(2, "CDet L2");
@@ -4966,6 +5515,24 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           hCDetTimeDiffvsy2->Fill(p.y2, p.dt);
 
           hECalVsCDetT->Fill(t_ECal,t_pair);
+          hECalVsCDetTL1->Fill(t_ECal,p.t1);
+          hECalVsCDetTL2->Fill(t_ECal,p.t2);
+          if (p.id1 >= 0 && p.id1 < NumCDetPaddles)
+            gCDetPairedLeSpectra[(int)p.id1]->Fill(p.t1);
+          if (p.id2 >= 0 && p.id2 < NumCDetPaddles)
+            gCDetPairedLeSpectra[(int)p.id2]->Fill(p.t2);
+          auto fillHalfBarTiming = [&](int pixel, double time) {
+            const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+            const int layer = pixel/pixelsPerLayer;
+            const int halfBar = (pixel%pixelsPerLayer)/NumPaddles;
+            const int index = layer*barsPerLayer + halfBar;
+            if (index >= 0 && index < (int)gCDetBarECalTimingSpectra.size()) {
+              gCDetBarECalTimingSpectra[index]->Fill(t_ECal, time);
+              cdetBarECalTimingSamples[index].push_back(std::make_pair(t_ECal, time));
+            }
+          };
+          fillHalfBarTiming(p.id1, p.t1);
+          fillHalfBarTiming(p.id2, p.t2);
 
           hDtCDetECal->Fill(dt_EC);
           hDtvsDxCDetECal->Fill(dx_EC, dt_EC);
@@ -4973,6 +5540,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           const bool isSelectedLayer1Bar = p.id1 >= selectedLayer1BarBase && p.id1 < selectedLayer1BarBase + NumPaddles;
           const bool isSelectedLayer2Bar = p.id2 >= selectedLayer2BarBase && p.id2 < selectedLayer2BarBase + NumPaddles;
           if (isSelectedLayer1Bar) {
+            hECalVsSelectedBarT->Fill(t_ECal,p.t1);
             hCDetBarLe1->Fill(p.t1);
             hCDet1BarLeVsTot->Fill(p.tot1, p.t1);
             hSelectedBarPairedLe[(int)p.id1 - selectedLayer1BarBase]->Fill(p.t1);
@@ -5005,20 +5573,30 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // Make Plots
   // ------------------------------
   std::vector<TF1*> fSelectedBarPairedLe(NumPaddles, nullptr);
+  std::vector<bool> validSelectedBarPairedLeFit(NumPaddles, false);
   TCanvas *cSelectedBarPairedLe = new TCanvas("cSelectedBarPairedLe", TString::Format("Paired-hit LE spectra for Layer 1 bar %d", selectedBarNumber), 1200,1000);
   cSelectedBarPairedLe->Divide(4,4,0.001,0.001);
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
     const int globalPixel = selectedLayer1BarBase + localPixel;
-    const double meanLe = hSelectedBarPairedLe[localPixel]->GetMean();
-    fSelectedBarPairedLe[localPixel] = new TF1(TString::Format("fSelectedBarPairedLe_Pixel%d", globalPixel), "gaus", meanLe - 15.0, meanLe + 15.0);
-    if (hSelectedBarPairedLe[localPixel]->GetEntries() > 20) {
-      fSelectedBarPairedLe[localPixel]->SetParameters(hSelectedBarPairedLe[localPixel]->GetMaximum(), meanLe, hSelectedBarPairedLe[localPixel]->GetRMS());
-      hSelectedBarPairedLe[localPixel]->Fit(fSelectedBarPairedLe[localPixel], "RQ0");
+    const double displayFitMin = gTargetMeanLE - 5.0;
+    const double displayFitMax = gTargetMeanLE + 5.0;
+    fSelectedBarPairedLe[localPixel] = new TF1(TString::Format("fSelectedBarPairedLe_Pixel%d", globalPixel), "gaus", displayFitMin, displayFitMax);
+    const int firstFitBin = hSelectedBarPairedLe[localPixel]->GetXaxis()->FindBin(displayFitMin);
+    const int lastFitBin = hSelectedBarPairedLe[localPixel]->GetXaxis()->FindBin(displayFitMax);
+    const double fitEntries = hSelectedBarPairedLe[localPixel]->Integral(firstFitBin, lastFitBin);
+    if (fitEntries > 20) {
+      int peakBin = firstFitBin;
+      for (int bin = firstFitBin + 1; bin <= lastFitBin; ++bin) {
+        if (hSelectedBarPairedLe[localPixel]->GetBinContent(bin) > hSelectedBarPairedLe[localPixel]->GetBinContent(peakBin)) peakBin = bin;
+      }
+      fSelectedBarPairedLe[localPixel]->SetParameters(hSelectedBarPairedLe[localPixel]->GetBinContent(peakBin), hSelectedBarPairedLe[localPixel]->GetBinCenter(peakBin), 2.0);
+      validSelectedBarPairedLeFit[localPixel] =
+          hSelectedBarPairedLe[localPixel]->Fit(fSelectedBarPairedLe[localPixel], "RQ0") == 0;
     }
 
     cSelectedBarPairedLe->cd(localPixel + 1);
     hSelectedBarPairedLe[localPixel]->Draw();
-    if (hSelectedBarPairedLe[localPixel]->GetEntries() > 20) fSelectedBarPairedLe[localPixel]->Draw("SAME");
+    if (validSelectedBarPairedLeFit[localPixel]) fSelectedBarPairedLe[localPixel]->Draw("SAME");
     if (kUnusedCDetPixels.count(globalPixel)) {
       TPaveText *flag = new TPaveText(0.82,0.82,0.95,0.95,"NDC");
       flag->SetFillColor(kBlack);
@@ -5143,10 +5721,16 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   const double p1 = fCDetTvsECalT_lin->GetParameter(1);
   const double e0 = fCDetTvsECalT_lin->GetParError(0);
   const double e1 = fCDetTvsECalT_lin->GetParError(1);
+  const double ecalChi2 = fCDetTvsECalT_lin->GetChisquare();
+  const int ecalNdf = fCDetTvsECalT_lin->GetNDF();
+  const double ecalChi2Ndf = ecalNdf > 0 ? ecalChi2/ecalNdf : 0.0;
+  const double ecalProb = ecalNdf > 0 ? TMath::Prob(ecalChi2, ecalNdf) : 0.0;
   std::cout << "\n[plotCDetLayersTimeComp] Linear fit for <CDet t> vs ECal ADC t:\n"
             << "  <t_CDet> = p0 + p1 * t_ECal\n"
             << "  p0 = " << p0 << " +/- " << e0 << " ns\n"
-            << "  p1 = " << p1 << " +/- " << e1 << " (ns/ns)\n\n";
+            << "  p1 = " << p1 << " +/- " << e1 << " (ns/ns)\n"
+            << "  chi2/NDF = " << ecalChi2 << "/" << ecalNdf
+            << " = " << ecalChi2Ndf << "  probability = " << ecalProb << "\n\n";
 
   TPaveText* ptFit = new TPaveText(0.14, 0.80, 0.52, 0.92, "NDC");
   ptFit->SetFillColor(0);
@@ -5154,13 +5738,213 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   ptFit->AddText("<t_{CDet}> = p0 + p1 t_{ECal}");
   ptFit->AddText(Form("p0 = %.3f #pm %.3f ns", p0, e0));
   ptFit->AddText(Form("p1 = %.5f #pm %.5f", p1, e1));
+  ptFit->AddText(Form("#chi^{2}/NDF = %.1f/%d = %.2f", ecalChi2, ecalNdf, ecalChi2Ndf));
   ptFit->Draw("SAME");
 
-  const bool ecalFitOK = ecalFitStatus == 0 && pCDetTvsECalT->GetEntries() >= 3 &&
-                         std::isfinite(p0) && std::isfinite(p1);
+  // Compare the all-pair trend with the two layers and the selected Layer-1 bar.
+  // These pooled fits are diagnostics only.  They mix within-half-bar timing
+  // dependence with differences among half-bar means (Simpson's paradox), so
+  // the overwrite decision below uses the fixed-effects result instead.
+  TCanvas *cCDetTvsECalTDiagnostics = new TCanvas("cCDetTvsECalTDiagnostics", "CDet/ECal timing trend diagnostics", 1200, 900);
+  cCDetTvsECalTDiagnostics->Divide(2,2);
+  cCDetTvsECalTDiagnostics->cd(1);
+  hECalVsCDetT->Draw("COLZ");
+  pCDetTvsECalT->Draw("SAME");
+  fCDetTvsECalT_lin->Draw("SAME");
+
+  auto drawTimingTrendDiagnostic = [&](int pad, TH2D *hist, const char *profileName,
+                                       const char *fitName, const char *label) {
+    cCDetTvsECalTDiagnostics->cd(pad);
+    hist->SetMinimum(40);
+    hist->GetYaxis()->SetRangeUser(20, 40);
+    hist->Draw("COLZ");
+    TProfile *profile = hist->ProfileX(profileName);
+    profile->SetMarkerStyle(20);
+    profile->SetMarkerSize(0.6);
+    profile->GetYaxis()->SetRangeUser(20, 40);
+    TF1 *fit = new TF1(fitName, "pol1", ECalMin, ECalMax);
+    const bool enoughData = profile->GetEntries() >= 3;
+    int status = -1;
+    if (enoughData) status = profile->Fit(fit, "QRS");
+    profile->Draw("SAME");
+    if (status == 0) fit->Draw("SAME");
+    const double chi2 = fit->GetChisquare();
+    const int ndf = fit->GetNDF();
+    const double chi2Ndf = ndf > 0 ? chi2/ndf : 0.0;
+    TPaveText *summary = new TPaveText(0.13, 0.78, 0.58, 0.92, "NDC");
+    summary->SetFillColor(0);
+    summary->SetTextAlign(12);
+    summary->AddText(label);
+    if (status == 0) {
+      summary->AddText(Form("p1 = %.5f #pm %.5f", fit->GetParameter(1), fit->GetParError(1)));
+      summary->AddText(Form("#chi^{2}/NDF = %.1f/%d = %.2f", chi2, ndf, chi2Ndf));
+    } else {
+      summary->AddText("Insufficient data or fit failed");
+    }
+    summary->Draw("SAME");
+    std::cout << "[plotCDetLayersTimeComp] " << label
+              << ": p1=" << fit->GetParameter(1) << " +/- " << fit->GetParError(1)
+              << ", chi2/NDF=" << chi2 << "/" << ndf << " = " << chi2Ndf
+              << ", fit_status=" << status << "\n";
+  };
+  drawTimingTrendDiagnostic(2, hECalVsCDetTL1, "pCDetL1TvsECalT", "fCDetL1TvsECalT_lin", "All Layer 1 hits");
+  drawTimingTrendDiagnostic(3, hECalVsCDetTL2, "pCDetL2TvsECalT", "fCDetL2TvsECalT_lin", "All Layer 2 hits");
+  drawTimingTrendDiagnostic(4, hECalVsSelectedBarT, "pSelectedBarTvsECalT", "fSelectedBarTvsECalT_lin", TString::Format("Layer 1 bar %d", selectedBarNumber).Data());
+  cCDetTvsECalTDiagnostics->Update();
+
+  // Fixed-effects regression for the ECal timing slope.  Center x and y
+  // independently within every half-bar, then pool those centered samples.
+  // This is equivalent to fitting a common slope with a separate intercept
+  // for each half-bar and removes the between-half-bar covariance that makes
+  // the unstratified profile appear artificially flat.
+  struct FixedEffectsResult {
+    bool valid = false;
+    long long entries = 0;
+    int groups = 0;
+    double slope = std::numeric_limits<double>::quiet_NaN();
+    double slopeError = std::numeric_limits<double>::quiet_NaN();
+    double withinCovariance = 0.0;
+    double withinVarianceX = 0.0;
+    double residualSumSquares = 0.0;
+    long long ndf = 0;
+  };
+
+  auto calculateFixedEffects = [&](int firstIndex, int lastIndex,
+                                   TH2D *centeredHistogram) {
+    FixedEffectsResult result;
+    struct GroupMean { int index; double weight; double x; double y; };
+    std::vector<GroupMean> means;
+    for (int index = firstIndex; index < lastIndex; ++index) {
+      const std::vector<std::pair<double,double>> &samples =
+          cdetBarECalTimingSamples[index];
+      if (samples.size() < 3) continue;
+      double weight = 0.0, sumX = 0.0, sumY = 0.0;
+      for (const std::pair<double,double> &sample : samples) {
+        weight += 1.0;
+        sumX += sample.first;
+        sumY += sample.second;
+      }
+      means.push_back({index, weight, sumX/weight, sumY/weight});
+      result.entries += std::llround(weight);
+    }
+    result.groups = means.size();
+    for (const GroupMean &group : means) {
+      const std::vector<std::pair<double,double>> &samples =
+          cdetBarECalTimingSamples[group.index];
+      for (const std::pair<double,double> &sample : samples) {
+        const double dx = sample.first - group.x;
+        const double dy = sample.second - group.y;
+        result.withinCovariance += dx*dy;
+        result.withinVarianceX += dx*dx;
+        if (centeredHistogram) centeredHistogram->Fill(dx, dy);
+      }
+    }
+    result.ndf = result.entries - result.groups - 1;
+    if (result.withinVarianceX <= 0.0 || result.ndf <= 0) return result;
+    result.slope = result.withinCovariance/result.withinVarianceX;
+    for (const GroupMean &group : means) {
+      const std::vector<std::pair<double,double>> &samples =
+          cdetBarECalTimingSamples[group.index];
+      for (const std::pair<double,double> &sample : samples) {
+        const double dx = sample.first - group.x;
+        const double dy = sample.second - group.y;
+        const double residual = dy - result.slope*dx;
+        result.residualSumSquares += residual*residual;
+      }
+    }
+    result.slopeError = std::sqrt(
+        (result.residualSumSquares/result.ndf)/result.withinVarianceX);
+    result.valid = std::isfinite(result.slope) &&
+                   std::isfinite(result.slopeError) && result.slopeError > 0.0;
+    return result;
+  };
+
+  TH2D *hCDetL1ECalWithin = new TH2D("hCDetL1ECalWithin",
+      "Layer 1 within-half-bar timing;ECal time - half-bar mean (ns);CDet time - half-bar mean (ns)",
+      120, -30, 30, 120, -15, 15);
+  TH2D *hCDetL2ECalWithin = new TH2D("hCDetL2ECalWithin",
+      "Layer 2 within-half-bar timing;ECal time - half-bar mean (ns);CDet time - half-bar mean (ns)",
+      120, -30, 30, 120, -15, 15);
+  TH2D *hCDetAllECalWithin = new TH2D("hCDetAllECalWithin",
+      "Combined within-half-bar timing;ECal time - half-bar mean (ns);CDet time - half-bar mean (ns)",
+      120, -30, 30, 120, -15, 15);
+  const int halfBarsPerLayer = barsPerLayer;
+  const FixedEffectsResult fixedL1 = calculateFixedEffects(
+      0, halfBarsPerLayer, hCDetL1ECalWithin);
+  const FixedEffectsResult fixedL2 = calculateFixedEffects(
+      halfBarsPerLayer, 2*halfBarsPerLayer, hCDetL2ECalWithin);
+  const FixedEffectsResult fixedAll = calculateFixedEffects(
+      0, 2*halfBarsPerLayer, hCDetAllECalWithin);
+
+  auto printFixedEffects = [&](const char *label, const FixedEffectsResult &fit) {
+    std::cout << "[plotCDetLayersTimeComp] " << label
+              << " fixed-effects slope: p1=" << fit.slope
+              << " +/- " << fit.slopeError << " ns/ns"
+              << ", entries=" << fit.entries << ", half-bars=" << fit.groups
+              << ", NDF=" << fit.ndf << "\n";
+  };
+  std::cout << "\n[CDet/ECal fixed-effects timing fit]\n"
+            << "  Separate intercepts are removed for every half-bar.\n";
+  printFixedEffects("Layer 1", fixedL1);
+  printFixedEffects("Layer 2", fixedL2);
+  printFixedEffects("Combined", fixedAll);
+  std::cout << "  The combined fixed-effects slope, not the pooled profile slope, "
+            << "is used for calibration updates.\n\n";
+
+  TCanvas *cCDetECalFixedEffects = new TCanvas(
+      "cCDetECalFixedEffects", "CDet/ECal within-half-bar fixed-effects timing", 1500, 500);
+  cCDetECalFixedEffects->Divide(3, 1);
+  auto drawFixedEffects = [&](int pad, TH2D *hist, const FixedEffectsResult &fit,
+                              const char *label) {
+    cCDetECalFixedEffects->cd(pad);
+    hist->Draw("COLZ");
+    if (fit.valid) {
+      TF1 *line = new TF1(TString::Format("fCDetECalWithin%d", pad), "[0]*x", -30, 30);
+      line->SetParameter(0, fit.slope);
+      line->SetLineColor(kRed);
+      line->Draw("SAME");
+    }
+    TPaveText *box = new TPaveText(0.13, 0.78, 0.61, 0.92, "NDC");
+    box->SetFillColor(0);
+    box->SetTextAlign(12);
+    box->AddText(label);
+    if (fit.valid) {
+      box->AddText(Form("within p1 = %.5f #pm %.5f", fit.slope, fit.slopeError));
+      box->AddText(Form("%lld hits in %d half-bars", fit.entries, fit.groups));
+    } else {
+      box->AddText("fixed-effects fit unavailable");
+    }
+    box->Draw("SAME");
+  };
+  drawFixedEffects(1, hCDetL1ECalWithin, fixedL1, "Layer 1 fixed effects");
+  drawFixedEffects(2, hCDetL2ECalWithin, fixedL2, "Layer 2 fixed effects");
+  drawFixedEffects(3, hCDetAllECalWithin, fixedAll, "Combined fixed effects");
+  cCDetECalFixedEffects->Update();
+
+  const bool pooledFitOK = ecalFitStatus == 0 && ecalNdf > 0 &&
+                           pCDetTvsECalT->GetEntries() >= 3 &&
+                           std::isfinite(p0) && std::isfinite(p1);
+  // A residual-slope closure test needs only the fixed-effects result.  The
+  // uncorrected absolute-calibration stage also needs the pooled intercept.
+  const bool ecalFitOK = fixedAll.valid && (gUseECalTimeCorr || pooledFitOK);
   if (overwrite && ecalFitOK) {
-    gECalFitP0 += p0;
-    gECalFitP1 += p1;
+    if (gUseECalTimeCorr) {
+      // The corrected distribution is recentered to gTargetMeanLE, so its
+      // fitted intercept cannot determine the stored absolute p0.  Only the
+      // residual slope remains identifiable in this mode.
+      gECalFitP1 += fixedAll.slope;
+      std::cout << "[CDet] ECal correction already active: added within-half-bar residual slope "
+                << fixedAll.slope << " to p1 and left p0 unchanged (the "
+                << gTargetMeanLE << " ns recentering removes p0 sensitivity).\n";
+    } else {
+      // The fixed-effects regression determines the physical common slope;
+      // the pooled fit supplies the absolute intercept in this uncorrected
+      // stage because demeaning intentionally removes intercept information.
+      gECalFitP0 = p0;
+      gECalFitP1 = fixedAll.slope;
+      std::cout << "[CDet] ECal correction disabled: stored pooled absolute p0 and "
+                << "fixed-effects p1.\n";
+    }
     gECalParamsLoaded = true;
     gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
     std::cout << "[CDet] Updated ECal timing parameters in calibration file: "
@@ -5221,6 +6005,400 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
                           tdiffECalCDetMin, tdiffECalCDetMax,
                           XMin, XMax, ZMin, ZMax);
   }
+}
+
+void writeAllCDetPairedLeSpectra(TString outputFile)
+{
+  if ((int)gCDetPairedLeSpectra.size() != NumCDetPaddles) {
+    std::cerr << "[CDet paired LE writer] ERROR: paired spectra are not available. "
+              << "Run plotCDetLayersTimeComp first.\n";
+    return;
+  }
+  if (outputFile.IsNull()) {
+    std::cerr << "[CDet paired LE writer] ERROR: output filename is empty.\n";
+    return;
+  }
+
+  TFile output(outputFile, "RECREATE");
+  if (output.IsZombie()) {
+    std::cerr << "[CDet paired LE writer] ERROR: cannot create " << outputFile << ".\n";
+    return;
+  }
+
+  const int barsPerLayer = NumCDetPaddles/(NumLayers*NumPaddles);
+  int fittedSpectra = 0;
+  for (int bar = 0; bar < barsPerLayer; ++bar) {
+    TDirectory *barDirectory = output.mkdir(TString::Format("bar_%03d", bar));
+    barDirectory->cd();
+    TCanvas *canvas = new TCanvas(
+        TString::Format("cPairedLeBar%03d", bar),
+        TString::Format("Paired-hit LE spectra for bar %d, Layers 1 and 2", bar),
+        1800, 1000);
+    canvas->Divide(8, 4, 0.001, 0.001);
+
+    for (int layer = 0; layer < NumLayers; ++layer) {
+      TDirectory *layerDirectory = barDirectory->mkdir(TString::Format("layer_%d", layer + 1));
+      for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+        const int pixel = layer*(NumCDetPaddles/NumLayers) + bar*NumPaddles + localPixel;
+        TH1D *histogram = gCDetPairedLeSpectra[pixel];
+        if (!histogram) continue;
+
+        barDirectory->cd();
+        canvas->cd(layer*NumPaddles + localPixel + 1);
+        histogram->Draw();
+
+        const double fitMin = gTargetMeanLE - 5.0;
+        const double fitMax = gTargetMeanLE + 5.0;
+        const int firstFitBin = histogram->GetXaxis()->FindBin(fitMin);
+        const int lastFitBin = histogram->GetXaxis()->FindBin(fitMax);
+        if (histogram->Integral(firstFitBin, lastFitBin) > 20) {
+          int peakBin = firstFitBin;
+          for (int bin = firstFitBin + 1; bin <= lastFitBin; ++bin) {
+            if (histogram->GetBinContent(bin) > histogram->GetBinContent(peakBin)) peakBin = bin;
+          }
+          TF1 *fit = new TF1(
+              TString::Format("fPairedGoodLe_Pixel%04d", pixel), "gaus", fitMin, fitMax);
+          fit->SetParameters(histogram->GetBinContent(peakBin), histogram->GetBinCenter(peakBin), 2.0);
+          if (histogram->Fit(fit, "RQ0") == 0) {
+            fit->Draw("SAME");
+            ++fittedSpectra;
+          }
+        }
+        if (kUnusedCDetPixels.count(pixel)) {
+          TPaveText *flag = new TPaveText(0.72,0.80,0.95,0.94,"NDC");
+          flag->SetFillColor(kBlack);
+          flag->SetLineColor(kBlack);
+          flag->SetTextColor(kWhite);
+          flag->SetBorderSize(1);
+          flag->AddText("UNUSED PIXEL");
+          flag->Draw("SAME");
+        }
+        layerDirectory->cd();
+        histogram->Write();
+        barDirectory->cd();
+      }
+    }
+    barDirectory->cd();
+    canvas->Write("paired_le_layers_1_and_2");
+    delete canvas;
+    output.cd();
+  }
+  output.Close();
+  std::cout << "[CDet paired LE writer] Wrote " << barsPerLayer
+            << " two-layer bar canvases and all " << NumCDetPaddles
+            << " paired-hit spectra to " << outputFile
+            << " (" << fittedSpectra << " successful 25-35 ns fits).\n";
+}
+
+void showCDetPairedLeBar(int bar, TString inputFile)
+{
+  const int barsPerLayer = NumCDetPaddles/(NumLayers*NumPaddles);
+  if (bar < 0 || bar >= barsPerLayer) {
+    std::cerr << "[CDet paired LE viewer] ERROR: bar must be in [0, "
+              << barsPerLayer - 1 << "].\n";
+    return;
+  }
+  TFile input(inputFile, "READ");
+  if (input.IsZombie()) {
+    std::cerr << "[CDet paired LE viewer] ERROR: cannot open " << inputFile << ".\n";
+    return;
+  }
+
+  static unsigned long invocation = 0;
+  ++invocation;
+  std::vector<TH1D*> histograms(NumLayers*NumPaddles, nullptr);
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+      const int pixel = layer*(NumCDetPaddles/NumLayers) + bar*NumPaddles + localPixel;
+      const TString path = TString::Format(
+          "bar_%03d/layer_%d/hPairedGoodLe_Pixel%04d", bar, layer + 1, pixel);
+      TH1D *stored = dynamic_cast<TH1D*>(input.Get(path));
+      if (!stored) {
+        std::cerr << "[CDet paired LE viewer] ERROR: missing " << path
+                  << " in " << inputFile << ".\n";
+        return;
+      }
+      histograms[layer*NumPaddles + localPixel] = static_cast<TH1D*>(stored->Clone(
+          TString::Format("hPairedGoodLeView_Pixel%04d_%lu", pixel, invocation)));
+      histograms[layer*NumPaddles + localPixel]->SetDirectory(nullptr);
+    }
+  }
+  input.Close();
+
+  TCanvas *canvas = new TCanvas(
+      TString::Format("cPairedLeBar%03d_view_%lu", bar, invocation),
+      TString::Format("Paired-hit LE spectra for bar %d, Layers 1 and 2", bar),
+      1800, 1000);
+  canvas->Divide(8, 4, 0.001, 0.001);
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+      const int index = layer*NumPaddles + localPixel;
+      canvas->cd(index + 1);
+      histograms[index]->Draw();
+    }
+  }
+  canvas->Modified();
+  canvas->Update();
+  std::cout << "[CDet paired LE viewer] Displaying bar " << bar
+            << " from " << inputFile << ".\n";
+}
+
+void writeAllCDetBarECalTimingDiagnostics(TString outputFile, TString summaryFile)
+{
+  const int barsPerLayer = NumCDetPaddles/(NumLayers*NumPaddles);
+  if ((int)gCDetBarECalTimingSpectra.size() != NumLayers*barsPerLayer) {
+    std::cerr << "[CDet bar/ECal writer] ERROR: per-bar timing spectra are not available. "
+              << "Run plotCDetLayersTimeComp first.\n";
+    return;
+  }
+  if (outputFile.IsNull() || summaryFile.IsNull()) {
+    std::cerr << "[CDet bar/ECal writer] ERROR: output filenames must not be empty.\n";
+    return;
+  }
+  TFile output(outputFile, "RECREATE");
+  std::ofstream summary(summaryFile.Data());
+  if (output.IsZombie() || !summary) {
+    std::cerr << "[CDet bar/ECal writer] ERROR: cannot create output files.\n";
+    return;
+  }
+  summary << "# Layer-1 CDet timing versus ECal time by bar\n"
+          << "# Same accepted pairs and cuts as plotCDetLayersTimeComp\n"
+          << "# bar entries profile_entries fit_status p0_ns p0_err_ns p1_ns_per_ns p1_err chi2 ndf chi2_ndf probability\n";
+
+  int successfulFits = 0;
+  for (int bar = 0; bar < barsPerLayer; ++bar) {
+    TH2D *histogram = gCDetBarECalTimingSpectra[bar];
+    if (!histogram) continue;
+    TDirectory *directory = output.mkdir(TString::Format("bar_%03d", bar));
+    directory->cd();
+    TCanvas *canvas = new TCanvas(
+        TString::Format("cCDetBar%03dTvsECalT", bar),
+        TString::Format("CDet Layer 1 bar %d t vs ECal Time", bar), 900, 700);
+    histogram->SetMinimum(40);
+    histogram->GetYaxis()->SetRangeUser(20, 40);
+    histogram->Draw("COLZ");
+    TProfile *profile = histogram->ProfileX(TString::Format("pCDetBar%03dTvsECalT", bar));
+    profile->SetMarkerStyle(20);
+    profile->SetMarkerSize(0.7);
+    profile->GetYaxis()->SetRangeUser(20, 40);
+    TF1 *fit = new TF1(
+        TString::Format("fCDetBar%03dTvsECalT", bar), "pol1",
+        histogram->GetXaxis()->GetXmin(), histogram->GetXaxis()->GetXmax());
+    int fitStatus = -1;
+    if (profile->GetEntries() >= 3) fitStatus = profile->Fit(fit, "QRS");
+    profile->Draw("SAME");
+    if (fitStatus == 0) fit->Draw("SAME");
+
+    const double p0 = fitStatus == 0 ? fit->GetParameter(0) : std::numeric_limits<double>::quiet_NaN();
+    const double e0 = fitStatus == 0 ? fit->GetParError(0) : std::numeric_limits<double>::quiet_NaN();
+    const double p1 = fitStatus == 0 ? fit->GetParameter(1) : std::numeric_limits<double>::quiet_NaN();
+    const double e1 = fitStatus == 0 ? fit->GetParError(1) : std::numeric_limits<double>::quiet_NaN();
+    const double chi2 = fitStatus == 0 ? fit->GetChisquare() : std::numeric_limits<double>::quiet_NaN();
+    const int ndf = fitStatus == 0 ? fit->GetNDF() : 0;
+    const double chi2Ndf = ndf > 0 ? chi2/ndf : std::numeric_limits<double>::quiet_NaN();
+    const double probability = ndf > 0 ? TMath::Prob(chi2, ndf) : std::numeric_limits<double>::quiet_NaN();
+
+    TPaveText *annotation = new TPaveText(0.13, 0.77, 0.57, 0.92, "NDC");
+    annotation->SetFillColor(0);
+    annotation->SetTextAlign(12);
+    annotation->AddText(TString::Format("Layer 1 bar %d", bar));
+    if (fitStatus == 0) {
+      annotation->AddText(Form("p1 = %.5f #pm %.5f", p1, e1));
+      annotation->AddText(Form("#chi^{2}/NDF = %.1f/%d = %.2f", chi2, ndf, chi2Ndf));
+      ++successfulFits;
+    } else {
+      annotation->AddText("Insufficient data or fit failed");
+    }
+    annotation->Draw("SAME");
+    canvas->Modified();
+    canvas->Update();
+
+    histogram->Write(TString::Format("hCDetL1HalfBar%03dTvsECalT", bar));
+    profile->Write();
+    fit->Write();
+    canvas->Write("timing_vs_ecal");
+    summary << bar << " " << histogram->GetEntries() << " " << profile->GetEntries()
+            << " " << fitStatus << " " << p0 << " " << e0 << " " << p1 << " " << e1
+            << " " << chi2 << " " << ndf << " " << chi2Ndf << " " << probability << "\n";
+    delete canvas;
+    output.cd();
+  }
+  output.Close();
+  summary.close();
+  std::cout << "[CDet bar/ECal writer] Wrote " << barsPerLayer
+            << " Layer-1 bar timing canvases to " << outputFile
+            << " and fit results to " << summaryFile
+            << " (" << successfulFits << " successful fits).\n";
+}
+
+void showCDetBarECalTiming(int bar, TString inputFile)
+{
+  const int barsPerLayer = NumCDetPaddles/(NumLayers*NumPaddles);
+  if (bar < 0 || bar >= barsPerLayer) {
+    std::cerr << "[CDet bar/ECal viewer] ERROR: bar must be in [0, "
+              << barsPerLayer - 1 << "].\n";
+    return;
+  }
+  TFile input(inputFile, "READ");
+  if (input.IsZombie()) {
+    std::cerr << "[CDet bar/ECal viewer] ERROR: cannot open " << inputFile << ".\n";
+    return;
+  }
+  const TString path = TString::Format("bar_%03d/hCDetL1HalfBar%03dTvsECalT", bar, bar);
+  TH2D *stored = dynamic_cast<TH2D*>(input.Get(path));
+  if (!stored) {
+    std::cerr << "[CDet bar/ECal viewer] ERROR: missing " << path
+              << " in " << inputFile << ".\n";
+    return;
+  }
+  static unsigned long invocation = 0;
+  ++invocation;
+  TH2D *histogram = static_cast<TH2D*>(stored->Clone(
+      TString::Format("hCDetBar%03dTvsECalT_view_%lu", bar, invocation)));
+  histogram->SetDirectory(nullptr);
+  input.Close();
+
+  TCanvas *canvas = new TCanvas(
+      TString::Format("cCDetBar%03dTvsECalT_view_%lu", bar, invocation),
+      TString::Format("CDet Layer 1 bar %d t vs ECal Time", bar), 900, 700);
+  histogram->SetMinimum(40);
+  histogram->GetYaxis()->SetRangeUser(20, 40);
+  histogram->Draw("COLZ");
+  TProfile *profile = histogram->ProfileX(
+      TString::Format("pCDetBar%03dTvsECalT_view_%lu", bar, invocation));
+  profile->SetMarkerStyle(20);
+  profile->SetMarkerSize(0.7);
+  profile->GetYaxis()->SetRangeUser(20, 40);
+  TF1 *fit = new TF1(
+      TString::Format("fCDetBar%03dTvsECalT_view_%lu", bar, invocation), "pol1",
+      histogram->GetXaxis()->GetXmin(), histogram->GetXaxis()->GetXmax());
+  int fitStatus = -1;
+  if (profile->GetEntries() >= 3) fitStatus = profile->Fit(fit, "QRS");
+  profile->Draw("SAME");
+  if (fitStatus == 0) fit->Draw("SAME");
+  TPaveText *annotation = new TPaveText(0.13, 0.77, 0.57, 0.92, "NDC");
+  annotation->SetFillColor(0);
+  annotation->SetTextAlign(12);
+  annotation->AddText(TString::Format("Layer 1 bar %d", bar));
+  if (fitStatus == 0) {
+    const double chi2 = fit->GetChisquare();
+    const int ndf = fit->GetNDF();
+    annotation->AddText(Form("p1 = %.5f #pm %.5f", fit->GetParameter(1), fit->GetParError(1)));
+    annotation->AddText(Form("#chi^{2}/NDF = %.1f/%d = %.2f", chi2, ndf, ndf > 0 ? chi2/ndf : 0.0));
+  } else {
+    annotation->AddText("Insufficient data or fit failed");
+  }
+  annotation->Draw("SAME");
+  canvas->Modified();
+  canvas->Update();
+  std::cout << "[CDet bar/ECal viewer] Displaying Layer-1 bar " << bar
+            << " from " << inputFile << ".\n";
+}
+
+void plotAllCDetBarECalTiming(TString outputFile, TString summaryFile)
+{
+  const int halfModulesPerLayer = NumModules*NumSides;
+  const int halfBarsPerLayer = halfModulesPerLayer*NumBars;
+  if ((int)gCDetBarECalTimingSpectra.size() != NumLayers*halfBarsPerLayer) {
+    std::cerr << "[CDet half-bar/ECal overview] ERROR: half-bar spectra are not available. "
+              << "Run plotCDetLayersTimeComp first.\n";
+    return;
+  }
+  TFile output(outputFile, "RECREATE");
+  std::ofstream summary(summaryFile.Data());
+  if (output.IsZombie() || !summary) {
+    std::cerr << "[CDet half-bar/ECal overview] ERROR: cannot create output files.\n";
+    return;
+  }
+  summary << "# CDet timing versus ECal time by half-bar (PMT group)\n"
+          << "# Four overview canvases: two seven-half-bar banks for each layer\n"
+          << "# layer half_module bank half_bar_in_half_module global_half_bar entries fit_status p0_ns p0_err_ns p1_ns_per_ns p1_err chi2 ndf chi2_ndf probability\n";
+
+  int successfulFits = 0;
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    TDirectory *layerDirectory = output.mkdir(TString::Format("layer_%d", layer + 1));
+    for (int bank = 0; bank < 2; ++bank) {
+      TCanvas *canvas = new TCanvas(
+          TString::Format("cCDetLayer%dHalfBarBank%dECalTiming", layer + 1, bank),
+          TString::Format("CDet Layer %d half-bars %d-%d versus ECal time", layer + 1,
+                          bank*NumHalfBarsPerBank, bank*NumHalfBarsPerBank + NumHalfBarsPerBank - 1),
+          2100, 1500);
+      canvas->Divide(NumHalfBarsPerBank, halfModulesPerLayer, 0.001, 0.001);
+      for (int halfModule = 0; halfModule < halfModulesPerLayer; ++halfModule) {
+        TDirectory *halfModuleDirectory = layerDirectory->GetDirectory(
+            TString::Format("half_module_%d", halfModule));
+        if (!halfModuleDirectory)
+          halfModuleDirectory = layerDirectory->mkdir(TString::Format("half_module_%d", halfModule));
+        for (int column = 0; column < NumHalfBarsPerBank; ++column) {
+          const int halfBarInHalfModule = bank*NumHalfBarsPerBank + column;
+          const int globalHalfBar = halfModule*NumBars + halfBarInHalfModule;
+          const int index = layer*halfBarsPerLayer + globalHalfBar;
+          TH2D *histogram = gCDetBarECalTimingSpectra[index];
+          canvas->cd(halfModule*NumHalfBarsPerBank + column + 1);
+        histogram->SetMinimum(1);
+        histogram->GetYaxis()->SetRangeUser(20, 40);
+        histogram->Draw("COLZ");
+        TProfile *profile = histogram->ProfileX(TString::Format(
+              "pCDetL%dHalfBar%03dTvsECalT", layer + 1, globalHalfBar));
+        profile->SetMarkerStyle(20);
+        profile->SetMarkerSize(0.45);
+        profile->GetYaxis()->SetRangeUser(20, 40);
+        TF1 *fit = new TF1(TString::Format(
+              "fCDetL%dHalfBar%03dTvsECalT", layer + 1, globalHalfBar),
+            "pol1", histogram->GetXaxis()->GetXmin(), histogram->GetXaxis()->GetXmax());
+        int fitStatus = -1;
+        if (profile->GetEntries() >= 3) fitStatus = profile->Fit(fit, "QRS");
+        profile->Draw("SAME");
+        if (fitStatus == 0) fit->Draw("SAME");
+
+        const double nan = std::numeric_limits<double>::quiet_NaN();
+        const double p0 = fitStatus == 0 ? fit->GetParameter(0) : nan;
+        const double e0 = fitStatus == 0 ? fit->GetParError(0) : nan;
+        const double p1 = fitStatus == 0 ? fit->GetParameter(1) : nan;
+        const double e1 = fitStatus == 0 ? fit->GetParError(1) : nan;
+        const double chi2 = fitStatus == 0 ? fit->GetChisquare() : nan;
+        const int ndf = fitStatus == 0 ? fit->GetNDF() : 0;
+        const double chi2Ndf = ndf > 0 ? chi2/ndf : nan;
+        const double probability = ndf > 0 ? TMath::Prob(chi2, ndf) : nan;
+
+        TPaveText *annotation = new TPaveText(0.10, 0.72, 0.74, 0.91, "NDC");
+        annotation->SetFillColor(0);
+        annotation->SetTextAlign(12);
+        annotation->SetTextSize(0.050);
+          annotation->AddText(Form("HM %d, half-bar %d", halfModule, halfBarInHalfModule));
+        if (fitStatus == 0) {
+          annotation->AddText(Form("p1=%.3f#pm%.3f", p1, e1));
+          annotation->AddText(Form("#chi^{2}/NDF=%.1f", chi2Ndf));
+          ++successfulFits;
+        } else {
+          annotation->AddText("fit unavailable");
+        }
+        annotation->Draw("SAME");
+
+        halfModuleDirectory->cd();
+        histogram->Write();
+        profile->Write();
+        fit->Write();
+        layerDirectory->cd();
+          summary << layer + 1 << " " << halfModule << " " << bank << " "
+                << halfBarInHalfModule << " " << globalHalfBar
+                << " " << histogram->GetEntries() << " " << fitStatus
+                << " " << p0 << " " << e0 << " " << p1 << " " << e1
+                << " " << chi2 << " " << ndf << " " << chi2Ndf
+                << " " << probability << "\n";
+        }
+      }
+      canvas->Modified();
+      canvas->Update();
+      output.cd();
+      canvas->Write(TString::Format("layer_%d_bank_%d_overview", layer + 1, bank));
+    }
+  }
+  output.Close();
+  summary.close();
+  std::cout << "[CDet half-bar/ECal overview] Displayed and wrote four 7x6 canvases to "
+            << outputFile << ", with fit results in " << summaryFile
+            << " (" << successfulFits << " successful fits of 168).\n";
 }
 
 void plotCDetLayersTimeComp(const char *configFile)
@@ -6763,7 +7941,8 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
     TString rootOutput = "CDet_pixel_timing_hierarchical_diagnostics.root",
     TString plotDirectory = "tdcPlots/hierarchical",
     TString diagnosticBars = "29,79,104,118,139,148",
-    bool activateCalibration = false) {
+    bool activateCalibration = false,
+    TString pixelCutFile = "") {
   TH1::AddDirectory(kFALSE);
   gLastCalibrationFitSucceeded = false;
 
@@ -6784,14 +7963,16 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
   }
 
   const size_t nEvents = vGoodLe.size();
-  if (vGoodID.size() != nEvents || v_GoodECalAdcTime.size() != nEvents ||
+  if (vGoodID.size() != nEvents || vGoodTot.size() != nEvents ||
+      v_GoodECalAdcTime.size() != nEvents ||
       v_GoodECalE.size() != nEvents) {
     std::cerr << "[CDet hierarchical timing] ERROR: event vectors are not aligned.\n";
     return;
   }
   for (size_t ev = 0; ev < nEvents; ++ev) {
-    if (vGoodID[ev].size() != vGoodLe[ev].size()) {
-      std::cerr << "[CDet hierarchical timing] ERROR: LE and ID vectors differ in event "
+    if (vGoodID[ev].size() != vGoodLe[ev].size() ||
+        vGoodTot[ev].size() != vGoodLe[ev].size()) {
+      std::cerr << "[CDet hierarchical timing] ERROR: LE, TOT, and ID vectors differ in event "
                 << ev << ".\n";
       return;
     }
@@ -6819,6 +8000,25 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
   };
 
   std::vector<TH1D*> pixelHist(NumCDetPaddles, nullptr);
+  std::vector<TCutG*> pixelLeTotCut(NumCDetPaddles, nullptr);
+  int loadedPixelCuts = 0;
+  if (!pixelCutFile.IsNull() && !gSystem->AccessPathName(pixelCutFile)) {
+    TFile cutInput(pixelCutFile, "READ");
+    if (!cutInput.IsZombie()) {
+      for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+        pixelLeTotCut[pixel] = LoadCDetPixelLeTotCut(cutInput, pixel);
+        if (pixelLeTotCut[pixel]) ++loadedPixelCuts;
+      }
+    }
+    cutInput.Close();
+  }
+  if (loadedPixelCuts > 0) {
+    std::cout << "[CDet hierarchical timing] Loaded " << loadedPixelCuts
+              << " manual LE-versus-TOT pixel cut(s) from " << pixelCutFile << ".\n";
+  } else {
+    std::cout << "[CDet hierarchical timing] No manual LE-versus-TOT pixel cuts loaded; "
+              << "using the automatic path for every pixel.\n";
+  }
   for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
     pixelHist[pixel] = new TH1D(
         uname(TString::Format("hHierPixelDt_%d", pixel)),
@@ -6834,7 +8034,9 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
     const double tECal = v_GoodECalAdcTime[ev];
     for (size_t hit = 0; hit < vGoodLe[ev].size(); ++hit) {
       const int pixel = vGoodID[ev][hit];
-      if (pixel >= 0 && pixel < NumCDetPaddles)
+      if (pixel >= 0 && pixel < NumCDetPaddles &&
+          (!pixelLeTotCut[pixel] ||
+           pixelLeTotCut[pixel]->IsInside(vGoodTot[ev][hit], vGoodLe[ev][hit])))
         pixelHist[pixel]->Fill(tECal - vGoodLe[ev][hit]);
     }
   }
@@ -6945,6 +8147,85 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
       broadMean[pixel] = broadPixelFit[pixel]->GetParameter(1);
     }
 
+    // A manual two-dimensional cut has already resolved the population
+    // ambiguity. Seed its timing fit from the cleaned histogram itself instead
+    // of forcing it toward the eight-pixel group centroid.
+    if (pixelLeTotCut[pixel]) {
+      const double manualSearchLow = BroadFitMin;
+      const double manualSearchHigh = std::min(HistMax, std::max(20.0, BroadFitMax));
+      const int manualLo = pixelHist[pixel]->FindBin(manualSearchLow);
+      const int manualHi = pixelHist[pixel]->FindBin(manualSearchHigh);
+      fitEntries[pixel] = (int)pixelHist[pixel]->Integral(manualLo, manualHi);
+      if (fitEntries[pixel] >= minPixelEntries) {
+        int peakBin = manualLo;
+        for (int bin = manualLo + 1; bin <= manualHi; ++bin)
+          if (pixelHist[pixel]->GetBinContent(bin) > pixelHist[pixel]->GetBinContent(peakBin))
+            peakBin = bin;
+        const double seed = pixelHist[pixel]->GetBinCenter(peakBin);
+        const double fitLow = std::max(manualSearchLow, seed - maximumHalfWindow);
+        const double fitHigh = std::min(manualSearchHigh, seed + maximumHalfWindow);
+        const double background = 0.5*(pixelHist[pixel]->GetBinContent(
+                                            pixelHist[pixel]->FindBin(fitLow)) +
+                                        pixelHist[pixel]->GetBinContent(
+                                            pixelHist[pixel]->FindBin(fitHigh)));
+        narrowPixelFit[pixel] = new TF1(
+            uname(TString::Format("fHierManualPixel_%d", pixel)),
+            "gaus(0)+pol1(3)", fitLow, fitHigh);
+        narrowPixelFit[pixel]->SetParameters(
+            std::max(1.0, pixelHist[pixel]->GetBinContent(peakBin) - background),
+            seed, 3.0, background, 0.0);
+        narrowPixelFit[pixel]->SetParLimits(
+            0, 0.0, 1.5*std::max(1.0, pixelHist[pixel]->GetMaximum()));
+        narrowPixelFit[pixel]->SetParLimits(1, fitLow, fitHigh);
+        narrowPixelFit[pixel]->SetParLimits(2, minSigma, maxSigma);
+        fitStatus[pixel] = pixelHist[pixel]->Fit(narrowPixelFit[pixel], "RQN0");
+
+        const double fitMean = narrowPixelFit[pixel]->GetParameter(1);
+        const double fitMeanError = narrowPixelFit[pixel]->GetParError(1);
+        const double fitSigma = std::fabs(narrowPixelFit[pixel]->GetParameter(2));
+        const double amplitude = narrowPixelFit[pixel]->GetParameter(0);
+        const double amplitudeError = narrowPixelFit[pixel]->GetParError(0);
+        const int ndf = narrowPixelFit[pixel]->GetNDF();
+        const double chi2Ndf = ndf > 0
+            ? narrowPixelFit[pixel]->GetChisquare()/ndf : NAN;
+        const double significance = amplitudeError > 0.0
+            ? amplitude/amplitudeError : NAN;
+        const bool nearBoundary = fitMean - fitLow <= 0.5*Width ||
+                                  fitHigh - fitMean <= 0.5*Width;
+        const bool manualValid = fitStatus[pixel] == 0 && std::isfinite(fitMean) &&
+            std::isfinite(fitMeanError) && fitMeanError > 0.0 &&
+            fitMeanError <= maxCentroidError && std::isfinite(fitSigma) &&
+            fitSigma >= minSigma && fitSigma <= maxSigma && !nearBoundary &&
+            amplitude > 0.0 && std::isfinite(significance) &&
+            significance >= minSignalSignificance && ndf > 0 &&
+            std::isfinite(chi2Ndf) && chi2Ndf <= maxChi2Ndf;
+        if (manualValid) {
+          source[pixel] = "manual_2d_fit";
+          reason[pixel] = "valid fit seeded from manually selected two-dimensional population";
+          usedMean[pixel] = fitMean;
+          usedMeanError[pixel] = fitMeanError;
+          usedSigma[pixel] = fitSigma;
+          individualReferenceCentroids.push_back(fitMean);
+          continue;
+        }
+      }
+
+      if (groupValid[group]) {
+        source[pixel] = "group_fallback";
+        reason[pixel] = fitEntries[pixel] < minPixelEntries
+            ? "manual selection has insufficient individual entries"
+            : "manual-population fit failed quality criteria";
+        usedMean[pixel] = groupMean[group];
+        usedMeanError[pixel] = groupMeanError[group];
+        usedSigma[pixel] = groupSigma[group];
+      } else {
+        reason[pixel] = fitEntries[pixel] < minPixelEntries
+            ? "manual selection and invalid group have insufficient entries"
+            : "manual-population fit failed and group fit is invalid";
+      }
+      continue;
+    }
+
     if (!groupValid[group]) {
       if (fitEntries[pixel] < minPixelEntries) {
         reason[pixel] = "invalid group fit and insufficient individual entries";
@@ -7047,21 +8328,29 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
     return;
   }
 
-  int individualCount = 0, broadFallbackCount = 0, fallbackCount = 0,
+  int manualFitCount = 0, individualCount = 0, broadFallbackCount = 0, fallbackCount = 0,
       retainedCount = 0, unavailableCount = 0;
+  if (!gAnalysisPixelToffsetSnapshotValid ||
+      (int)gAnalysisPixelToffsetCorr.size() != NumCDetPaddles) {
+    std::cerr << "[CDet hierarchical timing] ERROR: no valid analysis-time pixel-offset "
+              << "snapshot is available. Rerun the main analysis with the desired "
+              << "baseline calibration before extracting offsets.\n";
+    return;
+  }
   for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
-    const double existing = gPixelToffsetLoaded &&
-        (int)gPixelToffsetCorr.size() == NumCDetPaddles ? gPixelToffsetCorr[pixel] : 0.0;
-    if (source[pixel] == "individual_fit" || source[pixel] == "individual_broad_fallback" ||
+    const double existing = gAnalysisPixelToffsetCorr[pixel];
+    if (source[pixel] == "manual_2d_fit" || source[pixel] == "individual_fit" ||
+        source[pixel] == "individual_broad_fallback" ||
         source[pixel] == "group_fallback") {
       correction[pixel] = usedMean[pixel] - detectorReference;
       totalOffset[pixel] = existing + correction[pixel];
-      if (source[pixel] == "individual_fit") ++individualCount;
+      if (source[pixel] == "manual_2d_fit") ++manualFitCount;
+      else if (source[pixel] == "individual_fit") ++individualCount;
       else if (source[pixel] == "individual_broad_fallback") ++broadFallbackCount;
       else ++fallbackCount;
     } else {
       totalOffset[pixel] = existing;
-      if (gPixelToffsetLoaded) {
+      if (gPixelToffsetLoaded || existing != 0.0) {
         if (source[pixel] != "unused") source[pixel] = "retained_existing";
         ++retainedCount;
       } else {
@@ -7091,10 +8380,12 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
 
   results << "# CDet hierarchical eight-pixel-group timing diagnostic\n"
           << "# reference median of valid individual centroids\n"
-          << "# pixel bar group entries source broad_mu_ns group_mu_ns used_mu_ns used_mu_err_ns used_sigma_ns correction_ns total_offset_ns fit_status reason\n";
+          << "# manual LE-versus-TOT cuts: " << pixelCutFile << " (loaded " << loadedPixelCuts << ")\n"
+          << "# pixel bar group entries manual_2d_cut source broad_mu_ns group_mu_ns used_mu_ns used_mu_err_ns used_sigma_ns correction_ns total_offset_ns fit_status reason\n";
   for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
     const int group = (pixel/16)*2 + (pixel%16)/8;
     results << pixel << " " << pixel/16 << " " << group << " " << fitEntries[pixel]
+            << " " << (pixelLeTotCut[pixel] ? 1 : 0)
             << " " << source[pixel] << " " << broadMean[pixel] << " " << groupMean[group]
             << " " << usedMean[pixel] << " " << usedMeanError[pixel] << " " << usedSigma[pixel]
             << " " << correction[pixel] << " " << totalOffset[pixel] << " " << fitStatus[pixel]
@@ -7250,7 +8541,9 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
                     ? "[CDet hierarchical timing calibration]\n"
                     : "[CDet hierarchical timing diagnostic]\n")
             << "  ECal-selected events: " << selectedEvents << " / " << nEvents << "\n"
+            << "  manual LE-versus-TOT cuts applied: " << loadedPixelCuts << "\n"
             << "  robust detector reference: " << detectorReference << " ns\n"
+            << "  manual-population individual fits: " << manualFitCount << "\n"
             << "  individual constrained fits: " << individualCount << "\n"
             << "  broad individual fits after invalid groups: " << broadFallbackCount << "\n"
             << "  eight-pixel group fallbacks: " << fallbackCount << "\n"
@@ -7268,7 +8561,8 @@ void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
 // active gCalibrationFile and loaded into the current ROOT session.
 void extractHierarchicalCDetPixelTimingOffsets(
     bool generateOffsets = false,
-    TString outputTag = "hierarchical") {
+    TString outputTag = "hierarchical",
+    TString pixelCutFile = "") {
   gLastCalibrationFitSucceeded = false;
   if (!generateOffsets) {
     std::cout << "[CDet hierarchical timing] Offset generation disabled. Call "
@@ -7291,7 +8585,7 @@ void extractHierarchicalCDetPixelTimingOffsets(
       1.0, -60.0, 30.0, -30.0, 10.0,
       35, 100, 0.5, 8.0, 15.0, 2.0, 1.5, 4.0, 8.0,
       1.0, 12.0, gCalibrationFile.c_str(), resultsOutput, rootOutput,
-      plotDirectory, "29,79,104,118,139,148", true);
+      plotDirectory, "29,79,104,118,139,148", true, pixelCutFile);
 }
 
 bool ReadCDetPixelOffsetsForComparison(const TString& calibrationFile, std::vector<double>& offsets, std::vector<bool>& found) {

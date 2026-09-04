@@ -57,9 +57,16 @@ Use `false` for inspection unless an update is intentional.
 | `plotAllTDC` | Broad TDC/channel/bar diagnostics; legacy offset route | Optional |
 | `plot2DrefVsLE` | Compare reference time with good CDet LE | No |
 | `plotCDetLayersTimeComp` | Pair layers, compare timing/position, fit ECal dependence, and build event display | Optional |
+| `writeAllCDetPairedLeSpectra` | Write paired-hit LE spectra and two-layer canvases for all 84 bar positions | Writes diagnostic ROOT file only |
+| `showCDetPairedLeBar` | Safely reconstruct one paired-LE bar canvas from the diagnostic ROOT file | No |
+| `writeAllCDetBarECalTimingDiagnostics` | Write the Layer-1 CDet-versus-ECal timing profile and fit for all 84 bars | Writes diagnostic ROOT/text files only |
+| `showCDetBarECalTiming` | Safely reconstruct one bar's CDet-versus-ECal timing canvas | No |
+| `plotAllCDetBarECalTiming` | Display all 168 half-bar ECal timing trends as four 7-by-6 canvases | Writes diagnostic ROOT/text files only |
 | `plotECalCDetTimeCutStudy` | Study an ECal-minus-CDet timing cut and selected-pixel fits | No |
 | `plotCDetPixelOffsetMethodDifference` | Compare two calibration files' pixel offsets | No |
 | `plotCDetPixelLeAndDtSpectra` | Inspect LE and ECal-CDet delta-t for one pixel | No |
+| `plotCDetPixelLeVsTot` | Inspect one pixel's LE-versus-TOT population and any saved polygon | No |
+| `editCDetPixelLeTotCut` | Interactively draw and persist a physical-population polygon | Writes cut file only |
 | `plotECalCDetTimeComp` | General ECal/CDet timing and position comparison | No |
 | `plotRawXCorrelation` | Plot raw CDet/ECal x correlation after a timing cut | No |
 | `plotTimeECalVsCDet` | Plot ECal time versus good CDet LE | No |
@@ -87,20 +94,101 @@ one-to-one Layer-1/Layer-2 hit pairs using timing, x-position, and y-position;
 then displays layer timing, layer-to-layer time differences, hit-ID correlation,
 position correlations, ECal/CDet timing, and selected-bar pixel spectra.
 
-It fits
+It retains the traditional pooled profile fit
 
 ```text
 <t_CDet> = p0 + p1 * t_ECal
 ```
 
-and prints the fitted `p0` and `p1`. With `overwrite = true`, those residual
-fit parameters are added to the existing `[ECalTiming]` constants and written
-to the active calibration file. With `overwrite = false`, the fit is diagnostic.
+and prints its fitted `p0`, `p1`, and chi-square per degree of freedom. A second
+diagnostic canvas compares the timing trend for all accepted pairs, all Layer-1
+hits, all Layer-2 hits, and the selected Layer-1 bar. These component fits are
+diagnostic only. In particular, the pooled slope is not used for calibration:
+different half-bars occupy different ECal-time regions, producing a
+Simpson's-paradox cancellation between negative within-half-bar slopes and
+positive covariance among half-bar means.
+
+The calibration estimator is therefore an **unbinned, accepted-hit-level**
+half-bar fixed-effects regression. For each of the 84 half-bars in each layer,
+it subtracts that half-bar's mean ECal time and mean CDet time. It then pools
+the centered observations and fits one common within-half-bar slope, which is
+equivalent to assigning every half-bar its own intercept. The coarse TH2D and
+profile bins are used only for visualization; using them for the estimator
+would attenuate the response to a changed correction coefficient. The function
+reports separate Layer-1 and Layer-2 results and their combined result. A three-panel
+`cCDetECalFixedEffects` canvas displays the centered Layer-1, Layer-2, and
+combined distributions and fitted common slopes.
+
+The selected-bar per-pixel LE spectra have display-only Gaussian overlays fitted
+over `30 +/- 5 ns`; these fits do not affect pairing, cuts, or calibration.
+
+With `overwrite = true`, behavior depends on the calibration stage. If ECal
+correction is already active, only the combined fixed-effects residual slope
+is added to the existing `[ECalTiming] p1`; `p0` is unchanged because
+recentering the corrected distribution to 30 ns removes sensitivity to the
+absolute intercept. If ECal correction is disabled, as in the dedicated
+Stage-8 fit, the pooled fit supplies the absolute `p0` while the fixed-effects
+fit supplies `p1`. With `overwrite = false`, every fit is diagnostic and the
+calibration file is unchanged.
 
 The integer `pixelBase`/`display.pixel` may be any Layer-1 pixel in the desired
 bar; the function normalizes it to the first pixel of that 16-pixel bar. In an
 interactive session it also constructs the event browser described below. In
 ROOT batch mode the event browser is intentionally omitted.
+
+After this function has built the accepted hit pairs, write all paired-hit LE
+spectra to a hierarchical ROOT file with:
+
+```cpp
+writeAllCDetPairedLeSpectra("CDet_all_bars_paired_le.root")
+```
+
+The file contains 84 bar directories. Each has one 8-by-4 canvas containing
+the 16 Layer-1 and 16 corresponding Layer-2 pixel spectra, plus separate
+`layer_1` and `layer_2` histogram directories. The display-only Gaussian fits
+use the same 25--35 ns window as the selected-bar canvas.
+
+On ROOT installations where the macOS GUI crashes while browsing a serialized
+`TCanvas`, avoid double-clicking the canvas key in `TBrowser`. Reconstruct a
+fresh interactive canvas from the stored histograms instead:
+
+```cpp
+showCDetPairedLeBar(29, "CDet_all_bars_paired_le.root")
+```
+
+To generate the 84 per-bar versions of the Layer-1 CDet-versus-ECal timing plot,
+run this after `plotCDetLayersTimeComp`:
+
+```cpp
+writeAllCDetBarECalTimingDiagnostics(
+    "CDet_bar_ecal_timing.root",
+    "CDet_bar_ecal_timing_summary.dat"
+)
+```
+
+The ROOT file has one directory per bar containing the 2D histogram, X profile,
+linear fit, and annotated canvas. The text file records entries, fit status,
+`p0`, `p1`, uncertainties, chi-square, NDF, chi-square/NDF, and probability for
+each bar. To avoid the macOS serialized-canvas browser problem, inspect a bar
+with:
+
+```cpp
+showCDetBarECalTiming(29, "CDet_bar_ecal_timing.root")
+```
+
+For a detector-layout overview that retains every half-bar independently:
+
+```cpp
+plotAllCDetBarECalTiming(
+    "CDet_bar_ecal_timing_overview_run5710.root",
+    "CDet_bar_ecal_timing_overview_run5710_summary.dat"
+)
+```
+
+This produces four visible canvases: two seven-half-bar banks for each layer.
+Every canvas has seven columns and six half-module rows, so all 84 half-bars per
+layer remain separate. The ROOT file retains the histograms, profiles, fits, and
+four overview canvases; the text file contains all 168 fit results.
 
 Two interfaces are available:
 
@@ -290,6 +378,60 @@ For one pixel, draws the good-hit LE spectrum and the ECal-CDet delta-t spectrum
 after an ECal-energy selection. It marks the proposed delta-t fit interval and
 prints that pixel's corrections from two calibration files. This is useful for
 understanding individual outliers in the method-comparison plot.
+
+### `plotCDetPixelLeVsTot(pixel, cutFile, ...)`
+
+Draws one pixel's corrected good-hit LE-versus-TOT spectrum. If `cutFile`
+contains a saved polygon for the pixel, it overlays that polygon in red. For
+example:
+
+```cpp
+plotCDetPixelLeVsTot(468);
+plotCDetPixelLeVsTot(471);
+```
+
+### `editCDetPixelLeTotCut(pixel, cutFile, ...)`
+
+Opens the same spectrum in interactive ROOT and waits for a polygon around the
+physical hit population. Left-click to add vertices and double-click to close
+the polygon; Escape cancels. A previous cut is shown as a dashed green line.
+The new `TCutG`, reference histogram, run number, and calibration stage are
+stored under `pixel_NNNN/` in `CDet_pixel_quality_cuts.root` by default.
+
+```cpp
+editCDetPixelLeTotCut(468);
+editCDetPixelLeTotCut(471);
+```
+
+Saved cuts are deliberately opt-in during offset extraction because their LE
+coordinates depend on the calibration stage in which they were drawn:
+
+```cpp
+extractHierarchicalCDetPixelTimingOffsets(
+    true, "manual_le_tot", "CDet_pixel_quality_cuts.root");
+```
+
+Only pixels having a saved polygon are filtered. Every other pixel follows the
+unchanged automatic hierarchical path. The result table records `manual_2d_cut`
+as 1 or 0 for each pixel.
+
+Build a deliberately inclusive, ranked review queue from the most recent fit
+results with:
+
+```cpp
+buildCDetPixelLeTotReviewQueue()
+printCDetPixelLeTotReviewQueue()
+reviewNextCDetPixelLeTotCandidate()
+```
+
+The default flags any uncut pixel with at least 35 fit entries when it used a
+nonstandard fit source, differs from its group centroid by at least 2 ns, or has
+a fitted sigma of at least 3 ns. Candidates are ranked by severity and written
+to `CDet_pixel_le_tot_review_queue.dat`. Use
+`reviewNextCDetPixelLeTotCandidate()`,
+`reviewPreviousCDetPixelLeTotCandidate()`, and
+`reviewCurrentCDetPixelLeTotCandidate()` to navigate. Escape skips a displayed
+candidate without saving a cut; drawing a valid polygon saves it.
 
 ### `extractHierarchicalCDetPixelTimingOffsetsDiagnostic(...)`
 
