@@ -123,6 +123,22 @@ combined distributions and fitted common slopes.
 The selected-bar per-pixel LE spectra have display-only Gaussian overlays fitted
 over `30 +/- 5 ns`; these fits do not affect pairing, cuts, or calibration.
 
+The same accepted-pair histogram also provides the detector-wide paired-layer
+timing width. Query it safely with the dedicated helper (rather than searching
+ROOT's global object registry for a same-named histogram):
+
+```cpp
+reportCDetPairedTimeResolution()
+```
+
+Run it after `plotCDetLayersTimeComp`. It prints the RMS of the complete
+accepted-pair mean-time distribution—the approximately 2.27 ns width quoted in
+the run-5710 validation—and also fits the central timing peak with a Gaussian
+over `25` to `35 ns`. The RMS and Gaussian sigma are intentionally reported
+separately: the former includes the full accepted distribution, while the
+latter characterizes its core. To change the displayed core-fit interval, use,
+for example, `reportCDetPairedTimeResolution(true, 26.0, 34.0)`.
+
 With `overwrite = true`, behavior depends on the calibration stage. If ECal
 correction is already active, only the combined fixed-effects residual slope
 is added to the existing `[ECalTiming] p1`; `p0` is unchanged because

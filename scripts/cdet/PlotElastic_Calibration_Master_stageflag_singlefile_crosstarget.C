@@ -186,6 +186,7 @@ std::vector<std::vector<PairHit>> pairs_CDet;
 std::vector<TH1D*> gCDetPairedLeSpectra;
 std::vector<TH2D*> gCDetBarECalTimingSpectra;
 std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalTimingSamples;
+TH2D *gCDetPairedMeanTimeVsECal = nullptr;
 
 struct CDetDisplayHit {
   int id, layer, side, module, bar, pixel;
@@ -250,6 +251,9 @@ void calibrateCDetHalfBarIntercepts(
     int minEntries = 100, double maxInterceptError = 1.0,
     TString outputRoot = "CDet_halfbar_intercept_diagnostics.root",
     TString outputSummary = "CDet_halfbar_intercept_corrections.dat");
+void reportCDetPairedTimeResolution(bool draw = true,
+                                    double gaussianFitMin = 25.0,
+                                    double gaussianFitMax = 35.0);
 void ResetCalibrationGlobals();
 
 // Interactive, persistent LE-versus-TOT selections for pixels whose physical
@@ -5290,6 +5294,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   TH2D* hECalVsCDetDt = new TH2D("hECalVsCDetDt", "ECal Time vs CDet dt;ECal ADC Time (ns);CDet dt_12 (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,DiffMin,DiffMax);
   TH2D* hECalVsCDetDtSingle = new TH2D("hECalVsCDetDtSingle", "CDet Single dt vs ECal Time;ECal ADC Time (ns);CDet dt_12 (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,DiffMin,DiffMax);
   TH2D* hECalVsCDetT = new TH2D("hECalVsCDetT", "CDet t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  hECalVsCDetT->SetDirectory(nullptr);
+  gCDetPairedMeanTimeVsECal = hECalVsCDetT;
   TH2D* hECalVsCDetTL1 = new TH2D("hECalVsCDetTL1", "CDet Layer 1 t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTL2 = new TH2D("hECalVsCDetTL2", "CDet Layer 2 t vs ECal Time;ECal ADC Time (ns);Layer 2 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsSelectedBarT = new TH2D("hECalVsSelectedBarT", TString::Format("CDet Layer 1 bar %d t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", selectedBarNumber), NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
@@ -6009,6 +6015,75 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
                           xdiffMinCut, xdiffMaxCut,
                           tdiffECalCDetMin, tdiffECalCDetMax,
                           XMin, XMax, ZMin, ZMax);
+  }
+}
+
+void reportCDetPairedTimeResolution(bool draw,
+                                    double gaussianFitMin,
+                                    double gaussianFitMax)
+{
+  if (!gCDetPairedMeanTimeVsECal) {
+    std::cerr << "[CDet paired timing resolution] ERROR: paired timing histogram "
+              << "is not available. Run plotCDetLayersTimeComp first.\n";
+    return;
+  }
+  if (!(gaussianFitMax > gaussianFitMin)) {
+    std::cerr << "[CDet paired timing resolution] ERROR: Gaussian fit maximum "
+              << "must be greater than its minimum.\n";
+    return;
+  }
+
+  static unsigned long reportNumber = 0;
+  ++reportNumber;
+  TH1D *timeProjection = gCDetPairedMeanTimeVsECal->ProjectionY(
+      TString::Format("hCDetPairedMeanTimeResolution_%lu", reportNumber));
+  timeProjection->SetDirectory(nullptr);
+  timeProjection->SetTitle(
+      "Accepted-pair mean CDet time;#LTt_{CDet}#GT (ns);Accepted pairs");
+
+  const double entries = timeProjection->GetEntries();
+  const double mean = timeProjection->GetMean();
+  const double rms = timeProjection->GetStdDev();
+  const double rmsError = timeProjection->GetStdDevError();
+
+  TF1 *coreFit = new TF1(
+      TString::Format("fCDetPairedMeanTimeCore_%lu", reportNumber),
+      "gaus", gaussianFitMin, gaussianFitMax);
+  int fitStatus = -1;
+  if (timeProjection->Integral(
+          timeProjection->FindFixBin(gaussianFitMin),
+          timeProjection->FindFixBin(gaussianFitMax)) >= 10.0) {
+    TFitResultPtr fitResult = timeProjection->Fit(coreFit, "QRS");
+    fitStatus = int(fitResult);
+  }
+
+  std::cout << "\n[CDet paired timing resolution]\n"
+            << "  accepted pairs: " << entries << "\n"
+            << "  mean pair time: " << mean << " ns\n"
+            << "  detector-wide RMS: " << rms << " +/- " << rmsError
+            << " ns\n";
+  if (fitStatus == 0) {
+    std::cout << "  Gaussian core sigma (" << gaussianFitMin << " to "
+              << gaussianFitMax << " ns): " << coreFit->GetParameter(2)
+              << " +/- " << coreFit->GetParError(2) << " ns\n"
+              << "  Gaussian chi2/NDF: " << coreFit->GetChisquare() << "/"
+              << coreFit->GetNDF() << "\n";
+  } else {
+    std::cout << "  Gaussian core fit unavailable (fit status " << fitStatus
+              << ").\n";
+  }
+  std::cout << "  The RMS is the width of the full accepted-pair mean-time "
+            << "distribution; the Gaussian sigma describes only its core.\n";
+
+  if (draw) {
+    TCanvas *canvas = new TCanvas(
+        TString::Format("cCDetPairedTimeResolution_%lu", reportNumber),
+        "CDet paired-layer timing resolution", 900, 700);
+    canvas->cd();
+    timeProjection->Draw();
+    if (fitStatus == 0) coreFit->Draw("SAME");
+    canvas->Modified();
+    canvas->Update();
   }
 }
 
