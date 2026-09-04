@@ -4383,6 +4383,19 @@ TCanvas *plotAllTDC(bool overwrite = false, double width = 1, double binLow = 0,
     for (double x : vPaddleGoodLe[pixelID]) hPaddleGoodLe[pixelID]->Fill(x);
   }
 
+  // Per-bar good leading-edge histograms (16 logical pixels per bar).
+  // These feed the four 42-bar diagnostic canvases saved below.
+  hBarGoodLe.assign(NumPMTs, nullptr);
+  for (int bar = 0; bar < NumPMTs; ++bar) {
+    hBarGoodLe[bar] = new TH1F(
+        TString::Format("hBarGoodLe_Bar%d", bar),
+        TString::Format("Good LE (bar %d);Leading-edge time [ns];Counts", bar),
+        Nbins, binLow, binHigh);
+    if (bar < (int)vBarGoodLe.size()) {
+      for (double x : vBarGoodLe[bar]) hBarGoodLe[bar]->Fill(x);
+    }
+  }
+
   // fill necessary histograms from vectors
   for (double x : vAllRawLe)   hAllRawLe->Fill(x);
   for (double x : vAllRawTe)   hAllRawTe->Fill(x);
@@ -4739,7 +4752,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   TH1D* hCDetLe1 = new TH1D("hCDetLe1", "CDet Layer 1 Good Time;Layer 1 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
   TH1D* hCDetLe2 = new TH1D("hCDetLe2", "CDet Layer 2 Good Time;Layer 2 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
   TH2D* hCDetLe2vs1 = new TH2D("hCDetLe2vs1", "CDet Layer 2 Time vs CDet Layer 1 Time;Layer 1 LE (ns);Layer 2 LE (ns)",TDCBinNum,CDetMin,CDetMax,TDCBinNum,CDetMin,CDetMax);
-  TH2D* hCDetTot2vs1 = new TH2D("hCDetTot2vs1", "CDet Layer 2 Tot vs CDet Layer 1 Tot;Layer 1 LE (ns);Layer 2 LE (ns)",TDCBinNum,CDetTotMin,CDetTotMax,TDCBinNum,CDetTotMin,CDetTotMax);
+  TH2D* hCDetTot2vs1 = new TH2D("hCDetTot2vs1", "CDet Layer 2 ToT vs CDet Layer 1 ToT;Layer 1 ToT (ns);Layer 2 ToT (ns)",TDCBinNum,CDetTotMin,CDetTotMax,TDCBinNum,CDetTotMin,CDetTotMax);
   TH2D* h2CDetx2VsCDetx1 = new TH2D("h2CDetx2VsCDetx1", "CDet Layer 2 x vs CDet Layer 1 x;CDet Layer 1 x (m);CDet Layer 2 x (m)",600,-1.5,1.5,600,-1.5,1.5);
   TH1I* hNpairPerEvent = new TH1I("hNpairPerEvent", "CDet accepted pairs per event;N_{pairs};Events", 20, 0, 20);
   TH1D* hCDetBarLe1 = new TH1D("hCDetBarLe1", TString::Format("CDet Bar 1L%d Good Time;Layer 1 LE (ns);Counts", selectedBarNumber), TDCBinNum, CDetMin, CDetMax);
@@ -6728,6 +6741,557 @@ void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width
             << "  calibration file: " << calibrationOutput << "\n"
             << "  detailed fit results: " << fitResultsOutput << "\n"
             << "  existing loaded offsets were " << (hadLoadedPixelOffsets ? "retained and incremented" : "not present; constants start from zero") << "\n";
+}
+
+// Diagnostic alternative to extractAllCDetPixelTimingOffsets().  It uses the
+// common timing of each contiguous eight-pixel MAPMT group to keep individual
+// fits from locking onto a larger cross-talk peak.  It deliberately writes to
+// separate candidate/result files and does not modify the active in-memory or
+// production calibration.
+void extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
+    double Width = 1.0,
+    double HistMin = -60.0, double HistMax = 30.0,
+    double BroadFitMin = -30.0, double BroadFitMax = 10.0,
+    int minPixelEntries = 35, int minGroupEntries = 100,
+    double minSigma = 0.5, double maxSigma = 8.0,
+    double maxChi2Ndf = 15.0, double maxCentroidError = 2.0,
+    double minSignalSignificance = 1.5,
+    double minimumHalfWindow = 4.0, double maximumHalfWindow = 8.0,
+    double ECalEnergyMin = 1.0, double ECalEnergyMax = 12.0,
+    TString candidateOutput = "CDet_calibration_dt_hierarchical_candidate.dat",
+    TString resultsOutput = "CDet_pixel_timing_fit_results_hierarchical.dat",
+    TString rootOutput = "CDet_pixel_timing_hierarchical_diagnostics.root",
+    TString plotDirectory = "tdcPlots/hierarchical",
+    TString diagnosticBars = "29,79,104,118,139,148",
+    bool activateCalibration = false) {
+  TH1::AddDirectory(kFALSE);
+  gLastCalibrationFitSucceeded = false;
+
+  if (Width <= 0.0 || HistMin >= HistMax || BroadFitMin >= BroadFitMax ||
+      BroadFitMin < HistMin || BroadFitMax > HistMax || minPixelEntries < 1 ||
+      minGroupEntries < 1 || minSigma <= 0.0 ||
+      minSigma >= maxSigma || maxChi2Ndf <= 0.0 || maxCentroidError <= 0.0 ||
+      minSignalSignificance <= 0.0 ||
+      minimumHalfWindow <= 0.0 || minimumHalfWindow > maximumHalfWindow ||
+      ECalEnergyMin >= ECalEnergyMax) {
+    std::cerr << "[CDet hierarchical timing] ERROR: invalid diagnostic argument.\n";
+    return;
+  }
+  if (!activateCalibration && candidateOutput == gCalibrationFile.c_str()) {
+    std::cerr << "[CDet hierarchical timing] ERROR: refusing to overwrite active calibration '"
+              << gCalibrationFile << "'.\n";
+    return;
+  }
+
+  const size_t nEvents = vGoodLe.size();
+  if (vGoodID.size() != nEvents || v_GoodECalAdcTime.size() != nEvents ||
+      v_GoodECalE.size() != nEvents) {
+    std::cerr << "[CDet hierarchical timing] ERROR: event vectors are not aligned.\n";
+    return;
+  }
+  for (size_t ev = 0; ev < nEvents; ++ev) {
+    if (vGoodID[ev].size() != vGoodLe[ev].size()) {
+      std::cerr << "[CDet hierarchical timing] ERROR: LE and ID vectors differ in event "
+                << ev << ".\n";
+      return;
+    }
+  }
+
+  const int nBins = (int)((HistMax - HistMin)/Width);
+  if (nBins < 1) {
+    std::cerr << "[CDet hierarchical timing] ERROR: histogram binning is empty.\n";
+    return;
+  }
+
+  static unsigned long invocation = 0;
+  const unsigned long tag = ++invocation;
+  auto uname = [tag](const char *base) {
+    return TString::Format("%s_hier_%lu", base, tag);
+  };
+  auto medianOf = [](std::vector<double> values) -> double {
+    if (values.empty()) return NAN;
+    const size_t middle = values.size()/2;
+    std::nth_element(values.begin(), values.begin() + middle, values.end());
+    const double upper = values[middle];
+    if (values.size()%2) return upper;
+    std::nth_element(values.begin(), values.begin() + middle - 1, values.end());
+    return 0.5*(upper + values[middle - 1]);
+  };
+
+  std::vector<TH1D*> pixelHist(NumCDetPaddles, nullptr);
+  for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+    pixelHist[pixel] = new TH1D(
+        uname(TString::Format("hHierPixelDt_%d", pixel)),
+        TString::Format("Pixel %d;t_{ECal}-t_{CDet,LE} (ns);Hits", pixel),
+        nBins, HistMin, HistMax);
+    pixelHist[pixel]->Sumw2();
+  }
+
+  size_t selectedEvents = 0;
+  for (size_t ev = 0; ev < nEvents; ++ev) {
+    if (v_GoodECalE[ev] < ECalEnergyMin || v_GoodECalE[ev] > ECalEnergyMax) continue;
+    ++selectedEvents;
+    const double tECal = v_GoodECalAdcTime[ev];
+    for (size_t hit = 0; hit < vGoodLe[ev].size(); ++hit) {
+      const int pixel = vGoodID[ev][hit];
+      if (pixel >= 0 && pixel < NumCDetPaddles)
+        pixelHist[pixel]->Fill(tECal - vGoodLe[ev][hit]);
+    }
+  }
+
+  const int groupsPerBar = 2;
+  const int nBars = NumCDetPaddles/NumPaddles;
+  const int nGroups = nBars*groupsPerBar;
+  std::vector<TH1D*> groupHist(nGroups, nullptr);
+  std::vector<TF1*> groupFit(nGroups, nullptr);
+  std::vector<double> groupMean(nGroups, NAN), groupSigma(nGroups, NAN),
+                      groupMeanError(nGroups, NAN);
+  std::vector<int> groupContributors(nGroups, 0);
+  std::vector<bool> groupValid(nGroups, false);
+
+  for (int group = 0; group < nGroups; ++group) {
+    const int firstPixel = (group/2)*16 + (group%2)*8;
+    groupHist[group] = new TH1D(
+        uname(TString::Format("hHierGroupDt_%d", group)),
+        TString::Format("Bar %d pixels %d-%d (raw-count sum);t_{ECal}-t_{CDet,LE} (ns);Hits",
+                        group/2, firstPixel, firstPixel + 7),
+        nBins, HistMin, HistMax);
+    groupHist[group]->Sumw2();
+    for (int local = 0; local < 8; ++local) {
+      const int pixel = firstPixel + local;
+      if (IsUnusedPixel(pixel)) continue;
+      const int lo = pixelHist[pixel]->FindBin(BroadFitMin);
+      const int hi = pixelHist[pixel]->FindBin(BroadFitMax);
+      const double integral = pixelHist[pixel]->Integral(lo, hi);
+      if (integral <= 0.0) continue;
+      groupHist[group]->Add(pixelHist[pixel]);
+      ++groupContributors[group];
+    }
+    const int groupFitBinMin = groupHist[group]->FindBin(BroadFitMin);
+    const int groupFitBinMax = groupHist[group]->FindBin(BroadFitMax);
+    if (groupHist[group]->Integral(groupFitBinMin, groupFitBinMax) < minGroupEntries) continue;
+
+    const int lo = groupHist[group]->FindBin(BroadFitMin);
+    const int hi = groupHist[group]->FindBin(BroadFitMax);
+    int peakBin = lo;
+    for (int bin = lo + 1; bin <= hi; ++bin)
+      if (groupHist[group]->GetBinContent(bin) > groupHist[group]->GetBinContent(peakBin))
+        peakBin = bin;
+    const double seed = groupHist[group]->GetBinCenter(peakBin);
+    const double background = 0.5*(groupHist[group]->GetBinContent(lo) +
+                                   groupHist[group]->GetBinContent(hi));
+    groupFit[group] = new TF1(uname(TString::Format("fHierGroup_%d", group)),
+                              "gaus(0)+pol1(3)", BroadFitMin, BroadFitMax);
+    groupFit[group]->SetParameters(
+        std::max(0.01, groupHist[group]->GetBinContent(peakBin) - background),
+        seed, 3.0, background, 0.0);
+    groupFit[group]->SetParLimits(0, 0.0,
+        1.5*std::max(1.0, groupHist[group]->GetMaximum()));
+    groupFit[group]->SetParLimits(1, BroadFitMin, BroadFitMax);
+    groupFit[group]->SetParLimits(2, minSigma, maxSigma);
+    const int status = groupHist[group]->Fit(groupFit[group], "RQN0");
+    const double mean = groupFit[group]->GetParameter(1);
+    const double sigma = std::fabs(groupFit[group]->GetParameter(2));
+    const double meanError = groupFit[group]->GetParError(1);
+    groupValid[group] = status == 0 && std::isfinite(mean) &&
+        std::isfinite(meanError) && meanError > 0.0 &&
+        std::isfinite(sigma) && sigma >= minSigma && sigma <= maxSigma &&
+        mean > BroadFitMin + Width && mean < BroadFitMax - Width;
+    if (groupValid[group]) {
+      groupMean[group] = mean;
+      groupSigma[group] = sigma;
+      groupMeanError[group] = meanError;
+    }
+  }
+
+  std::vector<TF1*> broadPixelFit(NumCDetPaddles, nullptr),
+                    narrowPixelFit(NumCDetPaddles, nullptr);
+  std::vector<double> broadMean(NumCDetPaddles, NAN), usedMean(NumCDetPaddles, NAN),
+                      usedMeanError(NumCDetPaddles, NAN), usedSigma(NumCDetPaddles, NAN),
+                      correction(NumCDetPaddles, 0.0), totalOffset(NumCDetPaddles, 0.0);
+  std::vector<int> fitEntries(NumCDetPaddles, 0), fitStatus(NumCDetPaddles, -1),
+                   broadFitStatus(NumCDetPaddles, -1);
+  std::vector<std::string> source(NumCDetPaddles, "unavailable"), reason(NumCDetPaddles, "not fitted");
+  std::vector<double> individualReferenceCentroids;
+
+  for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+    const int group = (pixel/16)*2 + (pixel%16)/8;
+    const int lo = pixelHist[pixel]->FindBin(BroadFitMin);
+    const int hi = pixelHist[pixel]->FindBin(BroadFitMax);
+    fitEntries[pixel] = (int)pixelHist[pixel]->Integral(lo, hi);
+    if (IsUnusedPixel(pixel)) {
+      source[pixel] = "unused";
+      reason[pixel] = "known unused pixel";
+      continue;
+    }
+    // Always attempt the original broad individual fit when statistics permit.
+    // It is diagnostic for valid groups and becomes the calibration fallback
+    // when the eight-pixel group fit is invalid.
+    if (fitEntries[pixel] >= minPixelEntries) {
+      int peakBin = lo;
+      for (int bin = lo + 1; bin <= hi; ++bin)
+        if (pixelHist[pixel]->GetBinContent(bin) > pixelHist[pixel]->GetBinContent(peakBin))
+          peakBin = bin;
+      broadPixelFit[pixel] = new TF1(uname(TString::Format("fHierBroadPixel_%d", pixel)),
+                                     "gaus(0)+pol1(3)", BroadFitMin, BroadFitMax);
+      broadPixelFit[pixel]->SetParameters(
+          std::max(1.0, pixelHist[pixel]->GetBinContent(peakBin)),
+          pixelHist[pixel]->GetBinCenter(peakBin), 3.0, 0.0, 0.0);
+      broadPixelFit[pixel]->SetParLimits(0, 0.0,
+          1.5*std::max(1.0, pixelHist[pixel]->GetMaximum()));
+      broadPixelFit[pixel]->SetParLimits(1, BroadFitMin, BroadFitMax);
+      broadPixelFit[pixel]->SetParLimits(2, minSigma, maxSigma);
+      broadFitStatus[pixel] = pixelHist[pixel]->Fit(broadPixelFit[pixel], "RQN0");
+      broadMean[pixel] = broadPixelFit[pixel]->GetParameter(1);
+    }
+
+    if (!groupValid[group]) {
+      if (fitEntries[pixel] < minPixelEntries) {
+        reason[pixel] = "invalid group fit and insufficient individual entries";
+        continue;
+      }
+      const double fitMean = broadPixelFit[pixel]->GetParameter(1);
+      const double fitMeanError = broadPixelFit[pixel]->GetParError(1);
+      const double fitSigma = std::fabs(broadPixelFit[pixel]->GetParameter(2));
+      const double amplitude = broadPixelFit[pixel]->GetParameter(0);
+      const double amplitudeError = broadPixelFit[pixel]->GetParError(0);
+      const int ndf = broadPixelFit[pixel]->GetNDF();
+      const double chi2Ndf = ndf > 0 ? broadPixelFit[pixel]->GetChisquare()/ndf : NAN;
+      const double significance = amplitudeError > 0.0 ? amplitude/amplitudeError : NAN;
+      const bool nearBoundary = fitMean - BroadFitMin <= 0.5*Width ||
+                                BroadFitMax - fitMean <= 0.5*Width;
+      const bool broadValid = broadFitStatus[pixel] == 0 && std::isfinite(fitMean) &&
+          std::isfinite(fitMeanError) && fitMeanError > 0.0 && fitMeanError <= maxCentroidError &&
+          std::isfinite(fitSigma) && fitSigma >= minSigma && fitSigma <= maxSigma &&
+          !nearBoundary && amplitude > 0.0 && std::isfinite(significance) &&
+          significance >= minSignalSignificance && ndf > 0 && std::isfinite(chi2Ndf) &&
+          chi2Ndf <= maxChi2Ndf;
+      fitStatus[pixel] = broadFitStatus[pixel];
+      if (broadValid) {
+        source[pixel] = "individual_broad_fallback";
+        reason[pixel] = "valid broad individual fit after invalid group fit";
+        usedMean[pixel] = fitMean;
+        usedMeanError[pixel] = fitMeanError;
+        usedSigma[pixel] = fitSigma;
+        individualReferenceCentroids.push_back(fitMean);
+      } else {
+        reason[pixel] = "invalid group fit and broad individual fit failed quality criteria";
+      }
+      continue;
+    }
+
+    if (fitEntries[pixel] < minPixelEntries) {
+      source[pixel] = "group_fallback";
+      reason[pixel] = "insufficient individual entries";
+      usedMean[pixel] = groupMean[group];
+      usedMeanError[pixel] = groupMeanError[group];
+      usedSigma[pixel] = groupSigma[group];
+      continue;
+    }
+
+    const double halfWindow = std::min(maximumHalfWindow,
+        std::max(minimumHalfWindow, 2.0*groupSigma[group]));
+    const double fitLow = std::max(BroadFitMin, groupMean[group] - halfWindow);
+    const double fitHigh = std::min(BroadFitMax, groupMean[group] + halfWindow);
+    narrowPixelFit[pixel] = new TF1(uname(TString::Format("fHierNarrowPixel_%d", pixel)),
+                                    "gaus(0)+pol1(3)", fitLow, fitHigh);
+    const int groupBin = pixelHist[pixel]->FindBin(groupMean[group]);
+    narrowPixelFit[pixel]->SetParameters(
+        std::max(1.0, pixelHist[pixel]->GetBinContent(groupBin)),
+        groupMean[group], std::min(3.0, groupSigma[group]), 0.0, 0.0);
+    narrowPixelFit[pixel]->SetParLimits(0, 0.0, 1.5*std::max(1.0, pixelHist[pixel]->GetMaximum()));
+    narrowPixelFit[pixel]->SetParLimits(1, fitLow, fitHigh);
+    narrowPixelFit[pixel]->SetParLimits(2, minSigma, maxSigma);
+    fitStatus[pixel] = pixelHist[pixel]->Fit(narrowPixelFit[pixel], "RQN0");
+
+    const double fitMean = narrowPixelFit[pixel]->GetParameter(1);
+    const double fitMeanError = narrowPixelFit[pixel]->GetParError(1);
+    const double fitSigma = std::fabs(narrowPixelFit[pixel]->GetParameter(2));
+    const double amplitude = narrowPixelFit[pixel]->GetParameter(0);
+    const double amplitudeError = narrowPixelFit[pixel]->GetParError(0);
+    const int ndf = narrowPixelFit[pixel]->GetNDF();
+    const double chi2Ndf = ndf > 0 ? narrowPixelFit[pixel]->GetChisquare()/ndf : NAN;
+    const double significance = amplitudeError > 0.0 ? amplitude/amplitudeError : NAN;
+    const bool nearBoundary = fitMean - fitLow <= 0.5*Width || fitHigh - fitMean <= 0.5*Width;
+    const bool individualValid = fitStatus[pixel] == 0 && std::isfinite(fitMean) &&
+        std::isfinite(fitMeanError) && fitMeanError > 0.0 && fitMeanError <= maxCentroidError &&
+        std::isfinite(fitSigma) && fitSigma >= minSigma && fitSigma <= maxSigma &&
+        !nearBoundary &&
+        amplitude > 0.0 && std::isfinite(significance) && significance >= minSignalSignificance &&
+        ndf > 0 && std::isfinite(chi2Ndf) && chi2Ndf <= maxChi2Ndf;
+    if (individualValid) {
+      source[pixel] = "individual_fit";
+      reason[pixel] = "valid constrained fit";
+      usedMean[pixel] = fitMean;
+      usedMeanError[pixel] = fitMeanError;
+      usedSigma[pixel] = fitSigma;
+      individualReferenceCentroids.push_back(fitMean);
+    } else {
+      source[pixel] = "group_fallback";
+      reason[pixel] = "individual constrained fit failed quality criteria";
+      usedMean[pixel] = groupMean[group];
+      usedMeanError[pixel] = groupMeanError[group];
+      usedSigma[pixel] = groupSigma[group];
+    }
+  }
+
+  double detectorReference = medianOf(individualReferenceCentroids);
+  if (!std::isfinite(detectorReference)) {
+    std::vector<double> validGroups;
+    for (int group = 0; group < nGroups; ++group)
+      if (groupValid[group]) validGroups.push_back(groupMean[group]);
+    detectorReference = medianOf(validGroups);
+  }
+  if (!std::isfinite(detectorReference)) {
+    std::cerr << "[CDet hierarchical timing] ERROR: no valid detector reference.\n";
+    return;
+  }
+
+  int individualCount = 0, broadFallbackCount = 0, fallbackCount = 0,
+      retainedCount = 0, unavailableCount = 0;
+  for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+    const double existing = gPixelToffsetLoaded &&
+        (int)gPixelToffsetCorr.size() == NumCDetPaddles ? gPixelToffsetCorr[pixel] : 0.0;
+    if (source[pixel] == "individual_fit" || source[pixel] == "individual_broad_fallback" ||
+        source[pixel] == "group_fallback") {
+      correction[pixel] = usedMean[pixel] - detectorReference;
+      totalOffset[pixel] = existing + correction[pixel];
+      if (source[pixel] == "individual_fit") ++individualCount;
+      else if (source[pixel] == "individual_broad_fallback") ++broadFallbackCount;
+      else ++fallbackCount;
+    } else {
+      totalOffset[pixel] = existing;
+      if (gPixelToffsetLoaded) {
+        if (source[pixel] != "unused") source[pixel] = "retained_existing";
+        ++retainedCount;
+      } else {
+        ++unavailableCount;
+      }
+    }
+  }
+
+  std::ofstream candidate(candidateOutput.Data());
+  std::ofstream results(resultsOutput.Data());
+  if (!candidate || !results) {
+    std::cerr << "[CDet hierarchical timing] ERROR: could not open diagnostic output files.\n";
+    return;
+  }
+  candidate << (activateCalibration
+                    ? "# CDet hierarchical eight-pixel-group timing calibration\n"
+                    : "# DIAGNOSTIC hierarchical eight-pixel-group CDet calibration candidate\n")
+            << "# run " << gRunNumber << "\n# calibration_stage " << gCalibrationStage
+            << "\n# detector_reference_median_ns " << detectorReference << "\n\n[PixelOffsets]\n";
+  candidate.setf(std::ios::fixed); candidate.precision(6);
+  for (int pixel = 0; pixel < NumCDetPaddles; ++pixel)
+    candidate << pixel << " " << totalOffset[pixel] << " " << fitEntries[pixel] << "\n";
+  candidate << "\n[ECalTiming]\np0 " << gECalFitP0 << "\np1 " << gECalFitP1
+            << "\n\n[TimeWalk]\np1_L1 " << gTimeWalkP1_L1 << "\np1_L2 " << gTimeWalkP1_L2
+            << "\ntotref_L1 " << gTimeWalkTotRef_L1 << "\ntotref_L2 " << gTimeWalkTotRef_L2
+            << "\ntotmin " << gTimeWalkTotMin << "\ntotmax " << gTimeWalkTotMax << "\n";
+
+  results << "# CDet hierarchical eight-pixel-group timing diagnostic\n"
+          << "# reference median of valid individual centroids\n"
+          << "# pixel bar group entries source broad_mu_ns group_mu_ns used_mu_ns used_mu_err_ns used_sigma_ns correction_ns total_offset_ns fit_status reason\n";
+  for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+    const int group = (pixel/16)*2 + (pixel%16)/8;
+    results << pixel << " " << pixel/16 << " " << group << " " << fitEntries[pixel]
+            << " " << source[pixel] << " " << broadMean[pixel] << " " << groupMean[group]
+            << " " << usedMean[pixel] << " " << usedMeanError[pixel] << " " << usedSigma[pixel]
+            << " " << correction[pixel] << " " << totalOffset[pixel] << " " << fitStatus[pixel]
+            << " \"" << reason[pixel] << "\"\n";
+  }
+  candidate.close();
+  results.close();
+
+  if (activateCalibration) {
+    gPixelToffsetCorr = totalOffset;
+    gPixelToffsetNhits = fitEntries;
+    gPixelToffsetLoaded = true;
+    gCalibrationLoaded = true;
+  }
+
+  TFile diagnosticFile(rootOutput, "RECREATE");
+  if (!diagnosticFile.IsZombie()) {
+    diagnosticFile.mkdir("groups");
+    diagnosticFile.cd("groups");
+    for (int group = 0; group < nGroups; ++group) {
+      if (!groupHist[group]) continue;
+      if (groupFit[group]) {
+        groupFit[group]->SetLineColor(groupValid[group] ? kGreen + 2 : kMagenta + 1);
+        groupFit[group]->SetLineWidth(2);
+      }
+      groupHist[group]->Write();
+    }
+
+    diagnosticFile.mkdir("pixels");
+    diagnosticFile.cd("pixels");
+    for (int pixel = 0; pixel < NumCDetPaddles; ++pixel) {
+      if (!pixelHist[pixel] || pixelHist[pixel]->GetEntries() <= 0) continue;
+      if (broadPixelFit[pixel]) {
+        broadPixelFit[pixel]->SetLineColor(kBlue + 1);
+        broadPixelFit[pixel]->SetLineStyle(2);
+        broadPixelFit[pixel]->SetLineWidth(2);
+      }
+      if (narrowPixelFit[pixel]) {
+        narrowPixelFit[pixel]->SetLineColor(source[pixel] == "individual_fit" ? kRed + 1 : kOrange + 7);
+        narrowPixelFit[pixel]->SetLineWidth(2);
+      }
+      pixelHist[pixel]->Write();
+    }
+    diagnosticFile.Close();
+  } else {
+    std::cerr << "[CDet hierarchical timing] WARNING: could not create ROOT diagnostic file '"
+              << rootOutput << "'.\n";
+  }
+
+  gSystem->mkdir(plotDirectory, kTRUE);
+  std::vector<int> plottedBars;
+  std::stringstream barStream(diagnosticBars.Data());
+  std::string token;
+  while (std::getline(barStream, token, ',')) {
+    std::stringstream parser(token);
+    int bar = -1;
+    if (!(parser >> bar) || bar < 0 || bar >= nBars) continue;
+    TCanvas *canvas = new TCanvas(
+        uname(TString::Format("cHierBar%d", bar)),
+        TString::Format("Hierarchical timing diagnostic, bar %d", bar), 1600, 1000);
+    canvas->Divide(4, 4);
+    for (int local = 0; local < 16; ++local) {
+      const int pixel = bar*16 + local;
+      const int group = bar*2 + local/8;
+      canvas->cd(local + 1);
+      pixelHist[pixel]->SetLineColor(kBlack);
+      pixelHist[pixel]->Draw("HIST");
+      if (broadPixelFit[pixel]) {
+        broadPixelFit[pixel]->SetLineColor(kBlue + 1);
+        broadPixelFit[pixel]->SetLineStyle(2);
+        broadPixelFit[pixel]->Draw("SAME");
+      }
+      if (narrowPixelFit[pixel]) {
+        narrowPixelFit[pixel]->SetLineColor(kRed + 1);
+        narrowPixelFit[pixel]->Draw("SAME");
+      }
+      if (groupValid[group]) {
+        TLine *line = new TLine(groupMean[group], 0.0, groupMean[group],
+                                std::max(1.0, pixelHist[pixel]->GetMaximum()));
+        line->SetLineColor(kGreen + 2);
+        line->SetLineWidth(2);
+        line->Draw("SAME");
+      }
+      TLatex *label = new TLatex(0.12, 0.84,
+          TString::Format("%s", source[pixel].c_str()));
+      label->SetNDC(); label->SetTextSize(0.06); label->Draw();
+    }
+    canvas->SaveAs(TString::Format("%s/bar%03d_hierarchical.pdf", plotDirectory.Data(), bar));
+    canvas->SaveAs(TString::Format("%s/bar%03d_hierarchical.png", plotDirectory.Data(), bar));
+    plottedBars.push_back(bar);
+  }
+
+  // Store self-contained histogram copies with their fit functions attached.
+  // Persisting the interactive canvases themselves is fragile: their pads retain
+  // pointers to process-owned objects and can crash when Draw() rebuilds a canvas
+  // in a later ROOT session.  A histogram owns its attached functions when read
+  // back from a TFile, so these overlays are safe to browse and draw directly.
+  TFile overlayFile(rootOutput, "UPDATE");
+  if (!overlayFile.IsZombie()) {
+    if (!overlayFile.GetDirectory("fit_overlays")) overlayFile.mkdir("fit_overlays");
+    for (int bar : plottedBars) {
+      TDirectory *overlayRoot = overlayFile.GetDirectory("fit_overlays");
+      const TString barDirectory = TString::Format("bar%03d", bar);
+      if (!overlayRoot->GetDirectory(barDirectory)) overlayRoot->mkdir(barDirectory);
+      TDirectory *barDir = overlayRoot->GetDirectory(barDirectory);
+      barDir->cd();
+
+      for (int localGroup = 0; localGroup < 2; ++localGroup) {
+        const int group = bar*2 + localGroup;
+        if (!groupHist[group]) continue;
+        TH1D *groupOverlay = static_cast<TH1D*>(groupHist[group]->Clone(
+            TString::Format("group_%d_with_fit", group)));
+        groupOverlay->SetDirectory(nullptr);
+        if (groupFit[group]) {
+          TF1 *fitCopy = static_cast<TF1*>(groupFit[group]->Clone(
+              TString::Format("group_%d_fit", group)));
+          fitCopy->SetLineColor(groupValid[group] ? kGreen + 2 : kMagenta + 1);
+          fitCopy->SetLineWidth(2);
+          groupOverlay->GetListOfFunctions()->Add(fitCopy);
+        }
+        groupOverlay->Write();
+      }
+
+      for (int local = 0; local < 16; ++local) {
+        const int pixel = bar*16 + local;
+        if (!pixelHist[pixel]) continue;
+        TH1D *pixelOverlay = static_cast<TH1D*>(pixelHist[pixel]->Clone(
+            TString::Format("pixel_%04d_with_fits", pixel)));
+        pixelOverlay->SetDirectory(nullptr);
+        if (broadPixelFit[pixel]) {
+          TF1 *fitCopy = static_cast<TF1*>(broadPixelFit[pixel]->Clone(
+              TString::Format("pixel_%04d_broad_fit", pixel)));
+          fitCopy->SetLineColor(kBlue + 1);
+          fitCopy->SetLineStyle(2);
+          fitCopy->SetLineWidth(2);
+          pixelOverlay->GetListOfFunctions()->Add(fitCopy);
+        }
+        if (narrowPixelFit[pixel]) {
+          TF1 *fitCopy = static_cast<TF1*>(narrowPixelFit[pixel]->Clone(
+              TString::Format("pixel_%04d_constrained_fit", pixel)));
+          fitCopy->SetLineColor(kRed + 1);
+          fitCopy->SetLineWidth(2);
+          pixelOverlay->GetListOfFunctions()->Add(fitCopy);
+        }
+        pixelOverlay->Write();
+      }
+    }
+    overlayFile.Close();
+  }
+
+  gLastCalibrationFitSucceeded = true;
+  std::cout << (activateCalibration
+                    ? "[CDet hierarchical timing calibration]\n"
+                    : "[CDet hierarchical timing diagnostic]\n")
+            << "  ECal-selected events: " << selectedEvents << " / " << nEvents << "\n"
+            << "  robust detector reference: " << detectorReference << " ns\n"
+            << "  individual constrained fits: " << individualCount << "\n"
+            << "  broad individual fits after invalid groups: " << broadFallbackCount << "\n"
+            << "  eight-pixel group fallbacks: " << fallbackCount << "\n"
+            << "  retained existing/unavailable: " << retainedCount << " / " << unavailableCount << "\n"
+            << (activateCalibration ? "  active calibration: " :
+                                      "  candidate calibration (not activated): ")
+            << candidateOutput << "\n"
+            << "  detailed results: " << resultsOutput << "\n"
+            << "  ROOT diagnostics: " << rootOutput << "\n";
+}
+
+// Production entry point for the tuned hierarchical pixel-offset method.  The
+// output tag keeps all three passes of the full workflow independently
+// inspectable while the calibration constants themselves are written to the
+// active gCalibrationFile and loaded into the current ROOT session.
+void extractHierarchicalCDetPixelTimingOffsets(
+    bool generateOffsets = false,
+    TString outputTag = "hierarchical") {
+  gLastCalibrationFitSucceeded = false;
+  if (!generateOffsets) {
+    std::cout << "[CDet hierarchical timing] Offset generation disabled. Call "
+              << "extractHierarchicalCDetPixelTimingOffsets(true) to fit pixels "
+              << "and write updated calibration constants.\n";
+    return;
+  }
+
+  outputTag.ReplaceAll(" ", "_");
+  outputTag.ReplaceAll("/", "_");
+  if (outputTag.IsNull()) outputTag = "hierarchical";
+  const TString resultsOutput = TString::Format(
+      "CDet_pixel_timing_fit_results_%s.dat", outputTag.Data());
+  const TString rootOutput = TString::Format(
+      "CDet_pixel_timing_%s.root", outputTag.Data());
+  const TString plotDirectory = TString::Format(
+      "tdcPlots/%s", outputTag.Data());
+
+  extractHierarchicalCDetPixelTimingOffsetsDiagnostic(
+      1.0, -60.0, 30.0, -30.0, 10.0,
+      35, 100, 0.5, 8.0, 15.0, 2.0, 1.5, 4.0, 8.0,
+      1.0, 12.0, gCalibrationFile.c_str(), resultsOutput, rootOutput,
+      plotDirectory, "29,79,104,118,139,148", true);
 }
 
 bool ReadCDetPixelOffsetsForComparison(const TString& calibrationFile, std::vector<double>& offsets, std::vector<bool>& found) {

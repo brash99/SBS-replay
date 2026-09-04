@@ -2,6 +2,7 @@
 #include <TSystem.h>
 #include <TString.h>
 #include <iostream>
+#include "PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C"
 
 // In-session two-pass CDet calibration driver.
 //
@@ -10,12 +11,8 @@
 // the full sequence in one ROOT session. This avoids environment/library
 // mismatches between parent and child ROOT processes.
 //
-// Assumptions:
-//   - The master macro file is named:
-//       PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C
-//   - The master macro provides a function:
-//       void ResetCalibrationGlobals();
-//     If that function does not yet exist, add it there.
+// Compile this driver with ACLiC (.L ...C+) so the master macro and driver are
+// built into one self-contained library.
 //
 // Sequence:
 //   pass 1: 0 -> 1 -> 3 -> 6
@@ -47,15 +44,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     bool removeExistingCalibrationFile = true
 ){
     gLastCalibrationSequenceSucceeded = false;
-    const TString masterMacro = "PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C";
     const TString calibFile   = "CDet_calibration_dt.dat";
-
-    if (gSystem->AccessPathName(masterMacro)) {
-        std::cerr << "[Driver] ERROR: Could not find master macro " << masterMacro << "\\n";
-        return;
-    }
-
-    gROOT->ProcessLine(TString::Format(".L %s+", masterMacro.Data()));
 
     if (removeExistingCalibrationFile && !gSystem->AccessPathName(calibFile)) {
         std::cout << "[Driver] Removing existing calibration file: " << calibFile << "\\n";
@@ -69,7 +58,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
             10.0, 35.0,
             nhitcutlow1, nhitcuthigh1, nhitcutlow2, nhitcuthigh2,
             XDiffCut, XOffset, YOffset, layer_choice,
-            suppress_bad, nruns, maxstream, firstevent
+            suppress_bad, nruns, maxstream, firstevent, false
         );
         if (!gLastCalibrationStageSucceeded)
             std::cerr << "[Driver] ERROR: stage " << stage << " failed; stopping sequence.\\n";
@@ -94,7 +83,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     stageBanner("pass1_timeoffset_fit", 1);
     ResetCalibrationGlobals();
     if (!runMain(1)) return;
-    extractAllCDetPixelTimingOffsets(true);
+    extractHierarchicalCDetPixelTimingOffsets(true, "hierarchical_pass1_offsets");
     if (!gLastCalibrationFitSucceeded) return;
 
     // Apply offsets and then plot corrected spectra
@@ -109,7 +98,7 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     stageBanner("pass1_ecal_fit", 3);
     ResetCalibrationGlobals();
     if (!runMain(3)) return;
-    plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass1_timewalk_fit", 6);
@@ -121,13 +110,13 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     stageBanner("pass2_timeoffset_refit", 1);
     ResetCalibrationGlobals();
     if (!runMain(1)) return;
-    extractAllCDetPixelTimingOffsets(true);
+    extractHierarchicalCDetPixelTimingOffsets(true, "hierarchical_pass2_offsets");
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_ecal_refit", 3);
     ResetCalibrationGlobals();
     if (!runMain(3)) return;
-    plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_timewalk_refit", 6);
@@ -142,14 +131,14 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     stageBanner("pass3_fullclosure_offsets", 7);
     ResetCalibrationGlobals();
     if (!runMain(7)) return;
-    extractAllCDetPixelTimingOffsets(true);
+    extractHierarchicalCDetPixelTimingOffsets(true, "hierarchical_final_closure");
     if (!gLastCalibrationFitSucceeded) return;
     
     stageBanner("final_calibrated_state", 7);
     ResetCalibrationGlobals();
     if (!runMain(7)) return;
-    plotAllTDC(false, 1.0, 0.0, 60.0);
-    plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    plotAllTDC(false, 1.0, 0.0, 60.0, false, "", "tdcPlots");
+    plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
     plotGoodLeVsTotByLayer(false, 15, 45, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
     gLastCalibrationSequenceSucceeded = true;
     std::cout << "\\n[Driver] Two-pass in-session calibration sequence complete.\\n";
