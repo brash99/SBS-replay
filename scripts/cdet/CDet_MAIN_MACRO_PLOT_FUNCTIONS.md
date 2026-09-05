@@ -149,6 +149,10 @@ hits to show Layer-2 reconstructed y versus Layer-1 reconstructed y and the
 value divided by `sqrt(2)`, which estimates a single-layer resolution only if
 the two layers have equal, independent errors.
 
+See `CDet_Y_POSITION_RECONSTRUCTION.md` for the complete physical motivation,
+fixed-effects derivation, run-5710 constants and results, workflow, and current
+limitations of this proof-of-concept reconstruction.
+
 It retains the traditional pooled profile fit
 
 ```text
