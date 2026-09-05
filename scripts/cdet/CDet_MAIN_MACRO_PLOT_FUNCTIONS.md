@@ -95,6 +95,60 @@ one-to-one Layer-1/Layer-2 hit pairs using timing, x-position, and y-position;
 then displays layer timing, layer-to-layer time differences, hit-ID correlation,
 position correlations, ECal/CDet timing, and selected-bar pixel spectra.
 
+The `cCDetLayerTimeVsECalY` canvas adds a first diagnostic of timing-based
+position sensitivity along the long CDet paddle direction. Its twelve panels
+plot corrected CDet leading-edge time against reconstructed ECal y-position
+for the Layer-1 left, Layer-1 right, Layer-2 left, and Layer-2 right readouts.
+Each layer/side row is further divided into the geometrically equivalent
+vertical-section pairs 1+6, 2+5, and 3+4. Each section contains seven bars;
+pairing sections with the same central y-value avoids pooling populations with
+different geometric centers.
+Separating the two ends is essential: propagation along a paddle should produce
+opposite timing-versus-position slopes at its left and right photosensors, so a
+pooled-side plot could conceal the useful correlation. These plots use the same
+final pairing and ECal--CDet timing cuts as the other accepted-pair diagnostics.
+For clarity, the canvas uses a linear color scale, suppresses bins containing
+fewer than five entries, and displays the calibrated 20--40 ns timing region.
+These are display settings only: the underlying histograms retain their full
+timing range and all entries. Each panel overlays a profile and linear fit over
+the displayed timing band; the fitted slope, uncertainty, and chi-square per
+degree of freedom are shown on the panel and printed to the terminal. Profile
+bins containing fewer than five entries do not determine the fitted x-range.
+The plots do not yet derive or apply a CDet y-position calibration.
+
+The companion `cCDetECalYFixedEffects` canvas removes the mean ECal y and mean
+CDet time separately for every half-bar with at least 100 accepted hits, then
+performs an unbinned regression through the origin for each of the same twelve
+layer/side/section groups. This isolates the within-half-bar propagation slope
+from residual differences among half-bar timing intercepts. Its slope errors
+use the unbinned residual variance with one fitted intercept per contributing
+half-bar. This remains diagnostic only.
+
+Once the fixed-effects slopes have been inspected, write the independent CDet
+y-position response calibration with:
+
+```cpp
+extractCDetYPositionCalibration("CDet_y_position_calibration.dat", 100)
+```
+
+The `TEnv`-style output contains twelve propagation slopes and one timing
+intercept for each half-bar passing the minimum-entry requirement. It does not
+read, modify, or replace `CDet_calibration_dt.dat`. Validate the resulting
+CDet-only position reconstruction against ECal y with:
+
+```cpp
+plotCDetYPositionResolution("CDet_y_position_calibration.dat")
+```
+
+The validation canvas shows reconstructed CDet y versus ECal y and the
+`y_CDet - y_ECal` residual separately for each layer. ECal y is used to train
+and validate this position response, but it is not applied as a CDet timing
+correction. A companion `cCDetYLayerComparison` canvas uses accepted paired
+hits to show Layer-2 reconstructed y versus Layer-1 reconstructed y and the
+`y_L1 - y_L2` distribution. The terminal reports that difference RMS and its
+value divided by `sqrt(2)`, which estimates a single-layer resolution only if
+the two layers have equal, independent errors.
+
 It retains the traditional pooled profile fit
 
 ```text

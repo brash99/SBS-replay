@@ -182,10 +182,17 @@ struct PairHit {
   double score;
 };
 
+struct CDetYPairedSample {
+  int halfBar1, halfBar2;
+  double t1, t2;
+};
+
 std::vector<std::vector<PairHit>> pairs_CDet;
 std::vector<TH1D*> gCDetPairedLeSpectra;
 std::vector<TH2D*> gCDetBarECalTimingSpectra;
 std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalTimingSamples;
+std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalYSamples;
+std::vector<CDetYPairedSample> gCDetYPairedSamples;
 TH2D *gCDetPairedMeanTimeVsECal = nullptr;
 
 struct CDetDisplayHit {
@@ -254,6 +261,11 @@ void calibrateCDetHalfBarIntercepts(
 void reportCDetPairedTimeResolution(bool draw = true,
                                     double gaussianFitMin = 25.0,
                                     double gaussianFitMax = 35.0);
+void extractCDetYPositionCalibration(
+    TString outputFile = "CDet_y_position_calibration.dat",
+    int minEntries = 100);
+void plotCDetYPositionResolution(
+    TString calibrationFile = "CDet_y_position_calibration.dat");
 void ResetCalibrationGlobals();
 
 // Interactive, persistent LE-versus-TOT selections for pixels whose physical
@@ -5298,6 +5310,23 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   gCDetPairedMeanTimeVsECal = hECalVsCDetT;
   TH2D* hECalVsCDetTL1 = new TH2D("hECalVsCDetTL1", "CDet Layer 1 t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTL2 = new TH2D("hECalVsCDetTL2", "CDet Layer 2 t vs ECal Time;ECal ADC Time (ns);Layer 2 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  const int NECalYBins = 120;
+  const double ECalYMin = -0.6;
+  const double ECalYMax = 0.6;
+  TH2D* hCDetTvsECalY[NumLayers][NumSides][3] = {};
+  const char* sideName[NumSides] = {"Left", "Right"};
+  const char* sectionGroupName[3] = {"Sections 1+6", "Sections 2+5", "Sections 3+4"};
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int side = 0; side < NumSides; ++side) {
+      for (int group = 0; group < 3; ++group) {
+        hCDetTvsECalY[layer][side][group] = new TH2D(
+            TString::Format("hCDetL%d%sSectionGroup%dTvsECalY", layer + 1, sideName[side], group + 1),
+            TString::Format("Corrected CDet Layer %d %s, %s;ECal y position (m);Corrected CDet LE time (ns)",
+                            layer + 1, sideName[side], sectionGroupName[group]),
+            NECalYBins, ECalYMin, ECalYMax, NPairedLeBins, CDetMin, CDetMax);
+      }
+    }
+  }
   TH2D* hECalVsSelectedBarT = new TH2D("hECalVsSelectedBarT", TString::Format("CDet Layer 1 bar %d t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", selectedBarNumber), NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTSingle = new TH2D("hECalVsCDetTSingle", "CDet Single t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,CDetMin,CDetMax);
 
@@ -5334,6 +5363,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // regression.  The TH2D bank below is intentionally visualization-only:
   // its coarse ECal bins attenuate changes in the applied slope.
   gCDetHalfBarECalTimingSamples.assign(NumLayers*barsPerLayer, {});
+  gCDetHalfBarECalYSamples.assign(NumLayers*barsPerLayer, {});
+  gCDetYPairedSamples.clear();
   for (int layer = 0; layer < NumLayers; ++layer) {
     for (int halfBar = 0; halfBar < barsPerLayer; ++halfBar) {
       const int index = layer*barsPerLayer + halfBar;
@@ -5528,6 +5559,25 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           hECalVsCDetT->Fill(t_ECal,t_pair);
           hECalVsCDetTL1->Fill(t_ECal,p.t1);
           hECalVsCDetTL2->Fill(t_ECal,p.t2);
+          auto fillCDetTimeVsECalY = [&](int pixel, double time) {
+            if (pixel < 0 || pixel >= NumCDetPaddles) return;
+            const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+            const int layer = pixel/pixelsPerLayer;
+            const int withinLayer = pixel%pixelsPerLayer;
+            const int side = withinLayer/NumCDetPaddlesPerSide;
+            const int withinSide = withinLayer%NumCDetPaddlesPerSide;
+            const int module = withinSide/(NumBars*NumPaddles);
+            const int pmt = (withinSide%(NumBars*NumPaddles))/NumPaddles;
+            const int section = 2*module + pmt/NumHalfBarsPerBank;
+            const int sectionGroup = std::min(section, 5 - section);
+            hCDetTvsECalY[layer][side][sectionGroup]->Fill(v_GoodECalY[ev], time);
+            if (time >= 20.0 && time <= 40.0)
+              gCDetHalfBarECalYSamples[pixel/NumPaddles].emplace_back(v_GoodECalY[ev], time);
+          };
+          fillCDetTimeVsECalY(p.id1, p.t1);
+          fillCDetTimeVsECalY(p.id2, p.t2);
+          if (p.t1 >= 20.0 && p.t1 <= 40.0 && p.t2 >= 20.0 && p.t2 <= 40.0)
+            gCDetYPairedSamples.push_back({p.id1/NumPaddles, p.id2/NumPaddles, p.t1, p.t2});
           if (p.id1 >= 0 && p.id1 < NumCDetPaddles)
             gCDetPairedLeSpectra[(int)p.id1]->Fill(p.t1);
           if (p.id2 >= 0 && p.id2 < NumCDetPaddles)
@@ -5630,6 +5680,199 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   cCDetLayerTimes->cd(2);
   //gPad->SetLogz();
   hCDetLe2->Draw();
+
+  TCanvas *cCDetLayerTimeVsECalY = new TCanvas(
+      "cCDetLayerTimeVsECalY", "Corrected CDet timing versus ECal y by layer, side, and section", 1800, 1200);
+  cCDetLayerTimeVsECalY->Divide(3,4);
+  const double positionTimingDisplayMin = 20.0;
+  const double positionTimingDisplayMax = 40.0;
+  const double positionTimingMinimumBinContent = 5.0;
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int side = 0; side < NumSides; ++side) {
+      const int row = layer*NumSides + side;
+      for (int group = 0; group < 3; ++group) {
+        cCDetLayerTimeVsECalY->cd(row*3 + group + 1);
+        TH2D *histogram = hCDetTvsECalY[layer][side][group];
+        histogram->GetYaxis()->SetRangeUser(positionTimingDisplayMin, positionTimingDisplayMax);
+        histogram->SetMinimum(positionTimingMinimumBinContent);
+        histogram->Draw("COLZ");
+        TProfile *profile = histogram->ProfileX(
+            TString::Format("pCDetL%d%sSectionGroup%dTvsECalY", layer + 1, sideName[side], group + 1));
+        profile->SetMarkerStyle(20);
+        profile->SetMarkerSize(0.55);
+        profile->SetMarkerColor(kBlack);
+        profile->SetLineColor(kBlack);
+        profile->Draw("SAME");
+
+        int firstFitBin = 0;
+        int lastFitBin = 0;
+        for (int bin = 1; bin <= profile->GetNbinsX(); ++bin) {
+          if (profile->GetBinEntries(bin) < positionTimingMinimumBinContent) continue;
+          if (firstFitBin == 0) firstFitBin = bin;
+          lastFitBin = bin;
+        }
+        int fitStatus = -1;
+        TF1 *fit = nullptr;
+        if (firstFitBin > 0 && lastFitBin > firstFitBin) {
+          const double fitMin = profile->GetXaxis()->GetBinLowEdge(firstFitBin);
+          const double fitMax = profile->GetXaxis()->GetBinUpEdge(lastFitBin);
+          fit = new TF1(
+              TString::Format("fCDetL%d%sSectionGroup%dTvsECalY", layer + 1, sideName[side], group + 1),
+              "pol1", fitMin, fitMax);
+          fit->SetLineColor(kRed);
+          fitStatus = profile->Fit(fit, "QRS");
+          if (fitStatus == 0) fit->Draw("SAME");
+        }
+
+        TPaveText *annotation = new TPaveText(0.12, 0.74, 0.50, 0.90, "NDC");
+        annotation->SetFillColor(kWhite);
+        annotation->SetTextAlign(12);
+        annotation->SetTextSize(0.035);
+        if (fitStatus == 0) {
+          const double slope = fit->GetParameter(1);
+          const double slopeError = fit->GetParError(1);
+          const double chi2 = fit->GetChisquare();
+          const int ndf = fit->GetNDF();
+          annotation->AddText(TString::Format("p1 = %.3f #pm %.3f ns/m", slope, slopeError));
+          annotation->AddText(TString::Format("#chi^{2}/NDF = %.1f/%d = %.2f", chi2, ndf,
+                                              ndf > 0 ? chi2/ndf : 0.0));
+          std::cout << "[CDet y-timing] Layer " << layer + 1 << " " << sideName[side]
+                    << ", " << sectionGroupName[group]
+                    << ": p1=" << slope << " +/- " << slopeError << " ns/m"
+                    << ", chi2/NDF=" << chi2 << "/" << ndf
+                    << (ndf > 0 ? TString::Format(" = %.3f", chi2/ndf).Data() : "") << "\n";
+        } else {
+          annotation->AddText("Linear fit unavailable");
+        }
+        annotation->Draw("SAME");
+      }
+    }
+  }
+  cCDetLayerTimeVsECalY->Update();
+
+  struct CDetYFixedEffectsResult {
+    double xy = 0.0;
+    double xx = 0.0;
+    double slope = NAN;
+    double slopeError = NAN;
+    double residualSquares = 0.0;
+    long long entries = 0;
+    int halfBars = 0;
+    int ndf = 0;
+  };
+  CDetYFixedEffectsResult yFixedEffects[NumLayers][NumSides][3];
+  TH2D *hCDetYWithin[NumLayers][NumSides][3] = {};
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int side = 0; side < NumSides; ++side) {
+      for (int group = 0; group < 3; ++group) {
+        hCDetYWithin[layer][side][group] = new TH2D(
+            TString::Format("hCDetL%d%sSectionGroup%dECalYWithin", layer + 1, sideName[side], group + 1),
+            TString::Format("CDet Layer %d %s, %s fixed effects;ECal y - half-bar mean (m);CDet time - half-bar mean (ns)",
+                            layer + 1, sideName[side], sectionGroupName[group]),
+            120, -0.35, 0.35, 120, -10.0, 10.0);
+      }
+    }
+  }
+
+  const int minCDetYHalfBarEntries = 100;
+  for (int halfBar = 0; halfBar < (int)gCDetHalfBarECalYSamples.size(); ++halfBar) {
+    const auto &samples = gCDetHalfBarECalYSamples[halfBar];
+    if ((int)samples.size() < minCDetYHalfBarEntries) continue;
+    const int pixel = halfBar*NumPaddles;
+    const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+    const int layer = pixel/pixelsPerLayer;
+    const int withinLayer = pixel%pixelsPerLayer;
+    const int side = withinLayer/NumCDetPaddlesPerSide;
+    const int withinSide = withinLayer%NumCDetPaddlesPerSide;
+    const int module = withinSide/(NumBars*NumPaddles);
+    const int pmt = (withinSide%(NumBars*NumPaddles))/NumPaddles;
+    const int section = 2*module + pmt/NumHalfBarsPerBank;
+    const int group = std::min(section, 5 - section);
+    double sumY = 0.0, sumT = 0.0;
+    for (const auto &sample : samples) { sumY += sample.first; sumT += sample.second; }
+    const double meanY = sumY/samples.size();
+    const double meanT = sumT/samples.size();
+    CDetYFixedEffectsResult &result = yFixedEffects[layer][side][group];
+    ++result.halfBars;
+    result.entries += samples.size();
+    for (const auto &sample : samples) {
+      const double dy = sample.first - meanY;
+      const double dt = sample.second - meanT;
+      result.xy += dy*dt;
+      result.xx += dy*dy;
+      hCDetYWithin[layer][side][group]->Fill(dy, dt);
+    }
+  }
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int side = 0; side < NumSides; ++side) {
+      for (int group = 0; group < 3; ++group) {
+        CDetYFixedEffectsResult &result = yFixedEffects[layer][side][group];
+        if (result.xx > 0.0) result.slope = result.xy/result.xx;
+      }
+    }
+  }
+  for (int halfBar = 0; halfBar < (int)gCDetHalfBarECalYSamples.size(); ++halfBar) {
+    const auto &samples = gCDetHalfBarECalYSamples[halfBar];
+    if ((int)samples.size() < minCDetYHalfBarEntries) continue;
+    const int pixel = halfBar*NumPaddles;
+    const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+    const int layer = pixel/pixelsPerLayer;
+    const int withinLayer = pixel%pixelsPerLayer;
+    const int side = withinLayer/NumCDetPaddlesPerSide;
+    const int withinSide = withinLayer%NumCDetPaddlesPerSide;
+    const int module = withinSide/(NumBars*NumPaddles);
+    const int pmt = (withinSide%(NumBars*NumPaddles))/NumPaddles;
+    const int section = 2*module + pmt/NumHalfBarsPerBank;
+    const int group = std::min(section, 5 - section);
+    double sumY = 0.0, sumT = 0.0;
+    for (const auto &sample : samples) { sumY += sample.first; sumT += sample.second; }
+    const double meanY = sumY/samples.size();
+    const double meanT = sumT/samples.size();
+    CDetYFixedEffectsResult &result = yFixedEffects[layer][side][group];
+    for (const auto &sample : samples) {
+      const double residual = (sample.second - meanT) - result.slope*(sample.first - meanY);
+      result.residualSquares += residual*residual;
+    }
+  }
+
+  TCanvas *cCDetECalYFixedEffects = new TCanvas(
+      "cCDetECalYFixedEffects", "CDet versus ECal y fixed-effects slopes", 1800, 1200);
+  cCDetECalYFixedEffects->Divide(3,4);
+  std::cout << "\n[CDet/ECal y fixed-effects fits]\n"
+            << "  Half-bar means are removed before estimating each propagation slope.\n";
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    for (int side = 0; side < NumSides; ++side) {
+      const int row = layer*NumSides + side;
+      for (int group = 0; group < 3; ++group) {
+        cCDetECalYFixedEffects->cd(row*3 + group + 1);
+        TH2D *histogram = hCDetYWithin[layer][side][group];
+        histogram->Draw("COLZ");
+        CDetYFixedEffectsResult &result = yFixedEffects[layer][side][group];
+        result.ndf = result.entries - result.halfBars - 1;
+        if (result.ndf > 0 && result.xx > 0.0)
+          result.slopeError = std::sqrt((result.residualSquares/result.ndf)/result.xx);
+        TF1 *fit = new TF1(
+            TString::Format("fCDetL%d%sSectionGroup%dECalYWithin", layer + 1, sideName[side], group + 1),
+            "[0]*x", -0.30, 0.30);
+        fit->SetParameter(0, result.slope);
+        fit->SetLineColor(kRed);
+        fit->Draw("SAME");
+        TPaveText *annotation = new TPaveText(0.12, 0.74, 0.54, 0.90, "NDC");
+        annotation->SetFillColor(kWhite);
+        annotation->SetTextAlign(12);
+        annotation->SetTextSize(0.035);
+        annotation->AddText(TString::Format("within slope = %.3f #pm %.3f ns/m",
+                                            result.slope, result.slopeError));
+        annotation->AddText(TString::Format("%lld hits in %d half-bars", result.entries, result.halfBars));
+        annotation->Draw("SAME");
+        std::cout << "[CDet y fixed effects] Layer " << layer + 1 << " " << sideName[side]
+                  << ", " << sectionGroupName[group] << ": slope=" << result.slope
+                  << " +/- " << result.slopeError << " ns/m, entries=" << result.entries
+                  << ", half-bars=" << result.halfBars << ", NDF=" << result.ndf << "\n";
+      }
+    }
+  }
+  cCDetECalYFixedEffects->Update();
 
   // TCanvas *cCDetLeVsTot = new TCanvas("cCDetLeVsTot", "CDet LE vs Tot",900,700);
   // cCDetLeVsTot->Divide(1,2);
@@ -6664,6 +6907,194 @@ void calibrateCDetHalfBarIntercepts(bool overwrite, double referenceECalTime,
   }
   gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
   std::cout << "  applied validated half-bar corrections to " << gCalibrationFile << ".\n";
+}
+
+void extractCDetYPositionCalibration(TString outputFile, int minEntries)
+{
+  const int totalHalfBars = NumCDetPaddles/NumPaddles;
+  if ((int)gCDetHalfBarECalYSamples.size() != totalHalfBars || minEntries < 3) {
+    std::cerr << "[CDet y calibration] ERROR: samples are unavailable or minEntries is invalid. "
+              << "Run plotCDetLayersTimeComp first.\n";
+    return;
+  }
+  struct GroupFit { double xy = 0.0, xx = 0.0, slope = NAN, sse = 0.0, error = NAN; long long n = 0; int h = 0; };
+  GroupFit fits[NumLayers][NumSides][3];
+  std::vector<double> meanY(totalHalfBars, NAN), meanT(totalHalfBars, NAN);
+  std::vector<int> valid(totalHalfBars, 0);
+  auto decode = [&](int halfBar, int &layer, int &side, int &group) {
+    const int pixel = halfBar*NumPaddles;
+    const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+    layer = pixel/pixelsPerLayer;
+    const int withinLayer = pixel%pixelsPerLayer;
+    side = withinLayer/NumCDetPaddlesPerSide;
+    const int withinSide = withinLayer%NumCDetPaddlesPerSide;
+    const int module = withinSide/(NumBars*NumPaddles);
+    const int pmt = (withinSide%(NumBars*NumPaddles))/NumPaddles;
+    const int section = 2*module + pmt/NumHalfBarsPerBank;
+    group = std::min(section, 5 - section);
+  };
+  for (int halfBar = 0; halfBar < totalHalfBars; ++halfBar) {
+    const auto &samples = gCDetHalfBarECalYSamples[halfBar];
+    if ((int)samples.size() < minEntries) continue;
+    double sy = 0.0, st = 0.0;
+    for (const auto &sample : samples) { sy += sample.first; st += sample.second; }
+    meanY[halfBar] = sy/samples.size(); meanT[halfBar] = st/samples.size(); valid[halfBar] = 1;
+    int layer, side, group; decode(halfBar, layer, side, group);
+    GroupFit &fit = fits[layer][side][group]; ++fit.h; fit.n += samples.size();
+    for (const auto &sample : samples) {
+      const double dy = sample.first - meanY[halfBar], dt = sample.second - meanT[halfBar];
+      fit.xy += dy*dt; fit.xx += dy*dy;
+    }
+  }
+  for (int layer = 0; layer < NumLayers; ++layer)
+    for (int side = 0; side < NumSides; ++side)
+      for (int group = 0; group < 3; ++group)
+        if (fits[layer][side][group].xx > 0.0)
+          fits[layer][side][group].slope = fits[layer][side][group].xy/fits[layer][side][group].xx;
+  for (int halfBar = 0; halfBar < totalHalfBars; ++halfBar) {
+    if (!valid[halfBar]) continue;
+    int layer, side, group; decode(halfBar, layer, side, group);
+    GroupFit &fit = fits[layer][side][group];
+    for (const auto &sample : gCDetHalfBarECalYSamples[halfBar]) {
+      const double residual = (sample.second - meanT[halfBar]) - fit.slope*(sample.first - meanY[halfBar]);
+      fit.sse += residual*residual;
+    }
+  }
+  for (int layer = 0; layer < NumLayers; ++layer)
+    for (int side = 0; side < NumSides; ++side)
+      for (int group = 0; group < 3; ++group) {
+        GroupFit &fit = fits[layer][side][group];
+        const long long ndf = fit.n - fit.h - 1;
+        if (ndf > 0 && fit.xx > 0.0) fit.error = std::sqrt((fit.sse/ndf)/fit.xx);
+      }
+  std::ofstream output(outputFile.Data());
+  if (!output) { std::cerr << "[CDet y calibration] ERROR: cannot write " << outputFile << ".\n"; return; }
+  output << "# CDet y-position calibration trained against ECal y\n"
+         << "# This file is independent of CDet_calibration_dt.dat and does not alter timing constants.\n"
+         << "CDetYPosition.MinEntries: " << minEntries << "\n";
+  const char *sideKey[NumSides] = {"Left", "Right"};
+  for (int layer = 0; layer < NumLayers; ++layer)
+    for (int side = 0; side < NumSides; ++side)
+      for (int group = 0; group < 3; ++group) {
+        const GroupFit &fit = fits[layer][side][group];
+        output << "CDetYPosition.Slope.L" << layer + 1 << "." << sideKey[side] << ".G" << group + 1
+               << ": " << fit.slope << "\n";
+        output << "CDetYPosition.SlopeError.L" << layer + 1 << "." << sideKey[side] << ".G" << group + 1
+               << ": " << fit.error << "\n";
+      }
+  for (int halfBar = 0; halfBar < totalHalfBars; ++halfBar) {
+    double intercept = NAN;
+    if (valid[halfBar]) {
+      int layer, side, group; decode(halfBar, layer, side, group);
+      intercept = meanT[halfBar] - fits[layer][side][group].slope*meanY[halfBar];
+    }
+    output << "CDetYPosition.Valid.HalfBar" << halfBar << ": " << valid[halfBar] << "\n";
+    output << "CDetYPosition.Intercept.HalfBar" << halfBar << ": " << intercept << "\n";
+  }
+  output.close();
+  std::cout << "[CDet y calibration] Wrote 12 propagation slopes and "
+            << std::count(valid.begin(), valid.end(), 1) << " valid half-bar intercepts to " << outputFile << ".\n"
+            << "  CDet timing calibration constants were not changed.\n";
+}
+
+void plotCDetYPositionResolution(TString calibrationFile)
+{
+  const int totalHalfBars = NumCDetPaddles/NumPaddles;
+  if ((int)gCDetHalfBarECalYSamples.size() != totalHalfBars) {
+    std::cerr << "[CDet y validation] ERROR: run plotCDetLayersTimeComp first.\n"; return;
+  }
+  TEnv env;
+  if (env.ReadFile(calibrationFile, kEnvLocal) < 0) {
+    std::cerr << "[CDet y validation] ERROR: cannot read " << calibrationFile << ".\n"; return;
+  }
+  if (env.GetValue("CDetYPosition.MinEntries", -1) < 0) {
+    std::cerr << "[CDet y validation] ERROR: " << calibrationFile
+              << " does not contain readable TEnv keys. Regenerate it with "
+              << "extractCDetYPositionCalibration().\n";
+    return;
+  }
+  TH2D *correlation[NumLayers] = {
+      new TH2D("hCDetL1YRecoVsECalY", "Layer 1 CDet y reconstruction;ECal y (m);CDet reconstructed y (m)", 120,-0.6,0.6,120,-0.6,0.6),
+      new TH2D("hCDetL2YRecoVsECalY", "Layer 2 CDet y reconstruction;ECal y (m);CDet reconstructed y (m)", 120,-0.6,0.6,120,-0.6,0.6)};
+  TH1D *residual[NumLayers] = {
+      new TH1D("hCDetL1YResidual", "Layer 1 CDet y resolution;CDet y - ECal y (m);Hits", 160,-0.4,0.4),
+      new TH1D("hCDetL2YResidual", "Layer 2 CDet y resolution;CDet y - ECal y (m);Hits", 160,-0.4,0.4)};
+  const char *sideKey[NumSides] = {"Left", "Right"};
+  for (int halfBar = 0; halfBar < totalHalfBars; ++halfBar) {
+    if (!env.GetValue(TString::Format("CDetYPosition.Valid.HalfBar%d", halfBar), 0)) continue;
+    const int pixel = halfBar*NumPaddles, pixelsPerLayer = NumCDetPaddles/NumLayers;
+    const int layer = pixel/pixelsPerLayer, withinLayer = pixel%pixelsPerLayer;
+    const int side = withinLayer/NumCDetPaddlesPerSide;
+    const int withinSide = withinLayer%NumCDetPaddlesPerSide;
+    const int module = withinSide/(NumBars*NumPaddles);
+    const int pmt = (withinSide%(NumBars*NumPaddles))/NumPaddles;
+    const int section = 2*module + pmt/NumHalfBarsPerBank;
+    const int group = std::min(section, 5 - section);
+    const double slope = env.GetValue(TString::Format("CDetYPosition.Slope.L%d.%s.G%d", layer+1,sideKey[side],group+1), NAN);
+    const double intercept = env.GetValue(TString::Format("CDetYPosition.Intercept.HalfBar%d", halfBar), NAN);
+    if (!std::isfinite(slope) || std::abs(slope) < 1e-9 || !std::isfinite(intercept)) continue;
+    for (const auto &sample : gCDetHalfBarECalYSamples[halfBar]) {
+      const double yReco = (sample.second - intercept)/slope;
+      correlation[layer]->Fill(sample.first, yReco);
+      residual[layer]->Fill(yReco - sample.first);
+    }
+  }
+  TCanvas *canvas = new TCanvas("cCDetYPositionResolution", "CDet y-position validation", 1200, 900);
+  canvas->Divide(2,2);
+  for (int layer = 0; layer < NumLayers; ++layer) {
+    canvas->cd(layer*2 + 1); correlation[layer]->Draw("COLZ");
+    TLine *diagonal = new TLine(-0.6,-0.6,0.6,0.6); diagonal->SetLineColor(kRed); diagonal->Draw("SAME");
+    canvas->cd(layer*2 + 2); residual[layer]->Draw();
+    std::cout << "[CDet y validation] Layer " << layer + 1 << ": entries=" << residual[layer]->GetEntries()
+              << ", mean residual=" << residual[layer]->GetMean() << " m, RMS=" << residual[layer]->GetStdDev() << " m\n";
+  }
+  canvas->Update();
+
+  TH2D *layerCorrelation = new TH2D(
+      "hCDetL2YVsL1Y", "CDet layer-to-layer y reconstruction;Layer 1 reconstructed y (m);Layer 2 reconstructed y (m)",
+      120, -0.6, 0.6, 120, -0.6, 0.6);
+  TH1D *layerDifference = new TH1D(
+      "hCDetYLayerDifference", "CDet layer-to-layer y difference;Layer 1 y - Layer 2 y (m);Accepted pairs",
+      200, -0.8, 0.8);
+  auto reconstructY = [&](int halfBar, double time, double &yReco) {
+    if (halfBar < 0 || halfBar >= totalHalfBars ||
+        !env.GetValue(TString::Format("CDetYPosition.Valid.HalfBar%d", halfBar), 0)) return false;
+    const int pixel = halfBar*NumPaddles, pixelsPerLayer = NumCDetPaddles/NumLayers;
+    const int layer = pixel/pixelsPerLayer, withinLayer = pixel%pixelsPerLayer;
+    const int side = withinLayer/NumCDetPaddlesPerSide;
+    const int withinSide = withinLayer%NumCDetPaddlesPerSide;
+    const int module = withinSide/(NumBars*NumPaddles);
+    const int pmt = (withinSide%(NumBars*NumPaddles))/NumPaddles;
+    const int section = 2*module + pmt/NumHalfBarsPerBank;
+    const int group = std::min(section, 5 - section);
+    const double slope = env.GetValue(
+        TString::Format("CDetYPosition.Slope.L%d.%s.G%d", layer+1,sideKey[side],group+1), NAN);
+    const double intercept = env.GetValue(
+        TString::Format("CDetYPosition.Intercept.HalfBar%d", halfBar), NAN);
+    if (!std::isfinite(slope) || std::abs(slope) < 1e-9 || !std::isfinite(intercept)) return false;
+    yReco = (time - intercept)/slope;
+    return std::isfinite(yReco);
+  };
+  for (const auto &sample : gCDetYPairedSamples) {
+    double y1 = NAN, y2 = NAN;
+    if (!reconstructY(sample.halfBar1, sample.t1, y1) ||
+        !reconstructY(sample.halfBar2, sample.t2, y2)) continue;
+    layerCorrelation->Fill(y1, y2);
+    layerDifference->Fill(y1 - y2);
+  }
+  TCanvas *layerCanvas = new TCanvas(
+      "cCDetYLayerComparison", "CDet layer-to-layer y-position validation", 1200, 600);
+  layerCanvas->Divide(2,1);
+  layerCanvas->cd(1); layerCorrelation->Draw("COLZ");
+  TLine *layerDiagonal = new TLine(-0.6,-0.6,0.6,0.6);
+  layerDiagonal->SetLineColor(kRed); layerDiagonal->Draw("SAME");
+  layerCanvas->cd(2); layerDifference->Draw();
+  layerCanvas->Update();
+  const double differenceRms = layerDifference->GetStdDev();
+  std::cout << "[CDet y layer comparison] paired entries=" << layerDifference->GetEntries()
+            << ", mean(L1-L2)=" << layerDifference->GetMean() << " m"
+            << ", RMS(L1-L2)=" << differenceRms << " m"
+            << ", equal-independent-layer estimate=" << differenceRms/std::sqrt(2.0) << " m\n";
 }
 
 void plotCDetLayersTimeComp(const char *configFile)
