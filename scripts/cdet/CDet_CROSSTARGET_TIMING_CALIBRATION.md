@@ -505,6 +505,12 @@ nearly flat. The negative within-half-bar covariance is almost cancelled by
 positive covariance between half-bar means. See the archive's `README.md`
 for the preserved evidence and numerical results.
 
+![Run 5710 pooled and selected ECal-timing diagnostics before the fixed-effects correction](simpsons_paradox_run5710_before_correction/pooled_and_selected_ecal_timing_diagnostics.jpg)
+
+*The pooled detector trend appeared nearly flat even though the selected bar
+and nearly every individual half-bar had a negative slope. This was the visual
+signature that motivated the fixed-effects treatment.*
+
 ### Definitive run-5710 fixed-effects calibration
 
 The final matched calibration bundle is preserved under:
@@ -521,6 +527,11 @@ the combined residual slope was `-0.000491710 +/- 0.00165043 ns/ns`, with both
 layers independently consistent with zero. The archive README records the
 full extraction counts, provenance, interpretation, and primary-file
 checksums.
+
+![Final run-5710 within-half-bar fixed-effects closure](CDet_run5710_fixed_effects_final_archive/CDet_ECal_fixed_effects_final_closure.jpg)
+
+*After the detector-wide ECal-slope correction, the residual within-half-bar
+slopes in both layers and in the combined sample are consistent with zero.*
 
 ### Final half-bar intercept alignment
 
@@ -547,3 +558,14 @@ CDet_run5710_halfbar_aligned_final_archive/
 Its calibration uses `p0 = 74.192800 ns` and `p1 = 0.817261 ns/ns`. The bundle
 contains the applied and closure correction tables, matched polygon cuts and
 pixel diagnostics, final canvases, provenance, and checksums.
+
+![Final half-bar intercept-alignment closure](CDet_run5710_halfbar_aligned_final_archive/CDet_halfbar_intercept_final_closure.jpg)
+
+*The aligned half-bar intercepts cluster at the common detector reference. The
+small proposed increments in the lower panels show that another iteration
+would provide negligible improvement.*
+
+![Final timing components after half-bar alignment](CDet_run5710_halfbar_aligned_final_archive/CDet_timing_components_final.jpg)
+
+*Final run-5710 timing diagnostics, including the paired-layer timing
+distribution used to quote the approximately 2.27 ns width.*

@@ -14,6 +14,17 @@ The work remains analysis-oriented. The timing-survey results described below
 are diagnostic recommendations, not a new set of production calibration
 constants.
 
+## Hydrogen ECal energy spectrum
+
+The reconstructed ECal cluster-energy spectrum for the LH2 data is strongly
+weighted toward low-energy background.  The much smaller enhancement around
+`3–4.5 GeV` contains the rare elastic and inelastic `(e,e'p)` candidates that
+motivated the high-energy timing slice used below.  The `1.0–2.5 GeV` slice is
+a useful accidental-coincidence control sample: it still contains primary
+electrons traversing CDet and ECal, but not the desired elastic kinematics.
+
+![Reconstructed ECal cluster-energy spectrum for the LH2 data](documentation_images/hydrogen/ecal_cluster_energy_lh2.png)
+
 ## Hydrogen analysis synchronization
 
 `PlotElastic_Calibration_Master_stageflag_singlefile_hydrogen.C` was brought
@@ -161,6 +172,61 @@ The recommended-fit requirements shown on the canvases are:
 Only status-6 bars are included in the centroid, width, significance, and yield
 panels. The status panel itself includes every bar.
 
+## Focused timing studies for bars 28 and 30
+
+Bars 28 and 30 provide concrete examples of the timing structure summarized
+by the detector-wide survey. Bar 30 lies in a comparatively favorable,
+well-populated detector region and exhibits a particularly distinct timing
+peak. Bar 28 is a useful less-ideal comparison: its individual-pixel spectra
+are more complicated, but the bar-amalgamated spectrum still contains a
+recognizable correlated component.
+
+The 4-by-4 canvases show all 16 logical pixel positions belonging to each bar,
+including uninstrumented channels. In each populated panel, the black
+histogram is the original ECal–CDet time-difference spectrum, the dashed blue
+curve is the local signal fit, the dotted magenta curve is the broad
+background model, the green histogram is the background-subtracted estimate,
+and the solid red curve is its fitted peak when a reliable fit is available.
+
+The amalgamated canvases show, from upper left to lower right: all
+instrumented pixels, the ECal-trajectory-selected population, the trajectory
+plus accepted-TOT/manual-polygon population, and selected `dt` versus TOT.
+
+### Physics-energy slice: 3.0–4.5 GeV
+
+#### Bar 30
+
+![Individual-pixel ECal–CDet timing fits for bar 30 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal3p0_4p5_pixel_fits.png)
+
+![Amalgamated timing spectra for bar 30 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal3p0_4p5_amalgamated.png)
+
+#### Bar 28
+
+![Individual-pixel ECal–CDet timing fits for bar 28 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal3p0_4p5_pixel_fits.png)
+
+![Amalgamated timing spectra for bar 28 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal3p0_4p5_amalgamated.png)
+
+### Accidental-control slice: 1.0–2.5 GeV
+
+#### Bar 30
+
+![Individual-pixel ECal–CDet timing fits for bar 30 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal1p0_2p5_pixel_fits.png)
+
+![Amalgamated timing spectra for bar 30 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal1p0_2p5_amalgamated.png)
+
+#### Bar 28
+
+![Individual-pixel ECal–CDet timing fits for bar 28 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal1p0_2p5_pixel_fits.png)
+
+![Amalgamated timing spectra for bar 28 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal1p0_2p5_amalgamated.png)
+
+The narrow component near approximately `-20 ns` persists in both energy
+slices, especially for bar 30. This is physically reasonable: the lower-energy
+sample is dominated by accidental trigger coincidences, but its primary
+electron can still traverse CDet and ECal and therefore produce a correlated
+CDet–ECal timing peak. Events well outside that component are predominantly
+the high-rate, low-energy CDet background that is uncorrelated with ECal.
+
 ## Survey results from the two ECal energy slices
 
 The retained summary canvases are:
@@ -169,6 +235,21 @@ The retained summary canvases are:
 - [Layer 2, 3.0–4.5 GeV](cCDetBarTimingSurveyLayer2_1.jpg)
 - [Layer 1, 1.0–2.5 GeV](cCDetBarTimingSurveyLayer1_2.jpg)
 - [Layer 2, 1.0–2.5 GeV](cCDetBarTimingSurveyLayer2_2.jpg)
+
+### 3.0–4.5 GeV ECal slice
+
+![Layer 1 detector-wide timing survey for the 3.0 to 4.5 GeV ECal slice](cCDetBarTimingSurveyLayer1_1.jpg)
+
+![Layer 2 detector-wide timing survey for the 3.0 to 4.5 GeV ECal slice](cCDetBarTimingSurveyLayer2_1.jpg)
+
+### 1.0–2.5 GeV ECal slice
+
+![Layer 1 detector-wide timing survey for the 1.0 to 2.5 GeV ECal slice](cCDetBarTimingSurveyLayer1_2.jpg)
+
+![Layer 2 detector-wide timing survey for the 1.0 to 2.5 GeV ECal slice](cCDetBarTimingSurveyLayer2_2.jpg)
+
+*Only fits passing the recommended-fit criteria appear in the centroid,
+width, significance, and yield panels; the status panel retains every bar.*
 
 The principal observations are:
 

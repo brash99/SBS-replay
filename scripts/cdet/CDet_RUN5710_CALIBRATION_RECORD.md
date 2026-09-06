@@ -244,6 +244,24 @@ display function rerun without repeating the main event analysis. Changes to
 the main analysis selection or calibration stage require rerunning the main
 analysis.
 
+### Final closure plots
+
+![Final within-half-bar ECal timing closure for run 5710](CDet_run5710_halfbar_aligned_final_archive/CDet_ECal_fixed_effects_final_closure.jpg)
+
+*The fixed-effects slopes are consistent with zero independently in Layer 1
+and Layer 2 and in the combined sample.*
+
+![Final pooled CDet-versus-ECal timing after half-bar alignment](CDet_run5710_halfbar_aligned_final_archive/CDet_pooled_timing_final.jpg)
+
+*Once the half-bar intercepts are aligned, the pooled profile is also nearly
+flat. This plot is a closure diagnostic; the calibration slope was determined
+from the within-half-bar fixed-effects estimator.*
+
+![Final half-bar intercept alignment](CDet_run5710_halfbar_aligned_final_archive/CDet_halfbar_intercept_final_closure.jpg)
+
+*The calibrated half-bars project to a common CDet time at the 22 ns ECal
+reference time.*
+
 ## Comparison with earlier calibrations
 
 Changing the pairing minimum from 8 ns to 4 ns had only a small effect on the

@@ -66,6 +66,11 @@ slope and every right-side group has a positive slope. Direct fits to the
 pooled panels are useful visual diagnostics, but they can mix the physical
 within-half-bar response with residual differences among half-bar intercepts.
 
+![Corrected CDet leading-edge time versus ECal y, separated by layer, side, and section pair](CDet_run5710_y_position_proof_of_concept_archive/CDet_time_vs_ECal_y_by_geometry.jpg)
+
+*The opposite slopes on the left and right readout sides are the expected
+signature of light propagation along the scintillator.*
+
 ## Fixed-effects propagation slopes
 
 To isolate the response within a half-bar, the analysis removes the mean ECal y
@@ -113,6 +118,11 @@ The run-5710 slopes archived for this proof of concept are:
 
 The sign reversal and its repetition in both layers are the principal evidence
 that the observed correlation is a real propagation-time effect.
+
+![Within-half-bar fixed-effects fits for the twelve geometry groups](CDet_run5710_y_position_proof_of_concept_archive/CDet_ECal_y_fixed_effects.jpg)
+
+*Removing each half-bar's mean isolates the propagation response from
+half-bar-to-half-bar timing-intercept differences.*
 
 ## Position-calibration constants
 
@@ -169,6 +179,11 @@ These approximately 21 cm widths include CDet resolution, ECal position
 resolution, projection effects, backgrounds, and non-Gaussian tails. They are
 therefore not direct measurements of an intrinsic Gaussian CDet resolution.
 
+![CDet y reconstructed from timing and compared with ECal y](CDet_run5710_y_position_proof_of_concept_archive/CDet_y_position_ECal_validation.jpg)
+
+*The ECal comparison gives residual RMS widths of approximately 21 cm in each
+layer for this proof-of-concept calibration.*
+
 The same validation call creates `cCDetYLayerComparison`. It uses accepted
 Layer-1/Layer-2 hit pairs and does not include ECal y in the event-by-event
 residual:
@@ -189,6 +204,12 @@ The visible Layer-1/Layer-2 correlation is important independent evidence that
 CDet timing contains usable y information. The `1/sqrt(2)` interpretation is
 only approximate because the two layer errors need not be equal or completely
 independent.
+
+![Independent Layer-1 versus Layer-2 CDet y reconstruction comparison](CDet_run5710_y_position_proof_of_concept_archive/CDet_y_position_layer_comparison.jpg)
+
+*The layer-to-layer correlation demonstrates that the position information is
+present in CDet timing itself rather than being an artifact of plotting both
+layers against ECal y.*
 
 ## Complete interactive workflow
 
