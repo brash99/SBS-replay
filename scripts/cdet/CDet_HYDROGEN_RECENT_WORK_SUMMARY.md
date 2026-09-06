@@ -1,0 +1,231 @@
+# CDet Hydrogen Analysis: Recent Work and Current Status
+
+Last updated: 6 September 2026
+
+## Purpose
+
+This document records the recent CDet hydrogen-analysis work so that the
+analysis can be resumed without reconstructing decisions from an interactive
+ROOT session. It covers the synchronized hydrogen macro, CDet/ECal coordinate
+and timing conventions, the event display, run-specific timing overrides, and
+the detector-wide bar timing survey.
+
+The work remains analysis-oriented. The timing-survey results described below
+are diagnostic recommendations, not a new set of production calibration
+constants.
+
+## Hydrogen analysis synchronization
+
+`PlotElastic_Calibration_Master_stageflag_singlefile_hydrogen.C` was brought
+into agreement with the authoritative detector-analysis behavior developed in
+the cross-target macro while retaining hydrogen-specific run selection and
+calibration-stage handling.
+
+The synchronized behavior includes:
+
+- ECal distance `z = 6.144 m`, based on the run database geometry.
+- Correct raw-hit multiplicity lookup by physical channel.
+- Same-half-bar matching between Layer 1 and Layer 2 CDet hits.
+- A common timing convention:
+
+  ```text
+  dt(ECal,CDet) = t_ECal - (t_CDet,L1 + t_CDet,L2)/2
+  ```
+
+- Correct use of the Layer 2 time for Layer 2 diagnostic spectra.
+- Selectable bars in `plotCDetLayersTimeComp` through a Layer 1 pixel ID.
+- The same trailing x/z bin-width and range arguments as the cross-target
+  routine.
+- Layer-specific CDet-versus-ECal residual profiles.
+- The interactive CDet event display.
+
+The dedicated workflow is documented in
+[CDet_EVENT_DISPLAY_HYDROGEN.md](CDet_EVENT_DISPLAY_HYDROGEN.md).
+
+## CDet x-coordinate convention
+
+CDet x positions use independently adjustable scale and offset constants for
+the two layers:
+
+```text
+corrected_x(L1) = GoodX * XCorr1 - CDetXOffset1
+corrected_x(L2) = GoodX * XCorr2 - CDetXOffset2
+```
+
+The current starting values are:
+
+```text
+XCorr1 = 1.07
+XCorr2 = 1.07
+CDetXOffset1 = 0.03 m
+CDetXOffset2 = 0.03 m
+```
+
+These corrections are applied consistently to hit selection, stored hit
+coordinates, CDet/ECal residuals, Layer 1/Layer 2 pairing, profile histograms,
+and the event display. ECal x is not rescaled.
+
+## Event display
+
+The event display presents accepted events in four panels:
+
+1. Corrected CDet and ECal positions in x-z.
+2. CDet paddle extents and the ECal trajectory in y-z.
+3. The CDet x-y face view, including the ECal position projected to both CDet
+   layer planes.
+4. Event, timing, pair, and residual details.
+
+CDet y is represented by the physical paddle extent rather than a point,
+because CDet has very little direct position resolution along a paddle. The
+display supports next/previous navigation, terminal output, PNG export, and
+safe recreation after its GUI windows have been closed.
+
+Example for bar 29, using pixel 471 (bar 29 covers pixels 464 through 479):
+
+```cpp
+plotCDetLayersTimeComp(false,471,1,-15,15,-0.15,0.15,
+                       0.02,60,0,70,-20,20,0,60,0,80,
+                       62,130,-115,115,true,
+                       0.005,-0.9,-0.5,0.01,5,7)
+```
+
+## Run-specific timing treatment
+
+The detector-wide ECal timing correction is represented as
+
+```text
+t_corrected = t
+              - (p0 + p1*t_ECal)
+              + delta
+              + s_run
+```
+
+`p0`, `p1`, and the fixed detector-wide restoration term `delta` belong to the
+master calibration. `delta` is now stored explicitly under `[ECalTiming]` in
+`CDet_calibration_dt.dat`; it is not supposed to be silently recalculated from
+each physics sample.
+
+A per-run file named `CDet_run<run>.dat` may override `p0`, `p1`, or both. It
+may also supply the final additive `[GlobalTiming] shift_ns`. Missing keys
+retain their master-calibration values. This allows trigger or run-condition
+changes to be handled without changing pixel offsets or time-walk constants.
+
+The current run-specific examples are:
+
+- `CDet_run5711.dat`: run-specific `p1` for the run-5711 study.
+- `CDet_run5992.dat`: a `p1` override while retaining the established
+  run-5710 detector calibration.
+
+`CDet_calibration_dt.run5710_established.dat` preserves the established
+run-5710 calibration state as a reference snapshot.
+
+## Bar timing survey
+
+`surveyCDetBarTimingPeaks` surveys every physical bar using the same ECal
+trajectory projection and per-pixel quality hierarchy as the focused pixel
+timing diagnostic.
+
+For each accepted hit, the survey requires:
+
+- ECal energy within the requested slice.
+- Projected ECal x within the observed bar x span, with a half-pixel margin.
+- Projected ECal y within the CDet half-paddle extent.
+- A saved per-pixel LE-versus-TOT polygon when available; otherwise the common
+  accepted TOT interval.
+
+Each bar spectrum is fitted over the configured interval with
+
+```text
+Gaussian + linear background
+```
+
+The summary status codes are:
+
+| Code | Meaning |
+|---:|---|
+| 0 | Insufficient statistics |
+| 1 | Rejected fit |
+| 2 | Low fitted-amplitude significance |
+| 3 | Excessive Gaussian width |
+| 4 | Uncertain centroid |
+| 5 | Unstable fitted yield |
+| 6 | Recommended fit |
+
+The recommended-fit requirements shown on the canvases are:
+
+- Amplitude divided by amplitude uncertainty greater than 3.
+- Gaussian sigma below 10 ns.
+- Centroid uncertainty below 3 ns.
+- Relative fitted-yield uncertainty below 100%.
+
+Only status-6 bars are included in the centroid, width, significance, and yield
+panels. The status panel itself includes every bar.
+
+## Survey results from the two ECal energy slices
+
+The retained summary canvases are:
+
+- [Layer 1, 3.0–4.5 GeV](cCDetBarTimingSurveyLayer1_1.jpg)
+- [Layer 2, 3.0–4.5 GeV](cCDetBarTimingSurveyLayer2_1.jpg)
+- [Layer 1, 1.0–2.5 GeV](cCDetBarTimingSurveyLayer1_2.jpg)
+- [Layer 2, 1.0–2.5 GeV](cCDetBarTimingSurveyLayer2_2.jpg)
+
+The principal observations are:
+
+- Most recommended centroids cluster near approximately `-18` to `-20 ns` in
+  both layers and both energy ranges.
+- The lower-energy sample provides substantially broader bar coverage because
+  more bars meet the statistics requirement.
+- The higher-energy sample has many status-0 bars. This is mainly a coverage
+  and statistics limitation, not evidence that those bars have bad timing.
+- Most recommended Gaussian widths are roughly `2–6 ns`, comfortably below
+  the 10 ns summary threshold.
+- Several well-measured centroid outliers merit inspection of their individual
+  spectra, notably approximately:
+  - Layer 1, low energy: bar 19 near `-8 ns`.
+  - Layer 2, low energy: bar 75 near `-10 ns`.
+  - Layer 2, high energy: bar 70 near `-12 ns`.
+- Large-yield regions, particularly in Layer 2 near bars 27–31 and 65–69,
+  coincide with high fitted-amplitude significance.
+- The two energy populations look broadly compatible by eye, but the current
+  summary canvases do not constitute a quantitative bar-by-bar energy test.
+
+The plotted “significance” is specifically the fitted Gaussian amplitude
+divided by its fitted uncertainty. It measures parameter precision; it should
+not be interpreted as a conventional signal-over-background significance.
+
+## Recommended next analysis
+
+Before adopting survey centroids as calibration constants, compare the two
+energy slices directly for every bar that has status 6 in both samples:
+
+```text
+Delta_mu = mu(3.0–4.5 GeV) - mu(1.0–2.5 GeV)
+sigma(Delta_mu) = sqrt(sigma_mu,high^2 + sigma_mu,low^2)
+pull = Delta_mu / sigma(Delta_mu)
+```
+
+The next diagnostic should contain:
+
+1. High-energy centroid versus low-energy centroid with a `y=x` line.
+2. `Delta_mu` versus bar number for each layer.
+3. The centroid-difference pull versus bar number.
+4. Distributions of `Delta_mu` and the pull, separated by layer.
+
+This will distinguish among statistical agreement, a common energy-dependent
+timing shift, and genuinely bar-dependent residual time walk.
+
+The individual spectra behind the conspicuous centroid outliers should also be
+reviewed before any production write. In particular, confirm that the fit has
+selected the physical timing peak rather than a neighboring cross-talk peak or
+an inadequately modeled background.
+
+## Resume checklist
+
+1. Start a clean Analyzer session and load the current macro with ACLiC.
+2. Reproduce both ECal-energy surveys with diagnostic ROOT output enabled.
+3. Record the status counts printed by each survey invocation.
+4. Build the direct matched-bar energy-comparison plots described above.
+5. Inspect the individual spectra for the centroid outliers.
+6. Decide whether the energy dependence is global, regional, or bar-specific.
+7. Only then generate or promote new production timing constants.

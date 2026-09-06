@@ -210,10 +210,29 @@ A profile is fitted with
 When the ECal correction is enabled, the macro applies
 
 ```text
-t' = t - (p0 + p1 * t_ECal) + delta
+t' = t - (p0 + p1 * t_ECal) + delta + s_run
 ```
 
-where `delta` restores the configured target mean CDet leading-edge time.
+where `delta` is the fixed detector-wide shift determined from the calibration
+run and stored in the master calibration file. It is not recalculated for each
+physics dataset. `s_run` is an optional run-dependent timing shift loaded from
+`CDet_run<run>.dat`; it accounts for trigger or run timing changes without
+changing the detector calibration.
+
+The master file therefore records all three ECal timing constants explicitly:
+
+```ini
+[ECalTiming]
+p0 74.192800
+p1 0.817261
+delta 91.485200
+```
+
+For compatibility, a legacy calibration file without `delta` can still be
+read. The macro warns and uses the historical sample-dependent recentering for
+that invocation. Rewriting the calibration upgrades the file by storing the
+resulting `delta`. Production and cross-run comparisons should use a file with
+an explicit `delta`.
 
 ### ToT time walk
 
@@ -226,10 +245,24 @@ t' = t - p1_layer * (1/sqrt(ToT) - 1/sqrt(ToT_reference,layer))
 
 The correction is zero at the layer's reference ToT.
 
-### Run-dependent global shift
+### Run-dependent timing overrides
 
-After the detector corrections, the macro can add a final run-dependent shift
-from `CDet_run<runNumber>.dat`:
+For a single run, the macro looks for `CDet_run<runNumber>.dat`. The file may
+override the detector-wide ECal timing parameters without changing the pixel
+offsets or time-walk calibration:
+
+```ini
+[ECalTiming]
+p0 <optional run-specific value>
+p1 <optional run-specific value>
+```
+
+Only keys present in the run file are overridden; omitted keys retain their
+values from `CDet_calibration_dt.dat`. For example, run 5992 overrides only
+`p1`, while retaining the established run-5710 `p0`, pixel offsets, and
+time-walk parameters.
+
+The same file may also specify a final additive run-dependent shift:
 
 ```ini
 [GlobalTiming]
