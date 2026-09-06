@@ -575,6 +575,14 @@ The lower-level legacy functions `extractCDetBarPixelTimingOffsets(...)` and
 older independent-pixel approach. Retain them for comparison and debugging, not
 as the preferred production calibration path.
 
+For the hydrogen bar-timing study, `extractCDetBarPixelTimingOffsets(...)` and
+`surveyCDetBarTimingPeaks(...)` share the diagnostic fallback TOT window loaded
+from `diagnostics.accepted_tot_min` and `diagnostics.accepted_tot_max` in the
+active TEnv configuration. Explicit function arguments take precedence, and a
+saved per-pixel LE-versus-TOT polygon takes precedence over the rectangular
+fallback window. The run-5710 cross-target configuration records `4–30 ns`,
+while the run-5711 and run-6077 LH2 projection configurations record `8–35 ns`.
+
 ## Practical recommendations
 
 For a normal calibration review:

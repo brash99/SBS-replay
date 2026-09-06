@@ -43,6 +43,11 @@
 #include <unordered_map>
 #include <unordered_set>
 
+// Defaults used by the LH2 bar-timing diagnostics.  Loading a TEnv
+// configuration updates these values; explicit function arguments still win.
+double gCDetDiagnosticAcceptedTotMin = 4.0;
+double gCDetDiagnosticAcceptedTotMax = 30.0;
+
 static const std::unordered_set<std::string>& CDetConfigurationKeys()
 {
   static const std::unordered_set<std::string> keys = {
@@ -56,6 +61,7 @@ static const std::unordered_set<std::string>& CDetConfigurationKeys()
     "analysis.x_difference_max", "analysis.x_offset", "analysis.y_offset",
     "analysis.layer_choice", "analysis.suppress_bad", "analysis.number_of_runs",
     "analysis.max_stream", "analysis.first_event", "analysis.use_reference_timing",
+    "diagnostics.accepted_tot_min", "diagnostics.accepted_tot_max",
     "display.overwrite", "display.pixel", "display.histogram_width",
     "display.layer_dt_min", "display.layer_dt_max",
     "display.layer_dx_min", "display.layer_dx_max",
@@ -98,7 +104,20 @@ static bool LoadCDetConfiguration(TEnv& env, const char *configFile,
       return false;
     }
   }
+
+  const double acceptedTotMin = env.GetValue("diagnostics.accepted_tot_min", 4.0);
+  const double acceptedTotMax = env.GetValue("diagnostics.accepted_tot_max", 30.0);
+  if (acceptedTotMin >= acceptedTotMax) {
+    std::cerr << "[" << caller << "] ERROR: diagnostics.accepted_tot_min must be less than "
+              << "diagnostics.accepted_tot_max in " << configFile << ".\n";
+    return false;
+  }
+  gCDetDiagnosticAcceptedTotMin = acceptedTotMin;
+  gCDetDiagnosticAcceptedTotMax = acceptedTotMax;
   std::cout << "[" << caller << "] Loaded configuration " << configFile << ".\n";
+  std::cout << "[" << caller << "] Diagnostic accepted-ToT window: ("
+            << gCDetDiagnosticAcceptedTotMin << ", "
+            << gCDetDiagnosticAcceptedTotMax << ") ns; saved pixel polygons override it.\n";
   return true;
 }
 
@@ -8002,7 +8021,8 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
                                       double localFitHalfWidth = 8.0, double NReject = 2.5,
                                       double PeakSeedMin = -25.0, double PeakSeedMax = -5.0,
                                       bool makeProjectionComparison = true,
-                                      double AcceptedTotMin = 4.0, double AcceptedTotMax = 30.0,
+                                      double AcceptedTotMin = gCDetDiagnosticAcceptedTotMin,
+                                      double AcceptedTotMax = gCDetDiagnosticAcceptedTotMax,
                                       TString pixelCutFile = "CDet_pixel_quality_cuts.root") {
   TH1::AddDirectory(kFALSE);
   (void)localFitHalfWidth; // Retained for positional compatibility; extraction fits now use FitMin-FitMax exactly.
@@ -8777,7 +8797,8 @@ void surveyCDetBarTimingPeaks(double ECalEnergyMin = 3.0, double ECalEnergyMax =
                               double minSigma = 0.5, double maxSigma = 20.0,
                               double maxChi2Ndf = 10.0,
                               double PeakSeedMin = -25.0, double PeakSeedMax = -5.0,
-                              double AcceptedTotMin = 4.0, double AcceptedTotMax = 30.0,
+                              double AcceptedTotMin = gCDetDiagnosticAcceptedTotMin,
+                              double AcceptedTotMax = gCDetDiagnosticAcceptedTotMax,
                               TString pixelCutFile = "CDet_pixel_quality_cuts.root") {
   TH1::AddDirectory(kFALSE);
   const int barsPerLayer = NumCDetPaddles/(NumLayers*NumPaddles);

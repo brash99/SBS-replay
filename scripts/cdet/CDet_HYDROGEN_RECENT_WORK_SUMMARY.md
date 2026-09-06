@@ -126,6 +126,8 @@ The current run-specific examples are:
 - `CDet_run5711.dat`: run-specific `p1` for the run-5711 study.
 - `CDet_run5992.dat`: a `p1` override while retaining the established
   run-5710 detector calibration.
+- `CDet_run6077.dat`: an initial `p1` override seeded from run 5992, the
+  temporally closest cross-target reference run.
 
 `CDet_calibration_dt.run5710_established.dat` preserves the established
 run-5710 calibration state as a reference snapshot.
@@ -143,6 +145,23 @@ For each accepted hit, the survey requires:
 - Projected ECal y within the CDet half-paddle extent.
 - A saved per-pixel LE-versus-TOT polygon when available; otherwise the common
   accepted TOT interval.
+
+The common diagnostic TOT interval is configured with:
+
+```text
+diagnostics.accepted_tot_min
+diagnostics.accepted_tot_max
+```
+
+The cross-target run-5710 configuration uses `4 < TOT < 30 ns`. The LH2
+run-5711 and run-6077 projection configurations use the more selective
+`8 < TOT < 35 ns`, which suppresses much of the low-energy CDet background
+while retaining the correlated peak. Saved per-pixel polygons remain the
+highest-priority selection for exceptional channels. Explicit
+`AcceptedTotMin` and `AcceptedTotMax` function arguments override the loaded
+configuration; when those arguments are omitted, both
+`extractCDetBarPixelTimingOffsets` and `surveyCDetBarTimingPeaks` use the
+configured values.
 
 Each bar spectrum is fitted over the configured interval with
 
