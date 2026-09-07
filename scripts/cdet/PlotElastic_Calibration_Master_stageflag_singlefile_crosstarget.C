@@ -4584,7 +4584,7 @@ TH1* SubtractFitFromHist(const TH1* hIn, TF1* fFit, const char* outName = nullpt
 
 void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double Width = 1,
                             double diffMinCut = -15, double diffMaxCut = 15,
-                            double xdiffMinCut = -0.01, double xdiffMaxCut = 0.01,
+                            double xdiffMinCut = -0.1, double xdiffMaxCut = 0.1,
                             double LeMin = 0.02, double LeMax = 60,
                             double TotMinCut = 0, double TotMaxCut = 70,
                             double DiffMin = -20, double DiffMax = 20,
@@ -4670,8 +4670,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // Tuning parameters
   // ------------------------------
   double dt0   = 0.0;   // ns; start 0, later set to peak of dt histogram
-  double dtWin = diffMaxCut;  // ns; start wide (10–15)
-  double dxWin = xdiffMaxCut;   // m; ~one bar
+  double dtWin = 0.5 * (diffMaxCut-diffMinCut);  // ns; start wide (10–15)
+  double dxWin = 0.5 * (xdiffMaxCut-xdiffMinCut);   // m; ~one bar
 
   double sigT  = 1.0;   // ns; timing scale for score
   double sigX  = 0.01;   // m; start ~1, later tighten toward 0.5
@@ -4731,7 +4731,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
         const double dt = vCDet2Time[j2] - vCDet1Time[i1];
         const double dx = vCDet2x[j2] - vCDet1x[i1];
 
-        if (fabs(dt - dt0) > dtWin) continue;
+        if (dt < diffMinCut || dt > diffMaxCut) continue;
         if (fabs(dx) > dxWin) continue;
         if (fabs(vCDet2y[j2] - vCDet1y[i1]) > 0.08) continue; //require hits to be on same side of CDet (each y-cord is ~7.5cm apart)
 
