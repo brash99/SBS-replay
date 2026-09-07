@@ -7,8 +7,9 @@ Last updated: 6 September 2026
 This document records the recent CDet hydrogen-analysis work so that the
 analysis can be resumed without reconstructing decisions from an interactive
 ROOT session. It covers the synchronized hydrogen macro, CDet/ECal coordinate
-and timing conventions, the event display, run-specific timing overrides, and
-the detector-wide bar timing survey.
+and timing conventions, the event display, the run-5711 development study,
+the later run-6077 validation, run-specific timing overrides, and the
+detector-wide bar timing survey.
 
 The work remains analysis-oriented. The timing-survey results described below
 are diagnostic recommendations, not a new set of production calibration
@@ -191,7 +192,13 @@ The recommended-fit requirements shown on the canvases are:
 Only status-6 bars are included in the centroid, width, significance, and yield
 panels. The status panel itself includes every bar.
 
-## Focused timing studies for bars 28 and 30
+## Run 5711 focused timing studies: bars 28 and 30
+
+Run 5711 was the development sample for the LH2 workflow. The established
+run-5710 pixel offsets, per-pixel polygon selections, and layer time-walk
+corrections were carried into this much higher-background coincidence-trigger
+environment. The only calibration parameter changed for the run was the
+detector-wide ECal timing slope `p1`, supplied by `CDet_run5711.dat`.
 
 Bars 28 and 30 provide concrete examples of the timing structure summarized
 by the detector-wide survey. Bar 30 lies in a comparatively favorable,
@@ -246,7 +253,7 @@ electron can still traverse CDet and ECal and therefore produce a correlated
 CDet–ECal timing peak. Events well outside that component are predominantly
 the high-rate, low-energy CDet background that is uncorrelated with ECal.
 
-## Survey results from the two ECal energy slices
+## Run 5711 detector-wide survey results
 
 The retained summary canvases are:
 
@@ -293,6 +300,78 @@ The principal observations are:
 The plotted “significance” is specifically the fitted Gaussian amplitude
 divided by its fitted uncertainty. It measures parameter precision; it should
 not be interpreted as a conventional signal-over-background significance.
+
+## Run 6077 validation
+
+Run 6077, taken several weeks later, provided an independent LH2 test of the
+workflow developed with run 5711. The established run-5710 pixel offsets,
+per-pixel polygon selections, and layer time-walk terms were again retained.
+Only the detector-wide ECal timing slope `p1` was changed, through
+`CDet_run6077.dat`; its starting value came from run 5992, the temporally
+closest cross-target reference. The focused diagnostics use the same LH2
+default `8 < TOT < 35 ns` unless a saved per-pixel polygon is present.
+
+Pixel 485 provides a direct comparison with the run-5711 study. Its ECal-CDet
+time-difference spectrum retains a localized component near
+`t_ECal - t_CDet,LE = -22 ns`, demonstrating that the calibrated pixel-level
+timing structure remains recognizable in run 6077.
+
+![Run 6077 ECal-CDet time-difference spectrum for logical pixel 485](documentation_images/hydrogen/run6077_pixel485_ecal_cdet_dt.jpg)
+
+The 4-by-4 bar-30 view shows the corresponding behavior pixel by pixel. The
+peak is clearest in the better-populated channels, while the remaining panels
+illustrate the large uncorrelated LH2 background and the channels for which a
+stable fit is not available.
+
+![Run 6077 individual-pixel ECal-CDet timing fits for bar 30](documentation_images/hydrogen/run6077_bar30_pixel_timing_fits.jpg)
+
+At bar level, ECal trajectory projection followed by the accepted-TOT or
+manual-polygon selection makes the correlated component especially clear for
+bar 30. Bar 28 is a deliberately less favorable example: it retains more
+background, but the same selection exposes a consistent timing enhancement.
+
+![Run 6077 amalgamated timing diagnostics for bar 30 with the 8 to 35 ns TOT selection](documentation_images/hydrogen/run6077_bar30_tot8_35_amalgamated.jpg)
+
+![Run 6077 amalgamated timing diagnostics for bar 28 with the 8 to 35 ns TOT selection](documentation_images/hydrogen/run6077_bar28_tot8_35_amalgamated.jpg)
+
+The detector-wide projected-half-bar diagnostic preserves the strong
+Layer-1/Layer-2 correlation, but places the corrected-time population near
+`35–36 ns` rather than the run-5710 target near `30 ns`. This is evidence for
+a run-dependent common timing shift associated with the trigger/ECal timing
+relationship; it is not evidence that the run-5710 pixel offsets or time-walk
+calibration should be regenerated.
+
+![Run 6077 projected-half-bar timing distributions and Layer-1/Layer-2 correlation](documentation_images/hydrogen/run6077_projected_halfbar_timing.jpg)
+
+The CDet-versus-ECal diagnostic likewise shows a residual run-dependent time
+slope. The appropriate follow-up is therefore to refine the run-6077 entries
+in `CDet_run6077.dat`—the ECal timing parameters and, if required, the final
+global shift—while keeping the established detector-relative calibration
+fixed.
+
+![Run 6077 CDet-versus-ECal timing diagnostics](documentation_images/hydrogen/run6077_ecal_timing_diagnostics.jpg)
+
+## Run 5711–6077 stability milestone
+
+The important result is not merely that both runs contain a visible timing
+peak. Run 6077 reproduces the essential run-5711 behavior several weeks later
+without recalibrating the detector-relative quantities:
+
+| Calibration component | Run 5711 to run 6077 treatment |
+|---|---|
+| Per-pixel timing offsets | Unchanged |
+| Per-pixel LE-versus-TOT polygons | Unchanged |
+| Layer time-walk corrections | Unchanged |
+| LH2 default TOT selection | Unchanged: `8 < TOT < 35 ns` |
+| Detector-wide ECal timing slope `p1` | Run-specific: `0.12844` for run 5711 and `1.00869` for run 6077 |
+
+With only this one run-specific calibration parameter changed, both data sets
+show a narrow correlated component near `-20` to `-22 ns`, compatible behavior
+in bars 28 and 30, and a strong Layer-1/Layer-2 timing correlation. This is an
+important CDet stability milestone: the run-5710 pixel-offset and time-walk
+calibration transferred across distinct LH2 runs, while the changing external
+trigger/ECal timing relationship was isolated in the intended per-run `p1`
+override.
 
 ## Recommended next analysis
 

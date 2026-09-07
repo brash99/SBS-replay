@@ -3,4 +3,4 @@
 # Pixel offsets, ECal p0, and time-walk constants continue to come from
 # CDet_calibration_dt.dat.
 [ECalTiming]
-p1 1.00869
+p1 0.22389
