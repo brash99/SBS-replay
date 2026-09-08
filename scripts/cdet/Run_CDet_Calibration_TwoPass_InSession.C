@@ -97,7 +97,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
     stageBanner("pass1_ecal_fit", 3);
     ResetCalibrationGlobals();
     if (!runMain(3)) return;
-    plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass1_timewalk_fit", 6);
@@ -115,7 +115,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
     stageBanner("pass2_ecal_refit", 3);
     ResetCalibrationGlobals();
     if (!runMain(3)) return;
-    plotCDetLayersTimeComp(true, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_timewalk_refit", 6);
@@ -137,7 +137,7 @@ void Run_CDet_Calibration_TwoPass_InSession(
     ResetCalibrationGlobals();
     if (!runMain(7)) return;
     plotAllTDC(false, 1.0, 0.0, 60.0);
-    plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30);
     plotGoodLeVsTotByLayer(false, 15, 45, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
 
 

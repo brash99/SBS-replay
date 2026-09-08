@@ -546,10 +546,12 @@ bool gLastCalibrationStageSucceeded = false;
 bool gLastCalibrationFitSucceeded = false;
 bool gLastCalibrationSequenceSucceeded = false;
 
-// Per-run global timing shift, kept separate from the main detector calibration file.
+// Per-run timing overrides, kept separate from the main detector calibration file.
 // Expected file name: CDet_run<RunNumber>.dat
 double gGlobalTimingShift = 0.0;   // ns, additive final timing shift
 bool   gGlobalTimingLoaded = false;
+bool   gRunECalP0Loaded = false;
+bool   gRunECalP1Loaded = false;
 std::string gRunTimingFile = "";
 
 bool LoadCalibrationConstants(const std::string& fname);
@@ -633,6 +635,8 @@ inline void ConfigureCalibrationStage(int stage) {
 bool LoadRunTimingConstants(const std::string& fname) {
   gGlobalTimingShift = 0.0;
   gGlobalTimingLoaded = false;
+  gRunECalP0Loaded = false;
+  gRunECalP1Loaded = false;
 
   std::ifstream fin(fname.c_str());
   if (!fin) {
@@ -643,6 +647,9 @@ bool LoadRunTimingConstants(const std::string& fname) {
 
   std::string line, section;
   while (std::getline(fin, line)) {
+    const std::string::size_type first = line.find_first_not_of(" \t\r");
+    if (first == std::string::npos) continue;
+    line.erase(0, first);
     if (line.empty()) continue;
     if (line[0] == '#') continue;
     if (line[0] == '[') {
@@ -652,19 +659,25 @@ bool LoadRunTimingConstants(const std::string& fname) {
 
     std::istringstream iss(line);
 
-    if (section == "[GlobalTiming]") {
+    if (section == "[GlobalTiming]" || section == "[ECalTiming]") {
       std::string key;
       if (!(iss >> key)) continue;
 
-      if (key == "shift_ns") {
-        if (iss >> std::ws && iss.peek() == '=') {
-          iss.get(); // accept optional '='
-        }
-        double val = 0.0;
-        if (iss >> val) {
+      if (iss >> std::ws && iss.peek() == '=') {
+        iss.get(); // accept optional '='
+      }
+      double val = 0.0;
+      if (!(iss >> val)) continue;
+
+      if (section == "[GlobalTiming]" && key == "shift_ns") {
           gGlobalTimingShift = val;
           gGlobalTimingLoaded = true;
-        }
+      } else if (section == "[ECalTiming]" && key == "p0") {
+        gECalFitP0 = val;
+        gRunECalP0Loaded = true;
+      } else if (section == "[ECalTiming]" && key == "p1") {
+        gECalFitP1 = val;
+        gRunECalP1Loaded = true;
       }
     }
   }
@@ -672,12 +685,13 @@ bool LoadRunTimingConstants(const std::string& fname) {
   if (gGlobalTimingLoaded) {
     std::cout << "[CDet] Loaded run timing shift from '" << fname
               << "': shift_ns = " << gGlobalTimingShift << "\n";
-  } else {
-    std::cout << "[CDet] Run-timing file '" << fname
-              << "' did not contain [GlobalTiming] shift_ns; using 0 ns.\n";
+  }
+  if (gRunECalP0Loaded || gRunECalP1Loaded) {
+    std::cout << "[CDet] Loaded run-specific ECal timing override from '" << fname
+              << "': p0=" << gECalFitP0 << " p1=" << gECalFitP1 << "\n";
   }
 
-  return gGlobalTimingLoaded;
+  return gGlobalTimingLoaded || gRunECalP0Loaded || gRunECalP1Loaded;
 }
 
 bool LoadCalibrationConstants(const std::string& fname) {

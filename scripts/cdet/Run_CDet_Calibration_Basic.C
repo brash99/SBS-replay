@@ -82,7 +82,7 @@ void Run_CDet_Calibration_Basic(
     ResetCalibrationGlobals();
     runMain(8);
     //plotAllTDC(false, 1.0, 0.0, 60.0);
-    plotCDetLayersTimeComp(false, 1.0, -15, 15, -0.1, 0.1, 20, 45, 8, 40, -15, 15, 0, 60, 0, 80, 95, 125, -104, -60);
+    plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30);
     //plotGoodLeVsTotByLayer(false, 15, 45, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
 
 
