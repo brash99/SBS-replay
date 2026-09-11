@@ -1,3 +1,5 @@
+#pragma once
+
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include <TList.h>
@@ -117,7 +119,9 @@ static bool LoadCDetConfiguration(TEnv& env, const char *configFile,
   std::cout << "[" << caller << "] Loaded configuration " << configFile << ".\n";
   std::cout << "[" << caller << "] Diagnostic accepted-ToT window: ("
             << gCDetDiagnosticAcceptedTotMin << ", "
-            << gCDetDiagnosticAcceptedTotMax << ") ns; saved pixel polygons override it.\n";
+            << gCDetDiagnosticAcceptedTotMax
+            << ") ns for polygon-aware pixel-calibration diagnostics. "
+               "Run analysis and plotCDetLayersTimeComp do not apply saved polygons.\n";
   return true;
 }
 
@@ -213,6 +217,7 @@ std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalTimingSamples
 std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalYSamples;
 std::vector<CDetYPairedSample> gCDetYPairedSamples;
 TH2D *gCDetPairedMeanTimeVsECal = nullptr;
+std::vector<double> gCDetAcceptedPairMeanTimes;
 
 struct CDetDisplayHit {
   int id, layer, side, module, bar, pixel;
@@ -710,6 +715,20 @@ Int_t gCalibrationStage = 0;
 bool gLastCalibrationStageSucceeded = false;
 bool gLastCalibrationFitSucceeded = false;
 bool gLastCalibrationSequenceSucceeded = false;
+// Most recent combined within-half-bar ECal timing fit.  Exposed so a
+// run-specific p1 calibrator can write CDet_run<run>.dat without modifying the
+// detector-wide master calibration.
+double gLastECalFixedEffectsSlope = std::numeric_limits<double>::quiet_NaN();
+double gLastECalFixedEffectsSlopeError = std::numeric_limits<double>::quiet_NaN();
+bool gLastECalFixedEffectsValid = false;
+// Most recent accepted-pair Gaussian-core timing fit.  These values make the
+// final timing-origin definition available to reproducible run-shift drivers.
+double gLastPairedCoreMean = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedCoreMeanError = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedCoreSigma = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedCoreSigmaError = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedTimeEntries = 0.0;
+bool gLastPairedCoreFitValid = false;
 
 // Per-run timing overrides, kept separate from the main detector calibration file.
 // Expected file name: CDet_run<RunNumber>.dat
@@ -717,7 +736,15 @@ double gGlobalTimingShift = 0.0;   // ns, additive final timing shift
 bool   gGlobalTimingLoaded = false;
 bool   gRunECalP0Loaded = false;
 bool   gRunECalP1Loaded = false;
+double gRunECalTimeMin = 10.0;
+double gRunECalTimeMax = 35.0;
+bool   gRunECalTimeWindowLoaded = false;
+bool   gConfigurationSelectionAuthoritative = false;
 std::string gRunTimingFile = "";
+// When enabled, absolute pair-timing cuts are evaluated before applying the
+// run origin shift.  The reported times still include that shift.  This makes
+// s_run a pure coordinate translation for its calibration/closure workflow.
+bool gShiftInvariantPairTimingCuts = false;
 
 bool LoadCalibrationConstants(const std::string& fname);
 bool LoadRunTimingConstants(const std::string& fname);
@@ -802,6 +829,11 @@ bool LoadRunTimingConstants(const std::string& fname) {
   gGlobalTimingLoaded = false;
   gRunECalP0Loaded = false;
   gRunECalP1Loaded = false;
+  gRunECalTimeMin = 10.0;
+  gRunECalTimeMax = 35.0;
+  gRunECalTimeWindowLoaded = false;
+  bool runECalTimeMinSeen = false;
+  bool runECalTimeMaxSeen = false;
 
   std::ifstream fin(fname.c_str());
   if (!fin) {
@@ -824,7 +856,8 @@ bool LoadRunTimingConstants(const std::string& fname) {
 
     std::istringstream iss(line);
 
-    if (section == "[GlobalTiming]" || section == "[ECalTiming]") {
+    if (section == "[GlobalTiming]" || section == "[ECalTiming]" ||
+        section == "[ECalSelection]") {
       std::string key;
       if (!(iss >> key)) continue;
 
@@ -843,8 +876,23 @@ bool LoadRunTimingConstants(const std::string& fname) {
       } else if (section == "[ECalTiming]" && key == "p1") {
         gECalFitP1 = val;
         gRunECalP1Loaded = true;
+      } else if (section == "[ECalSelection]" && key == "time_min") {
+        gRunECalTimeMin = val;
+        runECalTimeMinSeen = true;
+      } else if (section == "[ECalSelection]" && key == "time_max") {
+        gRunECalTimeMax = val;
+        runECalTimeMaxSeen = true;
       }
     }
+  }
+
+  gRunECalTimeWindowLoaded = runECalTimeMinSeen && runECalTimeMaxSeen &&
+      std::isfinite(gRunECalTimeMin) &&
+      std::isfinite(gRunECalTimeMax) && gRunECalTimeMin < gRunECalTimeMax;
+  if (runECalTimeMinSeen != runECalTimeMaxSeen ||
+      ((runECalTimeMinSeen && runECalTimeMaxSeen) && !gRunECalTimeWindowLoaded)) {
+    std::cerr << "[CDet] WARNING: invalid or incomplete [ECalSelection] in '"
+              << fname << "'; retaining the caller's ECal timing window.\n";
   }
 
   if (gGlobalTimingLoaded) {
@@ -855,8 +903,14 @@ bool LoadRunTimingConstants(const std::string& fname) {
     std::cout << "[CDet] Loaded run-specific ECal timing override from '" << fname
               << "': p0=" << gECalFitP0 << " p1=" << gECalFitP1 << "\n";
   }
+  if (gRunECalTimeWindowLoaded && !gConfigurationSelectionAuthoritative) {
+    std::cout << "[CDet] Loaded run-specific ECal selection window from '"
+              << fname << "': " << gRunECalTimeMin << " < time < "
+              << gRunECalTimeMax << " ns\n";
+  }
 
-  return gGlobalTimingLoaded || gRunECalP0Loaded || gRunECalP1Loaded;
+  return gGlobalTimingLoaded || gRunECalP0Loaded || gRunECalP1Loaded ||
+      gRunECalTimeWindowLoaded;
 }
 
 bool LoadCalibrationConstants(const std::string& fname) {
@@ -1643,10 +1697,17 @@ ConfigureCalibrationStage(calibStage);
 if (RunNumber1 != 0) {
   gRunTimingFile = Form("CDet_run%d.dat", (int)RunNumber1);
   LoadRunTimingConstants(gRunTimingFile);
+  if (gRunECalTimeWindowLoaded) {
+    ECalMinT = gRunECalTimeMin;
+    ECalMaxT = gRunECalTimeMax;
+  }
 } else {
   gRunTimingFile.clear();
   gGlobalTimingShift = 0.0;
   gGlobalTimingLoaded = false;
+  gRunECalTimeMin = 10.0;
+  gRunECalTimeMax = 35.0;
+  gRunECalTimeWindowLoaded = false;
   std::cout << "[CDet] Group mode: per-run global timing shifts are disabled.\n";
 }
 
@@ -3284,6 +3345,7 @@ void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGe
 
 void ResetCalibrationGlobals()
 {
+    gShiftInvariantPairTimingCuts = false;
     canvas_vector.clear();
 
     vRefRawLe.clear();
@@ -3405,15 +3467,21 @@ void ResetCalibrationGlobals()
     }
 }
 
-void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(const char *configFile)
+void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+    const char *configFile, Int_t calibrationStageOverride = -1,
+    Int_t eventsOverride = std::numeric_limits<Int_t>::min())
 {
   TEnv env;
   const char *caller = "CDet cross-target analysis";
   if (!LoadCDetConfiguration(env, configFile, caller)) return;
 
   const Int_t runNumber = env.GetValue("analysis.run_number", 5811);
-  const Int_t events = env.GetValue("analysis.events", 50000);
-  const Int_t calibrationStage = env.GetValue("analysis.calibration_stage", 7);
+  const Int_t events = eventsOverride != std::numeric_limits<Int_t>::min()
+                           ? eventsOverride
+                           : env.GetValue("analysis.events", 50000);
+  const Int_t calibrationStage = calibrationStageOverride >= 0
+                                     ? calibrationStageOverride
+                                     : env.GetValue("analysis.calibration_stage", 7);
   const Int_t groupIndex = env.GetValue("analysis.group_index", 0);
   const Int_t minSegment = env.GetValue("analysis.min_segment", -1);
   const Int_t maxSegment = env.GetValue("analysis.max_segment", -1);
@@ -3445,17 +3513,23 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(const char 
     return;
   }
 
-  std::cout << "[" << caller << "] Effective cuts: ECal ADC time "
+  std::cout << "[" << caller << "] Authoritative configuration: "
+            << configFile << "; stage " << calibrationStage
+            << "; events " << events << ".\n"
+            << "[" << caller << "] Effective cuts: ECal ADC time "
             << ecalTimeMin << " to " << ecalTimeMax << " ns; Layer 1 hits "
             << layer1HitsMin << " to " << layer1HitsMax << "; Layer 2 hits "
             << layer2HitsMin << " to " << layer2HitsMax << ".\n";
 
+  const bool previousConfigAuthority = gConfigurationSelectionAuthoritative;
+  gConfigurationSelectionAuthoritative = true;
   PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
       runNumber, events, calibrationStage, groupIndex, minSegment, maxSegment,
       leMin, leMax, totMin, totMax, ecalTimeMin, ecalTimeMax,
       layer1HitsMin, layer1HitsMax, layer2HitsMin, layer2HitsMax,
       xDifferenceMax, xOffset, yOffset, layerChoice, suppressBad,
       numberOfRuns, maxStream, firstEvent, useReferenceTiming);
+  gConfigurationSelectionAuthoritative = previousConfigAuthority;
 }
 
 void runStats(){
@@ -5316,6 +5390,10 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
                             double XBinWidth = 0.005, double XMin = -1.5, double XMax = 1.5,
                             double ZBinWidth = 0.01, double ZMin = 0.0, double ZMax = 7.0){
   gLastCalibrationFitSucceeded = false;
+  gLastECalFixedEffectsSlope = std::numeric_limits<double>::quiet_NaN();
+  gLastECalFixedEffectsSlopeError = std::numeric_limits<double>::quiet_NaN();
+  gLastECalFixedEffectsValid = false;
+  gCDetAcceptedPairMeanTimes.clear();
 
   TH1::AddDirectory(kFALSE);
 
@@ -5526,7 +5604,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     // ------------------------------
     const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
     for (size_t ihit = 0; ihit < Nhits; ++ihit) {
-      if (vGoodLe[ev][ihit] >= LeMin && vGoodLe[ev][ihit] <= LeMax && vGoodTot[ev][ihit] >= TotMinCut && vGoodTot[ev][ihit] <= TotMaxCut && t_ECal >= ECalMin && t_ECal <= ECalMax){
+      const double timingForCuts = vGoodLe[ev][ihit] -
+          (gShiftInvariantPairTimingCuts ? gGlobalTimingShift : 0.0);
+      if (timingForCuts >= LeMin && timingForCuts <= LeMax && vGoodTot[ev][ihit] >= TotMinCut && vGoodTot[ev][ihit] <= TotMaxCut && t_ECal >= ECalMin && t_ECal <= ECalMax){
         if (vGoodID[ev][ihit] >= 0 && vGoodID[ev][ihit] <= 1343){ //layer 1 hits
           vCDet1Time.push_back(vGoodLe[ev][ihit]);
           vCDet1Tot.push_back(vGoodTot[ev][ihit]);
@@ -5645,7 +5725,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       // Apply final/tighter cuts (these can be narrower than dtWin/dxWin)
       if (p.dt >= diffMinCut && p.dt <= diffMaxCut && p.dx >= xdiffMinCut && p.dx <= xdiffMaxCut) {
         double t_pair = (p.t1 + p.t2) / 2;
-        double dt_EC = t_ECal - t_pair;
+        const double timingShiftForCuts =
+            gShiftInvariantPairTimingCuts ? gGlobalTimingShift : 0.0;
+        double dt_EC = t_ECal - (t_pair - timingShiftForCuts);
         if (dt_EC >= tdiffECalCDetMin && dt_EC <= tdiffECalCDetMax){
           double x_pair = (p.x1 + p.x2) / 2;
           double z_pair = (p.z1 + p.z2) / 2;
@@ -5669,6 +5751,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           hCDetTimeDiffvsy2->Fill(p.y2, p.dt);
 
           hECalVsCDetT->Fill(t_ECal,t_pair);
+          gCDetAcceptedPairMeanTimes.push_back(t_pair);
           hECalVsCDetTL1->Fill(t_ECal,p.t1);
           hECalVsCDetTL2->Fill(t_ECal,p.t2);
           const bool layer1ProjectionMatch = projectionIsInHitHalfBar(
@@ -6276,6 +6359,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       halfBarsPerLayer, 2*halfBarsPerLayer, hCDetL2ECalWithin);
   const FixedEffectsResult fixedAll = calculateFixedEffects(
       0, 2*halfBarsPerLayer, hCDetAllECalWithin);
+  gLastECalFixedEffectsSlope = fixedAll.slope;
+  gLastECalFixedEffectsSlopeError = fixedAll.slopeError;
+  gLastECalFixedEffectsValid = fixedAll.valid;
 
   auto printFixedEffects = [&](const char *label, const FixedEffectsResult &fit) {
     std::cout << "[plotCDetLayersTimeComp] " << label
@@ -6343,8 +6429,30 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       // stage because demeaning intentionally removes intercept information.
       gECalFitP0 = p0;
       gECalFitP1 = fixedAll.slope;
+      double sumResidual = 0.0;
+      long long residualCount = 0;
+      const size_t nEvents = std::min(vGoodLe.size(), v_GoodECalAdcTime.size());
+      for (size_t event = 0; event < nEvents; ++event) {
+        const double ecalTime = v_GoodECalAdcTime[event];
+        const size_t nHits = std::min(vGoodLe[event].size(), vGoodID[event].size());
+        for (size_t hit = 0; hit < nHits; ++hit) {
+          const int bar = vGoodID[event][hit] / NumPaddles;
+          if (bar < 0 || bar >= NumPMTs) continue;
+          sumResidual += vGoodLe[event][hit] -
+                         (gECalFitP0 + gECalFitP1*ecalTime);
+          ++residualCount;
+        }
+      }
+      if (residualCount <= 0) {
+        std::cerr << "[CDet] ERROR: cannot derive ECal delta from an empty accepted sample.\n";
+        gLastCalibrationFitSucceeded = false;
+        return;
+      }
+      gECalDeltaShift = gTargetMeanLE - sumResidual/(double)residualCount;
+      gECalDeltaLoaded = true;
       std::cout << "[CDet] ECal correction disabled: stored pooled absolute p0 and "
-                << "fixed-effects p1.\n";
+                << "fixed-effects p1, with detector-wide delta="
+                << gECalDeltaShift << " ns.\n";
     }
     gECalParamsLoaded = true;
     gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
@@ -6412,6 +6520,12 @@ void reportCDetPairedTimeResolution(bool draw,
                                     double gaussianFitMin,
                                     double gaussianFitMax)
 {
+  gLastPairedCoreMean = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedCoreMeanError = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedCoreSigma = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedCoreSigmaError = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedTimeEntries = 0.0;
+  gLastPairedCoreFitValid = false;
   if (!gCDetPairedMeanTimeVsECal) {
     std::cerr << "[CDet paired timing resolution] ERROR: paired timing histogram "
               << "is not available. Run plotCDetLayersTimeComp first.\n";
@@ -6431,8 +6545,11 @@ void reportCDetPairedTimeResolution(bool draw,
   timeProjection->SetTitle(
       "Accepted-pair mean CDet time;#LTt_{CDet}#GT (ns);Accepted pairs");
 
-  const double entries = timeProjection->GetEntries();
-  const double mean = timeProjection->GetMean();
+  const double entries = static_cast<double>(gCDetAcceptedPairMeanTimes.size());
+  gLastPairedTimeEntries = entries;
+  double mean = 0.0;
+  for (double value : gCDetAcceptedPairMeanTimes) mean += value;
+  if (entries > 0.0) mean /= entries;
   const double rms = timeProjection->GetStdDev();
   const double rmsError = timeProjection->GetStdDevError();
 
@@ -6453,7 +6570,18 @@ void reportCDetPairedTimeResolution(bool draw,
             << "  detector-wide RMS: " << rms << " +/- " << rmsError
             << " ns\n";
   if (fitStatus == 0) {
-    std::cout << "  Gaussian core sigma (" << gaussianFitMin << " to "
+    gLastPairedCoreMean = coreFit->GetParameter(1);
+    gLastPairedCoreMeanError = coreFit->GetParError(1);
+    gLastPairedCoreSigma = coreFit->GetParameter(2);
+    gLastPairedCoreSigmaError = coreFit->GetParError(2);
+    gLastPairedCoreFitValid =
+        std::isfinite(gLastPairedCoreMean) &&
+        std::isfinite(gLastPairedCoreMeanError) &&
+        std::isfinite(gLastPairedCoreSigma) && gLastPairedCoreSigma > 0.0;
+    std::cout << "  Gaussian core mean (" << gaussianFitMin << " to "
+              << gaussianFitMax << " ns): " << gLastPairedCoreMean
+              << " +/- " << gLastPairedCoreMeanError << " ns\n"
+              << "  Gaussian core sigma (" << gaussianFitMin << " to "
               << gaussianFitMax << " ns): " << coreFit->GetParameter(2)
               << " +/- " << coreFit->GetParError(2) << " ns\n"
               << "  Gaussian chi2/NDF: " << coreFit->GetChisquare() << "/"
@@ -7244,13 +7372,16 @@ void plotCDetYPositionResolution(TString calibrationFile)
             << ", equal-independent-layer estimate=" << differenceRms/std::sqrt(2.0) << " m\n";
 }
 
-void plotCDetLayersTimeComp(const char *configFile)
+void plotCDetLayersTimeComp(const char *configFile,
+                            Int_t overwriteOverride = -1)
 {
   TEnv env;
   const char *caller = "CDet layer comparison";
   if (!LoadCDetConfiguration(env, configFile, caller)) return;
 
-  const Bool_t overwrite = env.GetValue("display.overwrite", false);
+  const Bool_t overwrite = overwriteOverride >= 0
+                               ? overwriteOverride != 0
+                               : env.GetValue("display.overwrite", false);
   const Int_t pixel = env.GetValue("display.pixel", 416);
   const Double_t width = env.GetValue("display.histogram_width", 1.0);
   const Double_t layerDtMin = env.GetValue("display.layer_dt_min", -15.0);

@@ -1,4 +1,7 @@
-# Run-specific timing overrides for cross-target run 5992.
-# Pixel offsets and time-walk constants continue to come from CDet_calibration_dt.dat.
+# Run-specific timing calibration for cross-target run 5992.
+
 [ECalTiming]
-p1 0.962719
+p1 0.822678
+
+[GlobalTiming]
+shift_ns 4.840388

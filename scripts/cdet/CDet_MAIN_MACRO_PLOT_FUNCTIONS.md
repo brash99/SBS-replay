@@ -12,12 +12,18 @@ in the same ROOT session. The plot functions consume event and hit vectors held
 in memory by the main macro; most do not reread the replay ROOT file. Loading the
 macro without running the analysis does not populate those vectors.
 
-For routine work, prefer the configuration-file overload of the layer-comparison
-function:
+For routine work, use the same authoritative configuration for the analysis
+loader and layer-comparison function:
 
 ```cpp
-plotCDetLayersTimeComp("CDet_run5710_event_display.conf")
+PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+    "CDet_run5710_projection.conf");
+plotCDetLayersTimeComp("CDet_run5710_projection.conf");
 ```
+
+Do not load through the legacy positional overload and then plot with a
+configuration file. Most plot functions consume the existing in-memory sample
+and do not rerun the main event selection.
 
 Pixel IDs in this document are logical CDet pixel IDs, from 0 through 2687. A
 bar contains 16 logical pixels, two of which are normally uninstrumented. Layer
@@ -301,13 +307,18 @@ Two interfaces are available:
 
 ```cpp
 plotCDetLayersTimeComp(false, 471, /* remaining numeric arguments */)
-plotCDetLayersTimeComp("CDet_run5710_event_display.conf")
+plotCDetLayersTimeComp("CDet_run5710_projection.conf")
 ```
 
 The configuration form is preferred because it avoids a long positional
-argument list and rereads the file each time the function is called. You can
-therefore change the selected bar, cuts, or display ranges and rerun this plot
-without repeating the main analysis.
+argument list and rereads the display settings each time the function is
+called. You may change display-only settings and rerun this plot without
+repeating the main analysis. Changes under `analysis.*` require rerunning the
+main analysis with the same configuration first.
+
+This function does not apply saved per-pixel LE-versus-ToT polygons. It uses
+the rectangular and pair-quality selections specified by the analysis and
+display configuration.
 
 ### `plotECalCDetTimeCutStudy(...)`
 
@@ -593,7 +604,7 @@ For a normal calibration review:
 3. Use `plotCDetPixelLeAndDtSpectra` and the hierarchical ROOT file for suspect
    individual pixels or cross-talk cases.
 4. Use `plotGoodLeVsTotByLayer(false, ...)` to inspect time walk.
-5. Use `plotCDetLayersTimeComp("CDet_run5710_event_display.conf")` to validate
+5. Use `plotCDetLayersTimeComp("CDet_run5710_projection.conf")` to validate
    layer matching, the ECal timing dependence, and representative events.
 6. Use the occupancy/rate functions to distinguish a timing-fit problem from a
    dead, low-rate, or unusually noisy channel.

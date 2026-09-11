@@ -36,12 +36,12 @@ For the run-5710 example:
 
 ```cpp
 PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
-    "CDet_run5710_event_display.conf"
+    "CDet_run5710_projection.conf"
 )
 ```
 
 Wait for this call to finish. It reads the replayed ROOT data, applies the
-stage-2 analysis selections, and populates the per-event CDet and ECal vectors
+stage-7 analysis selections, and populates the per-event CDet and ECal vectors
 used by the event display. The configuration applies the new 10--35 ns ECal
 ADC timing cut and the Layer-1/Layer-2 hit-count limits without relying on
 positional arguments. Unknown keys, invalid ranges, and unsupported
@@ -62,12 +62,18 @@ and is normalized to that bar's base pixel, 464. Run the configured display
 with:
 
 ```cpp
-plotCDetLayersTimeComp("CDet_run5710_event_display.conf")
+plotCDetLayersTimeComp("CDet_run5710_projection.conf")
 ```
 
 Both calls read the same file, but each uses only its own `analysis.*` or
 `display.*` settings. The complete file is
-[`CDet_run5710_event_display.conf`](CDet_run5710_event_display.conf).
+[`CDet_run5710_projection.conf`](CDet_run5710_projection.conf).
+
+The main analysis and plotting calls must use the same configuration. The plot
+function consumes the in-memory sample produced by the main call; it cannot
+retroactively replace a sample loaded with the legacy positional interface.
+Saved per-pixel LE-versus-ToT polygons are not applied by this event-display
+path.
 
 This call creates the aggregate timing and position plots, including the
 selected-bar x-versus-z plot. In an interactive Analyzer session it also:

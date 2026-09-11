@@ -221,7 +221,7 @@ Starting from a fresh ROOT session in `scripts/cdet`:
 // Explicit -1 processes the full run; the one-argument default is 50000 events.
 PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(5710, -1)
 
-plotCDetLayersTimeComp("CDet_run5710_event_display.conf")
+plotCDetLayersTimeComp("CDet_run5710_projection.conf")
 
 extractCDetYPositionCalibration(
     "CDet_y_position_calibration.dat",

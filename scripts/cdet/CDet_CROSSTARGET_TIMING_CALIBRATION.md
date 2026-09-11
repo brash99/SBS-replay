@@ -34,7 +34,7 @@ Before entering the calibration vectors, a hit must pass the main analysis
 selection. This includes:
 
 - CDet leading-edge and ToT limits;
-- the ECal ADC timing window, currently 10--35 ns in the cross-target drivers;
+- the ECal ADC timing window specified by the authoritative run configuration;
 - valid ECal reconstruction;
 - ECal-to-CDet x and y matching;
 - the configured Layer-1 and Layer-2 occupancy limits; and
@@ -142,11 +142,13 @@ receives no new residual; any previously loaded offset is retained.
 
 ## Calibration stages and iteration
 
-The intended combined cross-target sequence is:
+The clean automatic cross-target sequence is:
 
 1. Stage 0: inspect the uncalibrated timing.
 2. Stage 1: fit ECal-CDet pixel offsets.
-3. Stage 3: fit the dependence of the paired mean CDet time on ECal ADC time.
+3. Stage 8: obtain the first absolute ECal fit with pixel offsets applied but
+   no pre-existing ECal correction. This fit also stores the detector-wide
+   `delta` needed to place corrected times at the target mean.
 4. Stage 6: fit the layer-dependent ToT time walk.
 5. Repeat stages 1, 3, and 6 with the existing corrections loaded.
 6. Stage 7: apply all corrections and perform a final residual pixel-offset
@@ -173,19 +175,84 @@ sequence is iterative rather than a replacement calculation.
 
 ## Running the full workflow
 
-For a single cross-target run such as 5710, start a fresh ROOT session and
-compile the self-contained driver with ACLiC:
+For an ordinary single cross-target run, start a fresh ROOT session and compile
+the self-contained driver with ACLiC:
 
 ```cpp
 .L Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually.C+
-Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(5710)
+Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
+    "CDet_run5710_projection.conf")
 ```
 
-The default final argument is `removeExistingCalibrationFile=true`, which
+The configuration file is authoritative for the run, event selection,
+geometric and timing cuts, and diagnostic ranges. A calibration stage may
+override only `analysis.calibration_stage`, and an explicit test event limit
+may override only `analysis.events`. Every stage prints its configuration and
+effective principal cuts. The legacy positional overload remains available
+for historical macros but is not the commissioned production interface.
+
+The default cleanup argument is `removeExistingCalibrationFile=true`, which
 starts from scratch by removing `CDet_calibration_dt.dat`. Set that final
 argument to `false` only when deliberately continuing from the currently
 active calibration. Each of the three pixel-offset passes now calls the
 hierarchical production extractor and stops the sequence if extraction fails.
+On a clean start, the driver explicitly invalidates all legacy in-memory
+defaults. The first ECal fit uses Stage 8; using Stage 3 at that point would
+incorrectly apply constants merely because an earlier pixel-offset pass had
+written them to the shared file.
+
+### Qualified Run 5710 reproduction
+
+Run 5710 has a dedicated, reviewed workflow. The historical gold file was the
+endpoint of many developmental and interactive operations and is not expected
+to be reproduced parameter-for-parameter by a clean modern fit. Instead, the
+qualified workflow must reproduce timing performance that has passed the
+matched visual acceptance test.
+
+For the complete commissioned procedure, first preserve and move both
+`CDet_calibration_dt.dat` and `CDet_run5710.dat` out of `scripts/cdet`. Then,
+from a fresh ROOT session, run:
+
+```cpp
+.L Run_CDet_Calibrate_Run5710_FromScratch.C+
+Run_CDet_Calibrate_Run5710_FromScratch()
+```
+
+This uses `CDet_run5710_projection.conf` authoritatively, builds the accepted
+master through `Run_CDet_Calibration_Run5710_Accepted.C`, regenerates the ECal
+window proposal for the audit trail, and creates `CDet_run5710.dat` by fitting
+the final run timing origin. The driver refuses to run unless both output
+calibration files are absent.
+
+This procedure:
+
+1. removes `CDet_calibration_dt.dat` and runs the corrected clean automatic
+   sequence over all Run 5710 events;
+2. applies the preserved set of 102 human-reviewed pixel-quality cuts;
+3. refits the within-half-bar ECal slope;
+4. applies one half-bar intercept-alignment pass;
+5. repeats the ECal closure fit and writes final closure diagnostics; and
+6. sets `gLastCalibrationSequenceSucceeded=true` only if every required stage
+   and fit succeeds.
+
+Do not substitute a different cut file silently. The default reviewed cut
+artifact is:
+
+```text
+CDet_run5710_halfbar_aligned_final_archive/
+  CDet_pixel_quality_cuts_run5710_halfbar_aligned_final.root
+```
+
+The accepted 2026-09-11 result and its side-by-side gold comparison are in:
+
+```text
+CDet_run5710_reproducible_workflow_acceptance/
+```
+
+Open that directory's `README.md` and repeat its eight-point human review
+before accepting a result from a different installation, code revision, ROOT
+version, or input dataset. Exact calibration constants are diagnostic; the
+acceptance decision is based on matched calibrated observables.
 
 For a combined ECal cross-target group, load and call
 `Run_CDet_Calibration_TwoPass_InSession_AllCross.C`; its calibration and
@@ -223,9 +290,9 @@ The master file therefore records all three ECal timing constants explicitly:
 
 ```ini
 [ECalTiming]
-p0 74.192800
-p1 0.817261
-delta 91.485200
+p0 15.094648
+p1 0.809758
+delta 31.715304
 ```
 
 For compatibility, a legacy calibration file without `delta` can still be
@@ -262,6 +329,86 @@ values from `CDet_calibration_dt.dat`. For example, run 5992 overrides only
 `p1`, while retaining the established run-5710 `p0`, pixel offsets, and
 time-walk parameters.
 
+Before fitting a run-specific `p1`, determine and approve that run's ECal
+timing window from the one-dimensional per-block `earm.ecal.a_time` spectrum:
+
+```cpp
+.L Run_CDet_Select_ECalTimingWindow.C+
+Run_CDet_Select_ECalTimingWindow(RUN)
+```
+
+This creates `CDet_runRUN_ECalTimingWindow_PROPOSAL.{png,pdf,root}` and prints
+an automatic peak-window proposal. The proposal is advisory: the macro does
+not modify the configuration. Inspect the linear and logarithmic panels and choose
+the physical peak boundaries. Record the explicit human approval with:
+
+```cpp
+Run_CDet_Select_ECalTimingWindow(RUN, true, APPROVED_MIN, APPROVED_MAX)
+```
+
+This atomically updates the authoritative run configuration:
+
+```text
+analysis.ecal_time_min: <approved lower boundary in ns>
+analysis.ecal_time_max: <approved upper boundary in ns>
+```
+
+Both run-specific calibration drivers require those explicit keys and stop if
+they are absent or invalid. Selection cuts belong only in `.conf`; `p1` and
+`shift_ns` remain run calibration constants in `CDet_runRUN.dat`. The control
+selections approved here are
+10--35 ns for run 5710 and -15--15 ns for run 5992.
+
+The proposal histogram is built from the per-block `earm.ecal.a_time` branch.
+The production event selection is applied to the reconstructed-cluster scalar
+`earm.ecal.adctime`; therefore, verify that the approved window selects the
+same physical peak in both variables. A run with abnormal ECal reconstruction
+can have many block ADC entries but few valid reconstructed clusters.
+
+#### Calibrating an additional run
+
+Keep the accepted Run 5710 `CDet_calibration_dt.dat` fixed. Preserve and remove
+any existing `CDet_runRUN.dat`, then determine only the run-dependent slope:
+
+```cpp
+.L Run_CDet_Calibrate_RunSpecificP1.C+
+Run_CDet_Calibrate_RunSpecificP1(RUN)
+```
+
+After its residual-slope closure passes, determine the run timing origin:
+
+```cpp
+.L Run_CDet_Calibrate_RunTimingShift.C+
+Run_CDet_Calibrate_RunTimingShift(RUN)
+```
+
+Both drivers derive `CDet_runRUN_projection.conf` from `RUN` and use its
+analysis selections authoritatively. The resulting run file contains only
+run-dependent calibration constants; it does not duplicate selection cuts.
+
+For final calibrated analysis in a fresh ROOT session, use the configuration
+for both the data-loading call and the plotting call:
+
+```cpp
+.L PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C+
+PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+    "CDet_runRUN_projection.conf");
+plotCDetLayersTimeComp("CDet_runRUN_projection.conf");
+```
+
+Do not mix the legacy positional loader, for example
+`PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(RUN,-1)`,
+with a configuration-driven plotting call. The plotting call consumes the
+sample already constructed by the loader and cannot retroactively change its
+event selection.
+
+Saved per-pixel LE-versus-ToT polygons are essential when deriving or
+reviewing the detector-wide pixel offsets. They are not applied by the
+run-specific `p1` driver, the `shift_ns` driver, or
+`plotCDetLayersTimeComp`. Those paths still apply the rectangular LE/ToT,
+ECal, geometry, layer-coincidence, and pair-quality cuts from the analysis and
+display configuration.
+
 The same file may also specify a final additive run-dependent shift:
 
 ```ini
@@ -274,6 +421,93 @@ The complete correction chain is therefore:
 ```text
 raw TDC -> pixel offset -> ECal correction -> time walk -> run-global shift
 ```
+
+#### Determining the run-global shift
+
+Determine the run-specific ECal slope before determining the timing origin.
+For a run such as 5992, first produce and accept the run-specific `p1`; for the
+master calibration run 5710, the master `p1` is used directly. Then run:
+
+```bash
+root -l -b -q 'Run_CDet_Calibrate_RunTimingShift.C+(RUN,-1,30.0,5.0,"CDet_runRUN_projection.conf")'
+```
+
+If the final argument is omitted, the driver constructs that filename from
+`RUN`. The `analysis.run_number` inside the configuration must match `RUN`.
+
+`Run_CDet_Calibrate_RunTimingShift.C` uses the final Stage-7 correction chain
+and defines the run origin from the accepted Layer-1/Layer-2 pair mean
+
+```text
+t_pair = (t_L1 + t_L2) / 2.
+```
+
+The Gaussian-core interval is centered on the accepted sample mean and extends
+5 ns on each side. If its fitted centroid is `mu_core`, the update is
+
+```text
+s_run(new) = s_run(loaded) + 30 ns - mu_core.
+```
+
+Centering the fit interval on the observed sample, rather than fixing it at
+25--35 ns, makes the estimator translation invariant. During this procedure,
+the configured hit-time and ECal-minus-CDet cuts are evaluated in the
+pre-`s_run` coordinate. Reported and fitted times include `s_run`. Consequently
+the before/after analyses must contain exactly the same accepted pairs and the
+ECal fixed-effects slope must remain unchanged.
+
+The driver atomically creates or updates only `[GlobalTiming] shift_ns`,
+preserving any run-specific ECal keys. It reruns the complete analysis and
+requires the fitted centroid to agree with 30 ns within
+`max(0.020 ns, 3*sigma_mu)`. One deterministic residual correction is applied
+when the first closure pass misses that tolerance. A run is accepted only when
+the final centroid and exact accepted-pair population gates both pass.
+
+The commissioned files are:
+
+```ini
+# CDet_run5710.dat: the ECal slope comes from the master file
+[GlobalTiming]
+shift_ns 0.882454
+```
+
+```ini
+# CDet_run5992.dat
+[ECalTiming]
+p1 0.822678
+
+[GlobalTiming]
+shift_ns 4.840388
+```
+
+Their authoritative ECal selection windows are stored separately in
+`CDet_run5710_projection.conf` and `CDet_run5992_projection.conf`.
+
+Their full-statistics closure results were:
+
+| Run | Final core centroid (ns) | Accepted pairs before/after | Fixed-effects ECal slope (ns/ns) |
+|---:|---:|---:|---:|
+| 5710 | 29.9959 +/- 0.0043 | 262587 / 262587 | -0.000002 +/- 0.001634 |
+| 5992 | 30.0325 +/- 0.0779 | 1856 / 1856 | 0.003155 +/- 0.012956 |
+
+The configuration-authoritative Run 5992 calibration was conditionally
+accepted on 2026-09-11. Its final values are `p1 = 0.822678` and
+`shift_ns = 4.840388`. The fixed-effects slope and timing-origin closure gates
+both pass, and the final `plotCDetLayersTimeComp` result was accepted as the
+best supported result given the available sample.
+
+Run 5992 is not statistically comparable to Run 5710. Although raw ECal ADC
+data exist in essentially every event, only 196,161 of 1,132,123 events
+contain a reconstructed ECal cluster, and only 49,403 reconstructed events
+fall in the approved timing window. After that selection, the fully accepted
+CDet-event efficiency is 4.18%, versus 9.03% for Run 5710. A cut-flow audit
+showed that this remaining factor is dominated by ECal-to-CDet projected
+geometry and two-layer coincidence, not by the LE, ToT, multiplicity, or pixel
+polygon selections. The ECal reconstruction problem and the distinct trigger
+population (`fTrigBits` 4096 rather than Run 5710's 2048) are recorded as an
+upstream run-quality limitation outside the scope of CDet timing calibration.
+Run 5992 should therefore be described as conditionally accepted, not as an
+unqualified reference calibration.
 
 ## Output files
 
@@ -300,6 +534,7 @@ pixelID additive_offset_ns fit_entries
 [ECalTiming]
 p0 value
 p1 value
+delta value
 
 [TimeWalk]
 p1_L1 value

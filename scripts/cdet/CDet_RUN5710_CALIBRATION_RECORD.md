@@ -1,5 +1,19 @@
 # CDet Run 5710 Timing Calibration Record
 
+> **2026-09-11 reproducibility qualification:** A clean modern workflow cannot
+> be expected to regenerate this developmental endpoint parameter-for-parameter.
+> The corrected and human-qualified reproduction procedure is implemented in
+> `Run_CDet_Calibration_Run5710_Accepted.C`. Its accepted constants, matched
+> gold/candidate plots, quantitative comparison, and signed eight-point review
+> are preserved in `CDet_run5710_reproducible_workflow_acceptance/`.
+
+> **Configuration-authoritative production result:** The complete clean run
+> was repeated using `CDet_run5710_projection.conf` as the sole source of
+> analysis and display selections. The project lead visually accepted the
+> resulting `plotCDetLayersTimeComp` canvases on 2026-09-11. The historical
+> development narrative below is retained for provenance; its positional
+> command and intermediate constants are not the current production recipe.
+
 ## Summary
 
 This document records the production of the new CDet timing calibration from
@@ -79,7 +93,7 @@ The ToT plot axes were corrected to say ToT rather than LE. Four empty
 per-bar diagnostic PDFs were also repaired by filling the `hBarGoodLe`
 histograms from the retained per-bar data.
 
-## Production command
+## Historical production command
 
 From `scripts/cdet`, the successful production run was started in ROOT with:
 
@@ -108,8 +122,19 @@ Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
 );
 ```
 
-The final `true` is destructive with respect to the active
+This positional invocation is retained only as a historical record and must
+not be used for current production. The final `true` is destructive with respect to the active
 `CDet_calibration_dt.dat`; preserve that file before using this option.
+
+The current production command is:
+
+```cpp
+.L Run_CDet_Calibrate_Run5710_FromScratch.C+
+Run_CDet_Calibrate_Run5710_FromScratch()
+```
+
+It requires both output calibration files to be absent and uses
+`CDet_run5710_projection.conf` authoritatively.
 
 ## Calibration sequence
 
@@ -213,10 +238,10 @@ themselves, indicating a comparable shift in the CDet hardware timing.
 
 ## Stage-7 validation and event display
 
-The reusable analysis and event-display settings are in:
+The authoritative analysis and event-display settings are in:
 
 ```text
-CDet_run5710_event_display.conf
+CDet_run5710_projection.conf
 ```
 
 For validation, it must contain:
@@ -231,8 +256,8 @@ and layer-dependent ToT time walk. A clean validation session is:
 ```cpp
 .L PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C
 PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
-    "CDet_run5710_event_display.conf");
-plotCDetLayersTimeComp("CDet_run5710_event_display.conf");
+    "CDet_run5710_projection.conf");
+plotCDetLayersTimeComp("CDet_run5710_projection.conf");
 ```
 
 For the configured Layer-1 pixel 471, the display routine normalizes the
@@ -300,3 +325,32 @@ fit validation, and complete correction chain is in:
 ```text
 CDet_CROSSTARGET_TIMING_CALIBRATION.md
 ```
+
+## Run-specific final timing origin
+
+On 2026-09-11, the accepted master calibration was supplemented by a
+run-specific final timing-origin file:
+
+```ini
+# CDet_run5710.dat
+[GlobalTiming]
+shift_ns 0.882454
+```
+
+This value was determined with
+`Run_CDet_Calibrate_RunTimingShift.C` from the Gaussian-core centroid of the
+final accepted-pair mean-time distribution. The fit interval was centered on
+the accepted sample mean with a 5 ns half-width. Absolute timing selections
+were evaluated before applying `shift_ns`, so the origin change could not
+alter the calibration population.
+
+The configuration-authoritative full-statistics closure analysis retained
+exactly 262,587 accepted pairs before and after the shift. The fitted centroid
+was `29.9959 +/- 0.0043 ns`,
+and the combined within-half-bar ECal slope remained
+`-0.000002 +/- 0.001634 ns/ns`. The run file intentionally contains no ECal
+override: Run 5710 continues to use the master `p0`, `p1`, and `delta`.
+
+The accepted master global constants are `p0 = 15.094648 ns`,
+`p1 = 0.809758 ns/ns`, and `delta = 31.715304 ns`. The accepted time-walk
+parameters are `p1_L1 = 12.743030` and `p1_L2 = 14.874066`.
