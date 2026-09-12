@@ -136,6 +136,19 @@ Run_CDet_Calibrate_Run5710_FromScratch()
 It requires both output calibration files to be absent and uses
 `CDet_run5710_projection.conf` authoritatively.
 
+For the authoritative student reproduction of both commissioned cross-target
+runs, begin with `CDet_calibration_dt.dat`, `CDet_run5710.dat`, and
+`CDet_run5992.dat` absent and use one fresh ROOT process:
+
+```cpp
+.L Run_CDet_Reproduce_5710_5992_FromScratch.C+
+Run_CDet_Reproduce_5710_5992_FromScratch()
+```
+
+That wrapper runs this complete Run 5710 procedure first, verifies its
+production constants, and only then performs the fixed-master-p1 Run 5992
+shift calibration.
+
 ## Calibration sequence
 
 The driver ran the following sequence in one ROOT session:
@@ -334,7 +347,7 @@ run-specific final timing-origin file:
 ```ini
 # CDet_run5710.dat
 [GlobalTiming]
-shift_ns 0.882454
+shift_ns 1.195534
 ```
 
 This value was determined with
@@ -345,12 +358,14 @@ were evaluated before applying `shift_ns`, so the origin change could not
 alter the calibration population.
 
 The configuration-authoritative full-statistics closure analysis retained
-exactly 262,587 accepted pairs before and after the shift. The fitted centroid
-was `29.9959 +/- 0.0043 ns`,
+exactly 217,367 accepted pairs before and after the shift. The fitted centroid
+was `30.0000 +/- 0.0042 ns`,
 and the combined within-half-bar ECal slope remained
-`-0.000002 +/- 0.001634 ns/ns`. The run file intentionally contains no ECal
+`0.000005 +/- 0.001681 ns/ns`. The run file intentionally contains no ECal
 override: Run 5710 continues to use the master `p0`, `p1`, and `delta`.
 
-The accepted master global constants are `p0 = 15.094648 ns`,
-`p1 = 0.809758 ns/ns`, and `delta = 31.715304 ns`. The accepted time-walk
-parameters are `p1_L1 = 12.743030` and `p1_L2 = 14.874066`.
+The accepted master global constants are `p0 = 14.807420 ns`,
+`p1 = 0.810203 ns/ns`, and `delta = 31.680784 ns`. The accepted time-walk
+parameters are `p1_L1 = 13.987991` and `p1_L2 = 15.764852`. Their recorded
+5--25 ns ToT interval is the fit domain only; the correction is applied to all
+good hits accepted by Run 5710's global 4--30 ns ToT selection.

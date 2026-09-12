@@ -1,5 +1,11 @@
 # CDet Timing Calibration Log
 
+> **Historical development note:** The numerical examples below record an
+> earlier calibration study. Current production constants and procedures are
+> documented in `../CDet_CROSSTARGET_TIMING_CALIBRATION.md` and the run-specific
+> calibration records. The correction-application semantics in Section 4 have
+> been updated to match the commissioned implementation.
+
 ## Overview
 
 This document summarizes the development and implementation of timing
@@ -53,22 +59,24 @@ Independently for: - Layer 1 → p1_L1 - Layer 2 → p1_L2
 
 t_corr = t - p1 \* (1/sqrt(TOT) - 1/sqrt(TOT_ref))
 
-### Code Implementation
+### Current Code Implementation
 
 ``` cpp
 double tw_corr = 0.0;
 
-if (TOT > gTimeWalkTotMin && TOT < gTimeWalkTotMax) {
-    if (layer == 1) {
-        tw_corr = gTimeWalkP1_L1 * (1.0/sqrt(TOT) - 1.0/sqrt(gTimeWalkTotRef_L1));
-    } else if (layer == 2) {
-        tw_corr = gTimeWalkP1_L2 * (1.0/sqrt(TOT) - 1.0/sqrt(gTimeWalkTotRef_L2));
-    }
+if (layer == 1) {
+    tw_corr = gTimeWalkP1_L1 * (1.0/sqrt(TOT) - 1.0/sqrt(gTimeWalkTotRef_L1));
+} else if (layer == 2) {
+    tw_corr = gTimeWalkP1_L2 * (1.0/sqrt(TOT) - 1.0/sqrt(gTimeWalkTotRef_L2));
 }
 
 LEcorr -= tw_corr;
 TEcorr -= tw_corr;
 ```
+
+`gTimeWalkTotMin` and `gTimeWalkTotMax` describe the interval used to fit the
+coefficients; they do not gate correction application. The correction is
+applied to every hit that passes the run configuration's global ToT selection.
 
 ------------------------------------------------------------------------
 

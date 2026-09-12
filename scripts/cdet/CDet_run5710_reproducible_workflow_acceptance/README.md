@@ -13,14 +13,16 @@ plotting stage. The project lead visually accepted the resulting
 The current production constants and closure are:
 
 ```text
-master p0       = 15.094648 ns
-master p1       = 0.809758 ns/ns
-master delta    = 31.715304 ns
-time walk L1/L2 = 12.743030 / 14.874066
-run shift_ns    = 0.882454 ns
-accepted pairs  = 262587 before / 262587 after
-core centroid   = 29.9959 +/- 0.0043 ns
-residual slope  = -0.000002 +/- 0.001634 ns/ns
+master p0       = 14.807420 ns
+master p1       = 0.810203 ns/ns
+master delta    = 31.680784 ns
+time walk L1/L2 = 13.987991 / 15.764852
+time-walk fit ToT range = 5--25 ns
+analysis ToT acceptance = 4--30 ns
+run shift_ns    = 1.195534 ns
+accepted pairs  = 217367 before / 217367 after
+core centroid   = 30.0000 +/- 0.0042 ns
+residual slope  = 0.000005 +/- 0.001681 ns/ns
 ```
 
 These values supersede the earlier candidate constants quoted later in this

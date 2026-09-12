@@ -117,16 +117,19 @@ master calibration. `delta` is now stored explicitly under `[ECalTiming]` in
 `CDet_calibration_dt.dat`; it is not supposed to be silently recalculated from
 each physics sample.
 
-A per-run file named `CDet_run<run>.dat` may override `p0`, `p1`, or both. It
-may also supply the final additive `[GlobalTiming] shift_ns`. Missing keys
-retain their master-calibration values. This allows trigger or run-condition
-changes to be handled without changing pixel offsets or time-walk constants.
+A per-run file named `CDet_run<run>.dat` may override `p0`, `p1`, or both, but
+the preferred policy is to retain the high-statistics detector-wide slope
+unless a run demonstrates a significant residual dependence. The file may
+also supply the final additive `[GlobalTiming] shift_ns`. Missing keys retain
+their master-calibration values. Trigger or run-condition changes should
+normally be handled by this additive origin without changing pixel offsets,
+time-walk constants, or the ECal slope.
 
 The current run-specific examples are:
 
 - `CDet_run5711.dat`: run-specific `p1` for the run-5711 study.
-- `CDet_run5992.dat`: a `p1` override while retaining the established
-  run-5710 detector calibration.
+- `CDet_run5992.dat`: the Run 5710 `p1` with a fitted run-specific
+  `shift_ns`; an independent Run 5992 slope was studied but not commissioned.
 - `CDet_run6077.dat`: an initial `p1` override seeded from run 5992, the
   temporally closest cross-target reference run.
 

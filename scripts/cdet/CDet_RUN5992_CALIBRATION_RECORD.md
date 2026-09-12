@@ -4,28 +4,42 @@
 
 Run 5992 was conditionally accepted on 2026-09-11 for run-specific CDet timing
 calibration. The accepted Run 5710 detector-wide master calibration remains
-fixed. Only the Run 5992 ECal slope and absolute timing origin were fitted.
+fixed. Run 5992 retains the master ECal slope; only the absolute timing origin
+is run-dependent.
 
 The authoritative selection and display settings are in
 `CDet_run5992_projection.conf`. The resulting run constants are:
 
 ```ini
 [ECalTiming]
-p1 0.822678
+p1 0.810203
 
 [GlobalTiming]
-shift_ns 4.840388
+shift_ns 5.171528
 ```
 
 ## Reproducible procedure
 
-Preserve and remove an existing `CDet_run5992.dat`, retain the accepted
-`CDet_calibration_dt.dat`, and run in a fresh ROOT session:
+For an exact clean reproduction of both Run 5710 and Run 5992, preserve and
+move `CDet_calibration_dt.dat`, `CDet_run5710.dat`, and `CDet_run5992.dat` out
+of `scripts/cdet`. In a fresh ROOT process started from that directory, run:
 
 ```cpp
-.L Run_CDet_Calibrate_RunSpecificP1.C+
-Run_CDet_Calibrate_RunSpecificP1(5992)
+.L Run_CDet_Reproduce_5710_5992_FromScratch.C+
+Run_CDet_Reproduce_5710_5992_FromScratch()
+```
 
+This is the authoritative student procedure. It regenerates and verifies the
+Run 5710 master before seeding Run 5992 with that generated master `p1`; it
+then fits only Run 5992 `shift_ns` and verifies the final rounded constants.
+
+For a shift-only rerun when an already verified Run 5710 master is present:
+
+Preserve any existing `CDet_run5992.dat`, retain the accepted
+`CDet_calibration_dt.dat`, set or inherit its master `p1 = 0.810203`, and run
+the shift-only calibration in a fresh ROOT session:
+
+```cpp
 .L Run_CDet_Calibrate_RunTimingShift.C+
 Run_CDet_Calibrate_RunTimingShift(5992)
 ```
@@ -46,12 +60,20 @@ already selected sample.
 
 ## Closure results
 
-- Run-specific `p1`: `0.822678 ns/ns`
-- Residual fixed-effects slope: `0.003155 +/- 0.012956 ns/ns`
-- Run-specific `shift_ns`: `4.840388 ns`
-- Final Gaussian-core centroid: `30.0325 +/- 0.0779 ns`
-- Accepted pairs before/after the shift: `1856 / 1856`
+- Fixed Run 5710 master `p1`: `0.810203 ns/ns`
+- Residual fixed-effects slope: `-0.0131452 +/- 0.0152886 ns/ns`
+- Run-specific `shift_ns`: `5.171528 ns`
+- Final Gaussian-core centroid: `30.0000 +/- 0.0888 ns`
+- Accepted pairs before/after the shift: `1453 / 1453`
 - Final `plotCDetLayersTimeComp` visual review: conditionally accepted
+
+An exploratory direct refit at `shift_ns = 5.202920 ns` produced
+`p1 = 0.820628`, and isolated fits at shifts of 4.203 and 6.203 ns produced
+`p1 = 0.819331` and `0.831321`, respectively. These differences are smaller
+than the individual statistical uncertainties and arise from shift-sensitive
+event selection in the limited Run 5992 sample. They do not establish a
+physical change in the detector-wide ECal slope. The commissioned choice is
+therefore the high-statistics Run 5710 `p1` with only `shift_ns` fitted.
 
 Saved per-pixel LE-versus-ToT polygons are not applied by either run-specific
 calibration driver or by `plotCDetLayersTimeComp`. They remain part of the

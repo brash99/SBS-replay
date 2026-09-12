@@ -94,6 +94,12 @@ plot for checking the time-walk correction.
   corrections are added to the active layer time-walk coefficients and written
   to the calibration file.
 
+The `[TimeWalk] totmin` and `totmax` values written by the fit describe only
+the fit domain. Once determined, the time-walk correction is applied to every
+good hit admitted by the global `analysis.tot_min` and `analysis.tot_max`
+selection. The production ranges are 4--30 ns for cross-target runs 5710 and
+5992, and 8--35 ns for LH2 runs 5711 and 6077.
+
 ### `plotCDetLayersTimeComp(...)`
 
 This is the main post-analysis timing and matching diagnostic. It forms
@@ -194,6 +200,12 @@ ROOT's global object registry for a same-named histogram):
 ```cpp
 reportCDetPairedTimeResolution()
 ```
+
+The helper constructs its reporting histogram with the bin grid centered on the
+unbinned accepted-pair sample mean. The timing-shift driver also centers its
+Gaussian interval on that sample, so changing the initial additive shift moves
+the data, bins, and fit interval together and cannot change the extracted final
+`shift_ns`.
 
 Run it after `plotCDetLayersTimeComp`. It prints the RMS of the complete
 accepted-pair mean-time distribution—the approximately 2.27 ns width quoted in

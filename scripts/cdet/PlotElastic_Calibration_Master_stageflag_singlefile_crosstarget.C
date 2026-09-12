@@ -663,8 +663,8 @@ double gTimeWalkFitP0_L2 = 0.0;   // stored from plotting fit
 double gTimeWalkFitP1_L1 = 0.0;   // stored from plotting fit
 double gTimeWalkFitP1_L2 = 0.0;   // stored from plotting fit
 bool   gUseTimeWalkCorr = true;   // enable/disable time-walk correction
-double gTimeWalkTotMin = 5.0;     // only apply if TOT is in a sensible range
-double gTimeWalkTotMax = 30.0;
+double gTimeWalkTotMin = 5.0;  // lower edge of the calibration fit domain
+double gTimeWalkTotMax = 25.0; // upper edge of the calibration fit domain
 
 inline int GetLayerFromID(int elID) {
   if (elID >= 0 && elID <= 1343) return 1;
@@ -675,7 +675,6 @@ inline int GetLayerFromID(int elID) {
 inline double GetTimeWalkCorrection(int layer, double tot) {
   if (!gUseTimeWalkCorr) return 0.0;
   if (!std::isfinite(tot) || tot <= 0.0) return 0.0;
-  if (tot < gTimeWalkTotMin || tot > gTimeWalkTotMax) return 0.0;
 
   if (layer == 1 && std::isfinite(gTimeWalkTotRef_L1) && gTimeWalkTotRef_L1 > 0.0) {
     return gTimeWalkP1_L1 * (1.0/std::sqrt(tot) - 1.0/std::sqrt(gTimeWalkTotRef_L1));
@@ -3071,7 +3070,8 @@ std::cout << "[CDet] Reference timing subtraction is "
               << "  p1(L2)=" << gTimeWalkP1_L2
               << "  TOTref(L1)=" << gTimeWalkTotRef_L1
               << "  TOTref(L2)=" << gTimeWalkTotRef_L2
-              << "  apply range=[" << gTimeWalkTotMin << ", " << gTimeWalkTotMax << "] ns";
+              << "  calibration fit range=[" << gTimeWalkTotMin << ", "
+              << gTimeWalkTotMax << "] ns; applied to every accepted good hit";
 
     // Flat good-hit vectors used in global timing histograms
     const size_t Nall = std::min(vAllGoodLe.size(),
@@ -3874,6 +3874,10 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
       updated = true;
     }
     if (updated) {
+      // These bounds document the domain used to determine the coefficients.
+      // Correction application is controlled by the upstream good-hit ToT cut.
+      gTimeWalkTotMin = std::max(fitTotMin, totMin + 1.0e-6);
+      gTimeWalkTotMax = std::min(fitTotMax, totMax);
       gTimeWalkParamsLoaded = true;
       gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
       std::cout << "[CDet] Updated time-walk parameters in calibration file: "
@@ -6127,16 +6131,13 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // cCDetLayerTimes1Bar->cd(2);
   // hCDetBarLe2->Draw();
 
-  // TCanvas *cCDetLeVsTotBar = new TCanvas("cCDetLeVsTotBar", "CDet LE vs TOT (Selected Bars)",900,700);
-  // cCDetLeVsTotBar->Divide(1,2);
-
-  // cCDetLeVsTotBar->cd(1);
-  // //gPad->SetLogz();
-  // hCDet1BarLeVsTot->Draw();
-
-  // cCDetLeVsTotBar->cd(2);
-  // //gPad->SetLogz();
-  // hCDet2BarLeVsTot->Draw();
+  TCanvas *cCDetLeVsTotBar = new TCanvas(
+      "cCDetLeVsTotBar", "CDet LE vs TOT (Selected Bars)", 1200, 600);
+  cCDetLeVsTotBar->Divide(2, 1);
+  cCDetLeVsTotBar->cd(1);
+  hCDet1BarLeVsTot->Draw("COLZ");
+  cCDetLeVsTotBar->cd(2);
+  hCDet2BarLeVsTot->Draw("COLZ");
   // ----- End plots for 1 bar -----
 
   TCanvas *cCDetTDiff = new TCanvas("cCDetTDiff", "CDet Time Diff",900,700);
@@ -6537,19 +6538,28 @@ void reportCDetPairedTimeResolution(bool draw,
     return;
   }
 
-  static unsigned long reportNumber = 0;
-  ++reportNumber;
-  TH1D *timeProjection = gCDetPairedMeanTimeVsECal->ProjectionY(
-      TString::Format("hCDetPairedMeanTimeResolution_%lu", reportNumber));
-  timeProjection->SetDirectory(nullptr);
-  timeProjection->SetTitle(
-      "Accepted-pair mean CDet time;#LTt_{CDet}#GT (ns);Accepted pairs");
-
   const double entries = static_cast<double>(gCDetAcceptedPairMeanTimes.size());
   gLastPairedTimeEntries = entries;
   double mean = 0.0;
   for (double value : gCDetAcceptedPairMeanTimes) mean += value;
   if (entries > 0.0) mean /= entries;
+
+  // Anchor the reporting histogram to the unbinned sample mean. A global
+  // additive timing shift then moves the samples, bin edges, and fit interval
+  // together, so the fitted correction cannot depend on the starting shift's
+  // phase relative to a fixed absolute-time bin grid.
+  static unsigned long reportNumber = 0;
+  ++reportNumber;
+  const int projectionBins = gCDetPairedMeanTimeVsECal->GetNbinsY();
+  const double projectionWidth =
+      gCDetPairedMeanTimeVsECal->GetYaxis()->GetBinWidth(1);
+  const double projectionSpan = projectionBins * projectionWidth;
+  TH1D *timeProjection = new TH1D(
+      TString::Format("hCDetPairedMeanTimeResolution_%lu", reportNumber),
+      "Accepted-pair mean CDet time;#LTt_{CDet}#GT (ns);Accepted pairs",
+      projectionBins, mean - 0.5*projectionSpan, mean + 0.5*projectionSpan);
+  timeProjection->SetDirectory(nullptr);
+  for (double value : gCDetAcceptedPairMeanTimes) timeProjection->Fill(value);
   const double rms = timeProjection->GetStdDev();
   const double rmsError = timeProjection->GetStdDevError();
 
