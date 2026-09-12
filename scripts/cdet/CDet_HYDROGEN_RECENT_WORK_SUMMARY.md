@@ -127,7 +127,8 @@ time-walk constants, or the ECal slope.
 
 The current run-specific examples are:
 
-- `CDet_run5711.dat`: run-specific `p1` for the run-5711 study.
+- `CDet_run5711.dat`: the conditionally accepted Run 5711 `p1` and
+  `shift_ns` values.
 - `CDet_run5992.dat`: the Run 5710 `p1` with a fitted run-specific
   `shift_ns`; an independent Run 5992 slope was studied but not commissioned.
 - `CDet_run6077.dat`: an initial `p1` override seeded from run 5992, the
@@ -197,11 +198,12 @@ panels. The status panel itself includes every bar.
 
 ## Run 5711 focused timing studies: bars 28 and 30
 
-Run 5711 was the development sample for the LH2 workflow. The established
-run-5710 pixel offsets, per-pixel polygon selections, and layer time-walk
-corrections were carried into this much higher-background coincidence-trigger
-environment. The only calibration parameter changed for the run was the
-detector-wide ECal timing slope `p1`, supplied by `CDet_run5711.dat`.
+Run 5711 was the development sample for the LH2 workflow. The established Run
+5710 pixel offsets and layer time-walk corrections were carried into this much
+higher-background coincidence-trigger environment. Saved per-pixel polygons
+were used historically while developing the pixel calibration, but are not
+applied by the final run-analysis path. Only the run-dependent ECal timing slope
+`p1` and additive origin `shift_ns` are supplied by `CDet_run5711.dat`.
 
 Bars 28 and 30 provide concrete examples of the timing structure summarized
 by the detector-wide survey. Bar 30 lies in a comparatively favorable,
@@ -366,15 +368,17 @@ without recalibrating the detector-relative quantities:
 | Per-pixel LE-versus-TOT polygons | Unchanged |
 | Layer time-walk corrections | Unchanged |
 | LH2 default TOT selection | Unchanged: `8 < TOT < 35 ns` |
-| Detector-wide ECal timing slope `p1` | Run-specific: `0.12844` for run 5711 and `1.00869` for run 6077 |
+| ECal timing slope `p1` | Run-specific; current Run 5711 value is `-0.012423` |
+| Additive timing origin `shift_ns` | Run-specific; current Run 5711 value is `3.422000 ns` |
 
-With only this one run-specific calibration parameter changed, both data sets
-show a narrow correlated component near `-20` to `-22 ns`, compatible behavior
-in bars 28 and 30, and a strong Layer-1/Layer-2 timing correlation. This is an
-important CDet stability milestone: the run-5710 pixel-offset and time-walk
-calibration transferred across distinct LH2 runs, while the changing external
-trigger/ECal timing relationship was isolated in the intended per-run `p1`
-override.
+The Run 5711 result shows a narrow correlated component, compatible behavior
+in the focused bar diagnostics, and a strong Layer-1/Layer-2 timing
+correlation. This is an important CDet stability milestone: the Run 5710
+pixel-offset and time-walk calibration transferred to LH2 data, while the
+changing external trigger/calorimeter timing relationship was isolated in the
+intended per-run `p1` and `shift_ns` overrides. Run 6077 remains a separate
+validation target and should not inherit the historical values in this section
+without a fresh configuration-authoritative calibration.
 
 ## Recommended next analysis
 

@@ -1,2 +1,9 @@
-  [ECalTiming]
-  p1 0.12844
+# Run-specific timing calibration for hydrogen run 5711.
+# The detector-wide pixel, time-walk, propagation, and alignment constants stay
+# fixed to the commissioned Run 5710 master. ECal p1 and shift_ns are run-specific.
+
+[ECalTiming]
+p1 -0.012423
+
+[GlobalTiming]
+shift_ns 3.422000

@@ -15,7 +15,8 @@
 void Run_CDet_Inspect_RunTimingShift(
     Int_t runNumber,
     Int_t nevents = std::numeric_limits<Int_t>::min(),
-    TString configFile = "")
+    TString configFile = "",
+    TString outputTag = "")
 {
   if (runNumber <= 0) {
     std::cerr << "[Run timing-shift inspection] ERROR: runNumber must be positive.\n";
@@ -46,8 +47,9 @@ void Run_CDet_Inspect_RunTimingShift(
     return;
   }
 
-  const TString outputDirectory =
+  TString outputDirectory =
       TString::Format("CDet_run%d_shift_diagnostics", runNumber);
+  if (!outputTag.IsNull()) outputDirectory += "_" + outputTag;
   gSystem->mkdir(outputDirectory, true);
 
   TCanvas *layerTimes = static_cast<TCanvas *>(gROOT->FindObject("cCDetLayerTimes"));
@@ -61,6 +63,43 @@ void Run_CDet_Inspect_RunTimingShift(
     gCDetProjectedHalfBarTimingCanvas->SaveAs(
         outputDirectory + "/CDet_projected_halfbar_timing.pdf");
   }
+  TCanvas *ecalTiming =
+      static_cast<TCanvas *>(gROOT->FindObject("cCDetTvsECalT"));
+  if (ecalTiming) {
+    ecalTiming->SaveAs(outputDirectory + "/cCDetTvsECalT.png");
+    ecalTiming->SaveAs(outputDirectory + "/cCDetTvsECalT.pdf");
+  }
+  TCanvas *ecalTimingDiagnostics = static_cast<TCanvas *>(
+      gROOT->FindObject("cCDetTvsECalTDiagnostics"));
+  if (ecalTimingDiagnostics) {
+    ecalTimingDiagnostics->SaveAs(
+        outputDirectory + "/cCDetTvsECalTDiagnostics.png");
+    ecalTimingDiagnostics->SaveAs(
+        outputDirectory + "/cCDetTvsECalTDiagnostics.pdf");
+  }
+  TCanvas *hcalTiming =
+      static_cast<TCanvas *>(gROOT->FindObject("cCDetTvsHCalT"));
+  if (hcalTiming) {
+    hcalTiming->SaveAs(outputDirectory + "/cCDetTvsHCalT.png");
+    hcalTiming->SaveAs(outputDirectory + "/cCDetTvsHCalT.pdf");
+  }
+  TCanvas *timingStructures = static_cast<TCanvas *>(
+      gROOT->FindObject("cCDetSelectedBarTimingStructures"));
+  if (timingStructures) {
+    timingStructures->SaveAs(
+        outputDirectory + "/CDet_bar30_vertical_vs_diagonal_LE_vs_ToT.png");
+    timingStructures->SaveAs(
+        outputDirectory + "/CDet_bar30_vertical_vs_diagonal_LE_vs_ToT.pdf");
+  }
+  TCanvas *allBarsTimingStructures = static_cast<TCanvas *>(
+      gROOT->FindObject("cCDetAllBarsTimingStructures"));
+  if (allBarsTimingStructures) {
+    allBarsTimingStructures->SaveAs(
+        outputDirectory + "/CDet_allbars_three_region_LE_vs_ToT.png");
+    allBarsTimingStructures->SaveAs(
+        outputDirectory + "/CDet_allbars_three_region_LE_vs_ToT.pdf");
+  }
+  const int selectedBar = env.GetValue("display.pixel", 0) / 16;
   TCanvas *selectedBarLeVsTotSource =
       static_cast<TCanvas *>(gROOT->FindObject("cCDetLeVsTotBar"));
   TVirtualPad *selectedBarLayer1Pad =
@@ -70,7 +109,6 @@ void Run_CDet_Inspect_RunTimingShift(
             "hCDet1BarLeVsTot"))
       : nullptr;
   if (selectedBarLayer1LeVsTot) {
-    const int selectedBar = env.GetValue("display.pixel", 0) / 16;
     TCanvas selectedBarLeVsTotCanvas(
         "cCDetSelectedBarLayer1LeVsTotInspection",
         "Selected Layer-1 bar LE versus ToT", 1000, 800);
@@ -82,6 +120,68 @@ void Run_CDet_Inspect_RunTimingShift(
         outputDirectory + TString::Format(
             "/CDet_bar%d_layer1_LE_vs_ToT.pdf", selectedBar));
   }
+
+  const double correctedLeMin = env.GetValue("display.cdet_time_min", 0.0);
+  const double correctedLeMax = env.GetValue("display.cdet_time_max", 60.0);
+  const double correctedLeBinWidth =
+      env.GetValue("display.histogram_width", 1.0);
+  const int correctedLeBins = static_cast<int>(
+      (correctedLeMax - correctedLeMin) / correctedLeBinWidth);
+  if (selectedBar >= 0 && selectedBar < NumCDetPaddles / NumPaddles &&
+      correctedLeBins > 0 &&
+      vPaddleGoodLe.size() == static_cast<std::size_t>(NumCDetPaddles)) {
+    TCanvas selectedBarCorrectedLeCanvas(
+        "cCDetSelectedBarCorrectedLeInspection",
+        TString::Format("Run %d, Layer 1 bar %d corrected LE", runNumber,
+                        selectedBar),
+        1600, 1000);
+    selectedBarCorrectedLeCanvas.Divide(4, 4, 0.001, 0.001);
+    std::vector<TH1D *> correctedLeHistograms;
+    correctedLeHistograms.reserve(NumPaddles);
+    for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+      const int pixel = selectedBar * NumPaddles + localPixel;
+      TH1D *histogram = new TH1D(
+          TString::Format("hCDetRun%dBar%dPixel%dCorrectedLe", runNumber,
+                          selectedBar, pixel),
+          TString::Format("Pixel %d;Fully corrected LE time (ns);Good hits / %.2g ns",
+                          pixel, correctedLeBinWidth),
+          correctedLeBins, correctedLeMin, correctedLeMax);
+      histogram->SetDirectory(nullptr);
+      for (double value : vPaddleGoodLe[pixel]) histogram->Fill(value);
+      selectedBarCorrectedLeCanvas.cd(localPixel + 1);
+      histogram->Draw("HIST");
+      correctedLeHistograms.push_back(histogram);
+    }
+    selectedBarCorrectedLeCanvas.SaveAs(
+        outputDirectory + TString::Format(
+            "/CDet_bar%d_layer1_corrected_LE_4x4.png", selectedBar));
+    selectedBarCorrectedLeCanvas.SaveAs(
+        outputDirectory + TString::Format(
+            "/CDet_bar%d_layer1_corrected_LE_4x4.pdf", selectedBar));
+  }
+
+  // Reproduce the selective ECal-CDet timing views used during the earlier
+  // hydrogen study.  This is diagnostic only: do not write a candidate table,
+  // and deliberately disable saved pixel polygons so the configured global
+  // LH2 ToT interval is the quality selection applied to every hit.
+  const double ecalEnergyMin = env.GetValue("analysis.ecal_energy_min", 3.0);
+  const double ecalEnergyMax = env.GetValue("analysis.ecal_energy_max", 4.5);
+  const double acceptedTotMin = env.GetValue("analysis.tot_min", 8.0);
+  const double acceptedTotMax = env.GetValue("analysis.tot_max", 35.0);
+  extractCDetBarPixelTimingOffsets(
+      selectedBar * NumPaddles,
+      1.0,                         // histogram bin width (ns)
+      -60.0, 30.0,                // displayed tECal-tCDet range (ns)
+      -45.0, -10.0,               // fit range for the current candidate
+      50, 0.5, 20.0, 10.0, 1.0,  // fit-quality requirements
+      true, outputDirectory + "/bar_ecal_cdet_timing",
+      false, "",                 // never write calibration candidates
+      ecalEnergyMin, ecalEnergyMax,
+      acceptedTotMin, acceptedTotMax,
+      8.0, 2.5, -40.0, -15.0,
+      true,
+      acceptedTotMin, acceptedTotMax,
+      "");                       // no polygon gate in run analysis
 
   TH1D pairedMean("hCDetPairedMeanTimeShiftInspection",
       TString::Format("Run %d with current constants;accepted-pair mean CDet time (ns);accepted pairs / 0.5 ns",

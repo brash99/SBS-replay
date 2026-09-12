@@ -108,7 +108,8 @@ bool WriteRunTimingShift(const TString &filename, Int_t runNumber, double shift)
 }
 
 bool AnalyzeRunForTimingShift(const TString &configFile, Int_t nevents,
-                              double gaussianFitHalfWidth)
+                              double gaussianFitHalfWidth,
+                              bool useProjectedHalfBarPairs)
 {
   ResetCalibrationGlobals();
   PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
@@ -116,20 +117,70 @@ bool AnalyzeRunForTimingShift(const TString &configFile, Int_t nevents,
   if (!gLastCalibrationStageSucceeded) return false;
   gShiftInvariantPairTimingCuts = true;
   plotCDetLayersTimeComp(configFile.Data(), 0);
-  if (!gCDetPairedMeanTimeVsECal || gCDetAcceptedPairMeanTimes.empty()) {
+  const std::vector<double> &timingSample = useProjectedHalfBarPairs
+      ? gCDetProjectedHalfBarPairMeanTimes : gCDetAcceptedPairMeanTimes;
+  if (!gCDetPairedMeanTimeVsECal || timingSample.empty()) {
     gShiftInvariantPairTimingCuts = false;
     return false;
   }
   double sampleMean = 0.0;
-  for (double value : gCDetAcceptedPairMeanTimes) sampleMean += value;
-  sampleMean /= static_cast<double>(gCDetAcceptedPairMeanTimes.size());
+  for (double value : timingSample) sampleMean += value;
+  sampleMean /= static_cast<double>(timingSample.size());
   if (!std::isfinite(sampleMean)) {
     gShiftInvariantPairTimingCuts = false;
     return false;
   }
-  reportCDetPairedTimeResolution(
-      false, sampleMean - gaussianFitHalfWidth,
-      sampleMean + gaussianFitHalfWidth);
+  if (useProjectedHalfBarPairs) {
+    // The LH2 projected sample has a narrow physical peak followed by a long
+    // upper-time tail. Locate the peak on a translation-invariant grid, then
+    // fit locally; the ordinary sample mean is not a suitable fit center.
+    const double binWidth = 0.5;
+    double maxDeviation = 0.0;
+    for (double value : timingSample)
+      maxDeviation = std::max(maxDeviation, std::fabs(value - sampleMean));
+    const int halfBins = std::max(20, static_cast<int>(
+        std::ceil(maxDeviation/binWidth)) + 2);
+    TH1D peakHistogram("hCDetProjectedHalfBarShiftFit",
+        "Projected-half-bar pair mean time;Corrected pair mean time (ns);Pairs",
+        2*halfBins, sampleMean - halfBins*binWidth,
+        sampleMean + halfBins*binWidth);
+    peakHistogram.SetDirectory(nullptr);
+    for (double value : timingSample) peakHistogram.Fill(value);
+    const double peakCenter = peakHistogram.GetBinCenter(
+        peakHistogram.GetMaximumBin());
+    TF1 coreFit("fCDetProjectedHalfBarShiftCore", "gaus",
+                peakCenter - gaussianFitHalfWidth,
+                peakCenter + gaussianFitHalfWidth);
+    const TFitResultPtr fitResult = peakHistogram.Fit(&coreFit, "QRSN");
+    gLastPairedTimeEntries = static_cast<double>(timingSample.size());
+    gLastPairedCoreFitValid = int(fitResult) == 0;
+    if (gLastPairedCoreFitValid) {
+      gLastPairedCoreMean = coreFit.GetParameter(1);
+      gLastPairedCoreMeanError = coreFit.GetParError(1);
+      gLastPairedCoreSigma = coreFit.GetParameter(2);
+      gLastPairedCoreSigmaError = coreFit.GetParError(2);
+      gLastPairedCoreFitValid =
+          std::isfinite(gLastPairedCoreMean) &&
+          std::isfinite(gLastPairedCoreMeanError) &&
+          std::isfinite(gLastPairedCoreSigma) &&
+          gLastPairedCoreSigma > 0.0 &&
+          gLastPairedCoreSigma <= gaussianFitHalfWidth &&
+          std::fabs(gLastPairedCoreMean - peakCenter) <= gaussianFitHalfWidth;
+    }
+    std::cout << "\n[Run timing-shift projected-half-bar fit]\n"
+              << "  entries: " << timingSample.size() << "\n"
+              << "  modal-bin center: " << peakCenter << " ns\n"
+              << "  Gaussian core mean: " << gLastPairedCoreMean << " +/- "
+              << gLastPairedCoreMeanError << " ns\n"
+              << "  Gaussian core sigma: " << gLastPairedCoreSigma << " +/- "
+              << gLastPairedCoreSigmaError << " ns\n"
+              << "  physical-fit gate: "
+              << (gLastPairedCoreFitValid ? "PASS" : "FAIL") << "\n";
+  } else {
+    reportCDetPairedTimeResolution(
+        false, sampleMean - gaussianFitHalfWidth,
+        sampleMean + gaussianFitHalfWidth);
+  }
   const bool analysisSucceeded =
       gLastCalibrationFitSucceeded && gLastECalFixedEffectsValid &&
       gLastPairedCoreFitValid;
@@ -139,17 +190,17 @@ bool AnalyzeRunForTimingShift(const TString &configFile, Int_t nevents,
 } // namespace
 
 // Set the run-specific final timing origin from the Gaussian core centroid of
-// the accepted-pair mean-time distribution.  Existing run-file keys (notably
-// a run-specific ECal p1) are preserved.  The canonical contract is a 30 ns
-// target and a Gaussian fit interval centered on the accepted sample mean.
-// Centering the interval on the sample makes the estimator invariant under
-// the additive shift being calibrated.
+// either all accepted pairs or, when explicitly requested, the ECal-projected
+// half-bar pairs. Existing run-file keys (notably a fixed ECal p1) are
+// preserved. The projected estimator locates the narrow modal peak before its
+// local fit, which avoids bias from the long upper-time tail in LH2 data.
 void Run_CDet_Calibrate_RunTimingShift(
     Int_t runNumber,
     Int_t nevents = std::numeric_limits<Int_t>::min(),
     double targetMean = 30.0,
     double gaussianFitHalfWidth = 5.0,
-    TString configFile = "")
+    TString configFile = "",
+    bool useProjectedHalfBarPairs = false)
 {
   gLastCalibrationSequenceSucceeded = false;
   if (runNumber <= 0 || !std::isfinite(targetMean) ||
@@ -184,7 +235,8 @@ void Run_CDet_Calibrate_RunTimingShift(
   const TString runFile = TString::Format("CDet_run%d.dat", runNumber);
   LoadRunTimingConstants(runFile.Data());
   if (!AnalyzeRunForTimingShift(configFile, nevents,
-                                gaussianFitHalfWidth)) {
+                                gaussianFitHalfWidth,
+                                useProjectedHalfBarPairs)) {
     std::cerr << "[Run timing-shift calibration] ERROR: baseline analysis or "
                  "Gaussian-core fit failed.\n";
     return;
@@ -198,6 +250,9 @@ void Run_CDet_Calibrate_RunTimingShift(
       !WriteRunTimingShift(runFile, runNumber, calibratedShift)) return;
 
   std::cout << "\n[Run timing-shift calibration]\n"
+            << "  estimator: "
+            << (useProjectedHalfBarPairs ? "projected-half-bar pairs"
+                                         : "all accepted pairs") << "\n"
             << "  baseline Gaussian-core centroid: " << baselineCentroid
             << " +/- " << baselineCentroidError << " ns\n"
             << "  previous shift_ns: " << previousShift << " ns\n"
@@ -206,7 +261,8 @@ void Run_CDet_Calibrate_RunTimingShift(
             << "  output: " << runFile << "\n";
 
   if (!AnalyzeRunForTimingShift(configFile, nevents,
-                                gaussianFitHalfWidth)) {
+                                gaussianFitHalfWidth,
+                                useProjectedHalfBarPairs)) {
     std::cerr << "[Run timing-shift calibration] ERROR: closure analysis failed.\n";
     return;
   }
@@ -231,7 +287,8 @@ void Run_CDet_Calibrate_RunTimingShift(
               << " ns; refining shift_ns to " << refinedShift << " ns.\n";
     if (!WriteRunTimingShift(runFile, runNumber, refinedShift) ||
         !AnalyzeRunForTimingShift(configFile, nevents,
-                                  gaussianFitHalfWidth)) {
+                                  gaussianFitHalfWidth,
+                                  useProjectedHalfBarPairs)) {
       std::cerr << "[Run timing-shift calibration] ERROR: refined closure "
                    "analysis failed.\n";
       return;
