@@ -1,10 +1,14 @@
-# Run 5710 half-bar-aligned final calibration
+# Historical Run 5710 half-bar-aligned calibration
 
-This is the definitive run-5710 CDet timing calibration after the common
+> This archive predates the current exactly reproducible commissioned
+> calibration. Use `../CDet_CROSSTARGET_TIMING_CALIBRATION.md` for current
+> constants, commands, and plots.
+
+This was the then-definitive Run 5710 CDet timing calibration after the common
 unbinned ECal-slope correction, hierarchical pixel-offset extraction, and
 half-bar intercept alignment.
 
-## Final constants and closure
+## Archived constants and closure
 
 ```text
 [ECalTiming]

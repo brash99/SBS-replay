@@ -12,12 +12,18 @@ in the same ROOT session. The plot functions consume event and hit vectors held
 in memory by the main macro; most do not reread the replay ROOT file. Loading the
 macro without running the analysis does not populate those vectors.
 
-For routine work, prefer the configuration-file overload of the layer-comparison
-function:
+For routine work, use the same authoritative configuration for the analysis
+loader and layer-comparison function:
 
 ```cpp
-plotCDetLayersTimeComp("CDet_run5710_event_display.conf")
+PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+    "CDet_run5710_projection.conf");
+plotCDetLayersTimeComp("CDet_run5710_projection.conf");
 ```
+
+Do not load through the legacy positional overload and then plot with a
+configuration file. Most plot functions consume the existing in-memory sample
+and do not rerun the main event selection.
 
 Pixel IDs in this document are logical CDet pixel IDs, from 0 through 2687. A
 bar contains 16 logical pixels, two of which are normally uninstrumented. Layer
@@ -87,6 +93,12 @@ plot for checking the time-walk correction.
 - With both `fitTimeWalk = true` and `overwrite = true`, the fitted slope
   corrections are added to the active layer time-walk coefficients and written
   to the calibration file.
+
+The `[TimeWalk] totmin` and `totmax` values written by the fit describe only
+the fit domain. Once determined, the time-walk correction is applied to every
+good hit admitted by the global `analysis.tot_min` and `analysis.tot_max`
+selection. The production ranges are 4--30 ns for cross-target runs 5710 and
+5992, and 8--35 ns for LH2 runs 5711 and 6077.
 
 ### `plotCDetLayersTimeComp(...)`
 
@@ -189,9 +201,14 @@ ROOT's global object registry for a same-named histogram):
 reportCDetPairedTimeResolution()
 ```
 
+The helper constructs its reporting histogram with the bin grid centered on the
+unbinned accepted-pair sample mean. The timing-shift driver also centers its
+Gaussian interval on that sample, so changing the initial additive shift moves
+the data, bins, and fit interval together and cannot change the extracted final
+`shift_ns`.
+
 Run it after `plotCDetLayersTimeComp`. It prints the RMS of the complete
-accepted-pair mean-time distribution—the approximately 2.27 ns width quoted in
-the run-5710 validation—and also fits the central timing peak with a Gaussian
+accepted-pair mean-time distribution and also fits the central timing peak with a Gaussian
 over `25` to `35 ns`. The RMS and Gaussian sigma are intentionally reported
 separately: the former includes the full accepted distribution, while the
 latter characterizes its core. To change the displayed core-fit interval, use,
@@ -301,13 +318,18 @@ Two interfaces are available:
 
 ```cpp
 plotCDetLayersTimeComp(false, 471, /* remaining numeric arguments */)
-plotCDetLayersTimeComp("CDet_run5710_event_display.conf")
+plotCDetLayersTimeComp("CDet_run5710_projection.conf")
 ```
 
 The configuration form is preferred because it avoids a long positional
-argument list and rereads the file each time the function is called. You can
-therefore change the selected bar, cuts, or display ranges and rerun this plot
-without repeating the main analysis.
+argument list and rereads the display settings each time the function is
+called. You may change display-only settings and rerun this plot without
+repeating the main analysis. Changes under `analysis.*` require rerunning the
+main analysis with the same configuration first.
+
+This function does not apply saved per-pixel LE-versus-ToT polygons. It uses
+the rectangular and pair-quality selections specified by the analysis and
+display configuration.
 
 ### `plotECalCDetTimeCutStudy(...)`
 
@@ -462,6 +484,11 @@ pairs for the selected Layer-1 bar. The following helpers operate on that list:
 
 - `ShowCDetEvent(index)` displays a particular accepted event by display index.
 - `NextCDetEvent()` and `PreviousCDetEvent()` navigate the event list.
+- `ShowAllCDetHits()` displays every retained good hit, preserving the
+  historical display mode.
+- `ShowBestCDetHits()` displays only hits within the configured number of
+  fitted standard deviations of the selected bar's calibrated
+  `t_ECal - t_CDet,corr` peak.
 - `PrintCDetEvent()` prints the currently displayed event and pair details.
 - `SaveCDetEvent()` saves the current event-display canvas.
 - `BuildCDetEventDisplay(...)` is the lower-level builder called by
@@ -469,6 +496,9 @@ pairs for the selected Layer-1 bar. The following helpers operate on that list:
 
 The event list contains only events surviving the pairing and final selection
 cuts used in the most recent call to `plotCDetLayersTimeComp`.
+Switching between all-hit and best-hit modes changes only the drawn hits and
+pair overlays; it does not rerun event selection or change calibration data.
+See `CDet_EVENT_DISPLAY.md` for the configuration keys and interactive workflow.
 
 ## Pixel-offset comparison and hierarchical-fit diagnostics
 
@@ -593,7 +623,7 @@ For a normal calibration review:
 3. Use `plotCDetPixelLeAndDtSpectra` and the hierarchical ROOT file for suspect
    individual pixels or cross-talk cases.
 4. Use `plotGoodLeVsTotByLayer(false, ...)` to inspect time walk.
-5. Use `plotCDetLayersTimeComp("CDet_run5710_event_display.conf")` to validate
+5. Use `plotCDetLayersTimeComp("CDet_run5710_projection.conf")` to validate
    layer matching, the ECal timing dependence, and representative events.
 6. Use the occupancy/rate functions to distinguish a timing-fit problem from a
    dead, low-rate, or unusually noisy channel.

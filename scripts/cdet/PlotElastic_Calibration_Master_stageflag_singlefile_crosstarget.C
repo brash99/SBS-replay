@@ -1,3 +1,5 @@
+#pragma once
+
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include <TList.h>
@@ -56,6 +58,7 @@ static const std::unordered_set<std::string>& CDetConfigurationKeys()
     "analysis.group_index", "analysis.min_segment", "analysis.max_segment",
     "analysis.le_min", "analysis.le_max", "analysis.tot_min", "analysis.tot_max",
     "analysis.ecal_time_min", "analysis.ecal_time_max",
+    "analysis.ecal_energy_min", "analysis.ecal_energy_max",
     "analysis.layer1_hits_min", "analysis.layer1_hits_max",
     "analysis.layer2_hits_min", "analysis.layer2_hits_max",
     "analysis.x_difference_max", "analysis.x_offset", "analysis.y_offset",
@@ -70,7 +73,10 @@ static const std::unordered_set<std::string>& CDetConfigurationKeys()
     "display.cdet_time_min", "display.cdet_time_max",
     "display.cdet_tot_min", "display.cdet_tot_max",
     "display.ecal_time_min", "display.ecal_time_max",
+    "display.hcal_time_min", "display.hcal_time_max",
     "display.ecal_cdet_dt_min", "display.ecal_cdet_dt_max",
+    "display.hit_mode", "display.best_hit_peak_mean",
+    "display.best_hit_peak_sigma", "display.best_hit_nsigma",
     "display.allow_multiple_pairs", "display.x_bin_width", "display.x_min", "display.x_max",
     "display.z_bin_width", "display.z_min", "display.z_max"
   };
@@ -117,7 +123,9 @@ static bool LoadCDetConfiguration(TEnv& env, const char *configFile,
   std::cout << "[" << caller << "] Loaded configuration " << configFile << ".\n";
   std::cout << "[" << caller << "] Diagnostic accepted-ToT window: ("
             << gCDetDiagnosticAcceptedTotMin << ", "
-            << gCDetDiagnosticAcceptedTotMax << ") ns; saved pixel polygons override it.\n";
+            << gCDetDiagnosticAcceptedTotMax
+            << ") ns for polygon-aware pixel-calibration diagnostics. "
+               "Run analysis and plotCDetLayersTimeComp do not apply saved polygons.\n";
   return true;
 }
 
@@ -213,6 +221,8 @@ std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalTimingSamples
 std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalYSamples;
 std::vector<CDetYPairedSample> gCDetYPairedSamples;
 TH2D *gCDetPairedMeanTimeVsECal = nullptr;
+std::vector<double> gCDetAcceptedPairMeanTimes;
+std::vector<double> gCDetProjectedHalfBarPairMeanTimes;
 
 struct CDetDisplayHit {
   int id, layer, side, module, bar, pixel;
@@ -249,6 +259,11 @@ double gCDetDisplayXMin = -1.5;
 double gCDetDisplayXMax = 1.5;
 double gCDetDisplayZMin = 0.0;
 double gCDetDisplayZMax = 7.0;
+bool gCDetDisplayBestHits = false;
+bool gCDetDisplayBestHitTimingValid = false;
+double gCDetDisplayBestHitPeakMean = std::numeric_limits<double>::quiet_NaN();
+double gCDetDisplayBestHitPeakSigma = std::numeric_limits<double>::quiet_NaN();
+double gCDetDisplayBestHitNSigma = 3.0;
 std::vector<CDetPixelReviewCandidate> gCDetPixelReviewQueue;
 Long64_t gCDetPixelReviewIndex = -1;
 TString gCDetPixelReviewCutFile = "CDet_pixel_quality_cuts.root";
@@ -256,10 +271,16 @@ TString gCDetPixelReviewCutFile = "CDet_pixel_quality_cuts.root";
 void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut,
                            double xdiffMinCut, double xdiffMaxCut,
                            double tdiffECalCDetMin, double tdiffECalCDetMax,
-                           double xMin, double xMax, double zMin, double zMax);
+                           double xMin, double xMax, double zMin, double zMax,
+                           bool initialBestHits = false,
+                           double bestHitPeakMean = std::numeric_limits<double>::quiet_NaN(),
+                           double bestHitPeakSigma = std::numeric_limits<double>::quiet_NaN(),
+                           double bestHitNSigma = 3.0);
 void ShowCDetEvent(Long64_t displayIndex = 0);
 void NextCDetEvent();
 void PreviousCDetEvent();
+void ShowAllCDetHits();
+void ShowBestCDetHits();
 void PrintCDetEvent();
 void SaveCDetEvent();
 void writeAllCDetPairedLeSpectra(TString outputFile = "CDet_all_bars_paired_le.root");
@@ -658,8 +679,8 @@ double gTimeWalkFitP0_L2 = 0.0;   // stored from plotting fit
 double gTimeWalkFitP1_L1 = 0.0;   // stored from plotting fit
 double gTimeWalkFitP1_L2 = 0.0;   // stored from plotting fit
 bool   gUseTimeWalkCorr = true;   // enable/disable time-walk correction
-double gTimeWalkTotMin = 5.0;     // only apply if TOT is in a sensible range
-double gTimeWalkTotMax = 30.0;
+double gTimeWalkTotMin = 5.0;  // lower edge of the calibration fit domain
+double gTimeWalkTotMax = 25.0; // upper edge of the calibration fit domain
 
 inline int GetLayerFromID(int elID) {
   if (elID >= 0 && elID <= 1343) return 1;
@@ -670,7 +691,6 @@ inline int GetLayerFromID(int elID) {
 inline double GetTimeWalkCorrection(int layer, double tot) {
   if (!gUseTimeWalkCorr) return 0.0;
   if (!std::isfinite(tot) || tot <= 0.0) return 0.0;
-  if (tot < gTimeWalkTotMin || tot > gTimeWalkTotMax) return 0.0;
 
   if (layer == 1 && std::isfinite(gTimeWalkTotRef_L1) && gTimeWalkTotRef_L1 > 0.0) {
     return gTimeWalkP1_L1 * (1.0/std::sqrt(tot) - 1.0/std::sqrt(gTimeWalkTotRef_L1));
@@ -710,6 +730,20 @@ Int_t gCalibrationStage = 0;
 bool gLastCalibrationStageSucceeded = false;
 bool gLastCalibrationFitSucceeded = false;
 bool gLastCalibrationSequenceSucceeded = false;
+// Most recent combined within-half-bar ECal timing fit.  Exposed so a
+// run-specific p1 calibrator can write CDet_run<run>.dat without modifying the
+// detector-wide master calibration.
+double gLastECalFixedEffectsSlope = std::numeric_limits<double>::quiet_NaN();
+double gLastECalFixedEffectsSlopeError = std::numeric_limits<double>::quiet_NaN();
+bool gLastECalFixedEffectsValid = false;
+// Most recent accepted-pair Gaussian-core timing fit.  These values make the
+// final timing-origin definition available to reproducible run-shift drivers.
+double gLastPairedCoreMean = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedCoreMeanError = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedCoreSigma = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedCoreSigmaError = std::numeric_limits<double>::quiet_NaN();
+double gLastPairedTimeEntries = 0.0;
+bool gLastPairedCoreFitValid = false;
 
 // Per-run timing overrides, kept separate from the main detector calibration file.
 // Expected file name: CDet_run<RunNumber>.dat
@@ -717,7 +751,15 @@ double gGlobalTimingShift = 0.0;   // ns, additive final timing shift
 bool   gGlobalTimingLoaded = false;
 bool   gRunECalP0Loaded = false;
 bool   gRunECalP1Loaded = false;
+double gRunECalTimeMin = 10.0;
+double gRunECalTimeMax = 35.0;
+bool   gRunECalTimeWindowLoaded = false;
+bool   gConfigurationSelectionAuthoritative = false;
 std::string gRunTimingFile = "";
+// When enabled, absolute pair-timing cuts are evaluated before applying the
+// run origin shift.  The reported times still include that shift.  This makes
+// s_run a pure coordinate translation for its calibration/closure workflow.
+bool gShiftInvariantPairTimingCuts = false;
 
 bool LoadCalibrationConstants(const std::string& fname);
 bool LoadRunTimingConstants(const std::string& fname);
@@ -802,6 +844,11 @@ bool LoadRunTimingConstants(const std::string& fname) {
   gGlobalTimingLoaded = false;
   gRunECalP0Loaded = false;
   gRunECalP1Loaded = false;
+  gRunECalTimeMin = 10.0;
+  gRunECalTimeMax = 35.0;
+  gRunECalTimeWindowLoaded = false;
+  bool runECalTimeMinSeen = false;
+  bool runECalTimeMaxSeen = false;
 
   std::ifstream fin(fname.c_str());
   if (!fin) {
@@ -824,7 +871,8 @@ bool LoadRunTimingConstants(const std::string& fname) {
 
     std::istringstream iss(line);
 
-    if (section == "[GlobalTiming]" || section == "[ECalTiming]") {
+    if (section == "[GlobalTiming]" || section == "[ECalTiming]" ||
+        section == "[ECalSelection]") {
       std::string key;
       if (!(iss >> key)) continue;
 
@@ -843,8 +891,23 @@ bool LoadRunTimingConstants(const std::string& fname) {
       } else if (section == "[ECalTiming]" && key == "p1") {
         gECalFitP1 = val;
         gRunECalP1Loaded = true;
+      } else if (section == "[ECalSelection]" && key == "time_min") {
+        gRunECalTimeMin = val;
+        runECalTimeMinSeen = true;
+      } else if (section == "[ECalSelection]" && key == "time_max") {
+        gRunECalTimeMax = val;
+        runECalTimeMaxSeen = true;
       }
     }
+  }
+
+  gRunECalTimeWindowLoaded = runECalTimeMinSeen && runECalTimeMaxSeen &&
+      std::isfinite(gRunECalTimeMin) &&
+      std::isfinite(gRunECalTimeMax) && gRunECalTimeMin < gRunECalTimeMax;
+  if (runECalTimeMinSeen != runECalTimeMaxSeen ||
+      ((runECalTimeMinSeen && runECalTimeMaxSeen) && !gRunECalTimeWindowLoaded)) {
+    std::cerr << "[CDet] WARNING: invalid or incomplete [ECalSelection] in '"
+              << fname << "'; retaining the caller's ECal timing window.\n";
   }
 
   if (gGlobalTimingLoaded) {
@@ -855,8 +918,14 @@ bool LoadRunTimingConstants(const std::string& fname) {
     std::cout << "[CDet] Loaded run-specific ECal timing override from '" << fname
               << "': p0=" << gECalFitP0 << " p1=" << gECalFitP1 << "\n";
   }
+  if (gRunECalTimeWindowLoaded && !gConfigurationSelectionAuthoritative) {
+    std::cout << "[CDet] Loaded run-specific ECal selection window from '"
+              << fname << "': " << gRunECalTimeMin << " < time < "
+              << gRunECalTimeMax << " ns\n";
+  }
 
-  return gGlobalTimingLoaded || gRunECalP0Loaded || gRunECalP1Loaded;
+  return gGlobalTimingLoaded || gRunECalP0Loaded || gRunECalP1Loaded ||
+      gRunECalTimeWindowLoaded;
 }
 
 bool LoadCalibrationConstants(const std::string& fname) {
@@ -1584,7 +1653,8 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
         Int_t layer_choice=3,
 	bool suppress_bad = false,
 	Int_t nruns=30, Int_t maxstream = 2, Int_t firstevent = 1,
-        bool useReferenceTiming = false)
+        bool useReferenceTiming = false,
+        Double_t ECalMinE = -1.0e9, Double_t ECalMaxE = 1.0e9)
 {
   // Each invocation owns a fresh analysis sample. Without this reset, calling
   // the main macro twice in one ROOT process appends duplicate events to the
@@ -1643,10 +1713,17 @@ ConfigureCalibrationStage(calibStage);
 if (RunNumber1 != 0) {
   gRunTimingFile = Form("CDet_run%d.dat", (int)RunNumber1);
   LoadRunTimingConstants(gRunTimingFile);
+  if (gRunECalTimeWindowLoaded) {
+    ECalMinT = gRunECalTimeMin;
+    ECalMaxT = gRunECalTimeMax;
+  }
 } else {
   gRunTimingFile.clear();
   gGlobalTimingShift = 0.0;
   gGlobalTimingLoaded = false;
+  gRunECalTimeMin = 10.0;
+  gRunECalTimeMax = 35.0;
+  gRunECalTimeWindowLoaded = false;
   std::cout << "[CDet] Group mode: per-run global timing shifts are disabled.\n";
 }
 
@@ -2378,9 +2455,10 @@ std::cout << "[CDet] Reference timing subtraction is "
       bool good_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length &&
           (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       bool good_ECal_atime = *ECalAdcTime > ECalMinT && *ECalAdcTime < ECalMaxT;
+      bool good_ECal_energy = *ECalE > ECalMinE && *ECalE < ECalMaxE;
 
 
-      bool good_CDet_event = good_ECal_reconstruction && good_ECal_diff_x && good_ECal_diff_y && good_le_time && good_tot && good_hit_mult && good_CDet_X && good_ECal_atime;
+      bool good_CDet_event = good_ECal_reconstruction && good_ECal_diff_x && good_ECal_diff_y && good_le_time && good_tot && good_hit_mult && good_CDet_X && good_ECal_atime && good_ECal_energy;
 
 
       if (good_CDet_event) {
@@ -2464,12 +2542,13 @@ std::cout << "[CDet] Reference timing subtraction is "
       bool goodhit_low = ngoodhitsc1 >= nhitcutlow1  && ngoodhitsc2 >= nhitcutlow2;
       bool goodhit_high  = ngoodhitsc1 <= nhitcuthigh1 && ngoodhitsc2 <= nhitcuthigh2;
       bool goodhit_ECal_atime = *ECalAdcTime > ECalMinT && *ECalAdcTime < ECalMaxT;
+      bool goodhit_ECal_energy = *ECalE > ECalMinE && *ECalE < ECalMaxE;
       bool goodhit_ECal_diff_x = (correctedHitX-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) <= XDiffCut &&
           (correctedHitX-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset) >= -1.0*XDiffCut;
       bool goodhit_ECal_diff_y = (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) <= 1.2*CDet_y_half_length &&
            (GoodY[el]-((*ECalY)*(GoodZ[el])/ECal_dist)-YOffset) >= -1.2*CDet_y_half_length;
       bool goodhit_CDet_event = goodhit_ECal_reconstruction && goodhit_ECal_diff_x && goodhit_ECal_diff_y && goodhit_le_time && goodhit_tot
-        && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high && goodhit_ECal_atime;
+        && goodhit_hit_mult && goodhit_CDet_X && goodhit_low && goodhit_high && goodhit_ECal_atime && goodhit_ECal_energy;
 
       if (goodhit_CDet_event) {
         // correctedHitX-((*ECalX)*(GoodZ[el])/ECal_dist)-XOffset
@@ -3010,7 +3089,8 @@ std::cout << "[CDet] Reference timing subtraction is "
               << "  p1(L2)=" << gTimeWalkP1_L2
               << "  TOTref(L1)=" << gTimeWalkTotRef_L1
               << "  TOTref(L2)=" << gTimeWalkTotRef_L2
-              << "  apply range=[" << gTimeWalkTotMin << ", " << gTimeWalkTotMax << "] ns";
+              << "  calibration fit range=[" << gTimeWalkTotMin << ", "
+              << gTimeWalkTotMax << "] ns; applied to every accepted good hit";
 
     // Flat good-hit vectors used in global timing histograms
     const size_t Nall = std::min(vAllGoodLe.size(),
@@ -3284,6 +3364,7 @@ void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGe
 
 void ResetCalibrationGlobals()
 {
+    gShiftInvariantPairTimingCuts = false;
     canvas_vector.clear();
 
     vRefRawLe.clear();
@@ -3405,15 +3486,21 @@ void ResetCalibrationGlobals()
     }
 }
 
-void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(const char *configFile)
+void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+    const char *configFile, Int_t calibrationStageOverride = -1,
+    Int_t eventsOverride = std::numeric_limits<Int_t>::min())
 {
   TEnv env;
   const char *caller = "CDet cross-target analysis";
   if (!LoadCDetConfiguration(env, configFile, caller)) return;
 
   const Int_t runNumber = env.GetValue("analysis.run_number", 5811);
-  const Int_t events = env.GetValue("analysis.events", 50000);
-  const Int_t calibrationStage = env.GetValue("analysis.calibration_stage", 7);
+  const Int_t events = eventsOverride != std::numeric_limits<Int_t>::min()
+                           ? eventsOverride
+                           : env.GetValue("analysis.events", 50000);
+  const Int_t calibrationStage = calibrationStageOverride >= 0
+                                     ? calibrationStageOverride
+                                     : env.GetValue("analysis.calibration_stage", 7);
   const Int_t groupIndex = env.GetValue("analysis.group_index", 0);
   const Int_t minSegment = env.GetValue("analysis.min_segment", -1);
   const Int_t maxSegment = env.GetValue("analysis.max_segment", -1);
@@ -3423,6 +3510,8 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(const char 
   const Double_t totMax = env.GetValue("analysis.tot_max", 150.0);
   const Double_t ecalTimeMin = env.GetValue("analysis.ecal_time_min", 10.0);
   const Double_t ecalTimeMax = env.GetValue("analysis.ecal_time_max", 35.0);
+  const Double_t ecalEnergyMin = env.GetValue("analysis.ecal_energy_min", -1.0e9);
+  const Double_t ecalEnergyMax = env.GetValue("analysis.ecal_energy_max", 1.0e9);
   const Int_t layer1HitsMin = env.GetValue("analysis.layer1_hits_min", 1);
   const Int_t layer1HitsMax = env.GetValue("analysis.layer1_hits_max", 100);
   const Int_t layer2HitsMin = env.GetValue("analysis.layer2_hits_min", 0);
@@ -3438,6 +3527,7 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(const char 
   const Bool_t useReferenceTiming = env.GetValue("analysis.use_reference_timing", false);
 
   if (leMin >= leMax || totMin >= totMax || ecalTimeMin >= ecalTimeMax ||
+      ecalEnergyMin >= ecalEnergyMax ||
       layer1HitsMin < 0 || layer1HitsMin > layer1HitsMax ||
       layer2HitsMin < 0 || layer2HitsMin > layer2HitsMax || xDifferenceMax <= 0.0) {
     std::cerr << "[" << caller << "] ERROR: invalid min/max range or occupancy cut in "
@@ -3445,17 +3535,25 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(const char 
     return;
   }
 
-  std::cout << "[" << caller << "] Effective cuts: ECal ADC time "
-            << ecalTimeMin << " to " << ecalTimeMax << " ns; Layer 1 hits "
+  std::cout << "[" << caller << "] Authoritative configuration: "
+            << configFile << "; stage " << calibrationStage
+            << "; events " << events << ".\n"
+            << "[" << caller << "] Effective cuts: ECal ADC time "
+            << ecalTimeMin << " to " << ecalTimeMax << " ns; ECal energy "
+            << ecalEnergyMin << " to " << ecalEnergyMax << " GeV; Layer 1 hits "
             << layer1HitsMin << " to " << layer1HitsMax << "; Layer 2 hits "
             << layer2HitsMin << " to " << layer2HitsMax << ".\n";
 
+  const bool previousConfigAuthority = gConfigurationSelectionAuthoritative;
+  gConfigurationSelectionAuthoritative = true;
   PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
       runNumber, events, calibrationStage, groupIndex, minSegment, maxSegment,
       leMin, leMax, totMin, totMax, ecalTimeMin, ecalTimeMax,
       layer1HitsMin, layer1HitsMax, layer2HitsMin, layer2HitsMax,
       xDifferenceMax, xOffset, yOffset, layerChoice, suppressBad,
-      numberOfRuns, maxStream, firstEvent, useReferenceTiming);
+      numberOfRuns, maxStream, firstEvent, useReferenceTiming,
+      ecalEnergyMin, ecalEnergyMax);
+  gConfigurationSelectionAuthoritative = previousConfigAuthority;
 }
 
 void runStats(){
@@ -3800,6 +3898,10 @@ void plotGoodLeVsTotByLayer(bool overwrite = false,
       updated = true;
     }
     if (updated) {
+      // These bounds document the domain used to determine the coefficients.
+      // Correction application is controlled by the upstream good-hit ToT cut.
+      gTimeWalkTotMin = std::max(fitTotMin, totMin + 1.0e-6);
+      gTimeWalkTotMax = std::min(fitTotMax, totMax);
       gTimeWalkParamsLoaded = true;
       gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
       std::cout << "[CDet] Updated time-walk parameters in calibration file: "
@@ -5314,8 +5416,18 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
                             double tdiffECalCDetMin = -60, double tdiffECalCDetMax = 30,
                             bool allowMultiplePairs = true,
                             double XBinWidth = 0.005, double XMin = -1.5, double XMax = 1.5,
-                            double ZBinWidth = 0.01, double ZMin = 0.0, double ZMax = 7.0){
+                            double ZBinWidth = 0.01, double ZMin = 0.0, double ZMax = 7.0,
+                            double HCalMin = -10.0, double HCalMax = 10.0,
+                            bool displayBestHits = false,
+                            double bestHitPeakMean = std::numeric_limits<double>::quiet_NaN(),
+                            double bestHitPeakSigma = std::numeric_limits<double>::quiet_NaN(),
+                            double bestHitNSigma = 3.0){
   gLastCalibrationFitSucceeded = false;
+  gLastECalFixedEffectsSlope = std::numeric_limits<double>::quiet_NaN();
+  gLastECalFixedEffectsSlopeError = std::numeric_limits<double>::quiet_NaN();
+  gLastECalFixedEffectsValid = false;
+  gCDetAcceptedPairMeanTimes.clear();
+  gCDetProjectedHalfBarPairMeanTimes.clear();
 
   TH1::AddDirectory(kFALSE);
 
@@ -5323,7 +5435,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     std::cerr << "[plotCDetLayersTimeComp] ERROR: Layer 1 pixel ID must be in [0, " << NumCDetPaddles/2 - 1 << "].\n";
     return;
   }
-  if (Width <= 0.0 || CDetMin >= CDetMax || XBinWidth <= 0.0 || XMin >= XMax || ZBinWidth <= 0.0 || ZMin >= ZMax) {
+  if (Width <= 0.0 || CDetMin >= CDetMax || XBinWidth <= 0.0 || XMin >= XMax || ZBinWidth <= 0.0 || ZMin >= ZMax || HCalMin >= HCalMax) {
     std::cerr << "[plotCDetLayersTimeComp] ERROR: invalid timing, x-position, or z-position binning or range.\n";
     return;
   }
@@ -5368,6 +5480,26 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   TH1D* hCDetBarLe2 = new TH1D("hCDetBarLe2", TString::Format("CDet Bar 2L%d Good Time;Layer 2 LE (ns);Counts", selectedBarNumber), TDCBinNum, CDetMin, CDetMax);
   TH2D* hCDet1BarLeVsTot = new TH2D("hCDet1BarLeVsTot", TString::Format("CDet Bar 1L%d LE vs TOT;TOT (ns);LE (ns)", selectedBarNumber), TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
   TH2D* hCDet2BarLeVsTot = new TH2D("hCDet2BarLeVsTot", TString::Format("CDet Bar 2L%d LE vs TOT;TOT (ns);LE (ns)", selectedBarNumber), TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDet1BarVerticalLeVsTot = new TH2D(
+      "hCDet1BarVerticalLeVsTot",
+      TString::Format("Bar 1L%d vertical ECal-time component (-3<t_{ECal}<1, 23<t_{CDet}<40 ns);ToT (ns);Corrected LE (ns)", selectedBarNumber),
+      TDCBinNum, CDetTotMin, CDetTotMax, TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDet1BarDiagonalLeVsTot = new TH2D(
+      "hCDet1BarDiagonalLeVsTot",
+      TString::Format("Bar 1L%d diagonal component (1<t_{ECal}<18, |t_{CDet}-27-0.73t_{ECal}|<3 ns);ToT (ns);Corrected LE (ns)", selectedBarNumber),
+      TDCBinNum, CDetTotMin, CDetTotMax, TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDetAllLowerVerticalLeVsTot = new TH2D(
+      "hCDetAllLowerVerticalLeVsTot",
+      "All CDet bars: lower vertical component (-5<t_{ECal}<1, 23<t_{CDet}<30 ns);ToT (ns);Corrected LE (ns)",
+      TDCBinNum, CDetTotMin, CDetTotMax, TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDetAllUpperVerticalLeVsTot = new TH2D(
+      "hCDetAllUpperVerticalLeVsTot",
+      "All CDet bars: upper vertical component (-5<t_{ECal}<1, 30<t_{CDet}<40 ns);ToT (ns);Corrected LE (ns)",
+      TDCBinNum, CDetTotMin, CDetTotMax, TDCBinNum, CDetMin, CDetMax);
+  TH2D* hCDetAllDiagonalLeVsTot = new TH2D(
+      "hCDetAllDiagonalLeVsTot",
+      "All CDet bars: diagonal component (t_{ECal}>1, t_{CDet}>30, |t_{CDet}-27-0.73t_{ECal}|<3 ns);ToT (ns);Corrected LE (ns)",
+      TDCBinNum, CDetTotMin, CDetTotMax, TDCBinNum, CDetMin, CDetMax);
   TH2D* hCDet1LeVsTot = new TH2D("hCDet1LeVsTot", "CDet Layer 1 Le vs Tot;Tot (ns);LE (ns)", TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
   TH2D* hCDet2LeVsTot = new TH2D("hCDet2LeVsTot", "CDet Layer 2 Le vs Tot;Tot (ns);LE (ns)", TDCBinNum,CDetTotMin,CDetTotMax, TDCBinNum, CDetMin, CDetMax);
   TH2D* hECalVsCDetDt = new TH2D("hECalVsCDetDt", "ECal Time vs CDet dt;ECal ADC Time (ns);CDet dt_12 (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,DiffMin,DiffMax);
@@ -5377,6 +5509,13 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   gCDetPairedMeanTimeVsECal = hECalVsCDetT;
   TH2D* hECalVsCDetTL1 = new TH2D("hECalVsCDetTL1", "CDet Layer 1 t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTL2 = new TH2D("hECalVsCDetTL2", "CDet Layer 2 t vs ECal Time;ECal ADC Time (ns);Layer 2 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  const int NHCalBins = std::max(1, (int)((HCalMax-HCalMin)/0.5));
+  TH2D* hHCalVsCDetT = new TH2D("hHCalVsCDetT",
+      "Corrected CDet pair time vs HCal time;HCal ADC time (ns);Corrected CDet pair mean time (ns)",
+      NHCalBins, HCalMin, HCalMax, TDCBinNum, CDetMin, CDetMax);
+  TH2D* hECalVsHCalAccepted = new TH2D("hECalVsHCalAccepted",
+      "ECal vs HCal time for accepted CDet pairs;ECal ADC time (ns);HCal ADC time (ns)",
+      NADCBins, ECalMin, ECalMax, NHCalBins, HCalMin, HCalMax);
   const int NECalYBins = 120;
   const double ECalYMin = -0.6;
   const double ECalYMax = 0.6;
@@ -5430,6 +5569,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // regression.  The TH2D bank below is intentionally visualization-only:
   // its coarse ECal bins attenuate changes in the applied slope.
   gCDetHalfBarECalTimingSamples.assign(NumLayers*barsPerLayer, {});
+  std::vector<std::vector<std::pair<double,double>>> halfBarHCalTimingSamples(
+      NumLayers*barsPerLayer);
   gCDetHalfBarECalYSamples.assign(NumLayers*barsPerLayer, {});
   gCDetYPairedSamples.clear();
   for (int layer = 0; layer < NumLayers; ++layer) {
@@ -5520,13 +5661,17 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     std::vector<double> vCDet1ID;
     std::vector<double> vCDet2ID;
     double t_ECal = v_GoodECalAdcTime[ev];
+    const double t_HCal = ev < v_GoodHCalAdcTime.size()
+        ? v_GoodHCalAdcTime[ev] : std::numeric_limits<double>::quiet_NaN();
 
     // ------------------------------
     // First pass: split hits into layers
     // ------------------------------
     const size_t Nhits = std::min(vGoodLe[ev].size(), vGoodTot[ev].size());
     for (size_t ihit = 0; ihit < Nhits; ++ihit) {
-      if (vGoodLe[ev][ihit] >= LeMin && vGoodLe[ev][ihit] <= LeMax && vGoodTot[ev][ihit] >= TotMinCut && vGoodTot[ev][ihit] <= TotMaxCut && t_ECal >= ECalMin && t_ECal <= ECalMax){
+      const double timingForCuts = vGoodLe[ev][ihit] -
+          (gShiftInvariantPairTimingCuts ? gGlobalTimingShift : 0.0);
+      if (timingForCuts >= LeMin && timingForCuts <= LeMax && vGoodTot[ev][ihit] >= TotMinCut && vGoodTot[ev][ihit] <= TotMaxCut && t_ECal >= ECalMin && t_ECal <= ECalMax){
         if (vGoodID[ev][ihit] >= 0 && vGoodID[ev][ihit] <= 1343){ //layer 1 hits
           vCDet1Time.push_back(vGoodLe[ev][ihit]);
           vCDet1Tot.push_back(vGoodTot[ev][ihit]);
@@ -5645,7 +5790,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       // Apply final/tighter cuts (these can be narrower than dtWin/dxWin)
       if (p.dt >= diffMinCut && p.dt <= diffMaxCut && p.dx >= xdiffMinCut && p.dx <= xdiffMaxCut) {
         double t_pair = (p.t1 + p.t2) / 2;
-        double dt_EC = t_ECal - t_pair;
+        const double timingShiftForCuts =
+            gShiftInvariantPairTimingCuts ? gGlobalTimingShift : 0.0;
+        double dt_EC = t_ECal - (t_pair - timingShiftForCuts);
         if (dt_EC >= tdiffECalCDetMin && dt_EC <= tdiffECalCDetMax){
           double x_pair = (p.x1 + p.x2) / 2;
           double z_pair = (p.z1 + p.z2) / 2;
@@ -5662,6 +5809,19 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           h2CDetx2VsCDetx1->Fill(p.x1,p.x2);
           hCDet1LeVsTot->Fill(p.tot1,p.t1);
           hCDet2LeVsTot->Fill(p.tot2,p.t2);
+          auto fillTimingStructure = [&](double time, double tot) {
+            if (t_ECal > -5.0 && t_ECal < 1.0) {
+              if (time > 23.0 && time < 30.0)
+                hCDetAllLowerVerticalLeVsTot->Fill(tot, time);
+              else if (time > 30.0 && time < 40.0)
+                hCDetAllUpperVerticalLeVsTot->Fill(tot, time);
+            }
+            if (t_ECal > 1.0 && time > 30.0 &&
+                std::fabs(time - (27.0 + 0.73*t_ECal)) < 3.0)
+              hCDetAllDiagonalLeVsTot->Fill(tot, time);
+          };
+          fillTimingStructure(p.t1, p.tot1);
+          fillTimingStructure(p.t2, p.tot2);
           hECalVsCDetDt->Fill(t_ECal,p.dt);
           hCDetTimeDiffvsx1->Fill(p.x1, p.dt);
           hCDetTimeDiffvsx2->Fill(p.x2, p.dt);
@@ -5669,6 +5829,11 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           hCDetTimeDiffvsy2->Fill(p.y2, p.dt);
 
           hECalVsCDetT->Fill(t_ECal,t_pair);
+          if (std::isfinite(t_HCal) && t_HCal >= HCalMin && t_HCal <= HCalMax) {
+            hHCalVsCDetT->Fill(t_HCal, t_pair);
+            hECalVsHCalAccepted->Fill(t_ECal, t_HCal);
+          }
+          gCDetAcceptedPairMeanTimes.push_back(t_pair);
           hECalVsCDetTL1->Fill(t_ECal,p.t1);
           hECalVsCDetTL2->Fill(t_ECal,p.t2);
           const bool layer1ProjectionMatch = projectionIsInHitHalfBar(
@@ -5679,6 +5844,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             hCDetProjectedHalfBarLe1->Fill(p.t1);
             hCDetProjectedHalfBarLe2->Fill(p.t2);
             hCDetProjectedHalfBarPairMean->Fill(t_pair);
+            gCDetProjectedHalfBarPairMeanTimes.push_back(t_pair);
             hCDetProjectedHalfBarLe2vs1->Fill(p.t1, p.t2);
             ++projectedHalfBarPairs;
           }
@@ -5713,6 +5879,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             if (index >= 0 && index < (int)gCDetBarECalTimingSpectra.size()) {
               gCDetBarECalTimingSpectra[index]->Fill(t_ECal, time);
               gCDetHalfBarECalTimingSamples[index].push_back(std::make_pair(t_ECal, time));
+              if (std::isfinite(t_HCal) && t_HCal >= HCalMin && t_HCal <= HCalMax)
+                halfBarHCalTimingSamples[index].push_back(std::make_pair(t_HCal, time));
             }
           };
           fillHalfBarTiming(p.id1, p.t1);
@@ -5727,6 +5895,11 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             hECalVsSelectedBarT->Fill(t_ECal,p.t1);
             hCDetBarLe1->Fill(p.t1);
             hCDet1BarLeVsTot->Fill(p.tot1, p.t1);
+            if (t_ECal > -3.0 && t_ECal < 1.0 && p.t1 > 23.0 && p.t1 < 40.0)
+              hCDet1BarVerticalLeVsTot->Fill(p.tot1, p.t1);
+            const double diagonalResidual = p.t1 - (27.0 + 0.73*t_ECal);
+            if (t_ECal > 1.0 && t_ECal < 18.0 && std::fabs(diagonalResidual) < 3.0)
+              hCDet1BarDiagonalLeVsTot->Fill(p.tot1, p.t1);
             hSelectedBarPairedLe[(int)p.id1 - selectedLayer1BarBase]->Fill(p.t1);
             const double xECalAtLayer1 = v_GoodECalX[ev]*p.z1/ECal_dist;
             const double xECalAtLayer2 = v_GoodECalX[ev]*p.z2/ECal_dist;
@@ -6044,16 +6217,44 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // cCDetLayerTimes1Bar->cd(2);
   // hCDetBarLe2->Draw();
 
-  // TCanvas *cCDetLeVsTotBar = new TCanvas("cCDetLeVsTotBar", "CDet LE vs TOT (Selected Bars)",900,700);
-  // cCDetLeVsTotBar->Divide(1,2);
-
-  // cCDetLeVsTotBar->cd(1);
-  // //gPad->SetLogz();
-  // hCDet1BarLeVsTot->Draw();
-
-  // cCDetLeVsTotBar->cd(2);
-  // //gPad->SetLogz();
-  // hCDet2BarLeVsTot->Draw();
+  TCanvas *cCDetLeVsTotBar = new TCanvas(
+      "cCDetLeVsTotBar", "CDet LE vs TOT (Selected Bars)", 1200, 600);
+  cCDetLeVsTotBar->Divide(2, 1);
+  cCDetLeVsTotBar->cd(1);
+  hCDet1BarLeVsTot->Draw("COLZ");
+  cCDetLeVsTotBar->cd(2);
+  hCDet2BarLeVsTot->Draw("COLZ");
+  TCanvas *cCDetSelectedBarTimingStructures = new TCanvas(
+      "cCDetSelectedBarTimingStructures",
+      "Selected Bar vertical and diagonal timing components", 1400, 650);
+  cCDetSelectedBarTimingStructures->Divide(2, 1);
+  cCDetSelectedBarTimingStructures->cd(1);
+  hCDet1BarVerticalLeVsTot->Draw("COLZ");
+  cCDetSelectedBarTimingStructures->cd(2);
+  hCDet1BarDiagonalLeVsTot->Draw("COLZ");
+  cCDetSelectedBarTimingStructures->Update();
+  TCanvas *cCDetAllBarsTimingStructures = new TCanvas(
+      "cCDetAllBarsTimingStructures",
+      "All-bar CDet timing populations", 1800, 600);
+  cCDetAllBarsTimingStructures->Divide(3, 1);
+  cCDetAllBarsTimingStructures->cd(1);
+  hCDetAllLowerVerticalLeVsTot->Draw("COLZ");
+  cCDetAllBarsTimingStructures->cd(2);
+  hCDetAllUpperVerticalLeVsTot->Draw("COLZ");
+  cCDetAllBarsTimingStructures->cd(3);
+  hCDetAllDiagonalLeVsTot->Draw("COLZ");
+  cCDetAllBarsTimingStructures->Update();
+  auto printTimingStructure = [](const char *label, TH2D *histogram) {
+    std::cout << "[CDet timing populations] " << label
+              << ": entries=" << histogram->GetEntries()
+              << ", mean ToT=" << histogram->GetMean(1)
+              << ", ToT RMS=" << histogram->GetStdDev(1)
+              << ", mean corrected LE=" << histogram->GetMean(2)
+              << ", LE RMS=" << histogram->GetStdDev(2) << " ns\n";
+  };
+  printTimingStructure("lower vertical", hCDetAllLowerVerticalLeVsTot);
+  printTimingStructure("upper vertical", hCDetAllUpperVerticalLeVsTot);
+  printTimingStructure("diagonal", hCDetAllDiagonalLeVsTot);
   // ----- End plots for 1 bar -----
 
   TCanvas *cCDetTDiff = new TCanvas("cCDetTDiff", "CDet Time Diff",900,700);
@@ -6210,14 +6411,15 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     long long ndf = 0;
   };
 
-  auto calculateFixedEffects = [&](int firstIndex, int lastIndex,
+  auto calculateFixedEffects = [&](const std::vector<std::vector<std::pair<double,double>>> &sampleBank,
+                                   int firstIndex, int lastIndex,
                                    TH2D *centeredHistogram) {
     FixedEffectsResult result;
     struct GroupMean { int index; double weight; double x; double y; };
     std::vector<GroupMean> means;
     for (int index = firstIndex; index < lastIndex; ++index) {
       const std::vector<std::pair<double,double>> &samples =
-          gCDetHalfBarECalTimingSamples[index];
+          sampleBank[index];
       if (samples.size() < 3) continue;
       double weight = 0.0, sumX = 0.0, sumY = 0.0;
       for (const std::pair<double,double> &sample : samples) {
@@ -6231,7 +6433,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     result.groups = means.size();
     for (const GroupMean &group : means) {
       const std::vector<std::pair<double,double>> &samples =
-          gCDetHalfBarECalTimingSamples[group.index];
+          sampleBank[group.index];
       for (const std::pair<double,double> &sample : samples) {
         const double dx = sample.first - group.x;
         const double dy = sample.second - group.y;
@@ -6245,7 +6447,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     result.slope = result.withinCovariance/result.withinVarianceX;
     for (const GroupMean &group : means) {
       const std::vector<std::pair<double,double>> &samples =
-          gCDetHalfBarECalTimingSamples[group.index];
+          sampleBank[group.index];
       for (const std::pair<double,double> &sample : samples) {
         const double dx = sample.first - group.x;
         const double dy = sample.second - group.y;
@@ -6271,11 +6473,14 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       120, -30, 30, 120, -15, 15);
   const int halfBarsPerLayer = barsPerLayer;
   const FixedEffectsResult fixedL1 = calculateFixedEffects(
-      0, halfBarsPerLayer, hCDetL1ECalWithin);
+      gCDetHalfBarECalTimingSamples, 0, halfBarsPerLayer, hCDetL1ECalWithin);
   const FixedEffectsResult fixedL2 = calculateFixedEffects(
-      halfBarsPerLayer, 2*halfBarsPerLayer, hCDetL2ECalWithin);
+      gCDetHalfBarECalTimingSamples, halfBarsPerLayer, 2*halfBarsPerLayer, hCDetL2ECalWithin);
   const FixedEffectsResult fixedAll = calculateFixedEffects(
-      0, 2*halfBarsPerLayer, hCDetAllECalWithin);
+      gCDetHalfBarECalTimingSamples, 0, 2*halfBarsPerLayer, hCDetAllECalWithin);
+  gLastECalFixedEffectsSlope = fixedAll.slope;
+  gLastECalFixedEffectsSlopeError = fixedAll.slopeError;
+  gLastECalFixedEffectsValid = fixedAll.valid;
 
   auto printFixedEffects = [&](const char *label, const FixedEffectsResult &fit) {
     std::cout << "[plotCDetLayersTimeComp] " << label
@@ -6322,6 +6527,38 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   drawFixedEffects(3, hCDetAllECalWithin, fixedAll, "Combined fixed effects");
   cCDetECalFixedEffects->Update();
 
+  TH2D *hCDetAllHCalWithin = new TH2D("hCDetAllHCalWithin",
+      "Combined within-half-bar HCal timing;HCal time - half-bar mean (ns);CDet time - half-bar mean (ns)",
+      140, -35, 35, 120, -15, 15);
+  const FixedEffectsResult fixedHCalAll = calculateFixedEffects(
+      halfBarHCalTimingSamples, 0, 2*halfBarsPerLayer, hCDetAllHCalWithin);
+  TProfile *pCDetTvsHCalT = hHCalVsCDetT->ProfileX("pCDetTvsHCalT");
+  TF1 *fCDetTvsHCalT = new TF1("fCDetTvsHCalT", "pol1", HCalMin, HCalMax);
+  int hcalFitStatus = -1;
+  if (pCDetTvsHCalT->GetEntries() >= 3)
+    hcalFitStatus = pCDetTvsHCalT->Fit(fCDetTvsHCalT, "QRS");
+  TCanvas *cCDetTvsHCalT = new TCanvas(
+      "cCDetTvsHCalT", "CDet/HCal timing control", 1500, 900);
+  cCDetTvsHCalT->Divide(2, 2);
+  cCDetTvsHCalT->cd(1); hHCalVsCDetT->Draw("COLZ");
+  pCDetTvsHCalT->SetMarkerStyle(20); pCDetTvsHCalT->Draw("SAME");
+  if (hcalFitStatus == 0) fCDetTvsHCalT->Draw("SAME");
+  cCDetTvsHCalT->cd(2); hCDetAllHCalWithin->Draw("COLZ");
+  if (fixedHCalAll.valid) {
+    TF1 *line = new TF1("fCDetHCalWithin", "[0]*x", -35, 35);
+    line->SetParameter(0, fixedHCalAll.slope);
+    line->SetLineColor(kRed); line->Draw("SAME");
+  }
+  cCDetTvsHCalT->cd(3); hECalVsHCalAccepted->Draw("COLZ");
+  cCDetTvsHCalT->cd(4); hHCalVsCDetT->ProjectionX("hAcceptedHCalTime")->Draw();
+  cCDetTvsHCalT->Update();
+  std::cout << "\n[CDet/HCal timing control]\n"
+            << "  HCal window: " << HCalMin << " to " << HCalMax << " ns\n";
+  if (hcalFitStatus == 0)
+    std::cout << "  pooled profile slope: " << fCDetTvsHCalT->GetParameter(1)
+              << " +/- " << fCDetTvsHCalT->GetParError(1) << " ns/ns\n";
+  printFixedEffects("Combined CDet/HCal", fixedHCalAll);
+
   const bool pooledFitOK = ecalFitStatus == 0 && ecalNdf > 0 &&
                            pCDetTvsECalT->GetEntries() >= 3 &&
                            std::isfinite(p0) && std::isfinite(p1);
@@ -6343,8 +6580,30 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       // stage because demeaning intentionally removes intercept information.
       gECalFitP0 = p0;
       gECalFitP1 = fixedAll.slope;
+      double sumResidual = 0.0;
+      long long residualCount = 0;
+      const size_t nEvents = std::min(vGoodLe.size(), v_GoodECalAdcTime.size());
+      for (size_t event = 0; event < nEvents; ++event) {
+        const double ecalTime = v_GoodECalAdcTime[event];
+        const size_t nHits = std::min(vGoodLe[event].size(), vGoodID[event].size());
+        for (size_t hit = 0; hit < nHits; ++hit) {
+          const int bar = vGoodID[event][hit] / NumPaddles;
+          if (bar < 0 || bar >= NumPMTs) continue;
+          sumResidual += vGoodLe[event][hit] -
+                         (gECalFitP0 + gECalFitP1*ecalTime);
+          ++residualCount;
+        }
+      }
+      if (residualCount <= 0) {
+        std::cerr << "[CDet] ERROR: cannot derive ECal delta from an empty accepted sample.\n";
+        gLastCalibrationFitSucceeded = false;
+        return;
+      }
+      gECalDeltaShift = gTargetMeanLE - sumResidual/(double)residualCount;
+      gECalDeltaLoaded = true;
       std::cout << "[CDet] ECal correction disabled: stored pooled absolute p0 and "
-                << "fixed-effects p1.\n";
+                << "fixed-effects p1, with detector-wide delta="
+                << gECalDeltaShift << " ns.\n";
     }
     gECalParamsLoaded = true;
     gLastCalibrationFitSucceeded = WriteCalibrationConstants(gCalibrationFile);
@@ -6404,7 +6663,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     BuildCDetEventDisplay(selectedBarNumber, diffMinCut, diffMaxCut,
                           xdiffMinCut, xdiffMaxCut,
                           tdiffECalCDetMin, tdiffECalCDetMax,
-                          XMin, XMax, ZMin, ZMax);
+                          XMin, XMax, ZMin, ZMax, displayBestHits,
+                          bestHitPeakMean, bestHitPeakSigma, bestHitNSigma);
   }
 }
 
@@ -6412,6 +6672,12 @@ void reportCDetPairedTimeResolution(bool draw,
                                     double gaussianFitMin,
                                     double gaussianFitMax)
 {
+  gLastPairedCoreMean = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedCoreMeanError = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedCoreSigma = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedCoreSigmaError = std::numeric_limits<double>::quiet_NaN();
+  gLastPairedTimeEntries = 0.0;
+  gLastPairedCoreFitValid = false;
   if (!gCDetPairedMeanTimeVsECal) {
     std::cerr << "[CDet paired timing resolution] ERROR: paired timing histogram "
               << "is not available. Run plotCDetLayersTimeComp first.\n";
@@ -6423,16 +6689,28 @@ void reportCDetPairedTimeResolution(bool draw,
     return;
   }
 
+  const double entries = static_cast<double>(gCDetAcceptedPairMeanTimes.size());
+  gLastPairedTimeEntries = entries;
+  double mean = 0.0;
+  for (double value : gCDetAcceptedPairMeanTimes) mean += value;
+  if (entries > 0.0) mean /= entries;
+
+  // Anchor the reporting histogram to the unbinned sample mean. A global
+  // additive timing shift then moves the samples, bin edges, and fit interval
+  // together, so the fitted correction cannot depend on the starting shift's
+  // phase relative to a fixed absolute-time bin grid.
   static unsigned long reportNumber = 0;
   ++reportNumber;
-  TH1D *timeProjection = gCDetPairedMeanTimeVsECal->ProjectionY(
-      TString::Format("hCDetPairedMeanTimeResolution_%lu", reportNumber));
+  const int projectionBins = gCDetPairedMeanTimeVsECal->GetNbinsY();
+  const double projectionWidth =
+      gCDetPairedMeanTimeVsECal->GetYaxis()->GetBinWidth(1);
+  const double projectionSpan = projectionBins * projectionWidth;
+  TH1D *timeProjection = new TH1D(
+      TString::Format("hCDetPairedMeanTimeResolution_%lu", reportNumber),
+      "Accepted-pair mean CDet time;#LTt_{CDet}#GT (ns);Accepted pairs",
+      projectionBins, mean - 0.5*projectionSpan, mean + 0.5*projectionSpan);
   timeProjection->SetDirectory(nullptr);
-  timeProjection->SetTitle(
-      "Accepted-pair mean CDet time;#LTt_{CDet}#GT (ns);Accepted pairs");
-
-  const double entries = timeProjection->GetEntries();
-  const double mean = timeProjection->GetMean();
+  for (double value : gCDetAcceptedPairMeanTimes) timeProjection->Fill(value);
   const double rms = timeProjection->GetStdDev();
   const double rmsError = timeProjection->GetStdDevError();
 
@@ -6453,7 +6731,18 @@ void reportCDetPairedTimeResolution(bool draw,
             << "  detector-wide RMS: " << rms << " +/- " << rmsError
             << " ns\n";
   if (fitStatus == 0) {
-    std::cout << "  Gaussian core sigma (" << gaussianFitMin << " to "
+    gLastPairedCoreMean = coreFit->GetParameter(1);
+    gLastPairedCoreMeanError = coreFit->GetParError(1);
+    gLastPairedCoreSigma = coreFit->GetParameter(2);
+    gLastPairedCoreSigmaError = coreFit->GetParError(2);
+    gLastPairedCoreFitValid =
+        std::isfinite(gLastPairedCoreMean) &&
+        std::isfinite(gLastPairedCoreMeanError) &&
+        std::isfinite(gLastPairedCoreSigma) && gLastPairedCoreSigma > 0.0;
+    std::cout << "  Gaussian core mean (" << gaussianFitMin << " to "
+              << gaussianFitMax << " ns): " << gLastPairedCoreMean
+              << " +/- " << gLastPairedCoreMeanError << " ns\n"
+              << "  Gaussian core sigma (" << gaussianFitMin << " to "
               << gaussianFitMax << " ns): " << coreFit->GetParameter(2)
               << " +/- " << coreFit->GetParError(2) << " ns\n"
               << "  Gaussian chi2/NDF: " << coreFit->GetChisquare() << "/"
@@ -7244,13 +7533,16 @@ void plotCDetYPositionResolution(TString calibrationFile)
             << ", equal-independent-layer estimate=" << differenceRms/std::sqrt(2.0) << " m\n";
 }
 
-void plotCDetLayersTimeComp(const char *configFile)
+void plotCDetLayersTimeComp(const char *configFile,
+                            Int_t overwriteOverride = -1)
 {
   TEnv env;
   const char *caller = "CDet layer comparison";
   if (!LoadCDetConfiguration(env, configFile, caller)) return;
 
-  const Bool_t overwrite = env.GetValue("display.overwrite", false);
+  const Bool_t overwrite = overwriteOverride >= 0
+                               ? overwriteOverride != 0
+                               : env.GetValue("display.overwrite", false);
   const Int_t pixel = env.GetValue("display.pixel", 416);
   const Double_t width = env.GetValue("display.histogram_width", 1.0);
   const Double_t layerDtMin = env.GetValue("display.layer_dt_min", -15.0);
@@ -7269,8 +7561,22 @@ void plotCDetLayersTimeComp(const char *configFile)
   const Double_t cdetTotMax = env.GetValue("display.cdet_tot_max", 80.0);
   const Double_t ecalTimeMin = env.GetValue("display.ecal_time_min", -40.0);
   const Double_t ecalTimeMax = env.GetValue("display.ecal_time_max", 40.0);
+  const Double_t hcalTimeMin = env.GetValue("display.hcal_time_min", -10.0);
+  const Double_t hcalTimeMax = env.GetValue("display.hcal_time_max", 10.0);
   const Double_t ecalCdetDtMin = env.GetValue("display.ecal_cdet_dt_min", -60.0);
   const Double_t ecalCdetDtMax = env.GetValue("display.ecal_cdet_dt_max", 30.0);
+  TString hitMode = env.GetValue("display.hit_mode", "all");
+  hitMode.ToLower();
+  const Bool_t displayBestHits = hitMode == "best";
+  const Bool_t hasBestHitPeakMean = env.Defined("display.best_hit_peak_mean");
+  const Bool_t hasBestHitPeakSigma = env.Defined("display.best_hit_peak_sigma");
+  const Double_t bestHitPeakMean = hasBestHitPeakMean
+      ? env.GetValue("display.best_hit_peak_mean", 0.0)
+      : std::numeric_limits<double>::quiet_NaN();
+  const Double_t bestHitPeakSigma = hasBestHitPeakSigma
+      ? env.GetValue("display.best_hit_peak_sigma", 0.0)
+      : std::numeric_limits<double>::quiet_NaN();
+  const Double_t bestHitNSigma = env.GetValue("display.best_hit_nsigma", 3.0);
   const Bool_t allowMultiplePairs = env.GetValue("display.allow_multiple_pairs", true);
   const Double_t xBinWidth = env.GetValue("display.x_bin_width", 0.005);
   const Double_t xMin = env.GetValue("display.x_min", -1.5);
@@ -7283,7 +7589,12 @@ void plotCDetLayersTimeComp(const char *configFile)
       layerDtMin >= layerDtMax || layerDxMin >= layerDxMax ||
       leMin >= leMax || totMin >= totMax || dtHistMin >= dtHistMax ||
       cdetTimeMin >= cdetTimeMax || cdetTotMin >= cdetTotMax ||
-      ecalTimeMin >= ecalTimeMax || ecalCdetDtMin >= ecalCdetDtMax ||
+      ecalTimeMin >= ecalTimeMax || hcalTimeMin >= hcalTimeMax || ecalCdetDtMin >= ecalCdetDtMax ||
+      (hitMode != "all" && hitMode != "best") ||
+      hasBestHitPeakMean != hasBestHitPeakSigma ||
+      (hasBestHitPeakMean && (!std::isfinite(bestHitPeakMean) ||
+                              !std::isfinite(bestHitPeakSigma) || bestHitPeakSigma <= 0.0)) ||
+      !std::isfinite(bestHitNSigma) || bestHitNSigma <= 0.0 ||
       xBinWidth <= 0.0 || xMin >= xMax || zBinWidth <= 0.0 || zMin >= zMax) {
     std::cerr << "[" << caller << "] ERROR: invalid pixel, binning, or min/max range in "
               << configFile << ".\n";
@@ -7295,13 +7606,17 @@ void plotCDetLayersTimeComp(const char *configFile)
                          dtHistMin, dtHistMax, cdetTimeMin, cdetTimeMax,
                          cdetTotMin, cdetTotMax, ecalTimeMin, ecalTimeMax,
                          ecalCdetDtMin, ecalCdetDtMax, allowMultiplePairs,
-                         xBinWidth, xMin, xMax, zBinWidth, zMin, zMax);
+                         xBinWidth, xMin, xMax, zBinWidth, zMin, zMax,
+                         hcalTimeMin, hcalTimeMax, displayBestHits,
+                         bestHitPeakMean, bestHitPeakSigma, bestHitNSigma);
 }
 
 void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut,
                            double xdiffMinCut, double xdiffMaxCut,
                            double tdiffECalCDetMin, double tdiffECalCDetMax,
-                           double xMin, double xMax, double zMin, double zMax)
+                           double xMin, double xMax, double zMin, double zMax,
+                           bool initialBestHits, double bestHitPeakMean,
+                           double bestHitPeakSigma, double bestHitNSigma)
 {
   gCDetDisplayEvents.clear();
   gCDetDisplayIndex = -1;
@@ -7309,6 +7624,11 @@ void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut
   gCDetDisplayXMax = xMax;
   gCDetDisplayZMin = zMin;
   gCDetDisplayZMax = zMax;
+  gCDetDisplayBestHits = false;
+  gCDetDisplayBestHitTimingValid = false;
+  gCDetDisplayBestHitPeakMean = std::numeric_limits<double>::quiet_NaN();
+  gCDetDisplayBestHitPeakSigma = std::numeric_limits<double>::quiet_NaN();
+  gCDetDisplayBestHitNSigma = bestHitNSigma;
 
   if (selectedBar < 0 || selectedBar >= NumCDetPaddles/(2*NumPaddles)) {
     std::cerr << "[CDet event display] ERROR: Layer-1 bar " << selectedBar
@@ -7391,6 +7711,63 @@ void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut
             << selectedBar << ".\n";
   if (gCDetDisplayEvents.empty()) return;
 
+  if (std::isfinite(bestHitPeakMean) && std::isfinite(bestHitPeakSigma) &&
+      bestHitPeakSigma > 0.0) {
+    gCDetDisplayBestHitPeakMean = bestHitPeakMean;
+    gCDetDisplayBestHitPeakSigma = bestHitPeakSigma;
+    gCDetDisplayBestHitTimingValid = true;
+    std::cout << "[CDet event display] Using configured best-hit ECal-CDet peak: "
+              << gCDetDisplayBestHitPeakMean << " +/- "
+              << gCDetDisplayBestHitNSigma << "*"
+              << gCDetDisplayBestHitPeakSigma << " ns.\n";
+  } else {
+    std::vector<double> timingSample;
+    for (const auto& event : gCDetDisplayEvents) {
+      timingSample.reserve(timingSample.size() + 2*event.selectedPairs.size());
+      for (const auto& pair : event.selectedPairs) {
+        timingSample.push_back(event.ecalTime - pair.t1);
+        timingSample.push_back(event.ecalTime - pair.t2);
+      }
+    }
+    if (timingSample.size() >= 20) {
+      const auto limits = std::minmax_element(timingSample.begin(), timingSample.end());
+      const double sampleMin = std::max(tdiffECalCDetMin, *limits.first - 0.5);
+      const double sampleMax = std::min(tdiffECalCDetMax, *limits.second + 0.5);
+      const int nBins = std::max(40, std::min(1200,
+          static_cast<int>(std::ceil((sampleMax - sampleMin)/0.25))));
+      TH1D timingHistogram("hCDetDisplayBestHitTimingFit", "", nBins,
+                           sampleMin, sampleMax);
+      timingHistogram.SetDirectory(nullptr);
+      for (double value : timingSample) timingHistogram.Fill(value);
+      const double mode = timingHistogram.GetBinCenter(timingHistogram.GetMaximumBin());
+      const double fitMin = std::max(sampleMin, mode - 5.0);
+      const double fitMax = std::min(sampleMax, mode + 5.0);
+      TF1 peakFit("fCDetDisplayBestHitTimingFit", "gaus", fitMin, fitMax);
+      peakFit.SetParameters(timingHistogram.GetMaximum(), mode, 2.0);
+      peakFit.SetParLimits(2, 0.1, 10.0);
+      const TFitResultPtr fitResult = timingHistogram.Fit(&peakFit, "QRSN");
+      const double fittedMean = peakFit.GetParameter(1);
+      const double fittedSigma = std::fabs(peakFit.GetParameter(2));
+      gCDetDisplayBestHitTimingValid = int(fitResult) == 0 &&
+          std::isfinite(fittedMean) && std::isfinite(fittedSigma) &&
+          fittedSigma > 0.0 && fittedSigma <= 10.0 &&
+          std::fabs(fittedMean - mode) <= 5.0;
+      if (gCDetDisplayBestHitTimingValid) {
+        gCDetDisplayBestHitPeakMean = fittedMean;
+        gCDetDisplayBestHitPeakSigma = fittedSigma;
+        std::cout << "[CDet event display] Fitted best-hit ECal-CDet peak from "
+                  << timingSample.size() << " accepted-pair hits: mean="
+                  << fittedMean << " ns, sigma=" << fittedSigma
+                  << " ns; display window is +/- " << gCDetDisplayBestHitNSigma
+                  << " sigma.\n";
+      }
+    }
+    if (!gCDetDisplayBestHitTimingValid)
+      std::cerr << "[CDet event display] WARNING: best-hit peak fit is unavailable; "
+                   "the display will remain in all-hits mode.\n";
+  }
+  gCDetDisplayBestHits = initialBestHits && gCDetDisplayBestHitTimingValid;
+
   ShowCDetEvent(0);
   if (!gROOT->IsBatch()) {
     // A GUI close can destroy a TControlBar without clearing our pointer.
@@ -7399,10 +7776,34 @@ void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut
     gCDetEventControl = new TControlBar("vertical", "CDet event display");
     gCDetEventControl->AddButton("Previous", "PreviousCDetEvent()", "Show the previous selected event");
     gCDetEventControl->AddButton("Next", "NextCDetEvent()", "Show the next selected event");
+    gCDetEventControl->AddButton("All hits", "ShowAllCDetHits()", "Display every retained good CDet hit");
+    gCDetEventControl->AddButton("Best CDet hits", "ShowBestCDetHits()", "Display hits within the configured number of sigma of the ECal-CDet peak");
     gCDetEventControl->AddButton("Print", "PrintCDetEvent()", "Print the current event and pair values");
     gCDetEventControl->AddButton("Save PNG", "SaveCDetEvent()", "Save the current four-panel event display");
     gCDetEventControl->Show();
   }
+}
+
+static bool CDetDisplayTimeIsBest(double ecalTime, double correctedCDetTime)
+{
+  if (!gCDetDisplayBestHitTimingValid) return false;
+  const double dt = ecalTime - correctedCDetTime;
+  return std::fabs(dt - gCDetDisplayBestHitPeakMean) <=
+         gCDetDisplayBestHitNSigma*gCDetDisplayBestHitPeakSigma;
+}
+
+static bool CDetDisplayHitIsVisible(const CDetDisplayEvent& event,
+                                    const CDetDisplayHit& hit)
+{
+  return !gCDetDisplayBestHits || CDetDisplayTimeIsBest(event.ecalTime, hit.le);
+}
+
+static bool CDetDisplayPairIsVisible(const CDetDisplayEvent& event,
+                                     const PairHit& pair)
+{
+  return !gCDetDisplayBestHits ||
+         (CDetDisplayTimeIsBest(event.ecalTime, pair.t1) &&
+          CDetDisplayTimeIsBest(event.ecalTime, pair.t2));
 }
 
 void ShowCDetEvent(Long64_t displayIndex)
@@ -7429,6 +7830,7 @@ void ShowCDetEvent(Long64_t displayIndex)
 
   std::vector<double> l1z, l1x, l1y, l2z, l2x, l2y;
   for (const auto& hit : event.hits) {
+    if (!CDetDisplayHitIsVisible(event, hit)) continue;
     if (hit.layer == 0) {
       l1z.push_back(hit.z); l1x.push_back(hit.x); l1y.push_back(hit.y);
     } else {
@@ -7438,13 +7840,15 @@ void ShowCDetEvent(Long64_t displayIndex)
   double displayYMin = -0.5;
   double displayYMax = 0.5;
   for (const auto& hit : event.hits) {
+    if (!CDetDisplayHitIsVisible(event, hit)) continue;
     displayYMin = std::min(displayYMin, hit.y - CDet_y_half_length - 0.05);
     displayYMax = std::max(displayYMax, hit.y + CDet_y_half_length + 0.05);
   }
 
   const TString title = TString::Format(
-      "Run %d, tree entry %lld, selected event %lld/%lld, Layer-1 bar %d",
-      event.runNumber, event.treeEntry, gCDetDisplayIndex + 1, nEvents, event.selectedBar);
+      "Run %d, tree entry %lld, selected event %lld/%lld, Layer-1 bar %d [%s]",
+      event.runNumber, event.treeEntry, gCDetDisplayIndex + 1, nEvents,
+      event.selectedBar, gCDetDisplayBestHits ? "best CDet hits" : "all hits");
 
   gCDetEventCanvas->cd(1);
   gPad->Clear();
@@ -7465,6 +7869,7 @@ void ShowCDetEvent(Long64_t displayIndex)
     gL2->SetMarkerStyle(25); gL2->SetMarkerColor(kGreen + 2); gL2->SetMarkerSize(1.2); gL2->Draw("P SAME");
   }
   for (const auto& pair : event.selectedPairs) {
+    if (!CDetDisplayPairIsVisible(event, pair)) continue;
     const double correctedX1 = pair.x1;
     const double correctedX2 = pair.x2;
     TLine *pairLine = new TLine(pair.z1, correctedX1, pair.z2, correctedX2);
@@ -7489,6 +7894,7 @@ void ShowCDetEvent(Long64_t displayIndex)
   TLine *ecalTrajectoryY = new TLine(0.0, 0.0, event.ecalZ, event.ecalY);
   ecalTrajectoryY->SetLineColor(kGray + 2); ecalTrajectoryY->SetLineStyle(2); ecalTrajectoryY->SetLineWidth(2); ecalTrajectoryY->Draw();
   for (const auto& hit : event.hits) {
+    if (!CDetDisplayHitIsVisible(event, hit)) continue;
     TLine *paddleExtent = new TLine(hit.z, hit.y - CDet_y_half_length,
                                     hit.z, hit.y + CDet_y_half_length);
     paddleExtent->SetLineColor(hit.layer == 0 ? kBlue + 1 : kGreen + 2);
@@ -7496,6 +7902,7 @@ void ShowCDetEvent(Long64_t displayIndex)
     paddleExtent->Draw();
   }
   for (const auto& pair : event.selectedPairs) {
+    if (!CDetDisplayPairIsVisible(event, pair)) continue;
     TLine *selectedL1 = new TLine(pair.z1, pair.y1 - CDet_y_half_length,
                                   pair.z1, pair.y1 + CDet_y_half_length);
     TLine *selectedL2 = new TLine(pair.z2, pair.y2 - CDet_y_half_length,
@@ -7514,6 +7921,7 @@ void ShowCDetEvent(Long64_t displayIndex)
   gPad->DrawFrame(gCDetDisplayXMin, displayYMin, gCDetDisplayXMax, displayYMax,
                   "CDet face view;x position (m);y position (m)");
   for (const auto& hit : event.hits) {
+    if (!CDetDisplayHitIsVisible(event, hit)) continue;
     TLine *paddleExtent = new TLine(hit.x, hit.y - CDet_y_half_length,
                                     hit.x, hit.y + CDet_y_half_length);
     paddleExtent->SetLineColor(hit.layer == 0 ? kBlue + 1 : kGreen + 2);
@@ -7521,6 +7929,7 @@ void ShowCDetEvent(Long64_t displayIndex)
     paddleExtent->Draw();
   }
   for (const auto& pair : event.selectedPairs) {
+    if (!CDetDisplayPairIsVisible(event, pair)) continue;
     double px[2] = {pair.x1, pair.x2};
     double py[2] = {pair.y1, pair.y2};
     TGraph *gPair = new TGraph(2, px, py);
@@ -7532,10 +7941,17 @@ void ShowCDetEvent(Long64_t displayIndex)
     selectedL1->SetLineColor(kRed + 1); selectedL1->SetLineWidth(5); selectedL1->Draw();
     selectedL2->SetLineColor(kRed + 1); selectedL2->SetLineWidth(5); selectedL2->Draw();
   }
-  if (!event.selectedPairs.empty()) {
+  const PairHit *firstVisiblePair = nullptr;
+  for (const auto& pair : event.selectedPairs) {
+    if (CDetDisplayPairIsVisible(event, pair)) {
+      firstVisiblePair = &pair;
+      break;
+    }
+  }
+  if (firstVisiblePair) {
     // CDet layers have fixed z positions, so the first accepted pair supplies
     // the two layer planes for the ECal-to-target projection.
-    const auto& pair = event.selectedPairs.front();
+    const auto& pair = *firstVisiblePair;
     const double projectedX1 = event.ecalX * pair.z1 / event.ecalZ;
     const double projectedY1 = event.ecalY * pair.z1 / event.ecalZ;
     const double projectedX2 = event.ecalX * pair.z2 / event.ecalZ;
@@ -7555,9 +7971,24 @@ void ShowCDetEvent(Long64_t displayIndex)
   info->AddText(title);
   info->AddText(TString::Format("ECal: x=%+.4f m, y=%+.4f m, z=%.4f m", event.ecalX, event.ecalY, event.ecalZ));
   info->AddText(TString::Format("ECal: E=%.4f GeV, ADC time=%.3f ns", event.ecalEnergy, event.ecalTime));
-  info->AddText(TString::Format("Good CDet hits: %zu; selected pairs: %zu", event.hits.size(), event.selectedPairs.size()));
+  const size_t visibleHits = std::count_if(
+      event.hits.begin(), event.hits.end(),
+      [&](const CDetDisplayHit& hit) { return CDetDisplayHitIsVisible(event, hit); });
+  const size_t visiblePairs = std::count_if(
+      event.selectedPairs.begin(), event.selectedPairs.end(),
+      [&](const PairHit& pair) { return CDetDisplayPairIsVisible(event, pair); });
+  info->AddText(TString::Format("Displayed CDet hits: %zu/%zu; selected pairs: %zu/%zu",
+                                visibleHits, event.hits.size(),
+                                visiblePairs, event.selectedPairs.size()));
+  if (gCDetDisplayBestHitTimingValid) {
+    info->AddText(TString::Format("Best-hit timing: t_{ECal}-t_{CDet} = %.3f +/- %.1f#sigma (sigma=%.3f ns)",
+                                  gCDetDisplayBestHitPeakMean,
+                                  gCDetDisplayBestHitNSigma,
+                                  gCDetDisplayBestHitPeakSigma));
+  }
   for (size_t ipair = 0; ipair < event.selectedPairs.size(); ++ipair) {
     const auto& pair = event.selectedPairs[ipair];
+    if (!CDetDisplayPairIsVisible(event, pair)) continue;
     const double correctedX1 = pair.x1;
     const double correctedX2 = pair.x2;
     const double pairTime = 0.5 * (pair.t1 + pair.t2);
@@ -7587,6 +8018,22 @@ void PreviousCDetEvent()
   ShowCDetEvent(gCDetDisplayIndex - 1);
 }
 
+void ShowAllCDetHits()
+{
+  gCDetDisplayBestHits = false;
+  if (gCDetDisplayIndex >= 0) ShowCDetEvent(gCDetDisplayIndex);
+}
+
+void ShowBestCDetHits()
+{
+  if (!gCDetDisplayBestHitTimingValid) {
+    std::cerr << "[CDet event display] Best-hit timing peak is unavailable.\n";
+    return;
+  }
+  gCDetDisplayBestHits = true;
+  if (gCDetDisplayIndex >= 0) ShowCDetEvent(gCDetDisplayIndex);
+}
+
 void PrintCDetEvent()
 {
   if (gCDetDisplayIndex < 0 || gCDetDisplayIndex >= static_cast<Long64_t>(gCDetDisplayEvents.size())) {
@@ -7594,6 +8041,12 @@ void PrintCDetEvent()
     return;
   }
   const auto& event = gCDetDisplayEvents[gCDetDisplayIndex];
+  const size_t visibleHits = std::count_if(
+      event.hits.begin(), event.hits.end(),
+      [&](const CDetDisplayHit& hit) { return CDetDisplayHitIsVisible(event, hit); });
+  const size_t visiblePairs = std::count_if(
+      event.selectedPairs.begin(), event.selectedPairs.end(),
+      [&](const PairHit& pair) { return CDetDisplayPairIsVisible(event, pair); });
   std::cout << "[CDet event display] run=" << event.runNumber
             << " tree_entry=" << event.treeEntry
             << " display_index=" << gCDetDisplayIndex
@@ -7602,10 +8055,12 @@ void PrintCDetEvent()
             << " ecal_y=" << event.ecalY
             << " ecal_E=" << event.ecalEnergy
             << " ecal_t=" << event.ecalTime
-            << " nhits=" << event.hits.size()
-            << " npairs=" << event.selectedPairs.size() << "\n";
+            << " hit_mode=" << (gCDetDisplayBestHits ? "best" : "all")
+            << " nhits=" << visibleHits << "/" << event.hits.size()
+            << " npairs=" << visiblePairs << "/" << event.selectedPairs.size() << "\n";
   for (size_t ipair = 0; ipair < event.selectedPairs.size(); ++ipair) {
     const auto& pair = event.selectedPairs[ipair];
+    if (!CDetDisplayPairIsVisible(event, pair)) continue;
     std::cout << "  pair=" << ipair
               << " id1=" << pair.id1 << " id2=" << pair.id2
               << " corrected_x1=" << pair.x1
@@ -7630,8 +8085,9 @@ void SaveCDetEvent()
   }
   const auto& event = gCDetDisplayEvents[gCDetDisplayIndex];
   const TString fileName = TString::Format(
-      "CDetEventDisplay_run%d_entry%lld_bar%d.png",
-      event.runNumber, event.treeEntry, event.selectedBar);
+      "CDetEventDisplay_run%d_entry%lld_bar%d_%s.png",
+      event.runNumber, event.treeEntry, event.selectedBar,
+      gCDetDisplayBestHits ? "best_hits" : "all_hits");
   gCDetEventCanvas->SaveAs(fileName);
   std::cout << "[CDet event display] Saved " << fileName << "\n";
 }
@@ -8691,9 +9147,11 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
     TString saveDir = TString::Format("%s/run_%d_stage_%d", fitCanvasDir.Data(), gRunNumber, gCalibrationStage);
     gSystem->mkdir(saveDir, kTRUE);
     cBarFits->SaveAs(TString::Format("%s/bar_%03d_pixels_%d-%d.pdf", saveDir.Data(), bar, pixelBase, pixelBase + NumPaddles - 1));
+    cBarFits->SaveAs(TString::Format("%s/bar_%03d_pixels_%d-%d.png", saveDir.Data(), bar, pixelBase, pixelBase + NumPaddles - 1));
     cBarCleanFits->SaveAs(TString::Format("%s/bar_%03d_background_subtracted.pdf", saveDir.Data(), bar));
     cBarDtVsTot->SaveAs(TString::Format("%s/bar_%03d_dt_vs_tot.pdf", saveDir.Data(), bar));
     cBarAmalgamated->SaveAs(TString::Format("%s/bar_%03d_amalgamated.pdf", saveDir.Data(), bar));
+    cBarAmalgamated->SaveAs(TString::Format("%s/bar_%03d_amalgamated.png", saveDir.Data(), bar));
     cBarSummary->SaveAs(TString::Format("%s/bar_%03d_summary.pdf", saveDir.Data(), bar));
   }
 

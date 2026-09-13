@@ -41,7 +41,8 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     Int_t nruns = 30,
     Int_t maxstream = 2,
     Int_t firstevent = 1,
-    bool removeExistingCalibrationFile = true
+    bool removeExistingCalibrationFile = true,
+    TString authoritativeConfig = ""
 ){
     gLastCalibrationSequenceSucceeded = false;
     const TString calibFile   = "CDet_calibration_dt.dat";
@@ -50,16 +51,37 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
         std::cout << "[Driver] Removing existing calibration file: " << calibFile << "\\n";
         gSystem->Unlink(calibFile);
     }
+    if (removeExistingCalibrationFile) {
+        // A missing file alone is insufficient: the master macro has legacy
+        // in-memory defaults.  A clean run must invalidate every correction
+        // explicitly so Stage 1 cannot write those defaults as if fitted.
+        gPixelToffsetCorr.assign(NumCDetPaddles, 0.0);
+        gPixelToffsetNhits.assign(NumCDetPaddles, 0);
+        gPixelToffsetLoaded = false;
+        gECalFitP0 = 0.0;
+        gECalFitP1 = 0.0;
+        gECalDeltaShift = 0.0;
+        gECalParamsLoaded = false;
+        gECalDeltaLoaded = false;
+        gTimeWalkP1_L1 = 0.0;
+        gTimeWalkP1_L2 = 0.0;
+        gTimeWalkParamsLoaded = false;
+    }
 
     auto runMain = [&](Int_t stage) -> bool {
-        PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+        if (!authoritativeConfig.IsNull()) {
+          PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
+              authoritativeConfig.Data(), stage, nevents);
+        } else {
+          PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
             RunNumber1, nevents, stage,elastic, minSeg, maxSeg,
             LeMin, LeMax, TotMin, TotMax,
             10.0, 35.0,
             nhitcutlow1, nhitcuthigh1, nhitcutlow2, nhitcuthigh2,
             XDiffCut, XOffset, YOffset, layer_choice,
             suppress_bad, nruns, maxstream, firstevent, false
-        );
+          );
+        }
         if (!gLastCalibrationStageSucceeded)
             std::cerr << "[Driver] ERROR: stage " << stage << " failed; stopping sequence.\\n";
         return gLastCalibrationStageSucceeded;
@@ -95,10 +117,13 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
            TString::Format("tdcPlots/run%d", RunNumber1));
     if (!gLastCalibrationFitSucceeded) return;
 
-    stageBanner("pass1_ecal_fit", 3);
+    stageBanner("pass1_absolute_ecal_fit", 8);
     ResetCalibrationGlobals();
-    if (!runMain(3)) return;
-    plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
+    if (!runMain(8)) return;
+    if (!authoritativeConfig.IsNull())
+      plotCDetLayersTimeComp(authoritativeConfig.Data(), 1);
+    else
+      plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass1_timewalk_fit", 6);
@@ -116,7 +141,10 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     stageBanner("pass2_ecal_refit", 3);
     ResetCalibrationGlobals();
     if (!runMain(3)) return;
-    plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
+    if (!authoritativeConfig.IsNull())
+      plotCDetLayersTimeComp(authoritativeConfig.Data(), 1);
+    else
+      plotCDetLayersTimeComp(true, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
     if (!gLastCalibrationFitSucceeded) return;
 
     stageBanner("pass2_timewalk_refit", 6);
@@ -138,9 +166,40 @@ void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
     ResetCalibrationGlobals();
     if (!runMain(7)) return;
     plotAllTDC(false, 1.0, 0.0, 60.0, false, "", "tdcPlots");
-    plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
+    if (!authoritativeConfig.IsNull())
+      plotCDetLayersTimeComp(authoritativeConfig.Data(), 0);
+    else
+      plotCDetLayersTimeComp(false, 416, 1.0, -15, 15, -0.1, 0.1, 20, 45, 4, 40, -15, 15, 0, 60, 0, 80, 10, 35, -60, 30, true, 0.005, -1.5, 1.5, 0.01, 0.0, 7.0);
+    if (!gLastCalibrationFitSucceeded) return;
     plotGoodLeVsTotByLayer(false, 15, 45, 4, 30, 0.2, 0.5, true, false, 5.0, 25.0);
+    if (!gLastCalibrationFitSucceeded) return;
     gLastCalibrationSequenceSucceeded = true;
     std::cout << "\\n[Driver] Two-pass in-session calibration sequence complete.\\n";
     std::cout << "[Driver] Final calibration file should be in: " << calibFile << "\\n";
+}
+
+// Configuration-authoritative production entry point.  Only the calibration
+// stage and optional event limit are transient; every cut and display setting
+// comes from configFile.
+void Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
+    const char *configFile, Int_t nevents = std::numeric_limits<Int_t>::min(),
+    bool removeExistingCalibrationFile = true)
+{
+    TEnv env;
+    if (!LoadCDetConfiguration(env, configFile,
+                               "CDet configuration calibration driver"))
+      return;
+    const Int_t runNumber = env.GetValue("analysis.run_number", -1);
+    const Int_t configuredEvents = env.GetValue("analysis.events", -1);
+    const Int_t effectiveEvents = nevents == std::numeric_limits<Int_t>::min()
+                                      ? configuredEvents : nevents;
+    if (runNumber <= 0) {
+      std::cerr << "[Driver] ERROR: invalid analysis.run_number in "
+                << configFile << ".\n";
+      return;
+    }
+    Run_CDet_Calibration_TwoPass_InSession_AllCross_Individually(
+        runNumber, effectiveEvents, 0, 0, 5, 0.02, 60.0, 4.0, 50.0,
+        1, 100, 1, 100, 0.10, 0.02, 0.1, 3, false, 30, 2, 1,
+        removeExistingCalibrationFile, configFile);
 }
