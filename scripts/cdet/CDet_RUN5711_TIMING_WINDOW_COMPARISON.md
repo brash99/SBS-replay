@@ -1,6 +1,7 @@
 # Run 5711 Timing-Window Diagnostic Comparison
 
-All three analyses use the final Run 5711 calibration constants, the
+All three analyses use the final Run 5711 calibration constants
+`p1 = -0.012423 ns/ns` and `shift_ns = 3.422000 ns`, the
 `3.0 < E_ECal < 4.5 GeV` energy selection, and the `8 < ToT < 35 ns` CDet
 good-hit selection. The columns differ only in the ECal and HCal ADC-time
 windows shown below.

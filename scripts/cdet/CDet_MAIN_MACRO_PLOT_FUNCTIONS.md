@@ -208,8 +208,7 @@ the data, bins, and fit interval together and cannot change the extracted final
 `shift_ns`.
 
 Run it after `plotCDetLayersTimeComp`. It prints the RMS of the complete
-accepted-pair mean-time distribution—the approximately 2.27 ns width quoted in
-the run-5710 validation—and also fits the central timing peak with a Gaussian
+accepted-pair mean-time distribution and also fits the central timing peak with a Gaussian
 over `25` to `35 ns`. The RMS and Gaussian sigma are intentionally reported
 separately: the former includes the full accepted distribution, while the
 latter characterizes its core. To change the displayed core-fit interval, use,
@@ -485,6 +484,11 @@ pairs for the selected Layer-1 bar. The following helpers operate on that list:
 
 - `ShowCDetEvent(index)` displays a particular accepted event by display index.
 - `NextCDetEvent()` and `PreviousCDetEvent()` navigate the event list.
+- `ShowAllCDetHits()` displays every retained good hit, preserving the
+  historical display mode.
+- `ShowBestCDetHits()` displays only hits within the configured number of
+  fitted standard deviations of the selected bar's calibrated
+  `t_ECal - t_CDet,corr` peak.
 - `PrintCDetEvent()` prints the currently displayed event and pair details.
 - `SaveCDetEvent()` saves the current event-display canvas.
 - `BuildCDetEventDisplay(...)` is the lower-level builder called by
@@ -492,6 +496,9 @@ pairs for the selected Layer-1 bar. The following helpers operate on that list:
 
 The event list contains only events surviving the pairing and final selection
 cuts used in the most recent call to `plotCDetLayersTimeComp`.
+Switching between all-hit and best-hit modes changes only the drawn hits and
+pair overlays; it does not rerun event selection or change calibration data.
+See `CDet_EVENT_DISPLAY.md` for the configuration keys and interactive workflow.
 
 ## Pixel-offset comparison and hierarchical-fit diagnostics
 

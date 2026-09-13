@@ -2,8 +2,9 @@
 
 > **Historical development note:** The numerical examples below record an
 > earlier calibration study. Current production constants and procedures are
-> documented in `../CDet_CROSSTARGET_TIMING_CALIBRATION.md` and the run-specific
-> calibration records. The correction-application semantics in Section 4 have
+> documented in `../CDet_CROSSTARGET_TIMING_CALIBRATION.md`; historical
+> run-specific records are under `../documentation_archive/`. The
+> correction-application semantics in Section 4 have
 > been updated to match the commissioned implementation.
 
 ## Overview

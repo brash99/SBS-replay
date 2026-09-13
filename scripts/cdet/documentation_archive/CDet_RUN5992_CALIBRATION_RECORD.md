@@ -1,5 +1,9 @@
 # CDet Run 5992 Timing Calibration Record
 
+> **Archived historical record.** For the current commissioned workflow,
+> constants, and plots, use
+> [`CDet_CROSSTARGET_TIMING_CALIBRATION.md`](../CDet_CROSSTARGET_TIMING_CALIBRATION.md).
+
 ## Status
 
 Run 5992 was conditionally accepted on 2026-09-11 for run-specific CDet timing

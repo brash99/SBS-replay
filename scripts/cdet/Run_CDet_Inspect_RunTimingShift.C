@@ -16,7 +16,8 @@ void Run_CDet_Inspect_RunTimingShift(
     Int_t runNumber,
     Int_t nevents = std::numeric_limits<Int_t>::min(),
     TString configFile = "",
-    TString outputTag = "")
+    TString outputTag = "",
+    Int_t selectedBarOverride = -1)
 {
   if (runNumber <= 0) {
     std::cerr << "[Run timing-shift inspection] ERROR: runNumber must be positive.\n";
@@ -99,7 +100,14 @@ void Run_CDet_Inspect_RunTimingShift(
     allBarsTimingStructures->SaveAs(
         outputDirectory + "/CDet_allbars_three_region_LE_vs_ToT.pdf");
   }
-  const int selectedBar = env.GetValue("display.pixel", 0) / 16;
+  const int configuredBar = env.GetValue("display.pixel", 0) / 16;
+  const int selectedBar = selectedBarOverride >= 0
+      ? selectedBarOverride : configuredBar;
+  if (selectedBar < 0 || selectedBar >= NumCDetPaddles / NumPaddles) {
+    std::cerr << "[Run timing-shift inspection] ERROR: selected bar "
+              << selectedBar << " is outside the physical range.\n";
+    return;
+  }
   TCanvas *selectedBarLeVsTotSource =
       static_cast<TCanvas *>(gROOT->FindObject("cCDetLeVsTotBar"));
   TVirtualPad *selectedBarLayer1Pad =

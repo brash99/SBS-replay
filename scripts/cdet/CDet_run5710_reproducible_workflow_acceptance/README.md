@@ -150,21 +150,23 @@ clean Stage-8 seed followed by the preserved 102-cut review, fixed-effects
 ECal closure, and half-bar alignment sequence now implemented in
 `../Run_CDet_Calibration_Run5710_Accepted.C`.
 
-The production driver was subsequently run end-to-end from an isolated blank
-directory over all 2,951,891 events as Codex Process Job
-`job-mtwt0piv-13c824c2`. It completed successfully and regenerated the accepted
-calibration byte-for-byte. Both files have SHA-256:
+An earlier production-driver candidate was subsequently run end-to-end from an
+isolated blank directory over all 2,951,891 events as Codex Process Job
+`job-mtwt0piv-13c824c2`. It completed successfully and regenerated that
+historical candidate byte-for-byte. Both candidate files had SHA-256:
 
 ```text
 da138752364886d0bf634c5bc88f8a54122ecc2692be2a466a3e27fcb75e6092
 ```
 
-That verification produced final ECal parameters `p0 = 15.323476 ns`,
+That historical verification produced ECal parameters `p0 = 15.323476 ns`,
 `p1 = 0.816888 ns/ns`, and `delta = 31.718756 ns`; time-walk parameters
 `13.678258` and `15.663342 ns*sqrt(ns)`; half-bar intercept RMS `0.109896 ns`;
-full paired-time RMS `2.17159 ns`; and Gaussian core sigma `1.96634 ns`.
+full paired-time RMS `2.17159 ns`; and Gaussian core sigma `1.96634 ns`. These
+are not the active commissioned constants; the current values and closure are
+listed at the top of this document.
 
-## Preliminary technical recommendation
+## Historical technical recommendation
 
 Accept the candidate on timing performance, subject to human confirmation of
 the channel-completeness and absolute-origin items above. On the matched Run

@@ -119,6 +119,13 @@ pair population to remain unchanged, and checks the Gaussian-core closure. Do
 not accept the value merely because ROOT returns to the prompt: require the
 printed `physical-fit gate` and closure gate to pass.
 
+The `5.0` argument is the local Gaussian half-width, not a universal detector
+constant. If the projected-half-bar plot demonstrates a broader physical core
+and the fit fails its width gate, increase this value only far enough to contain
+that core and rerun. For example, Run 6077 required an 8 ns half-width. Record
+and justify any non-default value in the run report; do not widen it merely to
+force a failed fit to pass.
+
 Regenerate inspection plots with a distinct tag:
 
 ```cpp

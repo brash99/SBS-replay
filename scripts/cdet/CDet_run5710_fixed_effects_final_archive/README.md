@@ -1,11 +1,15 @@
-# Definitive run-5710 CDet timing calibration
+# Historical Run 5710 fixed-effects calibration
 
-This directory is the matched archive of the final run-5710 timing
+> This archive predates the current exactly reproducible commissioned
+> calibration. Use `../CDet_CROSSTARGET_TIMING_CALIBRATION.md` for current
+> constants, commands, and plots.
+
+This directory is the matched archive of a then-final run-5710 timing
 calibration after correcting the pooled-regression/Simpson's-paradox problem.
 The files were copied together after the final hierarchical pixel-offset pass
 and its subsequent closure analysis. Do not overwrite them with later studies.
 
-## Final calibration state
+## Archived calibration state
 
 ```text
 [ECalTiming]

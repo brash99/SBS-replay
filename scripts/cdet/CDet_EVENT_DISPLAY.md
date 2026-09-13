@@ -1,7 +1,7 @@
 # CDet ROOT Event Display
 
-This guide describes how to run the single-file cross-target analysis and use
-the CDet event display. The display operates on the event data retained by
+This guide describes how to run the configuration-driven CDet analysis and use
+the unified event display for cross-target or LH2 runs. The display operates on the event data retained by
 `PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C`; it is not a
 standalone replay program.
 
@@ -42,7 +42,7 @@ PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
 
 Wait for this call to finish. It reads the replayed ROOT data, applies the
 stage-7 analysis selections, and populates the per-event CDet and ECal vectors
-used by the event display. The configuration applies the new 10--35 ns ECal
+used by the event display. The configuration applies the Run 5710 10--35 ns ECal
 ADC timing cut and the Layer-1/Layer-2 hit-count limits without relying on
 positional arguments. Unknown keys, invalid ranges, and unsupported
 configuration versions are rejected before the analysis starts.
@@ -57,8 +57,8 @@ macro normalizes the supplied ID to the bar's first pixel using:
 pixelBase = 16 * barNumber
 ```
 
-For example, the configuration selects pixel 471, which is in Layer-1 bar 29
-and is normalized to that bar's base pixel, 464. Run the configured display
+For example, the current configuration selects pixel 480, the base pixel of
+Layer-1 bar 30. Run the configured display
 with:
 
 ```cpp
@@ -78,16 +78,19 @@ path.
 This call creates the aggregate timing and position plots, including the
 selected-bar x-versus-z plot. In an interactive Analyzer session it also:
 
-1. Finds events containing an accepted Layer-1/Layer-2 pair for bar 29.
+1. Finds events containing an accepted Layer-1/Layer-2 pair for bar 30.
 2. Applies the same pair timing, x-difference, and ECal-to-CDet timing cuts as
    the aggregate analysis.
 3. Opens the four-panel event-display canvas at the first accepted event.
 4. Opens a small `CDet event display` control window.
+5. Fits the selected bar's calibrated `t_ECal - t_CDet,corr` peak from the
+   individual hits in its accepted Layer-1/Layer-2 pairs. This fit defines the
+   optional best-hit display window.
 
 The terminal reports how many events were placed in the browser:
 
 ```text
-[CDet event display] Built N events containing accepted pairs for Layer-1 bar 29.
+[CDet event display] Built N events containing accepted pairs for Layer-1 bar 30.
 ```
 
 If `N` is zero, no event passed all the active pair-selection cuts. See
@@ -141,6 +144,11 @@ Use the buttons in the `CDet event display` control window:
 
 - **Previous** displays the previous accepted event.
 - **Next** displays the next accepted event.
+- **All hits** displays every retained good CDet hit, matching the historical
+  event-display behavior.
+- **Best CDet hits** displays only hits whose calibrated timing satisfies
+  `abs((t_ECal - t_CDet,corr) - peak_mean) <= 3*peak_sigma`. Accepted pair
+  overlays are shown only when both hits pass this timing requirement.
 - **Print** writes the current event and pair values to the Analyzer terminal.
 - **Save PNG** saves the current four-panel canvas in the working directory.
 
@@ -154,30 +162,78 @@ ShowCDetEvent(0)       // First accepted event; indices are zero-based
 ShowCDetEvent(25)      // Accepted display event 25
 NextCDetEvent()
 PreviousCDetEvent()
+ShowAllCDetHits()
+ShowBestCDetHits()
 PrintCDetEvent()
 SaveCDetEvent()
 ```
 
+The canvas title and information panel identify the active hit mode. The
+information panel also reports the fitted peak, sigma, and the number of
+displayed hits and pairs relative to the retained totals. Switching modes does
+not rerun the analysis, change the event list, alter calibration constants, or
+modify any physics selection. It changes only which retained hits and accepted
+pairs are drawn for the current event.
+
 Saved images have names of the form:
 
 ```text
-CDetEventDisplay_run5710_entry123456_bar29.png
+CDetEventDisplay_run5710_entry123456_bar30_all_hits.png
+CDetEventDisplay_run5710_entry123456_bar30_best_hits.png
 ```
+
+## Best-hit timing configuration
+
+The default display mode remains `all`. The best-hit timing peak is fitted
+automatically from the individual corrected times of both hits in every
+accepted pair whose Layer-1 hit lies in the selected bar. The modal bin seeds a
+local Gaussian fit. The default display window is three fitted standard
+deviations on either side of the fitted mean.
+
+The following optional `display.*` settings control this behavior:
+
+```text
+display.hit_mode: all
+display.best_hit_nsigma: 3
+```
+
+Set `display.hit_mode: best` to open the browser initially in best-hit mode.
+The control-window buttons can still switch modes afterward.
+
+For a reviewed peak whose numerical values should be fixed rather than
+refitted, specify both of the following values in nanoseconds:
+
+```text
+display.best_hit_peak_mean: -26.2
+display.best_hit_peak_sigma: 3.7
+```
+
+The mean and sigma overrides must be supplied together, and sigma must be
+positive. If they are absent, the automatic selected-bar fit is used. If that
+fit is unavailable—for example, because the run has too few accepted hits—the
+browser reports a warning, remains in all-hits mode, and disables the best-hit
+view for that sample.
 
 ## Changing the cuts
 
-The simple call above uses the defaults of `plotCDetLayersTimeComp`, including:
+The configuration overload uses the `display.*` values in the same file that
+identified the analyzed sample. For the current Run 5710 configuration, the
+principal pair/display ranges are:
 
 ```text
 Layer timing difference:  -15 to +15 ns
-Layer x difference:       -0.01 to +0.01 m
-ECal-CDet timing:         -100 to +100 ns
+Layer x difference:       -0.15 to +0.15 m
+ECal-CDet timing:         -150 to +150 ns
 ```
 
-If a study uses different cuts, pass them to `plotCDetLayersTimeComp`. The
+For a display-only study, edit the corresponding `display.*` values in a copy
+of the configuration and rerun `plotCDetLayersTimeComp` with that file. The
 event browser automatically receives the same values, so its event selection
-remains consistent with the aggregate plots. The relevant leading arguments
-are:
+remains consistent with the aggregate plots. If any `analysis.*` value changes,
+rerun the main analysis first with the same configuration.
+
+The legacy positional interface remains available for development work. Its
+relevant leading arguments are:
 
 ```cpp
 plotCDetLayersTimeComp(
@@ -192,13 +248,13 @@ plotCDetLayersTimeComp(
 )
 ```
 
-For example, bar 29 with a wider Layer-1/Layer-2 x-difference window:
+For example, bar 30 with a narrower Layer-1/Layer-2 x-difference window:
 
 ```cpp
 plotCDetLayersTimeComp(
-    false, 464, 1,
+    false, 480, 1,
     -15, 15,
-    -0.02, 0.02
+    -0.08, 0.08
 )
 ```
 

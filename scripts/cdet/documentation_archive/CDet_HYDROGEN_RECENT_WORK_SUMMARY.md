@@ -1,5 +1,11 @@
 # CDet Hydrogen Analysis: Recent Work and Current Status
 
+> **Archived development summary.** This file records an earlier hydrogen
+> analysis phase and contains superseded commands and plots. For current work,
+> use [`CDet_LH2_RUN_CALIBRATION_FROM_SCRATCH.md`](../CDet_LH2_RUN_CALIBRATION_FROM_SCRATCH.md),
+> [`CDet_EVENT_DISPLAY.md`](../CDet_EVENT_DISPLAY.md), and the active Run 5711
+> and Run 6077 reports in the parent directory.
+
 Last updated: 6 September 2026
 
 ## Purpose
@@ -24,7 +30,7 @@ motivated the high-energy timing slice used below.  The `1.0–2.5 GeV` slice is
 a useful accidental-coincidence control sample: it still contains primary
 electrons traversing CDet and ECal, but not the desired elastic kinematics.
 
-![Reconstructed ECal cluster-energy spectrum for the LH2 data](documentation_images/hydrogen/ecal_cluster_energy_lh2.png)
+![Reconstructed ECal cluster-energy spectrum for the LH2 data](../documentation_images/hydrogen/ecal_cluster_energy_lh2.png)
 
 ## Hydrogen analysis synchronization
 
@@ -52,7 +58,7 @@ The synchronized behavior includes:
 - The interactive CDet event display.
 
 The dedicated workflow is documented in
-[CDet_EVENT_DISPLAY_HYDROGEN.md](CDet_EVENT_DISPLAY_HYDROGEN.md).
+[CDet_EVENT_DISPLAY.md](../CDet_EVENT_DISPLAY.md).
 
 ## CDet x-coordinate convention
 
@@ -227,29 +233,29 @@ plus accepted-TOT/manual-polygon population, and selected `dt` versus TOT.
 
 #### Bar 30
 
-![Individual-pixel ECal–CDet timing fits for bar 30 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal3p0_4p5_pixel_fits.png)
+![Individual-pixel ECal–CDet timing fits for bar 30 in the 3.0 to 4.5 GeV ECal slice](../documentation_images/hydrogen/bar30_ECal3p0_4p5_pixel_fits.png)
 
-![Amalgamated timing spectra for bar 30 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal3p0_4p5_amalgamated.png)
+![Amalgamated timing spectra for bar 30 in the 3.0 to 4.5 GeV ECal slice](../documentation_images/hydrogen/bar30_ECal3p0_4p5_amalgamated.png)
 
 #### Bar 28
 
-![Individual-pixel ECal–CDet timing fits for bar 28 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal3p0_4p5_pixel_fits.png)
+![Individual-pixel ECal–CDet timing fits for bar 28 in the 3.0 to 4.5 GeV ECal slice](../documentation_images/hydrogen/bar28_ECal3p0_4p5_pixel_fits.png)
 
-![Amalgamated timing spectra for bar 28 in the 3.0 to 4.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal3p0_4p5_amalgamated.png)
+![Amalgamated timing spectra for bar 28 in the 3.0 to 4.5 GeV ECal slice](../documentation_images/hydrogen/bar28_ECal3p0_4p5_amalgamated.png)
 
 ### Accidental-control slice: 1.0–2.5 GeV
 
 #### Bar 30
 
-![Individual-pixel ECal–CDet timing fits for bar 30 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal1p0_2p5_pixel_fits.png)
+![Individual-pixel ECal–CDet timing fits for bar 30 in the 1.0 to 2.5 GeV ECal slice](../documentation_images/hydrogen/bar30_ECal1p0_2p5_pixel_fits.png)
 
-![Amalgamated timing spectra for bar 30 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar30_ECal1p0_2p5_amalgamated.png)
+![Amalgamated timing spectra for bar 30 in the 1.0 to 2.5 GeV ECal slice](../documentation_images/hydrogen/bar30_ECal1p0_2p5_amalgamated.png)
 
 #### Bar 28
 
-![Individual-pixel ECal–CDet timing fits for bar 28 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal1p0_2p5_pixel_fits.png)
+![Individual-pixel ECal–CDet timing fits for bar 28 in the 1.0 to 2.5 GeV ECal slice](../documentation_images/hydrogen/bar28_ECal1p0_2p5_pixel_fits.png)
 
-![Amalgamated timing spectra for bar 28 in the 1.0 to 2.5 GeV ECal slice](documentation_images/hydrogen/bar28_ECal1p0_2p5_amalgamated.png)
+![Amalgamated timing spectra for bar 28 in the 1.0 to 2.5 GeV ECal slice](../documentation_images/hydrogen/bar28_ECal1p0_2p5_amalgamated.png)
 
 The narrow component near approximately `-20 ns` persists in both energy
 slices, especially for bar 30. This is physically reasonable: the lower-energy
@@ -262,22 +268,22 @@ the high-rate, low-energy CDet background that is uncorrelated with ECal.
 
 The retained summary canvases are:
 
-- [Layer 1, 3.0–4.5 GeV](cCDetBarTimingSurveyLayer1_1.jpg)
-- [Layer 2, 3.0–4.5 GeV](cCDetBarTimingSurveyLayer2_1.jpg)
-- [Layer 1, 1.0–2.5 GeV](cCDetBarTimingSurveyLayer1_2.jpg)
-- [Layer 2, 1.0–2.5 GeV](cCDetBarTimingSurveyLayer2_2.jpg)
+- [Layer 1, 3.0–4.5 GeV](../cCDetBarTimingSurveyLayer1_1.jpg)
+- [Layer 2, 3.0–4.5 GeV](../cCDetBarTimingSurveyLayer2_1.jpg)
+- [Layer 1, 1.0–2.5 GeV](../cCDetBarTimingSurveyLayer1_2.jpg)
+- [Layer 2, 1.0–2.5 GeV](../cCDetBarTimingSurveyLayer2_2.jpg)
 
 ### 3.0–4.5 GeV ECal slice
 
-![Layer 1 detector-wide timing survey for the 3.0 to 4.5 GeV ECal slice](cCDetBarTimingSurveyLayer1_1.jpg)
+![Layer 1 detector-wide timing survey for the 3.0 to 4.5 GeV ECal slice](../cCDetBarTimingSurveyLayer1_1.jpg)
 
-![Layer 2 detector-wide timing survey for the 3.0 to 4.5 GeV ECal slice](cCDetBarTimingSurveyLayer2_1.jpg)
+![Layer 2 detector-wide timing survey for the 3.0 to 4.5 GeV ECal slice](../cCDetBarTimingSurveyLayer2_1.jpg)
 
 ### 1.0–2.5 GeV ECal slice
 
-![Layer 1 detector-wide timing survey for the 1.0 to 2.5 GeV ECal slice](cCDetBarTimingSurveyLayer1_2.jpg)
+![Layer 1 detector-wide timing survey for the 1.0 to 2.5 GeV ECal slice](../cCDetBarTimingSurveyLayer1_2.jpg)
 
-![Layer 2 detector-wide timing survey for the 1.0 to 2.5 GeV ECal slice](cCDetBarTimingSurveyLayer2_2.jpg)
+![Layer 2 detector-wide timing survey for the 1.0 to 2.5 GeV ECal slice](../cCDetBarTimingSurveyLayer2_2.jpg)
 
 *Only fits passing the recommended-fit criteria appear in the centroid,
 width, significance, and yield panels; the status panel retains every bar.*
@@ -321,23 +327,23 @@ time-difference spectrum retains a localized component near
 `t_ECal - t_CDet,LE = -22 ns`, demonstrating that the calibrated pixel-level
 timing structure remains recognizable in run 6077.
 
-![Run 6077 ECal-CDet time-difference spectrum for logical pixel 485](documentation_images/hydrogen/run6077_pixel485_ecal_cdet_dt.jpg)
+![Run 6077 ECal-CDet time-difference spectrum for logical pixel 485](../documentation_images/hydrogen/run6077_pixel485_ecal_cdet_dt.jpg)
 
 The 4-by-4 bar-30 view shows the corresponding behavior pixel by pixel. The
 peak is clearest in the better-populated channels, while the remaining panels
 illustrate the large uncorrelated LH2 background and the channels for which a
 stable fit is not available.
 
-![Run 6077 individual-pixel ECal-CDet timing fits for bar 30](documentation_images/hydrogen/run6077_bar30_pixel_timing_fits.jpg)
+![Run 6077 individual-pixel ECal-CDet timing fits for bar 30](../documentation_images/hydrogen/run6077_bar30_pixel_timing_fits.jpg)
 
 At bar level, ECal trajectory projection followed by the accepted-TOT or
 manual-polygon selection makes the correlated component especially clear for
 bar 30. Bar 28 is a deliberately less favorable example: it retains more
 background, but the same selection exposes a consistent timing enhancement.
 
-![Run 6077 amalgamated timing diagnostics for bar 30 with the 8 to 35 ns TOT selection](documentation_images/hydrogen/run6077_bar30_tot8_35_amalgamated.jpg)
+![Run 6077 amalgamated timing diagnostics for bar 30 with the 8 to 35 ns TOT selection](../documentation_images/hydrogen/run6077_bar30_tot8_35_amalgamated.jpg)
 
-![Run 6077 amalgamated timing diagnostics for bar 28 with the 8 to 35 ns TOT selection](documentation_images/hydrogen/run6077_bar28_tot8_35_amalgamated.jpg)
+![Run 6077 amalgamated timing diagnostics for bar 28 with the 8 to 35 ns TOT selection](../documentation_images/hydrogen/run6077_bar28_tot8_35_amalgamated.jpg)
 
 The detector-wide projected-half-bar diagnostic preserves the strong
 Layer-1/Layer-2 correlation, but places the corrected-time population near
@@ -346,7 +352,7 @@ a run-dependent common timing shift associated with the trigger/ECal timing
 relationship; it is not evidence that the run-5710 pixel offsets or time-walk
 calibration should be regenerated.
 
-![Run 6077 projected-half-bar timing distributions and Layer-1/Layer-2 correlation](documentation_images/hydrogen/run6077_projected_halfbar_timing.jpg)
+![Run 6077 projected-half-bar timing distributions and Layer-1/Layer-2 correlation](../documentation_images/hydrogen/run6077_projected_halfbar_timing.jpg)
 
 The CDet-versus-ECal diagnostic likewise shows a residual run-dependent time
 slope. The appropriate follow-up is therefore to refine the run-6077 entries
@@ -354,7 +360,7 @@ in `CDet_run6077.dat`—the ECal timing parameters and, if required, the final
 global shift—while keeping the established detector-relative calibration
 fixed.
 
-![Run 6077 CDet-versus-ECal timing diagnostics](documentation_images/hydrogen/run6077_ecal_timing_diagnostics.jpg)
+![Run 6077 CDet-versus-ECal timing diagnostics](../documentation_images/hydrogen/run6077_ecal_timing_diagnostics.jpg)
 
 ## Run 5711–6077 stability milestone
 
