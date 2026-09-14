@@ -2,6 +2,8 @@
 #include <TChain.h>
 #include <TFile.h>
 #include <TH1D.h>
+#include <TH2D.h>
+#include <TPad.h>
 #include <TLine.h>
 #include <TString.h>
 #include <TStyle.h>
@@ -100,7 +102,9 @@ std::pair<double, double> ProposeWindow(TH1D &input)
 }
 
 // First call with approve=false. Inspect the PNG/PDF, choose the bounds, then
-// call again with approve=true and the human-approved min/max. A proposal is
+// pass explicit min/max with approve=false to preview that window and zoom the
+// plots to those bounds. Call with approve=true and the human-approved min/max.
+// A proposal is
 // never silently promoted into CDet_run<run>_projection.conf.
 void Run_CDet_Select_ECalTimingWindow(Int_t runNumber,
                                       bool approve = false,
@@ -111,12 +115,14 @@ void Run_CDet_Select_ECalTimingWindow(Int_t runNumber,
     std::cerr << "[ECal window] ERROR: runNumber must be positive.\n";
     return;
   }
+  const bool explicitWindow = approvedMin != 0.0 || approvedMax != 0.0;
+  if ((approve || explicitWindow) &&
+      (!std::isfinite(approvedMin) || !std::isfinite(approvedMax) ||
+       approvedMin >= approvedMax)) {
+    std::cerr << "[ECal window] ERROR: explicit bounds must be finite with min < max.\n";
+    return;
+  }
   if (approve) {
-    if (!std::isfinite(approvedMin) || !std::isfinite(approvedMax) ||
-        approvedMin >= approvedMax) {
-      std::cerr << "[ECal window] ERROR: approval requires valid explicit bounds.\n";
-      return;
-    }
     const TString configFile = Form("CDet_run%d_projection.conf", runNumber);
     if (!WriteApprovedECalWindow(configFile, runNumber, approvedMin, approvedMax)) {
       std::cerr << "[ECal window] ERROR: could not update existing "
@@ -141,43 +147,86 @@ void Run_CDet_Select_ECalTimingWindow(Int_t runNumber,
     return;
   }
 
-  TH1D spectrum(Form("hECalATime%d", runNumber),
-      Form("Run %d: earm.ecal.a_time;earm.ecal.a_time (ns);ECal block hits / 0.5 ns", runNumber),
+  TH1D spectrum(Form("hECalAdcTime%d", runNumber),
+      Form("Run %d: earm.ecal.adctime;earm.ecal.adctime (ns);Events / 0.5 ns", runNumber),
       800, -200.0, 200.0);
-  chain.Draw(Form("earm.ecal.a_time>>hECalATime%d", runNumber), "", "goff");
-  const auto proposal = ProposeWindow(spectrum);
+  if (chain.Draw(Form("earm.ecal.adctime>>hECalAdcTime%d", runNumber), "", "goff") < 0) {
+    std::cerr << "[ECal window] ERROR: could not read earm.ecal.adctime for ECal timing.\n";
+    return;
+  }
+  const auto proposal = explicitWindow
+      ? std::make_pair(approvedMin, approvedMax) : ProposeWindow(spectrum);
 
-  TCanvas canvas(Form("cECalATime%d", runNumber), "ECal timing-window review", 1500, 700);
-  canvas.Divide(2, 1);
+  TH1D hcalSpectrum(Form("hHCalAdcTime%d", runNumber),
+      Form("Run %d: sbs.hcal.adctime (ECal bounds for comparison);sbs.hcal.adctime (ns);Events / 0.5 ns", runNumber),
+      800, -200.0, 200.0);
+  if (chain.Draw(Form("sbs.hcal.adctime>>hHCalAdcTime%d", runNumber), "", "goff") < 0) {
+    std::cerr << "[ECal window] ERROR: could not read sbs.hcal.adctime for HCal comparison.\n";
+    return;
+  }
+
+  TH2D correlation(Form("hHCalVsECalAdcTime%d", runNumber),
+      Form("Run %d: HCal vs. ECal ADC time;earm.ecal.adctime (ns);sbs.hcal.adctime (ns);Events / (0.5 ns #times 0.5 ns)", runNumber),
+      800, -200.0, 200.0, 800, -200.0, 200.0);
+  if (chain.Draw(Form("sbs.hcal.adctime:earm.ecal.adctime>>hHCalVsECalAdcTime%d", runNumber), "", "goff") < 0) {
+    std::cerr << "[ECal window] ERROR: could not read paired ECal/HCal ADC times.\n";
+    return;
+  }
+
+  const double plotMin = explicitWindow ? approvedMin : -120.0;
+  const double plotMax = explicitWindow ? approvedMax : 160.0;
+  TCanvas canvas(Form("cECalATime%d", runNumber), "ECal and HCal timing-window review", 1500, 1200);
+  canvas.Divide(1, 2);
+  TPad *top = static_cast<TPad *>(canvas.cd(1));
+  top->Divide(2, 1);
   for (int pad = 1; pad <= 2; ++pad) {
-    canvas.cd(pad);
-    TH1D *copy = static_cast<TH1D *>(spectrum.Clone(Form("hECalATime%dPad%d", runNumber, pad)));
-    copy->GetXaxis()->SetRangeUser(-120.0, 160.0);
-    if (pad == 2) {
-      gPad->SetLogy();
-      copy->SetMinimum(0.7);
-    }
+    top->cd(pad);
+    TH1D &source = pad == 1 ? spectrum : hcalSpectrum;
+    TH1D *copy = static_cast<TH1D *>(source.Clone(Form("%sPad%d", source.GetName(), pad)));
+    copy->GetXaxis()->SetRangeUser(plotMin, plotMax);
     gPad->SetGridx();
     copy->Draw("HIST");
     gPad->Update();
-    const double lineMinimum = pad == 2 ? 0.7 : 0.0;
-    const double lineMaximum = 1.05*copy->GetMaximum();
+    const double lineMinimum = 0.0;
+    const double lineMaximum = std::max(1.0, 1.05*copy->GetMaximum());
     TLine *low = new TLine(proposal.first, lineMinimum, proposal.first, lineMaximum);
     TLine *high = new TLine(proposal.second, lineMinimum, proposal.second, lineMaximum);
     low->SetLineColor(kRed + 1); high->SetLineColor(kRed + 1);
     low->SetLineWidth(3); high->SetLineWidth(3);
     low->Draw(); high->Draw();
   }
+  canvas.cd(2);
+  gPad->SetRightMargin(0.16);
+  correlation.SetStats(false);
+  correlation.GetXaxis()->SetRangeUser(plotMin, plotMax);
+  correlation.GetYaxis()->SetRangeUser(plotMin, plotMax);
+  correlation.Draw("COLZ");
+  for (double bound : {proposal.first, proposal.second}) {
+    TLine *ecalBound = new TLine(bound, plotMin, bound, plotMax);
+    TLine *hcalReference = new TLine(plotMin, bound, plotMax, bound);
+    ecalBound->SetLineColor(kRed + 1);
+    hcalReference->SetLineColor(kRed + 1);
+    ecalBound->SetLineWidth(2);
+    hcalReference->SetLineWidth(2);
+    hcalReference->SetLineStyle(2);
+    ecalBound->Draw();
+    hcalReference->Draw();
+  }
   const TString base = Form("CDet_run%d_ECalTimingWindow_PROPOSAL", runNumber);
   canvas.SaveAs(base + ".png");
   canvas.SaveAs(base + ".pdf");
   TFile output(base + ".root", "RECREATE");
   spectrum.Write();
+  hcalSpectrum.Write();
+  correlation.Write();
   output.Close();
 
-  std::cout << "\n[ECal window] AUTOMATIC PROPOSAL ONLY: " << proposal.first
-            << " < earm.ecal.a_time < " << proposal.second << " ns\n"
+  std::cout << "\n[ECal window] "
+            << (explicitWindow ? "EXPLICIT WINDOW PREVIEW ONLY: " : "AUTOMATIC PROPOSAL ONLY: ")
+            << proposal.first
+            << " < earm.ecal.adctime < " << proposal.second << " ns\n"
             << "  Inspect " << base << ".png before approval.\n"
+            << "  HCal ADC-time panels show the same bounds for comparison, not an applied HCal cut.\n"
             << "  To record explicit human approval:\n"
             << "  Run_CDet_Select_ECalTimingWindow(" << runNumber
             << ", true, APPROVED_MIN, APPROVED_MAX)\n";

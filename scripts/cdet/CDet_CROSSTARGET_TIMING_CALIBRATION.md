@@ -360,7 +360,7 @@ detector-wide slope is inadequate. The commissioned Run 5992 result retains
 the Run 5710 slope and fits only the additive timing origin.
 
 Before fitting a run-specific `p1`, determine and approve that run's ECal
-timing window from the one-dimensional per-block `earm.ecal.a_time` spectrum:
+timing window from the one-dimensional main-cluster `earm.ecal.adctime` spectrum:
 
 ```cpp
 .L Run_CDet_Select_ECalTimingWindow.C+
@@ -369,8 +369,14 @@ Run_CDet_Select_ECalTimingWindow(RUN)
 
 This creates `CDet_runRUN_ECalTimingWindow_PROPOSAL.{png,pdf,root}` and prints
 an automatic peak-window proposal. The proposal is advisory: the macro does
-not modify the configuration. Inspect the linear and logarithmic panels and choose
-the physical peak boundaries. Record the explicit human approval with:
+not modify the configuration. Inspect the linear ECal and HCal ADC-time histograms and choose the physical
+peak boundaries. The bottom panel shows HCal versus ECal ADC time (ECal on x,
+HCal on y). Vertical red lines mark the ECal bounds; dashed horizontal lines
+show the same bounds for HCal comparison, without applying an HCal cut.
+All three histograms are saved in the ROOT output.
+To preview chosen bounds and zoom all three panels to
+that range, call `Run_CDet_Select_ECalTimingWindow(RUN, false, -20, 20)`; this
+still leaves the configuration unchanged. Record the explicit human approval with:
 
 ```cpp
 Run_CDet_Select_ECalTimingWindow(RUN, true, APPROVED_MIN, APPROVED_MAX)
@@ -389,11 +395,10 @@ they are absent or invalid. Selection cuts belong only in `.conf`; `p1` and
 selections approved here are
 10--35 ns for run 5710 and -15--15 ns for run 5992.
 
-The proposal histogram is built from the per-block `earm.ecal.a_time` branch.
-The production event selection is applied to the reconstructed-cluster scalar
-`earm.ecal.adctime`; therefore, verify that the approved window selects the
-same physical peak in both variables. A run with abnormal ECal reconstruction
-can have many block ADC entries but few valid reconstructed clusters.
+The proposal histogram and production event selection both use the
+reconstructed-cluster scalar `earm.ecal.adctime`, the energy-weighted mean ADC
+time of the main cluster. This differs from `earm.ecal.atimeblk` (the time of
+its highest-energy block) and `earm.ecal.a_time` (block-level pulse times).
 
 #### Calibrating an additional run
 
