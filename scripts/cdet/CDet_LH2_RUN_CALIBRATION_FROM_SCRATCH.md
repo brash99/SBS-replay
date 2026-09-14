@@ -51,10 +51,10 @@ For Run 5711 the accepted working selections are:
 |x_CDet - x_ECal projected| < 0.08 m
 ```
 
-The ECal event cut used by the main analysis is
-`earm.ecal.adctime`. The ECal timing-window proposal plots
-`earm.ecal.a_time`; confirm visually that both identify the same physical
-population before accepting a window.
+The ECal event cut and timing-window proposal both use `earm.ecal.adctime`,
+the energy-weighted mean ADC time of the main cluster. The highest-energy
+block's time is `earm.ecal.atimeblk`; `earm.ecal.a_time` contains block-level
+pulse times and is not used to select this window.
 
 To generate an ECal timing-window proposal without changing the configuration:
 
@@ -62,6 +62,17 @@ To generate an ECal timing-window proposal without changing the configuration:
 .L Run_CDet_Select_ECalTimingWindow.C+
 Run_CDet_Select_ECalTimingWindow(RUN)
 ```
+
+The figure shows linear ECal and HCal ADC-time histograms on the top row and
+a 2D HCal-versus-ECal histogram below (ECal on x, HCal on y). All three
+histograms are saved in the ROOT output. Red vertical lines mark the ECal
+bounds; dashed horizontal lines in the 2D plot show the same bounds for HCal
+comparison and do not impose an HCal timing cut.
+
+To preview a specific window and zoom all three panels to its bounds without changing
+the configuration, use `Run_CDet_Select_ECalTimingWindow(RUN, false, -20, 20)`.
+The red lines mark the supplied bounds; omitting them keeps the automatic proposal
+and the overview range of -120 to 160 ns.
 
 Inspect `CDet_runRUN_ECalTimingWindow_PROPOSAL.png`. After a human chooses the
 bounds, store them explicitly:
