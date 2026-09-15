@@ -1,3 +1,7 @@
+#include <TDirectory.h>
+#include <TH1.h>
+#include <TList.h>
+#include <TObject.h>
 #include <TSystem.h>
 
 #include <cmath>
@@ -6,17 +10,41 @@
 #include <iostream>
 #include <sstream>
 #include <string>
+#include <unordered_set>
 #include <vector>
 
 namespace {
 struct CDetRunTimingMean {
   int run;
+  int calibrationStage;
   double meanLe;
   double meanECalAdcTime;
   std::vector<double> groupMeanLe;
   std::size_t leHits;
   std::size_t ecalEvents;
 };
+
+std::unordered_set<TObject*> SnapshotDirectoryObjects() {
+  std::unordered_set<TObject*> objects;
+  if (!gDirectory || !gDirectory->GetList()) return objects;
+
+  TIter next(gDirectory->GetList());
+  while (TObject *object = next()) objects.insert(object);
+  return objects;
+}
+
+void DeleteNewRunHistograms(const std::unordered_set<TObject*>& objectsBefore) {
+  if (!gDirectory || !gDirectory->GetList()) return;
+
+  std::vector<TH1*> histograms;
+  TIter next(gDirectory->GetList());
+  while (TObject *object = next()) {
+    if (objectsBefore.count(object) == 0) {
+      if (TH1 *histogram = dynamic_cast<TH1*>(object)) histograms.push_back(histogram);
+    }
+  }
+  for (TH1 *histogram : histograms) delete histogram;
+}
 
 bool ReadCDetMeanRunList(const char *runList, std::vector<int>& runs) {
   std::ifstream input(runList);
@@ -58,16 +86,18 @@ bool WriteCDetRunMeanCsvFiles(const std::vector<CDetRunTimingMean>& results,
     return false;
   }
 
-  leOutput << "run_number,mean_le_ns,mean_le_pixels_1472_1487_ns,"
+  leOutput << "run_number,calibration_stage,mean_le_ns,mean_le_pixels_1472_1487_ns,"
               "mean_le_pixels_1200_1215_ns,mean_le_pixels_480_495_ns,n_le_hits\n";
-  ecalOutput << "run_number,mean_ecal_adctime_ns,n_ecal_events\n";
+  ecalOutput << "run_number,calibration_stage,mean_ecal_adctime_ns,n_ecal_events\n";
   for (const CDetRunTimingMean& result : results) {
-    leOutput << result.run << "," << result.meanLe;
+    leOutput << result.run << "," << result.calibrationStage
+             << "," << result.meanLe;
     for (int group = 0; group < 3; ++group)
       leOutput << "," << result.groupMeanLe[group];
     leOutput << "," << result.leHits << "\n";
 
-    ecalOutput << result.run << "," << result.meanECalAdcTime
+    ecalOutput << result.run << "," << result.calibrationStage
+               << "," << result.meanECalAdcTime
                << "," << result.ecalEvents << "\n";
   }
   leOutput.close();
@@ -93,27 +123,35 @@ bool WriteCDetRunMeanCsvFiles(const std::vector<CDetRunTimingMean>& results,
 
 void Run_CDet_Extract_RunTimingMeans_FromList(
     const char *runList = "runs.txt", Int_t events = -1,
+    Int_t calibrationStage = 2,
     Int_t minSegment = -1, Int_t maxSegment = -1,
     Double_t leMin = 0.02, Double_t leMax = 100.0,
     Double_t totMin = 0.02, Double_t totMax = 150.0,
-    Double_t ecalTimeMin = 10.0, Double_t ecalTimeMax = 35.0,
+    Double_t ecalTimeMin = -10.0, Double_t ecalTimeMax = 50.0,
     const char *leCsv = "cdet_le_means.csv",
     const char *ecalCsv = "ecal_adctime_means.csv") {
   std::vector<int> runs;
   if (!ReadCDetMeanRunList(runList, runs)) return;
+  if (calibrationStage < 0 || calibrationStage > 8) {
+    std::cerr << "[Run means] ERROR: calibration stage must be between 0 and 8.\n";
+    return;
+  }
 
   std::vector<CDetRunTimingMean> results;
   results.reserve(runs.size());
   const bool previousDisableRunTimingConstants = gDisableRunTimingConstants;
+  const bool previousAddDirectory = TH1::AddDirectoryStatus();
   gDisableRunTimingConstants = true;
+  TH1::AddDirectory(kTRUE);
 
   for (std::size_t index = 0; index < runs.size(); ++index) {
     const int run = runs[index];
     std::cout << "\n[Run means] Processing run " << run << " ("
               << index + 1 << "/" << runs.size() << ")\n";
+    const std::unordered_set<TObject*> objectsBefore = SnapshotDirectoryObjects();
 
     PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(
-        run, events, 0, 0, minSegment, maxSegment,
+        run, events, calibrationStage, 0, minSegment, maxSegment,
         leMin, leMax, totMin, totMax, ecalTimeMin, ecalTimeMax,
         1, 100, 0, 100, 0.05, 0.0, 0.1, 3,
         false, 30, 2, 1, false);
@@ -122,19 +160,30 @@ void Run_CDet_Extract_RunTimingMeans_FromList(
         !std::isfinite(gLastRunMeanGoodLe) ||
         !std::isfinite(gLastRunMeanECalAdcTime) ||
         gLastRunGoodLeCount == 0 || gLastRunGoodECalEventCount == 0) {
+      DeleteNewRunHistograms(objectsBefore);
       std::cerr << "[Run means] ERROR: run " << run
                 << " did not produce valid timing means. Existing CSV files "
-                   "were left unchanged.\n";
+                   "were left unchanged.\n"
+                << "  calibration stage: " << calibrationStage << "\n"
+                << "  events processed: " << gNumEventsInRun << "\n"
+                << "  good LE hits: " << gLastRunGoodLeCount << "\n"
+                << "  good ECal events: " << gLastRunGoodECalEventCount << "\n"
+                << "  mean good LE: " << gLastRunMeanGoodLe << " ns\n"
+                << "  mean ECal ADC time: " << gLastRunMeanECalAdcTime << " ns\n";
       gDisableRunTimingConstants = previousDisableRunTimingConstants;
+      TH1::AddDirectory(previousAddDirectory);
       return;
     }
 
-    results.push_back({run, gLastRunMeanGoodLe, gLastRunMeanECalAdcTime,
+    results.push_back({run, calibrationStage,
+                       gLastRunMeanGoodLe, gLastRunMeanECalAdcTime,
                        gLastRunGroupMeanGoodLe, gLastRunGoodLeCount,
                        gLastRunGoodECalEventCount});
+    DeleteNewRunHistograms(objectsBefore);
   }
 
   gDisableRunTimingConstants = previousDisableRunTimingConstants;
+  TH1::AddDirectory(previousAddDirectory);
   if (!WriteCDetRunMeanCsvFiles(results, leCsv, ecalCsv)) return;
   std::cout << "\n[Run means] Completed all " << results.size()
             << " runs. Replaced " << leCsv << " and " << ecalCsv << ".\n";
