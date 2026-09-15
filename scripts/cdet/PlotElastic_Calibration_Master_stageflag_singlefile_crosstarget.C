@@ -3188,9 +3188,9 @@ std::cout << "[CDet] Reference timing subtraction is "
       }
     }
   }
-  // Record one timing-summary row per run during the uncalibrated display stage.
-  // Run_CDet_Calibration_FromList calls this stage once for every run in its list.
-  if (calibStage == 0) {
+  // Expose timing-summary values after any requested analysis stage. This lets
+  // lightweight run-list drivers compare either raw or calibrated good-hit LE.
+  {
     double leSum = 0.0;
     for (double le : vAllGoodLe) leSum += le;
     const double meanLe = vAllGoodLe.empty() ? -999.0 : leSum/vAllGoodLe.size();
