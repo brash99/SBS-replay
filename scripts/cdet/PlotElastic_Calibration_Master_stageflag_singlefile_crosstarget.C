@@ -730,6 +730,13 @@ Int_t gCalibrationStage = 0;
 bool gLastCalibrationStageSucceeded = false;
 bool gLastCalibrationFitSucceeded = false;
 bool gLastCalibrationSequenceSucceeded = false;
+bool gDisableRunTimingConstants = false;
+double gLastRunMeanGoodLe = std::numeric_limits<double>::quiet_NaN();
+double gLastRunMeanECalAdcTime = std::numeric_limits<double>::quiet_NaN();
+std::vector<double> gLastRunGroupMeanGoodLe(3,
+    std::numeric_limits<double>::quiet_NaN());
+std::size_t gLastRunGoodLeCount = 0;
+std::size_t gLastRunGoodECalEventCount = 0;
 // Most recent combined within-half-bar ECal timing fit.  Exposed so a
 // run-specific p1 calibrator can write CDet_run<run>.dat without modifying the
 // detector-wide master calibration.
@@ -1664,6 +1671,12 @@ void PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget(Int_t RunNu
   gRunNumber = RunNumber1;
   gCalibrationStage = calibStage;
   gNumEventsInRun = 0;
+  gLastRunMeanGoodLe = std::numeric_limits<double>::quiet_NaN();
+  gLastRunMeanECalAdcTime = std::numeric_limits<double>::quiet_NaN();
+  gLastRunGroupMeanGoodLe.assign(3,
+      std::numeric_limits<double>::quiet_NaN());
+  gLastRunGoodLeCount = 0;
+  gLastRunGoodECalEventCount = 0;
   ecalClusterGroupIndex = groupIndex;
   ecalClusterEnergiesGeV.clear();
   ecalClusterProcessedEventCount = 0;
@@ -1710,7 +1723,7 @@ ConfigureCalibrationStage(calibStage);
 
 // A single shift is meaningful only for single-run chains. Applying a
 // CDet_run0.dat shift to a mixed-run group would silently bias every run.
-if (RunNumber1 != 0) {
+if (RunNumber1 != 0 && !gDisableRunTimingConstants) {
   gRunTimingFile = Form("CDet_run%d.dat", (int)RunNumber1);
   LoadRunTimingConstants(gRunTimingFile);
   if (gRunECalTimeWindowLoaded) {
@@ -1724,7 +1737,9 @@ if (RunNumber1 != 0) {
   gRunECalTimeMin = 10.0;
   gRunECalTimeMax = 35.0;
   gRunECalTimeWindowLoaded = false;
-  std::cout << "[CDet] Group mode: per-run global timing shifts are disabled.\n";
+  std::cout << "[CDet] Per-run timing constants are disabled"
+            << (RunNumber1 == 0 ? " in group mode" : " for this analysis")
+            << ".\n";
 }
 
 std::cout << "[CDet] Reference timing subtraction is "
@@ -3173,67 +3188,59 @@ std::cout << "[CDet] Reference timing subtraction is "
       }
     }
   }
-  //for ben to get cross target individual peaks -- this was just exaimining run groups. 7/6/2026 we can probably remove
-  // if (calibStage == 0){
-  //   double sum = 0;
-  //   for (double x : vAllGoodLe){
-  //     sum += x;
-  //   }
-  //   double le_ave = sum / vAllGoodLe.size();
-  //   std::vector<double> sum_event_avg_le(3,0);
-  //   std::vector<int> n_events_with_hit(3,0);
-  //   const size_t Nev = vGoodLe.size();
-  //   for (size_t ev = 0; ev < Nev; ev++){
-  //     std::vector<double> event_le_sum(3,0.0);
-  //     std::vector<int> event_le_count(3,0);
-  //     int nhits = vGoodLe[ev].size();
+  // Record one timing-summary row per run during the uncalibrated display stage.
+  // Run_CDet_Calibration_FromList calls this stage once for every run in its list.
+  if (calibStage == 0) {
+    double leSum = 0.0;
+    for (double le : vAllGoodLe) leSum += le;
+    const double meanLe = vAllGoodLe.empty() ? -999.0 : leSum/vAllGoodLe.size();
 
-  //     for (int ihit = 0; ihit < nhits; ihit++){
-  //       if (vGoodID[ev][ihit] >= 1472 && vGoodID[ev][ihit] <= 1487){
-  //         event_le_sum[0] += vGoodLe[ev][ihit];
-  //         event_le_count[0]++;
-  //       }
-  //       if (vGoodID[ev][ihit] >= 1200 && vGoodID[ev][ihit] <= 1215){
-  //         event_le_sum[1] += vGoodLe[ev][ihit];
-  //         event_le_count[1]++;
-  //       }
-  //       if (vGoodID[ev][ihit] >= 480 && vGoodID[ev][ihit] <= 495){
-  //         event_le_sum[2] += vGoodLe[ev][ihit];
-  //         event_le_count[2]++;
-  //       }
-  //     }
+    double ecalAdcTimeSum = 0.0;
+    for (double time : v_GoodECalAdcTime) ecalAdcTimeSum += time;
+    const double meanECalAdcTime = v_GoodECalAdcTime.empty()
+        ? -999.0 : ecalAdcTimeSum/v_GoodECalAdcTime.size();
 
-  //     // Average this event separately for each of the 3 pixel/bar groups
-  //     std::vector<double> event_avg_le(3, -999.0);
+    const int groupMinID[3] = {1472, 1200, 480};
+    const int groupMaxID[3] = {1487, 1215, 495};
+    std::vector<double> sumEventMeanLe(3, 0.0);
+    std::vector<int> eventsWithHit(3, 0);
 
-  //     for (int i = 0; i < 3; i++) {
+    const size_t nEvents = std::min(vGoodLe.size(), vGoodID.size());
+    for (size_t event = 0; event < nEvents; ++event) {
+      std::vector<double> eventLeSum(3, 0.0);
+      std::vector<int> eventLeCount(3, 0);
+      const size_t nHits = std::min(vGoodLe[event].size(), vGoodID[event].size());
 
-  //       // Only average this group if the event had at least one hit in that group
-  //       if (event_le_count[i] > 0) {
+      for (size_t hit = 0; hit < nHits; ++hit) {
+        for (int group = 0; group < 3; ++group) {
+          if (vGoodID[event][hit] >= groupMinID[group] &&
+              vGoodID[event][hit] <= groupMaxID[group]) {
+            eventLeSum[group] += vGoodLe[event][hit];
+            ++eventLeCount[group];
+          }
+        }
+      }
 
-  //           event_avg_le[i] = event_le_sum[i] / event_le_count[i];
+      for (int group = 0; group < 3; ++group) {
+        if (eventLeCount[group] > 0) {
+          sumEventMeanLe[group] += eventLeSum[group]/eventLeCount[group];
+          ++eventsWithHit[group];
+        }
+      }
+    }
 
-  //           // Add this event's average LE to the run-level sum
-  //           sum_event_avg_le[i] += event_avg_le[i];
+    std::vector<double> groupMeanLe(3, -999.0);
+    for (int group = 0; group < 3; ++group) {
+      if (eventsWithHit[group] > 0)
+        groupMeanLe[group] = sumEventMeanLe[group]/eventsWithHit[group];
+    }
 
-  //           // Count this event for this group
-  //           n_events_with_hit[i]++;
-  //       }
-  //     }
-  //   }
-
-  //   std::vector<double> le_run_avg(3, -999.0);
-
-  //   for (int i = 0; i < 3; i++) {
-  //     if (n_events_with_hit[i] > 0) {
-  //         le_run_avg[i] = sum_event_avg_le[i] / n_events_with_hit[i];
-  //     }
-  //   }
-
-  //   std::ofstream outfile("le_means.csv", std::ios::app);
-  //   outfile << RunNumber1 << "," << le_run_avg[0] << "," << le_run_avg[1] << "," << le_run_avg[2] << "," << le_ave << "\n";
-  //   outfile.close();
-  // }
+    gLastRunMeanGoodLe = meanLe;
+    gLastRunMeanECalAdcTime = meanECalAdcTime;
+    gLastRunGroupMeanGoodLe = groupMeanLe;
+    gLastRunGoodLeCount = vAllGoodLe.size();
+    gLastRunGoodECalEventCount = v_GoodECalAdcTime.size();
+  }
   std::cout << "nevents with 0 hits = " << nh0_counter << std::endl;
   std::cout << "nGoodEvents = " << goodEvCount << std::endl;
   gLastCalibrationStageSucceeded = gNumEventsInRun > 0;
