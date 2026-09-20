@@ -14,6 +14,14 @@ p1 = 0.810203 ns/ns
 
 All run-specific `shift_ns` constants were already fitted and closed before this survey. The qualification procedure is read-only: no `CDet_run<run>.dat` file was changed. Post-run checksum comparison confirmed that all 41 files remained byte-for-byte identical.
 
+## Run timing offsets
+
+The fitted `shift_ns` values and the four approved ECal timing-window periods are shown below. Dashed horizontal segments indicate the mean offset within each run group.
+
+![CDet cross-target shift_ns versus run number](CDet_cross_target_shift_vs_run.png)
+
+A vector version is available in [CDet_cross_target_shift_vs_run.pdf](CDet_cross_target_shift_vs_run.pdf).
+
 ## Method
 
 Each run was tested with:
