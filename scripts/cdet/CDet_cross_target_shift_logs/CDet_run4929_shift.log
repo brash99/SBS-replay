@@ -1,0 +1,558 @@
+Processing Run_CDet_Calibrate_RunTimingShift.C+(4929,-1,30.0,5.0,"CDet_run4929_projection.conf",false)...
+[Run timing-shift calibration] Loaded configuration CDet_run4929_projection.conf.
+[Run timing-shift calibration] Diagnostic accepted-ToT window: (4, 30) ns for polygon-aware pixel-calibration diagnostics. Run analysis and plotCDetLayersTimeComp do not apply saved polygons.
+[CDet] No run-timing file 'CDet_run4929.dat' found; using global timing shift = 0 ns.
+[CDet cross-target analysis] Loaded configuration CDet_run4929_projection.conf.
+[CDet cross-target analysis] Diagnostic accepted-ToT window: (4, 30) ns for polygon-aware pixel-calibration diagnostics. Run analysis and plotCDetLayersTimeComp do not apply saved polygons.
+[CDet cross-target analysis] Authoritative configuration: CDet_run4929_projection.conf; stage 7; events -1.
+[CDet cross-target analysis] Effective cuts: ECal ADC time 10 to 35 ns; ECal energy -1e+09 to 1e+09 GeV; Layer 1 hits 1 to 100; Layer 2 hits 1 to 100.
+[CDet] Loaded 2688 pixel offsets from 'CDet_calibration_dt.dat'.
+[CDet] Loaded ECal timing parameters from 'CDet_calibration_dt.dat': p0=14.8074 p1=0.810203 delta=31.6808 ns (fixed)
+[CDet] Loaded time-walk parameters from 'CDet_calibration_dt.dat': p1_L1=13.988 p1_L2=15.7649
+[CDet] Calibration stage 7: 7 = apply pixel offsets + ECal timing correction + time-walk correction
+        applyPixelOffsets=true  applyECalCorr=true  applyTimeWalk=true
+[CDet] No run-timing file 'CDet_run4929.dat' found; using global timing shift = 0 ns.
+[CDet] Reference timing subtraction is disabled.
+Using single run mode for run 4929
+Adding 1 files for run 4929...
+  /Users/brash/CDet_replay/sbs/Rootfiles/cdet_4929_stream0_2_seg0_0.root
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunParameters
+Warning in <TClass::Init>: no dictionary for class THaRunParameters is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEvent
+Warning in <TClass::Init>: no dictionary for class THaEvent is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaEventHeader
+Warning in <TClass::Init>: no dictionary for class THaEventHeader is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd
+Warning in <TClass::Init>: no dictionary for class Podd::MultiFileRun is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRun
+Warning in <TClass::Init>: no dictionary for class THaRun is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaCodaRun
+Warning in <TClass::Init>: no dictionary for class THaCodaRun is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for THaRunBase
+Warning in <TClass::Init>: no dictionary for class THaRunBase is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQInfoExtra
+Warning in <TClass::Init>: no dictionary for class DAQInfoExtra is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libdc.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <96BAE286-467C-3F66-A2D6-A8D580E6E3B0> /usr/local/lib/libdc.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libdc.dylib for DAQconfig
+Warning in <TClass::Init>: no dictionary for class DAQconfig is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun::StreamInfo
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun::StreamInfo
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun
+Warning in <TClass::Init>: no dictionary for class Podd::MultiFileRun::StreamInfo is available
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun::FileInfo
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun::FileInfo
+cling::DynamicLibraryManager::loadLibrary(): dlopen(/usr/local/lib/libPodd.1.7.7.dylib, 0x0009): Symbol not found: __ZN4ROOT17TGenericClassInfoC1EPKcS2_iRKSt9type_infoPKNS_8Internal13TInitBehaviorEPFP6TClassvEP16TVirtualIsAProxyii
+  Referenced from: <334F6564-7E62-31ED-BDED-A5DF84D9522F> /usr/local/lib/libPodd.1.7.7.dylib
+  Expected in:     <809C6508-0AA6-3F8A-B97A-FB2AAC816547> /Users/brash/root_install/lib/libCore.so
+Error in <TInterpreter::TCling::AutoLoad>: failure loading library libPodd.dylib for Podd::MultiFileRun
+Warning in <TClass::Init>: no dictionary for class Podd::MultiFileRun::FileInfo is available
+N entries in tree is 30485
+Running analysis for 30485 events
+Starting Event Loop
+10000/30485/ Nhits = 4
+20000/30485/ Nhits = 7
+30000/30485/ Nhits = 2
+events used for occupancy = 30485
+Raw singles-rate validation: 300 hits / (50000 events x 60 ns) = 100000 hits/s (expected 100000 hits/s)
+Candidate Events = 30428
+Layer 1 Events = 1935     Avg Hits Per Candidate Event = 0.0635927
+Layer 2 Events = 2194     Avg Hits Per Candidate Event = 0.0721046
+One Good Layer Events = 4129     Avg Hits Per Candidate Event = 0.135697
+[CDet] ECal-time corr enabled with fixed detector calibration: p0=14.8074 p1=0.810203 delta=31.6808 ns
+[CDet] Time-walk corr enabled.  p1(L1)=13.988  p1(L2)=15.7649  TOTref(L1)=12  TOTref(L2)=12  calibration fit range=[5, 25] ns; applied to every accepted good hitnevents with 0 hits = 1691
+nGoodEvents = 1800
+[CDet layer comparison] Loaded configuration CDet_run4929_projection.conf.
+[CDet layer comparison] Diagnostic accepted-ToT window: (4, 30) ns for polygon-aware pixel-calibration diagnostics. Run analysis and plotCDetLayersTimeComp do not apply saved polygons.
+[plotCDetLayersTimeComp] Layer 1 pixel 480 normalized to bar 30 (pixels 480-495).
+
+[CDet projected-half-bar timing]
+  accepted layer pairs in the nominal-origin ECal-projected half-bars: 881
+  Layer 1 corrected LE: mean=40.5763 ns, RMS=3.19001 ns
+  Layer 2 corrected LE: mean=40.9072 ns, RMS=2.68322 ns
+  pair mean corrected LE: mean=40.7418 ns, RMS=2.56616 ns
+Error in <TGaxis::PaintAxis>: wmin (4.500000) == wmax (4.500000)
+Error in <TGaxis::PaintAxis>: wmin (4.500000) == wmax (4.500000)
+[CDet y-timing] Layer 1 Left, Sections 2+5: p1=3.94359 +/- 4.56744 ns/m, chi2/NDF=16.5722/7 = 2.367
+[CDet y-timing] Layer 1 Right, Sections 1+6: p1=-3.64221 +/- 2.51524 ns/m, chi2/NDF=34.7238/9 = 3.858
+[CDet y-timing] Layer 1 Right, Sections 2+5: p1=0.862479 +/- 2.08875 ns/m, chi2/NDF=32.6392/13 = 2.511
+[CDet y-timing] Layer 1 Right, Sections 3+4: p1=23.5994 +/- 3.12607 ns/m, chi2/NDF=42.6574/12 = 3.555
+[CDet y-timing] Layer 2 Left, Sections 1+6: p1=-2.16209 +/- 3.55697 ns/m, chi2/NDF=0.817152/1 = 0.817
+[CDet y-timing] Layer 2 Left, Sections 2+5: p1=-10.1707 +/- 2.85336 ns/m, chi2/NDF=14.1309/8 = 1.766
+[CDet y-timing] Layer 2 Left, Sections 3+4: p1=-8.44747 +/- 6.89849 ns/m, chi2/NDF=10.898/5 = 2.180
+[CDet y-timing] Layer 2 Right, Sections 1+6: p1=-0.408362 +/- 1.07878 ns/m, chi2/NDF=20.8343/19 = 1.097
+[CDet y-timing] Layer 2 Right, Sections 2+5: p1=6.6474 +/- 30.2526 ns/m, chi2/NDF=0.169871/1 = 0.170
+[CDet y-timing] Layer 2 Right, Sections 3+4: p1=-0.0366178 +/- 1.9963 ns/m, chi2/NDF=63.6831/14 = 4.549
+
+[CDet/ECal y fixed-effects fits]
+  Half-bar means are removed before estimating each propagation slope.
+[CDet y fixed effects] Layer 1 Left, Sections 1+6: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Left, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Left, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Right, Sections 1+6: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Right, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Right, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Left, Sections 1+6: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Left, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Left, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Right, Sections 1+6: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Right, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Right, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet timing populations] lower vertical: entries=0, mean ToT=0, ToT RMS=0, mean corrected LE=0, LE RMS=0 ns
+[CDet timing populations] upper vertical: entries=0, mean ToT=0, ToT RMS=0, mean corrected LE=0, LE RMS=0 ns
+[CDet timing populations] diagonal: entries=1614, mean ToT=9.9705, ToT RMS=3.7837, mean corrected LE=42.1829, LE RMS=1.77522 ns
+
+[plotCDetLayersTimeComp] Linear fit for <CDet t> vs ECal ADC t:
+  <t_CDet> = p0 + p1 * t_ECal
+  p0 = 40.8 +/- 0.544593 ns
+  p1 = -0.103886 +/- 0.0229488 (ns/ns)
+  chi2/NDF = 2.63586/3 = 0.878622  probability = 0.451237
+
+[plotCDetLayersTimeComp] All Layer 1 hits: p1=-0.154428 +/- 0.02599, chi2/NDF=3.00409/3 = 1.00136, fit_status=0
+[plotCDetLayersTimeComp] All Layer 2 hits: p1=-0.0702243 +/- 0.0260552, chi2/NDF=2.06236/3 = 0.687452, fit_status=0
+[plotCDetLayersTimeComp] Layer 1 bar 30: p1=-0.28125 +/- 0.306393, chi2/NDF=1.54086e-28/0 = 0, fit_status=0
+
+[CDet/ECal fixed-effects timing fit]
+  Separate intercepts are removed for every half-bar.
+[plotCDetLayersTimeComp] Layer 1 fixed-effects slope: p1=-0.146413 +/- 0.0339957 ns/ns, entries=1769, half-bars=61, NDF=1707
+[plotCDetLayersTimeComp] Layer 2 fixed-effects slope: p1=-0.104849 +/- 0.0312546 ns/ns, entries=1770, half-bars=62, NDF=1707
+[plotCDetLayersTimeComp] Combined fixed-effects slope: p1=-0.125649 +/- 0.02309 ns/ns, entries=3539, half-bars=123, NDF=3415
+  The combined fixed-effects slope, not the pooled profile slope, is used for calibration updates.
+
+
+[CDet/HCal timing control]
+  HCal window: -10 to 10 ns
+  pooled profile slope: 0.00659574 +/- 0.0235258 ns/ns
+[plotCDetLayersTimeComp] Combined CDet/HCal fixed-effects slope: p1=0.0386739 +/- 0.0414003 ns/ns, entries=2010, half-bars=111, NDF=1898
+
+[CDet paired timing resolution]
+  accepted pairs: 1773
+  mean pair time: 40.5954 ns
+  detector-wide RMS: 3.04484 +/- 0.0511756 ns
+  Gaussian core mean (35.5954 to 45.5954 ns): 40.9981 +/- 0.0543859 ns
+  Gaussian core sigma (35.5954 to 45.5954 ns): 2.01685 +/- 0.0528637 ns
+  Gaussian chi2/NDF: 22.4865/3
+  The RMS is the width of the full accepted-pair mean-time distribution; the Gaussian sigma describes only its core.
+
+[Run timing-shift calibration]
+  estimator: all accepted pairs
+  baseline Gaussian-core centroid: 40.9981 +/- 0.0543859 ns
+  previous shift_ns: 0 ns
+  target centroid: 30 ns
+  stored shift_ns: -10.9981 ns
+  output: CDet_run4929.dat
+[CDet cross-target analysis] Loaded configuration CDet_run4929_projection.conf.
+[CDet cross-target analysis] Diagnostic accepted-ToT window: (4, 30) ns for polygon-aware pixel-calibration diagnostics. Run analysis and plotCDetLayersTimeComp do not apply saved polygons.
+[CDet cross-target analysis] Authoritative configuration: CDet_run4929_projection.conf; stage 7; events -1.
+[CDet cross-target analysis] Effective cuts: ECal ADC time 10 to 35 ns; ECal energy -1e+09 to 1e+09 GeV; Layer 1 hits 1 to 100; Layer 2 hits 1 to 100.
+[CDet] Loaded 2688 pixel offsets from 'CDet_calibration_dt.dat'.
+[CDet] Loaded ECal timing parameters from 'CDet_calibration_dt.dat': p0=14.8074 p1=0.810203 delta=31.6808 ns (fixed)
+[CDet] Loaded time-walk parameters from 'CDet_calibration_dt.dat': p1_L1=13.988 p1_L2=15.7649
+[CDet] Calibration stage 7: 7 = apply pixel offsets + ECal timing correction + time-walk correction
+        applyPixelOffsets=true  applyECalCorr=true  applyTimeWalk=true
+[CDet] Loaded run timing shift from 'CDet_run4929.dat': shift_ns = -10.9981
+[CDet] Reference timing subtraction is disabled.
+Using single run mode for run 4929
+Adding 1 files for run 4929...
+  /Users/brash/CDet_replay/sbs/Rootfiles/cdet_4929_stream0_2_seg0_0.root
+N entries in tree is 30485
+Running analysis for 30485 events
+Starting Event Loop
+10000/30485/ Nhits = 4
+20000/30485/ Nhits = 7
+30000/30485/ Nhits = 2
+events used for occupancy = 30485
+Raw singles-rate validation: 300 hits / (50000 events x 60 ns) = 100000 hits/s (expected 100000 hits/s)
+Candidate Events = 30428
+Layer 1 Events = 1935     Avg Hits Per Candidate Event = 0.0635927
+Layer 2 Events = 2194     Avg Hits Per Candidate Event = 0.0721046
+One Good Layer Events = 4129     Avg Hits Per Candidate Event = 0.135697
+[CDet] ECal-time corr enabled with fixed detector calibration: p0=14.8074 p1=0.810203 delta=31.6808 ns
+[CDet] Time-walk corr enabled.  p1(L1)=13.988  p1(L2)=15.7649  TOTref(L1)=12  TOTref(L2)=12  calibration fit range=[5, 25] ns; applied to every accepted good hit[CDet] Applying run global timing shift: -10.9981 ns (from file)
+nevents with 0 hits = 1691
+nGoodEvents = 1800
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cSelectedBarPairedLe
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetLayerTimes
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetProjectedHalfBarTiming
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetLayerTimeVsECalY
+Error in <TGaxis::PaintAxis>: wmin (4.500000) == wmax (4.500000)
+Error in <TGaxis::PaintAxis>: wmin (4.500000) == wmax (4.500000)
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetECalYFixedEffects
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetLeVsTotBar
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetSelectedBarTimingStructures
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetAllBarsTimingStructures
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetTDiff
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetLayer2v1
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetTotLayer2v1
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cNpair
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetTvsECalT
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetTvsECalTDiagnostics
+[CDet layer comparison] Loaded configuration CDet_run4929_projection.conf.
+[CDet layer comparison] Diagnostic accepted-ToT window: (4, 30) ns for polygon-aware pixel-calibration diagnostics. Run analysis and plotCDetLayersTimeComp do not apply saved polygons.
+[plotCDetLayersTimeComp] Layer 1 pixel 480 normalized to bar 30 (pixels 480-495).
+
+[CDet projected-half-bar timing]
+  accepted layer pairs in the nominal-origin ECal-projected half-bars: 881
+  Layer 1 corrected LE: mean=29.5782 ns, RMS=3.19001 ns
+  Layer 2 corrected LE: mean=29.9091 ns, RMS=2.68322 ns
+  pair mean corrected LE: mean=29.7436 ns, RMS=2.56616 ns
+[CDet y-timing] Layer 1 Left, Sections 1+6: p1=-2.27412 +/- 2.87068 ns/m, chi2/NDF=30.2527/16 = 1.891
+[CDet y-timing] Layer 1 Left, Sections 2+5: p1=-2.00963 +/- 0.542249 ns/m, chi2/NDF=74.5063/48 = 1.552
+[CDet y-timing] Layer 1 Left, Sections 3+4: p1=-5.29321 +/- 0.532194 ns/m, chi2/NDF=128.39/40 = 3.210
+[CDet y-timing] Layer 1 Right, Sections 1+6: p1=4.6722 +/- 0.602096 ns/m, chi2/NDF=93.9125/40 = 2.348
+[CDet y-timing] Layer 1 Right, Sections 2+5: p1=5.29136 +/- 0.869939 ns/m, chi2/NDF=105.221/36 = 2.923
+[CDet y-timing] Layer 1 Right, Sections 3+4: p1=8.14198 +/- 0.721248 ns/m, chi2/NDF=120.21/47 = 2.558
+[CDet y-timing] Layer 2 Left, Sections 1+6: p1=-3.26644 +/- 1.43392 ns/m, chi2/NDF=102.792/23 = 4.469
+[CDet y-timing] Layer 2 Left, Sections 2+5: p1=-5.45164 +/- 0.55158 ns/m, chi2/NDF=156.359/46 = 3.399
+[CDet y-timing] Layer 2 Left, Sections 3+4: p1=-4.88963 +/- 0.681065 ns/m, chi2/NDF=91.4303/40 = 2.286
+[CDet y-timing] Layer 2 Right, Sections 1+6: p1=3.99133 +/- 0.614262 ns/m, chi2/NDF=135.595/41 = 3.307
+[CDet y-timing] Layer 2 Right, Sections 2+5: p1=1.99539 +/- 1.00372 ns/m, chi2/NDF=153.681/34 = 4.520
+[CDet y-timing] Layer 2 Right, Sections 3+4: p1=3.29405 +/- 0.520165 ns/m, chi2/NDF=151.162/46 = 3.286
+
+[CDet/ECal y fixed-effects fits]
+  Half-bar means are removed before estimating each propagation slope.
+[CDet y fixed effects] Layer 1 Left, Sections 1+6: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Left, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Left, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Right, Sections 1+6: slope=4.80434 +/- 1.07483 ns/m, entries=168, half-bars=1, NDF=166
+[CDet y fixed effects] Layer 1 Right, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 1 Right, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Left, Sections 1+6: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Left, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Left, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Right, Sections 1+6: slope=3.84324 +/- 0.938984 ns/m, entries=272, half-bars=2, NDF=269
+[CDet y fixed effects] Layer 2 Right, Sections 2+5: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet y fixed effects] Layer 2 Right, Sections 3+4: slope=nan +/- nan ns/m, entries=0, half-bars=0, NDF=-1
+[CDet timing populations] lower vertical: entries=0, mean ToT=0, ToT RMS=0, mean corrected LE=0, LE RMS=0 ns
+[CDet timing populations] upper vertical: entries=0, mean ToT=0, ToT RMS=0, mean corrected LE=0, LE RMS=0 ns
+[CDet timing populations] diagonal: entries=9, mean ToT=8.55989, ToT RMS=3.15994, mean corrected LE=39.3977, LE RMS=1.96088 ns
+
+[plotCDetLayersTimeComp] Linear fit for <CDet t> vs ECal ADC t:
+  <t_CDet> = p0 + p1 * t_ECal
+  p0 = 31.0991 +/- 0.396817 ns
+  p1 = -0.0526181 +/- 0.0170587 (ns/ns)
+  chi2/NDF = 6.00047/4 = 1.50012  probability = 0.199113
+
+[plotCDetLayersTimeComp] All Layer 1 hits: p1=-0.0767455 +/- 0.0176231, chi2/NDF=7.64922/4 = 1.91231, fit_status=0
+[plotCDetLayersTimeComp] All Layer 2 hits: p1=-0.0191549 +/- 0.0180422, chi2/NDF=6.45992/4 = 1.61498, fit_status=0
+[plotCDetLayersTimeComp] Layer 1 bar 30: Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetECalFixedEffects
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetTvsHCalT
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cCDetFrontvsBackID
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cDtCDetLayersvsPos
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cSelectedBarXMap
+Warning in <TCanvas::Constructor>: Deleting canvas with same name: cSelectedBarXVsZ
+p1=0.168753 +/- 0.0434567, chi2/NDF=9.121/2 = 4.5605, fit_status=0
+
+[CDet/ECal fixed-effects timing fit]
+  Separate intercepts are removed for every half-bar.
+[plotCDetLayersTimeComp] Layer 1 fixed-effects slope: p1=-0.146413 +/- 0.0339957 ns/ns, entries=1769, half-bars=61, NDF=1707
+[plotCDetLayersTimeComp] Layer 2 fixed-effects slope: p1=-0.104849 +/- 0.0312546 ns/ns, entries=1770, half-bars=62, NDF=1707
+[plotCDetLayersTimeComp] Combined fixed-effects slope: p1=-0.125649 +/- 0.02309 ns/ns, entries=3539, half-bars=123, NDF=3415
+  The combined fixed-effects slope, not the pooled profile slope, is used for calibration updates.
+
+
+[CDet/HCal timing control]
+  HCal window: -10 to 10 ns
+  pooled profile slope: -0.00697857 +/- 0.0215869 ns/ns
+[plotCDetLayersTimeComp] Combined CDet/HCal fixed-effects slope: p1=0.0386739 +/- 0.0414003 ns/ns, entries=2010, half-bars=111, NDF=1898
+
+[CDet paired timing resolution]
+  accepted pairs: 1773
+  mean pair time: 29.5973 ns
+  detector-wide RMS: 3.04484 +/- 0.0511756 ns
+  Gaussian core mean (24.5973 to 34.5973 ns): 30 +/- 0.0543859 ns
+  Gaussian core sigma (24.5973 to 34.5973 ns): 2.01685 +/- 0.0528637 ns
+  Gaussian chi2/NDF: 22.4865/3
+  The RMS is the width of the full accepted-pair mean-time distribution; the Gaussian sigma describes only its core.
+  closure Gaussian-core centroid: 30 +/- 0.0543859 ns
+  closure residual: -4.18553e-07 ns
+  accepted-pair entries before/after: 1773/1773
+  ECal-slope closure: -0.125649 +/- 0.02309 ns/ns

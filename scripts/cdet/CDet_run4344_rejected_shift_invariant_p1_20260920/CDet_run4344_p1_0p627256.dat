@@ -1,0 +1,7 @@
+# Run-specific timing calibration for cross-target run 4344.
+
+[GlobalTiming]
+shift_ns -15.734036
+
+[ECalTiming]
+p1 0.627256

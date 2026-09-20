@@ -1,0 +1,31 @@
+run 4006
+config CDet_run4006_projection.conf
+master_p1 0.810203
+residual_p1 0.0317810990921
+residual_p1_error 0.0120926370161
+candidate_p1 0.841984099092
+full_significance 2.62813636511
+layer1_residual 0.0399654018699
+layer1_error 0.0175230884564
+layer2_residual 0.0235500255596
+layer2_error 0.0166678922425
+layer_difference_pull 0.678763490866
+central_ecal_span_ns 11.2882825643
+timing_effect_ns 0.358754026756
+full_closure_residual -1.08208020518e-16
+full_closure_error 0.0120926370161
+pair_rms_before_ns 3.30572882849
+pair_rms_after_ns 3.29383353578
+resolution_ratio 0.996401612675
+fold 0 training_residual 0.0289489767447 validation_before 0.0585665324286 validation_before_error 0.0268165399617 validation_after 0.0296175556839 validation_after_error 0.0268165399617 validation_pull 1.10445104873 improvement 0.494292141676 candidate_deviation 0.00283212234737 pass 0
+fold 1 training_residual 0.0229242256341 validation_before 0.0468880811597 validation_before_error 0.0292256033818 validation_after 0.0239638555257 validation_after_error 0.0292256033818 validation_pull 0.819961018858 improvement 0.488913708283 candidate_deviation 0.008856873458 pass 0
+fold 2 training_residual 0.0300248406675 validation_before 0.0286807663138 validation_before_error 0.0271646509585 validation_after -0.0013440743537 validation_after_error 0.0271646509585 validation_pull 0.0494788008045 improvement 0.953136734946 candidate_deviation 0.00175625842461 pass 1
+fold 3 training_residual 0.0302798298124 validation_before 0.0418548385471 validation_before_error 0.0251045995671 validation_after 0.0115750087347 validation_after_error 0.0251045995671 validation_pull 0.461071235324 improvement 0.723448730505 candidate_deviation 0.00150126927964 pass 1
+fold 4 training_residual 0.0454754039868 validation_before -0.0297579762963 validation_before_error 0.0295272566696 validation_after -0.0752333802831 validation_after_error 0.0295272566696 validation_pull 2.54792990506 improvement -1.52817528766 candidate_deviation 0.0136943048947 pass 0
+gate_discovery 0
+gate_layers 1
+gate_practical 0
+gate_closure 1
+gate_folds 0
+gate_resolution 1
+qualified 0

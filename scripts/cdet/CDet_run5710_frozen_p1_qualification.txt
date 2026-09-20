@@ -1,0 +1,31 @@
+run 5710
+config CDet_run5710_projection.conf
+master_p1 0.810203
+residual_p1 -0.00134711701424
+residual_p1_error 0.00169294609443
+candidate_p1 0.808855882986
+full_significance 0.795723513387
+layer1_residual -0.000606481950277
+layer1_error 0.00250206824283
+layer2_residual -0.00208857353476
+layer2_error 0.00228108495227
+layer_difference_pull 0.43773648664
+central_ecal_span_ns 7.96515053739
+timing_effect_ns 0.0107299898099
+full_closure_residual -1.51608546542e-16
+full_closure_error 0.00169294609443
+pair_rms_before_ns 2.75354123421
+pair_rms_after_ns 2.75354640611
+resolution_ratio 1.00000187827
+fold 0 training_residual -0.00196510113528 validation_before 0.00117541607857 validation_before_error 0.00377732109104 validation_after 0.00314051721385 validation_after_error 0.00377732109104 validation_pull 0.831413887821 improvement -1.67183448577 candidate_deviation 0.000617984121045 pass 0
+fold 1 training_residual -0.0011131664607 validation_before -0.00205350463124 validation_before_error 0.00386190188864 validation_after -0.000940338170542 validation_after_error 0.00386190188864 validation_pull 0.243490952815 improvement 0.542081300312 candidate_deviation 0.000233950553537 pass 1
+fold 2 training_residual -0.00259455914517 validation_before 0.00332290167842 validation_before_error 0.00374586757571 validation_after 0.00591746082359 validation_after_error 0.00374586757571 validation_pull 1.57973038395 improvement -0.780811289729 candidate_deviation 0.00124744213094 pass 0
+fold 3 training_residual -0.000902311429328 validation_before -0.00300929519714 validation_before_error 0.00376996289213 validation_after -0.00210698376781 validation_after_error 0.00376996289213 validation_pull 0.558887137113 improvement 0.299841447987 candidate_deviation 0.000444805584908 pass 0
+fold 4 training_residual -0.000123063411168 validation_before -0.00589191735191 validation_before_error 0.00377551998948 validation_after -0.00576885394074 validation_after_error 0.00377551998948 validation_pull 1.52796275925 improvement 0.0208868189789 candidate_deviation 0.00122405360307 pass 0
+gate_discovery 0
+gate_layers 1
+gate_practical 0
+gate_closure 1
+gate_folds 0
+gate_resolution 1
+qualified 0

@@ -1,0 +1,31 @@
+run 5723
+config CDet_run5723_projection.conf
+master_p1 0.810203
+residual_p1 -0.026376182249
+residual_p1_error 0.00701984441282
+candidate_p1 0.783826817751
+full_significance 3.7573741949
+layer1_residual -0.0255702142361
+layer1_error 0.0103419919048
+layer2_residual -0.0271805947412
+layer2_error 0.00949626331151
+layer_difference_pull 0.114695331199
+central_ecal_span_ns 8.02174007522
+timing_effect_ns 0.211582878178
+full_closure_residual -5.54953741253e-17
+full_closure_error 0.00701984441282
+pair_rms_before_ns 3.21900733665
+pair_rms_after_ns 3.21842684427
+resolution_ratio 0.999819667271
+fold 0 training_residual -0.026846220154 validation_before -0.0210846227554 validation_before_error 0.0152633652575 validation_after 0.00576159739861 validation_after_error 0.0152633652575 validation_pull 0.37747883913 improvement 0.726739365203 candidate_deviation 0.000470037905096 pass 1
+fold 1 training_residual -0.0375220190233 validation_before 0.0154976198312 validation_before_error 0.0151533825526 validation_after 0.0530196388545 validation_after_error 0.0151533825526 validation_pull 3.49886493464 improvement -2.42114721047 candidate_deviation 0.0111458367744 pass 0
+fold 2 training_residual -0.023838262125 validation_before -0.0431330402013 validation_before_error 0.0155522109592 validation_after -0.0192947780763 validation_after_error 0.0155522109592 validation_pull 1.24064534148 improvement 0.552668256486 candidate_deviation 0.00253792012391 pass 1
+fold 3 training_residual -0.0208532698148 validation_before -0.0537895847796 validation_before_error 0.0165468066572 validation_after -0.0329363149648 validation_after_error 0.0165468066572 validation_pull 1.99049373376 improvement 0.38768229761 candidate_deviation 0.00552291243413 pass 0
+fold 4 training_residual -0.0238904647828 validation_before -0.039868160148 validation_before_error 0.0161833117165 validation_after -0.0159776953652 validation_after_error 0.0161833117165 validation_pull 0.987294544221 improvement 0.599236701522 candidate_deviation 0.00248571746615 pass 1
+gate_discovery 1
+gate_layers 1
+gate_practical 0
+gate_closure 1
+gate_folds 0
+gate_resolution 1
+qualified 0
