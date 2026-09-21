@@ -218,6 +218,17 @@ std::vector<std::vector<PairHit>> pairs_CDet;
 std::vector<TH1D*> gCDetPairedLeSpectra;
 std::vector<TH2D*> gCDetBarECalTimingSpectra;
 std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalTimingSamples;
+struct CDetFrozenECalTimingSample {
+  size_t eventIndex;
+  size_t pairIndex;
+  int layer;
+  int pixel;
+  int halfBar;
+  double ecalTime;
+  double cdetTime;
+  double tot;
+};
+std::vector<CDetFrozenECalTimingSample> gCDetFrozenECalTimingSamples;
 std::vector<std::vector<std::pair<double,double>>> gCDetHalfBarECalYSamples;
 std::vector<CDetYPairedSample> gCDetYPairedSamples;
 TH2D *gCDetPairedMeanTimeVsECal = nullptr;
@@ -5576,6 +5587,7 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // regression.  The TH2D bank below is intentionally visualization-only:
   // its coarse ECal bins attenuate changes in the applied slope.
   gCDetHalfBarECalTimingSamples.assign(NumLayers*barsPerLayer, {});
+  gCDetFrozenECalTimingSamples.clear();
   std::vector<std::vector<std::pair<double,double>>> halfBarHCalTimingSamples(
       NumLayers*barsPerLayer);
   gCDetHalfBarECalYSamples.assign(NumLayers*barsPerLayer, {});
@@ -5878,20 +5890,22 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             gCDetPairedLeSpectra[(int)p.id1]->Fill(p.t1);
           if (p.id2 >= 0 && p.id2 < NumCDetPaddles)
             gCDetPairedLeSpectra[(int)p.id2]->Fill(p.t2);
-          auto fillHalfBarTiming = [&](int pixel, double time) {
+          auto fillHalfBarTiming = [&](int pixel, double time, double tot,
+                                       int layer) {
             const int pixelsPerLayer = NumCDetPaddles/NumLayers;
-            const int layer = pixel/pixelsPerLayer;
             const int halfBar = (pixel%pixelsPerLayer)/NumPaddles;
             const int index = layer*barsPerLayer + halfBar;
             if (index >= 0 && index < (int)gCDetBarECalTimingSpectra.size()) {
               gCDetBarECalTimingSpectra[index]->Fill(t_ECal, time);
               gCDetHalfBarECalTimingSamples[index].push_back(std::make_pair(t_ECal, time));
+              gCDetFrozenECalTimingSamples.push_back(
+                  {ev, ip, layer, pixel, index, t_ECal, time, tot});
               if (std::isfinite(t_HCal) && t_HCal >= HCalMin && t_HCal <= HCalMax)
                 halfBarHCalTimingSamples[index].push_back(std::make_pair(t_HCal, time));
             }
           };
-          fillHalfBarTiming(p.id1, p.t1);
-          fillHalfBarTiming(p.id2, p.t2);
+          fillHalfBarTiming(p.id1, p.t1, p.tot1, 0);
+          fillHalfBarTiming(p.id2, p.t2, p.tot2, 1);
 
           hDtCDetECal->Fill(dt_EC);
           hDtvsDxCDetECal->Fill(dx_EC, dt_EC);

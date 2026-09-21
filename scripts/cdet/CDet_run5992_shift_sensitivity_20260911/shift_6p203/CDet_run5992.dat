@@ -1,0 +1,7 @@
+# Isolated Run 5992 shift-sensitivity test; no run-specific p1 seed.
+
+[GlobalTiming]
+shift_ns 6.203000
+
+[ECalTiming]
+p1 0.831321

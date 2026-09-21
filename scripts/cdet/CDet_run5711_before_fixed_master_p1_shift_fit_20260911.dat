@@ -1,0 +1,8 @@
+# Run-specific timing calibration for hydrogen run 5711.
+# Seeded from the accepted run-5710 constants before refitting p1 and shift_ns.
+
+[GlobalTiming]
+shift_ns 0.882454
+
+[ECalTiming]
+p1 0.809758
