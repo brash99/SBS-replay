@@ -176,17 +176,25 @@ void Run_CDet_Inspect_RunTimingShift(
   const double ecalEnergyMax = env.GetValue("analysis.ecal_energy_max", 4.5);
   const double acceptedTotMin = env.GetValue("analysis.tot_min", 8.0);
   const double acceptedTotMax = env.GetValue("analysis.tot_max", 35.0);
+  const double barTimingFitMin =
+      env.GetValue("diagnostics.bar_ecal_fit_min", -45.0);
+  const double barTimingFitMax =
+      env.GetValue("diagnostics.bar_ecal_fit_max", -10.0);
+  const double barTimingPeakSeedMin =
+      env.GetValue("diagnostics.bar_ecal_peak_seed_min", -40.0);
+  const double barTimingPeakSeedMax =
+      env.GetValue("diagnostics.bar_ecal_peak_seed_max", -15.0);
   extractCDetBarPixelTimingOffsets(
       selectedBar * NumPaddles,
       1.0,                         // histogram bin width (ns)
       -60.0, 30.0,                // displayed tECal-tCDet range (ns)
-      -45.0, -10.0,               // fit range for the current candidate
+      barTimingFitMin, barTimingFitMax,
       50, 0.5, 20.0, 10.0, 1.0,  // fit-quality requirements
       true, outputDirectory + "/bar_ecal_cdet_timing",
       false, "",                 // never write calibration candidates
       ecalEnergyMin, ecalEnergyMax,
       acceptedTotMin, acceptedTotMax,
-      8.0, 2.5, -40.0, -15.0,
+      8.0, 2.5, barTimingPeakSeedMin, barTimingPeakSeedMax,
       true,
       acceptedTotMin, acceptedTotMax,
       "");                       // no polygon gate in run analysis

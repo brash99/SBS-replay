@@ -124,6 +124,116 @@ that the observed correlation is a real propagation-time effect.
 *Removing each half-bar's mean isolates the propagation response from
 half-bar-to-half-bar timing-intercept differences.*
 
+## Physics-motivated propagation-time correction
+
+As a first event-by-event timing test, Run 5710 uses the fiber refractive index
+`n = 1.59` rather than fitting twelve independent correction constants.  This
+gives
+
+```text
+v = c/n = 18.8549 cm/ns
+|dt/dy| = 1/v = 5.30367 ns/m
+```
+
+For each accepted hit, ECal y is projected to that CDet layer.  The correction
+uses the displacement from the center of the hit half-bar and the readout-side
+sign:
+
+```text
+y_projected = y_ECal z_CDet/z_ECal
+b_left  = -5.30367 ns/m
+b_right = +5.30367 ns/m
+t_y_corrected = t_corrected - b_side (y_projected - y_half-bar-center)
+```
+
+Pair selection is completed using the original corrected times before this
+diagnostic correction is evaluated.  The before/after comparison therefore
+contains exactly the same accepted events and hits.  It is enabled for Run
+5710 by
+
+```text
+display.y_correction_refractive_index: 1.59
+```
+
+in `CDet_run5710_projection.conf`.  Zero or an omitted key disables the test.
+Running the normal analysis followed by
+`plotCDetLayersTimeComp("CDet_run5710_projection.conf")` writes the comparison
+as `CDet_y_propagation_correction_comparison.pdf` and `.png`.  It also creates
+parallel corrected versions of the principal timing canvases without replacing
+their uncorrected counterparts:
+
+```text
+cCDetLayerTimesYCorrected.jpg
+cCDetProjectedHalfBarTimingYCorrected.jpg
+cCDetTDiffYCorrected.jpg
+```
+
+![Run 5710 timing slopes before and after the physics-motivated propagation correction](CDet_y_propagation_correction_comparison.png)
+
+For the 434,278 accepted hits in the twelve fixed-effects groups, the
+entry-weighted centered-time RMS changes from 3.027 ns to 2.953 ns, a 2.45%
+reduction.  The unweighted mean absolute group slope changes from 5.47 ns/m to
+1.31 ns/m.  All twelve group RMS values improve.  The remaining slopes show
+that one common physical speed does not absorb every geometry-dependent
+correlation, but it removes most of the effect without introducing twelve
+empirical calibration constants.
+
+On the full Run 5710 accepted-pair sample, the principal timing RMS values are:
+
+| Distribution | Before (ns) | After (ns) |
+|---|---:|---:|
+| All accepted Layer 1 hits | 3.171 | 3.117 |
+| All accepted Layer 2 hits | 2.892 | 2.833 |
+| Projected-half-bar Layer 1 hits | 2.815 | 2.749 |
+| Projected-half-bar Layer 2 hits | 2.548 | 2.480 |
+| Projected-half-bar pair mean | 2.414 | 2.340 |
+| Layer 2 minus Layer 1 | 2.550 | 2.549 |
+
+The near-invariance of the layer difference is expected because the two hits
+usually have the same readout-side sign and nearly the same projected y, so
+their propagation corrections largely cancel in `t_L2 - t_L1`.  The pair mean,
+which retains the common propagation contribution, shows the clearer timing
+improvement.
+
+### Timing-resolution interpretation
+
+The directly observed post-correction projected-half-bar pair-mean RMS is
+
+```text
+sigma(pair mean) = 2.340 ns.
+```
+
+This is the least assumption-dependent measure of the realized event-by-event
+CDet timing performance.  It therefore supports quoting an operational CDet
+pair-time resolution of approximately **2.3 ns RMS**.
+
+The post-correction layer-time-difference RMS is 2.549 ns.  If the two layers
+are assumed to have equal and statistically independent timing errors, the
+corresponding single-layer resolution is
+
+```text
+sigma(layer) = sigma(L2 - L1)/sqrt(2)
+             = 2.549/sqrt(2)
+             = 1.80 ns.
+```
+
+Under the same assumptions, the intrinsic independent-layer contribution to
+the average of two layers would be
+
+```text
+sigma(pair mean, independent layers) = sigma(layer)/sqrt(2)
+                                     = 1.27 ns.
+```
+
+The measured pair-mean RMS is substantially wider than this ideal 1.27 ns.
+Consequently, the data contain a common-mode or event-dependent contribution
+that does not cancel when the two layers are averaged.  Possible contributions
+include ECal reference-time resolution, residual channel offsets, event-time
+variation, and non-Gaussian tails.  The 1.80 ns single-layer and 1.27 ns ideal
+pair values are therefore model-dependent decompositions; neither should be
+quoted as the realized full-system resolution.  The result directly justified
+by these data is approximately **2.3 ns RMS** for the corrected CDet pair time.
+
 ## Position-calibration constants
 
 Run the extractor after `plotCDetLayersTimeComp(...)`:

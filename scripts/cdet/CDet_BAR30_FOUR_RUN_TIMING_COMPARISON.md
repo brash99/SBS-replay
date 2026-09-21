@@ -1,24 +1,24 @@
-# CDet Bar 30 Timing Comparison Across Runs
+# CDet Bar 30 Timing Comparison Across Three Runs
 
 This comparison shows the fully selected lower-left panel from the Bar 30
-amalgamated timing canvas for four calibrated runs. Runs 5710 and 5992 are
-cross-target runs; Runs 5711 and 6077 are LH2 coincidence runs.
+amalgamated timing canvas for three calibrated runs. Run 5710 is a
+cross-target run; Runs 5711 and 6077 are LH2 coincidence runs.
 
-![CDet Bar 30 four-run timing comparison](CDet_bar30_four_run_comparison.png)
+![CDet Bar 30 three-run timing comparison](CDet_bar30_three_run_comparison.png)
 
 The constants shown in the figure are:
 
 | Run | Target/trigger category | `p1` (ns/ns) | `shift_ns` (ns) |
 |---:|:---|---:|---:|
 | 5710 | Cross-target | 0.810203 | 1.195534 |
-| 5992 | Cross-target | 0.810203 | 5.171528 |
 | 5711 | LH2 | -0.012423 | 3.422000 |
 | 6077 | LH2 | 0.002520 | 2.913449 |
 
-Run 5992 has only three fully selected Bar 30 hits in this diagnostic. It is
-therefore not statistically useful for comparing the peak positions. This is
-consistent with the previously documented poor ECal reconstruction efficiency
-and restricted accepted population in that run.
+For Run 5710, the diagnostic Gaussian-plus-linear fit uses `-18 < t_ECal -
+t_CDet < 0 ns`, which contains the complete peak near `-8 ns`. The previous
+`-45 to -10 ns` interval ended on the rising shoulder and therefore did not
+describe the peak. The regenerated fully selected fit gives `mu = -8.485 ns`
+and `sigma = 3.017 ns`.
 
 ## Why the peak moves while `shift_ns` remains similar
 
@@ -85,4 +85,4 @@ be `cdet_final_origin_shift_ns` or `cdet_recenter_ns`: it is a residual CDet
 recentring constant, not an ECal--CDet trigger-offset measurement.
 
 The same comparison is also available as
-[a PDF](CDet_bar30_four_run_comparison.pdf).
+[a PDF](CDet_bar30_three_run_comparison.pdf).
