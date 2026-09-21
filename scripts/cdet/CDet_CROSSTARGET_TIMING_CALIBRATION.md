@@ -8,6 +8,11 @@ calculates and applies CDet timing offsets. The principal implementation is in
 commissioned single-run entry point is
 `Run_CDet_Calibrate_Run5710_FromScratch.C`.
 
+For a compact, presentation-oriented table showing how every calibration
+parameter family progresses from a clean zero/absent state to the final
+commissioned constants, see
+[`CDet_RUN5710_CALIBRATION_PARAMETER_EVOLUTION.md`](CDet_RUN5710_CALIBRATION_PARAMETER_EVOLUTION.md).
+
 The commands under [Qualified Run 5710 reproduction](#qualified-run-5710-reproduction)
 are the authoritative student procedure. Later descriptions of lower-level or
 historical drivers explain implementation and provenance; they are not

@@ -5590,6 +5590,24 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   gCDetPairedMeanTimeVsECal = hECalVsCDetT;
   TH2D* hECalVsCDetTL1 = new TH2D("hECalVsCDetTL1", "CDet Layer 1 t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTL2 = new TH2D("hECalVsCDetTL2", "CDet Layer 2 t vs ECal Time;ECal ADC Time (ns);Layer 2 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  const double beforeP1TimeMin = CDetMin +
+      std::min(0.0, std::min(gECalFitP1*ECalMin, gECalFitP1*ECalMax)) - 5.0;
+  const double beforeP1TimeMax = CDetMax +
+      std::max(0.0, std::max(gECalFitP1*ECalMin, gECalFitP1*ECalMax)) + 5.0;
+  const int beforeP1TimeBins = std::max(
+      1, (int)std::ceil((beforeP1TimeMax-beforeP1TimeMin)/Width));
+  TH2D* hECalVsCDetTBeforeP1 = new TH2D(
+      "hECalVsCDetTBeforeP1",
+      "CDet pair time before p1 correction;ECal ADC Time (ns);CDet pair mean time (ns)",
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
+  TH2D* hECalVsCDetTL1BeforeP1 = new TH2D(
+      "hECalVsCDetTL1BeforeP1",
+      "CDet Layer 1 time before p1 correction;ECal ADC Time (ns);Layer 1 time (ns)",
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
+  TH2D* hECalVsCDetTL2BeforeP1 = new TH2D(
+      "hECalVsCDetTL2BeforeP1",
+      "CDet Layer 2 time before p1 correction;ECal ADC Time (ns);Layer 2 time (ns)",
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
   const int NHCalBins = std::max(1, (int)((HCalMax-HCalMin)/0.5));
   TH2D* hHCalVsCDetT = new TH2D("hHCalVsCDetT",
       "Corrected CDet pair time vs HCal time;HCal ADC time (ns);Corrected CDet pair mean time (ns)",
@@ -5615,6 +5633,10 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     }
   }
   TH2D* hECalVsSelectedBarT = new TH2D("hECalVsSelectedBarT", TString::Format("CDet Layer 1 bar %d t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", selectedBarNumber), NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  TH2D* hECalVsSelectedBarTBeforeP1 = new TH2D(
+      "hECalVsSelectedBarTBeforeP1",
+      TString::Format("CDet Layer 1 bar %d time before p1 correction;ECal ADC Time (ns);Layer 1 time (ns)", selectedBarNumber),
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
   TH2D* hECalVsCDetTSingle = new TH2D("hECalVsCDetTSingle", "CDet Single t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,CDetMin,CDetMax);
 
   TH2D* hCDet1IDvs2ID = new TH2D("hCDet1IDvs2ID", "CDet Front Paddle vs Back Paddle ID;Back Paddle;Front Paddle", 1344, 1343.5, 2687.5, 1344, -0.5, 1343.5);
@@ -5940,6 +5962,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           hCDetTimeDiffvsy2->Fill(p.y2, p.dt);
 
           hECalVsCDetT->Fill(t_ECal,t_pair);
+          if (gUseECalTimeCorr) {
+            const double p1Term = gECalFitP1*t_ECal;
+            hECalVsCDetTBeforeP1->Fill(t_ECal, t_pair + p1Term);
+            hECalVsCDetTL1BeforeP1->Fill(t_ECal, p.t1 + p1Term);
+            hECalVsCDetTL2BeforeP1->Fill(t_ECal, p.t2 + p1Term);
+          }
           if (std::isfinite(t_HCal) && t_HCal >= HCalMin && t_HCal <= HCalMax) {
             hHCalVsCDetT->Fill(t_HCal, t_pair);
             hECalVsHCalAccepted->Fill(t_ECal, t_HCal);
@@ -6022,6 +6050,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           const bool isSelectedLayer2Bar = p.id2 >= selectedLayer2BarBase && p.id2 < selectedLayer2BarBase + NumPaddles;
           if (isSelectedLayer1Bar) {
             hECalVsSelectedBarT->Fill(t_ECal,p.t1);
+            if (gUseECalTimeCorr)
+              hECalVsSelectedBarTBeforeP1->Fill(
+                  t_ECal, p.t1 + gECalFitP1*t_ECal);
             hCDetBarLe1->Fill(p.t1);
             hCDet1BarLeVsTot->Fill(p.tot1, p.t1);
             if (t_ECal > -3.0 && t_ECal < 1.0 && p.t1 > 23.0 && p.t1 < 40.0)
@@ -6688,6 +6719,75 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   drawTimingTrendDiagnostic(3, hECalVsCDetTL2, "pCDetL2TvsECalT", "fCDetL2TvsECalT_lin", "All Layer 2 hits");
   drawTimingTrendDiagnostic(4, hECalVsSelectedBarT, "pSelectedBarTvsECalT", "fSelectedBarTvsECalT_lin", TString::Format("Layer 1 bar %d", selectedBarNumber).Data());
   cCDetTvsECalTDiagnostics->Update();
+
+  if (gUseECalTimeCorr) {
+    TCanvas *cCDetTvsECalTBeforeP1 = new TCanvas(
+        "cCDetTvsECalTBeforeP1",
+        "CDet/ECal timing before the p1 correction", 1200, 900);
+    cCDetTvsECalTBeforeP1->Divide(2,2);
+    auto drawBeforeP1 = [&](int pad, TH2D *histogram, const char *profileName,
+                            const char *fitName, const char *label) {
+      cCDetTvsECalTBeforeP1->cd(pad);
+      histogram->SetMinimum(40);
+      // Build the profile before restricting the displayed y range.  ROOT's
+      // ProfileX honors an active y-axis range, which would otherwise clip
+      // tails in an ECal-dependent way and bias this presentation slope.
+      histogram->GetYaxis()->SetRange(0, 0);
+      TProfile *profile = histogram->ProfileX(profileName);
+      histogram->GetYaxis()->SetRangeUser(
+          std::max(beforeP1TimeMin, 20.0), std::min(beforeP1TimeMax, 70.0));
+      histogram->Draw("COLZ");
+      profile->SetMarkerStyle(20);
+      profile->SetMarkerSize(0.65);
+      profile->SetMarkerColor(kBlack);
+      profile->SetLineColor(kBlack);
+      TF1 *fit = new TF1(fitName, "pol1", ECalMin, ECalMax);
+      int status = -1;
+      if (profile->GetEntries() >= 3) status = profile->Fit(fit, "QRS");
+      profile->Draw("SAME");
+      if (status == 0) fit->Draw("SAME");
+      TPaveText *summary = new TPaveText(0.13, 0.75, 0.61, 0.92, "NDC");
+      summary->SetFillColor(kWhite);
+      summary->SetTextAlign(12);
+      summary->AddText(label);
+      if (status == 0) {
+        const int ndf = fit->GetNDF();
+        summary->AddText(Form("p1 = %.5f #pm %.5f", fit->GetParameter(1),
+                              fit->GetParError(1)));
+        summary->AddText(Form("#chi^{2}/NDF = %.1f/%d = %.2f",
+                              fit->GetChisquare(), ndf,
+                              ndf > 0 ? fit->GetChisquare()/ndf : 0.0));
+        std::cout << "[CDet before-p1 presentation] " << label
+                  << ": p1=" << fit->GetParameter(1) << " +/- "
+                  << fit->GetParError(1) << " ns/ns\n";
+      } else {
+        summary->AddText("Insufficient data or fit failed");
+      }
+      summary->Draw("SAME");
+    };
+    drawBeforeP1(1, hECalVsCDetTBeforeP1,
+                 "pCDetTvsECalTBeforeP1", "fCDetTvsECalTBeforeP1",
+                 "All accepted pairs");
+    drawBeforeP1(2, hECalVsCDetTL1BeforeP1,
+                 "pCDetL1TvsECalTBeforeP1", "fCDetL1TvsECalTBeforeP1",
+                 "All Layer 1 hits");
+    drawBeforeP1(3, hECalVsCDetTL2BeforeP1,
+                 "pCDetL2TvsECalTBeforeP1", "fCDetL2TvsECalTBeforeP1",
+                 "All Layer 2 hits");
+    drawBeforeP1(4, hECalVsSelectedBarTBeforeP1,
+                 "pSelectedBarTvsECalTBeforeP1", "fSelectedBarTvsECalTBeforeP1",
+                 TString::Format("Layer 1 bar %d", selectedBarNumber).Data());
+    cCDetTvsECalTBeforeP1->cd(1);
+    TPaveText *method = new TPaveText(0.13, 0.64, 0.61, 0.73, "NDC");
+    method->SetFillColor(kWhite);
+    method->SetTextAlign(12);
+    method->AddText(Form("p1 correction removed: + %.6f t_{ECal}",
+                         gECalFitP1));
+    method->Draw("SAME");
+    cCDetTvsECalTBeforeP1->Update();
+    cCDetTvsECalTBeforeP1->SaveAs("cCDetTvsECalTBeforeP1.jpg");
+    cCDetTvsECalTBeforeP1->SaveAs("cCDetTvsECalTBeforeP1.pdf");
+  }
 
   // Fixed-effects regression for the ECal timing slope.  Center x and y
   // independently within every half-bar, then pool those centered samples.
