@@ -1261,11 +1261,14 @@ std::vector<double> rawSinglesRateHz(2688, 0.0);
 std::vector<double> rawSinglesRateErrorHz(2688, 0.0);
 TH1D* hRawSinglesRateVsID = nullptr;
 std::vector<double> ecalClusterEnergiesGeV;
+std::vector<double> ecalClusterEnergiesGeVInTime;
 int ecalClusterProcessedEventCount = 0;
 int ecalClusterCountMismatchEvents = 0;
 int ecalClusterNonFiniteEnergyCount = 0;
+int ecalClusterNonFiniteEnergyCountInTime = 0;
 int ecalClusterGroupIndex = 0;
 TH1D* hECalClusterEnergySpectrum = nullptr;
+TH1D* hECalClusterEnergySpectrumInTime = nullptr;
 std::vector<int> totCutHitCount(2688, 0);
 std::vector<double> totCutHitOccupancy(2688, 0.0);
 std::vector<double> ave_tot(2688,0);
@@ -2118,6 +2121,11 @@ std::cout << "[CDet] Reference timing subtraction is "
       const double energyGeV = ECal_clus_e[iclus];
       if (std::isfinite(energyGeV)) {
         ecalClusterEnergiesGeV.push_back(energyGeV);
+
+        bool inTime = *ECalAdcTime > ECalMinT && *ECalAdcTime < ECalMaxT;
+        if (inTime) {
+          ecalClusterEnergiesGeVInTime.push_back(energyGeV);
+        }
       } else {
         ecalClusterNonFiniteEnergyCount++;
       }
@@ -3340,11 +3348,19 @@ void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGe
     delete hECalClusterEnergySpectrum;
     hECalClusterEnergySpectrum = nullptr;
   }
+  if (hECalClusterEnergySpectrumInTime) {
+    delete hECalClusterEnergySpectrumInTime;
+    hECalClusterEnergySpectrumInTime = nullptr;
+  }
   const int ecalEnergyBinCount = std::max(1, static_cast<int>(std::ceil((binMaxGeV - binMinGeV) / energyBinWidthGeV)));
   hECalClusterEnergySpectrum = new TH1D("hECalClusterEnergySpectrum", "ECal reconstructed-cluster energy;Cluster energy [GeV];Clusters / bin", ecalEnergyBinCount, binMinGeV, binMaxGeV);
   hECalClusterEnergySpectrum->SetDirectory(nullptr);
   hECalClusterEnergySpectrum->SetStats(0);
+  hECalClusterEnergySpectrumInTime = new TH1D("hECalClusterEnergySpectrumInTime", "ECal reconstructed-cluster energy (in time);Cluster energy [GeV];Clusters / bin", ecalEnergyBinCount, binMinGeV, binMaxGeV);
+  hECalClusterEnergySpectrumInTime->SetDirectory(nullptr);
+  hECalClusterEnergySpectrumInTime->SetStats(0);
   for (const double energyGeV : ecalClusterEnergiesGeV) hECalClusterEnergySpectrum->Fill(energyGeV);
+  for (const double energyGeVInTime : ecalClusterEnergiesGeVInTime) hECalClusterEnergySpectrumInTime->Fill(energyGeVInTime); //does not currently get rates
 
   const double ecalObservedTimeSeconds = static_cast<double>(ecalClusterProcessedEventCount) * ECalClusterWindowSeconds;
   const Long64_t passingClusterCount = static_cast<Long64_t>(std::count_if(ecalClusterEnergiesGeV.begin(), ecalClusterEnergiesGeV.end(), [energyThresholdGeV](double energyGeV) { return energyGeV >= energyThresholdGeV; }));
@@ -3371,6 +3387,18 @@ void calculateECalClusterRate(double energyThresholdGeV, double energyBinWidthGe
   thresholdLegend->AddEntry((TObject*)nullptr, TString::Format("Rate = %.3g #pm %.2g Hz", rateHz, rateErrorHz), "");
   thresholdLegend->Draw();
   cECalClusterEnergySpectrum->Update();
+
+  TCanvas *cECalClusterEnergySpectrumInTime = new TCanvas("cECalClusterEnergySpectrumInTime", "ECal reconstructed-cluster energy (in time)", 1000, 700);
+  hECalClusterEnergySpectrumInTime->Draw("HIST");
+  TLine *energyThresholdLineInTime = new TLine(energyThresholdGeV, 0.0, energyThresholdGeV, lineMaximum);
+  energyThresholdLineInTime->SetLineColor(kRed + 1);
+  energyThresholdLineInTime->SetLineWidth(3);
+  energyThresholdLineInTime->SetLineStyle(2);
+  energyThresholdLineInTime->Draw("SAME");
+  TLegend *thresholdLegendInTime = new TLegend(0.58, 0.76, 0.88, 0.88);
+  thresholdLegendInTime->AddEntry(energyThresholdLineInTime, TString::Format("E_{thr} = %.3f GeV", energyThresholdGeV), "l");
+  thresholdLegendInTime->Draw();
+  cECalClusterEnergySpectrumInTime->Update();
 
   std::cout << "[ECal rate] Processed events: " << ecalClusterProcessedEventCount
             << ", cluster entries: " << ecalClusterEnergiesGeV.size() + ecalClusterNonFiniteEnergyCount
