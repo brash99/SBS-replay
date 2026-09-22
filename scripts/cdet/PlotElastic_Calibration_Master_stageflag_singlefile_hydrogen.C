@@ -5644,6 +5644,9 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485,
     selectedPixelLocalSigma = std::fabs(fSelectedPixelLocal->GetParameter(2));
     selectedPixelLocalValid = selectedPixelLocalStatus == 0 && std::isfinite(fSelectedPixelLocal->GetParameter(0)) && fSelectedPixelLocal->GetParameter(0) > 0.0 && std::isfinite(selectedPixelLocalMean) && std::isfinite(selectedPixelLocalSigma) && std::isfinite(fSelectedPixelLocal->GetParameter(3)) && std::isfinite(fSelectedPixelLocal->GetParameter(4)) && selectedPixelLocalSigma >= minSigma && selectedPixelLocalSigma <= maxSigma && selectedPixelLocalMean > dtMinCut && selectedPixelLocalMean < dtMaxCut;
 
+    /* Background subtraction was removed because the production timing mean
+       comes from the local gaus+pol1 fit and the cleaned plots were unused. */
+#if 0
     if (selectedPixelLocalValid) {
       selectedPixelRejectLow = std::max(DiffMin, selectedPixelLocalMean - NReject*selectedPixelLocalSigma);
       selectedPixelRejectHigh = std::min(DiffMax, selectedPixelLocalMean + NReject*selectedPixelLocalSigma);
@@ -5698,18 +5701,15 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485,
         }
       }
     }
+#endif
   }
 
-  TCanvas *cSelectedPixelDt = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDt"), TString::Format("ECal-CDet delta-t signal and background, logical pixel ID %d", logicalPixelID), 1000, 750);
+  TCanvas *cSelectedPixelDt = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDt"), TString::Format("ECal-CDet delta-t signal fit, logical pixel ID %d", logicalPixelID), 1000, 750);
   hSelectedPixelDt->SetStats(kTRUE);
   hSelectedPixelDt->SetLineColor(kBlack);
   hSelectedPixelDt->SetLineWidth(2);
   double selectedPixelPlotMin = 0.0;
   double selectedPixelPlotMax = std::max(1.0, 1.15*hSelectedPixelDt->GetMaximum());
-  if (hSelectedPixelDtClean) {
-    selectedPixelPlotMin = std::min(0.0, 1.15*hSelectedPixelDtClean->GetMinimum());
-    selectedPixelPlotMax = std::max(selectedPixelPlotMax, 1.15*hSelectedPixelDtClean->GetMaximum());
-  }
   hSelectedPixelDt->SetMinimum(selectedPixelPlotMin);
   hSelectedPixelDt->SetMaximum(selectedPixelPlotMax);
   hSelectedPixelDt->Draw("HIST");
@@ -5722,47 +5722,8 @@ void plotECalCDetTimeCutStudy(double Width = 1.0, int logicalPixelID = 485,
     fSelectedPixelLocal->Draw("SAME");
     selectedPixelLegend->AddEntry(fSelectedPixelLocal, "Initial local Gaussian", "l");
   }
-  if (selectedPixelBackgroundValid) {
-    fSelectedPixelBackground->SetLineColor(kMagenta + 2);
-    fSelectedPixelBackground->SetLineStyle(3);
-    fSelectedPixelBackground->SetLineWidth(3);
-    fSelectedPixelBackground->Draw("SAME");
-    selectedPixelLegend->AddEntry(fSelectedPixelBackground, "Broad Gaussian background", "l");
-    hSelectedPixelDtClean->SetLineColor(kGreen + 2);
-    hSelectedPixelDtClean->SetLineWidth(2);
-    hSelectedPixelDtClean->Draw("HIST SAME");
-    selectedPixelLegend->AddEntry(hSelectedPixelDtClean, "Background-subtracted #Deltat", "l");
-  }
-  if (selectedPixelCleanValid) {
-    fSelectedPixelClean->SetLineColor(kRed + 1);
-    fSelectedPixelClean->SetLineWidth(3);
-    fSelectedPixelClean->Draw("SAME");
-    selectedPixelLegend->AddEntry(fSelectedPixelClean, "Final cleaned-peak Gaussian", "l");
-  }
   selectedPixelLegend->Draw();
   if (selectedPixelLocalValid && fSelectedPixelLocal->GetNDF() > 0) AddFitResultsToStatsBox(hSelectedPixelDt, selectedPixelLocalMean, fSelectedPixelLocal->GetParError(1), selectedPixelLocalSigma, fSelectedPixelLocal->GetParError(2), fSelectedPixelLocal->GetChisquare()/fSelectedPixelLocal->GetNDF());
-
-  TCanvas *cSelectedPixelDtClean = new TCanvas(uniqueName("cCDetECalCutStudySelectedPixelDtClean"), TString::Format("Background-subtracted ECal-CDet delta-t, logical pixel ID %d", logicalPixelID), 900, 700);
-  if (hSelectedPixelDtClean) {
-    hSelectedPixelDtClean->SetStats(kTRUE);
-    hSelectedPixelDtClean->SetLineColor(kGreen + 2);
-    hSelectedPixelDtClean->SetLineWidth(2);
-    hSelectedPixelDtClean->Draw("HIST");
-    TLegend *cleanLegend = new TLegend(0.55, 0.76, 0.88, 0.88);
-    cleanLegend->AddEntry(hSelectedPixelDtClean, "Background-subtracted #Deltat", "l");
-    if (selectedPixelCleanValid) {
-      fSelectedPixelClean->Draw("SAME");
-      cleanLegend->AddEntry(fSelectedPixelClean, "Final cleaned-peak Gaussian", "l");
-    }
-    cleanLegend->Draw();
-    if (selectedPixelCleanValid && fSelectedPixelClean->GetNDF() > 0) AddFitResultsToStatsBox(hSelectedPixelDtClean, fSelectedPixelClean->GetParameter(1), fSelectedPixelClean->GetParError(1), std::fabs(fSelectedPixelClean->GetParameter(2)), fSelectedPixelClean->GetParError(2), fSelectedPixelClean->GetChisquare()/fSelectedPixelClean->GetNDF());
-  } else {
-    TPaveText *fitFailureNote = new TPaveText(0.18, 0.42, 0.82, 0.58, "NDC");
-    fitFailureNote->SetFillColor(0);
-    fitFailureNote->SetBorderSize(1);
-    fitFailureNote->AddText("Background subtraction unavailable: local or background fit failed");
-    fitFailureNote->Draw();
-  }
 
   TCanvas *cPassingTiming = new TCanvas(uniqueName("cCDetECalCutStudyPassingTiming"), "CDet timing after ECal-CDet delta-t cut", 1500, 500);
   cPassingTiming->Divide(3, 1);
@@ -6037,7 +5998,8 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
     failureReason[localPixel] = "valid";
     validFit[localPixel] = true;
 
-    // The background model and cleaned histogram below are visual diagnostics only.
+    // Background-subtracted diagnostics removed; calibration uses fPixelLocal.
+#if 0
     // Calibration centroids and the weighted bar reference come from fPixelLocal.
     rejectLow[localPixel] = std::max(HistMin, localMean - NReject*localSigma);
     rejectHigh[localPixel] = std::min(HistMax, localMean + NReject*localSigma);
@@ -6086,6 +6048,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
     fPixelClean[localPixel]->SetParameters(std::max(1.0, fPixelLocal[localPixel]->GetParameter(0)), localMean, localSigma);
     const int cleanFitStatus = hPixelDtClean[localPixel]->Fit(fPixelClean[localPixel], "RQN0");
     validCleanFit[localPixel] = cleanFitStatus == 0 && std::isfinite(fPixelClean[localPixel]->GetParameter(0)) && std::isfinite(fPixelClean[localPixel]->GetParameter(1)) && std::isfinite(fPixelClean[localPixel]->GetParameter(2));
+#endif
   }
 
   double weightSum = 0.0;
@@ -6184,6 +6147,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
     if (validLocalFit[localPixel] && fPixelLocal[localPixel]->GetNDF() > 0) AddFitResultsToStatsBox(hPixelDt[localPixel], fPixelLocal[localPixel]->GetParameter(1), fPixelLocal[localPixel]->GetParError(1), std::fabs(fPixelLocal[localPixel]->GetParameter(2)), fPixelLocal[localPixel]->GetParError(2), fPixelLocal[localPixel]->GetChisquare()/fPixelLocal[localPixel]->GetNDF());
   }
 
+  #if 0
   TCanvas *cBarCleanFits = new TCanvas(uniqueName("cCDetBarPixelTimingCleanFits"), TString::Format("CDet bar %d background-subtracted pixel timing fits", bar), 1400, 1100);
   cBarCleanFits->Divide(4, 4, 0.001, 0.001);
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
@@ -6210,6 +6174,7 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
     }
   }
 
+  #endif
   TCanvas *cBarDtVsTot = new TCanvas(uniqueName("cCDetBarPixelTimingDtVsTot"), TString::Format("CDet bar %d pixel delta-t versus TOT", bar), 1400, 1100);
   cBarDtVsTot->Divide(4, 4, 0.001, 0.001);
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
@@ -6241,7 +6206,6 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
     TString saveDir = TString::Format("%s/run_%d_stage_%d", fitCanvasDir.Data(), gRunNumber, gCalibrationStage);
     gSystem->mkdir(saveDir, kTRUE);
     cBarFits->SaveAs(TString::Format("%s/bar_%03d_pixels_%d-%d.pdf", saveDir.Data(), bar, pixelBase, pixelBase + NumPaddles - 1));
-    cBarCleanFits->SaveAs(TString::Format("%s/bar_%03d_background_subtracted.pdf", saveDir.Data(), bar));
     cBarDtVsTot->SaveAs(TString::Format("%s/bar_%03d_dt_vs_tot.pdf", saveDir.Data(), bar));
     cBarSummary->SaveAs(TString::Format("%s/bar_%03d_summary.pdf", saveDir.Data(), bar));
   }
@@ -6264,17 +6228,15 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
                << "# ecal_energy_cut_gev " << ECalEnergyMin << " " << ECalEnergyMax << "\n"
                << "# dt = tECal - tCDetLE\n"
                << "# fit_interval_ns " << FitMin << " " << FitMax << "\n"
-               << "# background_fit_interval_ns " << HistMin << " " << HistMax << "\n"
                << "# signal_fit_interval_ns " << FitMin << " " << FitMax << "\n"
-               << "# calibration_centroid_source gaus(0)+pol1(3)_signal_mean; background subtraction is visual only\n"
+               << "# calibration_centroid_source gaus(0)+pol1(3)_signal_mean\n"
                << "# peak_seed_interval_ns " << PeakSeedMin << " " << PeakSeedMax << "\n"
-               << "# background_rejection_nsigma " << NReject << "\n"
                << "# reference_scope bar-local\n"
                << "# mu0_ns " << referenceCentroid << " mu0_err_ns " << referenceCentroidErr << "\n"
                << "# correction c_i = mu_i - mu0; proposed convention tCDet_i' = tCDet_i + c_i\n"
-               << "# pixel_id entries fit_status valid mu_ns mu_err_ns sigma_ns sigma_err_ns correction_ns correction_err_ns chi2 ndf chi2_ndf amplitude amplitude_err background_amplitude background_amplitude_limit background_mean_ns background_sigma_ns reject_low_ns reject_high_ns validity_code failure_reason\n";
+               << "# pixel_id entries fit_status valid mu_ns mu_err_ns sigma_ns sigma_err_ns correction_ns correction_err_ns chi2 ndf chi2_ndf amplitude amplitude_err validity_code failure_reason\n";
         for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
-          output << pixelBase + localPixel << " " << fitEntries[localPixel] << " " << fitStatus[localPixel] << " " << validFit[localPixel] << " " << centroid[localPixel] << " " << centroidErr[localPixel] << " " << sigma[localPixel] << " " << sigmaErr[localPixel] << " " << correction[localPixel] << " " << correctionErr[localPixel] << " " << chi2[localPixel] << " " << ndf[localPixel] << " " << chi2Ndf[localPixel] << " " << amplitude[localPixel] << " " << amplitudeErr[localPixel] << " " << backgroundAmplitude[localPixel] << " " << backgroundAmplitudeLimit[localPixel] << " " << backgroundMean[localPixel] << " " << backgroundSigma[localPixel] << " " << rejectLow[localPixel] << " " << rejectHigh[localPixel] << " " << validityCode[localPixel] << " \"" << failureReason[localPixel] << "\"\n";
+          output << pixelBase + localPixel << " " << fitEntries[localPixel] << " " << fitStatus[localPixel] << " " << validFit[localPixel] << " " << centroid[localPixel] << " " << centroidErr[localPixel] << " " << sigma[localPixel] << " " << sigmaErr[localPixel] << " " << correction[localPixel] << " " << correctionErr[localPixel] << " " << chi2[localPixel] << " " << ndf[localPixel] << " " << chi2Ndf[localPixel] << " " << amplitude[localPixel] << " " << amplitudeErr[localPixel] << " " << validityCode[localPixel] << " \"" << failureReason[localPixel] << "\"\n";
         }
       }
     }
@@ -6308,7 +6270,6 @@ void extractCDetBarPixelTimingOffsets(int pixelBase = 480, double Width = 1.0,
             << "  preferred peak-seed interval: [" << PeakSeedMin << ", " << PeakSeedMax << "] ns; fallbacks: " << peakSeedFallbackCount << "\n"
             << "  broad background fit interval: [" << HistMin << ", " << HistMax << "] ns\n"
             << "  calibration centroids use gaus(0)+pol1(3) over the full peak-search interval\n"
-            << "  background subtraction and cleaned fits are visual only; background rejection: " << NReject << " sigma\n"
             << "  events passing ECal energy cut: " << energySelectedEventCount << " / " << nEvents << "\n"
             << "  physical instrumented pixels considered: " << instrumentedPixels << "\n"
             << "  pixels with sufficient statistics: " << sufficientStatistics << "\n"
@@ -6465,7 +6426,8 @@ void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width
     validFit[pixelID] = true;
     ++validPixelCount;
 
-    // Background subtraction and the cleaned Gaussian are diagnostic only.
+    // Background-subtracted diagnostics removed; production uses fPixelLocal.
+#if 0
     // Production centroids and the detector-wide reference come from fPixelLocal.
     rejectLow[pixelID] = std::max(HistMin, localMean - NReject*localSigma);
     rejectHigh[pixelID] = std::min(HistMax, localMean + NReject*localSigma);
@@ -6510,6 +6472,7 @@ void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width
     fPixelClean[pixelID] = new TF1(uniqueName(TString::Format("fCDetAllPixelTimingClean_%d", pixelID)), "gaus", FitMin, FitMax);
     fPixelClean[pixelID]->SetParameters(std::max(1.0, fPixelLocal[pixelID]->GetParameter(0)), localMean, localSigma);
     hPixelDtClean[pixelID]->Fit(fPixelClean[pixelID], "RQN0");
+#endif
   }
 
   double referenceWeightSum = 0.0;
@@ -6554,10 +6517,10 @@ void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width
     std::cerr << "[CDet all-pixel timing] ERROR: calibration candidate was written, but fit-results file '" << fitResultsOutput << "' could not be opened.\n";
     return;
   }
-  fitResults << "# CDet all-pixel ECal-CDet timing-offset extraction\n# run " << gRunNumber << "\n# calibration_stage " << gCalibrationStage << "\n# timing_units ns\n# ecal_energy_cut_gev " << ECalEnergyMin << " " << ECalEnergyMax << "\n# dt = tECal - tCDetLE\n# fit_interval_ns " << FitMin << " " << FitMax << "\n# calibration_centroid_source gaus(0)+pol1(3)_signal_mean; background subtraction is diagnostic only\n# background_fit_interval_ns " << HistMin << " " << HistMax << "\n# peak_seed_interval_ns " << PeakSeedMin << " " << PeakSeedMax << "\n# background_rejection_nsigma " << NReject << "\n# reference_scope detector-wide\n# detector_mu0_ns " << detectorReference << " detector_mu0_err_ns " << detectorReferenceErr << "\n# residual_correction = mu_i - detector_mu0; total_offset = existing_offset + residual_correction\n# pixel_id bar entries fit_status valid_fit detector_reference_valid mu_ns mu_err_ns sigma_ns sigma_err_ns residual_correction_ns correction_err_ns total_offset_ns detector_mu0_ns detector_mu0_err_ns chi2 ndf chi2_ndf amplitude amplitude_err background_amplitude background_amplitude_limit background_mean_ns background_sigma_ns reject_low_ns reject_high_ns validity_code failure_reason\n";
+  fitResults << "# CDet all-pixel ECal-CDet timing-offset extraction\n# run " << gRunNumber << "\n# calibration_stage " << gCalibrationStage << "\n# timing_units ns\n# ecal_energy_cut_gev " << ECalEnergyMin << " " << ECalEnergyMax << "\n# dt = tECal - tCDetLE\n# fit_interval_ns " << FitMin << " " << FitMax << "\n# calibration_centroid_source gaus(0)+pol1(3)_signal_mean\n# peak_seed_interval_ns " << PeakSeedMin << " " << PeakSeedMax << "\n# reference_scope detector-wide\n# detector_mu0_ns " << detectorReference << " detector_mu0_err_ns " << detectorReferenceErr << "\n# residual_correction = mu_i - detector_mu0; total_offset = existing_offset + residual_correction\n# pixel_id bar entries fit_status valid_fit detector_reference_valid mu_ns mu_err_ns sigma_ns sigma_err_ns residual_correction_ns correction_err_ns total_offset_ns detector_mu0_ns detector_mu0_err_ns chi2 ndf chi2_ndf amplitude amplitude_err validity_code failure_reason\n";
   for (int pixelID = 0; pixelID < NumCDetPaddles; ++pixelID) {
     const int bar = pixelID/NumPaddles;
-    fitResults << pixelID << " " << bar << " " << fitEntries[pixelID] << " " << fitStatus[pixelID] << " " << validFit[pixelID] << " " << detectorReferenceValid << " " << centroid[pixelID] << " " << centroidErr[pixelID] << " " << sigma[pixelID] << " " << sigmaErr[pixelID] << " " << correction[pixelID] << " " << correctionErr[pixelID] << " " << totalOffset[pixelID] << " " << detectorReference << " " << detectorReferenceErr << " " << chi2[pixelID] << " " << ndf[pixelID] << " " << chi2Ndf[pixelID] << " " << amplitude[pixelID] << " " << amplitudeErr[pixelID] << " " << backgroundAmplitude[pixelID] << " " << backgroundAmplitudeLimit[pixelID] << " " << backgroundMean[pixelID] << " " << backgroundSigma[pixelID] << " " << rejectLow[pixelID] << " " << rejectHigh[pixelID] << " " << validityCode[pixelID] << " \"" << failureReason[pixelID] << "\"\n";
+    fitResults << pixelID << " " << bar << " " << fitEntries[pixelID] << " " << fitStatus[pixelID] << " " << validFit[pixelID] << " " << detectorReferenceValid << " " << centroid[pixelID] << " " << centroidErr[pixelID] << " " << sigma[pixelID] << " " << sigmaErr[pixelID] << " " << correction[pixelID] << " " << correctionErr[pixelID] << " " << totalOffset[pixelID] << " " << detectorReference << " " << detectorReferenceErr << " " << chi2[pixelID] << " " << ndf[pixelID] << " " << chi2Ndf[pixelID] << " " << amplitude[pixelID] << " " << amplitudeErr[pixelID] << " " << validityCode[pixelID] << " \"" << failureReason[pixelID] << "\"\n";
   }
   fitResults.close();
   gPixelToffsetCorr = totalOffset;
@@ -6569,7 +6532,7 @@ void extractAllCDetPixelTimingOffsets(bool generateOffsets = false, double Width
   std::cout << "[CDet all-pixel timing]\n"
             << "  events passing ECal energy cut: " << energySelectedEventCount << " / " << nEvents << "\n"
             << "  valid pixel fits: " << validPixelCount << " / " << NumCDetPaddles << "\n"
-            << "  calibration centroids: gaus(0)+pol1(3) signal means; background subtraction is diagnostic only\n"
+            << "  calibration centroids: gaus(0)+pol1(3) signal means\n"
             << "  detector-wide weighted centroid: " << detectorReference << " +/- " << detectorReferenceErr << " ns\n"
             << "  calibration file: " << calibrationOutput << "\n"
             << "  detailed fit results: " << fitResultsOutput << "\n"
