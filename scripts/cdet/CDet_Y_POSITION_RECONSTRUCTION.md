@@ -10,13 +10,17 @@ a hit closer to the photosensor arrives earlier than a hit farther away.
 This study uses run 5710 cross-target data to measure that response and form an
 approximate CDet y-position from corrected CDet leading-edge (LE) time.
 
-The distinction between timing and position calibration is important:
+The distinction between the two uses of ECal y in this study is important:
 
 - ECal **time** supplies the event-time reference used by the CDet timing
   calibration.
-- ECal **y-position** is used only as an external training and validation
-  coordinate for the CDet position response.
-- ECal y is not applied as a correction to CDet time.
+- For the empirical CDet-only position response, ECal **y-position** is an
+  external training and validation coordinate. Those fitted position-response
+  constants are not applied to the production CDet timing calibration.
+- Separately, the physics-motivated timing test projects ECal y to CDet and
+  applies the propagation correction calculated from `n = 1.59`. This produces
+  parallel y-corrected timing diagnostics without changing the accepted pairs
+  or the master timing constants.
 - The position constants are written to `CDet_y_position_calibration.dat`, not
   to `CDet_calibration_dt.dat`.
 
@@ -363,9 +367,11 @@ This is an encouraging proof of concept, not yet a production reconstruction:
 - Run dependence and stability across detector conditions have not yet been
   established.
 
-Most importantly, none of this work changes the established run-5710 CDet
-timing calibration. It adds a separate response model that converts calibrated
-CDet time into an approximate position.
+Most importantly, none of this work changes the established Run 5710 master or
+run-specific timing constants. It adds two optional analysis products: a
+separate response model that converts calibrated CDet time into an approximate
+position, and parallel timing diagnostics with the physics-motivated ECal-y
+propagation correction applied event by event.
 
 ## Archived record
 

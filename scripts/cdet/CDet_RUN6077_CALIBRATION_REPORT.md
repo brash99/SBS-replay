@@ -30,7 +30,7 @@ The final diagnostic folder was generated from
 
 ```text
 Run:                         6077
-Configured maximum events:   1,000,000 (all 768,423 available events used)
+Configured maximum events:  10,000,000 (all 768,423 available events used)
 ECal ADC-time selection:     -10 to 10 ns
 HCal ADC-time display range: -10 to 10 ns (default)
 Good-hit ToT selection:       8 to 35 ns

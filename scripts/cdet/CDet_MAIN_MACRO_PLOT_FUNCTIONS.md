@@ -126,7 +126,8 @@ timing range and all entries. Each panel overlays a profile and linear fit over
 the displayed timing band; the fitted slope, uncertainty, and chi-square per
 degree of freedom are shown on the panel and printed to the terminal. Profile
 bins containing fewer than five entries do not determine the fitted x-range.
-The plots do not yet derive or apply a CDet y-position calibration.
+These twelve plots measure the empirical position response; they do not by
+themselves apply their fitted slopes as timing corrections.
 
 The companion `cCDetECalYFixedEffects` canvas removes the mean ECal y and mean
 CDet time separately for every half-bar with at least 100 accepted hits, then
@@ -134,7 +135,25 @@ performs an unbinned regression through the origin for each of the same twelve
 layer/side/section groups. This isolates the within-half-bar propagation slope
 from residual differences among half-bar timing intercepts. Its slope errors
 use the unbinned residual variance with one fitted intercept per contributing
-half-bar. This remains diagnostic only.
+half-bar. The fitted empirical slopes remain diagnostic and are not installed
+as timing-calibration constants.
+
+An independent physics-motivated timing correction can be enabled with
+`display.y_correction_refractive_index` in the run configuration. For a value
+`n > 1`, the function projects ECal y to each CDet layer and corrects every
+accepted hit for propagation from its half-bar center using `v = c/n` and the
+appropriate readout-side sign. Pair selection is completed before the
+correction, so all before/after products contain exactly the same observations.
+Run 5710 enables this comparison with `n = 1.59`. The function preserves the
+ordinary canvases and additionally writes:
+
+```text
+CDet_y_propagation_correction_comparison.pdf
+CDet_y_propagation_correction_comparison.png
+cCDetLayerTimesYCorrected.jpg
+cCDetProjectedHalfBarTimingYCorrected.jpg
+cCDetTDiffYCorrected.jpg
+```
 
 Once the fixed-effects slopes have been inspected, write the independent CDet
 y-position response calibration with:
@@ -154,8 +173,10 @@ plotCDetYPositionResolution("CDet_y_position_calibration.dat")
 
 The validation canvas shows reconstructed CDet y versus ECal y and the
 `y_CDet - y_ECal` residual separately for each layer. ECal y is used to train
-and validate this position response, but it is not applied as a CDet timing
-correction. A companion `cCDetYLayerComparison` canvas uses accepted paired
+and validate this empirical position response; its fitted slopes are not
+installed as CDet timing constants. This is distinct from the optional
+physics-motivated propagation correction described above. A companion
+`cCDetYLayerComparison` canvas uses accepted paired
 hits to show Layer-2 reconstructed y versus Layer-1 reconstructed y and the
 `y_L1 - y_L2` distribution. The terminal reports that difference RMS and its
 value divided by `sqrt(2)`, which estimates a single-layer resolution only if
@@ -189,6 +210,15 @@ would attenuate the response to a changed correction coefficient. The function
 reports separate Layer-1 and Layer-2 results and their combined result. A three-panel
 `cCDetECalFixedEffects` canvas displays the centered Layer-1, Layer-2, and
 combined distributions and fitted common slopes.
+
+When the ECal-time correction is active, the function also reconstructs the
+same four presentation trends before the installed `p1` term by algebraically
+adding `p1*t_ECal` back to the corrected times. The resulting
+`cCDetTvsECalTBeforeP1` canvas contains all accepted pairs, both individual
+layers, and the selected Layer-1 bar. It is saved as
+`cCDetTvsECalTBeforeP1.jpg` and `.pdf`; this is a read-only illustration of the
+slope removed by the calibration and does not alter the selected sample or any
+constant.
 
 The selected-bar per-pixel LE spectra have display-only Gaussian overlays fitted
 over `30 +/- 5 ns`; these fits do not affect pairing, cuts, or calibration.
