@@ -29,6 +29,7 @@
 #include <TFile.h>
 #include <TTree.h>
 #include <TChain.h>
+#include "CDetRunDataset.h"
 #include <TCanvas.h>
 #include <TControlBar.h>
 #include <TLegend.h>
@@ -450,55 +451,7 @@ bool GetSegRange(const TString& fname, int& firstSeg, int& lastSeg) {
 
 void AddRunFilesToChain(TChain *chain, const char *dir, int runnum,
                         int segMin = -1, int segMax = -1) {
-  TString prefix = dir;
-  std::vector<TString> runfiles;
-
-  // Normalize requested segment window ONCE
-  bool useSegRange = (segMin >= 0 || segMax >= 0);
-  int reqSegMin = segMin;
-  int reqSegMax = segMax;
-
-  if (useSegRange) {
-    if (reqSegMin < 0) reqSegMin = reqSegMax;
-    if (reqSegMax < 0) reqSegMax = reqSegMin;
-    if (reqSegMin > reqSegMax) std::swap(reqSegMin, reqSegMax);
-  }
-
-  TSystemDirectory directory(prefix, prefix);
-  TList *files = directory.GetListOfFiles();
-
-  if (files) {
-    TIter next(files);
-    TSystemFile *f = nullptr;
-
-    while ((f = (TSystemFile*) next())) {
-      if (f->IsDirectory()) continue;
-
-      TString fname = f->GetName();
-      if (!fname.BeginsWith(Form("cdet_%d_", runnum))) continue;
-      if (!fname.EndsWith(".root")) continue;
-
-      if (useSegRange) {
-        int firstSeg = -1, lastSeg = -1;
-        if (!GetSegRange(fname, firstSeg, lastSeg)) continue;
-
-        // Keep file only if its segment span overlaps requested range
-        if (lastSeg < reqSegMin || firstSeg > reqSegMax) continue;
-      }
-
-      runfiles.push_back(prefix + "/" + fname);
-    }
-  }
-
-  std::sort(runfiles.begin(), runfiles.end());
-
-  std::cout << "Adding " << runfiles.size()
-            << " files for run " << runnum << "...\n";
-
-  for (const auto &file : runfiles) {
-    std::cout << "  " << file << "\n";
-    chain->Add(file);
-  }
+  CDetRunDataset::AddToChain(chain, runnum, dir, segMin, segMax);
 }
 // 5/18/2026 B. Spaude: modified to allow for chaining different run groups
 std::vector<int> ReadRunList(const char *runListFile, int groupIndex = 0) {

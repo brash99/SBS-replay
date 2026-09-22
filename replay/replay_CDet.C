@@ -55,6 +55,7 @@ void replay_CDet(UInt_t runnum, Long_t nevents=-1, Long_t firstevent=1, const ch
   //cdet->SetDataOutputLevel(1);
   
   cdet->SetStoreRawHits(kTRUE); // enabling writing out waveform information
+  cdet->SetStorePulseCandidates(kTRUE); // retain complete LE+TE+positive-ToT pulses
 
   earm->AddDetector(cdet);
   earm->AddDetector(ecal);

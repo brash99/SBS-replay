@@ -10,11 +10,16 @@ The active run-specific file currently contains:
 
 ```ini
 [ECalTiming]
-p1 0.002520
+p1 0.000000
 
 [GlobalTiming]
 shift_ns 2.913449
 ```
+
+The archived plots in this report were generated with the fitted value
+`p1 = 0.002520 ns/ns`.  That value is consistent with zero and has been
+superseded by the production LH2 policy `p1 = 0`; the established shift and
+timing window are unchanged.
 
 The initial projected-half-bar shift fit used a 5 ns local half-width and was
 rejected because the fitted Run 6077 core width was about 7.04 ns. Repeating

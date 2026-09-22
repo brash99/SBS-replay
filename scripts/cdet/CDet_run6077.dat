@@ -1,7 +1,8 @@
-# Run-specific timing calibration for cross-target run 6077.
+# Run-specific timing calibration for LH2 run 6077.  The LH2 production policy
+# fixes ECal p1 to zero; only shift_ns varies from run to run.
 
 [ECalTiming]
-p1 0.002520
+p1 0.000000
 
 [GlobalTiming]
 shift_ns 2.913449

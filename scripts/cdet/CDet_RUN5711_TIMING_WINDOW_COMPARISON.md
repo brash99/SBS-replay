@@ -1,10 +1,17 @@
 # Run 5711 Timing-Window Diagnostic Comparison
 
-All three analyses use the final Run 5711 calibration constants
+These archived diagnostic plots were generated with the fitted value
 `p1 = -0.012423 ns/ns` and `shift_ns = 3.422000 ns`, the
 `3.0 < E_ECal < 4.5 GeV` energy selection, and the `8 < ToT < 35 ns` CDet
 good-hit selection. The columns differ only in the ECal and HCal ADC-time
 windows shown below.
+
+The adopted production calibration policy for LH2 data supersedes that small
+fitted slope with exactly `p1 = 0`.  Run 5711 retains
+`shift_ns = 3.422000 ns` and the nominal `-10 < t_ECal,t_HCal < 10 ns`
+timing window.  The plots below remain an accurate record of the window study,
+but should not be described as having been regenerated with the production
+zero-slope policy.
 
 | Wide window | Nominal window | Narrow window |
 |:---:|:---:|:---:|
