@@ -46,6 +46,7 @@ def main():
 
     try:
         import matplotlib.pyplot as plt
+        import cdet_matplotlib_style  # noqa: F401
     except ModuleNotFoundError as error:
         raise SystemExit(
             "matplotlib is required; install it with: python3 -m pip install matplotlib"

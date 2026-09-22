@@ -4,6 +4,8 @@ import re
 import os
 import matplotlib.pyplot as plt
 
+import cdet_matplotlib_style  # noqa: F401
+
 # -----------------------------
 # User settings
 # -----------------------------

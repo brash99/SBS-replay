@@ -1,3 +1,5 @@
+#include "CDetPlotStyle.h"
+
 #include <TROOT.h>
 #include <TSystem.h>
 #include <TString.h>

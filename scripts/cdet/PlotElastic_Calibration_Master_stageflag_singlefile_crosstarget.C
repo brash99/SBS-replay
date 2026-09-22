@@ -1,5 +1,7 @@
 #pragma once
 
+#include "CDetPlotStyle.h"
+
 #include <TSystemDirectory.h>
 #include <TSystemFile.h>
 #include <TList.h>
@@ -5688,6 +5690,18 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   TH2D* hSelectedBarECalXVsX2 = new TH2D("hSelectedBarECalXVsX2", TString::Format("ECal projection at Layer 2 vs matched CDet x, Layer 1 bar %d;Matched Layer 2 x (m);ECal x projected to Layer 2 (m)", selectedBarNumber), NXBins, XMin, XMax, NXBins, XMin, XMax);
   TH2D* hSelectedBarXByPlane = new TH2D("hSelectedBarXByPlane", TString::Format("Hit x through CDet and ECal, Layer 1 bar %d;Detector plane;x position (m)", selectedBarNumber), 3, 0.5, 3.5, NXBins, XMin, XMax);
   TH2D* hSelectedBarXVsZ = new TH2D("hSelectedBarXVsZ", TString::Format("Hit positions through CDet and ECal, Layer 1 bar %d;z position (m);x position (m)", selectedBarNumber), NZBins, ZMin, ZMax, NXBins, XMin, XMax);
+  TH1D* hCDetAllDtCutPixelOffsetLe = new TH1D(
+      "hCDetAllDtCutPixelOffsetLe",
+      "All CDet hits passing ECal-CDet #Deltat cut;Pixel-offset-only LE (ns);Hits",
+      NPairedLeBins, CDetMin, CDetMax);
+  std::vector<TH1D*> hSelectedBarDtCutPixelOffsetLe(NumPaddles, nullptr);
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    const int globalPixel = selectedLayer1BarBase + localPixel;
+    hSelectedBarDtCutPixelOffsetLe[localPixel] = new TH1D(
+        TString::Format("hSelectedBarDtCutPixelOffsetLe_Pixel%d", globalPixel),
+        TString::Format("ECal-CDet #Deltat-selected LE, Pixel %d;Pixel-offset-only LE (ns);Hits", globalPixel),
+        NPairedLeBins, CDetMin, CDetMax);
+  }
   std::vector<TH1D*> hSelectedBarPairedLe(NumPaddles, nullptr);
   for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
     const int globalPixel = selectedLayer1BarBase + localPixel;
@@ -5802,6 +5816,20 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
 
   double sigT  = 1.0;   // ns; timing scale for score
   double sigX  = 0.01;   // m; start ~1, later tighten toward 0.5
+
+  // Recover the LE value that existed immediately after the per-pixel offset
+  // was applied. Pair finding and the ECal-CDet dt cut continue to use the
+  // fully corrected time; this inverse is used only by the two new displays.
+  auto pixelOffsetOnlyLe = [&](double correctedTime, int pixel, double tot,
+                               double ecalTime) {
+    double time = correctedTime;
+    if (std::isfinite(gGlobalTimingShift)) time -= gGlobalTimingShift;
+    if (gUseTimeWalkCorr)
+      time += GetTimeWalkCorrection(GetLayerFromID(pixel), tot);
+    if (gUseECalTimeCorr)
+      time += gECalFitP0 + gECalFitP1*ecalTime - gECalDeltaShift;
+    return time;
+  };
 
   for (size_t ev = 0; ev < Nev; ev++) { //iterate through events
     std::vector<double> vCDet1Time;
@@ -5956,6 +5984,17 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             gShiftInvariantPairTimingCuts ? gGlobalTimingShift : 0.0;
         double dt_EC = t_ECal - (t_pair - timingShiftForCuts);
         if (dt_EC >= tdiffECalCDetMin && dt_EC <= tdiffECalCDetMax){
+          const double pixelOffsetLe1 = pixelOffsetOnlyLe(
+              p.t1, p.id1, p.tot1, t_ECal);
+          const double pixelOffsetLe2 = pixelOffsetOnlyLe(
+              p.t2, p.id2, p.tot2, t_ECal);
+          hCDetAllDtCutPixelOffsetLe->Fill(pixelOffsetLe1);
+          hCDetAllDtCutPixelOffsetLe->Fill(pixelOffsetLe2);
+          if (p.id1 >= selectedLayer1BarBase &&
+              p.id1 < selectedLayer1BarBase + NumPaddles)
+            hSelectedBarDtCutPixelOffsetLe[p.id1 - selectedLayer1BarBase]->Fill(
+                pixelOffsetLe1);
+
           double x_pair = (p.x1 + p.x2) / 2;
           double z_pair = (p.z1 + p.z2) / 2;
           double x_ECal = v_GoodECalX[ev]*z_pair/ECal_dist;
@@ -6160,6 +6199,23 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     }
   }
   cSelectedBarPairedLe->Update();
+
+  TCanvas *cCDetAllDtCutPixelOffsetLe = new TCanvas(
+      "cCDetAllDtCutPixelOffsetLe",
+      "Pixel-offset-only CDet LE after ECal-CDet dt selection", 1000, 700);
+  hCDetAllDtCutPixelOffsetLe->Draw();
+  cCDetAllDtCutPixelOffsetLe->Update();
+
+  TCanvas *cSelectedBarDtCutPixelOffsetLe = new TCanvas(
+      "cSelectedBarDtCutPixelOffsetLe",
+      TString::Format("Pixel-offset-only LE for Layer 1 bar %d after ECal-CDet dt selection", selectedBarNumber),
+      1200, 1000);
+  cSelectedBarDtCutPixelOffsetLe->Divide(4, 4, 0.001, 0.001);
+  for (int localPixel = 0; localPixel < NumPaddles; ++localPixel) {
+    cSelectedBarDtCutPixelOffsetLe->cd(localPixel + 1);
+    hSelectedBarDtCutPixelOffsetLe[localPixel]->Draw();
+  }
+  cSelectedBarDtCutPixelOffsetLe->Update();
 
   TCanvas *cCDetLayerTimes = new TCanvas("cCDetLayerTimes", "CDet Layer 1 and 2 LE",900,700);
   cCDetLayerTimes->Divide(1,2);

@@ -11,6 +11,8 @@ import matplotlib
 matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
+import cdet_matplotlib_style  # noqa: F401
+
 
 HERE = Path(__file__).resolve().parent
 INPUT = HERE / "CDet_cross_target_shift_calibrations.tsv"
@@ -122,7 +124,7 @@ def main() -> None:
             rf'$\langle shift\rangle={mean:.3f}$ ns',
             transform=ax.transAxes,
             color=color,
-            fontsize=9.5,
+            fontsize=11.5,
             fontweight="semibold",
             ha="center",
             va="top",
@@ -140,11 +142,11 @@ def main() -> None:
     ax.axhline(0.0, color="black", linewidth=0.8, alpha=0.55)
     ax.set_xlim(boundaries[0], boundaries[-1])
     ax.set_ylim(-13.0, 2.6)
-    ax.set_xlabel("Run number", fontsize=12)
-    ax.set_ylabel(r"Run timing offset, $shift_{ns}$ (ns)", fontsize=12)
+    ax.set_xlabel("Run number", fontsize=14)
+    ax.set_ylabel(r"Run timing offset, $shift_{ns}$ (ns)", fontsize=14)
     ax.set_title(
         "CDet cross-target run timing offsets",
-        fontsize=15,
+        fontsize=17,
         fontweight="semibold",
     )
     ax.text(
@@ -152,18 +154,18 @@ def main() -> None:
         0.02,
         "Dashed segments show the mean within each approved run group.",
         transform=ax.transAxes,
-        fontsize=9,
+        fontsize=10.5,
         color="#444444",
     )
     ax.grid(axis="y", color="#cccccc", linewidth=0.7, alpha=0.65)
-    ax.tick_params(direction="in", top=True, right=True)
+    ax.tick_params(direction="in", top=True, right=True, labelsize=12)
     ax.legend(
         loc="center right",
-        fontsize=9,
+        fontsize=11,
         frameon=True,
         framealpha=0.95,
         title="Approved ECal ADC-time cuts",
-        title_fontsize=9,
+        title_fontsize=11,
     )
 
     metadata = {
