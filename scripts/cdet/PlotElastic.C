@@ -1,3 +1,5 @@
+#include "CDetPlotStyle.h"
+
 #include <TROOT.h>
 #include <TGraph.h>
 #include <TGraphErrors.h>

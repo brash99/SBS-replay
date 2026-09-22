@@ -1,3 +1,5 @@
+#include "CDetPlotStyle.h"
+
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TFile.h>
