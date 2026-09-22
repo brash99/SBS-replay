@@ -65,6 +65,9 @@ static const std::unordered_set<std::string>& CDetConfigurationKeys()
     "analysis.layer_choice", "analysis.suppress_bad", "analysis.number_of_runs",
     "analysis.max_stream", "analysis.first_event", "analysis.use_reference_timing",
     "diagnostics.accepted_tot_min", "diagnostics.accepted_tot_max",
+    "diagnostics.bar_ecal_fit_min", "diagnostics.bar_ecal_fit_max",
+    "diagnostics.bar_ecal_peak_seed_min",
+    "diagnostics.bar_ecal_peak_seed_max",
     "display.overwrite", "display.pixel", "display.histogram_width",
     "display.layer_dt_min", "display.layer_dt_max",
     "display.layer_dx_min", "display.layer_dx_max",
@@ -75,6 +78,7 @@ static const std::unordered_set<std::string>& CDetConfigurationKeys()
     "display.ecal_time_min", "display.ecal_time_max",
     "display.hcal_time_min", "display.hcal_time_max",
     "display.ecal_cdet_dt_min", "display.ecal_cdet_dt_max",
+    "display.y_correction_refractive_index",
     "display.hit_mode", "display.best_hit_peak_mean",
     "display.best_hit_peak_sigma", "display.best_hit_nsigma",
     "display.allow_multiple_pairs", "display.x_bin_width", "display.x_min", "display.x_max",
@@ -116,6 +120,23 @@ static bool LoadCDetConfiguration(TEnv& env, const char *configFile,
   if (acceptedTotMin >= acceptedTotMax) {
     std::cerr << "[" << caller << "] ERROR: diagnostics.accepted_tot_min must be less than "
               << "diagnostics.accepted_tot_max in " << configFile << ".\n";
+    return false;
+  }
+  const double barECalFitMin =
+      env.GetValue("diagnostics.bar_ecal_fit_min", -45.0);
+  const double barECalFitMax =
+      env.GetValue("diagnostics.bar_ecal_fit_max", -10.0);
+  const double barECalPeakSeedMin =
+      env.GetValue("diagnostics.bar_ecal_peak_seed_min", -40.0);
+  const double barECalPeakSeedMax =
+      env.GetValue("diagnostics.bar_ecal_peak_seed_max", -15.0);
+  if (barECalFitMin >= barECalFitMax ||
+      barECalPeakSeedMin >= barECalPeakSeedMax ||
+      barECalPeakSeedMin < barECalFitMin ||
+      barECalPeakSeedMax > barECalFitMax) {
+    std::cerr << "[" << caller << "] ERROR: the bar ECal-CDet peak-seed "
+                 "interval must be ordered and contained within the fit "
+                 "interval in " << configFile << ".\n";
     return false;
   }
   gCDetDiagnosticAcceptedTotMin = acceptedTotMin;
@@ -5467,7 +5488,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
                             bool displayBestHits = false,
                             double bestHitPeakMean = std::numeric_limits<double>::quiet_NaN(),
                             double bestHitPeakSigma = std::numeric_limits<double>::quiet_NaN(),
-                            double bestHitNSigma = 3.0){
+                            double bestHitNSigma = 3.0,
+                            double yCorrectionRefractiveIndex = 0.0){
   gLastCalibrationFitSucceeded = false;
   gLastECalFixedEffectsSlope = std::numeric_limits<double>::quiet_NaN();
   gLastECalFixedEffectsSlopeError = std::numeric_limits<double>::quiet_NaN();
@@ -5491,6 +5513,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   const int NPairedLeBins = std::max(1, (int)((CDetMax-CDetMin)/Width));
   const int NXBins = std::max(1, (int)((XMax-XMin)/XBinWidth));
   const int NZBins = std::max(1, (int)((ZMax-ZMin)/ZBinWidth));
+  const bool applyYPropagationDiagnostic = yCorrectionRefractiveIndex > 0.0;
+  const double vacuumLightSpeedMPerNs = 0.299792458;
+  const double yPropagationSpeedMPerNs = applyYPropagationDiagnostic
+      ? vacuumLightSpeedMPerNs/yCorrectionRefractiveIndex : 0.0;
+  const double yPropagationSlopeMagnitude = applyYPropagationDiagnostic
+      ? 1.0/yPropagationSpeedMPerNs : 0.0;
   const int selectedLayer1BarBase = (pixelBase/NumPaddles)*NumPaddles;
   const int selectedLayer2BarBase = selectedLayer1BarBase + NumCDetPaddles/2;
   const int selectedBarNumber = selectedLayer1BarBase/NumPaddles;
@@ -5499,9 +5527,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             << " (pixels " << selectedLayer1BarBase << "-" << selectedLayer1BarBase + NumPaddles - 1 << ").\n";
 
   TH1D* hCDetTimeDiff = new TH1D("hCDetTimeDiff", "CDet Layer Time Difference; Time Difference (ns);Counts", TDCBinNum, DiffMin, DiffMax);
+  TH1D* hCDetTimeDiffYCorrected = nullptr;
   TH1D* hCDetXDiff = new TH1D("hCDetXDiff", "CDet Layer X Difference; X Diff (m);Counts", 600,-1.5,1.5);
   TH1D* hCDetLe1 = new TH1D("hCDetLe1", "CDet Layer 1 Good Time;Layer 1 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
   TH1D* hCDetLe2 = new TH1D("hCDetLe2", "CDet Layer 2 Good Time;Layer 2 LE (ns);Counts", TDCBinNum, CDetMin, CDetMax);
+  TH1D* hCDetLe1YCorrected = nullptr;
+  TH1D* hCDetLe2YCorrected = nullptr;
   TH1D* hCDetProjectedHalfBarLe1 = new TH1D(
       "hCDetProjectedHalfBarLe1",
       "Projected-half-bar hits, Layer 1;Corrected LE time (ns);Hits",
@@ -5518,7 +5549,46 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       "hCDetProjectedHalfBarLe2vs1",
       "Projected-half-bar Layer 2 vs Layer 1 time;Layer 1 corrected LE (ns);Layer 2 corrected LE (ns)",
       TDCBinNum, CDetMin, CDetMax, TDCBinNum, CDetMin, CDetMax);
+  TH1D* hCDetProjectedHalfBarLe1YCorrected = nullptr;
+  TH1D* hCDetProjectedHalfBarLe2YCorrected = nullptr;
+  TH1D* hCDetProjectedHalfBarPairMeanYCorrected = nullptr;
+  TH2D* hCDetProjectedHalfBarLe2vs1YCorrected = nullptr;
   TH2D* hCDetLe2vs1 = new TH2D("hCDetLe2vs1", "CDet Layer 2 Time vs CDet Layer 1 Time;Layer 1 LE (ns);Layer 2 LE (ns)",TDCBinNum,CDetMin,CDetMax,TDCBinNum,CDetMin,CDetMax);
+  TH2D* hCDetLe2vs1YCorrected = nullptr;
+  if (applyYPropagationDiagnostic) {
+    hCDetTimeDiffYCorrected = new TH1D(
+        "hCDetTimeDiffYCorrected",
+        "CDet Layer Time Difference after y correction;t_{L2}^{y}-t_{L1}^{y} (ns);Counts",
+        TDCBinNum, DiffMin, DiffMax);
+    hCDetLe1YCorrected = new TH1D(
+        "hCDetLe1YCorrected",
+        "CDet Layer 1 Good Time after y correction;Layer 1 corrected LE (ns);Counts",
+        TDCBinNum, CDetMin, CDetMax);
+    hCDetLe2YCorrected = new TH1D(
+        "hCDetLe2YCorrected",
+        "CDet Layer 2 Good Time after y correction;Layer 2 corrected LE (ns);Counts",
+        TDCBinNum, CDetMin, CDetMax);
+    hCDetLe2vs1YCorrected = new TH2D(
+        "hCDetLe2vs1YCorrected",
+        "CDet Layer 2 vs Layer 1 time after y correction;Layer 1 corrected LE (ns);Layer 2 corrected LE (ns)",
+        TDCBinNum, CDetMin, CDetMax, TDCBinNum, CDetMin, CDetMax);
+    hCDetProjectedHalfBarLe1YCorrected = new TH1D(
+        "hCDetProjectedHalfBarLe1YCorrected",
+        "Projected-half-bar hits, Layer 1 after y correction;Corrected LE time (ns);Hits",
+        TDCBinNum, CDetMin, CDetMax);
+    hCDetProjectedHalfBarLe2YCorrected = new TH1D(
+        "hCDetProjectedHalfBarLe2YCorrected",
+        "Projected-half-bar hits, Layer 2 after y correction;Corrected LE time (ns);Hits",
+        TDCBinNum, CDetMin, CDetMax);
+    hCDetProjectedHalfBarPairMeanYCorrected = new TH1D(
+        "hCDetProjectedHalfBarPairMeanYCorrected",
+        "Projected-half-bar pair mean after y correction;Corrected (t_{L1}^{y}+t_{L2}^{y})/2 (ns);Pairs",
+        TDCBinNum, CDetMin, CDetMax);
+    hCDetProjectedHalfBarLe2vs1YCorrected = new TH2D(
+        "hCDetProjectedHalfBarLe2vs1YCorrected",
+        "Projected-half-bar Layer 2 vs Layer 1 after y correction;Layer 1 corrected LE (ns);Layer 2 corrected LE (ns)",
+        TDCBinNum, CDetMin, CDetMax, TDCBinNum, CDetMin, CDetMax);
+  }
   TH2D* hCDetTot2vs1 = new TH2D("hCDetTot2vs1", "CDet Layer 2 ToT vs CDet Layer 1 ToT;Layer 1 ToT (ns);Layer 2 ToT (ns)",TDCBinNum,CDetTotMin,CDetTotMax,TDCBinNum,CDetTotMin,CDetTotMax);
   TH2D* h2CDetx2VsCDetx1 = new TH2D("h2CDetx2VsCDetx1", "CDet Layer 2 x vs CDet Layer 1 x;CDet Layer 1 x (m);CDet Layer 2 x (m)",600,-1.5,1.5,600,-1.5,1.5);
   TH1I* hNpairPerEvent = new TH1I("hNpairPerEvent", "CDet accepted pairs per event;N_{pairs};Events", 20, 0, 20);
@@ -5555,6 +5625,24 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   gCDetPairedMeanTimeVsECal = hECalVsCDetT;
   TH2D* hECalVsCDetTL1 = new TH2D("hECalVsCDetTL1", "CDet Layer 1 t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
   TH2D* hECalVsCDetTL2 = new TH2D("hECalVsCDetTL2", "CDet Layer 2 t vs ECal Time;ECal ADC Time (ns);Layer 2 t (ns)", NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  const double beforeP1TimeMin = CDetMin +
+      std::min(0.0, std::min(gECalFitP1*ECalMin, gECalFitP1*ECalMax)) - 5.0;
+  const double beforeP1TimeMax = CDetMax +
+      std::max(0.0, std::max(gECalFitP1*ECalMin, gECalFitP1*ECalMax)) + 5.0;
+  const int beforeP1TimeBins = std::max(
+      1, (int)std::ceil((beforeP1TimeMax-beforeP1TimeMin)/Width));
+  TH2D* hECalVsCDetTBeforeP1 = new TH2D(
+      "hECalVsCDetTBeforeP1",
+      "CDet pair time before p1 correction;ECal ADC Time (ns);CDet pair mean time (ns)",
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
+  TH2D* hECalVsCDetTL1BeforeP1 = new TH2D(
+      "hECalVsCDetTL1BeforeP1",
+      "CDet Layer 1 time before p1 correction;ECal ADC Time (ns);Layer 1 time (ns)",
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
+  TH2D* hECalVsCDetTL2BeforeP1 = new TH2D(
+      "hECalVsCDetTL2BeforeP1",
+      "CDet Layer 2 time before p1 correction;ECal ADC Time (ns);Layer 2 time (ns)",
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
   const int NHCalBins = std::max(1, (int)((HCalMax-HCalMin)/0.5));
   TH2D* hHCalVsCDetT = new TH2D("hHCalVsCDetT",
       "Corrected CDet pair time vs HCal time;HCal ADC time (ns);Corrected CDet pair mean time (ns)",
@@ -5580,6 +5668,10 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     }
   }
   TH2D* hECalVsSelectedBarT = new TH2D("hECalVsSelectedBarT", TString::Format("CDet Layer 1 bar %d t vs ECal Time;ECal ADC Time (ns);Layer 1 t (ns)", selectedBarNumber), NADCBins, ECalMin, ECalMax,TDCBinNum,CDetMin,CDetMax);
+  TH2D* hECalVsSelectedBarTBeforeP1 = new TH2D(
+      "hECalVsSelectedBarTBeforeP1",
+      TString::Format("CDet Layer 1 bar %d time before p1 correction;ECal ADC Time (ns);Layer 1 time (ns)", selectedBarNumber),
+      NADCBins, ECalMin, ECalMax, beforeP1TimeBins, beforeP1TimeMin, beforeP1TimeMax);
   TH2D* hECalVsCDetTSingle = new TH2D("hECalVsCDetTSingle", "CDet Single t vs ECal Time;ECal ADC Time (ns);CDet t (ns)", NADCBins, ECalMin, ECalMax, TDCBinNum,CDetMin,CDetMax);
 
   TH2D* hCDet1IDvs2ID = new TH2D("hCDet1IDvs2ID", "CDet Front Paddle vs Back Paddle ID;Back Paddle;Front Paddle", 1344, 1343.5, 2687.5, 1344, -0.5, 1343.5);
@@ -5652,6 +5744,8 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     long long samples = 0;
   };
   const int totalHalfBars = NumCDetPaddles/NumPaddles;
+  std::vector<std::vector<std::pair<double,double>>> yCorrectionBeforeSamples(totalHalfBars);
+  std::vector<std::vector<std::pair<double,double>>> yCorrectionAfterSamples(totalHalfBars);
   std::vector<HalfBarFootprint> halfBarFootprints(totalHalfBars);
   for (size_t ev = 0; ev < vGoodID.size(); ++ev) {
     const size_t nCoordinates = std::min(
@@ -5681,6 +5775,21 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
     return xProjection >= footprint.xMin - halfPixelPitch &&
            xProjection <= footprint.xMax + halfPixelPitch &&
            std::fabs(yProjection - yCenter) <= CDet_y_half_length;
+  };
+  auto applyYPropagationCorrection = [&](int pixel, double time, double ecalY,
+                                         double hitZ) {
+    if (!applyYPropagationDiagnostic || pixel < 0 || pixel >= NumCDetPaddles)
+      return time;
+    const HalfBarFootprint &footprint = halfBarFootprints[pixel/NumPaddles];
+    if (footprint.samples <= 0) return time;
+    const double yProjection = ecalY*hitZ/ECal_dist;
+    const double yCenter = footprint.ySum/footprint.samples;
+    const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+    const int withinLayer = pixel%pixelsPerLayer;
+    const int side = withinLayer/NumCDetPaddlesPerSide;
+    const double signedSlope = side == 0
+        ? -yPropagationSlopeMagnitude : yPropagationSlopeMagnitude;
+    return time - signedSlope*(yProjection - yCenter);
   };
   long long projectedHalfBarPairs = 0;
 
@@ -5837,6 +5946,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
       // Apply final/tighter cuts (these can be narrower than dtWin/dxWin)
       if (p.dt >= diffMinCut && p.dt <= diffMaxCut && p.dx >= xdiffMinCut && p.dx <= xdiffMaxCut) {
         double t_pair = (p.t1 + p.t2) / 2;
+        const double t1YCorrected = applyYPropagationCorrection(
+            p.id1, p.t1, v_GoodECalY[ev], p.z1);
+        const double t2YCorrected = applyYPropagationCorrection(
+            p.id2, p.t2, v_GoodECalY[ev], p.z2);
+        const double tPairYCorrected = 0.5*(t1YCorrected + t2YCorrected);
+        const double dtYCorrected = t2YCorrected - t1YCorrected;
         const double timingShiftForCuts =
             gShiftInvariantPairTimingCuts ? gGlobalTimingShift : 0.0;
         double dt_EC = t_ECal - (t_pair - timingShiftForCuts);
@@ -5853,6 +5968,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           hCDetTot2vs1->Fill(p.tot1, p.tot2);
           hCDetLe1->Fill(p.t1);
           hCDetLe2->Fill(p.t2);
+          if (applyYPropagationDiagnostic) {
+            hCDetTimeDiffYCorrected->Fill(dtYCorrected);
+            hCDetLe1YCorrected->Fill(t1YCorrected);
+            hCDetLe2YCorrected->Fill(t2YCorrected);
+            hCDetLe2vs1YCorrected->Fill(t1YCorrected, t2YCorrected);
+          }
           h2CDetx2VsCDetx1->Fill(p.x1,p.x2);
           hCDet1LeVsTot->Fill(p.tot1,p.t1);
           hCDet2LeVsTot->Fill(p.tot2,p.t2);
@@ -5876,6 +5997,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           hCDetTimeDiffvsy2->Fill(p.y2, p.dt);
 
           hECalVsCDetT->Fill(t_ECal,t_pair);
+          if (gUseECalTimeCorr) {
+            const double p1Term = gECalFitP1*t_ECal;
+            hECalVsCDetTBeforeP1->Fill(t_ECal, t_pair + p1Term);
+            hECalVsCDetTL1BeforeP1->Fill(t_ECal, p.t1 + p1Term);
+            hECalVsCDetTL2BeforeP1->Fill(t_ECal, p.t2 + p1Term);
+          }
           if (std::isfinite(t_HCal) && t_HCal >= HCalMin && t_HCal <= HCalMax) {
             hHCalVsCDetT->Fill(t_HCal, t_pair);
             hECalVsHCalAccepted->Fill(t_ECal, t_HCal);
@@ -5893,6 +6020,12 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             hCDetProjectedHalfBarPairMean->Fill(t_pair);
             gCDetProjectedHalfBarPairMeanTimes.push_back(t_pair);
             hCDetProjectedHalfBarLe2vs1->Fill(p.t1, p.t2);
+            if (applyYPropagationDiagnostic) {
+              hCDetProjectedHalfBarLe1YCorrected->Fill(t1YCorrected);
+              hCDetProjectedHalfBarLe2YCorrected->Fill(t2YCorrected);
+              hCDetProjectedHalfBarPairMeanYCorrected->Fill(tPairYCorrected);
+              hCDetProjectedHalfBarLe2vs1YCorrected->Fill(t1YCorrected, t2YCorrected);
+            }
             ++projectedHalfBarPairs;
           }
           auto fillCDetTimeVsECalY = [&](int pixel, double time) {
@@ -5912,6 +6045,16 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           };
           fillCDetTimeVsECalY(p.id1, p.t1);
           fillCDetTimeVsECalY(p.id2, p.t2);
+          if (applyYPropagationDiagnostic) {
+            const int halfBar1 = p.id1/NumPaddles;
+            const int halfBar2 = p.id2/NumPaddles;
+            const double yProjection1 = v_GoodECalY[ev]*p.z1/ECal_dist;
+            const double yProjection2 = v_GoodECalY[ev]*p.z2/ECal_dist;
+            yCorrectionBeforeSamples[halfBar1].emplace_back(yProjection1, p.t1);
+            yCorrectionAfterSamples[halfBar1].emplace_back(yProjection1, t1YCorrected);
+            yCorrectionBeforeSamples[halfBar2].emplace_back(yProjection2, p.t2);
+            yCorrectionAfterSamples[halfBar2].emplace_back(yProjection2, t2YCorrected);
+          }
           if (p.t1 >= 20.0 && p.t1 <= 40.0 && p.t2 >= 20.0 && p.t2 <= 40.0)
             gCDetYPairedSamples.push_back({p.id1/NumPaddles, p.id2/NumPaddles, p.t1, p.t2});
           if (p.id1 >= 0 && p.id1 < NumCDetPaddles)
@@ -5942,6 +6085,9 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
           const bool isSelectedLayer2Bar = p.id2 >= selectedLayer2BarBase && p.id2 < selectedLayer2BarBase + NumPaddles;
           if (isSelectedLayer1Bar) {
             hECalVsSelectedBarT->Fill(t_ECal,p.t1);
+            if (gUseECalTimeCorr)
+              hECalVsSelectedBarTBeforeP1->Fill(
+                  t_ECal, p.t1 + gECalFitP1*t_ECal);
             hCDetBarLe1->Fill(p.t1);
             hCDet1BarLeVsTot->Fill(p.tot1, p.t1);
             if (t_ECal > -3.0 && t_ECal < 1.0 && p.t1 > 23.0 && p.t1 < 40.0)
@@ -6026,6 +6172,19 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   //gPad->SetLogz();
   hCDetLe2->Draw();
 
+  if (applyYPropagationDiagnostic) {
+    TCanvas *cCDetLayerTimesYCorrected = new TCanvas(
+        "cCDetLayerTimesYCorrected",
+        "CDet Layer 1 and 2 LE after y-propagation correction", 900, 700);
+    cCDetLayerTimesYCorrected->Divide(1,2);
+    cCDetLayerTimesYCorrected->cd(1);
+    hCDetLe1YCorrected->Draw();
+    cCDetLayerTimesYCorrected->cd(2);
+    hCDetLe2YCorrected->Draw();
+    cCDetLayerTimesYCorrected->Update();
+    cCDetLayerTimesYCorrected->SaveAs("cCDetLayerTimesYCorrected.jpg");
+  }
+
   gCDetProjectedHalfBarTimingCanvas = new TCanvas(
       "cCDetProjectedHalfBarTiming",
       "Corrected timing for pairs in the ECal-projected CDet half-bars", 1200, 900);
@@ -6049,6 +6208,30 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
             << " ns, RMS=" << hCDetProjectedHalfBarLe2->GetStdDev() << " ns\n"
             << "  pair mean corrected LE: mean=" << hCDetProjectedHalfBarPairMean->GetMean()
             << " ns, RMS=" << hCDetProjectedHalfBarPairMean->GetStdDev() << " ns\n";
+  if (applyYPropagationDiagnostic) {
+    TCanvas *cCDetProjectedHalfBarTimingYCorrected = new TCanvas(
+        "cCDetProjectedHalfBarTimingYCorrected",
+        "Projected-half-bar timing after y-propagation correction", 1200, 900);
+    cCDetProjectedHalfBarTimingYCorrected->Divide(2,2);
+    cCDetProjectedHalfBarTimingYCorrected->cd(1);
+    hCDetProjectedHalfBarLe1YCorrected->Draw();
+    cCDetProjectedHalfBarTimingYCorrected->cd(2);
+    hCDetProjectedHalfBarLe2YCorrected->Draw();
+    cCDetProjectedHalfBarTimingYCorrected->cd(3);
+    hCDetProjectedHalfBarPairMeanYCorrected->Draw();
+    cCDetProjectedHalfBarTimingYCorrected->cd(4);
+    hCDetProjectedHalfBarLe2vs1YCorrected->Draw("COLZ");
+    cCDetProjectedHalfBarTimingYCorrected->Update();
+    cCDetProjectedHalfBarTimingYCorrected->SaveAs(
+        "cCDetProjectedHalfBarTimingYCorrected.jpg");
+    std::cout << "[CDet projected-half-bar timing after y correction]\n"
+              << "  Layer 1: mean=" << hCDetProjectedHalfBarLe1YCorrected->GetMean()
+              << " ns, RMS=" << hCDetProjectedHalfBarLe1YCorrected->GetStdDev() << " ns\n"
+              << "  Layer 2: mean=" << hCDetProjectedHalfBarLe2YCorrected->GetMean()
+              << " ns, RMS=" << hCDetProjectedHalfBarLe2YCorrected->GetStdDev() << " ns\n"
+              << "  pair mean: mean=" << hCDetProjectedHalfBarPairMeanYCorrected->GetMean()
+              << " ns, RMS=" << hCDetProjectedHalfBarPairMeanYCorrected->GetStdDev() << " ns\n";
+  }
 
   TCanvas *cCDetLayerTimeVsECalY = new TCanvas(
       "cCDetLayerTimeVsECalY", "Corrected CDet timing versus ECal y by layer, side, and section", 1800, 1200);
@@ -6243,6 +6426,121 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   }
   cCDetECalYFixedEffects->Update();
 
+  if (applyYPropagationDiagnostic) {
+    struct YCorrectionResult {
+      double slope = NAN;
+      double slopeError = NAN;
+      double rms = NAN;
+      long long entries = 0;
+      int halfBars = 0;
+    };
+    auto fitCenteredSamples = [&](const std::vector<std::vector<std::pair<double,double>>> &bank,
+                                  int wantedLayer, int wantedSide, int wantedGroup) {
+      YCorrectionResult result;
+      double xx = 0.0, xy = 0.0, centeredTimeSquares = 0.0;
+      double residualSquares = 0.0;
+      struct CenteredSample { double y, t; };
+      std::vector<CenteredSample> centered;
+      for (int halfBar = 0; halfBar < (int)bank.size(); ++halfBar) {
+        const auto &samples = bank[halfBar];
+        if ((int)samples.size() < minCDetYHalfBarEntries) continue;
+        const int pixel = halfBar*NumPaddles;
+        const int pixelsPerLayer = NumCDetPaddles/NumLayers;
+        const int layer = pixel/pixelsPerLayer;
+        const int withinLayer = pixel%pixelsPerLayer;
+        const int side = withinLayer/NumCDetPaddlesPerSide;
+        const int withinSide = withinLayer%NumCDetPaddlesPerSide;
+        const int module = withinSide/(NumBars*NumPaddles);
+        const int pmt = (withinSide%(NumBars*NumPaddles))/NumPaddles;
+        const int section = 2*module + pmt/NumHalfBarsPerBank;
+        const int group = std::min(section, 5 - section);
+        if (layer != wantedLayer || side != wantedSide || group != wantedGroup) continue;
+        double sumY = 0.0, sumT = 0.0;
+        for (const auto &sample : samples) { sumY += sample.first; sumT += sample.second; }
+        const double meanY = sumY/samples.size();
+        const double meanT = sumT/samples.size();
+        ++result.halfBars;
+        result.entries += samples.size();
+        for (const auto &sample : samples) {
+          const double dy = sample.first - meanY;
+          const double dt = sample.second - meanT;
+          centered.push_back({dy, dt});
+          xx += dy*dy;
+          xy += dy*dt;
+          centeredTimeSquares += dt*dt;
+        }
+      }
+      if (xx <= 0.0) return result;
+      result.slope = xy/xx;
+      for (const auto &sample : centered) {
+        const double residual = sample.t - result.slope*sample.y;
+        residualSquares += residual*residual;
+      }
+      const long long ndf = result.entries - result.halfBars - 1;
+      if (ndf > 0) {
+        result.slopeError = std::sqrt((residualSquares/ndf)/xx);
+        result.rms = std::sqrt(centeredTimeSquares/result.entries);
+      }
+      return result;
+    };
+
+    TCanvas *comparison = new TCanvas(
+        "cCDetYPropagationCorrectionComparison",
+        "Physics-motivated CDet y-propagation correction", 1500, 900);
+    comparison->Divide(3,4);
+    std::cout << "\n[CDet y-propagation correction comparison]\n"
+              << "  n=" << yCorrectionRefractiveIndex
+              << ", v=c/n=" << 100.0*yPropagationSpeedMPerNs << " cm/ns"
+              << ", |dt/dy|=" << yPropagationSlopeMagnitude << " ns/m\n"
+              << "  The accepted event/hit sample is identical before and after correction.\n";
+    for (int layer = 0; layer < NumLayers; ++layer) {
+      for (int side = 0; side < NumSides; ++side) {
+        const int row = layer*NumSides + side;
+        for (int group = 0; group < 3; ++group) {
+          const YCorrectionResult before = fitCenteredSamples(
+              yCorrectionBeforeSamples, layer, side, group);
+          const YCorrectionResult after = fitCenteredSamples(
+              yCorrectionAfterSamples, layer, side, group);
+          comparison->cd(row*3 + group + 1);
+          TH1F *frame = gPad->DrawFrame(-0.30, -10.0, 0.30, 10.0,
+              TString::Format("Layer %d %s, %s;y_{ECal#rightarrowCDet}-#LTy#GT_{half-bar} (m);t-#LTt#GT_{half-bar} (ns)",
+                              layer + 1, sideName[side], sectionGroupName[group]));
+          (void)frame;
+          TF1 *beforeLine = new TF1(
+              TString::Format("fCDetYCorrectionBeforeL%dS%dG%d", layer, side, group),
+              "[0]*x", -0.30, 0.30);
+          beforeLine->SetParameter(0, before.slope);
+          beforeLine->SetLineColor(kBlue + 1);
+          beforeLine->SetLineWidth(2);
+          beforeLine->Draw("SAME");
+          TF1 *afterLine = new TF1(
+              TString::Format("fCDetYCorrectionAfterL%dS%dG%d", layer, side, group),
+              "[0]*x", -0.30, 0.30);
+          afterLine->SetParameter(0, after.slope);
+          afterLine->SetLineColor(kRed + 1);
+          afterLine->SetLineWidth(2);
+          afterLine->Draw("SAME");
+          TPaveText *label = new TPaveText(0.12, 0.70, 0.62, 0.90, "NDC");
+          label->SetFillColor(kWhite);
+          label->SetTextAlign(12);
+          label->AddText(TString::Format("before: %.3f #pm %.3f ns/m", before.slope, before.slopeError));
+          label->AddText(TString::Format("after:  %.3f #pm %.3f ns/m", after.slope, after.slopeError));
+          label->AddText(TString::Format("centered-time RMS: %.3f #rightarrow %.3f ns", before.rms, after.rms));
+          label->Draw("SAME");
+          std::cout << "  Layer " << layer + 1 << " " << sideName[side]
+                    << ", " << sectionGroupName[group]
+                    << ": slope " << before.slope << " +/- " << before.slopeError
+                    << " -> " << after.slope << " +/- " << after.slopeError
+                    << " ns/m; centered-time RMS " << before.rms << " -> " << after.rms
+                    << " ns; entries=" << before.entries << "\n";
+        }
+      }
+    }
+    comparison->Update();
+    comparison->SaveAs("CDet_y_propagation_correction_comparison.pdf");
+    comparison->SaveAs("CDet_y_propagation_correction_comparison.png");
+  }
+
   // TCanvas *cCDetLeVsTot = new TCanvas("cCDetLeVsTot", "CDet LE vs Tot",900,700);
   // cCDetLeVsTot->Divide(1,2);
 
@@ -6320,6 +6618,20 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   // fGaus->SetLineColor(kBlack);
 
   hCDetTimeDiff->Draw();
+  if (applyYPropagationDiagnostic) {
+    TCanvas *cCDetTDiffYCorrected = new TCanvas(
+        "cCDetTDiffYCorrected", "CDet Time Diff after y-propagation correction", 900, 700);
+    hCDetTimeDiffYCorrected->Draw();
+    cCDetTDiffYCorrected->Update();
+    cCDetTDiffYCorrected->SaveAs("cCDetTDiffYCorrected.jpg");
+    std::cout << "[CDet layer timing before/after y correction]\n"
+              << "  Layer 1 RMS: " << hCDetLe1->GetStdDev() << " -> "
+              << hCDetLe1YCorrected->GetStdDev() << " ns\n"
+              << "  Layer 2 RMS: " << hCDetLe2->GetStdDev() << " -> "
+              << hCDetLe2YCorrected->GetStdDev() << " ns\n"
+              << "  Layer 2 - Layer 1 RMS: " << hCDetTimeDiff->GetStdDev()
+              << " -> " << hCDetTimeDiffYCorrected->GetStdDev() << " ns\n";
+  }
   // fGaus->Draw("SAME");
 
   // TCanvas *cCDetXDiff = new TCanvas("cCDetXDiff", "CDet X Diff",900,700);
@@ -6442,6 +6754,75 @@ void plotCDetLayersTimeComp(bool overwrite = false, int pixelBase = 416, double 
   drawTimingTrendDiagnostic(3, hECalVsCDetTL2, "pCDetL2TvsECalT", "fCDetL2TvsECalT_lin", "All Layer 2 hits");
   drawTimingTrendDiagnostic(4, hECalVsSelectedBarT, "pSelectedBarTvsECalT", "fSelectedBarTvsECalT_lin", TString::Format("Layer 1 bar %d", selectedBarNumber).Data());
   cCDetTvsECalTDiagnostics->Update();
+
+  if (gUseECalTimeCorr) {
+    TCanvas *cCDetTvsECalTBeforeP1 = new TCanvas(
+        "cCDetTvsECalTBeforeP1",
+        "CDet/ECal timing before the p1 correction", 1200, 900);
+    cCDetTvsECalTBeforeP1->Divide(2,2);
+    auto drawBeforeP1 = [&](int pad, TH2D *histogram, const char *profileName,
+                            const char *fitName, const char *label) {
+      cCDetTvsECalTBeforeP1->cd(pad);
+      histogram->SetMinimum(40);
+      // Build the profile before restricting the displayed y range.  ROOT's
+      // ProfileX honors an active y-axis range, which would otherwise clip
+      // tails in an ECal-dependent way and bias this presentation slope.
+      histogram->GetYaxis()->SetRange(0, 0);
+      TProfile *profile = histogram->ProfileX(profileName);
+      histogram->GetYaxis()->SetRangeUser(
+          std::max(beforeP1TimeMin, 20.0), std::min(beforeP1TimeMax, 70.0));
+      histogram->Draw("COLZ");
+      profile->SetMarkerStyle(20);
+      profile->SetMarkerSize(0.65);
+      profile->SetMarkerColor(kBlack);
+      profile->SetLineColor(kBlack);
+      TF1 *fit = new TF1(fitName, "pol1", ECalMin, ECalMax);
+      int status = -1;
+      if (profile->GetEntries() >= 3) status = profile->Fit(fit, "QRS");
+      profile->Draw("SAME");
+      if (status == 0) fit->Draw("SAME");
+      TPaveText *summary = new TPaveText(0.13, 0.75, 0.61, 0.92, "NDC");
+      summary->SetFillColor(kWhite);
+      summary->SetTextAlign(12);
+      summary->AddText(label);
+      if (status == 0) {
+        const int ndf = fit->GetNDF();
+        summary->AddText(Form("p1 = %.5f #pm %.5f", fit->GetParameter(1),
+                              fit->GetParError(1)));
+        summary->AddText(Form("#chi^{2}/NDF = %.1f/%d = %.2f",
+                              fit->GetChisquare(), ndf,
+                              ndf > 0 ? fit->GetChisquare()/ndf : 0.0));
+        std::cout << "[CDet before-p1 presentation] " << label
+                  << ": p1=" << fit->GetParameter(1) << " +/- "
+                  << fit->GetParError(1) << " ns/ns\n";
+      } else {
+        summary->AddText("Insufficient data or fit failed");
+      }
+      summary->Draw("SAME");
+    };
+    drawBeforeP1(1, hECalVsCDetTBeforeP1,
+                 "pCDetTvsECalTBeforeP1", "fCDetTvsECalTBeforeP1",
+                 "All accepted pairs");
+    drawBeforeP1(2, hECalVsCDetTL1BeforeP1,
+                 "pCDetL1TvsECalTBeforeP1", "fCDetL1TvsECalTBeforeP1",
+                 "All Layer 1 hits");
+    drawBeforeP1(3, hECalVsCDetTL2BeforeP1,
+                 "pCDetL2TvsECalTBeforeP1", "fCDetL2TvsECalTBeforeP1",
+                 "All Layer 2 hits");
+    drawBeforeP1(4, hECalVsSelectedBarTBeforeP1,
+                 "pSelectedBarTvsECalTBeforeP1", "fSelectedBarTvsECalTBeforeP1",
+                 TString::Format("Layer 1 bar %d", selectedBarNumber).Data());
+    cCDetTvsECalTBeforeP1->cd(1);
+    TPaveText *method = new TPaveText(0.13, 0.64, 0.61, 0.73, "NDC");
+    method->SetFillColor(kWhite);
+    method->SetTextAlign(12);
+    method->AddText(Form("p1 correction removed: + %.6f t_{ECal}",
+                         gECalFitP1));
+    method->Draw("SAME");
+    cCDetTvsECalTBeforeP1->Update();
+    cCDetTvsECalTBeforeP1->SaveAs("cCDetTvsECalTBeforeP1.jpg");
+    cCDetTvsECalTBeforeP1->SaveAs("cCDetTvsECalTBeforeP1.pdf");
+  }
 
   // Fixed-effects regression for the ECal timing slope.  Center x and y
   // independently within every half-bar, then pool those centered samples.
@@ -7633,6 +8014,8 @@ void plotCDetLayersTimeComp(const char *configFile,
   const Double_t zBinWidth = env.GetValue("display.z_bin_width", 0.01);
   const Double_t zMin = env.GetValue("display.z_min", 0.0);
   const Double_t zMax = env.GetValue("display.z_max", 7.0);
+  const Double_t yCorrectionRefractiveIndex =
+      env.GetValue("display.y_correction_refractive_index", 0.0);
 
   if (pixel < 0 || pixel >= NumCDetPaddles/2 || width <= 0.0 ||
       layerDtMin >= layerDtMax || layerDxMin >= layerDxMax ||
@@ -7644,7 +8027,9 @@ void plotCDetLayersTimeComp(const char *configFile,
       (hasBestHitPeakMean && (!std::isfinite(bestHitPeakMean) ||
                               !std::isfinite(bestHitPeakSigma) || bestHitPeakSigma <= 0.0)) ||
       !std::isfinite(bestHitNSigma) || bestHitNSigma <= 0.0 ||
-      xBinWidth <= 0.0 || xMin >= xMax || zBinWidth <= 0.0 || zMin >= zMax) {
+      xBinWidth <= 0.0 || xMin >= xMax || zBinWidth <= 0.0 || zMin >= zMax ||
+      !std::isfinite(yCorrectionRefractiveIndex) || yCorrectionRefractiveIndex < 0.0 ||
+      (yCorrectionRefractiveIndex > 0.0 && yCorrectionRefractiveIndex < 1.0)) {
     std::cerr << "[" << caller << "] ERROR: invalid pixel, binning, or min/max range in "
               << configFile << ".\n";
     return;
@@ -7657,7 +8042,8 @@ void plotCDetLayersTimeComp(const char *configFile,
                          ecalCdetDtMin, ecalCdetDtMax, allowMultiplePairs,
                          xBinWidth, xMin, xMax, zBinWidth, zMin, zMax,
                          hcalTimeMin, hcalTimeMax, displayBestHits,
-                         bestHitPeakMean, bestHitPeakSigma, bestHitNSigma);
+                         bestHitPeakMean, bestHitPeakSigma, bestHitNSigma,
+                         yCorrectionRefractiveIndex);
 }
 
 void BuildCDetEventDisplay(int selectedBar, double diffMinCut, double diffMaxCut,

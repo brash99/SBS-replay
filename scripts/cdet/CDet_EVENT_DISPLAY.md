@@ -49,9 +49,11 @@ configuration versions are rejected before the analysis starts.
 
 ## 4. Select a CDet bar and build the display
 
-The event browser is built by `plotCDetLayersTimeComp`. Its second argument can
-be any pixel ID in the selected Layer-1 bar. Each bar contains 16 pixels; the
-macro normalizes the supplied ID to the bar's first pixel using:
+The event browser is built by `plotCDetLayersTimeComp`. With the recommended
+configuration-file interface, select the Layer-1 pixel with the `display.pixel`
+key. The optional second function argument is `overwriteOverride`; it is not a
+pixel ID. Each bar contains 16 pixels, and the macro normalizes the configured
+pixel to the bar's first pixel using:
 
 ```text
 pixelBase = 16 * barNumber
@@ -64,6 +66,9 @@ with:
 ```cpp
 plotCDetLayersTimeComp("CDet_run5710_projection.conf")
 ```
+
+Only the legacy positional overload takes `pixelBase` as its second argument.
+Do not mix that calling convention with the configuration-file overload.
 
 Both calls read the same file, but each uses only its own `analysis.*` or
 `display.*` settings. The complete file is

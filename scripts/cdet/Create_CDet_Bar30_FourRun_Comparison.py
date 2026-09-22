@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Create the four-run comparison from the lower-left amalgamated panels."""
+"""Create the three-run comparison from the lower-left amalgamated panels."""
 
 from pathlib import Path
 
@@ -10,8 +10,6 @@ HERE = Path(__file__).resolve().parent
 RUNS = (
     (5710, "Cross-target", 0.810203, 1.195534,
      "CDet_run5710_shift_diagnostics_bar30_comparison"),
-    (5992, "Cross-target", 0.810203, 5.171528,
-     "CDet_run5992_shift_diagnostics_bar30_comparison"),
     (5711, "LH2", -0.012423, 3.422000,
      "CDet_run5711_shift_diagnostics"),
     (6077, "LH2", 0.002520, 2.913449,
@@ -35,7 +33,7 @@ def lower_left_panel(path: Path) -> Image.Image:
 
 
 def main() -> None:
-    canvas = Image.new("RGB", (2500, 1700), "white")
+    canvas = Image.new("RGB", (3700, 930), "white")
     draw = ImageDraw.Draw(canvas)
     draw.text(
         (1250, 34),
@@ -45,7 +43,7 @@ def main() -> None:
         fill="black",
     )
 
-    positions = ((35, 135), (1265, 135), (35, 905), (1265, 905))
+    positions = ((35, 135), (1265, 135), (2495, 135))
     for (run, target, p1, shift, directory), (x, y) in zip(RUNS, positions):
         source = (HERE / directory / "bar_ecal_cdet_timing" /
                   f"run_{run}_stage_7" / "bar_030_amalgamated.png")
@@ -62,8 +60,8 @@ def main() -> None:
         )
         draw.rectangle((x, y + 82, x + 1200, y + 772), outline="black", width=2)
 
-    png = HERE / "CDet_bar30_four_run_comparison.png"
-    pdf = HERE / "CDet_bar30_four_run_comparison.pdf"
+    png = HERE / "CDet_bar30_three_run_comparison.png"
+    pdf = HERE / "CDet_bar30_three_run_comparison.pdf"
     canvas.save(png, dpi=(180, 180))
     canvas.save(pdf, "PDF", resolution=180.0)
     print(png)

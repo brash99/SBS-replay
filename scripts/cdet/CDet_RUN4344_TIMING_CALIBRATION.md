@@ -14,7 +14,12 @@ as accepted constants. In particular, do not alternate
 sample after every slope change, so successive fits do not necessarily use the
 same events, hits, pairs, or half-bars. A run-specific Run 4344 `p1` may be
 introduced only by the frozen-sample qualification defined below. That
-qualification is not yet implemented by the current macros.
+qualification is implemented by
+`Run_CDet_Qualify_RunSpecificP1_FrozenSample.C`. The completed qualification
+found that Run 4344 does **not** qualify for a run-specific `p1`: its apparent
+residual slope failed the contiguous-fold validation gate. The accepted result
+therefore retains the Run 5710 master `p1` and uses only the Run 4344
+`shift_ns`.
 
 Run every command from `scripts/cdet`. Use a fresh ROOT process for every
 compiled macro command.
@@ -367,8 +372,11 @@ constant, not another slope-fitting iteration.
 
 ## Acceptance status
 
-The restarted master-`p1` result is accepted only after the ECal window review,
+The restarted master-`p1` result is accepted after the ECal window review,
 shift closure, population-invariance check, and fresh final diagnostics are
-recorded. A run-specific Run 4344 `p1` remains unqualified until the read-only
-frozen-sample command reports `QUALIFIED: YES`, its artifacts are reviewed,
-and a separate installation step is approved.
+recorded. The completed read-only frozen-sample test reported `QUALIFIED: NO`
+for Run 4344 because the candidate did not generalize across the contiguous
+event folds. Retain the master `p1`; do not perform Step 7 for the accepted Run
+4344 calibration. Step 7 remains documented only as the controlled procedure
+that would apply if a future, separately approved qualification reported
+`QUALIFIED: YES`.
