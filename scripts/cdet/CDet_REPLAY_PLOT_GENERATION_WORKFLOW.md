@@ -180,6 +180,8 @@ Principal outputs include:
 | `CDetGoodPulse_PairTrajectoryDiagnostics.{png,pdf}` | All-pair trajectory residual, best-pair residual, and timing versus trajectory residual with the ellipse |
 | `CDetGoodPulse_Detector_Amalgamated.{png,pdf}` | Detector-wide selection sequence and one-entry-per-pair mean timing |
 | `CDetGoodPulse_SelectedPairXCorrelation.{png,pdf}` | Mean corrected CDet-pair x versus ECal x projected to the pair mean z, for final ellipse-selected pairs |
+| `CDetGoodPulse_SelectedPairXResidual.{png,pdf}` | One-dimensional residual `<x_CDet,corr>_pair - x_ECal projected`, with one entry per final ellipse-selected pair |
+| `CDetGoodPulse_SelectedPairXDiagnostics.{png,pdf}` | Side-by-side view of the selected-pair x correlation and its one-dimensional residual |
 | `CDetGoodPulse_AllTDC.root` | Histogram objects for further interactive study; normally kept local |
 
 The selected pair-mean timing histogram contains one entry per pair, not one

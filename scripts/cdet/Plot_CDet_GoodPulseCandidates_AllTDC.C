@@ -219,6 +219,11 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
       "x_{ECal} projected to pair mean z (m);"
       "<x_{CDet,corr}>_{pair} (m)",
       160, -1.6, 1.6, 160, -1.6, 1.6);
+  TH1D hSelectedPairXResidual(
+      "hCDetSelectedPairXResidual",
+      "Trajectory-time selected pairs;"
+      "<x_{CDet,corr}>_{pair} - x_{ECal projected} (m);Selected pairs",
+      160, -0.20, 0.20);
   TH1D hPairTrajectoryResidual(
       "hCDetPairTrajectoryResidual",
       "All accepted pairs;#Delta x_{pair} - (x_{ECal}/z_{ECal})#Delta z (m);Pairs",
@@ -375,8 +380,10 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
                 0.5 * (correctedX[indexL1] + correctedX[indexL2]);
             const double projectedECalX =
                 *ecalX * pairMeanZ / kECalZFromTargetM;
-            if (std::isfinite(pairMeanX) && std::isfinite(projectedECalX))
+            if (std::isfinite(pairMeanX) && std::isfinite(projectedECalX)) {
               hSelectedPairXCorrelation.Fill(projectedECalX, pairMeanX);
+              hSelectedPairXResidual.Fill(pairMeanX - projectedECalX);
+            }
             ++trajectoryTimeSelectedPairCount;
           }
         }
@@ -639,6 +646,35 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   cPairX.SaveAs(Form("%s/CDetGoodPulse_SelectedPairXCorrelation.png",
                      outputDirectory));
 
+  TCanvas cPairXResidual("cCDetGoodPulseSelectedPairXResidual",
+                         "Selected CDet pair x residual", 800, 700);
+  hSelectedPairXResidual.SetLineWidth(2);
+  hSelectedPairXResidual.Draw("HIST");
+  TLine pairXResidualZero(0.0, 0.0, 0.0,
+                          1.05 * hSelectedPairXResidual.GetMaximum());
+  pairXResidualZero.SetLineColor(kRed + 1);
+  pairXResidualZero.SetLineWidth(3);
+  pairXResidualZero.Draw("same");
+  cPairXResidual.SaveAs(Form("%s/CDetGoodPulse_SelectedPairXResidual.pdf",
+                             outputDirectory));
+  cPairXResidual.SaveAs(Form("%s/CDetGoodPulse_SelectedPairXResidual.png",
+                             outputDirectory));
+
+  TCanvas cPairXDiagnostics("cCDetGoodPulseSelectedPairXDiagnostics",
+                            "Selected CDet pair x diagnostics", 1500, 650);
+  cPairXDiagnostics.Divide(2, 1);
+  cPairXDiagnostics.cd(1);
+  gPad->SetRightMargin(0.14);
+  hSelectedPairXCorrelation.Draw("COLZ");
+  pairXDiagonal.Draw("same");
+  cPairXDiagnostics.cd(2);
+  hSelectedPairXResidual.Draw("HIST");
+  pairXResidualZero.Draw("same");
+  cPairXDiagnostics.SaveAs(Form("%s/CDetGoodPulse_SelectedPairXDiagnostics.pdf",
+                                outputDirectory));
+  cPairXDiagnostics.SaveAs(Form("%s/CDetGoodPulse_SelectedPairXDiagnostics.png",
+                                outputDirectory));
+
   const char *pageNames[4] = {"Layer1_Left", "Layer1_Right",
                               "Layer2_Left", "Layer2_Right"};
   TCanvas cBars("cCDetGoodPulseBars", "Good pulse bar timing", 1800, 1200);
@@ -668,6 +704,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   hSelectedPairMeanResidual.Write();
   hSelectedPairMeanResidualVsMeanToT.Write();
   hSelectedPairXCorrelation.Write();
+  hSelectedPairXResidual.Write();
   hPairTrajectoryResidual.Write();
   hBestPairTrajectoryResidual.Write();
   hPairTimingVsTrajectoryResidual.Write();
