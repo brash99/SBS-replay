@@ -1,5 +1,9 @@
 # CDet main-analysis plotting-function reference
 
+For the current replay-level calibrated-pulse, Layer-1/Layer-2 pair,
+trajectory-time ellipse, and ECal cut-scan workflow, see
+[`CDet_REPLAY_PLOT_GENERATION_WORKFLOW.md`](CDet_REPLAY_PLOT_GENERATION_WORKFLOW.md).
+
 This document describes the plotting and interactive diagnostic functions in
 `PlotElastic_Calibration_Master_stageflag_singlefile_crosstarget.C`. It is
 intended as a practical guide to what each function shows, when to use it, and

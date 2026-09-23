@@ -5,6 +5,7 @@
 #include <TF1.h>
 #include <TH1D.h>
 #include <TH2D.h>
+#include <TLine.h>
 #include <TMath.h>
 #include <TString.h>
 #include <TStyle.h>
@@ -212,6 +213,12 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
       "<CDet ToT>_{pair} (ns);t_{ECal} - <t_{CDet,corr}>_{pair} (ns)",
       nToTBins, totMinNs, totMaxNs, nBar30DeltaTBins,
       bar30DeltaTMinNs, bar30DeltaTMaxNs);
+  TH2D hSelectedPairXCorrelation(
+      "hCDetSelectedPairXVsProjectedECalX",
+      "Trajectory-time selected pairs;"
+      "x_{ECal} projected to pair mean z (m);"
+      "<x_{CDet,corr}>_{pair} (m)",
+      160, -1.6, 1.6, 160, -1.6, 1.6);
   TH1D hPairTrajectoryResidual(
       "hCDetPairTrajectoryResidual",
       "All accepted pairs;#Delta x_{pair} - (x_{ECal}/z_{ECal})#Delta z (m);Pairs",
@@ -362,6 +369,14 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
             if (std::isfinite(pairMeanToT))
               hSelectedPairMeanResidualVsMeanToT.Fill(pairMeanToT,
                                                       pairTimingResidual);
+            const double pairMeanZ =
+                0.5 * (pulseZ[indexL1] + pulseZ[indexL2]);
+            const double pairMeanX =
+                0.5 * (correctedX[indexL1] + correctedX[indexL2]);
+            const double projectedECalX =
+                *ecalX * pairMeanZ / kECalZFromTargetM;
+            if (std::isfinite(pairMeanX) && std::isfinite(projectedECalX))
+              hSelectedPairXCorrelation.Fill(projectedECalX, pairMeanX);
             ++trajectoryTimeSelectedPairCount;
           }
         }
@@ -610,6 +625,20 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   cPairSlope.SaveAs(Form("%s/CDetGoodPulse_PairTrajectoryDiagnostics.png",
                          outputDirectory));
 
+  TCanvas cPairX("cCDetGoodPulseSelectedPairXCorrelation",
+                 "Selected CDet pair x versus projected ECal x", 800, 700);
+  cPairX.SetRightMargin(0.14);
+  hSelectedPairXCorrelation.SetStats(false);
+  hSelectedPairXCorrelation.Draw("COLZ");
+  TLine pairXDiagonal(-1.6, -1.6, 1.6, 1.6);
+  pairXDiagonal.SetLineColor(kRed + 1);
+  pairXDiagonal.SetLineWidth(3);
+  pairXDiagonal.Draw("same");
+  cPairX.SaveAs(Form("%s/CDetGoodPulse_SelectedPairXCorrelation.pdf",
+                     outputDirectory));
+  cPairX.SaveAs(Form("%s/CDetGoodPulse_SelectedPairXCorrelation.png",
+                     outputDirectory));
+
   const char *pageNames[4] = {"Layer1_Left", "Layer1_Right",
                               "Layer2_Left", "Layer2_Right"};
   TCanvas cBars("cCDetGoodPulseBars", "Good pulse bar timing", 1800, 1200);
@@ -638,6 +667,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   hDetectorProjectedQualityVsToT.Write();
   hSelectedPairMeanResidual.Write();
   hSelectedPairMeanResidualVsMeanToT.Write();
+  hSelectedPairXCorrelation.Write();
   hPairTrajectoryResidual.Write();
   hBestPairTrajectoryResidual.Write();
   hPairTimingVsTrajectoryResidual.Write();
