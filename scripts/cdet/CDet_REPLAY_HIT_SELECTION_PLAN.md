@@ -1,9 +1,10 @@
 # Plan: ECal-associated CDet hit selection during replay
 
-Status: implementation in progress on 2026-09-22. The all-pulse input,
-identity-preservation, and non-filtering calibrated-time stages are implemented
-and smoke-tested for Run 5710. Spatial and timing selection have not yet been
-enabled.
+Status: implementation and validation in progress on 2026-09-22. The all-pulse
+input, identity preservation, database-backed calibrated timing, diagnostic
+ECal projection, and one-to-one cross-layer pairing stages are implemented.
+Run 5711 studies now also define and validate a macro-level trajectory-time
+ellipse for producing candidates for a future global ROI tracker.
 
 ## Implemented first slice
 
@@ -200,6 +201,23 @@ This ordering is the current parity reference, not automatically the optimal
 replay design. In particular, the first replay implementation should expose
 the broad-quality, ECal-spatial, cross-layer-pairing, and ECal-timing decisions
 as separate flags so their efficiencies can be measured independently.
+
+### Run 5711 trajectory-time candidate study
+
+The subsequent Run 5711 study uses the ECal-to-target trajectory to compare the
+expected and measured Layer-1/Layer-2 x displacement after replay-level pairs
+have been formed. It then combines that trajectory residual with the
+ECal-minus-pair-mean timing residual in an adjustable normalized ellipse. This
+is a downstream candidate-ranking refinement; it does not change the current
+replay-level CDet-only greedy pairing score.
+
+The adopted macro working point has center `(0 m, -26 ns)`, scales
+`(0.020 m, 5 ns)`, and normalized radius 2. In the 100,000-event Run 5711
+sample it retains 10,361 pairs in 6,215 events. Energy- and timing-window scans
+support retaining the production selections `3.0 < E_ECal < 4.5 GeV` and
+`-10 < t_ECal < 10 ns` for efficiency-oriented ROI candidate generation.
+Definitions, denominators, plots, and reproduction commands are recorded in
+[`CDet_RUN5711_PAIR_SELECTION_STUDY.md`](CDet_RUN5711_PAIR_SELECTION_STUDY.md).
 
 ## Event inputs and database responsibilities
 
