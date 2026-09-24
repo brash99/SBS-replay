@@ -8,6 +8,9 @@ records the macro-based timing calibration and its historical diagnostics;
 this document records the subsequent analyzer-backed pulse, pair, and
 single-layer recovery study.
 
+The separate [`CDet_X_RESOLUTION_STUDY.md`](CDet_X_RESOLUTION_STUDY.md)
+documents the sideband-constrained inter-layer x-resolution investigation.
+
 The intended consumer is a later global region-of-interest tracker combining
 ECal, CDet, GEM, and HCal information. The selections below generate plausible
 CDet candidates. They are not intended to make the final track decision.
