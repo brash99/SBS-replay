@@ -39,17 +39,17 @@ The principal denominators are:
 | All replayed events | 100,000 | 100.0% |
 | Events passing only `3.0 < E_ECal < 4.5 GeV` | 56,798 | 56.8% |
 | Events also passing `-10 < t_ECal < 10 ns` | 26,634 | 26.6% |
-| Events with at least one final selected pair | 13,385 | 13.4% |
+| Events with at least one final selected pair | 16,572 | 16.6% |
 
 The 26,634-event energy-and-time population is the denominator for all
-conditional event fractions below. The pair selection retains 50.3% of this
-population.
+conditional event fractions below. In the final seam-aware replay, the pair
+selection retains 62.22% of this population.
 
 Across the full replay sample, the analyzer produced 598,308 accepted
 calibrated good-pulse candidates and 43,489 events with accepted candidates in
 both layers. Within the ECal-energy-selected sample there are 102,555 stored
-one-to-one pairs. After the trajectory-time selection, 20,856 pairs in 13,385
-events remain.
+one-to-one pairs in the original replay. After ECal-informed assignment and
+the seam-aware y topology, 32,345 pairs in 16,572 events remain.
 
 ## Pair trajectory-time selection
 
@@ -73,20 +73,20 @@ Thus its physical semiaxes are 4 cm and 10 ns. It selects:
 
 | Quantity | Result |
 | --- | ---: |
-| Events with at least one selected pair | 13,385 |
-| Selected pairs | 20,856 |
-| Conditional selected-pair event fraction | 50.3% |
-| Selected pairs per admitted event | 0.783 |
-| Selected pairs per selected-pair event | 1.558 |
-| Pair-mean timing mean | -27.54 ns |
-| Pair-mean timing RMS | 4.27 ns |
+| Events with at least one selected pair | 16,572 |
+| Selected pairs | 32,345 |
+| Conditional selected-pair event fraction | 62.22% |
+| Selected pairs per admitted event | 1.214 |
+| Selected pairs per selected-pair event | 1.952 |
+| Pair-mean timing mean | -27.89 ns |
+| Pair-mean timing RMS | 4.07 ns |
 
 The timing RMS is conditioned by the timing coordinate of the ellipse and is
 not an independent measurement of intrinsic detector resolution.
 
-![Run 6077 pair trajectory diagnostic](CDet_run6077_good_pulse_tdc/CDetGoodPulse_PairTrajectoryDiagnostics.png)
+![Run 6077 pair trajectory diagnostic](CDet_run6077_good_pulse_tdc_seam_replay/CDetGoodPulse_PairTrajectoryDiagnostics.png)
 
-![Run 6077 detector-wide pair timing](CDet_run6077_good_pulse_tdc/CDetGoodPulse_Detector_Amalgamated.png)
+![Run 6077 detector-wide pair timing](CDet_run6077_good_pulse_tdc_seam_replay/CDetGoodPulse_Detector_Amalgamated.png)
 
 ## ECal timing-window dependence
 
@@ -95,18 +95,18 @@ symmetric ECal timing half-width. Representative points are:
 
 | ECal timing window | Admitted events | Events with selected pair | Conditional event fraction | Pairs per admitted event |
 | --- | ---: | ---: | ---: | ---: |
-| +/-10 ns | 26,634 | 13,385 | 50.3% | 0.783 |
-| +/-5 ns | 13,908 | 7,451 | 53.6% | 0.824 |
-| +/-3 ns | 8,564 | 4,635 | 54.1% | 0.833 |
-| +/-2 ns | 5,727 | 3,150 | 55.0% | 0.846 |
-| +/-1 ns | 2,901 | 1,639 | 56.5% | 0.852 |
-| +/-0.5 ns | 1,420 | 807 | 56.8% | 0.839 |
+| +/-10 ns | 26,634 | 16,572 | 62.2% | 1.214 |
+| +/-5 ns | 13,908 | 9,166 | 65.9% | 1.264 |
+| +/-3 ns | 8,564 | 5,716 | 66.7% | 1.277 |
+| +/-2 ns | 5,727 | 3,841 | 67.1% | 1.295 |
+| +/-1 ns | 2,901 | 1,986 | 68.5% | 1.303 |
+| +/-0.5 ns | 1,420 | 979 | 68.9% | 1.269 |
 
 Narrowing the timing window modestly enriches the admitted sample but sharply
 reduces absolute yield. The broad `-10 < t_ECal < 10 ns` window remains the
 recommended candidate-generation selection.
 
-![Run 6077 pair yield versus ECal timing window](CDet_run6077_pair_timing_scan/CDetPairYieldVsECalTimingWindow.png)
+![Run 6077 pair yield versus ECal timing window](CDet_run6077_pair_timing_scan_seam_replay/CDetPairYieldVsECalTimingWindow.png)
 
 ## ECal energy-window dependence
 
@@ -116,16 +116,16 @@ fraction:
 
 | ECal energy window | Admitted events | Events with selected pair | Conditional event fraction |
 | --- | ---: | ---: | ---: |
-| 3.0--4.5 GeV | 26,634 | 13,385 | 50.3% |
-| 3.25--4.25 GeV | 19,717 | 9,982 | 50.6% |
-| 3.5--4.0 GeV | 10,724 | 5,485 | 51.1% |
-| 3.6--3.9 GeV | 6,647 | 3,412 | 51.3% |
-| 3.7--3.8 GeV | 2,267 | 1,182 | 52.1% |
+| 3.0--4.5 GeV | 26,634 | 16,572 | 62.2% |
+| 3.25--4.25 GeV | 19,717 | 12,337 | 62.6% |
+| 3.5--4.0 GeV | 10,724 | 6,796 | 63.4% |
+| 3.6--3.9 GeV | 6,647 | 4,200 | 63.2% |
+| 3.7--3.8 GeV | 2,267 | 1,474 | 65.0% |
 
 The small enrichment does not compensate for the lost events. Retain
 `3.0 < E_ECal < 4.5 GeV` for efficiency-oriented candidate generation.
 
-![Run 6077 pair yield versus ECal energy window](CDet_run6077_pair_timing_scan/CDetPairYieldVsECalEnergyWindow.png)
+![Run 6077 pair yield versus ECal energy window](CDet_run6077_pair_timing_scan_seam_replay/CDetPairYieldVsECalEnergyWindow.png)
 
 ## Selected-pair x agreement
 
@@ -136,20 +136,20 @@ position projected to the pair mean z:
 delta_x = <x_CDet,corr>_pair - x_ECal * <z_CDet>_pair / z_ECal.
 ```
 
-The 20,856 selected pairs give:
+The 32,345 selected pairs give:
 
 | Quantity | Result |
 | --- | ---: |
-| Mean x residual | +0.00012 m |
-| RMS x residual | 0.0406 m |
-| Linear correlation coefficient | 0.9968 |
+| Mean x residual | -0.00079 m |
+| RMS x residual | 0.0411 m |
+| Linear correlation coefficient | 0.9967 |
 
 The nearly zero mean and strong diagonal correlation support the geometrical
 interpretation of the selected population. The RMS includes the bounded
 spatial selection and should not be interpreted as an unconstrained detector
 position resolution.
 
-![Run 6077 selected-pair x diagnostics](CDet_run6077_good_pulse_tdc/CDetGoodPulse_SelectedPairXDiagnostics.png)
+![Run 6077 selected-pair x diagnostics](CDet_run6077_good_pulse_tdc_seam_replay/CDetGoodPulse_SelectedPairXDiagnostics.png)
 
 ## Exclusive single-layer recovery
 
@@ -184,11 +184,10 @@ also prevents candidates outside +/-8 cm.
 
 The selected Layer-1 pulse timing has mean `-28.14 ns` and RMS `4.23 ns`; the
 Layer-2 population has mean `-27.35 ns` and RMS `4.48 ns`. Adding the 740
-exclusive recovered events to the 13,385 paired events increases the candidate
-event population by 5.5%, to 14,125 events or 53.0% of the ECal-admitted
-denominator.
+exclusive recovered events to the 16,572 paired events increases the candidate
+event population to 17,312 events, or 65.0% of the ECal-admitted denominator.
 
-![Run 6077 single-layer recovery](CDet_run6077_good_pulse_tdc/CDetGoodPulse_SingleLayerRecovery.png)
+![Run 6077 single-layer recovery](CDet_run6077_good_pulse_tdc_seam_replay/CDetGoodPulse_SingleLayerRecovery.png)
 
 ## Why admitted events are lost
 
@@ -196,15 +195,14 @@ Every ECal-admitted event is assigned to exactly one outcome:
 
 | Exclusive outcome | Events | Fraction of 26,634 |
 | --- | ---: | ---: |
-| At least one trajectory-time selected pair | 13,385 | 50.3% |
-| Good pulses in both layers, but no selected pair | 11,997 | 45.0% |
+| At least one trajectory-time selected pair | 16,572 | 62.2% |
+| Good pulses in both layers, but no selected pair | 8,810 | 33.1% |
 | Calibrated pulses in both layers, but good-pulse coverage lost in at least one layer | 1,252 | 4.7% |
 | Missing calibrated pulse coverage in at least one layer | 0 | 0.0% |
 
-The accounting closes exactly to 26,634 events. The substructure is:
-
-- Of the 11,997 pair-selection failures, 366 have no stored pair and 11,631
-  have stored pairs but none inside the final trajectory-time ellipse.
+The accounting closes exactly to 26,634 events. The final 8,810 pair-selection
+failures comprise 7,449 events with no combination inside the ellipse and
+1,361 with an ellipse-compatible combination rejected by a hard analyzer gate.
 - The 1,252 good-pulse-coverage losses comprise 669 Layer-1-only events, 518
   Layer-2-only events, and 65 events with neither layer good.
 - The zero count for a missing calibrated layer does not mean that a physical
@@ -212,14 +210,18 @@ The accounting closes exactly to 26,634 events. The substructure is:
   high that complete calibratable pulses occur in both layers even when they
   fail quality or spatial compatibility.
 
-The dominant unresolved population is therefore the 11,997 events with good
+The dominant unresolved population is therefore the 8,810 events with good
 pulses in both layers but no pair inside the ellipse. That population should be
 studied for correlated signal versus accidental content before loosening the
 pair selection.
 
-![Run 6077 exclusive event outcomes](CDet_run6077_good_pulse_tdc/CDetGoodPulse_ECalAdmittedEventOutcome.png)
+![Run 6077 exclusive event outcomes](CDet_run6077_good_pulse_tdc_seam_replay/CDetGoodPulse_ECalAdmittedEventOutcome.png)
 
-## Detailed explanation of the 11,997 pair-selection failures
+## Historical explanation of the initial 11,997 pair-selection failures
+
+This section records the initial replay state before ECal-informed assignment
+and the central-seam exception. Its counts are retained to document how the
+final recovery was obtained; they are not the final production result.
 
 The analyzer first forms candidate cross-layer combinations using only CDet
 quantities. A combination must satisfy all three hard gates:
@@ -503,11 +505,13 @@ earm.cdet.pairing.opposite_projected_y_max = 0.17
 The exception is disabled by default and enabled for the LH2 validity interval.
 Each stored pair now exposes `pair.y_topology`, with `0` for the original
 same-side category and `1` for the opposite-side seam category. Applying the
-new rule to all current Run 6077 pulse combinations predicts 16,572 selected
-events after deterministic one-to-one assignment, a gain of 760 over the
-15,812-event same-side result. This is slightly smaller than the 773 events
-with at least one eligible opposite-side combination because 13 events contain
-one-to-one pulse conflicts resolved by the global candidate ordering.
+new rule to the pre-replay Run 6077 pulse combinations predicted 16,572
+selected events after deterministic one-to-one assignment, a gain of 760 over
+the 15,812-event same-side result. The fresh analyzer replay subsequently
+returned exactly 16,572 events and 32,345 pairs, validating both predicted
+counts. The gain is slightly smaller than the 773 events with at least one
+eligible opposite-side combination because 13 events contain one-to-one pulse
+conflicts resolved by the global candidate ordering.
 
 ![Run 6077 inter-layer y-gate scan](CDet_run6077_dy_gate_study/CDetDYGateScan.png)
 
@@ -687,9 +691,9 @@ half-bars 7, 24, 70, 136, 137, and 155, respectively. Exclusive event
 accounting reduces this to 1,729 events because some events intersect suppressed
 regions in both layers.
 
-![Run 6077 ECal trajectory acceptance maps](CDet_run6077_trajectory_acceptance/CDetTrajectoryAcceptanceMaps.png)
+![Run 6077 ECal trajectory acceptance maps](CDet_run6077_trajectory_acceptance_seam_replay/CDetTrajectoryAcceptanceMaps.png)
 
-![Run 6077 ECal trajectory acceptance summary](CDet_run6077_trajectory_acceptance/CDetTrajectoryAcceptanceSummary.png)
+![Run 6077 ECal trajectory acceptance summary](CDet_run6077_trajectory_acceptance_seam_replay/CDetTrajectoryAcceptanceSummary.png)
 
 Reproduce the trajectory classification with:
 
@@ -698,42 +702,38 @@ root -l -b -q 'Plot_CDet_TrajectoryAcceptanceStudy.C+("CDet_run6077_projection.c
 ```
 
 This result materially refines the denominator, but it also exposes an
-important limitation of a simple efficiency ratio. In the current
-same-side-only replay, events with a stored selected pair divide by geometry as:
+important limitation of a simple efficiency ratio. In the final seam-aware
+replay, events with a stored selected pair divide by geometry as:
 
 | Trajectory category | Events with stored pair | Fraction within category |
 | --- | ---: | ---: |
-| Active in both layers | 15,458 | 62.08% |
-| Suppressed half-bar | 354 | 20.47% |
+| Active in both layers | 16,171 | 64.94% |
+| Suppressed half-bar | 401 | 23.19% |
 | Internal gap | 0 | -- |
 | Outside | 0 | 0.00% |
-| **All categories** | **15,812** | **59.37% of all admitted events** |
+| **All categories** | **16,572** | **62.22% of all admitted events** |
 
-Consequently, `15,458 / 24,900 = 62.08%` is the geometry-conditioned selected-
-candidate fraction for the present replay, not an intrinsic two-layer detector
+Consequently, `16,171 / 24,900 = 64.94%` is the geometry-conditioned selected-
+candidate fraction for the final replay, not an intrinsic two-layer detector
 efficiency. Measuring intrinsic efficiency would additionally require a
 signal/background treatment of the matched timing population or an independent
 electron-side track, which is not available from the GEP GEM system.
 
-The current replay has 10,822 ECal-admitted events without a stored selected
+The final replay has 10,062 ECal-admitted events without a stored selected
 pair. Their physically relevant geometry breakdown is:
 
-| Unrecovered-event trajectory | Events | Fraction of 10,822 |
+| Unrecovered-event trajectory | Events | Fraction of 10,062 |
 | --- | ---: | ---: |
-| Active half-bars in both layers | 9,442 | 87.25% |
-| At least one suppressed half-bar | 1,375 | 12.71% |
+| Active half-bars in both layers | 8,729 | 86.75% |
+| At least one suppressed half-bar | 1,328 | 13.20% |
 | Outside | 5 | 0.05% |
 
 Thus the suppressed regions plausibly account for approximately one eighth of
-the currently unrecovered sample. The remaining 9,442 active-both failures are
+the currently unrecovered sample. The remaining 8,729 active-both failures are
 the appropriate population for studying pulse detection and pair-selection
 inefficiency; ordinary physical seams should not be invoked to explain them.
 
-## Current status before the next replay
-
-The current state should be separated into results already demonstrated by a
-fresh analyzer replay, changes implemented but not yet replay-validated, and
-diagnostics that can be completed before rebuilding and replaying again.
+## Final status after the seam-aware replay
 
 ### Replay-validated conclusions
 
@@ -744,6 +744,12 @@ diagnostics that can be completed before rebuilding and replaying again.
   previously lost by CDet-only greedy pairing. The 100k-event replay increased
   the selected sample from 13,385 to 15,812 events, or 59.37% of the 26,634
   ECal-admitted events, while retaining the expected timing and x correlations.
+- The topology-aware central-seam rule then increases the sample from 15,812
+  to 16,572 events and from 28,026 to 32,345 pairs. These are fresh analyzer
+  results and exactly match the independent pre-replay prediction.
+- The final selected-pair fraction is 62.22% of all ECal-admitted events. After
+  conditioning on trajectories through active regions of both layers, it is
+  `16,171 / 24,900 = 64.94%`; neither ratio is an intrinsic detector efficiency.
 - The inter-layer x gate is not responsible for the remaining hard-gate loss:
   no remaining best ellipse-compatible combination fails `dx`.
 - Exclusive single-layer selection provides 740 additional, lower-confidence
@@ -752,7 +758,7 @@ diagnostics that can be completed before rebuilding and replaying again.
 - Multiple valid CDet pairs should remain available to the later global
   tracker rather than forcing CDet alone to select one final track hypothesis.
 
-### Implemented, but awaiting a fresh replay
+### Seam-aware replay validation
 
 The topology-aware central-seam exception described above is implemented in
 `SBSCDet`, the database, and the analysis configuration. It preserves the
@@ -760,26 +766,24 @@ original same-side `|dy| <= 0.08 m` rule and adds only the physically distinct
 opposite-half topology near the aligned ECal central-seam projection. The new
 `pair.y_topology` output records which rule admitted each pair.
 
-Applying the production algorithm to the stored Run 6077 pulse candidates
-predicts the following result after the next replay:
+The independent calculation made before replay and the fresh analyzer output
+agree exactly:
 
-| Quantity | Same-side replay result | Seam-aware prediction |
-| --- | ---: | ---: |
-| ECal-admitted events | 26,634 | 26,634 |
-| Events with at least one selected pair | 15,812 | 16,572 |
-| Conditional selected-pair event fraction | 59.37% | 62.22% |
-| Selected pairs | 28,026 | 32,345 |
-| Good-both events with no selected pair | 9,570 | 8,810 |
+| Quantity | Same-side replay | Seam-aware prediction | Seam-aware replay |
+| --- | ---: | ---: | ---: |
+| ECal-admitted events | 26,634 | 26,634 | 26,634 |
+| Events with at least one selected pair | 15,812 | 16,572 | 16,572 |
+| Conditional selected-pair event fraction | 59.37% | 62.22% | 62.22% |
+| Selected pairs | 28,026 | 32,345 | 32,345 |
+| Good-both events with no selected pair | 9,570 | 8,810 | 8,810 |
 
-The predicted gain is 760 events rather than the raw 773-event opposite-half
+The validated gain is 760 events rather than the raw 773-event opposite-half
 population because deterministic one-to-one assignment resolves pulse
-conflicts in 13 events. These numbers are predictions from the existing stored
-pulses; they must not be described as replay-validated until a fresh analyzer
-replay containing `pair.y_topology` is examined.
+conflicts in 13 events.
 
-### Remaining two-layer failure population after the seam prediction
+### Remaining two-layer failure population after the seam replay
 
-The expected 8,810 good-both failures divide cleanly into:
+The observed 8,810 good-both failures divide cleanly into:
 
 | Remaining outcome | Events | Interpretation |
 | --- | ---: | --- |
@@ -787,7 +791,7 @@ The expected 8,810 good-both failures divide cleanly into:
 | Ellipse combination exists, but all fail a hard gate | 1,361 | Bounded hard-gate diagnostic population |
 | Eligible pair lost through greedy assignment | 0 | Resolved by ECal-informed ranking |
 
-The 1,361 hard-gate failures are predicted to comprise:
+The 1,361 hard-gate failures comprise:
 
 | Failed gate(s) for the best ellipse-compatible combination | Events |
 | --- | ---: |
@@ -800,11 +804,10 @@ The seam rule therefore resolves essentially all of the scientifically
 motivated `dy` population. Inter-layer timing is now the only material hard
 gate question left.
 
-### Work to complete before rebuilding
+### Scientifically justified next use
 
-The bounded inter-layer timing scan is now complete and does not justify a
-change to the 15 ns production gate. To avoid repeated farm rebuilds and
-replays, the remaining acceptance study should be completed first:
+The bounded inter-layer timing scan is complete and does not justify a change
+to the 15 ns production gate. The appropriate next use is:
 
 1. **Preserve lower-confidence hypotheses.** Keep the established single-layer
    candidates and all valid two-layer alternatives available to the global ROI
@@ -817,12 +820,11 @@ not currently provide a scientifically clean discriminator for that broad
 population. The GEP GEMs are on the HCal/proton side and cannot supply that
 missing electron-side constraint.
 
-The bounded `dt`, `dy`, and geometrical-acceptance studies are now complete.
-The recommended next analyzer action is therefore one fresh replay to validate
-the seam rule while retaining the established 15 ns timing policy. The
-acceptance results should be used to report both the all-admitted candidate
-fraction and the geometry-conditioned active-both fraction, without labelling
-either as intrinsic detector efficiency.
+The bounded `dt`, `dy`, and geometrical-acceptance studies and the validating
+replay are now complete. Retain the established 15 ns timing policy and use
+the final replay products as inputs to the global ROI-tracking development.
+Report both the all-admitted candidate fraction and the geometry-conditioned
+active-both fraction without labelling either as intrinsic detector efficiency.
 
 ## Reproduction commands
 
@@ -850,3 +852,64 @@ compatibility and deliberate sensitivity studies.
 
 The generated ROOT files are local analysis products. The Markdown report,
 PNG/PDF figures, and CSV scan tables are the persistent human-readable record.
+
+## Final recovery summary
+
+The common denominator for the cumulative recovery accounting is the 26,634
+events passing the adopted ECal energy and timing selections. The rows below
+are mutually exclusive additions, so the cumulative total can be read directly.
+
+| Recovery stage and source | Newly recovered events | Cumulative events | Cumulative fraction of ECal-admitted events | Incremental gain |
+| --- | ---: | ---: | ---: | ---: |
+| Initial CDet-only one-to-one pairing plus radius-2 trajectory-time ellipse | 13,385 | 13,385 | 50.25% | 50.25 percentage points |
+| ECal-informed global pair ranking, recovering candidates lost by greedy CDet-only assignment | 2,427 | 15,812 | 59.37% | 9.11 percentage points |
+| Topology-aware central-seam pairing | 760 | 16,572 | 62.22% | 2.85 percentage points |
+| Exclusive single-layer candidates in events with no selected pair | 740 | 17,312 | 65.00% | 2.78 percentage points |
+
+The final two-layer paired sample is therefore 16,572 events, or 62.22% of
+the ECal-admitted denominator. Including the explicitly lower-confidence,
+exclusive single-layer sample gives at least one retained CDet candidate in
+17,312 events, or 65.00%.
+
+The complementary final accounting is:
+
+| Final exclusive outcome | Events | Fraction of 26,634 |
+| --- | ---: | ---: |
+| At least one selected two-layer pair | 16,572 | 62.22% |
+| No selected pair, but an accepted exclusive single-layer candidate | 740 | 2.78% |
+| Good pulses in both layers, but no defensible selected pair | 8,810 | 33.08% |
+| Good-pulse coverage lost and no accepted single-layer candidate | 512 | 1.92% |
+| **Total** | **26,634** | **100.00%** |
+
+For the separate geometry-conditioned statement, 24,900 admitted events
+project through active regions in both CDet layers, and 16,171 of them contain
+a selected pair. This gives a 64.94% geometry-conditioned candidate-recovery
+fraction. It uses a different denominator from the cumulative table and must
+not be combined with the 740-event single-layer increment. None of these
+fractions is, by itself, an intrinsic detector efficiency; they quantify
+candidate recovery under the stated ECal and CDet selections.
+
+### Recovery after rejecting non-working-bar trajectories
+
+The modified denominator removes the 1,729 ECal-admitted events whose projected
+trajectory intersects at least one of the six coherently suppressed half-bars.
+It also removes the five trajectories outside the physical CDet boundary,
+leaving 24,900 events projected through working regions of both layers.
+
+| Two-layer recovery stage and source | Newly recovered events | Cumulative events | Fraction of 24,900 working-geometry events | Incremental gain |
+| --- | ---: | ---: | ---: | ---: |
+| ECal-informed same-side pairing | 15,458 | 15,458 | 62.08% | 62.08 percentage points |
+| Topology-aware central-seam pairing | 713 | 16,171 | 64.94% | 2.86 percentage points |
+| No selected two-layer pair | -- | 8,729 | 35.06% | -- |
+
+The seam rule recovers 713 events in the working-geometry population. The
+remaining 47 events in its full 760-event gain project through a suppressed
+half-bar and are therefore absent from this table. Similarly, the final full
+sample contains 401 selected-pair events in the suppressed-half-bar category;
+they are deliberately excluded from both the numerator and denominator here.
+
+This table reports two-layer pair recovery only. The 740 exclusive single-layer
+candidates cannot yet be added consistently because their event-by-event
+intersection with the suppressed-half-bar mask has not been tabulated. Quoting
+`(16,171 + 740) / 24,900` would therefore mix denominators and overstate the
+working-geometry recovery.
