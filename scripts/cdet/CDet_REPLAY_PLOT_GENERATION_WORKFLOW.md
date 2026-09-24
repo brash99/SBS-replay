@@ -129,7 +129,11 @@ Plot_CDet_GoodPulseCandidates_AllTDC(
     false,
     0.0, -26.0,
     0.020, 5.0,
-    2.0);
+    2.0,
+    0.0, -26.0,
+    0.040, 5.0,
+    2.0,
+    -10.0, 10.0);
 ```
 
 The arguments are:
@@ -148,6 +152,12 @@ The arguments are:
 | `pairResidualScaleM` | Spatial normalization scale | `0.020 m` |
 | `pairTimingScaleNs` | Timing normalization scale | `5 ns` |
 | `pairCutRadius` | Radius in normalized trajectory-time space | `2` |
+| `singleResidualCenterM` | Center of single-pulse `x_CDet,corr - x_ECal projected` | `0 m` |
+| `singleTimingCenterNs` | Center of single-pulse ECal-minus-CDet timing | `-26 ns` |
+| `singleResidualScaleM` | Single-pulse spatial normalization scale | `0.040 m` |
+| `singleTimingScaleNs` | Single-pulse timing normalization scale | `5 ns` |
+| `singleCutRadius` | Radius in normalized single-pulse x-time space | `2` |
+| `ecalTimeMinNs`, `ecalTimeMaxNs` | ECal timing interval defining the denominator of the exclusive event-outcome breakdown | `-10`, `10 ns` |
 
 The normalized pair selection is
 
@@ -169,6 +179,46 @@ The adopted radius 2 corresponds to spatial and timing semiaxes of 4 cm and
 10 ns. It is intended to generate candidates for a later global ECal-CDet-GEM-
 HCal region-of-interest tracking algorithm, not to make the final track choice.
 
+The single-layer study is kept exclusive from this paired sample. It considers
+only events with no radius-selected pair and with complete good pulses in
+exactly one layer. For each such pulse it forms
+
+```text
+delta_x_single = x_CDet,corr - x_ECal * z_CDet / z_ECal
+delta_t_single = t_ECal - t_CDet,corr
+```
+
+and applies a separately configurable normalized ellipse. Events containing
+good pulses in both layers are not classified as single-layer recovery even if
+none of their pairs passes the pair ellipse. Multiple selected pulses in one
+recovered event remain available to the downstream ROI tracker.
+
+In the 100,000-event Run 6077 test, the initial single-layer ellipse above
+found 385 of 669 Layer-1-only events and 355 of 518 Layer-2-only events. Thus it
+recovered 740 of 1,187 exclusive pairless one-layer events (62.3%), comprising
+643 Layer-1 and 799 Layer-2 candidate pulses. These are diagnostic working-point
+figures, not yet an intrinsic single-layer efficiency measurement.
+
+The corresponding exclusive event-flow accounting for Run 6077 is:
+
+| Outcome among 26,634 ECal-energy-and-time admitted events | Events | Fraction |
+| --- | ---: | ---: |
+| At least one trajectory-time selected pair | 13,385 | 50.3% |
+| Good pulses in both layers, but no selected pair | 11,997 | 45.0% |
+| Calibrated pulses in both layers, but good-pulse coverage lost in at least one layer | 1,252 | 4.7% |
+| Missing calibrated pulse coverage in at least one layer | 0 | 0.0% |
+
+Of the 11,997 pair-selection failures, 366 have no stored pair and 11,631
+have at least one stored pair but none inside the final trajectory-time ellipse.
+The 1,252 good-pulse-coverage losses divide into 669 Layer-1-only events, 518
+Layer-2-only events, and 65 events with neither layer good. The absence of a
+"missing calibrated layer" population does not imply physical detection in
+every event: Run 6077 has sufficiently high raw pulse occupancy that complete,
+calibratable pulses occur in both layers even when they fail quality or spatial
+compatibility. The dominant unresolved population is therefore the two-layer
+good-pulse sample outside the pair ellipse, which should be studied for signal
+versus accidental content before loosening the pair selection.
+
 Principal outputs include:
 
 | File | Content |
@@ -182,6 +232,11 @@ Principal outputs include:
 | `CDetGoodPulse_SelectedPairXCorrelation.{png,pdf}` | Mean corrected CDet-pair x versus ECal x projected to the pair mean z, for final ellipse-selected pairs |
 | `CDetGoodPulse_SelectedPairXResidual.{png,pdf}` | One-dimensional residual `<x_CDet,corr>_pair - x_ECal projected`, with one entry per final ellipse-selected pair |
 | `CDetGoodPulse_SelectedPairXDiagnostics.{png,pdf}` | Side-by-side view of the selected-pair x correlation and its one-dimensional residual |
+| `CDetGoodPulse_SingleLayerRecovery.{png,pdf}` | Exclusive pairless Layer-1-only and Layer-2-only good-pulse populations in x-residual versus timing, plus the timing spectra selected by the configurable single-layer ellipse |
+| `CDetGoodPulse_ECalAdmittedEventOutcome.{png,pdf}` | Mutually exclusive breakdown of ECal-admitted events into selected-pair, pair-selection failure, quality/spatial loss, and missing-calibrated-layer categories |
+| `CDetGoodPulse_PairFailureDiagnostics.{png,pdf}` | Best stored pair outside the final ellipse, minimum normalized radius, and analyzer-gate reasons for good-both events with no stored pair |
+| `CDetGoodPulse_AllCombinationRecovery.{png,pdf}` | Whether any good cross-layer combination passes the ellipse before greedy assignment, whether hard gates remove it, and the multiplicity of compatible alternatives lost by greedy pairing |
+| `CDetGoodPulse_RecoveredGreedyPairs.{png,pdf}` | Best ECal-informed pair per greedily lost event: trajectory-time location, pair-mean timing, projected-x correlation, and x residual |
 | `CDetGoodPulse_AllTDC.root` | Histogram objects for further interactive study; normally kept local |
 
 The selected pair-mean timing histogram contains one entry per pair, not one
@@ -322,6 +377,9 @@ are therefore appropriate for candidate generation before global ROI tracking.
 
 For the detailed Run 5711 derivation, numerical tables, and physics reasoning,
 see [`CDet_RUN5711_PAIR_SELECTION_STUDY.md`](CDet_RUN5711_PAIR_SELECTION_STUDY.md).
+The corresponding Run 6077 numbers, including selected-pair x agreement,
+single-layer recovery, and the exclusive failure breakdown, are collected in
+[`CDet_RUN6077_PAIR_SELECTION_STUDY.md`](CDet_RUN6077_PAIR_SELECTION_STUDY.md).
 
 ## Troubleshooting
 

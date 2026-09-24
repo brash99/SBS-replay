@@ -4,6 +4,10 @@ This report collects the final configuration-authoritative diagnostic plots
 produced for LH2 Run 6077. Unlike the Run 5711 timing-window comparison, this
 report presents only the selected ECal/HCal timing window.
 
+The later analyzer-backed pulse, pair, x-correlation, and single-layer recovery
+results are collected separately in
+[`CDet_RUN6077_PAIR_SELECTION_STUDY.md`](CDet_RUN6077_PAIR_SELECTION_STUDY.md).
+
 ## Recorded calibration state
 
 The active run-specific file currently contains:

@@ -103,9 +103,9 @@ projections, and residuals at stored precision.
 
 ## Implemented fourth slice: cross-layer pairing
 
-`SBSCDet` now forms Layer-1/Layer-2 candidates from calibrated pulses passing
-the broad-quality, ECal-eligibility, and projected-spatial diagnostics. Candidate
-formation and ranking use only CDet-to-CDet quantities:
+`SBSCDet` forms Layer-1/Layer-2 candidates from calibrated pulses passing the
+broad-quality, ECal-eligibility, and projected-spatial diagnostics. Its common
+legacy mode forms and ranks candidates using only CDet-to-CDet quantities:
 
 ```text
 dt = t_L2 - t_L1
@@ -121,8 +121,24 @@ sorted by score and accepted greedily with one-to-one pulse use; the database
 currently permits multiple non-conflicting pairs per event, matching the macro
 configuration.
 
+For the LH2 validity interval beginning with Run 5711, an ECal-informed mode is
+enabled. It first retains only combinations satisfying
+
+```text
+((dx - (x_ECal,L2 - x_ECal,L1))/0.020 m)^2
+  + ((t_ECal - (t_L1+t_L2)/2 + 26 ns)/5 ns)^2 <= 2^2.
+```
+
+The eligible combinations are then ranked by that normalized radius before the
+same deterministic, greedy, one-to-one pulse assignment. The original hard
+gates remain unchanged. This ordering was motivated by the Run 6077
+all-combinations study, which identified 2,427 events containing a valid
+radius-2 combination that the earlier CDet-only greedy assignment did not
+store.
+
 The `pair.*` output preserves the two source pulse-array indices and pixel IDs,
-corrected member and mean times, dt/dx/dy, score, and ECal-minus-pair-mean time.
+corrected member and mean times, dt/dx/dy, the legacy CDet score,
+ECal-minus-pair-mean time, ECal-trajectory residual, and normalized ECal score.
 The pulse collection remains unchanged.
 
 In the 2,000-event Run 5710 replay, 178 events produced 184 accepted pairs. An

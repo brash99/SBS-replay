@@ -1122,8 +1122,9 @@ earm.cdet.selection.x_residual_max = 0.08
 earm.cdet.selection.y_residual_offset = 0.10
 earm.cdet.selection.y_residual_max = 0.36
 
-# Greedy one-to-one cross-layer pairing. The score contains only CDet-to-CDet
-# quantities; projected ECal x is deliberately absent.
+# Greedy one-to-one cross-layer pairing. By default the ranking contains only
+# CDet-to-CDet quantities. The optional ECal-informed preselection below is
+# enabled for the LH2 interval, after the Run 6077 all-combinations study.
 earm.cdet.pairing.enable = 1
 earm.cdet.pairing.dt_center = 0.0
 earm.cdet.pairing.dt_max = 15.0
@@ -1132,6 +1133,12 @@ earm.cdet.pairing.dy_max = 0.08
 earm.cdet.pairing.time_scale = 1.0
 earm.cdet.pairing.x_scale = 0.01
 earm.cdet.pairing.allow_multiple = 1
+earm.cdet.pairing.ecal_rank_enable = 0
+earm.cdet.pairing.ecal_trajectory_center = 0.0
+earm.cdet.pairing.ecal_timing_center = -26.0
+earm.cdet.pairing.ecal_trajectory_scale = 0.020
+earm.cdet.pairing.ecal_timing_scale = 5.0
+earm.cdet.pairing.ecal_radius = 2.0
 
 earm.cdet.timing.pixel_offset =
 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
@@ -1318,3 +1325,6 @@ earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 
 earm.cdet.pairing.enable = 1
+# Apply the established radius-2 trajectory-time ellipse to every eligible
+# Layer-1/Layer-2 combination before deterministic one-to-one assignment.
+earm.cdet.pairing.ecal_rank_enable = 1

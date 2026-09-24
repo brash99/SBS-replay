@@ -37,7 +37,8 @@ bool HasRequiredBranches(TChain &chain) {
       "earm.cdet.pulse.calib_valid",
       "earm.cdet.pulse.broad_quality_pass",
       "earm.cdet.pulse.ecal_eligible", "earm.cdet.pulse.spatial_pass",
-      "earm.cdet.pulse.x_corr", "earm.cdet.pulse.z",
+      "earm.cdet.pulse.x_corr", "earm.cdet.pulse.y",
+      "earm.cdet.pulse.z",
       "earm.cdet.pair.pulse_index_l1", "earm.cdet.pair.pulse_index_l2"};
 
   chain.LoadTree(0);
@@ -84,7 +85,9 @@ void DrawBarPage(TCanvas *canvas, const std::vector<TH1D *> &histograms,
 // Reproduce the plotAllTDC timing views using only calibrated good pulse
 // candidates.  A pulse is accepted when all four analyzer flags are true:
 // calib_valid, broad_quality_pass, ecal_eligible, and spatial_pass.  An event
-// contributes only if its accepted candidates include both CDet layers.
+// contributes to the legacy-comparison timing views only if its accepted
+// candidates include both CDet layers.  A separate diagnostic studies
+// exclusive one-layer recovery in events without a selected pair.
 //
 // Example:
 // root -l -b -q 'Plot_CDet_GoodPulseCandidates_AllTDC.C+(5710,"/path/to/Rootfiles","CDet_run5710_good_pulse_tdc")'
@@ -95,7 +98,12 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
     double totMinNs = 0.0, double totMaxNs = 40.0,
     bool recoveredOnly = false, double pairResidualCenterM = 0.0,
     double pairTimingCenterNs = -26.0, double pairResidualScaleM = 0.020,
-    double pairTimingScaleNs = 5.0, double pairCutRadius = 2.0) {
+    double pairTimingScaleNs = 5.0, double pairCutRadius = 2.0,
+    double singleResidualCenterM = 0.0,
+    double singleTimingCenterNs = -26.0,
+    double singleResidualScaleM = 0.040,
+    double singleTimingScaleNs = 5.0, double singleCutRadius = 2.0,
+    double ecalTimeMinNs = -10.0, double ecalTimeMaxNs = 10.0) {
   TString resolvedInputDirectory(inputDirectory ? inputDirectory : "");
   if (resolvedInputDirectory.IsNull()) {
     const char *outDir = gSystem->Getenv("OUT_DIR");
@@ -109,7 +117,9 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   }
   if (binWidthNs <= 0.0 || leMaxNs <= leMinNs || totMaxNs <= totMinNs ||
       pairResidualScaleM <= 0.0 || pairTimingScaleNs <= 0.0 ||
-      pairCutRadius <= 0.0) {
+      pairCutRadius <= 0.0 || singleResidualScaleM <= 0.0 ||
+      singleTimingScaleNs <= 0.0 || singleCutRadius <= 0.0 ||
+      ecalTimeMaxNs <= ecalTimeMinNs) {
     std::cerr << "[good-pulse TDC] Invalid histogram limits." << std::endl;
     return;
   }
@@ -238,6 +248,110 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
       "t_{ECal} - <t_{CDet}>_{pair} (ns)",
       160, -0.08, 0.08, nBar30DeltaTBins, bar30DeltaTMinNs,
       bar30DeltaTMaxNs);
+  TH2D hSingleLayer1TimingVsXResidual(
+      "hCDetSingleLayer1TimingVsXResidual",
+      "Pairless one-layer events, Layer 1 good pulses;"
+      "x_{CDet,corr} - x_{ECal projected} (m);"
+      "t_{ECal} - t_{CDet,corr} (ns)",
+      160, -0.16, 0.16, nBar30DeltaTBins, bar30DeltaTMinNs,
+      bar30DeltaTMaxNs);
+  TH2D hSingleLayer2TimingVsXResidual(
+      "hCDetSingleLayer2TimingVsXResidual",
+      "Pairless one-layer events, Layer 2 good pulses;"
+      "x_{CDet,corr} - x_{ECal projected} (m);"
+      "t_{ECal} - t_{CDet,corr} (ns)",
+      160, -0.16, 0.16, nBar30DeltaTBins, bar30DeltaTMinNs,
+      bar30DeltaTMaxNs);
+  TH1D hSelectedSingleLayer1Timing(
+      "hCDetSelectedSingleLayer1Timing",
+      "Selected single-layer recovery, Layer 1;"
+      "t_{ECal} - t_{CDet,corr} (ns);Selected pulses",
+      nBar30DeltaTBins, bar30DeltaTMinNs, bar30DeltaTMaxNs);
+  TH1D hSelectedSingleLayer2Timing(
+      "hCDetSelectedSingleLayer2Timing",
+      "Selected single-layer recovery, Layer 2;"
+      "t_{ECal} - t_{CDet,corr} (ns);Selected pulses",
+      nBar30DeltaTBins, bar30DeltaTMinNs, bar30DeltaTMaxNs);
+  TH1D hECalAdmittedEventOutcome(
+      "hCDetECalAdmittedEventOutcome",
+      "CDet outcome for ECal-energy-and-time admitted events;"
+      "Exclusive event category;Events",
+      4, 0.5, 4.5);
+  hECalAdmittedEventOutcome.GetXaxis()->SetBinLabel(1, "Selected pair");
+  hECalAdmittedEventOutcome.GetXaxis()->SetBinLabel(
+      2, "Good both; pair fails");
+  hECalAdmittedEventOutcome.GetXaxis()->SetBinLabel(
+      3, "Calib both; quality/spatial loss");
+  hECalAdmittedEventOutcome.GetXaxis()->SetBinLabel(
+      4, "Missing calibrated layer");
+  TH2D hFailedPairBestTimingVsTrajectory(
+      "hCDetFailedPairBestTimingVsTrajectory",
+      "Best stored pair in good-both events failing final ellipse;"
+      "trajectory residual (m);t_{ECal} - <t_{CDet,corr}>_{pair} (ns)",
+      160, -0.16, 0.16, nBar30DeltaTBins, bar30DeltaTMinNs,
+      bar30DeltaTMaxNs);
+  TH1D hFailedPairMinimumRadius(
+      "hCDetFailedPairMinimumNormalizedRadius",
+      "Good-both events failing final ellipse;minimum normalized pair radius;"
+      "Events",
+      120, 0.0, 12.0);
+  TH1D hNoStoredPairFailureReason(
+      "hCDetNoStoredPairFailureReason",
+      "Nearest cross-layer combination when no stored pair;failed analyzer gate;"
+      "Events",
+      7, 0.5, 7.5);
+  const char *noStoredFailureLabels[7] = {
+      "#Deltat", "#Deltax", "#Deltay", "#Deltat+#Deltax",
+      "#Deltat+#Deltay", "#Deltax+#Deltay", "all three"};
+  for (int bin = 1; bin <= 7; ++bin)
+    hNoStoredPairFailureReason.GetXaxis()->SetBinLabel(
+        bin, noStoredFailureLabels[bin - 1]);
+  TH1D hAllCombinationRecoveryOutcome(
+      "hCDetAllCombinationRecoveryOutcome",
+      "Good-both events rejected by stored-pair ellipse;all-combination outcome;"
+      "Events",
+      3, 0.5, 3.5);
+  hAllCombinationRecoveryOutcome.GetXaxis()->SetBinLabel(
+      1, "No combination in ellipse");
+  hAllCombinationRecoveryOutcome.GetXaxis()->SetBinLabel(
+      2, "Ellipse pair fails hard gates");
+  hAllCombinationRecoveryOutcome.GetXaxis()->SetBinLabel(
+      3, "Greedy pairing lost ellipse pair");
+  TH1D hEllipsePairHardGateFailureReason(
+      "hCDetEllipsePairHardGateFailureReason",
+      "Best ellipse combination rejected before pairing;failed analyzer gate;"
+      "Events",
+      7, 0.5, 7.5);
+  for (int bin = 1; bin <= 7; ++bin)
+    hEllipsePairHardGateFailureReason.GetXaxis()->SetBinLabel(
+        bin, noStoredFailureLabels[bin - 1]);
+  TH1D hAlternativePairMultiplicity(
+      "hCDetAlternativePairMultiplicity",
+      "Recovered failed events;hard-gate-eligible combinations inside ellipse;"
+      "Compatible combinations;Events",
+      51, -0.5, 50.5);
+  TH2D hRecoveredGreedyBestTimingVsTrajectory(
+      "hCDetRecoveredGreedyBestTimingVsTrajectory",
+      "Best ECal-informed pair recovered after greedy loss;"
+      "trajectory residual (m);t_{ECal} - <t_{CDet,corr}>_{pair} (ns)",
+      160, -0.08, 0.08, nBar30DeltaTBins, bar30DeltaTMinNs,
+      bar30DeltaTMaxNs);
+  TH1D hRecoveredGreedyBestMeanResidual(
+      "hCDetRecoveredGreedyBestMeanECalResidual",
+      "Best ECal-informed pair recovered after greedy loss;"
+      "t_{ECal} - <t_{CDet,corr}>_{pair} (ns);Recovered events",
+      nBar30DeltaTBins, bar30DeltaTMinNs, bar30DeltaTMaxNs);
+  TH2D hRecoveredGreedyBestXCorrelation(
+      "hCDetRecoveredGreedyBestXVsProjectedECalX",
+      "Best ECal-informed pair recovered after greedy loss;"
+      "x_{ECal} projected to pair mean z (m);"
+      "<x_{CDet,corr}>_{pair} (m)",
+      160, -1.6, 1.6, 160, -1.6, 1.6);
+  TH1D hRecoveredGreedyBestXResidual(
+      "hCDetRecoveredGreedyBestXResidual",
+      "Best ECal-informed pair recovered after greedy loss;"
+      "<x_{CDet,corr}>_{pair} - x_{ECal projected} (m);Recovered events",
+      160, -0.20, 0.20);
 
   std::vector<TH1D *> pixelLE(kCDetNPixels, nullptr);
   for (int pixel = 0; pixel < kCDetNPixels; ++pixel) {
@@ -273,6 +387,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   TTreeReaderArray<Double_t> spatialPass(reader,
                                          "earm.cdet.pulse.spatial_pass");
   TTreeReaderArray<Double_t> correctedX(reader, "earm.cdet.pulse.x_corr");
+  TTreeReaderArray<Double_t> pulseY(reader, "earm.cdet.pulse.y");
   TTreeReaderArray<Double_t> pulseZ(reader, "earm.cdet.pulse.z");
   TTreeReaderArray<Double_t> pairPulseIndexL1(
       reader, "earm.cdet.pair.pulse_index_l1");
@@ -302,7 +417,38 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   Long64_t detectorProjectedQualityEventCount = 0;
   Long64_t acceptedPairCount = 0;
   Long64_t trajectoryTimeSelectedPairCount = 0;
+  Long64_t pairlessSingleLayer1EventCount = 0;
+  Long64_t pairlessSingleLayer2EventCount = 0;
+  Long64_t recoveredSingleLayer1EventCount = 0;
+  Long64_t recoveredSingleLayer2EventCount = 0;
+  Long64_t recoveredSingleLayer1PulseCount = 0;
+  Long64_t recoveredSingleLayer2PulseCount = 0;
+  Long64_t ecalAdmittedEventCount = 0;
+  Long64_t selectedPairEventCount = 0;
+  Long64_t goodBothPairFailureEventCount = 0;
+  Long64_t goodBothNoStoredPairEventCount = 0;
+  Long64_t goodBothEllipseFailureEventCount = 0;
+  Long64_t calibratedBothQualitySpatialLossEventCount = 0;
+  Long64_t goodLayer1OnlyEventCount = 0;
+  Long64_t goodLayer2OnlyEventCount = 0;
+  Long64_t noGoodLayerEventCount = 0;
+  Long64_t missingCalibratedLayerEventCount = 0;
+  Long64_t calibratedLayer1OnlyEventCount = 0;
+  Long64_t calibratedLayer2OnlyEventCount = 0;
+  Long64_t noCalibratedPulseEventCount = 0;
+  Long64_t failedPairTimingOnlyEventCount = 0;
+  Long64_t failedPairTrajectoryOnlyEventCount = 0;
+  Long64_t failedPairBothAxesEventCount = 0;
+  Long64_t failedPairEllipseCornerEventCount = 0;
+  Long64_t noStoredPairUnexpectedEventCount = 0;
+  Long64_t noAllGoodEllipseCombinationEventCount = 0;
+  Long64_t ellipseCombinationFailsHardGatesEventCount = 0;
+  Long64_t greedyPairingLostEllipseCombinationEventCount = 0;
+  Long64_t allCombinationRecoveredPairCount = 0;
   constexpr double kECalZFromTargetM = 6.144;
+  constexpr double kAnalyzerPairDeltaTimeMaxNs = 15.0;
+  constexpr double kAnalyzerPairDeltaXMaxM = 0.15;
+  constexpr double kAnalyzerPairDeltaYMaxM = 0.08;
 
   while (reader.Next()) {
     ++eventCount;
@@ -310,7 +456,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
         pixel.GetSize(),        le.GetSize(),          te.GetSize(),
         tot.GetSize(),          ecalResidual.GetSize(), calibValid.GetSize(),
         broadQuality.GetSize(), ecalEligible.GetSize(), spatialPass.GetSize(),
-        correctedX.GetSize(), pulseZ.GetSize()};
+        correctedX.GetSize(), pulseY.GetSize(), pulseZ.GetSize()};
     const size_t nPulses = *std::min_element(sizes.begin(), sizes.end());
     const size_t maxPulses = *std::max_element(sizes.begin(), sizes.end());
     if (nPulses != maxPulses)
@@ -391,6 +537,355 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
       }
       if (std::isfinite(bestTrajectoryResidual))
         hBestPairTrajectoryResidual.Fill(bestTrajectoryResidual);
+      const bool hasTrajectoryTimeSelectedPair =
+          !trajectoryTimeSelectedPulseIndices.empty();
+
+      // Give every event admitted by the configured ECal energy and timing
+      // cuts one mutually exclusive CDet outcome.  "Calibrated" means a
+      // complete analyzer pulse with valid calibration; "good" additionally
+      // requires broad quality, ECal eligibility, and spatial compatibility.
+      if (std::isfinite(*ecalTime) && *ecalTime >= ecalTimeMinNs &&
+          *ecalTime <= ecalTimeMaxNs) {
+        ++ecalAdmittedEventCount;
+        bool calibratedLayer1 = false;
+        bool calibratedLayer2 = false;
+        bool goodLayer1 = false;
+        bool goodLayer2 = false;
+        for (size_t i = 0; i < nPulses; ++i) {
+          if (!std::isfinite(pixel[i]))
+            continue;
+          const int pixelID = int(std::lround(pixel[i]));
+          if (pixelID < 0 || pixelID >= kCDetNPixels)
+            continue;
+          const bool isLayer1 = pixelID < kCDetNPixels / 2;
+          const bool calibrated = calibValid[i] > 0.5;
+          const bool good = calibrated && broadQuality[i] > 0.5 &&
+              ecalEligible[i] > 0.5 && spatialPass[i] > 0.5;
+          if (isLayer1) {
+            calibratedLayer1 |= calibrated;
+            goodLayer1 |= good;
+          } else {
+            calibratedLayer2 |= calibrated;
+            goodLayer2 |= good;
+          }
+        }
+
+        if (hasTrajectoryTimeSelectedPair) {
+          ++selectedPairEventCount;
+          hECalAdmittedEventOutcome.Fill(1.0);
+        } else if (goodLayer1 && goodLayer2) {
+          ++goodBothPairFailureEventCount;
+          std::vector<size_t> goodLayer1Indices;
+          std::vector<size_t> goodLayer2Indices;
+          for (size_t i = 0; i < nPulses; ++i) {
+            if (!(calibValid[i] > 0.5 && broadQuality[i] > 0.5 &&
+                  ecalEligible[i] > 0.5 && spatialPass[i] > 0.5) ||
+                !std::isfinite(pixel[i]) || !std::isfinite(le[i]) ||
+                !std::isfinite(ecalResidual[i]) ||
+                !std::isfinite(correctedX[i]) ||
+                !std::isfinite(pulseY[i]) || !std::isfinite(pulseZ[i]))
+              continue;
+            const int pixelID = int(std::lround(pixel[i]));
+            if (pixelID < 0 || pixelID >= kCDetNPixels)
+              continue;
+            if (pixelID < kCDetNPixels / 2)
+              goodLayer1Indices.push_back(i);
+            else
+              goodLayer2Indices.push_back(i);
+          }
+
+          bool hasAllGoodEllipseCombination = false;
+          int hardGateEllipseCombinationCount = 0;
+          double bestEllipseRadiusSquared =
+              std::numeric_limits<double>::infinity();
+          int bestEllipseFailureMask = 0;
+          double bestHardGateRadiusSquared =
+              std::numeric_limits<double>::infinity();
+          size_t bestHardGateIndexL1 = 0;
+          size_t bestHardGateIndexL2 = 0;
+          double bestHardGateTrajectoryResidual =
+              std::numeric_limits<double>::quiet_NaN();
+          double bestHardGateTimingResidual =
+              std::numeric_limits<double>::quiet_NaN();
+          for (size_t indexL1 : goodLayer1Indices) {
+            for (size_t indexL2 : goodLayer2Indices) {
+              const double dt = le[indexL2] - le[indexL1];
+              const double dx = correctedX[indexL2] - correctedX[indexL1];
+              const double dy = pulseY[indexL2] - pulseY[indexL1];
+              const double deltaZ = pulseZ[indexL2] - pulseZ[indexL1];
+              const double trajectoryResidual =
+                  dx - (*ecalX / kECalZFromTargetM) * deltaZ;
+              const double pairTimingResidual =
+                  0.5 * (ecalResidual[indexL1] + ecalResidual[indexL2]);
+              const double normalizedResidual =
+                  (trajectoryResidual - pairResidualCenterM) /
+                  pairResidualScaleM;
+              const double normalizedTiming =
+                  (pairTimingResidual - pairTimingCenterNs) /
+                  pairTimingScaleNs;
+              const bool insideEllipse =
+                  normalizedResidual * normalizedResidual +
+                      normalizedTiming * normalizedTiming <=
+                  pairCutRadius * pairCutRadius;
+              if (!insideEllipse)
+                continue;
+              hasAllGoodEllipseCombination = true;
+              const double radiusSquared =
+                  normalizedResidual * normalizedResidual +
+                  normalizedTiming * normalizedTiming;
+              const int failureMask =
+                  (std::fabs(dt) > kAnalyzerPairDeltaTimeMaxNs ? 1 : 0) |
+                  (std::fabs(dx) > kAnalyzerPairDeltaXMaxM ? 2 : 0) |
+                  (std::fabs(dy) > kAnalyzerPairDeltaYMaxM ? 4 : 0);
+              if (radiusSquared < bestEllipseRadiusSquared) {
+                bestEllipseRadiusSquared = radiusSquared;
+                bestEllipseFailureMask = failureMask;
+              }
+              const bool passesAnalyzerHardGates =
+                  std::fabs(dt) <= kAnalyzerPairDeltaTimeMaxNs &&
+                  std::fabs(dx) <= kAnalyzerPairDeltaXMaxM &&
+                  std::fabs(dy) <= kAnalyzerPairDeltaYMaxM;
+              if (passesAnalyzerHardGates) {
+                ++hardGateEllipseCombinationCount;
+                if (radiusSquared < bestHardGateRadiusSquared) {
+                  bestHardGateRadiusSquared = radiusSquared;
+                  bestHardGateIndexL1 = indexL1;
+                  bestHardGateIndexL2 = indexL2;
+                  bestHardGateTrajectoryResidual = trajectoryResidual;
+                  bestHardGateTimingResidual = pairTimingResidual;
+                }
+              }
+            }
+          }
+
+          if (!hasAllGoodEllipseCombination) {
+            ++noAllGoodEllipseCombinationEventCount;
+            hAllCombinationRecoveryOutcome.Fill(1.0);
+          } else if (hardGateEllipseCombinationCount == 0) {
+            ++ellipseCombinationFailsHardGatesEventCount;
+            hAllCombinationRecoveryOutcome.Fill(2.0);
+            int failureBin = 0;
+            switch (bestEllipseFailureMask) {
+            case 1: failureBin = 1; break;
+            case 2: failureBin = 2; break;
+            case 4: failureBin = 3; break;
+            case 3: failureBin = 4; break;
+            case 5: failureBin = 5; break;
+            case 6: failureBin = 6; break;
+            case 7: failureBin = 7; break;
+            default: break;
+            }
+            if (failureBin > 0)
+              hEllipsePairHardGateFailureReason.Fill(failureBin);
+          } else {
+            ++greedyPairingLostEllipseCombinationEventCount;
+            allCombinationRecoveredPairCount += hardGateEllipseCombinationCount;
+            hAlternativePairMultiplicity.Fill(hardGateEllipseCombinationCount);
+            hAllCombinationRecoveryOutcome.Fill(3.0);
+            hRecoveredGreedyBestTimingVsTrajectory.Fill(
+                bestHardGateTrajectoryResidual, bestHardGateTimingResidual);
+            hRecoveredGreedyBestMeanResidual.Fill(
+                bestHardGateTimingResidual);
+            const double pairMeanZ =
+                0.5 * (pulseZ[bestHardGateIndexL1] +
+                       pulseZ[bestHardGateIndexL2]);
+            const double pairMeanX =
+                0.5 * (correctedX[bestHardGateIndexL1] +
+                       correctedX[bestHardGateIndexL2]);
+            const double projectedECalX =
+                *ecalX * pairMeanZ / kECalZFromTargetM;
+            if (std::isfinite(pairMeanX) && std::isfinite(projectedECalX)) {
+              hRecoveredGreedyBestXCorrelation.Fill(projectedECalX,
+                                                     pairMeanX);
+              hRecoveredGreedyBestXResidual.Fill(pairMeanX - projectedECalX);
+            }
+          }
+
+          if (pairedPulseIndices.empty()) {
+            ++goodBothNoStoredPairEventCount;
+            double bestGateMetric = std::numeric_limits<double>::infinity();
+            int bestFailureMask = 0;
+            for (size_t indexL1 : goodLayer1Indices) {
+              for (size_t indexL2 : goodLayer2Indices) {
+                const double dt = le[indexL2] - le[indexL1];
+                const double dx = correctedX[indexL2] - correctedX[indexL1];
+                const double dy = pulseY[indexL2] - pulseY[indexL1];
+                const double dtRatio =
+                    std::fabs(dt) / kAnalyzerPairDeltaTimeMaxNs;
+                const double dxRatio =
+                    std::fabs(dx) / kAnalyzerPairDeltaXMaxM;
+                const double dyRatio =
+                    std::fabs(dy) / kAnalyzerPairDeltaYMaxM;
+                const double gateMetric = std::max({dtRatio, dxRatio, dyRatio});
+                if (gateMetric < bestGateMetric) {
+                  bestGateMetric = gateMetric;
+                  bestFailureMask = (dtRatio > 1.0 ? 1 : 0) |
+                      (dxRatio > 1.0 ? 2 : 0) |
+                      (dyRatio > 1.0 ? 4 : 0);
+                }
+              }
+            }
+            int failureBin = 0;
+            switch (bestFailureMask) {
+            case 1: failureBin = 1; break;
+            case 2: failureBin = 2; break;
+            case 4: failureBin = 3; break;
+            case 3: failureBin = 4; break;
+            case 5: failureBin = 5; break;
+            case 6: failureBin = 6; break;
+            case 7: failureBin = 7; break;
+            default: break;
+            }
+            if (failureBin > 0)
+              hNoStoredPairFailureReason.Fill(failureBin);
+            else
+              ++noStoredPairUnexpectedEventCount;
+          } else {
+            ++goodBothEllipseFailureEventCount;
+            double bestRadiusSquared = std::numeric_limits<double>::infinity();
+            double bestResidual = std::numeric_limits<double>::quiet_NaN();
+            double bestTiming = std::numeric_limits<double>::quiet_NaN();
+            for (size_t pair = 0; pair < nPairs; ++pair) {
+              if (!std::isfinite(pairPulseIndexL1[pair]) ||
+                  !std::isfinite(pairPulseIndexL2[pair]))
+                continue;
+              const Long64_t indexL1 = std::llround(pairPulseIndexL1[pair]);
+              const Long64_t indexL2 = std::llround(pairPulseIndexL2[pair]);
+              if (indexL1 < 0 || indexL2 < 0 ||
+                  indexL1 >= static_cast<Long64_t>(nPulses) ||
+                  indexL2 >= static_cast<Long64_t>(nPulses))
+                continue;
+              const double deltaZ = pulseZ[indexL2] - pulseZ[indexL1];
+              const double residual =
+                  (correctedX[indexL2] - correctedX[indexL1]) -
+                  (*ecalX / kECalZFromTargetM) * deltaZ;
+              const double timing =
+                  0.5 * (ecalResidual[indexL1] + ecalResidual[indexL2]);
+              const double nx =
+                  (residual - pairResidualCenterM) / pairResidualScaleM;
+              const double nt =
+                  (timing - pairTimingCenterNs) / pairTimingScaleNs;
+              const double radiusSquared = nx * nx + nt * nt;
+              if (std::isfinite(radiusSquared) &&
+                  radiusSquared < bestRadiusSquared) {
+                bestRadiusSquared = radiusSquared;
+                bestResidual = residual;
+                bestTiming = timing;
+              }
+            }
+            if (std::isfinite(bestRadiusSquared)) {
+              const double minimumRadius = std::sqrt(bestRadiusSquared);
+              hFailedPairMinimumRadius.Fill(minimumRadius);
+              hFailedPairBestTimingVsTrajectory.Fill(bestResidual, bestTiming);
+              const bool trajectoryAxisFails =
+                  std::fabs((bestResidual - pairResidualCenterM) /
+                            pairResidualScaleM) > pairCutRadius;
+              const bool timingAxisFails =
+                  std::fabs((bestTiming - pairTimingCenterNs) /
+                            pairTimingScaleNs) > pairCutRadius;
+              if (timingAxisFails && !trajectoryAxisFails)
+                ++failedPairTimingOnlyEventCount;
+              else if (trajectoryAxisFails && !timingAxisFails)
+                ++failedPairTrajectoryOnlyEventCount;
+              else if (trajectoryAxisFails && timingAxisFails)
+                ++failedPairBothAxesEventCount;
+              else
+                ++failedPairEllipseCornerEventCount;
+            }
+          }
+          hECalAdmittedEventOutcome.Fill(2.0);
+        } else if (calibratedLayer1 && calibratedLayer2) {
+          ++calibratedBothQualitySpatialLossEventCount;
+          if (goodLayer1)
+            ++goodLayer1OnlyEventCount;
+          else if (goodLayer2)
+            ++goodLayer2OnlyEventCount;
+          else
+            ++noGoodLayerEventCount;
+          hECalAdmittedEventOutcome.Fill(3.0);
+        } else {
+          ++missingCalibratedLayerEventCount;
+          if (calibratedLayer1)
+            ++calibratedLayer1OnlyEventCount;
+          else if (calibratedLayer2)
+            ++calibratedLayer2OnlyEventCount;
+          else
+            ++noCalibratedPulseEventCount;
+          hECalAdmittedEventOutcome.Fill(4.0);
+        }
+      }
+
+      // Study single-layer recovery only in events that have no final
+      // trajectory-time-selected pair.  Require the complete good-pulse
+      // selection and exactly one populated CDet layer, keeping this sample
+      // exclusive from both the paired population and two-layer ambiguities.
+      if (!hasTrajectoryTimeSelectedPair) {
+        std::vector<size_t> goodLayer1Indices;
+        std::vector<size_t> goodLayer2Indices;
+        for (size_t i = 0; i < nPulses; ++i) {
+          if (!(calibValid[i] > 0.5 && broadQuality[i] > 0.5 &&
+                ecalEligible[i] > 0.5 && spatialPass[i] > 0.5) ||
+              !std::isfinite(pixel[i]) || !std::isfinite(ecalResidual[i]) ||
+              !std::isfinite(correctedX[i]) || !std::isfinite(pulseZ[i]))
+            continue;
+          const int pixelID = int(std::lround(pixel[i]));
+          if (pixelID < 0 || pixelID >= kCDetNPixels)
+            continue;
+          if (pixelID < kCDetNPixels / 2)
+            goodLayer1Indices.push_back(i);
+          else
+            goodLayer2Indices.push_back(i);
+        }
+
+        const bool layer1Only =
+            !goodLayer1Indices.empty() && goodLayer2Indices.empty();
+        const bool layer2Only =
+            goodLayer1Indices.empty() && !goodLayer2Indices.empty();
+        if (layer1Only || layer2Only) {
+          const std::vector<size_t> &indices =
+              layer1Only ? goodLayer1Indices : goodLayer2Indices;
+          TH2D &diagnostic = layer1Only ? hSingleLayer1TimingVsXResidual
+                                       : hSingleLayer2TimingVsXResidual;
+          TH1D &selectedTiming = layer1Only ? hSelectedSingleLayer1Timing
+                                            : hSelectedSingleLayer2Timing;
+          if (layer1Only)
+            ++pairlessSingleLayer1EventCount;
+          else
+            ++pairlessSingleLayer2EventCount;
+
+          bool recoveredEvent = false;
+          for (size_t i : indices) {
+            const double projectedECalX =
+                *ecalX * pulseZ[i] / kECalZFromTargetM;
+            const double xResidual = correctedX[i] - projectedECalX;
+            const double timingResidual = ecalResidual[i];
+            if (!std::isfinite(xResidual) || !std::isfinite(timingResidual))
+              continue;
+            diagnostic.Fill(xResidual, timingResidual);
+            const double normalizedX =
+                (xResidual - singleResidualCenterM) / singleResidualScaleM;
+            const double normalizedTiming =
+                (timingResidual - singleTimingCenterNs) /
+                singleTimingScaleNs;
+            if (normalizedX * normalizedX +
+                    normalizedTiming * normalizedTiming <=
+                singleCutRadius * singleCutRadius) {
+              selectedTiming.Fill(timingResidual);
+              recoveredEvent = true;
+              if (layer1Only)
+                ++recoveredSingleLayer1PulseCount;
+              else
+                ++recoveredSingleLayer2PulseCount;
+            }
+          }
+          if (recoveredEvent) {
+            if (layer1Only)
+              ++recoveredSingleLayer1EventCount;
+            else
+              ++recoveredSingleLayer2EventCount;
+          }
+        }
+      }
       const bool hasAcceptedPair = !pairedPulseIndices.empty();
       bool hasDetectorBaseline = false;
       bool hasDetectorProjected = false;
@@ -632,6 +1127,166 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   cPairSlope.SaveAs(Form("%s/CDetGoodPulse_PairTrajectoryDiagnostics.png",
                          outputDirectory));
 
+  TCanvas cSingleLayerRecovery(
+      "cCDetGoodPulseSingleLayerRecovery",
+      "Pairless single-layer good-pulse recovery", 1500, 1100);
+  cSingleLayerRecovery.Divide(2, 2);
+  cSingleLayerRecovery.cd(1);
+  gPad->SetRightMargin(0.14);
+  hSingleLayer1TimingVsXResidual.SetStats(false);
+  hSingleLayer1TimingVsXResidual.Draw("COLZ");
+  TEllipse singleLayer1Ellipse(singleResidualCenterM,
+                               singleTimingCenterNs,
+                               singleResidualScaleM * singleCutRadius,
+                               singleTimingScaleNs * singleCutRadius);
+  singleLayer1Ellipse.SetFillStyle(0);
+  singleLayer1Ellipse.SetLineColor(kRed + 1);
+  singleLayer1Ellipse.SetLineWidth(3);
+  singleLayer1Ellipse.Draw("same");
+  cSingleLayerRecovery.cd(2);
+  gPad->SetRightMargin(0.14);
+  hSingleLayer2TimingVsXResidual.SetStats(false);
+  hSingleLayer2TimingVsXResidual.Draw("COLZ");
+  TEllipse singleLayer2Ellipse(singleResidualCenterM,
+                               singleTimingCenterNs,
+                               singleResidualScaleM * singleCutRadius,
+                               singleTimingScaleNs * singleCutRadius);
+  singleLayer2Ellipse.SetFillStyle(0);
+  singleLayer2Ellipse.SetLineColor(kRed + 1);
+  singleLayer2Ellipse.SetLineWidth(3);
+  singleLayer2Ellipse.Draw("same");
+  cSingleLayerRecovery.cd(3);
+  hSelectedSingleLayer1Timing.SetLineWidth(2);
+  hSelectedSingleLayer1Timing.Draw("HIST");
+  cSingleLayerRecovery.cd(4);
+  hSelectedSingleLayer2Timing.SetLineWidth(2);
+  hSelectedSingleLayer2Timing.Draw("HIST");
+  cSingleLayerRecovery.SaveAs(
+      Form("%s/CDetGoodPulse_SingleLayerRecovery.pdf", outputDirectory));
+  cSingleLayerRecovery.SaveAs(
+      Form("%s/CDetGoodPulse_SingleLayerRecovery.png", outputDirectory));
+
+  TCanvas cEventOutcome("cCDetGoodPulseECalAdmittedEventOutcome",
+                        "CDet event-selection outcome", 1200, 750);
+  cEventOutcome.SetBottomMargin(0.20);
+  hECalAdmittedEventOutcome.SetStats(false);
+  hECalAdmittedEventOutcome.SetFillColor(kAzure - 4);
+  hECalAdmittedEventOutcome.SetLineColor(kBlue + 2);
+  hECalAdmittedEventOutcome.SetLineWidth(2);
+  hECalAdmittedEventOutcome.GetXaxis()->SetLabelSize(0.040);
+  hECalAdmittedEventOutcome.Draw("HIST TEXT0");
+  cEventOutcome.SaveAs(
+      Form("%s/CDetGoodPulse_ECalAdmittedEventOutcome.pdf", outputDirectory));
+  cEventOutcome.SaveAs(
+      Form("%s/CDetGoodPulse_ECalAdmittedEventOutcome.png", outputDirectory));
+
+  TCanvas cPairFailure("cCDetGoodPulsePairFailureDiagnostics",
+                       "Why good two-layer events fail pair selection",
+                       1800, 650);
+  cPairFailure.Divide(3, 1);
+  cPairFailure.cd(1);
+  gPad->SetRightMargin(0.14);
+  hFailedPairBestTimingVsTrajectory.SetStats(false);
+  hFailedPairBestTimingVsTrajectory.Draw("COLZ");
+  TEllipse failedPairEllipse(pairResidualCenterM, pairTimingCenterNs,
+                             pairResidualScaleM * pairCutRadius,
+                             pairTimingScaleNs * pairCutRadius);
+  failedPairEllipse.SetFillStyle(0);
+  failedPairEllipse.SetLineColor(kRed + 1);
+  failedPairEllipse.SetLineWidth(3);
+  failedPairEllipse.Draw("same");
+  cPairFailure.cd(2);
+  hFailedPairMinimumRadius.SetLineWidth(2);
+  hFailedPairMinimumRadius.Draw("HIST");
+  TLine pairRadiusCut(pairCutRadius, 0.0, pairCutRadius,
+                      1.05 * hFailedPairMinimumRadius.GetMaximum());
+  pairRadiusCut.SetLineColor(kRed + 1);
+  pairRadiusCut.SetLineWidth(3);
+  pairRadiusCut.Draw("same");
+  cPairFailure.cd(3);
+  gPad->SetBottomMargin(0.20);
+  hNoStoredPairFailureReason.SetStats(false);
+  hNoStoredPairFailureReason.SetFillColor(kOrange - 3);
+  hNoStoredPairFailureReason.SetLineColor(kOrange + 7);
+  hNoStoredPairFailureReason.SetLineWidth(2);
+  hNoStoredPairFailureReason.GetXaxis()->SetLabelSize(0.045);
+  hNoStoredPairFailureReason.Draw("HIST TEXT0");
+  cPairFailure.SaveAs(
+      Form("%s/CDetGoodPulse_PairFailureDiagnostics.pdf", outputDirectory));
+  cPairFailure.SaveAs(
+      Form("%s/CDetGoodPulse_PairFailureDiagnostics.png", outputDirectory));
+
+  TCanvas cAllCombinationRecovery(
+      "cCDetGoodPulseAllCombinationRecovery",
+      "All-combination recovery before greedy pairing", 1900, 650);
+  cAllCombinationRecovery.Divide(3, 1);
+  cAllCombinationRecovery.cd(1);
+  gPad->SetBottomMargin(0.32);
+  hAllCombinationRecoveryOutcome.SetStats(false);
+  hAllCombinationRecoveryOutcome.SetMinimum(0.0);
+  hAllCombinationRecoveryOutcome.SetFillColor(kGreen - 6);
+  hAllCombinationRecoveryOutcome.SetLineColor(kGreen + 3);
+  hAllCombinationRecoveryOutcome.SetLineWidth(2);
+  hAllCombinationRecoveryOutcome.GetXaxis()->SetLabelSize(0.043);
+  hAllCombinationRecoveryOutcome.GetXaxis()->LabelsOption("v");
+  hAllCombinationRecoveryOutcome.Draw("HIST TEXT0");
+  cAllCombinationRecovery.cd(2);
+  gPad->SetBottomMargin(0.20);
+  hEllipsePairHardGateFailureReason.SetStats(false);
+  hEllipsePairHardGateFailureReason.SetMinimum(0.0);
+  hEllipsePairHardGateFailureReason.SetFillColor(kOrange - 3);
+  hEllipsePairHardGateFailureReason.SetLineColor(kOrange + 7);
+  hEllipsePairHardGateFailureReason.SetLineWidth(2);
+  hEllipsePairHardGateFailureReason.GetXaxis()->SetLabelSize(0.043);
+  hEllipsePairHardGateFailureReason.Draw("HIST TEXT0");
+  cAllCombinationRecovery.cd(3);
+  hAlternativePairMultiplicity.SetLineWidth(2);
+  hAlternativePairMultiplicity.Draw("HIST");
+  cAllCombinationRecovery.SaveAs(Form(
+      "%s/CDetGoodPulse_AllCombinationRecovery.pdf", outputDirectory));
+  cAllCombinationRecovery.SaveAs(Form(
+      "%s/CDetGoodPulse_AllCombinationRecovery.png", outputDirectory));
+
+  TCanvas cRecoveredGreedy(
+      "cCDetGoodPulseRecoveredGreedyPairs",
+      "Best ECal-informed pairs recovered after greedy loss", 1500, 1100);
+  cRecoveredGreedy.Divide(2, 2);
+  cRecoveredGreedy.cd(1);
+  gPad->SetRightMargin(0.14);
+  hRecoveredGreedyBestTimingVsTrajectory.SetStats(false);
+  hRecoveredGreedyBestTimingVsTrajectory.Draw("COLZ");
+  TEllipse recoveredGreedyEllipse(
+      pairResidualCenterM, pairTimingCenterNs,
+      pairResidualScaleM * pairCutRadius,
+      pairTimingScaleNs * pairCutRadius);
+  recoveredGreedyEllipse.SetFillStyle(0);
+  recoveredGreedyEllipse.SetLineColor(kRed + 1);
+  recoveredGreedyEllipse.SetLineWidth(3);
+  recoveredGreedyEllipse.Draw("same");
+  cRecoveredGreedy.cd(2);
+  hRecoveredGreedyBestMeanResidual.SetLineWidth(2);
+  hRecoveredGreedyBestMeanResidual.Draw("HIST");
+  cRecoveredGreedy.cd(3);
+  gPad->SetRightMargin(0.14);
+  hRecoveredGreedyBestXCorrelation.SetStats(false);
+  hRecoveredGreedyBestXCorrelation.Draw("COLZ");
+  TLine recoveredGreedyXDiagonal(-1.6, -1.6, 1.6, 1.6);
+  recoveredGreedyXDiagonal.SetLineColor(kRed + 1);
+  recoveredGreedyXDiagonal.SetLineWidth(3);
+  recoveredGreedyXDiagonal.Draw("same");
+  cRecoveredGreedy.cd(4);
+  hRecoveredGreedyBestXResidual.SetLineWidth(2);
+  hRecoveredGreedyBestXResidual.Draw("HIST");
+  TLine recoveredGreedyXZero(
+      0.0, 0.0, 0.0, 1.05 * hRecoveredGreedyBestXResidual.GetMaximum());
+  recoveredGreedyXZero.SetLineColor(kRed + 1);
+  recoveredGreedyXZero.SetLineWidth(3);
+  recoveredGreedyXZero.Draw("same");
+  cRecoveredGreedy.SaveAs(Form(
+      "%s/CDetGoodPulse_RecoveredGreedyPairs.pdf", outputDirectory));
+  cRecoveredGreedy.SaveAs(Form(
+      "%s/CDetGoodPulse_RecoveredGreedyPairs.png", outputDirectory));
+
   TCanvas cPairX("cCDetGoodPulseSelectedPairXCorrelation",
                  "Selected CDet pair x versus projected ECal x", 800, 700);
   cPairX.SetRightMargin(0.14);
@@ -708,6 +1363,21 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   hPairTrajectoryResidual.Write();
   hBestPairTrajectoryResidual.Write();
   hPairTimingVsTrajectoryResidual.Write();
+  hSingleLayer1TimingVsXResidual.Write();
+  hSingleLayer2TimingVsXResidual.Write();
+  hSelectedSingleLayer1Timing.Write();
+  hSelectedSingleLayer2Timing.Write();
+  hECalAdmittedEventOutcome.Write();
+  hFailedPairBestTimingVsTrajectory.Write();
+  hFailedPairMinimumRadius.Write();
+  hNoStoredPairFailureReason.Write();
+  hAllCombinationRecoveryOutcome.Write();
+  hEllipsePairHardGateFailureReason.Write();
+  hAlternativePairMultiplicity.Write();
+  hRecoveredGreedyBestTimingVsTrajectory.Write();
+  hRecoveredGreedyBestMeanResidual.Write();
+  hRecoveredGreedyBestXCorrelation.Write();
+  hRecoveredGreedyBestXResidual.Write();
   for (TH1D *hist : pixelLE)
     hist->Write();
   for (TH1D *hist : barLE)
@@ -747,6 +1417,91 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   std::cout << "[good-pulse TDC] Selected pair-mean timing entries: "
             << static_cast<Long64_t>(hSelectedPairMeanResidual.GetEntries())
             << std::endl;
+  std::cout << "[good-pulse TDC] Single-layer recovery ellipse: center=("
+            << singleResidualCenterM << " m, " << singleTimingCenterNs
+            << " ns), scales=(" << singleResidualScaleM << " m, "
+            << singleTimingScaleNs << " ns), radius=" << singleCutRadius
+            << std::endl;
+  std::cout << "[good-pulse TDC] Pairless Layer-1-only events / recovered events / selected pulses: "
+            << pairlessSingleLayer1EventCount << " / "
+            << recoveredSingleLayer1EventCount << " / "
+            << recoveredSingleLayer1PulseCount << std::endl;
+  std::cout << "[good-pulse TDC] Pairless Layer-2-only events / recovered events / selected pulses: "
+            << pairlessSingleLayer2EventCount << " / "
+            << recoveredSingleLayer2EventCount << " / "
+            << recoveredSingleLayer2PulseCount << std::endl;
+  std::cout << "[good-pulse TDC] ECal-admitted event outcome denominator ("
+            << ecalTimeMinNs << " < t_ECal < " << ecalTimeMaxNs
+            << " ns): " << ecalAdmittedEventCount << std::endl;
+  std::cout << "[good-pulse TDC]   selected pair: "
+            << selectedPairEventCount << std::endl;
+  std::cout << "[good-pulse TDC]   good pulses in both layers, pair selection failed: "
+            << goodBothPairFailureEventCount << " (no stored pair "
+            << goodBothNoStoredPairEventCount << ", stored pair outside ellipse "
+            << goodBothEllipseFailureEventCount << ")" << std::endl;
+  std::cout << "[good-pulse TDC]     best stored-pair failure: timing axis only "
+            << failedPairTimingOnlyEventCount << ", trajectory axis only "
+            << failedPairTrajectoryOnlyEventCount << ", both axes "
+            << failedPairBothAxesEventCount << ", ellipse corner "
+            << failedPairEllipseCornerEventCount << std::endl;
+  std::cout << "[good-pulse TDC]     no-stored-pair nearest-combination gate failures: dt "
+            << static_cast<Long64_t>(hNoStoredPairFailureReason.GetBinContent(1))
+            << ", dx "
+            << static_cast<Long64_t>(hNoStoredPairFailureReason.GetBinContent(2))
+            << ", dy "
+            << static_cast<Long64_t>(hNoStoredPairFailureReason.GetBinContent(3))
+            << ", dt+dx "
+            << static_cast<Long64_t>(hNoStoredPairFailureReason.GetBinContent(4))
+            << ", dt+dy "
+            << static_cast<Long64_t>(hNoStoredPairFailureReason.GetBinContent(5))
+            << ", dx+dy "
+            << static_cast<Long64_t>(hNoStoredPairFailureReason.GetBinContent(6))
+            << ", all "
+            << static_cast<Long64_t>(hNoStoredPairFailureReason.GetBinContent(7))
+            << ", unexpected " << noStoredPairUnexpectedEventCount
+            << std::endl;
+  std::cout << "[good-pulse TDC]     all-combination decomposition: no ellipse combination "
+            << noAllGoodEllipseCombinationEventCount
+            << ", ellipse combination fails analyzer hard gates "
+            << ellipseCombinationFailsHardGatesEventCount
+            << ", hard-gate ellipse combination lost by greedy pairing "
+            << greedyPairingLostEllipseCombinationEventCount << std::endl;
+  std::cout << "[good-pulse TDC]     recovered hard-gate ellipse combinations: "
+            << allCombinationRecoveredPairCount << std::endl;
+  std::cout << "[good-pulse TDC]     best greedy-recovered pair timing mean/RMS: "
+            << hRecoveredGreedyBestMeanResidual.GetMean() << " / "
+            << hRecoveredGreedyBestMeanResidual.GetRMS() << " ns"
+            << std::endl;
+  std::cout << "[good-pulse TDC]     best greedy-recovered pair x residual mean/RMS: "
+            << hRecoveredGreedyBestXResidual.GetMean() << " / "
+            << hRecoveredGreedyBestXResidual.GetRMS() << " m"
+            << std::endl;
+  std::cout << "[good-pulse TDC]     best ellipse-combination hard-gate failures: dt "
+            << static_cast<Long64_t>(hEllipsePairHardGateFailureReason.GetBinContent(1))
+            << ", dx "
+            << static_cast<Long64_t>(hEllipsePairHardGateFailureReason.GetBinContent(2))
+            << ", dy "
+            << static_cast<Long64_t>(hEllipsePairHardGateFailureReason.GetBinContent(3))
+            << ", dt+dx "
+            << static_cast<Long64_t>(hEllipsePairHardGateFailureReason.GetBinContent(4))
+            << ", dt+dy "
+            << static_cast<Long64_t>(hEllipsePairHardGateFailureReason.GetBinContent(5))
+            << ", dx+dy "
+            << static_cast<Long64_t>(hEllipsePairHardGateFailureReason.GetBinContent(6))
+            << ", all "
+            << static_cast<Long64_t>(hEllipsePairHardGateFailureReason.GetBinContent(7))
+            << std::endl;
+  std::cout << "[good-pulse TDC]   calibrated pulses in both layers, quality/spatial coverage lost: "
+            << calibratedBothQualitySpatialLossEventCount
+            << " (good Layer 1 only " << goodLayer1OnlyEventCount
+            << ", good Layer 2 only " << goodLayer2OnlyEventCount
+            << ", neither layer good " << noGoodLayerEventCount << ")"
+            << std::endl;
+  std::cout << "[good-pulse TDC]   missing calibrated pulse coverage in >=1 layer: "
+            << missingCalibratedLayerEventCount << " (Layer 1 only "
+            << calibratedLayer1OnlyEventCount << ", Layer 2 only "
+            << calibratedLayer2OnlyEventCount << ", neither "
+            << noCalibratedPulseEventCount << ")" << std::endl;
   std::cout << "[good-pulse TDC] Output directory: " << outputDirectory
             << std::endl;
 
