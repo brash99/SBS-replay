@@ -22,6 +22,7 @@
 #include <vector>
 
 #include "CDetRunDataset.h"
+#include "CDetGoodPulseConfig.h"
 
 namespace {
 
@@ -103,7 +104,12 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
     double singleTimingCenterNs = -26.0,
     double singleResidualScaleM = 0.040,
     double singleTimingScaleNs = 5.0, double singleCutRadius = 2.0,
-    double ecalTimeMinNs = -10.0, double ecalTimeMaxNs = 10.0) {
+    double ecalTimeMinNs = -10.0, double ecalTimeMaxNs = 10.0,
+    double ecalEnergyMinGeV = 3.0, double ecalEnergyMaxGeV = 4.5,
+    bool oppositeSideEnabled = false, double oppositeDYCenterM = 0.51,
+    double oppositeDYToleranceM = 0.08,
+    double oppositeProjectedYCenterM = 0.0,
+    double oppositeProjectedYMaxM = 0.17) {
   TString resolvedInputDirectory(inputDirectory ? inputDirectory : "");
   if (resolvedInputDirectory.IsNull()) {
     const char *outDir = gSystem->Getenv("OUT_DIR");
@@ -119,7 +125,11 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
       pairResidualScaleM <= 0.0 || pairTimingScaleNs <= 0.0 ||
       pairCutRadius <= 0.0 || singleResidualScaleM <= 0.0 ||
       singleTimingScaleNs <= 0.0 || singleCutRadius <= 0.0 ||
-      ecalTimeMaxNs <= ecalTimeMinNs) {
+      ecalTimeMaxNs <= ecalTimeMinNs ||
+      ecalEnergyMaxGeV <= ecalEnergyMinGeV ||
+      (oppositeSideEnabled &&
+       (oppositeDYCenterM <= 0.0 || oppositeDYToleranceM <= 0.0 ||
+        oppositeProjectedYMaxM <= 0.0))) {
     std::cerr << "[good-pulse TDC] Invalid histogram limits." << std::endl;
     return;
   }
@@ -465,8 +475,8 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
 
     // Analyzer-native reproduction of the historical Bar 30 timing canvas.
     // The saved residual has the desired historical sign, ECal minus CDet.
-    if (std::isfinite(*ecalEnergy) && *ecalEnergy >= 3.0 &&
-        *ecalEnergy <= 4.5) {
+    if (std::isfinite(*ecalEnergy) && *ecalEnergy >= ecalEnergyMinGeV &&
+        *ecalEnergy <= ecalEnergyMaxGeV) {
       ++ecalEnergyEventCount;
       std::unordered_set<size_t> pairedPulseIndices;
       std::unordered_set<size_t> trajectoryTimeSelectedPulseIndices;
@@ -612,6 +622,18 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
               const double dt = le[indexL2] - le[indexL1];
               const double dx = correctedX[indexL2] - correctedX[indexL1];
               const double dy = pulseY[indexL2] - pulseY[indexL1];
+              const double alignedProjectedY = *ecalY *
+                  0.5 * (pulseZ[indexL1] + pulseZ[indexL2]) /
+                  kECalZFromTargetM + 0.10;
+              const bool sameSide =
+                  std::fabs(dy) <= kAnalyzerPairDeltaYMaxM;
+              const bool oppositeSide = oppositeSideEnabled &&
+                  std::fabs(std::fabs(dy) - oppositeDYCenterM) <=
+                      oppositeDYToleranceM &&
+                  std::fabs(alignedProjectedY -
+                            oppositeProjectedYCenterM) <=
+                      oppositeProjectedYMaxM;
+              const bool passesYTopology = sameSide || oppositeSide;
               const double deltaZ = pulseZ[indexL2] - pulseZ[indexL1];
               const double trajectoryResidual =
                   dx - (*ecalX / kECalZFromTargetM) * deltaZ;
@@ -636,7 +658,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
               const int failureMask =
                   (std::fabs(dt) > kAnalyzerPairDeltaTimeMaxNs ? 1 : 0) |
                   (std::fabs(dx) > kAnalyzerPairDeltaXMaxM ? 2 : 0) |
-                  (std::fabs(dy) > kAnalyzerPairDeltaYMaxM ? 4 : 0);
+                  (!passesYTopology ? 4 : 0);
               if (radiusSquared < bestEllipseRadiusSquared) {
                 bestEllipseRadiusSquared = radiusSquared;
                 bestEllipseFailureMask = failureMask;
@@ -644,7 +666,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
               const bool passesAnalyzerHardGates =
                   std::fabs(dt) <= kAnalyzerPairDeltaTimeMaxNs &&
                   std::fabs(dx) <= kAnalyzerPairDeltaXMaxM &&
-                  std::fabs(dy) <= kAnalyzerPairDeltaYMaxM;
+                  passesYTopology;
               if (passesAnalyzerHardGates) {
                 ++hardGateEllipseCombinationCount;
                 if (radiusSquared < bestHardGateRadiusSquared) {
@@ -1509,4 +1531,34 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
     delete hist;
   for (TH1D *hist : barLE)
     delete hist;
+}
+
+// Configuration-file interface. The original positional interface above is
+// retained unchanged (apart from appended optional energy limits), so existing
+// ROOT commands remain valid.
+void Plot_CDet_GoodPulseCandidates_AllTDC(
+    const char *configFile, const char *inputDirectory = nullptr,
+    const char *outputDirectory = nullptr) {
+  CDetGoodPulseConfig::Values config;
+  if (!CDetGoodPulseConfig::Load(
+          configFile, config, "good-pulse TDC configuration"))
+    return;
+
+  const TString defaultOutput = TString::Format(
+      "CDet_run%d_good_pulse_tdc", config.runNumber);
+  const char *resolvedOutput =
+      outputDirectory && outputDirectory[0] ? outputDirectory : defaultOutput.Data();
+  Plot_CDet_GoodPulseCandidates_AllTDC(
+      config.runNumber, inputDirectory, resolvedOutput, config.binWidthNs,
+      config.leMinNs, config.leMaxNs, config.totMinNs, config.totMaxNs,
+      config.recoveredOnly, config.pairResidualCenterM,
+      config.pairTimingCenterNs, config.pairResidualScaleM,
+      config.pairTimingScaleNs, config.pairCutRadius,
+      config.singleResidualCenterM, config.singleTimingCenterNs,
+      config.singleResidualScaleM, config.singleTimingScaleNs,
+      config.singleCutRadius, config.ecalTimeMinNs, config.ecalTimeMaxNs,
+      config.ecalEnergyMinGeV, config.ecalEnergyMaxGeV,
+      config.oppositeSideEnabled, config.oppositeDYCenterM,
+      config.oppositeDYToleranceM, config.oppositeProjectedYCenterM,
+      config.oppositeProjectedYMaxM);
 }

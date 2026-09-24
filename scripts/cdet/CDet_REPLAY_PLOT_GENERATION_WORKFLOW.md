@@ -121,26 +121,18 @@ merely to generate plots.
 ```cpp
 .L Plot_CDet_GoodPulseCandidates_AllTDC.C+
 Plot_CDet_GoodPulseCandidates_AllTDC(
-    6077,
+    "CDet_run6077_projection.conf",
     "/Users/brash/CDet_replay/sbs/Rootfiles",
-    "CDet_run6077_good_pulse_tdc",
-    1.0, 0.0, 60.0,
-    0.0, 40.0,
-    false,
-    0.0, -26.0,
-    0.020, 5.0,
-    2.0,
-    0.0, -26.0,
-    0.040, 5.0,
-    2.0,
-    -10.0, 10.0);
+    "CDet_run6077_good_pulse_tdc");
 ```
 
-The arguments are:
+The run number, ECal timing and energy intervals, histogram ranges, pair and
+single-layer ellipses, and recovery mode are read from
+`CDet_run6077_projection.conf`. The three arguments are:
 
 | Argument | Meaning | Adopted value |
 | --- | --- | ---: |
-| `runNumber` | Run number | `6077` |
+| `configFile` | Authoritative per-run configuration | `CDet_run6077_projection.conf` |
 | `inputDirectory` | Directory containing the coherent replay dataset | local `Rootfiles` path |
 | `outputDirectory` | New directory for generated files | `CDet_run6077_good_pulse_tdc` |
 | `binWidthNs` | LE/TE/ToT histogram bin width | `1.0 ns` |
@@ -252,20 +244,14 @@ the intrinsic detector timing resolution.
 ```cpp
 .L Plot_CDet_PairYieldVsECalTimingWindow.C+
 Plot_CDet_PairYieldVsECalTimingWindow(
-    6077,
+    "CDet_run6077_projection.conf",
     "/Users/brash/CDet_replay/sbs/Rootfiles",
-    "CDet_run6077_pair_timing_scan",
-    0.5, 10.0, 0.5,
-    3.0, 4.5,
-    0.0, -26.0,
-    0.020, 5.0,
-    2.0);
+    "CDet_run6077_pair_timing_scan");
 ```
 
-The first three numerical scan arguments specify symmetric ECal ADC-time
-half-widths from 0.5 to 10 ns in 0.5 ns steps. The next two specify the full
-3.0--4.5 GeV ECal energy reference interval. The remaining five reproduce the
-adopted radius-2 trajectory-time ellipse.
+The configuration specifies symmetric ECal ADC-time half-widths from 0.5 to 10
+ns in 0.5 ns steps, the full 3.0--4.5 GeV ECal energy reference interval, and
+the adopted radius-2 trajectory-time ellipse.
 
 Although its name mentions timing, this macro produces both studies:
 
@@ -299,12 +285,13 @@ export OUT_DIR=/Users/brash/CDet_replay/sbs/Rootfiles
 
 root -l -b -q 'Run_CDet_Select_ECalTimingWindow.C+(6077)'
 
-root -l -b -q 'Plot_CDet_GoodPulseCandidates_AllTDC.C+(6077,"/Users/brash/CDet_replay/sbs/Rootfiles","CDet_run6077_good_pulse_tdc",1.0,0.0,60.0,0.0,40.0,false,0.0,-26.0,0.020,5.0,2.0)'
-
-root -l -b -q 'Plot_CDet_PairYieldVsECalTimingWindow.C+(6077,"/Users/brash/CDet_replay/sbs/Rootfiles","CDet_run6077_pair_timing_scan",0.5,10.0,0.5,3.0,4.5,0.0,-26.0,0.020,5.0,2.0)'
+root -l -b -q 'Run_CDet_GoodPulseDiagnostics.C+("CDet_run6077_projection.conf","/Users/brash/CDet_replay/sbs/Rootfiles")'
 ```
 
 On the ifarm, replace the local path with the actual replay-output directory.
+The two plotting macros also retain their original positional interfaces, so
+existing scripts and deliberate command-line parameter variations continue to
+work unchanged.
 
 ## Meaning of the other new macros
 

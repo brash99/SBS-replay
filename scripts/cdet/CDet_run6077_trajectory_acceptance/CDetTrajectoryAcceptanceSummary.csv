@@ -1,0 +1,13 @@
+scope,category,count,fraction,events_with_stored_pair,stored_pair_event_fraction
+layer1,active,25427,0.954682,,
+layer1,suppressed,1207,0.045318,,
+layer1,gap,0,0,,
+layer1,outside,0,0,,
+layer2,active,25690,0.964557,,
+layer2,suppressed,939,0.0352557,,
+layer2,gap,0,0,,
+layer2,outside,5,0.00018773,,
+event,active_both,24900,0.934895,15458,0.620803
+event,suppressed_halfbar,1729,0.064917,354,0.204743
+event,gap,0,0,0,0
+event,outside,5,0.00018773,0,0

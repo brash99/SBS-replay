@@ -17,6 +17,7 @@
 #include <vector>
 
 #include "CDetRunDataset.h"
+#include "CDetGoodPulseConfig.h"
 
 namespace {
 
@@ -56,11 +57,18 @@ void Plot_CDet_PairYieldVsECalTimingWindow(
     double stepNs = 1.0, double ecalEnergyMinGeV = 3.0,
     double ecalEnergyMaxGeV = 4.5, double pairResidualCenterM = 0.0,
     double pairTimingCenterNs = -26.0, double pairResidualScaleM = 0.020,
-    double pairTimingScaleNs = 5.0, double pairCutRadius = 2.0) {
+    double pairTimingScaleNs = 5.0, double pairCutRadius = 2.0,
+    bool oppositeSideEnabled = false, double oppositeDYCenterM = 0.51,
+    double oppositeDYToleranceM = 0.08,
+    double oppositeProjectedYCenterM = 0.0,
+    double oppositeProjectedYMaxM = 0.17) {
   if (minHalfWidthNs <= 0.0 || maxHalfWidthNs < minHalfWidthNs ||
       stepNs <= 0.0 || ecalEnergyMaxGeV <= ecalEnergyMinGeV ||
       pairResidualScaleM <= 0.0 || pairTimingScaleNs <= 0.0 ||
-      pairCutRadius <= 0.0) {
+      pairCutRadius <= 0.0 ||
+      (oppositeSideEnabled &&
+       (oppositeDYCenterM <= 0.0 || oppositeDYToleranceM <= 0.0 ||
+        oppositeProjectedYMaxM <= 0.0))) {
     std::cerr << "[CDet pair-window scan] Invalid scan parameters."
               << std::endl;
     return;
@@ -185,11 +193,31 @@ void Plot_CDet_PairYieldVsECalTimingWindow(
         const double dt = le[pulse2] - le[pulse1];
         const double dx = correctedX[pulse2] - correctedX[pulse1];
         const double dy = pulseY[pulse2] - pulseY[pulse1];
+        const double alignedProjectedY =
+            *ecalY * 0.5 * (pulseZ[pulse1] + pulseZ[pulse2]) / 6.144 + 0.10;
+        const bool sameSide = std::fabs(dy) <= 0.08;
+        const bool oppositeSide = oppositeSideEnabled &&
+            std::fabs(std::fabs(dy) - oppositeDYCenterM) <=
+                oppositeDYToleranceM &&
+            std::fabs(alignedProjectedY - oppositeProjectedYCenterM) <=
+                oppositeProjectedYMaxM;
         if (std::fabs(dt) > 15.0 || std::fabs(dx) > 0.15 ||
-            std::fabs(dy) > 0.08)
+            (!sameSide && !oppositeSide))
           continue;
-        candidates.push_back(
-            {pulse1, pulse2, dt * dt + (dx / 0.01) * (dx / 0.01)});
+        const double deltaZ = pulseZ[pulse2] - pulseZ[pulse1];
+        const double trajectoryResidual = dx -
+            (*ecalX / kECalZFromTargetM) * deltaZ;
+        const double timingResidual =
+            *ecalTime - 0.5 * (le[pulse1] + le[pulse2]);
+        const double normalizedX =
+            (trajectoryResidual - pairResidualCenterM) / pairResidualScaleM;
+        const double normalizedTime =
+            (timingResidual - pairTimingCenterNs) / pairTimingScaleNs;
+        const double ecalScore = normalizedX * normalizedX +
+            normalizedTime * normalizedTime;
+        if (ecalScore > pairCutRadius * pairCutRadius)
+          continue;
+        candidates.push_back({pulse1, pulse2, ecalScore});
       }
     }
     std::stable_sort(candidates.begin(), candidates.end(),
@@ -205,20 +233,7 @@ void Plot_CDet_PairYieldVsECalTimingWindow(
         continue;
       used[candidate.pulse1] = true;
       used[candidate.pulse2] = true;
-      const double deltaZ =
-          pulseZ[candidate.pulse2] - pulseZ[candidate.pulse1];
-      const double trajectoryResidual =
-          correctedX[candidate.pulse2] - correctedX[candidate.pulse1] -
-          (*ecalX / kECalZFromTargetM) * deltaZ;
-      const double timingResidual =
-          *ecalTime - 0.5 * (le[candidate.pulse1] + le[candidate.pulse2]);
-      const double normalizedX =
-          (trajectoryResidual - pairResidualCenterM) / pairResidualScaleM;
-      const double normalizedTime =
-          (timingResidual - pairTimingCenterNs) / pairTimingScaleNs;
-      if (normalizedX * normalizedX + normalizedTime * normalizedTime <=
-          pairCutRadius * pairCutRadius)
-        ++eventSelectedPairs;
+      ++eventSelectedPairs;
     }
     if (eventSelectedPairs <= 0)
       continue;
@@ -421,4 +436,30 @@ void Plot_CDet_PairYieldVsECalTimingWindow(
             << " events from " << filesAdded << " files." << std::endl;
   std::cout << "[CDet pair-window scan] Output directory: "
             << outputDirectory << std::endl;
+}
+
+// Configuration-file interface. The positional interface remains available
+// for backward compatibility and for deliberate parameter scans.
+void Plot_CDet_PairYieldVsECalTimingWindow(
+    const char *configFile, const char *inputDirectory = nullptr,
+    const char *outputDirectory = nullptr) {
+  CDetGoodPulseConfig::Values config;
+  if (!CDetGoodPulseConfig::Load(
+          configFile, config, "CDet pair-window scan configuration"))
+    return;
+
+  const TString defaultOutput = TString::Format(
+      "CDet_run%d_pair_timing_scan", config.runNumber);
+  const char *resolvedOutput =
+      outputDirectory && outputDirectory[0] ? outputDirectory : defaultOutput.Data();
+  Plot_CDet_PairYieldVsECalTimingWindow(
+      config.runNumber, inputDirectory, resolvedOutput,
+      config.scanMinHalfWidthNs, config.scanMaxHalfWidthNs,
+      config.scanStepNs, config.ecalEnergyMinGeV,
+      config.ecalEnergyMaxGeV, config.pairResidualCenterM,
+      config.pairTimingCenterNs, config.pairResidualScaleM,
+      config.pairTimingScaleNs, config.pairCutRadius,
+      config.oppositeSideEnabled, config.oppositeDYCenterM,
+      config.oppositeDYToleranceM, config.oppositeProjectedYCenterM,
+      config.oppositeProjectedYMaxM);
 }

@@ -1139,6 +1139,11 @@ earm.cdet.pairing.ecal_timing_center = -26.0
 earm.cdet.pairing.ecal_trajectory_scale = 0.020
 earm.cdet.pairing.ecal_timing_scale = 5.0
 earm.cdet.pairing.ecal_radius = 2.0
+earm.cdet.pairing.opposite_side_enable = 0
+earm.cdet.pairing.opposite_dy_center = 0.51
+earm.cdet.pairing.opposite_dy_tolerance = 0.08
+earm.cdet.pairing.opposite_projected_y_center = 0.0
+earm.cdet.pairing.opposite_projected_y_max = 0.17
 
 earm.cdet.timing.pixel_offset =
 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
@@ -1328,3 +1333,7 @@ earm.cdet.pairing.enable = 1
 # Apply the established radius-2 trajectory-time ellipse to every eligible
 # Layer-1/Layer-2 combination before deterministic one-to-one assignment.
 earm.cdet.pairing.ecal_rank_enable = 1
+# Permit the physically adjacent left/right half-bar topology only for tracks
+# projected near the central seam. The ordinary 8 cm same-side gate remains
+# unchanged.
+earm.cdet.pairing.opposite_side_enable = 1
