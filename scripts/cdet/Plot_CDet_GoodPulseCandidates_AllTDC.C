@@ -227,6 +227,11 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
       "Trajectory-time selected pair mean, all CDet;"
       "t_{ECal} - <t_{CDet,corr}>_{pair} (ns);Selected pairs",
       nBar30DeltaTBins, bar30DeltaTMinNs, bar30DeltaTMaxNs);
+  TH1D hSelectedPairMeanCorrectedLE(
+      "hCDetSelectedPairMeanCorrectedLE",
+      "Trajectory-time selected pair mean, all CDet;"
+      "<t_{CDet,corr}>_{pair} (ns);Selected pairs",
+      nLEBins, leMinNs, leMaxNs);
   TH2D hSelectedPairMeanResidualVsMeanToT(
       "hCDetSelectedPairMeanECalResidualVsMeanToT",
       "Trajectory-time selected pair mean, all CDet;"
@@ -525,6 +530,10 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
             trajectoryTimeSelectedPulseIndices.insert(
                 static_cast<size_t>(indexL2));
             hSelectedPairMeanResidual.Fill(pairTimingResidual);
+            const double pairMeanCorrectedLE =
+                0.5 * (le[indexL1] + le[indexL2]);
+            if (std::isfinite(pairMeanCorrectedLE))
+              hSelectedPairMeanCorrectedLE.Fill(pairMeanCorrectedLE);
             const double pairMeanToT =
                 0.5 * (tot[indexL1] + tot[indexL2]);
             if (std::isfinite(pairMeanToT))
@@ -1127,6 +1136,59 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   cDetector.SaveAs(Form("%s/CDetGoodPulse_Detector_Amalgamated.png",
                         outputDirectory));
 
+  // Unlike the ECal-minus-CDet residual, the absolute corrected pair-mean
+  // time isolates movement of the CDet timing origin from movement of the
+  // ECal centroid. Fit a narrow local core around the modal bin and display
+  // the conventional 30 ns timing reference. This trajectory-selected sample
+  // is not identical to the projected-half-bar shift-calibration sample, so
+  // compare like-for-like reference runs before changing shift_ns.
+  int pairMeanModeBin = hSelectedPairMeanCorrectedLE.GetMaximumBin();
+  const double pairMeanMode =
+      hSelectedPairMeanCorrectedLE.GetBinCenter(pairMeanModeBin);
+  const double pairMeanFitMin = std::max(leMinNs, pairMeanMode - 5.0);
+  const double pairMeanFitMax = std::min(leMaxNs, pairMeanMode + 5.0);
+  const double pairMeanBackground = 0.5 *
+      (hSelectedPairMeanCorrectedLE.GetBinContent(
+           hSelectedPairMeanCorrectedLE.FindBin(pairMeanFitMin)) +
+       hSelectedPairMeanCorrectedLE.GetBinContent(
+           hSelectedPairMeanCorrectedLE.FindBin(pairMeanFitMax)));
+  TF1 selectedPairMeanFit("fCDetSelectedPairMeanCorrectedLE",
+                          "gaus(0)+pol1(3)", pairMeanFitMin,
+                          pairMeanFitMax);
+  selectedPairMeanFit.SetParameters(
+      std::max(1.0, hSelectedPairMeanCorrectedLE.GetMaximum() -
+                        pairMeanBackground),
+      pairMeanMode, 3.0, pairMeanBackground, 0.0);
+  selectedPairMeanFit.SetParLimits(2, 0.2, 10.0);
+  selectedPairMeanFit.SetLineColor(kRed + 1);
+  int selectedPairMeanFitStatus = -1;
+  if (hSelectedPairMeanCorrectedLE.GetEntries() >= 20)
+    selectedPairMeanFitStatus = static_cast<int>(
+        hSelectedPairMeanCorrectedLE.Fit(&selectedPairMeanFit, "RQ0"));
+
+  TCanvas cSelectedPairMeanTime(
+      "cCDetGoodPulseSelectedPairMeanTime",
+      "Absolute corrected CDet selected-pair mean time", 1400, 650);
+  cSelectedPairMeanTime.Divide(2, 1);
+  for (int pad = 1; pad <= 2; ++pad) {
+    cSelectedPairMeanTime.cd(pad);
+    if (pad == 2) gPad->SetLogy();
+    hSelectedPairMeanCorrectedLE.SetLineColor(kBlack);
+    hSelectedPairMeanCorrectedLE.SetLineWidth(2);
+    hSelectedPairMeanCorrectedLE.Draw("HIST");
+    if (selectedPairMeanFitStatus == 0) selectedPairMeanFit.Draw("same");
+    gPad->Update();
+    TLine targetLine(30.0, gPad->GetUymin(), 30.0, gPad->GetUymax());
+    targetLine.SetLineColor(kBlue + 1);
+    targetLine.SetLineStyle(2);
+    targetLine.SetLineWidth(3);
+    targetLine.DrawClone("same");
+  }
+  cSelectedPairMeanTime.SaveAs(Form(
+      "%s/CDetGoodPulse_SelectedPairMeanCorrectedLE.pdf", outputDirectory));
+  cSelectedPairMeanTime.SaveAs(Form(
+      "%s/CDetGoodPulse_SelectedPairMeanCorrectedLE.png", outputDirectory));
+
   TCanvas cPairSlope("cCDetGoodPulsePairSlopeDiagnostics",
                      "CDet pair trajectory diagnostics", 1200, 500);
   cPairSlope.Divide(3, 1);
@@ -1379,6 +1441,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   hDetectorProjectedQuality.Write();
   hDetectorProjectedQualityVsToT.Write();
   hSelectedPairMeanResidual.Write();
+  hSelectedPairMeanCorrectedLE.Write();
   hSelectedPairMeanResidualVsMeanToT.Write();
   hSelectedPairXCorrelation.Write();
   hSelectedPairXResidual.Write();
@@ -1439,6 +1502,18 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
   std::cout << "[good-pulse TDC] Selected pair-mean timing entries: "
             << static_cast<Long64_t>(hSelectedPairMeanResidual.GetEntries())
             << std::endl;
+  std::cout << "[good-pulse TDC] Absolute selected-pair mean CDet time: "
+            << "mode=" << pairMeanMode << " ns, local-fit status="
+            << selectedPairMeanFitStatus;
+  if (selectedPairMeanFitStatus == 0) {
+    std::cout << ", peak=" << selectedPairMeanFit.GetParameter(1)
+              << " +/- " << selectedPairMeanFit.GetParError(1)
+              << " ns, sigma=" << selectedPairMeanFit.GetParameter(2)
+              << " +/- " << selectedPairMeanFit.GetParError(2) << " ns"
+              << ", chi2/NDF=" << selectedPairMeanFit.GetChisquare() << "/"
+              << selectedPairMeanFit.GetNDF();
+  }
+  std::cout << std::endl;
   std::cout << "[good-pulse TDC] Single-layer recovery ellipse: center=("
             << singleResidualCenterM << " m, " << singleTimingCenterNs
             << " ns), scales=(" << singleResidualScaleM << " m, "
