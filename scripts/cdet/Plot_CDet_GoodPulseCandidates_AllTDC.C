@@ -477,6 +477,9 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
     if (nPulses != maxPulses)
       ++malformedEvents;
     pulseCount += nPulses;
+    const bool passesECalTime =
+        std::isfinite(*ecalTime) && *ecalTime >= ecalTimeMinNs &&
+        *ecalTime <= ecalTimeMaxNs;
 
     // Analyzer-native reproduction of the historical Bar 30 timing canvas.
     // The saved residual has the desired historical sign, ECal minus CDet.
@@ -522,7 +525,8 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
           const double normalizedTiming =
               (pairTimingResidual - pairTimingCenterNs) /
               pairTimingScaleNs;
-          if (normalizedResidual * normalizedResidual +
+          if (passesECalTime &&
+              normalizedResidual * normalizedResidual +
                   normalizedTiming * normalizedTiming <=
               pairCutRadius * pairCutRadius) {
             trajectoryTimeSelectedPulseIndices.insert(
@@ -563,8 +567,7 @@ void Plot_CDet_GoodPulseCandidates_AllTDC(
       // cuts one mutually exclusive CDet outcome.  "Calibrated" means a
       // complete analyzer pulse with valid calibration; "good" additionally
       // requires broad quality, ECal eligibility, and spatial compatibility.
-      if (std::isfinite(*ecalTime) && *ecalTime >= ecalTimeMinNs &&
-          *ecalTime <= ecalTimeMaxNs) {
+      if (passesECalTime) {
         ++ecalAdmittedEventCount;
         bool calibratedLayer1 = false;
         bool calibratedLayer2 = false;
