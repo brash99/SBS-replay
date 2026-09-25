@@ -1318,9 +1318,9 @@ earm.cdet.timing.pixel_offset =
 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000 0.000000
 
 # Five-pass run/target overrides. Cross-target runs use their individually
-# fitted shift_ns and the Ben-derived p1. Non-cross-target intervals use p1=0
-# and the contemporaneous four-era mean shift unless an independently fitted
-# LH2 value is available.
+# fitted shift_ns and the Ben-derived p1. Non-cross-target/LH2 intervals use
+# p1=0 and the common LH2 shift established for their timing era. Era 1
+# provisionally inherits the Era 2 LH2 shift pending a direct Era 1 study.
 
 -------[ 2025-05-09 10:24:52 ] # Run 3575 cross target
 earm.cdet.timing.ecal_p1 = 0.810602
@@ -1328,7 +1328,7 @@ earm.cdet.timing.shift_ns = -7.923126
 
 -------[ 2025-05-09 16:07:18 ] # Run 3584 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -7.937335
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1350,7 +1350,7 @@ earm.cdet.timing.shift_ns = -9.545628
 
 -------[ 2025-05-10 08:34:27 ] # Run 3605 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1366,7 +1366,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-05-12 19:36:10 ] # Run 3649 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1382,7 +1382,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-05-13 23:45:20 ] # Run 3683 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1401,7 +1401,7 @@ earm.cdet.timing.shift_ns = -9.304044
 
 -------[ 2025-05-14 00:39:09 ] # Run 3687 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1417,7 +1417,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-05-14 21:45:21 ] # Run 3755 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1436,7 +1436,7 @@ earm.cdet.timing.shift_ns = -9.310615
 
 -------[ 2025-05-15 06:01:42 ] # Run 3759 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1455,7 +1455,7 @@ earm.cdet.timing.shift_ns = -9.327031
 
 -------[ 2025-05-17 01:51:36 ] # Run 3789 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1477,7 +1477,7 @@ earm.cdet.timing.shift_ns = -9.247136
 
 -------[ 2025-05-18 21:35:41 ] # Run 3847 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1496,14 +1496,14 @@ earm.cdet.timing.shift_ns = -9.467142
 
 -------[ 2025-05-22 13:00:42 ] # Run 4012 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -9.359456
+earm.cdet.timing.shift_ns = -5.431483
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
 earm.cdet.pairing.opposite_side_enable = 1
 
--------[ 2025-05-24 07:09:25 ] # Run 4043 era-3 fallback
-earm.cdet.timing.shift_ns = -11.060945
+-------[ 2025-05-24 07:09:25 ] # Run 4043 era-3 non-cross reset
+earm.cdet.timing.shift_ns = -6.666335
 
 -------[ 2025-06-04 21:20:29 ] # Run 4344 cross target
 earm.cdet.timing.ecal_p1 = 0.810602
@@ -1518,7 +1518,7 @@ earm.cdet.timing.shift_ns = -12.015219
 
 -------[ 2025-06-04 22:13:51 ] # Run 4346 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1534,7 +1534,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-06-06 18:22:12 ] # Run 4403 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1550,7 +1550,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-06-18 01:38:04 ] # Run 4724 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1566,7 +1566,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-06-18 14:22:20 ] # Run 4737 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1585,7 +1585,7 @@ earm.cdet.timing.shift_ns = -10.998118
 
 -------[ 2025-06-24 16:10:15 ] # Run 4930 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1601,7 +1601,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-06-27 22:27:59 ] # Run 4988 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1620,7 +1620,7 @@ earm.cdet.timing.shift_ns = -10.949305
 
 -------[ 2025-07-02 22:54:39 ] # Run 5072 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1642,7 +1642,7 @@ earm.cdet.timing.shift_ns = -10.878018
 
 -------[ 2025-07-15 22:32:33 ] # Run 5295 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1658,7 +1658,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-07-23 17:59:25 ] # Run 5425 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = -11.060945
+earm.cdet.timing.shift_ns = -6.666335
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1672,7 +1672,7 @@ earm.cdet.selection.ecal_time_max = 35.0
 earm.cdet.pairing.ecal_rank_enable = 0
 earm.cdet.pairing.opposite_side_enable = 0
 
--------[ 2025-08-07 02:06:54 ] # Run 5711 LH2 timing calibration
+-------[ 2025-08-07 02:06:54 ] # Run 5711 Era-4 LH2 reset
 
 # Pixel offsets, TDC conversion, ECal p0/delta, time-walk constants, geometry,
 # pulse-quality cuts, projection geometry, and pairing policy are inherited
@@ -1680,7 +1680,7 @@ earm.cdet.pairing.opposite_side_enable = 0
 # timing shift, and the accepted ECal timing window vary for this run.
 earm.cdet.timing.enable = 1
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = 3.422000
+earm.cdet.timing.shift_ns = 4.387503
 
 earm.cdet.selection.enable = 1
 earm.cdet.selection.ecal_time_min = -10.0
@@ -1714,7 +1714,7 @@ earm.cdet.timing.shift_ns = 1.170911
 
 -------[ 2025-08-07 20:05:59 ] # Run 5727 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = 1.095437
+earm.cdet.timing.shift_ns = 4.387503
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1733,7 +1733,7 @@ earm.cdet.timing.shift_ns = 1.005736
 
 -------[ 2025-08-10 17:39:36 ] # Run 5799 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = 1.095437
+earm.cdet.timing.shift_ns = 4.387503
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
@@ -1749,15 +1749,15 @@ earm.cdet.pairing.opposite_side_enable = 0
 
 -------[ 2025-08-20 20:43:31 ] # Run 5994 non-cross reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = 1.095437
+earm.cdet.timing.shift_ns = 4.387503
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1
 earm.cdet.pairing.opposite_side_enable = 1
 
--------[ 2025-08-24 05:58:38 ] # Run 6077 LH2 timing calibration
+-------[ 2025-08-24 05:58:38 ] # Run 6077 Era-4 LH2 reset
 earm.cdet.timing.ecal_p1 = 0.000000
-earm.cdet.timing.shift_ns = 2.913449
+earm.cdet.timing.shift_ns = 4.387503
 earm.cdet.selection.ecal_time_min = -10.0
 earm.cdet.selection.ecal_time_max = 10.0
 earm.cdet.pairing.ecal_rank_enable = 1

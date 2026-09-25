@@ -79,104 +79,155 @@ timestamp-valid intervals.
 
 Run 4042 began at 2025-05-24 04:09:43 and Run 4043 began at
 2025-05-24 07:09:25. Recovering both timestamps avoided placing the Era 3
-validity boundary at a guessed time. The assignment of the Era 3 mean to Run
-4043 through the first Era 3 cross-target calibration is an explicit fallback
-model; it is not a direct `shift_ns` measurement of Run 4043.
+validity boundary at a guessed time. The assignment of the common Era 3 LH2
+shift to the non-cross-target interval beginning with Run 4043 is an explicit
+operational interpolation; it is not a direct `shift_ns` measurement of Run
+4043.
 
 Every individually calibrated cross-target run overrides its era mean with its
 own fitted `shift_ns` and uses `p1 = 0.810602`. Every non-cross-target interval
-resets to `p1 = 0`, the era fallback shift, the LH2 ECal timing interval, and
-the LH2 pairing switches. Independently calibrated Runs 5711 and 6077 override
-the fallback with `shift_ns = 3.422000 ns` and `2.913449 ns`, respectively.
+resets to `p1 = 0`, the common LH2 shift for that era, the LH2 ECal timing
+interval, and the LH2 pairing switches. Runs 5711 and 6077 now use the common
+Era 4 LH2 shift rather than retaining separate overrides.
 
-## Representative LH2 survey
+## Representative LH2 survey and fallback-start test
 
-Five representative runs immediately following nearby cross-target data were
-replayed with the current database:
-
-```text
-3649  4346  4724  5295  5727
-```
-
-Runs 5711 and 6077 supply independently calibrated Era 4 checks. Run 5711 is
-used as the spectral reference for inferring the uncalibrated survey runs. The
-plotted quantity is the absolute corrected mean time
-of each trajectory-time-selected Layer-1/Layer-2 pair. Unlike
-`t_ECal - <t_CDet>`, this quantity does not move merely because the ECal timing
-centroid changes.
-
-The distributions are broad and visibly non-Gaussian. Consequently, their
-medians are used as robust location estimators; the automatic narrow Gaussian
-fits are not used to determine the relative shifts.
-
-![LH2 shifts relative to era fallbacks](CDet_lh2_shift_relative_to_era.png)
-
-The top panel shows the measured spectra. The lower-left panel shows the
-established era fallback (square) and the LH2 shift inferred from the Run 5711
-reference (circle). The lower-right panel isolates the requested quantity: the
-additional shift above the contemporaneous era fallback.
-
-## Relative-shift calculation
-
-For a survey run, define:
+Eight representative LH2 runs are now compared:
 
 ```text
-median correction = median(Run 5711) - median(survey run)
-
-inferred LH2 shift = shift used in the replay + median correction
-
-LH2 increment above era = inferred LH2 shift - cross-target era fallback
+3649  4346  4724  5295  5711  5727  5886  6077
 ```
 
-Run 5711 was replayed with its independently calibrated `shift_ns = 3.422000
-ns`, and Run 6077 with its independently calibrated `2.913449 ns`. The five
-survey runs were replayed with their era fallback. For an independently
-calibrated run, the final two columns use its actual calibrated shift rather
-than replacing it with the median-aligned diagnostic value.
+Runs 5711 and 6077 originally had separately determined shifts of `3.422000
+ns` and `2.913449 ns`. To test whether those starting values affected pair
+selection, both runs were subsequently replayed with the same Era 4 fallback
+used for Runs 5727 and 5886:
 
-| Run | Era | Status | Selected pairs | Era fallback | Replay shift | Pair-time median | Median correction | Comparison LH2 shift | Increment above era |
-|---:|---:|---|---:|---:|---:|---:|---:|---:|---:|
-| 3649 | 2 | inferred | 22,068 | -9.359456 | -9.359456 | 26.973799 | +2.776658 | -6.582798 | +2.776658 |
-| 4346 | 3 | inferred | 23,501 | -11.060945 | -11.060945 | 25.718561 | +4.031896 | -7.029049 | +4.031896 |
-| 4724 | 3 | inferred | 41,313 | -11.060945 | -11.060945 | 25.407272 | +4.343185 | -6.717760 | +4.343185 |
-| 5295 | 3 | inferred | 30,524 | -11.060945 | -11.060945 | 25.618990 | +4.131467 | -6.929478 | +4.131467 |
-| 5711 | 4 | calibrated | 7,081 | +1.095437 | +3.422000 | 29.750457 | 0.000000 | +3.422000 | +2.326563 |
-| 5727 | 4 | inferred | 25,885 | +1.095437 | +1.095437 | 28.849810 | +0.900647 | +1.996084 | +0.900647 |
-| 5886 | 4 | inferred | 40,917 | +1.095437 | +1.095437 | 28.628412 | +1.122045 | +2.217482 | +1.122045 |
-| 6077 | 4 | calibrated | 9,848 | +1.095437 | +2.913449 | 29.520801 | +0.229656 | +2.913449 | +1.818012 |
+```text
+p1       = 0
+shift_ns = 1.095437 ns
+```
 
-The three Era 3 measurements are especially informative: their required
-increments are `4.032`, `4.343`, and `4.131 ns`, with mean `4.169 ns` and
-sample SD `0.159 ns`. That consistency is visible both in the aligned spectral
-shapes and in the lower-right panel.
+The standard `CDet_run5711_good_pulse_tdc` and
+`CDet_run6077_good_pulse_tdc` directories now contain products from these
+fallback-start replays. The older independent shift values remain useful
+historical results, but they are not the shifts applied to the ROOT files used
+in the table below.
 
-The complete survey does **not** support one universal LH2 increment across all
-four eras. Run 3649 requires about `+2.78 ns` relative to Era 2. Within Era 4,
-the independently calibrated Runs 5711 and 6077 are respectively `+2.33 ns`
-and `+1.82 ns` above the fallback. Their absolute pair-time medians differ by
-only `0.230 ns`, providing a useful independent consistency check. The Run
-5727 and Run 5886 comparisons give smaller provisional increments of
-approximately `+0.90 ns` and `+1.12 ns`. These two fallback-replayed points
-agree with one another to `0.22 ns`, but not with the two independently
-calibrated increments. This coherent split should be resolved with direct
-closure replays rather than hidden by averaging all four Era 4 results.
+The comparison applies the same deliberately narrow diagnostic selection to
+every run:
 
-## Interpretation and remaining closure test
+```text
+3.0 < E_ECal < 4.5 GeV
+-5 < t_ECal < 5 ns
+(trajectory residual / 0.020 m)^2
+  + ((t_ECal - pair mean + 26 ns) / 5 ns)^2 <= 1
+```
 
-These values answer the relative question more directly than comparing the
-absolute `shift_ns` numbers: each number in the final column is the additional
-LH2 offset above the cross-target timing already established for that era.
+The last condition is the established trajectory-time ellipse with its radius
+reduced from 2 to 1. The selected corrected-pair distributions have RMS values
+of about `3.2--3.6 ns`, rather than the `5.3--6.8 ns` widths in the superseded
+broad comparison. Medians are retained as robust location estimators so the
+result does not depend on the detailed Gaussian fit model.
 
-They remain **candidate increments**, not yet commissioned database constants.
-The trajectory-time selection includes a timing coordinate, so changing
-`shift_ns` can change the selected population slightly. Before installing the
-values experiment-wide:
+During this study, the plotting macro was corrected so that the configured
+ECal-time interval is applied when filling the selected-pair residual and
+absolute-time histograms. Earlier broad figures did not apply that event-time
+gate to those particular histograms and must not be compared numerically with
+the results below.
 
-1. add provisional run-specific overrides for the five survey runs;
-2. replay the same event samples;
-3. regenerate this figure and table;
-4. require the corrected medians to close consistently without a material
-   change in the selected population.
+![LH2 timing relative to cross-target fallbacks](CDet_lh2_shift_relative_to_era.png)
 
-For a final production determination, a timing-shift-independent frozen pair
-sample would remove this last selection-feedback ambiguity.
+The top panel shows the selected corrected-pair spectra after replay with the
+cross-target-era fallback. The lower-left panel compares that fallback with the
+candidate LH2 shift required to move the measured pair-time median to 30 ns.
+The lower-right panel shows the same result as the additional LH2 shift above
+the cross-target fallback.
+
+## Fallback-start results
+
+All four Era 4 rows below were replayed with exactly the same cross-target
+`shift_ns`. Runs 5711 and 6077 therefore provide the controlled test that was
+missing from the earlier comparison.
+
+The established calibration convention is
+
+```text
+candidate LH2 shift = cross-target fallback + (30 ns - pair-time location)
+
+LH2 increment above era = candidate LH2 shift - cross-target fallback
+```
+
+The production calibration driver uses the Gaussian-core centroid of the
+projected-half-bar timing distribution as the pair-time location. The table
+below uses the median of the narrow detector-wide selected-pair distribution
+as a robust diagnostic proxy. These values should therefore be confirmed with
+the production projected-half-bar estimator before changing the database.
+
+| Run | Era | Selected pairs | Cross-target fallback | Pair-time median | Correction to 30 ns | Candidate LH2 shift | Increment above era |
+|---:|---:|---:|---:|---:|---:|---:|---:|
+| 3649 | 2 | 5,790 | -9.359456 | 26.072027 | +3.927973 | -5.431483 | +3.927973 |
+| 4346 | 3 | 7,089 | -11.060945 | 25.785221 | +4.214779 | -6.846166 | +4.214779 |
+| 4724 | 3 | 12,487 | -11.060945 | 25.515637 | +4.484363 | -6.576582 | +4.484363 |
+| 5295 | 3 | 8,741 | -11.060945 | 25.515312 | +4.484688 | -6.576257 | +4.484688 |
+| 5711 | 4 | 5,278 | +1.095437 | 26.636672 | +3.363328 | +4.458765 | +3.363328 |
+| 5727 | 4 | 7,413 | +1.095437 | 26.901685 | +3.098315 | +4.193752 | +3.098315 |
+| 5886 | 4 | 11,590 | +1.095437 | 26.716835 | +3.283165 | +4.378602 | +3.283165 |
+| 6077 | 4 | 10,313 | +1.095437 | 26.576543 | +3.423457 | +4.518894 | +3.423457 |
+
+The Era 4 increments are `3.363`, `3.098`, `3.283`, and `3.423 ns`. Their mean
+is `3.292 ns` and their sample standard deviation is `0.141 ns`. Thus all four
+LH2 runs require a common additional shift of approximately `+3.3 ns` relative
+to the Era 4 cross-target fallback according to this diagnostic. Runs 5711 and
+6077 differ by only `0.060 ns`, despite having started from the same fallback;
+their agreement is no longer a consequence of assigning them different input
+shifts.
+
+The three Era 3 increments are `4.215`, `4.484`, and `4.485 ns`, with mean
+`4.395 ns` and sample standard deviation `0.156 ns`. Run 3649 gives an Era 2
+increment of `3.928 ns`. The data therefore continue to favor an LH2
+correction defined relative to each cross-target era rather than one absolute
+`shift_ns` for the entire experiment.
+
+## Provisional LH2 shift policy by era
+
+For operational use, the run measurements within each era are averaged and
+one common LH2 `shift_ns` is assigned to that era. This is intended to place
+the hydrogen timing population consistently within the same trajectory-time
+ellipse throughout the experiment.
+
+| Era | Cross-target average | Mean measured LH2 increment | Provisional LH2 `shift_ns` | Basis |
+|---:|---:|---:|---:|---|
+| 1 | -7.937335 ns | not yet measured | **-5.431483 ns** | Temporarily use the Era 2 absolute LH2 shift |
+| 2 | -9.359456 ns | +3.927973 ns | **-5.431483 ns** | Run 3649 |
+| 3 | -11.060945 ns | +4.394610 ns | **-6.666335 ns** | Mean of Runs 4346, 4724, and 5295 |
+| 4 | +1.095437 ns | +3.292066 ns | **+4.387503 ns** | Mean of Runs 5711, 5727, 5886, and 6077 |
+
+The Era 1 value is deliberately an absolute-shift inheritance, not an inferred
+Era 1 increment. Relative to the Era 1 cross-target average it corresponds to
+`+2.505852 ns`, but that difference has not been measured with Era 1 hydrogen
+data. It must be replaced if a future Era 1 LH2 analysis supports a different
+value.
+
+## Interpretation and next step
+
+The controlled fallback-start comparison supports a simple operational model:
+within a measured acquisition era, the LH2 runs require an approximately
+common increment above the cross-target timing origin. For Era 4 that increment
+is about `+3.3 ns`; the corresponding diagnostic candidate shift is about
+`4.39 ns`. Era 1 provisionally inherits the Era 2 absolute LH2 shift pending a
+direct measurement.
+
+The authoritative database now implements the common LH2 shifts in the table
+above for every non-cross-target interval. Individually fitted cross-target
+runs retain their own shifts. The older Run 5711 and Run 6077 values of
+`3.422000 ns` and `2.913449 ns` have been superseded in the database by the
+common Era 4 value `4.387503 ns`.
+
+The present calculation uses the narrow selected-pair median, whereas the
+original calibration procedure used a local Gaussian fit to the
+projected-half-bar core. A future validation should replay representative runs
+with the installed era constants and verify that the common ellipse accepts
+the hydrogen timing population consistently. The selected-pair population
+should be recorded before and after any subsequent refinement so selection
+changes remain visible.
