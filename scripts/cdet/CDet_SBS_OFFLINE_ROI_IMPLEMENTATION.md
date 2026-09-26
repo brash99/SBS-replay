@@ -426,6 +426,198 @@ selection explicitly enabled gave:
 | Recovered Layer-2-only events/pulses | 1 / 1 |
 
 The macro also compiled successfully and automatically selected its legacy
-fallback on the existing pre-candidate Run 5710 files. No full production
-replay was performed for this checkpoint; broader Run 5710 and hydrogen
-comparisons remain part of the final validation step.
+fallback on the existing pre-candidate Run 5710 files. The subsequent full-run
+comparison is documented below; hydrogen comparisons remain part of the final
+validation step.
+
+## Full Run 5710 old-versus-new candidate validation
+
+Status: complete for the two-layer pair-hypothesis path.
+
+Run 5710 was replayed from all six local EVIO files using the updated
+`SBSCDet`. The replay completed normally and analyzed 2,951,891 physics
+events. Its five rollover ROOT files were kept as one isolated dataset under:
+
+```text
+/Users/brash/CDet_replay/sbs/Rootfiles/
+  CDet_run5710_SBSCDet_candidate_validation/
+```
+
+`Compare_CDet_Run5710_CandidateBranches.C` then processed the complete replay
+through two independent paths on every event:
+
+1. **Old/ex-post-facto path:** reconstruct all Layer-1/Layer-2 hypotheses from
+   `pulse.*`, applying the established four pulse flags followed by the Run
+   5710 `dt`, `dx`, and same-side `dy` gates.
+2. **New/analyzer path:** read the hypotheses already produced inside
+   `SBSCDet` from `pair_candidate.*`.
+
+Run 5710 is a cross-target run. Its authoritative database policy has
+`pairing.ecal_rank_enable = 0`, `opposite_side_enable = 0`, and
+`single_layer.enable = 0`. This comparison therefore tests the complete
+detector-local pair-hypothesis construction without adding a later hydrogen
+trajectory-time ellipse. The hydrogen-only opposite-side and single-layer
+paths require the separate Run 5711/6077 validation samples.
+
+### Exact event-level audit
+
+| Check | Full-run result |
+|---|---:|
+| Physics events | 2,951,891 |
+| Old reconstructed pair hypotheses | 365,256 |
+| New `pair_candidate.*` hypotheses | 365,256 |
+| Malformed pulse-array events | 0 |
+| Events with different old/new multiplicity | 0 |
+| Events with different source-pulse identities | 0 |
+| Numerical value mismatches | 0 |
+| Numerical comparison tolerance | `1e-10` |
+
+The numerical audit compares pair mean time, `dt`, `dx`, `dy`, CDet-only
+score, ECal timing residual, and ECal-trajectory residual for every hypothesis,
+matched by its Layer-1 and Layer-2 source-pulse indices. Thus the result checks
+candidate identity and stored physics values, not merely agreement between
+binned histograms.
+
+### Visual comparison
+
+The blue solid curves are reconstructed ex post facto from `pulse.*`; the red
+dashed curves are read from `SBSCDet::pair_candidate.*`. The curves overlap
+bin-for-bin for multiplicity, inter-layer timing and position, ECal timing,
+and ECal-trajectory residual:
+
+![Run 5710 old-versus-new CDet candidate spectra](CDet_run5710_candidate_branch_comparison/CDet_Run5710_CandidateBranchComparison.png)
+
+The pair mean time and CDet-only score also agree. The independent
+trajectory-residual-versus-ECal-timing panels have identical structure and
+normalization:
+
+![Run 5710 old-versus-new CDet candidate detail](CDet_run5710_candidate_branch_comparison/CDet_Run5710_CandidateBranchComparison_Detail.png)
+
+The comparison directory also contains PDF versions, the underlying ROOT
+histograms, and `CDet_Run5710_CandidateBranchComparison.txt`, which records the
+exact audit counts above.
+
+## Run 6077 hydrogen-policy validation
+
+Status: complete on a fresh 100,000-event replay.
+
+Run 6077 exercises the candidate policies that are deliberately disabled for
+cross-target Run 5710: ECal-informed trajectory-time selection, opposite-side
+seam recovery, and exclusive single-layer candidates. The farm replay was
+written as six ROOT rollover files using the analyzer filename form
+`_firstevent1_nevent100000[_N].root`. `CDetRunDataset.h` now recognizes that
+form directly, while retaining support for all previously accepted names.
+
+`Compare_CDet_HydrogenCandidateBranches.C` again uses two independent paths:
+
+1. reconstruct candidates ex post facto from `pulse.*`, including the same-side
+   and opposite-side y topologies and the pair and single-layer ellipses;
+2. consume `pair_candidate.*`, `single_candidate.*`, and `roi.status` directly.
+
+### Exact event-level audit
+
+| Check | Run 6077 result |
+|---|---:|
+| Physics events | 100,000 |
+| Old reconstructed pair hypotheses | 134,995 |
+| New `pair_candidate.*` hypotheses | 134,995 |
+| Old reconstructed single-layer candidates | 2,412 |
+| New `single_candidate.*` candidates | 2,412 |
+| Pair multiplicity-mismatch events | 0 |
+| Pair source-identity-mismatch events | 0 |
+| Pair numerical-value mismatches | 0 |
+| Single-layer multiplicity-mismatch events | 0 |
+| Single-layer source-identity-mismatch events | 0 |
+| Single-layer numerical-value mismatches | 0 |
+| ROI-status mismatch events | 0 |
+| Malformed pulse-array events | 0 |
+| Numerical comparison tolerance | `1e-10` |
+
+For pairs, the numerical audit covers mean time, `dt`, `dx`, `dy`, ECal timing
+residual, trajectory residual, and ECal score. For single-layer candidates it
+covers physical layer, corrected time, ECal timing residual, x residual, and
+ellipse score.
+
+### Visual comparison
+
+The old reconstruction is blue and solid; the analyzer collections are red
+and dashed. Pair and single-layer multiplicities and timing/trajectory spectra
+overlap bin-for-bin:
+
+![Run 6077 hydrogen candidate spectra](CDet_run6077_hydrogen_candidate_comparison/CDet_Run6077_HydrogenCandidateComparison.png)
+
+The independently filled pair and single-layer two-dimensional spectra also
+have identical shapes and normalization:
+
+![Run 6077 hydrogen candidate 2D spectra](CDet_run6077_hydrogen_candidate_comparison/CDet_Run6077_HydrogenCandidateComparison_2D.png)
+
+The detector-amalgamated comparison reproduces the four normal-analysis
+views from `CDetGoodPulse_Detector_Amalgamated.pdf`. The independently
+reconstructed quantities occupy the top row and the native `SBSCDet`
+quantities occupy the bottom row: all calibrated/ECal-eligible pulses in
+accepted-candidate events, projection-matched pulses in those events,
+candidate pair-mean timing, and candidate pair-mean timing versus mean ToT.
+Both paths contain 82,148 ellipse-qualified pair-hypothesis entries and agree
+panel-for-panel. These are deliberately candidate-level validation plots, not
+the final one-to-one `pair.*` collection used by the normal-analysis canvas:
+
+![Run 6077 detector-amalgamated hydrogen comparison](CDet_run6077_hydrogen_candidate_comparison/CDet_Run6077_HydrogenCandidateComparison_Amalgamated.png)
+
+The comparison directory contains the PNG and PDF figures, ROOT histograms,
+and a plain-text audit summary.
+
+## Run 5711 hydrogen-policy validation
+
+Status: complete on a fresh 100,000-event replay.
+
+Run 5711 provides an independent hydrogen-run check of the same ECal-informed
+pair, opposite-side seam, exclusive single-layer, and event-classification
+paths tested with Run 6077. Its six analyzer rollover files were read as one
+coherent 100,000-event dataset. The comparison reconstructed the candidates
+from `pulse.*` and independently read the native `pair_candidate.*`,
+`single_candidate.*`, and `roi.status` branches.
+
+### Exact event-level audit
+
+| Check | Run 5711 result |
+|---|---:|
+| Physics events | 100,000 |
+| Old reconstructed pair hypotheses | 135,783 |
+| New `pair_candidate.*` hypotheses | 135,783 |
+| Old reconstructed single-layer candidates | 2,389 |
+| New `single_candidate.*` candidates | 2,389 |
+| Pair multiplicity-mismatch events | 0 |
+| Pair source-identity-mismatch events | 0 |
+| Pair numerical-value mismatches | 0 |
+| Single-layer multiplicity-mismatch events | 0 |
+| Single-layer source-identity-mismatch events | 0 |
+| Single-layer numerical-value mismatches | 0 |
+| ROI-status mismatch events | 0 |
+| Malformed pulse-array events | 0 |
+| Numerical comparison tolerance | `1e-10` |
+
+### Visual comparison
+
+The old reconstruction is blue and solid; the analyzer collections are red
+and dashed. All overlaid pair and single-layer spectra coincide bin-for-bin:
+
+![Run 5711 hydrogen candidate spectra](CDet_run5711_hydrogen_candidate_comparison/CDet_Run5711_HydrogenCandidateComparison.png)
+
+The independently filled two-dimensional distributions also have identical
+shapes and normalization:
+
+![Run 5711 hydrogen candidate 2D spectra](CDet_run5711_hydrogen_candidate_comparison/CDet_Run5711_HydrogenCandidateComparison_2D.png)
+
+The corresponding detector-amalgamated canvas uses the same four quantities
+and top-row/bottom-row organization as the Run 6077 comparison. Both paths
+contain 43,369 ellipse-qualified pair-hypothesis entries and agree
+panel-for-panel. As for Run 6077, this is a candidate-level comparison rather
+than a count of final one-to-one `pair.*` entries:
+
+![Run 5711 detector-amalgamated hydrogen comparison](CDet_run5711_hydrogen_candidate_comparison/CDet_Run5711_HydrogenCandidateComparison_Amalgamated.png)
+
+The comparison directory contains the PNG and PDF figures, ROOT histograms,
+and a plain-text audit summary. Together, the full Run 5710 comparison and
+the independent Run 5711 and Run 6077 hydrogen comparisons validate the
+cross-target pair path and the hydrogen-specific pair, opposite-side seam,
+exclusive single-layer, and event-classification paths.
