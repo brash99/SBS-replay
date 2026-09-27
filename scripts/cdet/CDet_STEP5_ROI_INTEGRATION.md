@@ -10,6 +10,25 @@ This document tracks Step 5 of
 duplicating CDet calibration or prematurely discarding alternate CDet
 hypotheses.
 
+## Physics and reconstruction motivation
+
+CDet was conceived primarily to improve the electron out-of-plane angular
+resolution, thereby helping identify the very rare elastic events in the GEP
+data. That remains the central physics motivation for incorporating CDet into
+the global ROI calculation.
+
+The implementation may also provide an important analysis-efficiency benefit.
+Hydrogen running can produce such high GEM occupancy that the unconstrained
+track search encounters an enormous number of possible hit combinations. A
+useful CDet-informed electron hypothesis can sharpen the predicted proton ROI
+before GEM pattern recognition, potentially reducing the combinatorial search
+while preserving the existing ECal/HCal-only fallback.
+
+This possible computational benefit must be measured rather than assumed. A
+CDet constraint that is too tight could make reconstruction faster by losing
+valid tracks, which would not be acceptable. Step 5 validation must therefore
+measure both reconstruction cost and physics efficiency.
+
 ## Scope of this first checkpoint
 
 Before changing the ROI implementation, this checkpoint establishes:
@@ -318,23 +337,23 @@ somewhere along that half-bar. The half-bar length should come from the
 detector geometry applicable to the source pulse rather than from a new
 independent hard-coded tracking constant.
 
-If the initial line fitter requires a Gaussian sigma rather than an interval,
-Step 5 will conservatively use the half-width itself,
-`sigma_y,CDet = (half-bar length)/2`. It will not convert a uniform interval
-to the smaller RMS value `length/sqrt(12)`, because the present purpose is to
-avoid assigning unjustified precision to CDet y. This should give the CDet y
-points practically zero weight relative to ECal y while keeping their coarse
-geometric information available for diagnostics and gross-consistency tests.
+The operational target-associated diagnostic uses the half-width itself,
+`delta_y,CDet = (half-bar length)/2 = 0.255 m`, as a compatibility interval.
+It does not convert that interval to a Gaussian RMS and does not use CDet y to
+fit the target-associated electron-ray slope. The earlier free detector-only
+y fit is retained only as an explicitly labelled diagnostic demonstrating why
+that formulation was rejected.
 
 Consequently, the initial electron-ray model is deliberately asymmetric:
 
 - x-z fitting uses the meaningful ECal and CDet layer positions and their
   measured resolutions;
-- y-z fitting is driven primarily by ECal and the target/vertex hypothesis,
-  with CDet contributing only a very broad half-bar compatibility interval.
+- for each target-z hypothesis, the y-z ray is defined by that target point
+  and ECal y; each available CDet half-bar is only tested for intersection
+  with its broad y interval.
 
-The fit output should report the CDet y pull or interval compatibility so this
-assumption can be verified from data. A future independent CDet y
+The output reports the CDet y residual and interval compatibility separately
+for each layer and target-z bin. A future independent CDet y
 reconstruction can replace this uncertainty model without changing the
 candidate identities or the Step 5 interface.
 
@@ -397,13 +416,14 @@ weight than either CDet layer in the x-z fit. In y, the 6 mm ECal uncertainty
 is much smaller than the CDet half-bar uncertainty, so ECal should dominate
 the y-z information as intended.
 
-Step 5B must export normalized residuals or pulls separately for ECal x, ECal
-y, and each CDet measurement. Their widths should be examined versus run,
-detector position, ECal energy, and candidate class. Systematically non-unit
-pull widths would be evidence that the assumed measurement uncertainties—or
-the geometrical model—need revision. Until that validation is complete, the
-6 mm values are working assumptions and must not be presented as results of
-the CDet analysis.
+Step 5B exports fit chi-square and leverage-corrected standardized residuals
+for the free detector-only fits. Ordinary fitted residuals divided only by the
+input measurement sigma must not be interpreted as unit-width pulls because
+the fitted measurements have nonzero leverage. The target-z-constrained x fit
+exports its chi-square and NDF for every candidate and vertex bin. These
+quantities should be examined versus run, detector position, ECal energy, and
+candidate class. Until that validation is complete, the 6 mm values are
+working assumptions and must not be presented as results of the CDet analysis.
 
 ### CDet supplements the target-z scan
 
@@ -418,8 +438,7 @@ true event vertex is distributed through the extended target. The large
 target-to-detector distance should make this a modest effect, but that must be
 demonstrated rather than assumed.
 
-Two closely related formulations should be compared before the
-physics-bearing constraint change:
+The initial Run 5711 replay resolved the comparison between two formulations:
 
 1. fit the detector-only electron ray from the ECal and available CDet
    points, then compare its target intersection with each target-z hypothesis;
@@ -427,9 +446,12 @@ physics-bearing constraint change:
    ECal/CDet measurements in a resolution-weighted constrained line fit and
    retain the fit quality.
 
-This comparison will show whether CDet meaningfully narrows or reweights the
-existing vertex scan and whether the nominal-origin candidate ellipse biases
-the accepted vertex distribution.
+The detector-only extrapolation was far too unstable at the target, especially
+in y. The operational diagnostic is therefore formulation 2 in x: for every
+target-z bin, fit the best x slope constrained to pass through `x=0` at that
+vertex and retain its chi-square. In y, do not perform a CDet line fit; use the
+target-to-ECal line and test only whether it intersects each CDet half-bar
+interval.
 
 ### Resulting global interpretation
 
@@ -506,10 +528,14 @@ The initial non-operative Step 5B slice is also implemented. For every
 pre-greedy pair candidate and every exclusive single-layer candidate it:
 
 - retrieves the source pulse coordinates by their event-local identities;
-- performs independent resolution-weighted straight-line fits in x-z and
-  y-z, using the configurable uncertainties documented above;
-- transforms the fitted direction from the shared ECal/CDet frame into the
-  global Hall frame using the existing E-arm axes;
+- retains the free detector-only fits as diagnostics, with leverage-corrected
+  standardized residuals rather than naive residual/sigma pulls;
+- for every existing target-z bin, fits the best x slope constrained through
+  `(x=0,z=z_vertex)` and exports its chi-square and NDF;
+- defines y from the target-to-ECal line and tests each available CDet
+  half-bar only for interval compatibility;
+- transforms each target-constrained direction from the shared ECal/CDet
+  frame into the global Hall frame using the existing E-arm axes;
 - exports source type, source index, pulse indices, source score, number of
   fitted points, intercepts, slopes, chi-squares, NDF, global angles, and the
   fitted intercept at the nominal target z;
@@ -541,6 +567,73 @@ back GEM constraints still consume only the original ECal/HCal calculation.
   constraint.
 - Compare tracking efficiency, multiplicity, accidental rate, and elastic
   residuals against the unchanged baseline.
+- Compare event-processing time, the number of GEM track-search combinations,
+  and the frequency of combination-limit skips with and without CDet-informed
+  constraints. Any speed improvement must be evaluated together with elastic
+  efficiency and bias.
+
+### Initial Run 5711 replay observation
+
+During the first interactive Run 5711 Step 5 diagnostic replay, the analyzer
+processed only about three events per second with GEM tracking enabled. At
+least one high-occupancy event produced:
+
+```text
+Warning in [SBSGEMTrackerBase::find_tracks]: total potential hit combinations
+= 6.60989e+24, exceeds user maximum of 1e+24, skipping tracking...
+```
+
+This event was not merely slow: GEM tracking was skipped because the
+combinatorial search exceeded its configured safety limit. The observation
+does not yet demonstrate that CDet constraints will recover such events, but
+it establishes a concrete second question for Step 5C: can CDet-informed ROI
+constraints reduce the search space enough to make previously intractable
+events reconstructable, in addition to improving the intended out-of-plane
+angular resolution?
+
+The diagnostic CDet hypotheses are constructed before the later GEM search,
+so these branches should remain available even for events whose GEM tracking
+is skipped. Such events are therefore a particularly useful validation sample.
+
+### First 10,000-event Run 5711 validation
+
+The completed validation file contained exactly 10,000 events. CDet was found
+in every event and timing calibration was applied in 9,993; the remaining
+seven had missing ECal timing input. The new bookkeeping passed all checked
+invariants:
+
+| Quantity | Result |
+|---|---:|
+| Events with at least one CDet ROI hypothesis | 2,673 |
+| Pair-status events | 2,555 |
+| Layer-1-only events | 89 |
+| Layer-2-only events | 29 |
+| Pre-greedy pair hypotheses | 13,747 |
+| Exclusive single-layer hypotheses | 220 |
+| Invalid source or pulse indices | 0 |
+| Events with incorrect target-bin multiplicity | 0 |
+
+Every hypothesis had exactly 24 target-z associations. Only ten events in the
+entire sample contained a reconstructed GEM track, and 2,671 of the 2,673
+events with CDet hypotheses had no GEM track. This makes the possible
+reconstruction-efficiency benefit quantitatively important to investigate.
+
+The free detector-only pair fits exposed the limitation anticipated in the
+design discussion:
+
+| Free-ray extrapolation at nominal target z | Mean | RMS |
+|---|---:|---:|
+| x | 0.0033 m | 0.701 m |
+| y | 1.816 m | 2.773 m |
+
+The result persisted for greedy-selected pairs. It demonstrates that the free
+detector-only ray must not be used directly as a target constraint. It also
+shows why a small ECal y uncertainty does not rescue the free y slope: the
+slope remains weakly determined over the relatively short ECal-to-CDet lever
+arm and becomes unstable when extrapolated back to the target.
+
+These observations motivated the revised per-vertex diagnostics described
+above: target-constrained x chi-square and half-bar-only y compatibility.
 
 ## Initial invariants
 
@@ -557,9 +650,9 @@ explicitly reviewed physics decision changes them:
   transformation into global Hall coordinates.
 - Two-layer hypotheses use ECal plus both CDet layer points; exclusive
   single-layer hypotheses use ECal plus the available CDet layer point.
-- CDet y is represented by its nominal half-bar center with an uncertainty
-  interval of plus or minus one-half of the half-bar length. If a Gaussian
-  fitter is used initially, that half-width itself is the conservative sigma.
+- CDet y is represented only by its nominal half-bar center and a compatibility
+  interval of plus or minus one-half of the half-bar length; it does not fit
+  the electron-ray y slope.
 - The initial ECal x and y uncertainties are both 0.006 m, treated as
   configurable, externally supplied working assumptions and tested with pull
   distributions before any physics-bearing ROI constraint is enabled.
@@ -579,8 +672,8 @@ Step 5 implementation slice: calibrated CDet candidates are read after coarse
 reconstruction, converted into auditable electron-ray and target-z diagnostic
 hypotheses, and exported without exposing mutable detector storage.
 
-The next task is empirical validation of these new branches in replayed Run
-5710, Run 5711, and Run 6077 events. That study should determine the pull
-widths, target-z behavior, hypothesis multiplicity, and useful ranking or
-deduplication rules. Only after those diagnostics are understood should the
+The first Run 5711 validation has now determined the next diagnostic model:
+target-z-constrained x fits, CDet y interval compatibility, and statistically
+appropriate fit-quality outputs. A short Run 5711 replay with these revised
+branches is required next. Only after those results are understood should the
 database-disabled Step 5C path be allowed to modify GEM constraints.
