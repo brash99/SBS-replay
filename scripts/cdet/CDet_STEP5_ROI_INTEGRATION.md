@@ -572,6 +572,39 @@ back GEM constraints still consume only the original ECal/HCal calculation.
   constraints. Any speed improvement must be evaluated together with elastic
   efficiency and bias.
 
+### Farm submission for CDet plus GEM/FTROI validation
+
+The established `submit-cdet-jobs.sh` path is intentionally the fast,
+CDet-only replay. It ultimately invokes `replay_CDet.C`, which does not
+instantiate the GEM trackers or the `FTROI` inter-stage module. Passing or
+defaulting a `dogems` argument in that macro does not enable GEM tracking.
+
+Use the parallel launcher below for Step 5 validation:
+
+```bash
+./submit-cdet-gem-jobs.sh RUN NEVENTS FIRST_SEGMENT LAST_SEGMENT RUN_ON_IFARM
+```
+
+For example, after selecting the desired `OUT_DIR`, the Run 5711 and Run 6077
+submissions are:
+
+```bash
+./submit-cdet-gem-jobs.sh 5711 100000 0 5 0
+./submit-cdet-gem-jobs.sh 6077 100000 0 5 0
+```
+
+As in the legacy launcher, `NEVENTS` applies independently to every selected
+segment job. Thus `100000 0 5` requests six jobs per run, each processing up
+to 100,000 physics events beginning in its assigned segment; it is not a
+single 100,000-event job spanning segments 0--5.
+
+This launcher preserves the five-argument interface of
+`submit-cdet-jobs.sh`, but selects `run-cdet-gem-replay.sh`. The latter invokes
+`replay_gep.C` and explicitly calls `replay_gep(..., dogems=1, ...)`, thereby
+instantiating `gemFT`, `gemFPP`, and `FTROI`. Output files consequently use the
+`gep5_replayed_...root` naming convention rather than the CDet-only
+`cdet_...root` convention.
+
 ### Initial Run 5711 replay observation
 
 During the first interactive Run 5711 Step 5 diagnostic replay, the analyzer
