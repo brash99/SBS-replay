@@ -635,6 +635,302 @@ arm and becomes unstable when extrapolated back to the target.
 These observations motivated the revised per-vertex diagnostics described
 above: target-constrained x chi-square and half-bar-only y compatibility.
 
+### Revised 10,000-event Run 5711 validation
+
+The second 10,000-event replay exercised the revised target-z-constrained
+diagnostics. Candidate production was unchanged, as required: 2,673 events
+contained at least one CDet hypothesis, comprising 13,747 two-layer pair
+hypotheses and 220 exclusive single-layer hypotheses. The following structural
+checks passed:
+
+| Check | Result |
+|---|---:|
+| Events with calibrated CDet timing | 9,993 / 10,000 |
+| Hypotheses with exactly 24 target-z associations | all |
+| Two-layer associations with x NDF = 2 | 329,928 |
+| Single-layer associations with x NDF = 1 | 5,280 |
+| Pair associations with a missing CDet y layer | 0 |
+| Single-layer associations with exactly one missing CDet y layer | 5,280 |
+| Associations passing half-bar y compatibility | 200,918 / 335,208 |
+
+The constrained x-fit chi-square, constrained electron direction, per-layer y
+residuals, and y compatibility are therefore populated consistently. Passing
+the y check in about 60% of all hypothesis/target-z associations is not an
+event efficiency: each event may contain several hypotheses and every
+hypothesis appears once for each of 24 target-z bins.
+
+The same replay quantifies the potential reconstruction-efficiency motivation:
+
+| Run 5711 outcome in the unfiltered 10,000-event sample | Events |
+|---|---:|
+| At least one GEM FT track | 10 (0.10%) |
+| At least one CDet electron-ray hypothesis | 2,673 (26.73%) |
+| Both a GEM FT track and a CDet hypothesis | 2 |
+| CDet hypothesis but no GEM FT track | 2,671 |
+| GEM FT track but no CDet hypothesis | 8 |
+| Neither | 7,319 |
+
+These fractions are not elastic-event efficiencies because the denominator is
+all replayed events. They do establish that CDet supplies electron-arm
+direction information in a large sample for which the existing high-occupancy
+hadron-arm GEM search finds no track. Step 5C must determine whether using that
+information to restrict the GEM search recovers tracks without biasing elastic
+acceptance or creating excessive duplicate constraints.
+
+The CDet/ECal/target-z quantities can be viewed without any GEM information by
+running:
+
+```text
+root [0] .L Plot_CDet_FTROI_TargetZDiagnostics.C+
+root [1] Plot_CDet_FTROI_TargetZDiagnostics(
+             "/path/to/gep5_replayed_5711_stream0_2_seg0_5_firstevent1_nevent10000.root",
+             "CDet_run5711_FTROI_target_z",
+             27.0);
+```
+
+The resulting multipage PDF shows ECal x versus the associated CDet-layer x,
+the target-constrained x chi-square over the established target-z scan, the
+minimum-chi-square target-z bin for pair and single-layer hypotheses,
+half-bar y compatibility, y residuals, and the target-constrained global
+electron angles. These are diagnostic distributions only; the minimum
+chi-square target-z bin is not yet promoted to a reconstructed vertex.
+
+The first view of Run 5711 exposed an important coordinate-system issue that
+must be corrected before assigning physical meaning to the target-z results.
+The current constrained fit uses ECal and CDet positions in the shared
+electron-arm TRANSPORT frame, but inserts the existing target-z scan coordinate
+as if the global Hall-frame point `(0, 0, z_target)` were the detector-frame
+point `(0, 0, z_target)`. Tracing the actual axis definitions gives
+
+```text
+x_target_transport = 0
+y_target_transport = -z_target * sin(theta_earm)
+z_target_transport =  z_target * cos(theta_earm).
+```
+
+Thus the earlier concern about a large induced detector-frame x displacement
+was incorrect: TRANSPORT x is vertical and remains zero for a vertex on the
+beam axis. The required correction is nevertheless important for the
+TRANSPORT y anchor and for the local z coordinate used by the constrained
+fits.
+
+Plots involving only ECal and CDet x are still useful bookkeeping checks. The
+target-z-constrained chi-square, y compatibility, and global-angle plots show
+what the current implementation calculates, but must be regenerated after
+each global target point is transformed into the electron-arm frame. The
+boundary accumulation and large chi-square may be consequences of this frame
+mixing and must not yet be interpreted as physical target-z behavior.
+
+The complete three-page output is
+[CDet_run5711_FTROI_target_z.pdf](CDet_run5711_FTROI_target_z.pdf). The page
+previews are:
+
+![Run 5711 ECal/CDet x geometry and constrained-x fit](CDet_run5711_FTROI_target_z_geometry.png)
+
+![Run 5711 target-z fit and compatibility summary](CDet_run5711_FTROI_target_z_target_z.png)
+
+![Run 5711 CDet y residuals and constrained electron angles](CDet_run5711_FTROI_target_z_y_angles.png)
+
+### Detailed interpretation of the twelve panels
+
+For the Run 5711 date, the database defines 24 target-z bins from -0.28 m to
++0.08 m. The bin width is 0.015 m and the bin centers run from -0.2725 m to
++0.0725 m. The working x uncertainties are 0.006 m for ECal and 0.017973 m
+for CDet. CDet y is not treated as an independent precision measurement; its
+compatibility half-width is 0.255 m.
+
+The plotting macro reconstructs those exact scan edges from the exported bin
+centers and uses one histogram bin per target-z value. An earlier diagnostic
+version widened the displayed range without increasing its 24 bins, causing
+four display bins to merge pairs of adjacent target-z values and creating four
+false vertical enhancements. The figures linked above have been regenerated
+with the corrected one-to-one binning.
+
+For a two-layer hypothesis, the constrained x calculation uses ECal plus both
+CDet layers. There are three measurements and one fitted slope, giving two
+degrees of freedom. A single-layer hypothesis uses ECal plus one CDet layer,
+giving one degree of freedom. All panels include the complete pre-greedy
+hypothesis collection. They are not one-entry-per-event distributions, and a
+pulse may appear in more than one hypothesis.
+
+#### Panel 1: Layer-1 CDet x versus ECal x
+
+The narrow diagonal shows that the Layer-1 source pulses and ECal clusters
+have consistent coordinate orientation, scale, and indexing. The correlation
+is partly imposed by candidate selection: before entering a hypothesis, a
+pulse must satisfy the ECal-projected spatial requirement
+
+```text
+abs(x_CDet - x_ECal projected to CDet) <= 0.08 m.
+```
+
+This is therefore a bookkeeping and selection-validation plot, not an
+independent CDet-resolution or event-efficiency measurement. Its visible
+banding reflects the discrete CDet paddle and pixel geometry.
+
+#### Panel 2: Layer-2 CDet x versus ECal x
+
+This is the Layer-2 equivalent of Panel 1. Its similar diagonal pattern is
+reassuring: neither layer appears reversed, grossly displaced, or indexed
+incorrectly. The same preselection caveat applies.
+
+#### Panel 3: target-constrained x chi-square/NDF versus target z
+
+For each hypothesis and target-z bin, the current code fits an x line
+constrained through `x = 0` at the numerical value of `z_target`, then forms a
+weighted chi-square from ECal and the available CDet x values. Most entries
+lie between zero and about 17 in chi-square/NDF. The near-zero population
+contains hypotheses for which one constrained line passes close to all
+available measurements; the tail contains less compatible hypotheses.
+
+The distribution changes little over the scan. This cannot yet be interpreted
+as a lack of physical target-z sensitivity because the current fit uses the
+global target-z number directly rather than its detector-frame z component.
+
+#### Panel 4: mean constrained x chi-square/NDF versus target z
+
+This is the mean of Panel 3 in each target-z bin. It remains near 4.3 to 4.4
+and is nearly flat. The y axis begins at zero so that this small variation is
+not visually exaggerated. A mean appreciably above one could result from
+accidental hypotheses, underestimated position uncertainties, non-Gaussian response,
+selection correlations, or an incorrect geometric model. The known frame
+mixing is sufficiently large that it must be corrected before uncertainties
+or chi-square cuts are tuned.
+
+#### Panel 5: target-z bin with minimum chi-square/NDF
+
+For every hypothesis, this panel selects the one target bin having the minimum
+constrained-x chi-square. Blue represents two-layer pairs and orange represents
+single-layer hypotheses. The two distributions are normalized independently,
+so their shapes can be compared despite the much smaller single-layer sample.
+
+The dominant peaks occur at the first and last scan bins. Mechanically, this
+means the chi-square is often monotonic across the scan rather than having a
+well-defined interior minimum. It would normally warn that the points do not
+localize target z. In this first replay it may also be a direct artifact of
+using the target coordinate in the wrong frame. This is not a reconstructed
+vertex distribution.
+
+#### Panel 6: minimum chi-square/NDF for each hypothesis
+
+This shows the best value obtained after scanning all 24 target bins. It has a
+large population near zero and a broad tail extending to roughly 15 to 17.
+Single-layer hypotheses can obtain particularly small minima because they have
+only one degree of freedom and are tested at 24 alternative target positions.
+
+A small minimum is not, by itself, proof of the correct physical hypothesis.
+There is a look-elsewhere effect from selecting the best scan bin, and the
+candidates were already spatially selected. This quantity may eventually help
+rank global hypotheses, but it should not yet define an acceptance cut.
+
+#### Panel 7: CDet half-bar y-compatible fraction versus target z
+
+No CDet y slope is fitted. For each target bin, the current calculation draws
+the ECal-to-target y trajectory and evaluates
+
+```text
+y_residual = nominal CDet half-bar center
+             - predicted ECal-to-target y at the CDet layer.
+```
+
+A layer passes when `abs(y_residual) <= 0.255 m`. A pair requires both layers
+to pass; a single-layer hypothesis requires its available layer to pass. About
+60% of all hypothesis/target-bin associations pass. This is not a 60% event
+efficiency because every hypothesis contributes 24 entries and events may
+contain multiple hypotheses. Its flatness partly reflects the intentionally
+broad y interval; the frame correction is also required before a physical
+interpretation.
+
+That approximately 60% result belongs to the first diagnostic replay and
+exposed two missing pieces in the FTROI implementation. First, the residual
+did not apply the authoritative `SBSCDet` y-alignment offset of +0.10 m, even
+though the detector-level pulse selection did. Second, every pair was required
+to pass the two independent half-bar intervals even when `SBSCDet` had already
+classified it as an opposite-side seam topology.
+
+The implementation has now been corrected as follows:
+
+- same-side pairs and single-layer hypotheses use
+  `y_CDet - y_projected - selection_y_offset` and the configured 0.255 m
+  half-bar interval;
+- opposite-side pairs use the same seam-center and projected-y tolerance that
+  admitted the pair in `SBSCDet`;
+- `cdet.hyp.y_topology` exports `-1` for singles, `0` for same-side pairs, and
+  `1` for opposite-side seam pairs;
+- `cdet.vertex.yseam_compatible` exports the seam decision separately, while
+  `cdet.vertex.ycompatible` is the final topology-aware decision.
+
+The numerical 60% fraction must therefore not be treated as the intended
+selection efficiency. A new replay is required to measure the corrected pair,
+single-layer, and seam-aware fractions.
+
+#### Panel 8: mean global electron scattering angle versus target z
+
+This panel shows ROOT `TVector3::Theta()`, the polar angle relative to the
+global Hall beam axis, in degrees. It is therefore expected near the Run 5711
+database value `earm.theta = 27.0 degrees`, not near zero. A dashed horizontal
+line marks that central-ray value. Moving the assumed vertex naturally changes
+the reconstructed ray. This remains a mean over all hypotheses rather than an
+angular-resolution measurement, and its numerical target-z dependence must be
+regenerated after the coordinate correction.
+
+#### Panel 9: Layer-1 y residual versus target z
+
+The horizontal bands arise because CDet contributes nominal discrete half-bar
+y centers rather than a continuous independent y measurement. Values within
++/-0.255 m pass the compatibility test. The distribution is not a CDet
+y-resolution measurement. Its asymmetry can reflect detector acceptance and
+ECal illumination, while its physical residual values remain subject to the
+target-coordinate correction.
+
+#### Panel 10: Layer-2 y residual versus target z
+
+This is the Layer-2 counterpart of Panel 9. Differences in stripe population
+reflect Layer-2 occupancy and candidate composition. The fact that both layers
+show sensible discrete bands verifies retrieval of the expected CDet geometry,
+but the residual values must be regenerated after the frame correction.
+
+#### Panel 11: mean TRANSPORT out-of-plane angle versus target z
+
+This replaces the earlier duplicate of Panel 8. It shows
+`atan(x_slope)` in degrees, where TRANSPORT x points vertically downward. Zero
+represents the nominal ECal central plane for an individual ray, but no zero
+reference line is drawn: the plotted quantity is the mean of the selected
+sample, and that mean is not expected to vanish when the illumination and
+hypothesis multiplicity are asymmetric. This is the intuitive out-of-plane
+diagnostic. The full distribution is required before assigning an angular
+resolution.
+
+#### Panel 12: mean TRANSPORT in-plane deviation versus target z
+
+This replaces the earlier ROOT global azimuth, which was not the intuitive
+out-of-plane angle. It shows `atan(y_slope)` in degrees. TRANSPORT y lies in
+the horizontal scattering plane, so zero represents the nominal central-ray
+direction for an individual ray. As in Panel 11, no zero line is drawn because
+the displayed sample mean need not be zero. Together, Panels 8, 11, and 12
+separate the lab scattering angle, local out-of-plane deviation, and local
+in-plane deviation.
+
+### Conclusions supported by the first plot set
+
+The current figures establish that:
+
+1. ECal and CDet x coordinates and source indices are connected sensibly.
+2. Both CDet layers exhibit the expected, partly selection-induced ECal x
+   correlation.
+3. The revised target-z, chi-square, y-compatibility, and angle branches are
+   mechanically populated with internally consistent multiplicities.
+4. Multiple retained candidate hypotheses create an ambiguity that a later
+   global consistency calculation must resolve.
+
+They do not yet establish that CDet lacks target-z sensitivity, that physical
+vertices prefer the target boundaries, that a mean chi-square/NDF near 4.3 is
+properly calibrated, or that the displayed angles are final. The required next
+correction is to transform every global target point `(0, 0, z_target)` into
+the shared ECal/CDet electron-arm frame before applying the constrained x fit
+and y compatibility calculation. A new replay and regenerated Panels 3 through
+12 are required before drawing those physical conclusions.
+
 ## Initial invariants
 
 The Step 5 implementation must preserve the following unless a later,
@@ -672,8 +968,12 @@ Step 5 implementation slice: calibrated CDet candidates are read after coarse
 reconstruction, converted into auditable electron-ray and target-z diagnostic
 hypotheses, and exported without exposing mutable detector storage.
 
-The first Run 5711 validation has now determined the next diagnostic model:
-target-z-constrained x fits, CDet y interval compatibility, and statistically
-appropriate fit-quality outputs. A short Run 5711 replay with these revised
-branches is required next. Only after those results are understood should the
-database-disabled Step 5C path be allowed to modify GEM constraints.
+The revised Run 5711 validation confirms that target-z-constrained x fits,
+CDet y interval compatibility, and statistically appropriate fit-quality
+outputs are populated with internally consistent multiplicities. Before their
+values can be interpreted physically, the global target points must be
+transformed into the shared ECal/CDet frame and the short validation replay
+must be repeated. Run 6077 then provides the planned later-run comparison of
+GEM tracking and CDet opportunity. Only after those corrected results are
+understood should the database-disabled Step 5C path be allowed to modify GEM
+constraints.
