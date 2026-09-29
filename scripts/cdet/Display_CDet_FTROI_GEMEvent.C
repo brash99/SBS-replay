@@ -1,6 +1,7 @@
 #include <TCanvas.h>
 #include <TChain.h>
 #include <TColor.h>
+#include <TFile.h>
 #include <TH3D.h>
 #include <TMarker3DBox.h>
 #include <TMath.h>
@@ -16,6 +17,7 @@
 #include <TTreeReaderArray.h>
 #include <TTreeReaderValue.h>
 #include <TVector3.h>
+#include <TView.h>
 
 #include <algorithm>
 #include <cmath>
@@ -287,7 +289,9 @@ void Display_CDet_FTROI_GEMEvent(
         TString::Format("ftroi_frame_%lld", requestedEventNumber),
         TString::Format("Run 5711 event %lld;Hall x (m);Hall y (m);Hall z (m)",
                         requestedEventNumber),
-        10, -4.0, 4.0, 10, -2.0, 2.0, 10, -0.7, 11.0);
+        // Equal 12 m spans preserve physical angles and perpendicularity in
+        // the ROOT 3D projection. The unused Hall-y space is intentional.
+        10, -6.0, 6.0, 10, -6.0, 6.0, 10, -0.75, 11.25);
     frame->SetStats(kFALSE);
     frame->Draw();
 
@@ -339,11 +343,25 @@ void Display_CDet_FTROI_GEMEvent(
     const int selectedPulses[2] = {
         static_cast<int>(std::lround(hypPulseL1[selectedHypothesis])),
         static_cast<int>(std::lround(hypPulseL2[selectedHypothesis]))};
+    bool havePairMean = false;
+    TVector3 pairMeanLocal;
     for (int i = 0; i < 2; ++i) {
       const int ip = selectedPulses[i];
-      if (ip >= 0 && ip < static_cast<int>(pulseZ.GetSize()))
+      if (ip >= 0 && ip < static_cast<int>(pulseZ.GetSize())) {
         DrawMarker(ToHall(TVector3(pulseX[ip], pulseY[ip], pulseZ[ip]), eAxes),
                    i == 0 ? kRed + 1 : kOrange + 7, 29, 2.0);
+      }
+    }
+    if (selectedPulses[0] >= 0 && selectedPulses[1] >= 0 &&
+        selectedPulses[0] < static_cast<int>(pulseZ.GetSize()) &&
+        selectedPulses[1] < static_cast<int>(pulseZ.GetSize())) {
+      pairMeanLocal = 0.5 *
+          (TVector3(pulseX[selectedPulses[0]], pulseY[selectedPulses[0]],
+                    pulseZ[selectedPulses[0]]) +
+           TVector3(pulseX[selectedPulses[1]], pulseY[selectedPulses[1]],
+                    pulseZ[selectedPulses[1]]));
+      havePairMean = true;
+      DrawMarker(ToHall(pairMeanLocal, eAxes), kMagenta + 2, 34, 2.2);
     }
 
     // Target scan points for the selected hypothesis: green is y-compatible,
@@ -423,6 +441,9 @@ void Display_CDet_FTROI_GEMEvent(
                                      selectedHypothesis));
     summary->AddText(TString::Format("pulse indices: %d / %d",
                                      selectedPulses[0], selectedPulses[1]));
+    if (havePairMean)
+      summary->AddText(TString::Format("pair mean x/y/z: %.4f / %.4f / %.4f m",
+          pairMeanLocal.X(), pairMeanLocal.Y(), pairMeanLocal.Z()));
     summary->AddText(TString::Format("topology: %s",
         std::lround(hypTopology[selectedHypothesis]) == 1 ? "seam" :
         (std::lround(hypTopology[selectedHypothesis]) == 0 ? "same-side" :
@@ -458,6 +479,7 @@ void Display_CDet_FTROI_GEMEvent(
     summary->AddText("Dashed gray: Hall beam axis");
     summary->AddText("Solid black: ECal/CDet z axis");
     summary->AddText("Dashed orange: proton central ray");
+    summary->AddText("Magenta cross: selected CDet pair mean");
     summary->AddText("Target dots: green compatible, red not");
     summary->AddText("Arms share Hall coordinates; slopes do not.");
     summary->Draw();

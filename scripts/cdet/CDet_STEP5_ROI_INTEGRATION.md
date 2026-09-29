@@ -1081,10 +1081,12 @@ and y compatibility calculation. A new replay and regenerated Panels 3 through
 `Display_CDet_FTROI_GEMEvent.C` provides an interactive, deliberately light
 weight Hall-coordinate display for the 358-event Run 5711 review sample. It
 draws the electron- and proton-arm central axes, ECal and its cluster, the two
-CDet layers and all event pulses, the selected CDet pulses and FTROI ray,
+CDet layers and all event pulses, the selected CDet pulses, their mean
+coordinate, and the FTROI ray,
 target-scan compatibility points, GEM FT planes and the best proton-arm track,
 and HCAL with its cluster. Detector outlines are schematic acceptance planes,
-not a GEANT geometry.
+not a GEANT geometry. The Hall x, y, and z display ranges have equal physical
+scales so that angles and detector-plane perpendicularity are not distorted.
 
 Run it interpreted with the local ROOT/Podd environment:
 
@@ -1108,6 +1110,197 @@ coordinates. It intentionally does not subtract their local track slopes;
 cross-arm interpretation still belongs to the HEEP/elastic closure variables.
 The stored FTROI target-z result retains the known fit-coordinate caveat above,
 but its display point is placed at the correct Hall location `(0,0,z_target)`.
+
+Three interactive views illustrate distinct event structures. The viewpoints
+were chosen manually in the ROOT canvas; the equal physical axis scales are
+preserved in each image.
+
+![Run 5711 event 113106: one same-side FTROI hypothesis and one GEM FT track](event2.jpg)
+
+*Event 113106 has one same-side, y-compatible FTROI hypothesis and one GEM FT
+track. It is a visually simple topology example, although it fails the
+historical elastic selection only on the ECal energy-ratio requirement.*
+
+![Run 5711 event 139083: one same-side FTROI hypothesis and three GEM tracks](event3.jpg)
+
+*Event 139083 retains one same-side FTROI hypothesis while the proton arm has
+three GEM tracks. It isolates proton-arm multiplicity against a simple
+electron-arm candidate.*
+
+![Run 5711 event 38340: selected opposite-side seam hypothesis](seam_event.jpg)
+
+*Event 38340 shows the selected opposite-side seam pair. The Layer-1 and
+Layer-2 nominal half-bar centers lie on opposite sides of the central seam;
+the magenta marker is their mean CDet coordinate. This is an ambiguity and
+topology diagnostic rather than a historical-cut elastic event.*
+
+### Comparison with the historical elastic-event selection
+
+An approximate elastic-event selection supplied by the GEP physics-analysis
+effort was evaluated directly on the same 18 Run 5711 replay files:
+
+```text
+abs(heep.dt_ADC) < 10 &&
+abs(sbs.tr.vz[0] + 0.1) < 0.18 &&
+heep.ecalo/heep.eprime_eth > 0.7 &&
+abs(heep.dxECAL - 0.01 + 0.025*earm.ecal.x) < 0.05 &&
+sbs.gemFPP.track.ntrack > 0 &&
+abs(heep.dyECAL - 0.01) < 0.06 &&
+sbs.gemFPP.track.sclose[0] < 0.01 &&
+(sbs.gemFT.track.nhits[0] > 4 ||
+ sbs.gemFT.track.ngoodhits[0] > 2)
+```
+
+This is a much tighter physics-analysis selection than the current CDet
+candidate definition. The latter is intended to retain auditable electron-ray
+hypotheses and is not, by itself, an elastic-event classifier.
+
+| Sample | Events | Pass historical cut |
+|---|---:|---:|
+| All replayed Run 5711 events | 261,010 | 20 |
+| Events with a GEM FT track | 358 | 20 |
+| GEM FT track plus at least one FTROI/CDet hypothesis | 117 | 12 |
+
+All 20 historical elastic candidates are therefore contained in the 358-event
+GEM catalogue. Twelve of the 20, or 60%, have a CDet hypothesis. Conversely,
+12 of the 117 CDet-overlap events, or 10.3%, pass the complete historical
+selection. This is consistent with deliberately broad CDet candidate
+retention rather than evidence that the CDet selection is impure or incorrect.
+
+The individual historical-cut efficiencies within the 358-event GEM sample
+are:
+
+| Requirement | Passing events | Fraction |
+|---|---:|---:|
+| `abs(heep.dt_ADC) < 10` | 176 | 49.2% |
+| SBS reconstructed-vertex requirement | 271 | 75.7% |
+| `heep.ecalo/heep.eprime_eth > 0.7` | 107 | 29.9% |
+| corrected ECal x-residual requirement | 226 | 63.1% |
+| at least one GEM FPP track | 358 | 100.0% |
+| ECal y-residual requirement | 174 | 48.6% |
+| GEM FPP closest approach below 0.01 m | 135 | 37.7% |
+| GEM FT hit-quality requirement | 164 | 45.8% |
+
+The strongest individual restrictions in this sample are the ECal energy
+ratio and FPP closest-approach requirements. Cut efficiencies in this table
+are individual, not sequential, and therefore must not be multiplied.
+
+The 20 events passing the complete historical selection are:
+
+```text
+44091   69900   134211  136242  140892
+239796  242841  250203  262908  338979
+365694  385134  416652  452370  471063
+496455  556335  572790  600126  653856
+```
+
+The twelve with at least one FTROI/CDet hypothesis are:
+
+```text
+44091   134211  136242  140892  239796  242841
+250203  365694  385134  471063  496455  572790
+```
+
+Ten of their catalogue-selected best hypotheses are same-side pairs and two,
+events 239796 and 250203, are seam pairs. All twelve selected associations are
+topology-aware y-compatible. Events 140892 and 385134 are especially useful
+same-side displays: both pass the complete historical cut, while their best
+FTROI constrained-x chi-square/NDF values are approximately 0.0338 and 0.0115,
+respectively. Event 140892 also has an interior best target bin at
+`z = -0.0025 m`; that value remains subject to the known target-coordinate
+caveat and is not yet a physical vertex result.
+
+Event 38340 remains valuable as an ambiguity and seam-topology diagnostic, but
+it does not pass the historical elastic selection. It passes the ADC-time,
+SBS-vertex, corrected ECal-x, and FPP-track requirements, while failing four
+terms:
+
+| Event 38340 quantity | Value | Decision |
+|---|---:|---|
+| `heep.ecalo/heep.eprime_eth` | 0.323 | fail |
+| `heep.dyECAL - 0.01` | -0.117 m | fail |
+| `sbs.gemFPP.track.sclose[0]` | 0.0163 m | fail |
+| GEM FT hits / good hits | 4 / 2 | fail |
+
+Its excellent FTROI constrained-x fit therefore must not be confused with an
+independent elastic-event identification.
+
+### The eight historical elastic events without a CDet hypothesis
+
+The eight complete-cut events without an FTROI/CDet hypothesis are:
+
+```text
+69900  262908  338979  416652
+452370 556335  600126  653856
+```
+
+Their failure was traced through the CDet candidate-building stages. A fully
+selected pulse in the following table has valid timing calibration and passes
+the broad pulse-quality, event-level ECal-eligibility, and projected spatial
+requirements. A detector-local pair additionally passes the inter-layer
+timing, x-difference, and same-side or seam-topology gates.
+
+| Event | Selected L1/L2 pulses | Detector-local pairs | Best final ellipse score | Main issue |
+|---:|---:|---:|---:|---|
+| 69900 | 2 / 8 | 6 | 5.90 | trajectory residual |
+| 262908 | 1 / 0 | 0 | 28.32 (single layer) | missing Layer 2 and timing |
+| 338979 | 4 / 9 | 20 | 5.19 | borderline trajectory plus timing |
+| 416652 | 3 / 2 | 1 | 53.32 | trajectory and timing |
+| 452370 | 1 / 5 | 2 | 8.33 | timing |
+| 556335 | 14 / 8 | 42 | 12.81 | timing |
+| 600126 | 5 / 2 | 1 | 30.45 | trajectory |
+| 653856 | 4 / 4 | 6 | 7.82 | trajectory |
+
+Seven of the eight are therefore not simple CDet acceptance failures. They
+contain fully selected pulses in both layers and at least one pair passing all
+detector-local gates. They are rejected only by the final ECal-informed
+trajectory-time ellipse. Event 262908 is the sole genuine one-layer case at
+the fully selected-pulse stage; its remaining Layer-1 pulse also fails the
+exclusive single-layer ellipse.
+
+For a two-layer pair, the active radius-two requirement is
+
+```text
+(trajectory_residual / 0.020 m)^2
+  + ((mean_ECal_timing_residual + 26 ns) / 5 ns)^2 <= 4.
+```
+
+The best rejected combination in each event is:
+
+| Event | Trajectory residual (m) | Timing residual (ns) | Ellipse radius |
+|---:|---:|---:|---:|
+| 69900 | +0.0483 | -27.38 | 2.43 |
+| 338979 | -0.0330 | -33.87 | 2.28 |
+| 416652 | -0.0990 | -52.83 | 7.30 |
+| 452370 | +0.0028 | -40.42 | 2.89 |
+| 556335 | -0.0180 | -43.32 | 3.58 |
+| 600126 | +0.1009 | -37.15 | 5.52 |
+| 653856 | +0.0533 | -30.24 | 2.80 |
+
+For event 262908, the best single-layer score is 28.32, with an x residual of
+-0.0534 m and a timing residual of -51.76 ns. Events 69900 and 338979 are the
+closest two-layer near misses. A hypothetical ellipse radius of 2.5 would
+recover both, but no working-point change is justified from eight events
+alone. Event 452370 is an informative timing-only rejection: its best
+trajectory residual is just 2.8 mm. Event 556335 demonstrates why these events
+should not all be described as having "no CDet information": it has 22 fully
+selected pulses and 42 detector-local pairs, none of which passes the final
+ellipse.
+
+The historical `abs(heep.dt_ADC) < 10` requirement and the pulse-level
+ECal/CDet timing residual used by this ellipse are different timing
+constructions. Passing the former does not imply passing the latter. These
+candidate losses also occur before FTROI hypothesis export and before the
+target-z scan, so they are not caused by the known Hall-to-electron-transport
+target-coordinate error.
+
+The most useful next event-level diagnostic is a rejected-candidate display
+mode for events with `FTROI.cdet.hyp.n == 0`. It should show fully selected
+pulses, highlight the closest rejected pair or single-layer pulse, and report
+the trajectory pull, timing pull, and ellipse radius. Priority examples are
+338979 (closest combined near miss), 69900 (trajectory near miss), 452370
+(timing-only rejection), 262908 (one-layer acceptance case), and 556335 (many
+local pairs rejected by timing).
 
 ## Initial invariants
 
