@@ -1,7 +1,7 @@
 #include "CDetPlotStyle.h"
 
 #include <TCanvas.h>
-#include <TFile.h>
+#include <TChain.h>
 #include <TH1D.h>
 #include <TH2D.h>
 #include <TLegend.h>
@@ -18,6 +18,7 @@
 #include <cmath>
 #include <iostream>
 #include <limits>
+#include <memory>
 #include <vector>
 
 namespace {
@@ -82,21 +83,25 @@ void Plot_CDet_FTROI_TargetZDiagnostics(
   ApplyCDetPlotStyle();
   gStyle->SetOptStat(0);
 
-  TFile input(inputFile, "READ");
-  if (input.IsZombie()) {
-    std::cerr << "[CDet FTROI target-z] Cannot open " << inputFile << std::endl;
+  TChain input("T");
+  const int inputFiles = input.Add(inputFile);
+  if (inputFiles <= 0) {
+    std::cerr << "[CDet FTROI target-z] No files match " << inputFile << std::endl;
     return;
   }
-  TTree *tree = dynamic_cast<TTree *>(input.Get("T"));
-  if (!tree) {
-    std::cerr << "[CDet FTROI target-z] Tree T is missing from " << inputFile
+  if (input.GetEntries() <= 0) {
+    std::cerr << "[CDet FTROI target-z] Tree T is empty in " << inputFile
               << std::endl;
     return;
   }
+  TTree *tree = &input;
 
   const char *required[] = {
       "earm.ecal.x", "earm.ecal.y", "earm.cdet.pulse.x_corr",
       "FTROI.cdet.hyp.n", "FTROI.cdet.hyp.source_type",
+      "FTROI.cdet.npair_candidate", "FTROI.cdet.nsingle_candidate",
+      "FTROI.cdet.roi_status",
+      "FTROI.cdet.timing_status", "sbs.gemFT.track.ntrack",
       "FTROI.cdet.hyp.pulse_index_l1", "FTROI.cdet.hyp.pulse_index_l2",
       "FTROI.cdet.vertex.n", "FTROI.cdet.vertex.hyp_index",
       "FTROI.cdet.vertex.z", "FTROI.cdet.vertex.xchi2",
@@ -132,8 +137,22 @@ void Plot_CDet_FTROI_TargetZDiagnostics(
   TTreeReader reader(tree);
   TTreeReaderValue<Double_t> ecalX(reader, "earm.ecal.x");
   TTreeReaderValue<Double_t> ecalY(reader, "earm.ecal.y");
+  TTreeReaderValue<Double_t> roiStatus(reader, "FTROI.cdet.roi_status");
+  TTreeReaderValue<Double_t> timingStatus(reader, "FTROI.cdet.timing_status");
+  TTreeReaderValue<Double_t> gemFTNTrack(reader, "sbs.gemFT.track.ntrack");
+  TTreeReaderValue<Double_t> pairCandidates(
+      reader, "FTROI.cdet.npair_candidate");
+  TTreeReaderValue<Double_t> singleCandidates(
+      reader, "FTROI.cdet.nsingle_candidate");
   TTreeReaderArray<Double_t> pulseX(reader, "earm.cdet.pulse.x_corr");
   TTreeReaderArray<Double_t> hypSourceType(reader, "FTROI.cdet.hyp.source_type");
+  const bool hasTopologyBranches =
+      tree->GetBranch("FTROI.cdet.hyp.y_topology") &&
+      tree->GetBranch("FTROI.cdet.vertex.yseam_compatible");
+  std::unique_ptr<TTreeReaderArray<Double_t>> hypYTopology;
+  if (hasTopologyBranches)
+    hypYTopology.reset(new TTreeReaderArray<Double_t>(
+        reader, "FTROI.cdet.hyp.y_topology"));
   TTreeReaderArray<Double_t> hypPulseL1(reader, "FTROI.cdet.hyp.pulse_index_l1");
   TTreeReaderArray<Double_t> hypPulseL2(reader, "FTROI.cdet.hyp.pulse_index_l2");
   TTreeReaderArray<Double_t> vertexHyp(reader, "FTROI.cdet.vertex.hyp_index");
@@ -145,6 +164,10 @@ void Plot_CDet_FTROI_TargetZDiagnostics(
   TTreeReaderArray<Double_t> vertexYResidualL1(reader, "FTROI.cdet.vertex.yresidual_l1");
   TTreeReaderArray<Double_t> vertexYResidualL2(reader, "FTROI.cdet.vertex.yresidual_l2");
   TTreeReaderArray<Double_t> vertexYCompatible(reader, "FTROI.cdet.vertex.ycompatible");
+  std::unique_ptr<TTreeReaderArray<Double_t>> vertexYSeamCompatible;
+  if (hasTopologyBranches)
+    vertexYSeamCompatible.reset(new TTreeReaderArray<Double_t>(
+        reader, "FTROI.cdet.vertex.yseam_compatible"));
   TTreeReaderArray<Double_t> vertexTheta(reader, "FTROI.cdet.vertex.theta_global");
 
   TH2D hECalVsL1("hECalVsL1",
@@ -190,23 +213,86 @@ void Plot_CDet_FTROI_TargetZDiagnostics(
 
   const double radiansToDegrees = 180.0 / TMath::Pi();
 
+  Long64_t events = 0;
+  Long64_t eventsWithTiming = 0;
   Long64_t eventsWithHypotheses = 0;
+  Long64_t eventsWithGEMTrack = 0;
+  Long64_t eventsWithBoth = 0;
+  Long64_t pairStatusEvents = 0;
+  Long64_t layer1OnlyEvents = 0;
+  Long64_t layer2OnlyEvents = 0;
   Long64_t hypotheses = 0;
+  Long64_t pairHypotheses = 0;
+  Long64_t singleHypotheses = 0;
+  Long64_t pairCandidateSources = 0;
+  Long64_t singleCandidateSources = 0;
+  Long64_t nonzeroStatusWithoutHypotheses = 0;
+  Long64_t invalidHypotheses = 0;
+  Long64_t eventsWithBadTargetMultiplicity = 0;
+  Long64_t hypothesesWithBadTargetMultiplicity = 0;
+  Long64_t pairXNDF2 = 0;
+  Long64_t singleXNDF1 = 0;
+  Long64_t pairMissingYLayer = 0;
+  Long64_t singleExactlyOneMissingYLayer = 0;
+  Long64_t yCompatibleAssociations = 0;
+  Long64_t yAssociations = 0;
+  Long64_t sameSideAssociations = 0;
+  Long64_t sameSideCompatible = 0;
+  Long64_t seamAssociations = 0;
+  Long64_t seamCompatible = 0;
+  Long64_t singleAssociations = 0;
+  Long64_t singleCompatible = 0;
   while (reader.Next()) {
+    ++events;
+    if (static_cast<int>(std::lround(*timingStatus)) == 2)
+      ++eventsWithTiming;
+    const bool hasGEMTrack = *gemFTNTrack > 0.0;
+    if (hasGEMTrack)
+      ++eventsWithGEMTrack;
+    const int status = static_cast<int>(std::lround(*roiStatus));
+    pairCandidateSources += std::lround(*pairCandidates);
+    singleCandidateSources += std::lround(*singleCandidates);
+    if (status == 1)
+      ++pairStatusEvents;
+    else if (status == 2)
+      ++layer1OnlyEvents;
+    else if (status == 3)
+      ++layer2OnlyEvents;
+
     const int nHyp = static_cast<int>(hypSourceType.GetSize());
-    if (nHyp <= 0)
+    if (nHyp <= 0) {
+      if (status != 0)
+        ++nonzeroStatusWithoutHypotheses;
       continue;
+    }
     ++eventsWithHypotheses;
+    if (hasGEMTrack)
+      ++eventsWithBoth;
     hypotheses += nHyp;
 
     std::vector<double> bestChi2NDF(nHyp,
         std::numeric_limits<double>::infinity());
     std::vector<double> bestZ(nHyp,
         std::numeric_limits<double>::quiet_NaN());
+    std::vector<int> targetAssociations(nHyp, 0);
 
     for (int ih = 0; ih < nHyp; ++ih) {
+      const int sourceType = static_cast<int>(std::lround(hypSourceType[ih]));
       const int iL1 = static_cast<int>(std::lround(hypPulseL1[ih]));
       const int iL2 = static_cast<int>(std::lround(hypPulseL2[ih]));
+      if (sourceType == 1)
+        ++pairHypotheses;
+      else if (sourceType == 2 || sourceType == 3)
+        ++singleHypotheses;
+      if ((sourceType == 1 &&
+           (iL1 < 0 || iL1 >= static_cast<int>(pulseX.GetSize()) ||
+            iL2 < 0 || iL2 >= static_cast<int>(pulseX.GetSize()))) ||
+          (sourceType == 2 &&
+           (iL1 < 0 || iL1 >= static_cast<int>(pulseX.GetSize()) || iL2 >= 0)) ||
+          (sourceType == 3 &&
+           (iL2 < 0 || iL2 >= static_cast<int>(pulseX.GetSize()) || iL1 >= 0)) ||
+          (sourceType < 1 || sourceType > 3))
+        ++invalidHypotheses;
       if (iL1 >= 0 && iL1 < static_cast<int>(pulseX.GetSize()))
         hECalVsL1.Fill(*ecalX, pulseX[iL1]);
       if (iL2 >= 0 && iL2 < static_cast<int>(pulseX.GetSize()))
@@ -218,8 +304,42 @@ void Plot_CDet_FTROI_TargetZDiagnostics(
       const int ih = static_cast<int>(std::lround(vertexHyp[iv]));
       if (ih < 0 || ih >= nHyp)
         continue;
+      ++targetAssociations[ih];
       const double z = vertexZ[iv];
       const double ndf = vertexXNDF[iv];
+      const int sourceType = static_cast<int>(std::lround(hypSourceType[ih]));
+      const int topology = hasTopologyBranches ?
+          static_cast<int>(std::lround((*hypYTopology)[ih])) : -999;
+      if (sourceType == 1 && std::lround(ndf) == 2)
+        ++pairXNDF2;
+      if ((sourceType == 2 || sourceType == 3) && std::lround(ndf) == 1)
+        ++singleXNDF1;
+      const bool hasYL1 = std::isfinite(vertexYResidualL1[iv]);
+      const bool hasYL2 = std::isfinite(vertexYResidualL2[iv]);
+      if (sourceType == 1 && (!hasYL1 || !hasYL2))
+        ++pairMissingYLayer;
+      if ((sourceType == 2 || sourceType == 3) && (hasYL1 != hasYL2))
+        ++singleExactlyOneMissingYLayer;
+      const bool yDecision = vertexYCompatible[iv] == 0.0 ||
+                             vertexYCompatible[iv] == 1.0;
+      if (yDecision) {
+        ++yAssociations;
+        if (vertexYCompatible[iv] == 1.0)
+          ++yCompatibleAssociations;
+        if (topology == 0) {
+          ++sameSideAssociations;
+          if (vertexYCompatible[iv] == 1.0)
+            ++sameSideCompatible;
+        } else if (topology == 1) {
+          ++seamAssociations;
+          if ((*vertexYSeamCompatible)[iv] == 1.0)
+            ++seamCompatible;
+        } else if (topology == -1) {
+          ++singleAssociations;
+          if (vertexYCompatible[iv] == 1.0)
+            ++singleCompatible;
+        }
+      }
       const double chi2NDF = ndf > 0.0 ? vertexXChi2[iv] / ndf :
           std::numeric_limits<double>::quiet_NaN();
       if (std::isfinite(chi2NDF)) {
@@ -245,6 +365,16 @@ void Plot_CDet_FTROI_TargetZDiagnostics(
         pInPlaneVsZ.Fill(z, std::atan(vertexYSlope[iv]) *
                              radiansToDegrees);
     }
+
+    bool badTargetMultiplicity = false;
+    for (const int count : targetAssociations) {
+      if (count != targetBins) {
+        ++hypothesesWithBadTargetMultiplicity;
+        badTargetMultiplicity = true;
+      }
+    }
+    if (badTargetMultiplicity)
+      ++eventsWithBadTargetMultiplicity;
 
     for (int ih = 0; ih < nHyp; ++ih) {
       if (!std::isfinite(bestZ[ih]) || !std::isfinite(bestChi2NDF[ih]))
@@ -306,8 +436,51 @@ void Plot_CDet_FTROI_TargetZDiagnostics(
   cTarget.Print(TString::Format("%s_target_z.png", outputStem));
   cY.Print(TString::Format("%s_y_angles.png", outputStem));
 
+  std::cout << "[CDet FTROI target-z] input files: " << inputFiles << std::endl;
+  std::cout << "[CDet FTROI target-z] topology branches: "
+            << (hasTopologyBranches ? "present" : "absent") << std::endl;
+  std::cout << "[CDet FTROI target-z] events: " << events << std::endl;
+  std::cout << "[CDet FTROI target-z] events with calibrated timing: "
+            << eventsWithTiming << std::endl;
   std::cout << "[CDet FTROI target-z] events with hypotheses: "
             << eventsWithHypotheses << std::endl;
   std::cout << "[CDet FTROI target-z] hypotheses: " << hypotheses << std::endl;
+  std::cout << "[CDet FTROI target-z] pair hypotheses: " << pairHypotheses
+            << std::endl;
+  std::cout << "[CDet FTROI target-z] single hypotheses: " << singleHypotheses
+            << std::endl;
+  std::cout << "[CDet FTROI target-z] pair candidate sources: "
+            << pairCandidateSources << std::endl;
+  std::cout << "[CDet FTROI target-z] single candidate sources: "
+            << singleCandidateSources << std::endl;
+  std::cout << "[CDet FTROI target-z] nonzero ROI status without hypotheses: "
+            << nonzeroStatusWithoutHypotheses << std::endl;
+  std::cout << "[CDet FTROI target-z] invalid hypotheses: " << invalidHypotheses
+            << std::endl;
+  std::cout << "[CDet FTROI target-z] ROI status events pair/l1/l2: "
+            << pairStatusEvents << "/" << layer1OnlyEvents << "/"
+            << layer2OnlyEvents << std::endl;
+  std::cout << "[CDet FTROI target-z] bad target multiplicity events/hypotheses: "
+            << eventsWithBadTargetMultiplicity << "/"
+            << hypothesesWithBadTargetMultiplicity << std::endl;
+  std::cout << "[CDet FTROI target-z] pair xNDF2 associations: " << pairXNDF2
+            << std::endl;
+  std::cout << "[CDet FTROI target-z] single xNDF1 associations: " << singleXNDF1
+            << std::endl;
+  std::cout << "[CDet FTROI target-z] pair missing-y associations: "
+            << pairMissingYLayer << std::endl;
+  std::cout << "[CDet FTROI target-z] single one-missing-y associations: "
+            << singleExactlyOneMissingYLayer << std::endl;
+  std::cout << "[CDet FTROI target-z] y-compatible associations: "
+            << yCompatibleAssociations << "/" << yAssociations << std::endl;
+  std::cout << "[CDet FTROI target-z] same-side y-compatible associations: "
+            << sameSideCompatible << "/" << sameSideAssociations << std::endl;
+  std::cout << "[CDet FTROI target-z] seam y-compatible associations: "
+            << seamCompatible << "/" << seamAssociations << std::endl;
+  std::cout << "[CDet FTROI target-z] single y-compatible associations: "
+            << singleCompatible << "/" << singleAssociations << std::endl;
+  std::cout << "[CDet FTROI target-z] GEM/hyp/both: " << eventsWithGEMTrack
+            << "/" << eventsWithHypotheses << "/" << eventsWithBoth
+            << std::endl;
   std::cout << "[CDet FTROI target-z] wrote " << pdf << std::endl;
 }

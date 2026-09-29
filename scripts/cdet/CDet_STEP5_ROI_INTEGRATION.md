@@ -897,6 +897,118 @@ The numerical 60% fraction must therefore not be treated as the intended
 selection efficiency. A new replay is required to measure the corrected pair,
 single-layer, and seam-aware fractions.
 
+### Full Run 5711 topology-aware replay
+
+The completed farm submission nominally requested 100,000 events for each of
+segments 0--5. Because the request applies independently to each segment and
+the available segment data end earlier, the 18 output files contain **261,010
+events**, not 100,000 events in total. The analysis below uses all 18 files and
+labels the sample by its actual entry count.
+
+`Plot_CDet_FTROI_TargetZDiagnostics.C` now accepts a ROOT wildcard through a
+`TChain`, so the split files can be analyzed without first merging 21 GiB of
+data. The full-sample invocation was:
+
+```text
+root [0] Plot_CDet_FTROI_TargetZDiagnostics.C(
+             "/Users/brash/CDet_replay/sbs/Rootfiles/FTROI_step5/rootfiles/gep5_replayed_5711_stream0_2_seg*_firstevent0_nevent100000*.root",
+             "CDet_run5711_FTROI_target_z_261010events",
+             27.0);
+```
+
+The original 10,000-event file was rerun first with the extended macro. It
+reproduced every published baseline count exactly, including 2,673 events with
+hypotheses, 13,747 pair hypotheses, 220 single-layer hypotheses, 335,208
+target associations, 200,918 compatible associations, and 10 events with a
+GEM FT track. This provides a direct regression check on the chained analysis.
+
+The full replay gives:
+
+| Quantity | Full Run 5711 result |
+|---|---:|
+| Input ROOT files | 18 |
+| Replayed events | 261,010 |
+| Events with calibrated CDet timing | 260,813 (99.924%) |
+| Events with at least one exported CDet hypothesis | 69,950 (26.800%) |
+| Pair-status events | 66,723 |
+| Layer-1-only events | 2,361 |
+| Layer-2-only events | 876 |
+| Exported pair hypotheses | 359,928 |
+| Exported exclusive single-layer hypotheses | 6,070 |
+| Invalid exported source or pulse indices | 0 |
+| Events/hypotheses with incorrect target-bin multiplicity | 0 / 0 |
+| Two-layer associations with x NDF = 2 | 8,638,272 |
+| Single-layer associations with x NDF = 1 | 145,680 |
+| Pair associations with a missing CDet y layer | 0 |
+| Single-layer associations with exactly one missing CDet y layer | 145,680 |
+
+All 365,998 exported hypotheses have exactly 24 target-z associations:
+`8,638,272 + 145,680 = 8,783,952 = 365,998 * 24`. The pair and single-layer
+x-NDF and missing-y invariants therefore continue to hold over the full
+sample.
+
+The topology-aware y results are:
+
+| Hypothesis topology | Compatible associations | Fraction |
+|---|---:|---:|
+| Same-side two-layer pair | 5,453,327 / 6,666,336 | 81.804% |
+| Opposite-side seam pair | 1,971,440 / 1,971,936 | 99.975% |
+| Exclusive single layer | 137,627 / 145,680 | 94.472% |
+| **All hypotheses** | **7,562,394 / 8,783,952** | **86.093%** |
+
+The change from 59.938% in the older diagnostic replay to 86.093% is not a
+statistical fluctuation or a direct efficiency comparison: the new replay
+contains the corrected +0.10 m y alignment and the topology-aware seam rule.
+The nearly complete seam acceptance is expected from applying the same
+seam-center compatibility represented by the detector-local opposite-side
+candidate topology. Same-side pairs provide most of the remaining rejected
+associations.
+
+The tracking overlap remains small in the unfiltered event sample:
+
+| Full Run 5711 outcome | Events |
+|---|---:|
+| At least one GEM FT track | 358 (0.137%) |
+| At least one exported CDet hypothesis | 69,950 (26.800%) |
+| Both a GEM FT track and a CDet hypothesis | 117 (0.045%) |
+| CDet hypothesis but no GEM FT track | 69,833 (26.755%) |
+| GEM FT track but no CDet hypothesis | 241 (0.092%) |
+| Neither | 190,819 (73.108%) |
+
+One small bookkeeping difference appears only at the larger scale. The CDet
+detector exported 359,957 pre-greedy pair candidates, while FTROI exported
+359,928 pair hypotheses: 29 candidates (0.0081%) were rejected by the
+hypothesis append-time pulse/fit validation. Ten pair-status events consequently
+have no exported hypothesis. The stored hypotheses themselves have no invalid
+indices or multiplicity failures. The current tree does not encode which
+append-time guard rejected each source candidate, so the exact cause of those
+29 rejections remains to be isolated if complete candidate identity is made a
+hard Step 5C requirement.
+
+The full three-page output is
+[CDet_run5711_FTROI_target_z_261010events.pdf](CDet_run5711_FTROI_target_z_261010events.pdf).
+The page previews are:
+
+![Full Run 5711 ECal/CDet x geometry and constrained-x fit](CDet_run5711_FTROI_target_z_261010events_geometry.png)
+
+![Full Run 5711 target-z fit and topology-aware compatibility](CDet_run5711_FTROI_target_z_261010events_target_z.png)
+
+![Full Run 5711 CDet y residuals and constrained electron angles](CDet_run5711_FTROI_target_z_261010events_y_angles.png)
+
+The higher-statistics plots preserve the qualitative conclusions of the 10k
+study: the CDet/ECal x correlations remain well behaved, the mean constrained
+x chi-square is nearly flat around 4.4, and the best-z distributions remain
+dominated by scan boundaries. The corrected y-compatible profile is now near
+0.86 rather than 0.60. The known Hall-to-transport target-coordinate issue is
+still present, so the target-z minima and angle trends remain diagnostics and
+must not be interpreted as reconstructed physical vertex distributions.
+
+The 358 events containing a GEM FT track are indexed for event-level review in
+[Run 5711 FTROI/GEM event catalogue](CDet_RUN5711_FTROI_GEM_EVENT_CATALOG.md).
+The linked CSV separates the 117 CDet-overlap events from the 241 GEM-only
+events and provides a deterministic review tier plus a one-event inspection
+macro.
+
 #### Panel 8: mean global electron scattering angle versus target z
 
 This panel shows ROOT `TVector3::Theta()`, the polar angle relative to the
@@ -963,6 +1075,39 @@ correction is to transform every global target point `(0, 0, z_target)` into
 the shared ECal/CDet electron-arm frame before applying the constrained x fit
 and y compatibility calculation. A new replay and regenerated Panels 3 through
 12 are required before drawing those physical conclusions.
+
+### Skeletal 3D event display
+
+`Display_CDet_FTROI_GEMEvent.C` provides an interactive, deliberately light
+weight Hall-coordinate display for the 358-event Run 5711 review sample. It
+draws the electron- and proton-arm central axes, ECal and its cluster, the two
+CDet layers and all event pulses, the selected CDet pulses and FTROI ray,
+target-scan compatibility points, GEM FT planes and the best proton-arm track,
+and HCAL with its cluster. Detector outlines are schematic acceptance planes,
+not a GEANT geometry.
+
+Run it interpreted with the local ROOT/Podd environment:
+
+```bash
+export DYLD_LIBRARY_PATH=/Users/brash/Podd/1.7.0/lib:/Users/brash/root_install/lib
+export ROOT_INCLUDE_PATH=/Users/brash/Podd/1.7.0/include
+root -l 'Display_CDet_FTROI_GEMEvent.C(38340)'
+```
+
+The default selects the hypothesis with the minimum finite constrained-x
+chi-square/NDF. An explicit hypothesis or several ranked ray overlays can be
+requested with, respectively,
+`Display_CDet_FTROI_GEMEvent.C(38340,20)` and
+`Display_CDet_FTROI_GEMEvent.C(38340,-1,5)`. Drag the 3D pad to rotate it.
+
+For Run 5711 the macro uses the active GEP-3 database values: electron-arm
+angle 27.0 degrees, proton-arm angle -18.6 degrees, effective ECal distance
+6.144 m, the surveyed GEM origin and rotation, and the GEP-3 HCAL position
+relative to the GEM frame. The display converts both detector arms to Hall
+coordinates. It intentionally does not subtract their local track slopes;
+cross-arm interpretation still belongs to the HEEP/elastic closure variables.
+The stored FTROI target-z result retains the known fit-coordinate caveat above,
+but its display point is placed at the correct Hall location `(0,0,z_target)`.
 
 ## Initial invariants
 
